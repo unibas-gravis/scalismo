@@ -54,7 +54,7 @@ object Interpolation {
     val splineBasis : (Float => Float) = bSpline(degree)
     new ContinuousScalarImage1D(
       ContinuousImageDomain1D(image.domain.origin, image.domain.extent), //new domain
-      (x: CoordVector1D) => { // apply function
+      (x: CoordVector1D[Float]) => { // apply function
         val xUnit = (x(0) - image.domain.origin(0)) / image.domain.spacing(0)
 
         val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f*(degree+1)).toInt ,0)
@@ -69,7 +69,7 @@ object Interpolation {
         result
       }, 
 
-      (x:CoordVector1D) => { //derivative
+      (x:CoordVector1D[Float]) => { //derivative
         //TODO derivative
         
         DenseVector(1f) 
@@ -81,9 +81,9 @@ object Interpolation {
   def interpolationScalar2D(image:DiscreteScalarImage2D):ContinuousScalarImage2D = {
    new ContinuousScalarImage2D(
 		   ContinuousImageDomain2D(image.domain.origin, image.domain.extent), //new domain
-    		(x:CoordVector2D) => (1f), 
+    		(x:CoordVector2D[Float]) => (1f), 
     		
-    		(x:CoordVector2D) => DenseVector(1f) ) 
+    		(x:CoordVector2D[Float]) => DenseVector(1f) ) 
  
   }
   
@@ -97,7 +97,7 @@ object Interpolation {
     val f = Figure()
     val p = f.subplot(0)
     val xs = linspace(0, 5, 100).map(_.toFloat)
-    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, Tuple1(5)),  IndexedSeq(3f, 2f, 1.5f, 1f))
+    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 5),  IndexedSeq(3f, 2f, 1.5f, 1f))
     val continuousImg = interpolate(2)(ps)
 //    p += plot(x, x.map(bSpline(0) ))    
 //    p += plot(x, x.map(bSpline(1) ))  

@@ -8,10 +8,10 @@ import breeze.linalg.DenseVector
 import smptk.image.ContinuousScalarImageLike
 import smptk.image.CoordVectorLike
 
-trait ImageMetric[Point <: CoordVectorLike] extends 
-((ContinuousScalarImageLike[Point], ContinuousScalarImageLike[Point]) => Float) {
+trait ImageMetric[CoordVector[Float] <: CoordVectorLike[Float]] extends 
+((ContinuousScalarImageLike[CoordVector], ContinuousScalarImageLike[CoordVector]) => Float) {
   
-  def takeDerivativeWRTToMovingImage(fixedImage : ContinuousScalarImageLike[Point], movingImage: ContinuousScalarImageLike[Point]) : ContinuousScalarImageLike[Point]  
+  def takeDerivativeWRTToMovingImage(fixedImage : ContinuousScalarImageLike[CoordVector], movingImage: ContinuousScalarImageLike[CoordVector]) : ContinuousScalarImageLike[CoordVector]  
 }
 
 

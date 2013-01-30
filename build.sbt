@@ -20,4 +20,6 @@ resolvers ++= Seq(
 
 EclipseKeys.withSource := true
 
+scalacOptions += "-feature"
+
 scalaVersion := "2.10.0"

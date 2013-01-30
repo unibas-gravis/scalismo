@@ -1,26 +1,26 @@
 package smptk.image
 
 import breeze.linalg.DenseVector
-import smptk.image.Geometry.CoordVector1D
-import smptk.image.Geometry.CoordVector2D
+import smptk.image.Geometry._
 
-trait Domain[CoordVector <: CoordVectorLike] {
+
+trait Domain[CoordVector[_] <: CoordVectorLike[_]] {
   def dimensionality: Int
 }
 
-trait ContinuousDomain[CoordVector <: CoordVectorLike] extends Domain[CoordVector] {
-  def uniformSamples(n: Int): IndexedSeq[CoordVector]
+trait ContinuousDomain[CoordVector[_] <: CoordVectorLike[_]] extends Domain[CoordVector] {
+  def uniformSamples(n: Int): IndexedSeq[CoordVector[Float]]
 }
 
-trait ContinuousImageDomain[CoordVector <: CoordVectorLike] extends ContinuousDomain[CoordVector] {
-  def origin: CoordVector
-  def extent: CoordVector
-  def isInside(pt: CoordVector): Boolean
+trait ContinuousImageDomain[CoordVector[_] <: CoordVectorLike[_]] extends ContinuousDomain[CoordVector] {
+  def origin: CoordVector[Float]
+  def extent: CoordVector[Float]
+  def isInside(pt: CoordVector[Float]): Boolean
 }
 
-case class ContinuousImageDomain1D(val origin: CoordVector1D, val extent: CoordVector1D) extends ContinuousImageDomain[CoordVector1D] {
+case class ContinuousImageDomain1D(val origin: CoordVector1D[Float], val extent: CoordVector1D[Float]) extends ContinuousImageDomain[CoordVector1D] {
   def dimensionality = 1
-  def isInside(pt: CoordVector1D): Boolean = pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0)
+  def isInside(pt: CoordVector1D[Float]): Boolean = pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0)
 
   def uniformSamples(n: Int) = {
     val spacing: Float = extent(0) / n
@@ -28,18 +28,18 @@ case class ContinuousImageDomain1D(val origin: CoordVector1D, val extent: CoordV
   }
 }
 
-case class ContinuousImageDomain2D(val origin: CoordVector2D, val extent: CoordVector2D) extends ContinuousImageDomain[CoordVector2D] {
+case class ContinuousImageDomain2D(val origin: Point2D, val extent: Point2D) extends ContinuousImageDomain[CoordVector2D] {
   def dimensionality = 2
-  def isInside(pt: CoordVector2D): Boolean = pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0) && pt(1) >= origin(1) && pt(1) <= origin(1) + extent(1)
+  def isInside(pt: Point2D): Boolean = pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0) && pt(1) >= origin(1) && pt(1) <= origin(1) + extent(1)
 
   def uniformSamples(n: Int) = {
     val spacing: Float = extent(0) / n
-    val result: Array[CoordVector2D] = new Array[CoordVector2D](n * n)
+    val result: Array[Point2D] = new Array[Point2D](n * n)
     var i = 0
     var j = 0
     while (i < n) {
       while (j < n) {
-        result(i * j) = CoordVector2D(origin(0) + i * spacing, origin(1) + j * spacing) // need to agree on sampling 
+        result(i * j) = (origin(0) + i * spacing, origin(1) + j * spacing) // need to agree on sampling 
         j = j + 1
       }
       i = i + 1
@@ -49,35 +49,35 @@ case class ContinuousImageDomain2D(val origin: CoordVector2D, val extent: CoordV
   }
 }
 
-trait DiscreteDomain[CoordVector <: CoordVectorLike] extends Domain[CoordVector] {
-  def points: IndexedSeq[CoordVector]
+trait DiscreteDomain[CoordVector[_] <: CoordVectorLike[_]] extends Domain[CoordVector] {
+  def points: IndexedSeq[CoordVector[Float]]
   //def neighbors(pt: CoordVector): IndexedSeq[CoordVector]
   def isDefinedAt(i: Int) = i >= 0 && i <= points.size
 }
 
-trait DiscreteImageDomain[CoordVector <: CoordVectorLike] extends DiscreteDomain[CoordVector] { //extends ImageDomain[Point] {
-  def origin: CoordVector
-  def spacing: CoordVector
-  def size: Product
-  def extent : CoordVector
+trait DiscreteImageDomain[CoordVector[_] <: CoordVectorLike[_]] extends DiscreteDomain[CoordVector] { //extends ImageDomain[Point] {
+  def origin: CoordVector[Float]
+  def spacing: CoordVector[Float]
+  def size: CoordVector[Int]
+  def extent : CoordVector[Float]
 }
 
-case class DiscreteImageDomain1D(val origin: CoordVector1D, val spacing: CoordVector1D, val size : Tuple1[Int]) extends DiscreteImageDomain[CoordVector1D] {
+case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: CoordVector1D[Float], val size : CoordVector1D[Int]) extends DiscreteImageDomain[CoordVector1D] {
   def dimensionality = 1
   def points = {
-	for (i <- 0 until size._1) yield CoordVector1D(origin(0) + spacing(0) * i)	  
+	for (i <- 0 until size(0)) yield CoordVector1D(origin(0) + spacing(0) * i)	  
   }
-  def extent = CoordVector1D(origin(0) + spacing(0) * size._1)
+  def extent = CoordVector1D(origin(0) + spacing(0) * size(0))
 
 }
-case class DiscreteImageDomain2D(val origin: CoordVector2D, val spacing: CoordVector2D, val size : Tuple2[Int, Int]) extends DiscreteImageDomain[CoordVector2D] {
+case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: CoordVector2D[Float], val size : CoordVector2D[Int]) extends DiscreteImageDomain[CoordVector2D] {
   def dimensionality = 2  
   def points = {
-	for (i <- 0 until size._1; j <- 0 until size._2) 
+	for (i <- 0 until size(0); j <- 0 until size(1)) 
 	  yield CoordVector2D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j)	  
     }
   
-  def extent = CoordVector2D(origin(0) + spacing(0) * size._1, origin(1) + spacing(1) * size._2)
+  def extent = CoordVector2D(origin(0) + spacing(0) * size(0), origin(1) + spacing(1) * size(2))
   
   
 }
