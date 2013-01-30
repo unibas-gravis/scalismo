@@ -10,18 +10,20 @@ trait CoordVectorLike extends PartialFunction[Int, Float] {
   def apply(i: Int): Float 
 }
 
-class CoordVector1D(val p: Float) extends CoordVectorLike {
-  def dimensionality = 1
-  def apply(i: Int) = p
-  def isDefinedAt(i : Int) = i == 0  
+object Geometry { 
+	
+	implicit class CoordVector1D(val p: Float) extends CoordVectorLike {
+	  def dimensionality = 1
+	  def apply(i: Int) = p
+	  def isDefinedAt(i : Int) = i == 0  
+	}
+	
+	implicit class CoordVector2D(val p : Tuple2[Float, Float]) extends CoordVectorLike {
+	  def dimensionality = 2
+	  def apply(i: Int) = {
+	    require (i >= 0 && i <= 1)
+	    if (i == 0) p._1 else p._2
+	  }
+	  def isDefinedAt(i : Int) = i == 0 || i == 1
+	}
 }
-
-case class CoordVector2D(val p1 : Float, p2 : Float) extends CoordVectorLike {
-  def dimensionality = 2
-  def apply(i: Int) = {
-    require (i >= 0 && i <= 1)
-    if (i == 0) p1 else p2    
-  }
-  def isDefinedAt(i : Int) = i == 0 || i == 1
-}
-

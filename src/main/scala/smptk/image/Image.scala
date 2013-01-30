@@ -5,6 +5,8 @@ import smptk.numerics.Integration._
 import breeze.linalg.DenseVector
 import smptk.numerics.Integration
 import breeze.linalg.DenseMatrix
+import smptk.image.Geometry.CoordVector1D
+import smptk.image.Geometry.CoordVector2D
 
 
 trait ContinuousImageLike[CoordVector<:CoordVectorLike, Pixel] extends PartialFunction[CoordVector, Pixel] {

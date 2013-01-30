@@ -1,6 +1,8 @@
 package smptk.image
 
 import breeze.linalg.DenseVector
+import smptk.image.Geometry.CoordVector1D
+import smptk.image.Geometry.CoordVector2D
 
 trait Domain[CoordVector <: CoordVectorLike] {
   def dimensionality: Int
@@ -56,28 +58,26 @@ trait DiscreteDomain[CoordVector <: CoordVectorLike] extends Domain[CoordVector]
 trait DiscreteImageDomain[CoordVector <: CoordVectorLike] extends DiscreteDomain[CoordVector] { //extends ImageDomain[Point] {
   def origin: CoordVector
   def spacing: CoordVector
-  def size: IndexedSeq[Int]
+  def size: Product
   def extent : CoordVector
 }
 
-case class DiscreteImageDomain1D(val origin: CoordVector1D, val spacing: CoordVector1D, val size : IndexedSeq[Int]) extends DiscreteImageDomain[CoordVector1D] {
-  require (size.size == 1)
+case class DiscreteImageDomain1D(val origin: CoordVector1D, val spacing: CoordVector1D, val size : Tuple1[Int]) extends DiscreteImageDomain[CoordVector1D] {
   def dimensionality = 1
   def points = {
-	for (i <- 0 until size(0)) yield CoordVector1D(origin(0) + spacing(0) * i)	  
+	for (i <- 0 until size._1) yield CoordVector1D(origin(0) + spacing(0) * i)	  
   }
-  def extent = CoordVector1D(origin(0) + spacing(0) * size(0))
+  def extent = CoordVector1D(origin(0) + spacing(0) * size._1)
 
 }
-case class DiscreteImageDomain2D(val origin: CoordVector2D, val spacing: CoordVector2D, val size : IndexedSeq[Int]) extends DiscreteImageDomain[CoordVector2D] {
-  require (size.size == 2)
+case class DiscreteImageDomain2D(val origin: CoordVector2D, val spacing: CoordVector2D, val size : Tuple2[Int, Int]) extends DiscreteImageDomain[CoordVector2D] {
   def dimensionality = 2  
   def points = {
-	for (i <- 0 until size(0); j <- 0 until size(2)) 
+	for (i <- 0 until size._1; j <- 0 until size._2) 
 	  yield CoordVector2D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j)	  
     }
   
-  def extent = CoordVector2D(origin(0) + spacing(0) * size(0), origin(1) + spacing(1) * size(1))
+  def extent = CoordVector2D(origin(0) + spacing(0) * size._1, origin(1) + spacing(1) * size._2)
   
   
 }

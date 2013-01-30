@@ -4,6 +4,8 @@ import breeze.plot._
 import breeze.linalg._
 import scala.util._
 import java.io.IOException
+import smptk.image.Geometry.CoordVector1D
+import smptk.image.Geometry.CoordVector2D
 
 
 object Interpolation {
@@ -95,12 +97,12 @@ object Interpolation {
     val f = Figure()
     val p = f.subplot(0)
     val xs = linspace(0, 5, 100).map(_.toFloat)
-    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(1), IndexedSeq(5)),  IndexedSeq(3f, 2f, 1.5f, 1f))
+    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, Tuple1(5)),  IndexedSeq(3f, 2f, 1.5f, 1f))
     val continuousImg = interpolate(2)(ps)
 //    p += plot(x, x.map(bSpline(0) ))    
 //    p += plot(x, x.map(bSpline(1) ))  
     
-    p += plot(xs, xs.map( x => continuousImg(CoordVector1D(x)) ))  
+    p += plot(xs, xs.map( x => continuousImg(x) ))  
 //    p += plot(x, x.map(bSpline(2) ))  
 //    p += plot(x, x.map(bSpline(3) ))  
     p.xlabel = "x axis"
@@ -109,20 +111,3 @@ object Interpolation {
     println("hello world")
   }
 }
-
-
-
-//def apply(x:Space#Point) : Float = {
-//    	   val xUnit = (spaceOperations.getComponentPoint(x,0) - spaceOperations.getComponentPoint(image.domain.origin,0)) / spaceOperations.getComponentVector(image.domain.spacing,0)
-//    	  	val k = scala.math.ceil(xUnit - 2).toInt 
-//    	  	val K = 4  
-//    	  	   	 
-//    	  	
-//    		var result = 0f	
-//    		var i = k 
-//    		while(i <= K){
-//    		  result = result + cubicSpline(spaceOperations.getComponentPoint(x,0)-k)*ck(k)
-//    		  i=i+1
-//    		}
-//    	   result
-//    	}
