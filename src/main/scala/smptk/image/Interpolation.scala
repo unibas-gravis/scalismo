@@ -7,8 +7,7 @@ import java.io.IOException
 
 
 object Interpolation {
-
-  
+ 
 
   def splineInterpolate[Point](p: Point): (Point => Float) = p => 0
     
@@ -26,54 +25,35 @@ object Interpolation {
   def interpolationScalar1D(image:DiscreteScalarImage1D) : ContinuousScalarImage1D ={
     val ck = DenseVector.ones[Float](image.domain.size(0))
     
-    new ContinuousScalarImage1D(
-    		ImageDomain1D()
-    ) 
+    new ContinuousScalarImage1D( 
+    		ContinuousImageDomain1D(image.domain.origin, image.domain.extent), //new domain
+    		(x:CoordVector1D) => (1f), 
+    		
+    		(x:CoordVector1D) => DenseVector(1f) ) 
     	
-    	def apply(x:Space#Point) : Float = {
-    	   val xUnit = (spaceOperations.getComponentPoint(x,0) - spaceOperations.getComponentPoint(image.domain.origin,0)) / spaceOperations.getComponentVector(image.domain.spacing,0)
-    	  	val k = scala.math.ceil(xUnit - 2).toInt 
-    	  	val K = 4  
-    	  	   	 
-    	  	
-    		var result = 0f	
-    		var i = k 
-    		while(i <= K){
-    		  result = result + cubicSpline(spaceOperations.getComponentPoint(x,0)-k)*ck(k)
-    		  i=i+1
-    		}
-    	   result
-    	}
-    	def pixelDimensionality = 1
-    	
-    	def domain = new ImageDomain[Space]{
-    		def dimensionality = 1
-    		def spaceOperations: SpaceOperations[Space] = spaceOperations
-    		def origin: Space#Point = image.domain.origin
-    		def extent: DenseVector[Float] = image.domain.spacing * image.domain.size(0)
-    		def isInside(pt : Space#Point) : Boolean = {}
-    def uniformSamples(n : Int) : IndexedSeq[Space#Point]
-    	}
-    } 
-
   }
   
   
-  def interpolation2D[Space <: SpaceType, Pixel](image:DiscreteImage[Space, Pixel]):ContinuousImage[Space,Pixel] ={
-   new ContinuousImage[Space, Pixel]{
-      def apply(x:Space#Point) : Float = {1f}
-    }
+  def interpolationScalar2D(image:DiscreteScalarImage2D):ContinuousScalarImage2D = {
+   new ContinuousScalarImage2D(
+		   ContinuousImageDomain2D(image.domain.origin, image.domain.extent), //new domain
+    		(x:CoordVector2D) => (1f), 
+    		
+    		(x:CoordVector2D) => DenseVector(1f) ) 
+ 
   }
   
-  def interpolation[Space <: SpaceType,  Pixel](image: DiscreteImage[Space, Pixel])(implicit spaceOperations:SpaceOperations[Space]): ContinuousImage[Space, Pixel] = {
-
-    spaceOperations.dimensionality match {
-      case 	1 =>  interpolation1D(image)
-      case _=> interpolation2D(image) 
-    
-    } 
- 	
-  }
+  
+//  /* Think we don't need this, can directly call the right function , or ?*/
+//  def scalarInterpolation[CoordVector <: CoordVectorLike](image: DiscreteImageLike[CoordVector, Float]): ContinuousScalarImageLike[CoordVector] = {
+//
+//    image.domain.dimensionality match {
+//      case 	1 =>  interpolationScalar1D(image.asInstanceOf[DiscreteScalarImage1D])
+//      case _=> interpolation2D(image) 
+//    
+//    } 
+// 	
+//  }
     
   
   
@@ -99,3 +79,20 @@ object Interpolation {
     println("hello world")
   }
 }
+
+
+
+//def apply(x:Space#Point) : Float = {
+//    	   val xUnit = (spaceOperations.getComponentPoint(x,0) - spaceOperations.getComponentPoint(image.domain.origin,0)) / spaceOperations.getComponentVector(image.domain.spacing,0)
+//    	  	val k = scala.math.ceil(xUnit - 2).toInt 
+//    	  	val K = 4  
+//    	  	   	 
+//    	  	
+//    		var result = 0f	
+//    		var i = k 
+//    		while(i <= K){
+//    		  result = result + cubicSpline(spaceOperations.getComponentPoint(x,0)-k)*ck(k)
+//    		  i=i+1
+//    		}
+//    	   result
+//    	}

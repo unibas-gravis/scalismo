@@ -1,5 +1,7 @@
 package smptk.image
 
+import breeze.linalg.DenseVector
+
 
 
 
@@ -13,5 +15,8 @@ case class CoordVector1D(val p: Float) extends CoordVectorLike {
   def apply(i: Int) = p
 }
 
-  
+case class CoordVector2D(val p: DenseVector[Float]) extends CoordVectorLike {
+  def dimensionality = 2
+  def apply(i: Int) = p(i) 
+}
 
