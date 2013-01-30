@@ -5,23 +5,23 @@ import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import smptk.numerics.Integration._
-import smptk.image.{PointLike, VectorLike}
 import smptk.image.ContinuousScalarImageLike
 import smptk.image.ContinuousVectorImageLike
 import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.CostFunction
+import smptk.image.CoordVectorLike
 
 object Registration {
 
-  case class RegistrationResult[Point <: PointLike, Vector <: VectorLike](transform : Transformation[Point], parameters : ParameterVector) {}
+  case class RegistrationResult[Point <: CoordVectorLike](transform : Transformation[Point], parameters : ParameterVector) {}
   
-  def registration[Point <: PointLike, Vector <: VectorLike, Pixel](
-    fixedImage: ContinuousScalarImageLike[Point, Vector],
-    movingImage: ContinuousScalarImageLike[Point, Vector],
-    transformationSpace: TransformationSpace[Point, Vector],
-    metric: ImageMetric[Point, Vector],
+  def registration[Point <: CoordVectorLike, Pixel](
+    fixedImage: ContinuousScalarImageLike[Point],
+    movingImage: ContinuousScalarImageLike[Point],
+    transformationSpace: TransformationSpace[Point],
+    metric: ImageMetric[Point],
     regularization: Regularizer,
-    initialParameters: ParameterVector): RegistrationResult[Point, Vector] =
+    initialParameters: ParameterVector): RegistrationResult[Point] =
     {
 
       val costFunction = new CostFunction {
@@ -30,7 +30,7 @@ object Registration {
 
           val dTransformSpaceDAlpha = transformationSpace.takeDerivative(params)
 
-          val warpedImage = new ContinuousScalarImageLike[Point, Vector] {
+          val warpedImage = new ContinuousScalarImageLike[Point] {
             def apply(pt: Point) = movingImage(transformationSpace(params)(pt))
             def domain = fixedImage.domain
             def takeDerivative(x: Point) = {
@@ -39,10 +39,10 @@ object Registration {
             }
           }
           val value = metric(warpedImage, fixedImage) + regularization(params)
-          val dMetricDalpha: ContinuousScalarImageLike[Point, Vector] = metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
-          val dMovingImageDAlpha: ContinuousVectorImageLike[Point, Vector] = warpedImage.differentiate
+          val dMetricDalpha: ContinuousScalarImageLike[Point] = metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
+          val dMovingImageDAlpha: ContinuousVectorImageLike[Point] = warpedImage.differentiate
 
-          val transformParameterGradientImage = new ContinuousVectorImageLike[Point, Vector] {
+          val transformParameterGradientImage = new ContinuousVectorImageLike[Point] {
             val pixelDimensionality = params.size
             val domain = fixedImage.domain
             def apply(x: Point) =  warpedImage.takeDerivative(x) *  dMetricDalpha(x)

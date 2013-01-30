@@ -7,14 +7,6 @@ import smptk.numerics.Integration
 import breeze.linalg.DenseMatrix
 
 
-
-trait DiscreteImageLike[CoordVector <: CoordVectorLike, Pixel] extends PartialFunction[CoordVector, Pixel] {
-  def domain: DiscreteImageDomain[CoordVector]
-
-  //def apply(idx: Space#Index)
-  def apply(idx: DenseVector[Int]): Pixel
-}
-
 trait ContinuousImageLike[CoordVector<:CoordVectorLike, Pixel] extends PartialFunction[CoordVector, Pixel] {
 
   def domain: ContinuousImageDomain[CoordVector]
@@ -89,25 +81,38 @@ trait ContinuousVectorImageLike[CoordVector <: CoordVectorLike] extends Continuo
 
 
 case class ContinuousScalarImage1D(val domain : ContinuousImageDomain1D, f : CoordVector1D => Float, df : CoordVector1D => DenseVector[Float]) extends ContinuousScalarImageLike[CoordVector1D] {
-  val pixelDimensionality = 1  
+  override val pixelDimensionality = 1  
   def apply(x : CoordVector1D) = f(x)
   def takeDerivative(x : CoordVector1D) = df(x)
 }
 
-case class ContinuousScalarImage2D(val domain : ContinuousImageDomain2D, f : CoordVector2D => Float, df : CoordVector2D => DenseVector[Float]) extends ContinuousScalarImageLike[CoordVector1D] {
-  val pixelDimensionality = 1  
+case class ContinuousScalarImage2D(val domain : ContinuousImageDomain2D, f : CoordVector2D => Float, df : CoordVector2D => DenseVector[Float]) extends ContinuousScalarImageLike[CoordVector2D] {
+  override val pixelDimensionality = 1  
   def apply(x : CoordVector2D) = f(x)
   def takeDerivative(x : CoordVector2D) = df(x)
 }
 
-case class DiscreteScalarImage1D(val domain : DiscreteImageDomain1D, val values : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector1D, Float]{
-  def apply(i : DenseVector[Int]) = values(i(0))
+/////////////////////////////////////////////
+// Discrete Images
+/////////////////////////////////////////////
+
+
+trait DiscreteImageLike[CoordVector <: CoordVectorLike, Pixel] extends PartialFunction[Int, Pixel] {
+  def domain: DiscreteImageDomain[CoordVector]
+  def pixelValues : IndexedSeq[Pixel]
+  def apply(idx: Int) = pixelValues(idx)
+  def isDefinedAt(idx : Int) = idx >= 0 && idx <= pixelValues.size
 }
 
-case class DiscreteScalarImage2D(val domain : DiscreteImageDomain2D, val values : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector2D, Float]{
-  def apply(i : DenseVector[Int]) = 0f // for now,. need to agree on a vectorization method
+
+case class DiscreteScalarImage1D(val domain : DiscreteImageDomain1D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector1D, Float] { 
+  require(domain.points.size == pixelValues.size)
 }
 
+
+case class DiscreteScalarImage2D(val domain : DiscreteImageDomain2D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector2D, Float] { 
+  require(domain.points.size == pixelValues.size)  
+} 
 
 case class ContinousVectorImage1D(val pixelDimensionality : Int, val domain : ContinuousImageDomain1D, f :CoordVector1D => DenseVector[Float], df : CoordVector1D => DenseMatrix[Float]) extends ContinuousVectorImageLike[CoordVector1D] {
   def apply(x : CoordVector1D) = f(x)
@@ -115,8 +120,3 @@ case class ContinousVectorImage1D(val pixelDimensionality : Int, val domain : Co
 }
 
 
-object ContinuousImage {
-
-  //  type Interpolator[Domain, Pixel] = DiscreteImage[Domain, Pixel] => ContinuousImage[Domain, Pixel]
-  //  type Resampler[Domain, Pixel] = DiscreteImage[Domain, Pixel] => DiscreteImage[Domain, Pixel]
-}

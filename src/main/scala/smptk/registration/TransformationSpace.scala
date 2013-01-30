@@ -3,15 +3,15 @@ package smptk.registration
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import smptk.image.{PointLike, VectorLike}
+import smptk.image.CoordVectorLike
 
-trait TransformationSpace[Point <: PointLike, Vector <: VectorLike] extends Function1[ParameterVector, Transformation[Point]] {
+trait TransformationSpace[Point <: CoordVectorLike] extends Function1[ParameterVector, Transformation[Point]] {
   type JacobianImage = Function1[Point, DenseMatrix[Float]]
   def parametersDimensionality: Int
   def takeDerivative(alpha : ParameterVector) : JacobianImage
 }
 
-trait Transformation[Point <: PointLike] extends (Point => Point) {
+trait Transformation[Point <: CoordVectorLike] extends (Point => Point) {
 
 }
     

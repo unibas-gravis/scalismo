@@ -6,7 +6,7 @@ import breeze.linalg.DenseVector
 object Integration {
      implicit val numSamples : Int = 100
   
-	def integrate[Point <: PointLike, Vector <: VectorLike](img : ContinuousScalarImageLike[Point, Vector])(implicit numSamples : Int) : Float = { 
+	def integrate[Point <: CoordVectorLike](img : ContinuousScalarImageLike[Point])(implicit numSamples : Int) : Float = { 
   	    val domain = img.domain
 	    val sampleValues : IndexedSeq[Float] = domain.uniformSamples(numSamples).map(img)
 	   
@@ -20,7 +20,7 @@ object Integration {
 	}
      
        
-	def integrate[Point <: PointLike, Vector <: VectorLike](img : ContinuousVectorImageLike[Point, Vector])(implicit numSamples : Int) : DenseVector[Float] = { 
+	def integrate[Point <: CoordVectorLike](img : ContinuousVectorImageLike[Point])(implicit numSamples : Int) : DenseVector[Float] = { 
   	    val domain = img.domain
 	    val sampleValues : IndexedSeq[DenseVector[Float]] = domain.uniformSamples(numSamples).map(img)
 	    
