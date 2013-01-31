@@ -13,9 +13,9 @@ import smptk.image.CoordVectorLike
 
 object Registration {
 
-  case class RegistrationResult[CoordVector[_] <: CoordVectorLike[_]](transform : Transformation[CoordVector], parameters : ParameterVector) {}
+  case class RegistrationResult[CoordVector[A] <: CoordVectorLike[A]](transform : Transformation[CoordVector], parameters : ParameterVector) {}
   
-  def registration[CoordVector[Float] <: CoordVectorLike[Float], Pixel](
+  def registration[CoordVector[A] <: CoordVectorLike[A], Pixel](
     fixedImage: ContinuousScalarImageLike[CoordVector],
     movingImage: ContinuousScalarImageLike[CoordVector],
     transformationSpace: TransformationSpace[CoordVector],

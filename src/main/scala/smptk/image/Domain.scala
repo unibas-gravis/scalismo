@@ -4,15 +4,15 @@ import breeze.linalg.DenseVector
 import smptk.image.Geometry._
 
 
-trait Domain[CoordVector[_] <: CoordVectorLike[_]] {
+trait Domain[CoordVector[A] <: CoordVectorLike[A]] {
   def dimensionality: Int
 }
 
-trait ContinuousDomain[CoordVector[_] <: CoordVectorLike[_]] extends Domain[CoordVector] {
+trait ContinuousDomain[CoordVector[A] <: CoordVectorLike[A]] extends Domain[CoordVector] {
   def uniformSamples(n: Int): IndexedSeq[CoordVector[Float]]
 }
 
-trait ContinuousImageDomain[CoordVector[_] <: CoordVectorLike[_]] extends ContinuousDomain[CoordVector] {
+trait ContinuousImageDomain[CoordVector[A] <: CoordVectorLike[A]] extends ContinuousDomain[CoordVector] {
   def origin: CoordVector[Float]
   def extent: CoordVector[Float]
   def isInside(pt: CoordVector[Float]): Boolean
@@ -49,13 +49,13 @@ case class ContinuousImageDomain2D(val origin: Point2D, val extent: Point2D) ext
   }
 }
 
-trait DiscreteDomain[CoordVector[_] <: CoordVectorLike[_]] extends Domain[CoordVector] {
+trait DiscreteDomain[CoordVector[A] <: CoordVectorLike[A]] extends Domain[CoordVector] {
   def points: IndexedSeq[CoordVector[Float]]
   //def neighbors(pt: CoordVector): IndexedSeq[CoordVector]
   def isDefinedAt(i: Int) = i >= 0 && i <= points.size
 }
 
-trait DiscreteImageDomain[CoordVector[_] <: CoordVectorLike[_]] extends DiscreteDomain[CoordVector] { //extends ImageDomain[Point] {
+trait DiscreteImageDomain[CoordVector[A] <: CoordVectorLike[A]] extends DiscreteDomain[CoordVector] { //extends ImageDomain[Point] {
   def origin: CoordVector[Float]
   def spacing: CoordVector[Float]
   def size: CoordVector[Int]

@@ -6,10 +6,10 @@ import breeze.linalg.DenseVector
 import smptk.numerics.Integration
 import breeze.linalg.DenseMatrix
 import smptk.image.Geometry._
+import scala.language.higherKinds
 
 
-
-trait ContinuousImageLike[CoordVector[_]<:CoordVectorLike[_], Pixel] extends PartialFunction[CoordVector[Float], Pixel] {
+trait ContinuousImageLike[CoordVector[A]<:CoordVectorLike[A], Pixel] extends PartialFunction[CoordVector[Float], Pixel] {
 
   def domain: ContinuousImageDomain[CoordVector]
   def apply(point: CoordVector[Float]): Pixel
@@ -20,7 +20,7 @@ trait ContinuousImageLike[CoordVector[_]<:CoordVectorLike[_], Pixel] extends Par
 
 }
 
-trait ContinuousScalarImageLike[CoordVector[Float] <: CoordVectorLike[Float]] extends ContinuousImageLike[CoordVector, Float] { self => 
+trait ContinuousScalarImageLike[CoordVector[A] <: CoordVectorLike[A]] extends ContinuousImageLike[CoordVector, Float] { self => 
 
   val pixelDimensionality = 1
 
@@ -72,7 +72,7 @@ trait ContinuousScalarImageLike[CoordVector[Float] <: CoordVectorLike[Float]] ex
   def takeDerivative(x: CoordVector[Float]): DenseVector[Float]
 }
  
-trait ContinuousVectorImageLike[CoordVector[_] <: CoordVectorLike[_]] extends ContinuousImageLike[CoordVector, DenseVector[Float]] { self => 
+trait ContinuousVectorImageLike[CoordVector[A] <: CoordVectorLike[A]] extends ContinuousImageLike[CoordVector, DenseVector[Float]] { self => 
   type Pixel = DenseVector[Float]
 
   def apply(point:CoordVector[Float]): DenseVector[Float]
@@ -99,7 +99,7 @@ case class ContinuousScalarImage2D(val domain : ContinuousImageDomain2D, f : Poi
 /////////////////////////////////////////////
 
 
-trait DiscreteImageLike[CoordVector[_] <: CoordVectorLike[_], Pixel] extends PartialFunction[Int, Pixel] {
+trait DiscreteImageLike[CoordVector[A] <: CoordVectorLike[A], Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[CoordVector]
   def pixelValues : IndexedSeq[Pixel]
   def apply(idx: Int) = pixelValues(idx)
