@@ -102,8 +102,12 @@ case class ContinuousScalarImage2D(val domain : ContinuousImageDomain2D, f : Poi
 trait DiscreteImageLike[CoordVector[A] <: CoordVectorLike[A], Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[CoordVector]
   def pixelValues : IndexedSeq[Pixel]
-  def apply(idx: Int) = pixelValues(idx)
+  def apply(idx: Int) : Pixel = pixelValues(idx)
+  def apply(idx : CoordVector[Int]) : Pixel = pixelValues(domain.indexToLinearIndex(idx))
   def isDefinedAt(idx : Int) = idx >= 0 && idx <= pixelValues.size
+  def isDefinedAt(idx : CoordVector[Int]) : Boolean = {
+    (0 until domain.dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) <= domain.size(d)) 
+  } 
 }
 
 
@@ -113,7 +117,7 @@ case class DiscreteScalarImage1D(val domain : DiscreteImageDomain1D, val pixelVa
 
 
 case class DiscreteScalarImage2D(val domain : DiscreteImageDomain2D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector2D, Float] { 
-  require(domain.points.size == pixelValues.size)  
+  require(domain.points.size == pixelValues.size)
 } 
 
 case class ContinousVectorImage1D(val pixelDimensionality : Int, val domain : ContinuousImageDomain1D, f :Point1D => DenseVector[Float], df : Point1D => DenseMatrix[Float]) extends ContinuousVectorImageLike[CoordVector1D] {
