@@ -94,6 +94,27 @@ case class ContinuousScalarImage2D(val domain : ContinuousImageDomain2D, f : Poi
   def takeDerivative(x : CoordVector2D[Float]) = df(x)
 }
 
+
+case class ContinuousScalarImage3D(val domain : ContinuousImageDomain3D, f : Point3D => Float, df : Point3D => DenseVector[Float]) extends ContinuousScalarImageLike[CoordVector3D] {
+  override val pixelDimensionality = 1  
+  def apply(x : CoordVector3D[Float]) = f(x)
+  def takeDerivative(x : CoordVector3D[Float]) = df(x)
+}
+
+
+
+
+/////////////////////////////////////////////
+// Vector Images
+/////////////////////////////////////////////
+
+
+case class ContinousVectorImage1D(val pixelDimensionality : Int, val domain : ContinuousImageDomain1D, f :Point1D => DenseVector[Float], df : Point1D => DenseMatrix[Float]) extends ContinuousVectorImageLike[CoordVector1D] {
+  def apply(x : Point1D) = f(x)
+  def takeDerivative(x : Point1D) = df(x)
+}
+
+
 /////////////////////////////////////////////
 // Discrete Images
 /////////////////////////////////////////////
@@ -120,9 +141,7 @@ case class DiscreteScalarImage2D(val domain : DiscreteImageDomain2D, val pixelVa
   require(domain.points.size == pixelValues.size)
 } 
 
-case class ContinousVectorImage1D(val pixelDimensionality : Int, val domain : ContinuousImageDomain1D, f :Point1D => DenseVector[Float], df : Point1D => DenseMatrix[Float]) extends ContinuousVectorImageLike[CoordVector1D] {
-  def apply(x : Point1D) = f(x)
-  def takeDerivative(x : Point1D) = df(x)
+case class DiscreteScalarImage3D(val domain : DiscreteImageDomain3D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector3D, Float] { 
+  require(domain.points.size == pixelValues.size)
 }
-
 
