@@ -7,6 +7,8 @@ import java.io.IOException
 import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.CoordVector3D
+import reflect.runtime.universe.{TypeTag}
+import scala.reflect.ClassTag
 
 object Interpolation {
 
@@ -45,7 +47,7 @@ object Interpolation {
     }
   }
 
-  def determineCoefficients(degree: Int, img: DiscreteScalarImage1D): DenseVector[Float] = {
+  def determineCoefficients[Scalar <% Double : ClassTag](degree: Int, img: DiscreteScalarImage1D[Scalar]): DenseVector[Float] = {
     val N: Int = img.domain.points.size
     val splineBasis: (Float => Float) = bSpline(degree)
     val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
@@ -59,7 +61,7 @@ object Interpolation {
     (betaMat \ I).map(_.toFloat)
 
   }
-  def determineCoefficients(degree: Int, img: DiscreteScalarImage2D): DenseVector[Float] = {
+  def determineCoefficients[Scalar <% Double : ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
 
     val N: Int = img.domain.points.size
     val splineBasis = (a: Float, b: Float) => bSpline(degree)(a) * bSpline(degree)(b)
@@ -80,7 +82,7 @@ object Interpolation {
 
   }
 
-    def determineCoefficients(degree: Int, img: DiscreteScalarImage3D): DenseVector[Float] = {
+    def determineCoefficients[Scalar <% Double : ClassTag](degree: Int, img: DiscreteScalarImage3D[Scalar]): DenseVector[Float] = {
 
     val N: Int = img.domain.points.size
     val splineBasis = (a: Float, b: Float, c : Float) => bSpline(degree)(a) * bSpline(degree)(b) * bSpline(degree)(c)
@@ -102,7 +104,7 @@ object Interpolation {
 
   }
   
-  def interpolate(degree: Int)(image: DiscreteScalarImage1D): ContinuousScalarImage1D = {
+  def interpolate[Scalar <% Double : ClassTag](degree: Int)(image: DiscreteScalarImage1D[Scalar]): ContinuousScalarImage1D = {
     val ck = determineCoefficients(degree, image)
 
     val splineBasis: (Float => Float) = bSpline(degree)
@@ -131,7 +133,7 @@ object Interpolation {
 
   }
 
-  def interpolate2D(degree: Int)(image: DiscreteScalarImage2D): ContinuousScalarImage2D = {
+  def interpolate2D[Scalar <% Double : ClassTag](degree: Int)(image: DiscreteScalarImage2D[Scalar]): ContinuousScalarImage2D = {
     val ck = determineCoefficients(degree, image)
 
     val splineBasis: ((Float) => Float) = bSpline(degree)
@@ -172,7 +174,7 @@ object Interpolation {
 
   }
 
-  def interpolate3D(degree: Int)(image: DiscreteScalarImage3D): ContinuousScalarImage3D = {
+  def interpolate3D[Scalar <% Double : ClassTag](degree: Int)(image: DiscreteScalarImage3D[Scalar]): ContinuousScalarImage3D = {
     val ck = determineCoefficients(degree, image)
 
     val splineBasis: ((Float) => Float) = bSpline(degree)

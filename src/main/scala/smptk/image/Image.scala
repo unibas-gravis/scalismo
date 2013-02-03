@@ -119,9 +119,9 @@ case class ContinousVectorImage1D(val pixelDimensionality : Int, val domain : Co
 // Discrete Images
 /////////////////////////////////////////////
 
-
 trait DiscreteImageLike[CoordVector[A] <: CoordVectorLike[A], Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[CoordVector]
+  def pixelDimensionality : Int
   def pixelValues : IndexedSeq[Pixel]
   def apply(idx: Int) : Pixel = pixelValues(idx)
   def apply(idx : CoordVector[Int]) : Pixel = pixelValues(domain.indexToLinearIndex(idx))
@@ -132,16 +132,21 @@ trait DiscreteImageLike[CoordVector[A] <: CoordVectorLike[A], Pixel] extends Par
 }
 
 
-case class DiscreteScalarImage1D(val domain : DiscreteImageDomain1D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector1D, Float] { 
+trait DiscreteScalarImageLike[CoordVector[A] <: CoordVectorLike[A], Pixel] extends DiscreteImageLike[CoordVector, Pixel] {
+	def pixelDimensionality = 1
+}
+
+
+case class DiscreteScalarImage1D[Pixel <% Double](val domain : DiscreteImageDomain1D, val pixelValues : IndexedSeq[Pixel]) extends DiscreteScalarImageLike[CoordVector1D, Pixel] { 
   require(domain.points.size == pixelValues.size)
 }
 
 
-case class DiscreteScalarImage2D(val domain : DiscreteImageDomain2D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector2D, Float] { 
+case class DiscreteScalarImage2D[Pixel <% Double](val domain : DiscreteImageDomain2D, val pixelValues : IndexedSeq[Pixel]) extends DiscreteScalarImageLike[CoordVector2D, Pixel] { 
   require(domain.points.size == pixelValues.size)
 } 
 
-case class DiscreteScalarImage3D(val domain : DiscreteImageDomain3D, val pixelValues : IndexedSeq[Float]) extends DiscreteImageLike[CoordVector3D, Float] { 
+case class DiscreteScalarImage3D[Pixel <% Double](val domain : DiscreteImageDomain3D, val pixelValues : IndexedSeq[Pixel]) extends DiscreteScalarImageLike[CoordVector3D, Pixel] { 
   require(domain.points.size == pixelValues.size)
 }
 

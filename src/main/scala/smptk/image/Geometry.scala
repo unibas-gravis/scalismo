@@ -2,31 +2,35 @@ package smptk.image
 
 import breeze.linalg.DenseVector
 import scala.language.higherKinds
+import scala.reflect.ClassTag
 
 trait CoordVectorLike[Scalar] extends PartialFunction[Int, Scalar] {
   def dimensionality: Int
   def apply(i: Int): Scalar
+  def toArray : Array[Scalar] 
 }
 
 object Geometry {
 	  
   
-  case class CoordVector1D[Scalar](val p: Scalar) extends CoordVectorLike[Scalar] {
+  case class CoordVector1D[Scalar : ClassTag](val p: Scalar) extends CoordVectorLike[Scalar] {
     def dimensionality = 1
     def apply(i: Int) = p
     def isDefinedAt(i: Int) = i == 0
+    def toArray = Array(p)
   }
 
-  case class CoordVector2D[Scalar](val p: Tuple2[Scalar, Scalar]) extends CoordVectorLike[Scalar] {
+  case class CoordVector2D[Scalar : ClassTag](val p: Tuple2[Scalar, Scalar]) extends CoordVectorLike[Scalar] {
     def dimensionality = 2
     def apply(i: Int) = {
       require(i >= 0 && i <= 1)
       if (i == 0) p._1 else p._2
     }
     def isDefinedAt(i: Int) = i == 0 || i == 1
+    def toArray = Array[Scalar](p._1, p._2)
   }
 
-   case class CoordVector3D[Scalar](val p: Tuple3[Scalar, Scalar, Scalar]) extends CoordVectorLike[Scalar] {
+   case class CoordVector3D[Scalar : ClassTag](val p: Tuple3[Scalar, Scalar, Scalar]) extends CoordVectorLike[Scalar] {
     def dimensionality = 3
     def apply(i: Int) = {
       require(i >= 0 && i <= 2)
@@ -35,6 +39,7 @@ object Geometry {
       else p._3
     }
     def isDefinedAt(i: Int) = i == 0 || i == 1 || i == 2
+    def toArray = Array(p._1, p._2, p._3)
   }
 
   type PointLike = CoordVectorLike[Float]
