@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
 
 object ImageIO {
 
-  case class GenericImageData[Scalar](
+  private case class GenericImageData[Scalar](
     val origin: Array[Double],
     val spacing: Array[Double],
     val size: Array[Long],
@@ -34,8 +34,7 @@ object ImageIO {
     }
   }
 
-  def read2DScalarImage[Scalar <% Double: TypeTag](filename: String): Try[DiscreteScalarImage2D[Scalar]] = {
-    val f = new File(filename)
+  def read2DScalarImage[Scalar <% Double: TypeTag](f : File): Try[DiscreteScalarImage2D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -57,7 +56,7 @@ object ImageIO {
           }
         }
       }
-      case _ => Failure(new Exception("Unknown file type received" + filename))
+      case _ => Failure(new Exception("Unknown file type received" + f.getAbsolutePath()))
     }
   }
 
@@ -68,7 +67,7 @@ object ImageIO {
    *
    */
 
-  def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
+  private def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
     val filename = file.getAbsolutePath()
     val h5file = HDF5Utils.openFileForReading(file)
 
@@ -100,7 +99,7 @@ object ImageIO {
     }
   }
 
-  def writeHDF5[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag](img: DiscreteImage[CV, Scalar], file: File): Try[Unit] = {
+  private def writeHDF5[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag](img: DiscreteImage[CV, Scalar], file: File): Try[Unit] = {
 
     val maybeVoxelType = scalarTypeToString[Scalar]()
     if (maybeVoxelType.isEmpty) {
@@ -122,10 +121,13 @@ object ImageIO {
       voxelArrayDim = voxelArrayDim ++ Vector[Long](img.pixelDimensionality)
 
     // TODO directions are currently ignore. This should not be
-    val dummyDirections = Array.ofDim[Double](img.domain.dimensionality * img.domain.dimensionality)
+    val dummyDirections = NDArray[Double](
+        Vector(img.domain.dimensionality, img.domain.dimensionality),
+        Array.ofDim[Double](img.domain.dimensionality * img.domain.dimensionality)
+        )
 
     val maybeError: Try[Unit] = for {
-      _ <- h5file.writeNDArray("/ITKImage/0/Directions", NDArray(Vector(img.domain.dimensionality, img.domain.dimensionality), dummyDirections))
+      _ <- h5file.writeNDArray("/ITKImage/0/Directions", dummyDirections)
       _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray)
       _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray)
       _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray)
