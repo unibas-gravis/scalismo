@@ -83,8 +83,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
         val continuousImg = interpolate2D(3)(discreteImage)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          println(" " + continuousImg(pt) + " =? " + (discreteImage(idx)))
-          //continuousImg(pt) should be (discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be (discreteImage(idx) plusOrMinus 0.0001f)
         }
       }
 
@@ -101,8 +100,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
         val continuousImg = interpolate3D(3)(discreteImage)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          println(" " + continuousImg(pt) + " =? " + (discreteImage(idx)))
-          //continuousImg(pt) should be (discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be (discreteImage(idx) plusOrMinus 0.0001f)
         }
       }
 
