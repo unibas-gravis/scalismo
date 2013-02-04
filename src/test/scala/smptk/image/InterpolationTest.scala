@@ -6,7 +6,7 @@ import smptk.image.Interpolation._
 import org.scalatest.Ignore
 
 class InterpolationTest extends FunSpec with ShouldMatchers {
-  describe("A 1D Interpolation with 0th order bspline") {
+  describe("A 1D Interpolation with 0rd order bspline") {
     it("interpolates the values for origin 0 and spacing 1") {
       val domain = DiscreteImageDomain1D(0f, 1, 5)
       val discreteImage = DiscreteScalarImage1D(domain, IndexedSeq(3f, 2f, 1.5f, 1f, 0f))
@@ -67,7 +67,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
         val domain = DiscreteImageDomain2D((2f, 3f), (1.5f, 0.1f), (2, 3))
         val discreteImage = DiscreteScalarImage2D(domain, IndexedSeq(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
-        val continuousImg = interpolate2D(3)(discreteImage)
+        val continuousImg = interpolate2D(0)(discreteImage)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)

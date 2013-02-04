@@ -3,7 +3,6 @@ package smptk.image
 import scala.language.higherKinds
 import scala.language.implicitConversions
 
-
 import breeze.plot._
 import breeze.linalg._
 import scala.util._
@@ -11,7 +10,7 @@ import java.io.IOException
 import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.CoordVector3D
-import scala.reflect.runtime.universe.{TypeTag}
+import scala.reflect.runtime.universe.{ TypeTag }
 import scala.reflect.ClassTag
 
 object Interpolation {
@@ -51,7 +50,7 @@ object Interpolation {
     }
   }
 
-  def determineCoefficients[Scalar <% Double : ClassTag](degree: Int, img: DiscreteScalarImage1D[Scalar]): DenseVector[Float] = {
+  def determineCoefficientsWithLinearSystem[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage1D[Scalar]): DenseVector[Float] = {
     val N: Int = img.domain.points.size
     val splineBasis: (Float => Float) = bSpline(degree)
     val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
@@ -62,10 +61,19 @@ object Interpolation {
       betaMat(i, ptNumber) = splineBasis(ptNumber - i)
     }
 
-    (betaMat \ I).map(_.toFloat)
+    val c1 = (betaMat \ I).map(_.toFloat)
+    c1
 
   }
-  def determineCoefficients[Scalar <% Double : ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
+
+  def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage1D[Scalar]): DenseVector[Float] = {
+    // the c is an input-output argument here
+    val c = img.pixelValues.toArray.map(_.toDouble)
+    BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
+    DenseVector(c.map(_.toFloat))
+  }
+
+  def determineCoefficientsWithLinearSystem[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
 
     val N: Int = img.domain.points.size
     val splineBasis = (a: Float, b: Float) => bSpline(degree)(a) * bSpline(degree)(b)
@@ -86,10 +94,24 @@ object Interpolation {
 
   }
 
-    def determineCoefficients[Scalar <% Double : ClassTag](degree: Int, img: DiscreteScalarImage3D[Scalar]): DenseVector[Float] = {
+  def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
+	val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
+    for (y <- 0 until img.domain.size(1)) {
+      val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex((x, y))))
+
+      // the c is an input-output argument here
+      val c = rowValues.toArray.map(_.toDouble)
+      BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
+      
+      coeffs(img.domain.size(0) * y until img.domain.size(0) * (y + 1)) := DenseVector(c.map(_.toFloat))
+    }
+	coeffs
+  }
+
+  def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage3D[Scalar]): DenseVector[Float] = {
 
     val N: Int = img.domain.points.size
-    val splineBasis = (a: Float, b: Float, c : Float) => bSpline(degree)(a) * bSpline(degree)(b) * bSpline(degree)(c)
+    val splineBasis = (a: Float, b: Float, c: Float) => bSpline(degree)(a) * bSpline(degree)(b) * bSpline(degree)(c)
     val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
 
     val betaMat = DenseMatrix.zeros[Double](N, N)
@@ -107,8 +129,8 @@ object Interpolation {
     (betaMat \ I).map(_.toFloat)
 
   }
-  
-  def interpolate[Scalar <% Double : ClassTag](degree: Int)(image: DiscreteScalarImage1D[Scalar]): ContinuousScalarImage1D = {
+
+  def interpolate[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage1D[Scalar]): ContinuousScalarImage1D = {
     val ck = determineCoefficients(degree, image)
 
     val splineBasis: (Float => Float) = bSpline(degree)
@@ -137,7 +159,7 @@ object Interpolation {
 
   }
 
-  def interpolate2D[Scalar <% Double : ClassTag](degree: Int)(image: DiscreteScalarImage2D[Scalar]): ContinuousScalarImage2D = {
+  def interpolate2D[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage2D[Scalar]): ContinuousScalarImage2D = {
     val ck = determineCoefficients(degree, image)
 
     val splineBasis: ((Float) => Float) = bSpline(degree)
@@ -178,7 +200,7 @@ object Interpolation {
 
   }
 
-  def interpolate3D[Scalar <% Double : ClassTag](degree: Int)(image: DiscreteScalarImage3D[Scalar]): ContinuousScalarImage3D = {
+  def interpolate3D[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage3D[Scalar]): ContinuousScalarImage3D = {
     val ck = determineCoefficients(degree, image)
 
     val splineBasis: ((Float) => Float) = bSpline(degree)
@@ -202,7 +224,7 @@ object Interpolation {
         var m = m1
 
         while (m <= scala.math.min(m1 + K - 1, image.domain.size(2) - 1)) {
-             l = l1
+          l = l1
           while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
             k = k1
             while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
@@ -213,7 +235,7 @@ object Interpolation {
             }
             l = l + 1
           }
-             m = m + 1
+          m = m + 1
         }
         result
       },
@@ -230,18 +252,12 @@ object Interpolation {
     val b: Try[Int] = Success(5)
     val f = Figure()
     val p = f.subplot(0)
-    val xs = linspace(0, 5, 100).map(_.toFloat)
-    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 5), IndexedSeq(3f, 2f, 1.5f, 1f, 7f))
+    val xs = linspace(0, 30, 500).map(_.toFloat)
+    val range = (0 until 30).toIndexedSeq
+    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 30), range.map(Math.sin(_)).toArray.toIndexedSeq)
     val continuousImg = interpolate(3)(ps)
-    //    p += plot(x, x.map(bSpline(0) ))    
-    //    p += plot(x, x.map(bSpline(1) ))  
-
+    val continuousImg2 = interpolate(3)(ps)
     p += plot(xs, xs.map(x => continuousImg(x)))
-    //    p += plot(x, x.map(bSpline(2) ))  
-    //    p += plot(x, x.map(bSpline(3) ))  
-    p.xlabel = "x axis"
-    p.ylabel = "y axis"
-    f.saveas("lines.png") // save current figure as a .png, eps and pdf also supported
-    println("hello world")
+    p += plot(xs, xs.map(x => continuousImg2(x)))
   }
 }
