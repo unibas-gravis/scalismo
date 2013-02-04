@@ -95,39 +95,33 @@ object Interpolation {
   }
 
   def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
-	val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
+    val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
     for (y <- 0 until img.domain.size(1)) {
       val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex((x, y))))
 
       // the c is an input-output argument here
       val c = rowValues.toArray.map(_.toDouble)
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-      
+
       coeffs(img.domain.size(0) * y until img.domain.size(0) * (y + 1)) := DenseVector(c.map(_.toFloat))
     }
-	coeffs
+    coeffs
   }
 
   def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage3D[Scalar]): DenseVector[Float] = {
+    val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
+    for (z <- 0 until img.domain.size(2)) {
+      for (y <- 0 until img.domain.size(1)) {
+        val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex((x, y, z))))
 
-    val N: Int = img.domain.points.size
-    val splineBasis = (a: Float, b: Float, c: Float) => bSpline(degree)(a) * bSpline(degree)(b) * bSpline(degree)(c)
-    val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
+        // the c is an input-output argument here
+        val c = rowValues.toArray.map(_.toDouble)
+        BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-    val betaMat = DenseMatrix.zeros[Double](N, N)
-
-    for (
-      ptNumber <- 0 until N;
-      k <- 0 until img.domain.size(2);
-      j <- 0 until img.domain.size(1);
-      i <- 0 until img.domain.size(0)
-    ) {
-      val coordvector3D = img.domain.linearIndexToIndex(ptNumber)
-      betaMat(ptNumber, img.domain.indexToLinearIndex((i, j, k))) = splineBasis(coordvector3D(0) - i, coordvector3D(1) - j, coordvector3D(2) - k)
+        coeffs(img.domain.indexToLinearIndex((0,y,z)) until img.domain.indexToLinearIndex((img.domain.size(1)-1,y,z))) := DenseVector(c.map(_.toFloat))
+      }
     }
-
-    (betaMat \ I).map(_.toFloat)
-
+    coeffs
   }
 
   def interpolate[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage1D[Scalar]): ContinuousScalarImage1D = {
@@ -261,3 +255,25 @@ object Interpolation {
     p += plot(xs, xs.map(x => continuousImg2(x)))
   }
 }
+
+//  def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage3D[Scalar]): DenseVector[Float] = {
+//
+//    val N: Int = img.domain.points.size
+//    val splineBasis = (a: Float, b: Float, c: Float) => bSpline(degree)(a) * bSpline(degree)(b) * bSpline(degree)(c)
+//    val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
+//
+//    val betaMat = DenseMatrix.zeros[Double](N, N)
+//
+//    for (
+//      ptNumber <- 0 until N;
+//      k <- 0 until img.domain.size(2);
+//      j <- 0 until img.domain.size(1);
+//      i <- 0 until img.domain.size(0)
+//    ) {
+//      val coordvector3D = img.domain.linearIndexToIndex(ptNumber)
+//      betaMat(ptNumber, img.domain.indexToLinearIndex((i, j, k))) = splineBasis(coordvector3D(0) - i, coordvector3D(1) - j, coordvector3D(2) - k)
+//    }
+//
+//    (betaMat \ I).map(_.toFloat)
+//
+//  }
