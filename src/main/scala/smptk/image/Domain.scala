@@ -1,5 +1,9 @@
 package smptk.image
 
+import scala.language.higherKinds
+import scala.language.implicitConversions
+
+
 import breeze.linalg.DenseVector
 import smptk.image.Geometry._
 

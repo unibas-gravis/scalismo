@@ -1,6 +1,7 @@
 package smptk
 package io
 
+import scala.language.higherKinds
 import scala.util.Try
 import scala.util.Failure
 import image.DiscreteScalarImage2D

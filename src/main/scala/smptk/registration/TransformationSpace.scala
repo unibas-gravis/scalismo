@@ -1,5 +1,6 @@
 package smptk.registration
 
+import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix

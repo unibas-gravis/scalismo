@@ -1,7 +1,11 @@
 package smptk.image
 
-import breeze.linalg.DenseVector
+
 import scala.language.higherKinds
+import scala.language.implicitConversions
+
+
+import breeze.linalg.DenseVector
 import scala.reflect.ClassTag
 
 trait CoordVectorLike[Scalar] extends PartialFunction[Int, Scalar] {

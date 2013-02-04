@@ -1,5 +1,6 @@
 package smptk.numerics
 
+import scala.language.higherKinds
 import smptk.image._
 import breeze.linalg.DenseVector
 

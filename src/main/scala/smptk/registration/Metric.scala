@@ -1,6 +1,7 @@
 
 package smptk.registration
 
+import scala.language.higherKinds
 
 import TransformationSpace.ParameterVector
 import smptk.numerics.Integration._

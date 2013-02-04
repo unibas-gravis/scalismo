@@ -1,12 +1,14 @@
 package smptk.image
 
+import scala.language.higherKinds
+import scala.language.implicitConversions
+
 
 import smptk.numerics.Integration._
 import breeze.linalg.DenseVector
 import smptk.numerics.Integration
 import breeze.linalg.DenseMatrix
 import smptk.image.Geometry._
-import scala.language.higherKinds
 
 
 trait ContinuousImageLike[CoordVector[A]<:CoordVectorLike[A], Pixel] extends PartialFunction[CoordVector[Float], Pixel] {
