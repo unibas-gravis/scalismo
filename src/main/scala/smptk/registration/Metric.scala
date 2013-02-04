@@ -6,13 +6,13 @@ import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import smptk.numerics.Integration._
 import breeze.linalg.DenseVector
-import smptk.image.ContinuousScalarImageLike
-import smptk.image.CoordVectorLike
+import smptk.image.ContinuousScalarImage
+import smptk.image.CoordVector
 
-trait ImageMetric[CoordVector[A] <: CoordVectorLike[A]] extends 
-((ContinuousScalarImageLike[CoordVector], ContinuousScalarImageLike[CoordVector]) => Float) {
+trait ImageMetric[CV[A] <: CoordVector[A]] extends 
+((ContinuousScalarImage[CV], ContinuousScalarImage[CV]) => Float) {
   
-  def takeDerivativeWRTToMovingImage(fixedImage : ContinuousScalarImageLike[CoordVector], movingImage: ContinuousScalarImageLike[CoordVector]) : ContinuousScalarImageLike[CoordVector]  
+  def takeDerivativeWRTToMovingImage(fixedImage : ContinuousScalarImage[CV], movingImage: ContinuousScalarImage[CV]) : ContinuousScalarImage[CV]  
 }
 
 

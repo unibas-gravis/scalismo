@@ -4,15 +4,15 @@ import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import smptk.image.CoordVectorLike
+import smptk.image.CoordVector
 
-trait TransformationSpace[CoordVector[A] <: CoordVectorLike[A]] extends Function1[ParameterVector, Transformation[CoordVector]] {
-  type JacobianImage = Function1[CoordVector[Float], DenseMatrix[Float]]
+trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVector, Transformation[CV]] {
+  type JacobianImage = Function1[CV[Float], DenseMatrix[Float]]
   def parametersDimensionality: Int
   def takeDerivative(alpha : ParameterVector) : JacobianImage
 }
 
-trait Transformation[CoordVector[A] <: CoordVectorLike[A]] extends (CoordVector[Float] => CoordVector[Float]) {
+trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Float] => CV[Float]) {
 
 }
     

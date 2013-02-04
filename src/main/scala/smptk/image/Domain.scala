@@ -8,18 +8,18 @@ import breeze.linalg.DenseVector
 import smptk.image.Geometry._
 
 
-trait Domain[CoordVector[A] <: CoordVectorLike[A]] {
+trait Domain[CV[A] <: CoordVector[A]] {
   def dimensionality: Int
 }
 
-trait ContinuousDomain[CoordVector[A] <: CoordVectorLike[A]] extends Domain[CoordVector] {
-  def uniformSamples(n: Int): IndexedSeq[CoordVector[Float]]
+trait ContinuousDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
+  def uniformSamples(n: Int): IndexedSeq[CV[Float]]
 }
 
-trait ContinuousImageDomain[CoordVector[A] <: CoordVectorLike[A]] extends ContinuousDomain[CoordVector] {
-  def origin: CoordVector[Float]
-  def extent: CoordVector[Float]
-  def isInside(pt: CoordVector[Float]): Boolean
+trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV] {
+  def origin: CV[Float]
+  def extent: CV[Float]
+  def isInside(pt: CV[Float]): Boolean
 }
 
 case class ContinuousImageDomain1D(val origin: CoordVector1D[Float], val extent: CoordVector1D[Float]) extends ContinuousImageDomain[CoordVector1D] {
@@ -85,20 +85,20 @@ case class ContinuousImageDomain3D(val origin: Point3D, val extent: Point3D) ext
 }
 
 
-trait DiscreteDomain[CoordVector[A] <: CoordVectorLike[A]] extends Domain[CoordVector] {
-  def points: IndexedSeq[CoordVector[Float]]
+trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
+  def points: IndexedSeq[CV[Float]]
   //def neighbors(pt: CoordVector): IndexedSeq[CoordVector]
   def isDefinedAt(i: Int) = i >= 0 && i <= points.size
 }
 
-trait DiscreteImageDomain[CoordVector[A] <: CoordVectorLike[A]] extends DiscreteDomain[CoordVector] { //extends ImageDomain[Point] {
-  def origin: CoordVector[Float]
-  def spacing: CoordVector[Float]
-  def size: CoordVector[Int]
-  def extent : CoordVector[Float]
+trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { //extends ImageDomain[Point] {
+  def origin: CV[Float]
+  def spacing: CV[Float]
+  def size: CV[Int]
+  def extent : CV[Float]
   
-  def indexToLinearIndex(idx : CoordVector[Int]) : Int
-  def linearIndexToIndex(linearIdx : Int) : CoordVector[Int]
+  def indexToLinearIndex(idx : CV[Int]) : Int
+  def linearIndexToIndex(linearIdx : Int) : CV[Int]
   
 }
 

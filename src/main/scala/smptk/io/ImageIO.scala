@@ -7,15 +7,15 @@ import scala.util.Failure
 import image.DiscreteScalarImage2D
 import java.io.File
 import smptk.image.DiscreteScalarImage2D
-import smptk.image.CoordVectorLike
-import smptk.image.DiscreteScalarImageLike
+import smptk.image.CoordVector
+import smptk.image.DiscreteScalarImage
 import scala.util.Success
 import smptk.image.DiscreteImageDomain2D
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.DiscreteScalarImage2D
 import java.io.IOException
-import smptk.image.DiscreteImageLike
+import smptk.image.DiscreteImage
 import scala.reflect.ClassTag
 
 object ImageIO {
@@ -90,7 +90,7 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[CoordVector[A] <: CoordVectorLike[A], Scalar : TypeTag : ClassTag](img: DiscreteScalarImageLike[CoordVector, Scalar],file: File): Try[Unit] = {
+  def writeImage[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag] (img: DiscreteScalarImage[CV, Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -100,44 +100,43 @@ object ImageIO {
     }
   }
 
-  def writeHDF5[CoordVector[A] <: CoordVectorLike[A], Scalar : TypeTag : ClassTag](img: DiscreteImageLike[CoordVector, Scalar], file: File): Try[Unit] = {
+  def writeHDF5[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag](img: DiscreteImage[CV, Scalar], file: File): Try[Unit] = {
 
-	val maybeVoxelType = scalarTypeToString[Scalar]()
-	if (maybeVoxelType.isEmpty) {
-	  return Failure(new Exception(s"invalid voxeltype " +typeOf[Scalar]))
-	}
-	val voxelType = maybeVoxelType.get
+    val maybeVoxelType = scalarTypeToString[Scalar]()
+    if (maybeVoxelType.isEmpty) {
+      return Failure(new Exception(s"invalid voxeltype " + typeOf[Scalar]))
+    }
+    val voxelType = maybeVoxelType.get
 
-    
-	val h5file = HDF5Utils.createFile(file)
+    val h5file = HDF5Utils.createFile(file)
 
-	// append the number of components to the image dimensionality. 
-      // The data of an image of size m x n will be saved as an array of dims n x m x d, 
-      // where d is the number of components 
-      // (note that here the dimensions of the voxelArray are reversed compared the the
-      // vector dims that is stored in the field Dimensions. This is the convention of the itk implementation
-      // which we follow)
-      var voxelArrayDim = img.domain.size.toArray.reverse.map(_.toLong)
-      
-      if(img.pixelDimensionality > 1)
-      	voxelArrayDim = voxelArrayDim ++ Vector[Long](img.pixelDimensionality) 
-  
-      // TODO directions are currently ignore. This should not be
-      val dummyDirections = Array.ofDim[Double](img.domain.dimensionality * img.domain.dimensionality)
-      
-      val maybeError : Try[Unit] = for {
-        _ <- h5file.writeNDArray( "/ITKImage/0/Directions", NDArray(Vector(img.domain.dimensionality, img.domain.dimensionality), dummyDirections))
-        _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray)
-        _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray)
-        _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray)
-        _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.pixelValues.toArray))
-        _ <- h5file.createGroup("/ITKImage/0/MetaData")
-        _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever
-        _ <- h5file.writeString("/HDFVersion", HDF5Utils.hdf5Version)
-        _ <- h5file.writeString("/ITKImage/0/VoxelType", voxelType)
+    // append the number of components to the image dimensionality. 
+    // The data of an image of size m x n will be saved as an array of dims n x m x d, 
+    // where d is the number of components 
+    // (note that here the dimensions of the voxelArray are reversed compared the the
+    // vector dims that is stored in the field Dimensions. This is the convention of the itk implementation
+    // which we follow)
+    var voxelArrayDim = img.domain.size.toArray.reverse.map(_.toLong)
 
-      } yield { () } // if everything is okay, we have a Unit type and no error here
-      maybeError
+    if (img.pixelDimensionality > 1)
+      voxelArrayDim = voxelArrayDim ++ Vector[Long](img.pixelDimensionality)
+
+    // TODO directions are currently ignore. This should not be
+    val dummyDirections = Array.ofDim[Double](img.domain.dimensionality * img.domain.dimensionality)
+
+    val maybeError: Try[Unit] = for {
+      _ <- h5file.writeNDArray("/ITKImage/0/Directions", NDArray(Vector(img.domain.dimensionality, img.domain.dimensionality), dummyDirections))
+      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray)
+      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray)
+      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray)
+      _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.pixelValues.toArray))
+      _ <- h5file.createGroup("/ITKImage/0/MetaData")
+      _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever
+      _ <- h5file.writeString("/HDFVersion", HDF5Utils.hdf5Version)
+      _ <- h5file.writeString("/ITKImage/0/VoxelType", voxelType)
+
+    } yield { () } // if everything is okay, we have a Unit type and no error here
+    maybeError
   }
 
   private def scalarTypeToString[Scalar: TypeTag](): Option[String] = {

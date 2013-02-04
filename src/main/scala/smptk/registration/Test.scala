@@ -9,7 +9,7 @@ import smptk.image.ContinuousScalarImage1D
 import smptk.image.ContinuousDomain
 import smptk.image.Geometry._
 import smptk.image.ContinuousImageDomain1D
-import smptk.image.ContinuousScalarImageLike
+import smptk.image.ContinuousScalarImage
 
 object Test {
 
@@ -31,12 +31,12 @@ object Test {
     }
 
     val metric = new ImageMetric[CoordVector1D] {
-    	def apply(img1: ContinuousScalarImageLike[CoordVector1D],
-        img2: ContinuousScalarImageLike[CoordVector1D]) = {
+    	def apply(img1: ContinuousScalarImage[CoordVector1D],
+        img2: ContinuousScalarImage[CoordVector1D]) = {
     		(img1 - img2).squaredNorm
       }
-      def takeDerivativeWRTToMovingImage(img1: ContinuousScalarImageLike[CoordVector1D],
-        img2: ContinuousScalarImageLike[CoordVector1D]) = {
+      def takeDerivativeWRTToMovingImage(img1: ContinuousScalarImage[CoordVector1D],
+        img2: ContinuousScalarImage[CoordVector1D]) = {
         (img1 - img2) * 2f
       }
     }
