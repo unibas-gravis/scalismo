@@ -1,10 +1,12 @@
-package smtk.io
+package smptk
+package io
 
+import image.Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.image.Interpolation._
-import smptk.image._
-import smptk.io.ImageIO
+import image.Interpolation._
+import image._
+
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
@@ -19,17 +21,12 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
         
          val tmpImgFile = File.createTempFile("image2D", ".h5")
 
-        ImageIO.writeImage(discreteImage, new File("/tmp/img.h5"))
+        ImageIO.writeImage(discreteImage, tmpImgFile)
         val restoredDiscreteImgOrFailure = ImageIO.read2DScalarImage[Float](tmpImgFile)
         
-        restoredDiscreteImgOrFailure match {
-    	  case Success(img) => println("success")
-    	  case Failure(ex) => println(ex.printStackTrace())
-    	}
-        restoredDiscreteImgOrFailure.isSuccess should be (true)            	
-    	
+        restoredDiscreteImgOrFailure.isSuccess should be (true)            	    	
         discreteImage should equal (restoredDiscreteImgOrFailure.get)
-        
+       
         tmpImgFile.delete()
     }
   }

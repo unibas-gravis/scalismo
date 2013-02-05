@@ -1,5 +1,6 @@
 package smptk.image
 
+import Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import smptk.image.Geometry.CoordVector1D

@@ -19,6 +19,7 @@ trait ContinuousDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
 trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV] {
   def origin: CV[Float]
   def extent: CV[Float]
+  //def directions: CV[CV[Float]]
   def isInside(pt: CV[Float]): Boolean
 }
 
@@ -96,6 +97,7 @@ trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { 
   def spacing: CV[Float]
   def size: CV[Int]
   def extent : CV[Float]
+  def directions : Array[Double]
   
   def indexToLinearIndex(idx : CV[Int]) : Int
   def linearIndexToIndex(linearIdx : Int) : CV[Int]
@@ -111,7 +113,8 @@ case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: 
   
   def indexToLinearIndex(idx : CoordVector1D[Int]) = idx(0) 
   def linearIndexToIndex(linearIdx : Int) = linearIdx
-    
+ 
+  def directions = Array(1.)
 }
 
 case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: CoordVector2D[Float], val size : CoordVector2D[Int]) extends DiscreteImageDomain[CoordVector2D] {
@@ -125,6 +128,9 @@ case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: 
   
   def indexToLinearIndex(idx : CoordVector2D[Int]) = idx(0) + idx(1) * size(0) 
   def linearIndexToIndex(linearIdx : Int) = (linearIdx % size(0), linearIdx / size(0))
+  
+  def directions = Array(1., 0., 0., 1.)
+  
 }
 
 
@@ -143,5 +149,7 @@ case class DiscreteImageDomain3D(val origin: CoordVector3D[Float], val spacing: 
     linearIdx % (size(0) * size(1)) / size(0),
     linearIdx / (size(0) * size(1))
      )
+     
+       def directions = Array(1., 0., 0., 0. , 1., 0., 0., 0. , 1)
  
 }

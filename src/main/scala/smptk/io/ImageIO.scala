@@ -1,6 +1,8 @@
 package smptk
 package io
 
+import image.ScalarPixel
+import image.Image._
 import scala.language.higherKinds
 import scala.util.Try
 import scala.util.Failure
@@ -34,7 +36,7 @@ object ImageIO {
     }
   }
 
-  def read2DScalarImage[Scalar <% Double: TypeTag](f : File): Try[DiscreteScalarImage2D[Scalar]] = {
+  def read2DScalarImage[Scalar : ScalarPixel: TypeTag](f : File): Try[DiscreteScalarImage2D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -121,16 +123,16 @@ object ImageIO {
       voxelArrayDim = voxelArrayDim ++ Vector[Long](img.pixelDimensionality)
 
     // TODO directions are currently ignore. This should not be
-    val dummyDirections = NDArray[Double](
-        Vector(img.domain.dimensionality, img.domain.dimensionality),
-        Array.ofDim[Double](img.domain.dimensionality * img.domain.dimensionality)
+    val directions = NDArray[Double](
+        Vector[Long](img.domain.dimensionality, img.domain.dimensionality),
+        img.domain.directions
         )
 
     val maybeError: Try[Unit] = for {
-      _ <- h5file.writeNDArray("/ITKImage/0/Directions", dummyDirections)
-      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray)
-      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray)
-      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray)
+      _ <- h5file.writeNDArray("/ITKImage/0/Directions", directions)
+      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray.map(_.toLong))
+      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray.map(_.toDouble))
+      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray.map(_.toDouble))
       _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.pixelValues.toArray))
       _ <- h5file.createGroup("/ITKImage/0/MetaData")
       _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever

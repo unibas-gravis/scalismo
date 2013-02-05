@@ -7,6 +7,9 @@ import breeze.plot._
 import breeze.linalg._
 import scala.util._
 import java.io.IOException
+
+
+import Image._
 import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.CoordVector3D
@@ -103,7 +106,9 @@ object Interpolation {
       val c = rowValues.toArray.map(_.toDouble)
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-      coeffs(img.domain.size(0) * y until img.domain.size(0) * (y + 1)) := DenseVector(c.map(_.toFloat))
+      val idxInCoeffs =img.domain.indexToLinearIndex((0,y)) 
+      coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toFloat))
+      //coeffs(img.domain.indexToLinearIndex((0,y)) until img.domain.indexToLinearIndex((img.domain.size(0)-1,y))) := DenseVector(c.map(_.toFloat))
     }
     coeffs
   }
@@ -117,8 +122,8 @@ object Interpolation {
         // the c is an input-output argument here
         val c = rowValues.toArray.map(_.toDouble)
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-
-        coeffs(img.domain.indexToLinearIndex((0,y,z)) until img.domain.indexToLinearIndex((img.domain.size(1)-1,y,z))) := DenseVector(c.map(_.toFloat))
+        val idxInCoeffs =img.domain.indexToLinearIndex((0,y,z))
+        coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toFloat))
       }
     }
     coeffs

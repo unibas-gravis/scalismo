@@ -45,14 +45,19 @@ object Geometry {
     def isDefinedAt(i: Int) = i == 0 || i == 1 || i == 2
     def toArray = Array(p._1, p._2, p._3)
   }
-
-  type PointLike = CoordVector[Float]
+  
+   
+  //type Point = CoordVector[Float]
   type Point1D = CoordVector1D[Float]
   type Point2D = CoordVector2D[Float]
   type Point3D = CoordVector3D[Float]
   type Index1D = CoordVector1D[Int]
   type Index2D = CoordVector2D[Int]
   type Index3D = CoordVector3D[Int]
+  type Matrix1D = CoordVector1D[CoordVector1D[Float]]
+  type Matrix2D = CoordVector2D[CoordVector2D[Float]]
+  type Matrix3D = CoordVector3D[CoordVector3D[Float]]
+  
   
   implicit def CoordVecFloatToFloat(c : CoordVector1D[Float]) = c(0)
   
