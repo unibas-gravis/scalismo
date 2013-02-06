@@ -6,11 +6,9 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import image.Interpolation._
 import image._
-
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
-
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
   

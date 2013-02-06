@@ -8,7 +8,7 @@ import scala.language.implicitConversions
 import breeze.linalg.DenseVector
 import scala.reflect.ClassTag
 
-trait CoordVector[Scalar] extends PartialFunction[Int, Scalar] {
+trait CoordVector[Scalar] {
   def dimensionality: Int
   def apply(i: Int): Scalar
   def toArray : Array[Scalar] 

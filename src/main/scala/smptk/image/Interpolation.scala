@@ -8,7 +8,6 @@ import breeze.linalg._
 import scala.util._
 import java.io.IOException
 
-
 import Image._
 import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector2D
@@ -106,7 +105,7 @@ object Interpolation {
       val c = rowValues.toArray.map(_.toDouble)
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-      val idxInCoeffs =img.domain.indexToLinearIndex((0,y)) 
+      val idxInCoeffs = img.domain.indexToLinearIndex((0, y))
       coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toFloat))
       //coeffs(img.domain.indexToLinearIndex((0,y)) until img.domain.indexToLinearIndex((img.domain.size(0)-1,y))) := DenseVector(c.map(_.toFloat))
     }
@@ -122,7 +121,7 @@ object Interpolation {
         // the c is an input-output argument here
         val c = rowValues.toArray.map(_.toDouble)
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-        val idxInCoeffs =img.domain.indexToLinearIndex((0,y,z))
+        val idxInCoeffs = img.domain.indexToLinearIndex((0, y, z))
         coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toFloat))
       }
     }
@@ -130,30 +129,35 @@ object Interpolation {
   }
 
   def interpolate[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage1D[Scalar]): ContinuousScalarImage1D = {
+
     val ck = determineCoefficients(degree, image)
 
-    val splineBasis: (Float => Float) = bSpline(degree)
+    def iterateOnPoints(x: CoordVector1D[Float], splineBasis: ((Float) => Float)): Float = {
+      val xUnit = (x(0) - image.domain.origin(0)) / image.domain.spacing(0)
+
+      val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
+      val K = scala.math.min(degree + 1, ck.size - 1)
+
+      var result = 0f
+      var k = k1
+      while (k <= scala.math.min(k1 + K - 1, ck.size - 1)) {
+        result = result + splineBasis(xUnit - k) * ck(k)
+        k = k + 1
+      }
+      result
+    }
+
     new ContinuousScalarImage1D(
       ContinuousImageDomain1D(image.domain.origin, image.domain.extent), //new domain
-      (x: CoordVector1D[Float]) => { // apply function
-        val xUnit = (x(0) - image.domain.origin(0)) / image.domain.spacing(0)
-
-        val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
-        val K = scala.math.min(degree + 1, ck.size - 1)
-
-        var result = 0f
-        var k = k1
-        while (k <= scala.math.min(k1 + K - 1, ck.size - 1)) {
-          result = result + splineBasis(xUnit - k) * ck(k)
-          k = k + 1
-        }
-        result
+      (x: CoordVector1D[Float]) => {
+        val splineBasis: (Float => Float) = bSpline(degree) // apply function
+        iterateOnPoints(x, splineBasis)
       },
 
       (x: CoordVector1D[Float]) => { //derivative
-        //TODO derivative
+        val splineBasisD1: (Float => Float) = { x => bSpline(degree - 1)(x + 0.5f) - bSpline(degree - 1)(x - 0.5f) }
+        DenseVector(iterateOnPoints(x, splineBasisD1))
 
-        DenseVector(1f)
       })
 
   }
@@ -161,87 +165,103 @@ object Interpolation {
   def interpolate2D[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage2D[Scalar]): ContinuousScalarImage2D = {
     val ck = determineCoefficients(degree, image)
 
-    val splineBasis: ((Float) => Float) = bSpline(degree)
+    def iterateOnPoints( x: CoordVector2D[Float], splineBasis: ((Float, Float) => Float)): Float = {
+      val xUnit = ((x(0) - image.domain.origin(0)) / image.domain.spacing(0))
+      val yUnit = ((x(1) - image.domain.origin(1)) / image.domain.spacing(1))
+
+      val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
+      val l1 = scala.math.max(scala.math.ceil(yUnit - 0.5f * (degree + 1)).toInt, 0)
+
+      val K = degree + 1
+
+      var result = 0f
+      var k = k1
+      var l = l1
+
+      while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
+        k = k1
+        while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
+
+          val idx = image.domain.indexToLinearIndex((k, l))
+          result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l)
+          k = k + 1
+        }
+        l = l + 1
+      }
+
+      result
+    }
+
+    val bSplineNthOrder = bSpline(degree)_
+    val bSplineNmin1thOrder = bSpline(degree - 11)_
     new ContinuousScalarImage2D(
       ContinuousImageDomain2D(image.domain.origin, image.domain.extent), //new domain
 
-      (x: CoordVector2D[Float]) => { // apply function
-        val xUnit = ((x(0) - image.domain.origin(0)) / image.domain.spacing(0))
-        val yUnit = ((x(1) - image.domain.origin(1)) / image.domain.spacing(1))
-
-        val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
-        val l1 = scala.math.max(scala.math.ceil(yUnit - 0.5f * (degree + 1)).toInt, 0)
-
-        val K = degree + 1
-
-        var result = 0f
-        var k = k1
-        var l = l1
-
-        while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
-          k = k1
-          while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
-
-            val idx = image.domain.indexToLinearIndex((k, l))
-            result = result + ck(idx) * splineBasis(xUnit - k) * splineBasis(yUnit - l)
-            k = k + 1
-          }
-          l = l + 1
-        }
-
-        result
+      (x: CoordVector2D[Float]) => {
+        val splineBasis = (x: Float, y: Float) => bSplineNthOrder(x) * bSplineNthOrder(y) // apply function
+        iterateOnPoints( x,  splineBasis)
       },
 
       (x: CoordVector2D[Float]) => { //derivative
-        //TODO derivative
-        DenseVector(1f)
+        val splineBasisD1 = (x: Float, y: Float) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y)
+        val splineBasisD2 = (x: Float, y: Float) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f))
+        DenseVector(iterateOnPoints( x,  splineBasisD1), iterateOnPoints(x,splineBasisD2))
       })
-
   }
 
   def interpolate3D[Scalar <% Double: ClassTag](degree: Int)(image: DiscreteScalarImage3D[Scalar]): ContinuousScalarImage3D = {
     val ck = determineCoefficients(degree, image)
 
-    val splineBasis: ((Float) => Float) = bSpline(degree)
+    def iterateOnPoints(x: CoordVector3D[Float], splineBasis: ((Float, Float, Float) => Float)): Float = {
+      val xUnit = ((x(0) - image.domain.origin(0)) / image.domain.spacing(0))
+      val yUnit = ((x(1) - image.domain.origin(1)) / image.domain.spacing(1))
+      val zUnit = ((x(2) - image.domain.origin(2)) / image.domain.spacing(2))
+
+      val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
+      val l1 = scala.math.max(scala.math.ceil(yUnit - 0.5f * (degree + 1)).toInt, 0)
+      val m1 = scala.math.max(scala.math.ceil(zUnit - 0.5f * (degree + 1)).toInt, 0)
+
+      val K = degree + 1
+
+      var result = 0f
+      var k = k1
+      var l = l1
+      var m = m1
+
+      while (m <= scala.math.min(m1 + K - 1, image.domain.size(2) - 1)) {
+        l = l1
+        while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
+          k = k1
+          while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
+
+            val idx = image.domain.indexToLinearIndex((k, l, m))
+            result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
+            k = k + 1
+          }
+          l = l + 1
+        }
+        m = m + 1
+      }
+      result
+    }
+
+    val bSplineNthOrder = bSpline(degree)_
+    val bSplineNmin1thOrder = bSpline(degree - 11)_
+
     new ContinuousScalarImage3D(
       ContinuousImageDomain3D(image.domain.origin, image.domain.extent), //new domain
 
       (x: CoordVector3D[Float]) => { // apply function
-        val xUnit = ((x(0) - image.domain.origin(0)) / image.domain.spacing(0))
-        val yUnit = ((x(1) - image.domain.origin(1)) / image.domain.spacing(1))
-        val zUnit = ((x(2) - image.domain.origin(2)) / image.domain.spacing(2))
-
-        val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
-        val l1 = scala.math.max(scala.math.ceil(yUnit - 0.5f * (degree + 1)).toInt, 0)
-        val m1 = scala.math.max(scala.math.ceil(zUnit - 0.5f * (degree + 1)).toInt, 0)
-
-        val K = degree + 1
-
-        var result = 0f
-        var k = k1
-        var l = l1
-        var m = m1
-
-        while (m <= scala.math.min(m1 + K - 1, image.domain.size(2) - 1)) {
-          l = l1
-          while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
-            k = k1
-            while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
-
-              val idx = image.domain.indexToLinearIndex((k, l, m))
-              result = result + ck(idx) * splineBasis(xUnit - k) * splineBasis(yUnit - l) * splineBasis(zUnit - m)
-              k = k + 1
-            }
-            l = l + 1
-          }
-          m = m + 1
-        }
-        result
+        val splineBasis = (x: Float, y: Float, z: Float) => bSplineNthOrder(x) * bSplineNthOrder(y) * bSplineNthOrder(z)
+        iterateOnPoints(x, splineBasis)
       },
 
       (x: CoordVector3D[Float]) => { //derivative
-        //TODO derivative
-        DenseVector(3f)
+
+        val splineBasisD1 = (x: Float, y: Float, z: Float) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y) * bSplineNthOrder(z)
+        val splineBasisD2 = (x: Float, y: Float, z: Float) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f)) * bSplineNthOrder(z)
+        val splineBasisD3 = (x: Float, y: Float, z: Float) => bSplineNthOrder(x) * bSplineNthOrder(y) * (bSplineNmin1thOrder(z + 0.5f) - bSplineNmin1thOrder(z - 0.5f))
+        DenseVector(iterateOnPoints(x, splineBasisD1), iterateOnPoints(x, splineBasisD2), iterateOnPoints(x, splineBasisD3))
       })
 
   }
@@ -255,9 +275,9 @@ object Interpolation {
     val range = (0 until 30).toIndexedSeq
     val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 30), range.map(Math.sin(_)).toArray.toIndexedSeq)
     val continuousImg = interpolate(3)(ps)
-    val continuousImg2 = interpolate(3)(ps)
+
     p += plot(xs, xs.map(x => continuousImg(x)))
-    p += plot(xs, xs.map(x => continuousImg2(x)))
+    p += plot(xs, xs.map(x => continuousImg.takeDerivative(x)(0)))
   }
 }
 

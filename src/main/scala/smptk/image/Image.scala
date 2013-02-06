@@ -28,8 +28,16 @@ trait ScalarPixel[T] {
 
 trait ContinuousImage[CV[A] <: CoordVector[A], Pixel] extends PartialFunction[CV[Float], Pixel] {
 
+  def f(point : CV[Float]) : Pixel  
+
   def domain: ContinuousImageDomain[CV]
-  def apply(point: CV[Float]): Pixel
+  def apply(x: CV[Float]): Pixel = {
+    if (! isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
+    f(x)
+  }
+    
+  
+  
   def isDefinedAt(pt: CV[Float]) = domain.isInside(pt)
   //def differentiate[Value2](): ContinuousImage[Point, Value2]
 
@@ -41,13 +49,20 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 
   val pixelDimensionality = 1
 
+  def df(point : CV[Float]) : DenseVector[Float]
+
+  def takeDerivative(x: CV[Float]): DenseVector[Float] = {
+      if (! isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
+      df(x)
+  }
+  
   def -(that: ContinuousScalarImage[CV]): ContinuousScalarImage[CV] = {
 
     require(ContinuousScalarImage.this.domain == that.domain)
     new ContinuousScalarImage[CV] {
       val domain = that.domain
-      def apply(x: CV[Float]): Float = ContinuousScalarImage.this(x) - that(x)
-      def takeDerivative(x: CV[Float]) = ContinuousScalarImage.this.takeDerivative(x) - that.takeDerivative(x)
+      def f(x: CV[Float]): Float = ContinuousScalarImage.this(x) - that(x)
+      def df(x: CV[Float]) = ContinuousScalarImage.this.takeDerivative(x) - that.takeDerivative(x)
     }
   }
 
@@ -55,19 +70,19 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
     require(ContinuousScalarImage.this.domain == that.domain)
     new ContinuousScalarImage[CV] {
       val domain = that.domain
-      def apply(x: CV[Float]): Float = {
+      def f(x: CV[Float]): Float = {
         ContinuousScalarImage.this(x) * that(x)
       }
-      def takeDerivative(x: CV[Float]): DenseVector[Float] = {
+      def df(x: CV[Float]): DenseVector[Float] = {
         ContinuousScalarImage.this.takeDerivative(x) * that(x) + that.takeDerivative(x) * ContinuousScalarImage.this(x)
       }
     }
   }
 
   def *(s: Float) = new ContinuousScalarImage[CV] {
-    def apply(x: CV[Float]) = ContinuousScalarImage.this(x) * s
+    def f(x: CV[Float]) = ContinuousScalarImage.this(x) * s
     def domain = ContinuousScalarImage.this.domain
-    def takeDerivative(x: CV[Float]): DenseVector[Float] = {
+    def df(x: CV[Float]): DenseVector[Float] = {
       ContinuousScalarImage.this.takeDerivative(x) * s
     }
   }
@@ -83,10 +98,11 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 
   def differentiate = new ContinuousVectorImage[CV] {
     def domain = ContinuousScalarImage.this.domain
-    def apply(x: CV[Float]) = takeDerivative(x)
+    def f(x: CV[Float]) = takeDerivative(x)
     def pixelDimensionality = this.domain.dimensionality
   }
-  def takeDerivative(x: CV[Float]): DenseVector[Float]
+  
+
 }
 
 trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, DenseVector[Float]] { self =>
@@ -98,31 +114,33 @@ trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 
 }
 
-case class ContinuousScalarImage1D(val domain: ContinuousImageDomain1D, f: Point1D => Float, df: Point1D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector1D] {
+case class ContinuousScalarImage1D(val domain: ContinuousImageDomain1D, _f: Point1D => Float, _df: Point1D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector1D] {
   override val pixelDimensionality = 1
-  def apply(x: CoordVector1D[Float]) = f(x)
-  def takeDerivative(x: CoordVector1D[Float]) = df(x)
+  def f(x: CoordVector1D[Float]) = _f(x)		  
+  def df(x: CoordVector1D[Float]) = _df(x)  
 }
 
-case class ContinuousScalarImage2D(val domain: ContinuousImageDomain2D, f: Point2D => Float, df: Point2D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector2D] {
+
+
+case class ContinuousScalarImage2D(val domain: ContinuousImageDomain2D, _f: Point2D => Float, _df: Point2D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector2D] {
   override val pixelDimensionality = 1
-  def apply(x: CoordVector2D[Float]) = f(x)
-  def takeDerivative(x: CoordVector2D[Float]) = df(x)
+  def f(x: CoordVector2D[Float]) = _f(x)		  
+  def df(x: CoordVector2D[Float]) = _df(x)  
 }
 
-case class ContinuousScalarImage3D(val domain: ContinuousImageDomain3D, f: Point3D => Float, df: Point3D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector3D] {
+case class ContinuousScalarImage3D(val domain: ContinuousImageDomain3D, _f: Point3D => Float, _df: Point3D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector3D] {
   override val pixelDimensionality = 1
-  def apply(x: CoordVector3D[Float]) = f(x)
-  def takeDerivative(x: CoordVector3D[Float]) = df(x)
+  def f(x: CoordVector3D[Float]) = _f(x)		  
+  def df(x: CoordVector3D[Float]) = _df(x)  
 }
 
 /////////////////////////////////////////////
 // Vector Images
 /////////////////////////////////////////////
 
-case class ContinousVectorImage1D(val pixelDimensionality: Int, val domain: ContinuousImageDomain1D, f: Point1D => DenseVector[Float], df: Point1D => DenseMatrix[Float]) extends ContinuousVectorImage[CoordVector1D] {
-  def apply(x: Point1D) = f(x)
-  def takeDerivative(x: Point1D) = df(x)
+case class ContinousVectorImage1D(val pixelDimensionality: Int, val domain: ContinuousImageDomain1D, _f: Point1D => DenseVector[Float], _df: Point1D => DenseMatrix[Float]) extends ContinuousVectorImage[CoordVector1D] {
+  def f(x: CoordVector1D[Float]) = _f(x)		  
+  def df(x: CoordVector1D[Float]) = _df(x)  
 }
 
 /////////////////////////////////////////////
