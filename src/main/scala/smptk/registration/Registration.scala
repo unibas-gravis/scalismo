@@ -33,13 +33,15 @@ object Registration {
           val dTransformSpaceDAlpha = transformationSpace.takeDerivative(params)
 
           val warpedImage = new ContinuousScalarImage[CV] {
-            def f(pt: CV[Float]) = movingImage(transformationSpace(params)(pt))
+            def f(pt: CV[Float]) = movingImage.f(transformationSpace(params)(pt))
             def domain = fixedImage.domain
             def df(x: CV[Float]) = {
-              val grad = movingImage.takeDerivative(transformationSpace(params)(x))
+              val grad = movingImage.df(transformationSpace(params)(x))
               dTransformSpaceDAlpha(x) * grad
             }
           }
+          
+
           val value = metric(warpedImage, fixedImage) + regularization(params)
           val dMetricDalpha: ContinuousScalarImage[CV] = metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
           val dMovingImageDAlpha: ContinuousVectorImage[CV] = warpedImage.differentiate
@@ -47,7 +49,7 @@ object Registration {
           val transformParameterGradientImage = new ContinuousVectorImage[CV] {
         val pixelDimensionality = params.size
             val domain = fixedImage.domain
-            def f(x: CV[Float]) =  warpedImage.takeDerivative(x) *  dMetricDalpha(x)
+            def f(x: CV[Float]) =  warpedImage.df(x) *  dMetricDalpha(x)
           }
 
           val gradient: DenseVector[Float] = integrate(transformParameterGradientImage)
