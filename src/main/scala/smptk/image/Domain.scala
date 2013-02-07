@@ -20,7 +20,7 @@ trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV
   def origin: CV[Float]
   def extent: CV[Float]
   //def directions: CV[CV[Float]]
-  def isInside(pt: CV[Float]): Boolean
+  def isInside(pt: CV[Float]): Boolean    
 }
 
 case class ContinuousImageDomain1D(val origin: CoordVector1D[Float], val extent: CoordVector1D[Float]) extends ContinuousImageDomain[CoordVector1D] {
@@ -88,6 +88,9 @@ case class ContinuousImageDomain3D(val origin: Point3D, val extent: Point3D) ext
 
 trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
   def points: IndexedSeq[CV[Float]]
+  
+   def  numberOfPoints : Int
+  
   //def neighbors(pt: CoordVector): IndexedSeq[CoordVector]
   def isDefinedAt(i: Int) = i >= 0 && i <= points.size
 }
@@ -98,6 +101,8 @@ trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { 
   def size: CV[Int]
   def extent : CV[Float]
   def directions : Array[Double]
+  
+  def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
   
   def indexToLinearIndex(idx : CV[Int]) : Int
   def linearIndexToIndex(linearIdx : Int) : CV[Int]

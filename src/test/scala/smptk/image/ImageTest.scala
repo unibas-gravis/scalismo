@@ -36,6 +36,14 @@ class ImageTest extends FunSpec with ShouldMatchers {
 }
 
 class DomainTest extends FunSpec with ShouldMatchers {
+  describe("a domain") { 
+    it("correctly reports the number of points") {
+      val domain = DiscreteImageDomain2D((0f, 0f), (1f, 2f), (42, 49))      
+      assert(domain.numberOfPoints === domain.points.size)
+    }
+    
+  }
+  
   describe("a discrete domain in 2d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain2D((0f, 0f), (1f, 2f), (42, 49))
