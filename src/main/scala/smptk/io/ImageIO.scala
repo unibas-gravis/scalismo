@@ -19,6 +19,8 @@ import smptk.image.DiscreteScalarImage2D
 import java.io.IOException
 import smptk.image.DiscreteImage
 import scala.reflect.ClassTag
+import smptk.image.DiscreteImageDomain3D
+import smptk.image.DiscreteScalarImage3D
 
 object ImageIO {
 
@@ -36,6 +38,34 @@ object ImageIO {
     }
   }
 
+  
+    def read3DScalarImage[Scalar : ScalarPixel: TypeTag](f : File): Try[DiscreteScalarImage3D[Scalar]] = {
+
+    f match {
+      case f if f.getAbsolutePath().endsWith(".h5") => {
+
+        val imageDataOrFailure = readHDF5[Scalar](f)
+        imageDataOrFailure.flatMap { imageData =>
+          {
+            if (imageData.hasDimensionality(3) == false) {
+              Failure(new Exception(s"wrong dimensionality in the image data"))
+            } else if (imageData.pixelDimensionality != 1) {
+              Failure(new Exception("wrong pixel dimensionality in image data"))
+            } else {
+              val domain = DiscreteImageDomain3D(
+                (imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
+                (imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
+                (imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
+              Success(DiscreteScalarImage3D(domain, imageData.data))
+            }
+          }
+        }
+      }
+      case _ => Failure(new Exception("Unknown file type received" + f.getAbsolutePath()))
+    }
+  }
+
+  
   def read2DScalarImage[Scalar : ScalarPixel: TypeTag](f : File): Try[DiscreteScalarImage2D[Scalar]] = {
 
     f match {
@@ -69,7 +99,7 @@ object ImageIO {
    *
    */
 
-  private def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
+  private def readHDF5[@specialized(Short, Float) Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
     val filename = file.getAbsolutePath()
     val h5file = HDF5Utils.openFileForReading(file)
 

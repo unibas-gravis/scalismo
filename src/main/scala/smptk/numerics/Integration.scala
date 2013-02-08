@@ -6,35 +6,34 @@ import breeze.linalg.DenseVector
 import smptk.image.Image._
 
 object Integration {
-     implicit val numSamples : Int = 100
   
-	def integrate[CV[A] <: CoordVector[A]](img : ContinuousScalarImage[CV])(implicit numSamples : Int) : Float = { 
-  	    val domain = img.domain
+	def integrate[CV[A] <: CoordVector[A], Repr](img : ContinuousScalarImage[CV, Repr], integrationRegion : DiscreteImageDomain[CV]) : Float = { 
+
   	    // TODO this is terribly innefficient as we are looping twice
-  	    val sampleValues : IndexedSeq[Option[Float]] = domain.uniformSamples(numSamples).map(img.liftPixelValue)
+  	    val sampleValues : IndexedSeq[Option[Float]] = integrationRegion.points.map(img.liftPixelValue)
 	   
 	    val sum = sampleValues.map(_.getOrElse(0f)).sum
 	    var ndVolume = 1f;  	    
-	    for (d <- 0 until domain.dimensionality) {
-	      ndVolume = domain.extent(d) * ndVolume
+	    for (d <- 0 until integrationRegion.dimensionality) {
+	      ndVolume = integrationRegion.extent(d) * ndVolume
 	    }
 	   	    
-	    sum * ndVolume / numSamples.toFloat
+	    sum * ndVolume / integrationRegion.numberOfPoints.toFloat
 	}
      
        
-	def integrate[CV[A] <: CoordVector[A]](img : ContinuousVectorImage[CV])(implicit numSamples : Int) : DenseVector[Float] = { 
-  	    val domain = img.domain
-	    val sampleValues : IndexedSeq[Option[DenseVector[Float]]] = domain.uniformSamples(numSamples).map(img.liftPixelValue)
+	def integrate[CV[A] <: CoordVector[A]](img : ContinuousVectorImage[CV], integrationRegion : DiscreteImageDomain[CV]) : DenseVector[Float] = { 
+
+	    val sampleValues : IndexedSeq[Option[DenseVector[Float]]] = integrationRegion.points.map(img.liftPixelValue)
 	    
 	    var ndVolume = 1f;
-	     for (d <- 0 until domain.dimensionality) {
-	      ndVolume = domain.extent(d) * ndVolume
+	     for (d <- 0 until integrationRegion.dimensionality) {
+	      ndVolume = integrationRegion.extent(d) * ndVolume
 	    }
 	    
 	    val zeroVector = DenseVector.zeros[Float](img.pixelDimensionality)
 	    val sum : DenseVector[Float] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)(_ + _)
-	    sum * ndVolume / numSamples.toFloat
+	    sum * ndVolume / integrationRegion.numberOfPoints.toFloat
 	    
 	}
 }

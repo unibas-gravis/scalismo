@@ -21,7 +21,7 @@ class ResampleTest extends FunSpec with ShouldMatchers {
         ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
     }
 
-      it("yields the original discrete image for a translated domain") {
+      ignore("yields the original discrete image for a translated domain") {
     	//val testImgUrl = getClass().getResource("/3ddf.h5").getPath()
     	val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
         val continuousImage = Interpolation.interpolate2D(3)(discreteImage)

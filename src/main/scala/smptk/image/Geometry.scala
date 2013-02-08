@@ -8,7 +8,7 @@ import scala.language.implicitConversions
 import breeze.linalg.DenseVector
 import scala.reflect.ClassTag
 
-trait CoordVector[Scalar] {
+trait CoordVector[@specialized(Float, Int) Scalar] {
   def dimensionality: Int
   def apply(i: Int): Scalar
   def toArray : Array[Scalar] 
@@ -17,14 +17,14 @@ trait CoordVector[Scalar] {
 object Geometry {
 	  
   
-  case class CoordVector1D[Scalar : ClassTag](val p: Scalar) extends CoordVector[Scalar] {
+  case class CoordVector1D[@specialized(Float, Int) Scalar : ClassTag](val p: Scalar) extends CoordVector[Scalar] {
     def dimensionality = 1
     def apply(i: Int) = p
     def isDefinedAt(i: Int) = i == 0
     def toArray = Array(p)
   }
 
-  case class CoordVector2D[Scalar : ClassTag](val p: Tuple2[Scalar, Scalar]) extends CoordVector[Scalar] {
+  case class CoordVector2D[@specialized(Float, Int) Scalar : ClassTag](val p: Tuple2[Scalar, Scalar]) extends CoordVector[Scalar] {
     def dimensionality = 2
     def apply(i: Int) = {
       require(i >= 0 && i <= 1)
@@ -34,7 +34,7 @@ object Geometry {
     def toArray = Array[Scalar](p._1, p._2)
   }
 
-   case class CoordVector3D[Scalar : ClassTag](val p: Tuple3[Scalar, Scalar, Scalar]) extends CoordVector[Scalar] {
+   case class CoordVector3D[@specialized(Float, Int) Scalar : ClassTag](val p: Tuple3[Scalar, Scalar, Scalar]) extends CoordVector[Scalar] {
     def dimensionality = 3
     def apply(i: Int) = {
       require(i >= 0 && i <= 2)

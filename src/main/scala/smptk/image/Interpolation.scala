@@ -148,7 +148,7 @@ object Interpolation {
     }
 
     new ContinuousScalarImage1D(
-      ContinuousImageDomain1D(image.domain.origin, image.domain.extent), //new domain
+      (x : CoordVector1D[Float]) => image.domain.isInside(x),
       (x: CoordVector1D[Float]) => {
         val splineBasis: (Float => Float) = bSpline(degree) // apply function
         iterateOnPoints(x, splineBasis)
@@ -195,8 +195,7 @@ object Interpolation {
     val bSplineNthOrder = bSpline(degree)_
     val bSplineNmin1thOrder = bSpline(degree - 11)_
     new ContinuousScalarImage2D(
-      ContinuousImageDomain2D(image.domain.origin, image.domain.extent), //new domain
-
+      (x: CoordVector2D[Float]) => image.domain.isInside(x),
       (x: CoordVector2D[Float]) => {
         val splineBasis = (x: Float, y: Float) => bSplineNthOrder(x) * bSplineNthOrder(y) // apply function
         iterateOnPoints( x,  splineBasis)
@@ -249,8 +248,7 @@ object Interpolation {
     val bSplineNmin1thOrder = bSpline(degree - 11)_
 
     new ContinuousScalarImage3D(
-      ContinuousImageDomain3D(image.domain.origin, image.domain.extent), //new domain
-
+      (x : CoordVector3D[Float]) => image.domain.isInside(x),
       (x: CoordVector3D[Float]) => { // apply function
         val splineBasis = (x: Float, y: Float, z: Float) => bSplineNthOrder(x) * bSplineNthOrder(y) * bSplineNthOrder(z)
         iterateOnPoints(x, splineBasis)
