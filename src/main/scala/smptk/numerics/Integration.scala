@@ -7,7 +7,7 @@ import smptk.image.Image._
 
 object Integration {
   
-	def integrate[CV[A] <: CoordVector[A], Repr](img : ContinuousScalarImage[CV, Repr], integrationRegion : DiscreteImageDomain[CV]) : Float = { 
+	def integrate[CV[A] <: CoordVector[A], Repr](img : ContinuousScalarImage[CV], integrationRegion : DiscreteImageDomain[CV]) : Float = { 
 
   	    // TODO this is terribly innefficient as we are looping twice
   	    val sampleValues : IndexedSeq[Option[Float]] = integrationRegion.points.map(img.liftPixelValue)

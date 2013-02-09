@@ -10,9 +10,9 @@ import smptk.image.CoordVector
 import smptk.image.DiscreteImageDomain
 
 trait ImageMetric[CV[A] <: CoordVector[A], Repr] extends 
-((ContinuousScalarImage[CV, Repr], ContinuousScalarImage[CV, Repr]) => (DiscreteImageDomain[CV] => Float)) {
+((ContinuousScalarImage[CV], ContinuousScalarImage[CV]) => (DiscreteImageDomain[CV] => Float)) {
   
-  def takeDerivativeWRTToMovingImage(fixedImage : ContinuousScalarImage[CV, Repr], movingImage: ContinuousScalarImage[CV, Repr]) : ContinuousScalarImage[CV, Repr]  
+  def takeDerivativeWRTToMovingImage(fixedImage : ContinuousScalarImage[CV], movingImage: ContinuousScalarImage[CV]) : ContinuousScalarImage[CV]  
 }
 
 

@@ -23,7 +23,7 @@ trait ScalarPixel[T] {
   def toShort(t: T): Short
 }
 
-trait ContinuousImage[CV[A] <: CoordVector[A], Pixel] extends PartialFunction[CV[Float], Pixel] {
+trait ContinuousImage[CV[A] <: CoordVector[A], Pixel] {
   
   def f(point: CV[Float]): Pixel
   def apply(x: CV[Float]): Pixel = {
@@ -44,8 +44,9 @@ trait ContinuousImage[CV[A] <: CoordVector[A], Pixel] extends PartialFunction[CV
   //TODO add derivative here (use coordinatesVector for return type)
 }
 
-trait ContinuousScalarImage[CV[A] <: CoordVector[A], Repr] extends ContinuousImage[CV, Float] { self =>
+trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, Float] { self : ContinuousScalarImage[CV] =>
   
+  type Repr <: ContinuousScalarImage[CV]
   
   def newConcreteImageRepr(isDefinedAt: CV[Float] => Boolean, f: CV[Float] => Float, df: CV[Float] => DenseVector[Float]) : Repr
   
@@ -64,16 +65,16 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A], Repr] extends ContinuousIma
     else None
   }
 
-  def -(that: ContinuousScalarImage[CV, Repr]): Repr = {
-    def f(x: CV[Float]): Float = ContinuousScalarImage.this.f(x) - that.f(x)
+  def -(that: this.type): Repr = {
+    def f(x: CV[Float]): Float = self.f(x) - that.f(x)
     def df(x: CV[Float]) = ContinuousScalarImage.this.df(x) - that.df(x)
     val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
   }
 
-  def :*(that: ContinuousScalarImage[CV, Repr]): Repr = {
+  def :*(that: this.type): Repr = {
    def f(x: CV[Float]): Float =self.f(x) * that.f(x)
-   def df(x : CV[Float]) = self.df(x) * that(x) + that.df(x) * self(x)
+   def df(x : CV[Float]) = self.df(x) * that(x) + that.df(x) * self.f(x)
    val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
    }
@@ -104,6 +105,7 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A], Repr] extends ContinuousIma
 }
 
 trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, DenseVector[Float]] { self =>
+
   type Pixel = DenseVector[Float]
 
   def apply(point: CV[Float]): DenseVector[Float]
@@ -112,9 +114,10 @@ trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 
 }
 
-case class ContinuousScalarImage1D(_isDefinedAt : Point1D => Boolean, _f: Point1D => Float, _df: Point1D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector1D, ContinuousScalarImage1D] {
-  override val pixelDimensionality = 1
+case class ContinuousScalarImage1D(_isDefinedAt : Point1D => Boolean, _f: Point1D => Float, _df: Point1D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector1D] {
 
+  override val pixelDimensionality = 1
+   type Repr = ContinuousScalarImage1D
   def newConcreteImageRepr(isDefinedAt: CoordVector1D[Float] => Boolean, f: CoordVector1D[Float] => Float, df: CoordVector1D[Float] => DenseVector[Float]) : ContinuousScalarImage1D = ContinuousScalarImage1D(isDefinedAt, f, df)
   
   
@@ -123,8 +126,8 @@ case class ContinuousScalarImage1D(_isDefinedAt : Point1D => Boolean, _f: Point1
   def df(x: CoordVector1D[Float]) = _df(x)
 }
 
-case class ContinuousScalarImage2D(_isDefinedAt : CoordVector2D[Float] => Boolean, _f: Point2D => Float, _df: Point2D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector2D, ContinuousScalarImage2D] { 
- 
+case class ContinuousScalarImage2D(_isDefinedAt : CoordVector2D[Float] => Boolean, _f: Point2D => Float, _df: Point2D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector2D] { 
+ type Repr = ContinuousScalarImage2D
    def newConcreteImageRepr(isDefinedAt: CoordVector2D[Float] => Boolean, f: CoordVector2D[Float] => Float, df: CoordVector2D[Float] => DenseVector[Float]) : ContinuousScalarImage2D = ContinuousScalarImage2D(isDefinedAt, f, df)
  
   override val pixelDimensionality = 1
@@ -133,8 +136,9 @@ case class ContinuousScalarImage2D(_isDefinedAt : CoordVector2D[Float] => Boolea
   def isDefinedAt(pt : Point2D) = _isDefinedAt(pt)  
 }
 
-case class ContinuousScalarImage3D(_isDefinedAt : Point3D => Boolean,  _f: Point3D => Float, _df: Point3D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector3D, ContinuousScalarImage3D] {
+case class ContinuousScalarImage3D(_isDefinedAt : Point3D => Boolean,  _f: Point3D => Float, _df: Point3D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector3D] {
 
+ type Repr = ContinuousScalarImage3D
    def newConcreteImageRepr(isDefinedAt: CoordVector3D[Float] => Boolean, f: CoordVector3D[Float] => Float, df: CoordVector3D[Float] => DenseVector[Float]) : ContinuousScalarImage3D = ContinuousScalarImage3D(isDefinedAt, f, df)
  
   override val pixelDimensionality = 1
@@ -148,6 +152,8 @@ case class ContinuousScalarImage3D(_isDefinedAt : Point3D => Boolean,  _f: Point
 /////////////////////////////////////////////
 
 case class ContinousVectorImage1D(val _isDefinedAt : CoordVector1D[Float] => Boolean, val pixelDimensionality: Int, val domain: ContinuousImageDomain1D, _f: Point1D => DenseVector[Float], _df: Point1D => DenseMatrix[Float]) extends ContinuousVectorImage[CoordVector1D] {
+type CV[A] = CoordVector1D[A]
+  
   def f(x: CoordVector1D[Float]) = _f(x)
   def df(x: CoordVector1D[Float]) = _df(x)
   def isDefinedAt(x : CoordVector1D[Float]) = _isDefinedAt(x)

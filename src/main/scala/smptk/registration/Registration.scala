@@ -21,8 +21,8 @@ object Registration {
   case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
   def registration[CV[A] <: CoordVector[A], Repr, Pixel](
-    fixedImage: ContinuousScalarImage[CV, Repr],
-    movingImage: ContinuousScalarImage[CV, Repr],
+    fixedImage: ContinuousScalarImage[CV],
+    movingImage: ContinuousScalarImage[CV],
     transformationSpace: TransformationSpace[CV],
     metric: ImageMetric[CV, Repr],
     regularization: Regularizer,
