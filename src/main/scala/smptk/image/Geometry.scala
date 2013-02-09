@@ -8,7 +8,7 @@ import scala.language.implicitConversions
 import breeze.linalg.DenseVector
 import scala.reflect.ClassTag
 
-trait CoordVector[@specialized(Float, Int) Scalar] {
+trait CoordVector[@specialized(Double, Float, Int) Scalar] {
   def dimensionality: Int
   def apply(i: Int): Scalar
   def toArray : Array[Scalar] 
@@ -17,33 +17,31 @@ trait CoordVector[@specialized(Float, Int) Scalar] {
 object Geometry {
 	  
   
-  case class CoordVector1D[@specialized(Float, Int) Scalar : ClassTag](val p: Scalar) extends CoordVector[Scalar] {
-    def dimensionality = 1
+  case class CoordVector1D[@specialized(Double, Float, Int) Scalar : ClassTag](val p: Scalar) extends CoordVector[Scalar] {
+    val dimensionality = 1
     def apply(i: Int) = p
     def isDefinedAt(i: Int) = i == 0
     def toArray = Array(p)
   }
 
-  case class CoordVector2D[@specialized(Float, Int) Scalar : ClassTag](val p: Tuple2[Scalar, Scalar]) extends CoordVector[Scalar] {
-    def dimensionality = 2
+  case class CoordVector2D[@specialized(Double, Float, Int) Scalar : ClassTag](val p1 : Scalar, val p2 : Scalar) extends CoordVector[Scalar] {
+    val dimensionality = 2
     def apply(i: Int) = {
-      require(i >= 0 && i <= 1)
-      if (i == 0) p._1 else p._2
+      if (i == 0) p1 else p2
     }
     def isDefinedAt(i: Int) = i == 0 || i == 1
-    def toArray = Array[Scalar](p._1, p._2)
+    def toArray = Array[Scalar](p1, p2)
   }
 
-   case class CoordVector3D[@specialized(Float, Int) Scalar : ClassTag](val p: Tuple3[Scalar, Scalar, Scalar]) extends CoordVector[Scalar] {
-    def dimensionality = 3
+   case class CoordVector3D[@specialized(Double, Float, Int) Scalar : ClassTag](p1 :Scalar, p2 : Scalar, p3 : Scalar) extends CoordVector[Scalar] {
+    val dimensionality = 3
     def apply(i: Int) = {
-      require(i >= 0 && i <= 2)
-      if (i == 0) p._1 
-      else if (i == 1) p._2
-      else p._3
+      if (i == 0) p1 
+      else if (i == 1) p2
+      else p3
     }
     def isDefinedAt(i: Int) = i == 0 || i == 1 || i == 2
-    def toArray = Array(p._1, p._2, p._3)
+    def toArray = Array(p1, p2, p3)
   }
   
    
@@ -64,11 +62,11 @@ object Geometry {
   implicit def floatToCoordVec(s : Float) = CoordVector1D(s)
   implicit def doubleToCoordVec(s : Double) = CoordVector1D(s)
   implicit def intToCoordVec(s : Int) = CoordVector1D(s)
-  implicit def floatTupleToCoordVec(t : Tuple2[Float, Float]) = CoordVector2D(t)
-  implicit def doubleTupleToCoordVec(t : Tuple2[Double, Double]) = CoordVector2D(t)
-  implicit def intTupleToCoordVec(t : Tuple2[Int, Int]) = CoordVector2D(t)
-  implicit def floatTupleToCoordVec(t : Tuple3[Float, Float, Float]) = CoordVector3D(t)
-  implicit def doubleTupleToCoordVec(t : Tuple3[Double, Double, Double]) = CoordVector3D(t)
-  implicit def intTupleToCoordVec(t : Tuple3[Int, Int, Int]) = CoordVector3D(t)
+  implicit def floatTupleToCoordVec(t : Tuple2[Float, Float]) = CoordVector2D(t._1, t._2)
+  implicit def doubleTupleToCoordVec(t : Tuple2[Double, Double]) = CoordVector2D(t._1, t._2)
+  implicit def intTupleToCoordVec(t : Tuple2[Int, Int]) = CoordVector2D(t._1, t._2)
+  implicit def floatTupleToCoordVec(t : Tuple3[Float, Float, Float]) = CoordVector3D(t._1, t._2, t._3)
+  implicit def doubleTupleToCoordVec(t : Tuple3[Double, Double, Double]) = CoordVector3D(t._1, t._2, t._3)
+  implicit def intTupleToCoordVec(t : Tuple3[Int, Int, Int]) = CoordVector3D(t._1, t._2, t._3)
 
 }
