@@ -35,7 +35,7 @@ case class TranslationSpace2D extends TransformationSpace[CoordVector2D] {
    def parametersDimensionality: Int = 2
     
   def apply(p: ParameterVector) = {
-    new Transformation[CoordVector2D] { def apply(pt: Point2D) = (p(0) + pt(0), p(1) + pt(1)) }
+    new Transformation[CoordVector2D] { def apply(pt: Point2D) = CoordVector2D(p(0) + pt(0), p(1) + pt(1)) }
   }
 
   def takeDerivative(p: ParameterVector) = { x: Point2D =>

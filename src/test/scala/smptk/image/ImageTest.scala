@@ -11,7 +11,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
   describe("A discrete 1D image") {
     it("returns the same points for a 1d index and a coordinate index") {
       val domain = DiscreteImageDomain1D(0f, 1, 5)
-      val discreteImage = DiscreteScalarImage1D(domain, IndexedSeq(3f, 2f, 1.5f, 1f, 0f))
+      val discreteImage = DiscreteScalarImage1D(domain, Array(3f, 2f, 1.5f, 1f, 0f))
 
       for (i <- 0 until domain.size(0)) {
         assert(discreteImage(i) == discreteImage(CoordVector1D[Int](i)))
@@ -22,7 +22,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
   describe("A discrete 2D image") {
     it("returns the same points for a 1d index and a (2d) coordinate index") {
       val domain = DiscreteImageDomain2D((0f, 0f), (1f, 2f), (3, 2))
-      val discreteImage = DiscreteScalarImage2D(domain, IndexedSeq(3f, 2f, 1.5f, 1f, 0f, 4f))
+      val discreteImage = DiscreteScalarImage2D(domain, Array(3f, 2f, 1.5f, 1f, 0f, 4f))
 
       for (
         y <- 0 until domain.size(1);

@@ -53,7 +53,7 @@ object Interpolation {
   }
 
   def determineCoefficientsWithLinearSystem[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage1D[Scalar]): DenseVector[Float] = {
-    val N: Int = img.domain.points.size
+    val N: Int = img.domain.numberOfPoints
     val splineBasis: (Float => Float) = bSpline(degree)
     val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
 
@@ -77,7 +77,7 @@ object Interpolation {
 
   def determineCoefficientsWithLinearSystem[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
 
-    val N: Int = img.domain.points.size
+    val N: Int = img.domain.numberOfPoints
     val splineBasis = (a: Float, b: Float) => bSpline(degree)(a) * bSpline(degree)(b)
     val I = DenseVector(img.pixelValues.toArray).map(_.toDouble)
 
@@ -271,7 +271,7 @@ object Interpolation {
     val p = f.subplot(0)
     val xs = linspace(0, 30, 500).map(_.toFloat)
     val range = (0 until 30).toIndexedSeq
-    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 30), range.map(Math.sin(_)).toArray.toIndexedSeq)
+    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 30), range.map(Math.sin(_)).toArray)
     val continuousImg = interpolate(3)(ps)
 
     p += plot(xs, xs.map(x => continuousImg(x)))

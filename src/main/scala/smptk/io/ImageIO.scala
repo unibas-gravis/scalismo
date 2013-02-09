@@ -99,7 +99,7 @@ object ImageIO {
    *
    */
 
-  private def readHDF5[@specialized(Short, Float) Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
+  private def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
     val filename = file.getAbsolutePath()
     val h5file = HDF5Utils.openFileForReading(file)
 

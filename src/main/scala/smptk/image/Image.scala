@@ -14,7 +14,7 @@ import scala.reflect.ClassTag
 import scala.util.Random
 import smptk.registration.Transformation
 
-trait ScalarPixel[T] {
+trait ScalarPixel[@specialized(Short, Float, Double) T] {
   def fromDouble(d: Double): T
   def fromFloat(f: Float): T
   def fromShort(s: Short): T
@@ -23,7 +23,7 @@ trait ScalarPixel[T] {
   def toShort(t: T): Short
 }
 
-trait ContinuousImage[CV[A] <: CoordVector[A], Pixel] {
+trait ContinuousImage[CV[A] <: CoordVector[A], @specialized(Short, Float) Pixel] {
   
   def f(point: CV[Float]): Pixel
   def apply(x: CV[Float]): Pixel = {
@@ -47,7 +47,7 @@ trait ContinuousImage[CV[A] <: CoordVector[A], Pixel] {
 trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, Float] { self : ContinuousScalarImage[CV] =>
   
   type Repr <: ContinuousScalarImage[CV]
-  
+ 
   def newConcreteImageRepr(isDefinedAt: CV[Float] => Boolean, f: CV[Float] => Float, df: CV[Float] => DenseVector[Float]) : Repr
   
   val pixelDimensionality = 1
@@ -115,7 +115,7 @@ trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 }
 
 case class ContinuousScalarImage1D(_isDefinedAt : Point1D => Boolean, _f: Point1D => Float, _df: Point1D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector1D] {
-
+ 
   override val pixelDimensionality = 1
    type Repr = ContinuousScalarImage1D
   def newConcreteImageRepr(isDefinedAt: CoordVector1D[Float] => Boolean, f: CoordVector1D[Float] => Float, df: CoordVector1D[Float] => DenseVector[Float]) : ContinuousScalarImage1D = ContinuousScalarImage1D(isDefinedAt, f, df)
@@ -163,10 +163,10 @@ type CV[A] = CoordVector1D[A]
 // Discrete Images
 /////////////////////////////////////////////
 
-trait DiscreteImage[CV[A] <: CoordVector[A], Pixel] extends PartialFunction[Int, Pixel] {
+trait DiscreteImage[CV[A] <: CoordVector[A], @specialized(Float, Short) Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[CV]
   def pixelDimensionality: Int
-  def pixelValues: IndexedSeq[Pixel]
+  def pixelValues: Array[Pixel]
   def apply(idx: Int): Pixel = pixelValues(idx)
   def apply(idx: CV[Int]): Pixel = pixelValues(domain.indexToLinearIndex(idx))
   def isDefinedAt(idx: Int) = idx >= 0 && idx <= pixelValues.size
@@ -174,7 +174,7 @@ trait DiscreteImage[CV[A] <: CoordVector[A], Pixel] extends PartialFunction[Int,
     (0 until domain.dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) <= domain.size(d))
   }
 
-  def map[Pixel2: ScalarPixel](f: Pixel => Pixel2): DiscreteScalarImage[CV, Pixel2]
+  def map[Pixel2: ScalarPixel : ClassTag](f: Pixel => Pixel2): DiscreteScalarImage[CV, Pixel2]
   def foreach[A](f: Pixel => A): Unit = pixelValues.foreach(f)
 }
 
@@ -183,19 +183,19 @@ trait DiscreteScalarImage[CV[A] <: CoordVector[A], Pixel] extends DiscreteImage[
 
 }
 
-case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain1D, val pixelValues: IndexedSeq[Pixel]) extends DiscreteScalarImage[CoordVector1D, Pixel] {
-  require(domain.points.size == pixelValues.size)
-  def map[@specialized(Short, Float) A: ScalarPixel](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.pixelValues.map(f))
+case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain1D, val pixelValues: Array[Pixel]) extends DiscreteScalarImage[CoordVector1D, Pixel] {
+  require(domain.numberOfPoints == pixelValues.size)
+  def map[@specialized(Short, Float) A: ScalarPixel  : ClassTag](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.pixelValues.map(f))
 }
 
-case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain2D, val pixelValues: IndexedSeq[Pixel]) extends DiscreteScalarImage[CoordVector2D, Pixel] {
-  require(domain.points.size == pixelValues.size)
-  def map[@specialized(Short, Float) A: ScalarPixel](f: Pixel => A) = DiscreteScalarImage2D(this.domain, this.pixelValues.map(f))
+case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain2D, val pixelValues: Array[Pixel]) extends DiscreteScalarImage[CoordVector2D, Pixel] {
+  require(domain.numberOfPoints == pixelValues.size)
+  def map[@specialized(Short, Float) A: ScalarPixel  : ClassTag](f: Pixel => A) = DiscreteScalarImage2D(this.domain, this.pixelValues.map(f))
 }
 
-case class DiscreteScalarImage3D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain3D, val pixelValues: IndexedSeq[Pixel]) extends DiscreteScalarImage[CoordVector3D, Pixel] {
-  require(domain.points.size == pixelValues.size)
-  def map[@specialized(Short, Float) A: ScalarPixel](f: Pixel => A) = DiscreteScalarImage3D(this.domain, this.pixelValues.map(f))
+case class DiscreteScalarImage3D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain3D, val pixelValues: Array[Pixel]) extends DiscreteScalarImage[CoordVector3D, Pixel] {
+  require(domain.numberOfPoints == pixelValues.size)
+  def map[@specialized(Short, Float) A: ScalarPixel : ClassTag](f: Pixel => A) = DiscreteScalarImage3D(this.domain, this.pixelValues.map(f))
 }
 
 object Image {
@@ -229,10 +229,10 @@ object Image {
 
 object DiscreteImage1D {
 
-  def random[Pixel: ScalarPixel](domain: DiscreteImageDomain1D): DiscreteScalarImage1D[Pixel] = {
+  def random[Pixel: ScalarPixel : ClassTag](domain: DiscreteImageDomain1D): DiscreteScalarImage1D[Pixel] = {
     val scalarPixel = implicitly[ScalarPixel[Pixel]]
-    val N = domain.points.size
-    val values = for (i <- 0 to N) yield Random.nextFloat
+    val N = domain.numberOfPoints
+    val values = (for (i <- 0 to N) yield Random.nextFloat).toArray
     DiscreteScalarImage1D(domain, values.map(scalarPixel.fromFloat(_)))
   }
 
@@ -240,10 +240,10 @@ object DiscreteImage1D {
 
 object DiscreteImage2D {
 
-  def random[Pixel: ScalarPixel](domain: DiscreteImageDomain2D): DiscreteScalarImage2D[Pixel] = {
+  def random[Pixel: ScalarPixel : ClassTag](domain: DiscreteImageDomain2D): DiscreteScalarImage2D[Pixel] = {
     val scalarPixel = implicitly[ScalarPixel[Pixel]]
-    val N = domain.points.size
-    val values = for (i <- 0 to N) yield Random.nextFloat
+    val N = domain.numberOfPoints
+    val values = (for (i <- 0 to N) yield Random.nextFloat).toArray
     DiscreteScalarImage2D(domain, values.map(scalarPixel.fromFloat(_)))
   }
 
@@ -251,10 +251,10 @@ object DiscreteImage2D {
 
 object DiscreteImage3D {
 
-  def random[Pixel: ScalarPixel](domain: DiscreteImageDomain3D): DiscreteScalarImage3D[Pixel] = {
+  def random[Pixel: ScalarPixel : ClassTag](domain: DiscreteImageDomain3D): DiscreteScalarImage3D[Pixel] = {
     val scalarPixel = implicitly[ScalarPixel[Pixel]]
-    val N = domain.points.size
-    val values = for (i <- 0 to N) yield Random.nextFloat
+    val N = domain.numberOfPoints
+    val values = (for (i <- 0 to N) yield Random.nextFloat).toArray
     DiscreteScalarImage3D(domain, values.map(scalarPixel.fromFloat(_)))
   }
 

@@ -17,35 +17,28 @@ import smptk.image.Interpolation._
 import smptk.image.ContinuousImageDomain
 import smptk.numerics.Integration
 import smptk.image.ContinuousScalarImage1D
+import smptk.io.ImageIO
+import smptk.image.Interpolation
+import smptk.image.Resample
+import java.io.File
 
-// object Test {
+object Test { 
+  def main(args : Array[String])  { 
+        val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
+      println("image read")
+        val continuousImage = Interpolation.interpolate2D(0)(discreteImage)
+        println("interpolated")
+      val tSpace = TranslationSpace2D()
+      val translation = tSpace(DenseVector[Float](10,0))
 
-//  // a concrete example of a registration
-//  def doRegistration(): RegistrationResult[CoordVector1D] = {
-//
-//    val oneDTransformSpace = TranslationSpace1D()
-//    val range = (-15 until 15).toIndexedSeq
-//
-//    val discreteFixedImage = DiscreteScalarImage1D(DiscreteImageDomain1D(-15f, 1f, 30), range.map(Math.pow(_, 2)).toArray.toIndexedSeq)
-//    val fixedImage = interpolate(3)(discreteFixedImage)
-//
-//    val discreteMovingImage = DiscreteScalarImage1D(DiscreteImageDomain1D(-15f, 1f, 30), range.map(1.4 * Math.pow(_, 2)).toArray.toIndexedSeq)
-//    val movingImage = interpolate(3)(discreteMovingImage)
-//
-//    val metric = new ImageMetric[CoordVector1D, ContinuousScalarImage1D] {
-//      def apply(img1: ContinuousScalarImage1D,
-//        img2: ContinuousScalarImage1D) = { 
-//        (region : DiscreteImageDomain1D) => {
-//        val squaredImg = (img1 - img2) :* (img1 - img2)
-//        Integration.integrate(squaredImg, region)
-//        }
-//      }
-//      
-//      def takeDerivativeWRTToMovingImage(img1: ContinuousScalarImage1D,
-//        img2: ContinuousScalarImage1D) = {
-//        (img1 - img2) * 2f
-//      }
-//    }
+        val translatedImg = continuousImage.warp(translation)
+     println("warped")
+      val resampledImage = Resample.sample2D[Short](translatedImg, discreteImage.domain, 0)      
+      println("resampled")
+      ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
+      println("written")
+  }
+}
 //
 //    val initialParameters = DenseVector(1f)
 //    val regularizer = new Regularizer {
