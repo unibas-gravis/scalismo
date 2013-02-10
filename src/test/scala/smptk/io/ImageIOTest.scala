@@ -15,7 +15,7 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
   describe("A 2D vector image") { 
     it ("can be stored and read again") {
     	val domain = DiscreteImageDomain2D((1f, 0f), (0.5f, 1f), (2, 3))
-        val discreteImage = DiscreteScalarImage2D[Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
+        val discreteImage = DiscreteScalarImage2D[Float](domain, IndexedSeq(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
         
          val tmpImgFile = File.createTempFile("image2D", ".h5")
 

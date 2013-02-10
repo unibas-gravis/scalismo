@@ -70,7 +70,7 @@ object Interpolation {
 
   def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage1D[Scalar]): DenseVector[Float] = {
     // the c is an input-output argument here
-    val c = img.pixelValues.toArray.map(_.toDouble)
+    val c = img.pixelValues.map(_.toDouble).toArray
     BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
     DenseVector(c.map(_.toFloat))
   }
@@ -99,13 +99,13 @@ object Interpolation {
   def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Float] = {
     val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
     for (y <- 0 until img.domain.size(1)) {
-      val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex((x, y))))
+      val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex(CoordVector2D(x, y))))
 
       // the c is an input-output argument here
-      val c = rowValues.toArray.map(_.toDouble)
+      val c = rowValues.map(_.toDouble).toArray
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-      val idxInCoeffs = img.domain.indexToLinearIndex((0, y))
+      val idxInCoeffs = img.domain.indexToLinearIndex(CoordVector2D(0, y))
       coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toFloat))
       //coeffs(img.domain.indexToLinearIndex((0,y)) until img.domain.indexToLinearIndex((img.domain.size(0)-1,y))) := DenseVector(c.map(_.toFloat))
     }
@@ -116,12 +116,12 @@ object Interpolation {
     val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
     for (z <- 0 until img.domain.size(2)) {
       for (y <- 0 until img.domain.size(1)) {
-        val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex((x, y, z))))
+        val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex(CoordVector3D(x, y, z))))
 
         // the c is an input-output argument here
-        val c = rowValues.toArray.map(_.toDouble)
+        val c = rowValues.map(_.toDouble).toArray
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-        val idxInCoeffs = img.domain.indexToLinearIndex((0, y, z))
+        val idxInCoeffs = img.domain.indexToLinearIndex(CoordVector3D(0, y, z))
         coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toFloat))
       }
     }
@@ -182,7 +182,7 @@ object Interpolation {
         k = k1
         while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
 
-          val idx = image.domain.indexToLinearIndex((k, l))
+          val idx = image.domain.indexToLinearIndex(CoordVector2D(k, l))
           result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l)
           k = k + 1
         }
@@ -233,7 +233,7 @@ object Interpolation {
           k = k1
           while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
 
-            val idx = image.domain.indexToLinearIndex((k, l, m))
+            val idx = image.domain.indexToLinearIndex(CoordVector3D(k, l, m))
             result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
             k = k + 1
           }
@@ -263,20 +263,20 @@ object Interpolation {
       })
 
   }
-
-  def main(args: Array[String]) {
-    val a: Try[Int] = Failure(new IOException("abc"))
-    val b: Try[Int] = Success(5)
-    val f = Figure()
-    val p = f.subplot(0)
-    val xs = linspace(0, 30, 500).map(_.toFloat)
-    val range = (0 until 30).toIndexedSeq
-    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 30), range.map(Math.sin(_)).toArray)
-    val continuousImg = interpolate(3)(ps)
-
-    p += plot(xs, xs.map(x => continuousImg(x)))
-    p += plot(xs, xs.map(x => continuousImg.takeDerivative(x)(0)))
-  }
+//
+//  def main(args: Array[String]) {
+//    val a: Try[Int] = Failure(new IOException("abc"))
+//    val b: Try[Int] = Success(5)
+//    val f = Figure()
+//    val p = f.subplot(0)
+//    val xs = linspace(0, 30, 500).map(_.toFloat)
+//    val range = (0 until 30).toIndexedSeq
+//    val ps = DiscreteScalarImage1D(DiscreteImageDomain1D(0f, 1f, 30), range.map(Math.sin(_)))
+//    val continuousImg = interpolate(3)(ps)
+//
+//    p += plot(xs, xs.map(x => continuousImg(x)))
+//    p += plot(xs, xs.map(x => continuousImg.takeDerivative(x)(0)))
+//  }
 }
 
 //  def determineCoefficients[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage3D[Scalar]): DenseVector[Float] = {
