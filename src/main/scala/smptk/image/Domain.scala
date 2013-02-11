@@ -60,7 +60,7 @@ trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { 
 
 case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: CoordVector1D[Float], val size: CoordVector1D[Int]) extends DiscreteImageDomain[CoordVector1D] {
   val dimensionality = 1
-  val points = for (i <- 0 until size(0)) yield CoordVector1D(origin(0) + spacing(0) * i)
+  def points = for (i <- 0 until size(0)) yield CoordVector1D(origin(0) + spacing(0) * i)
 
   val extent = CoordVector1D(origin(0) + spacing(0) * size(0))
 
@@ -77,7 +77,7 @@ case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: 
 
 case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: CoordVector2D[Float], val size: CoordVector2D[Int]) extends DiscreteImageDomain[CoordVector2D] {
   val dimensionality = 2
-  val points = for (j <- 0 until size(1); i <- 0 until size(0))
+  def points = for (j <- 0 until size(1); i <- 0 until size(0))
       yield CoordVector2D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j)
   
 
@@ -97,7 +97,7 @@ case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: 
 
 case class DiscreteImageDomain3D(val origin: CoordVector3D[Float], val spacing: CoordVector3D[Float], val size: CoordVector3D[Int]) extends DiscreteImageDomain[CoordVector3D] {
   val dimensionality = 3
-  val points  = for (k <- 0 until size(2); j <- 0 until size(1); i <- 0 until size(0))
+  def points  = for (k <- 0 until size(2); j <- 0 until size(1); i <- 0 until size(0))
       yield CoordVector3D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j, origin(2) + spacing(2) * k)
 
 
