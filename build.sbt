@@ -4,6 +4,9 @@ name := "SMPTk"
 
 version := "0.1.0-SNAPSHOT"
 
+seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
+
+
 libraryDependencies  ++= Seq(
             // other dependencies here
             // pick and choose:
@@ -17,6 +20,7 @@ libraryDependencies  ++= Seq(
 
 resolvers ++= Seq(
    "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/")
+
 
 
 
