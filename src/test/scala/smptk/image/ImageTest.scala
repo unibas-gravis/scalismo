@@ -6,6 +6,9 @@ import org.scalatest.matchers.ShouldMatchers
 import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector3D
 import smptk.image.Geometry.CoordVector2D
+import smptk.image.Geometry._
+import breeze.linalg.DenseVector
+import smptk.registration.TranslationSpace1D
 
 class ImageTest extends FunSpec with ShouldMatchers {
   describe("A discrete 1D image") {
@@ -33,17 +36,54 @@ class ImageTest extends FunSpec with ShouldMatchers {
     }
   }
 
+  describe("A continuous 1D image") {
+    it("yields the right values after composing with a translation") {
+      def isInside(x: Point1D) = x >= -4 && x <= 6
+      val image = ContinuousScalarImage1D(isInside,
+        (x: Point1D) => Math.sin(x(0).toDouble).toFloat,
+        (x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat))
+      val translationTransform = TranslationSpace1D()(DenseVector(1f))
+      val composedImage = image.compose(translationTransform)
+      assert(composedImage.isDefinedAt(-4f) === true)
+      assert(composedImage.isDefinedAt(5f) === true)      
+      assert(composedImage.isDefinedAt(-4.5f) === false)
+      assert(composedImage.isDefinedAt(5.5f) === false)
+      composedImage(0) should be(image(1) plusOrMinus 1e-5f)
+    }
+
+    it("yields the right values after warping with a translation") {
+      def fixedDomainIsInside(x: Point1D) = x >= -3 && x <= 7
+      def movingDomainIsInside(x: Point1D) = x >= -4 && x <= 6
+
+      val image = ContinuousScalarImage1D(movingDomainIsInside,
+        (x: Point1D) => Math.sin(x(0).toDouble).toFloat,
+        (x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat))
+      val translationTransform = TranslationSpace1D()(DenseVector(-1f))
+      
+      val warpedImage = image.warp(translationTransform, fixedDomainIsInside)
+      warpedImage.isDefinedAt(-4f) should be(false)
+      warpedImage.isDefinedAt(-3f) should be(true)      
+      warpedImage.isDefinedAt(5f) should be(true)
+      warpedImage.isDefinedAt(-3.5f) should be(false)
+      warpedImage.isDefinedAt(5.5f) should be(true)
+      warpedImage.isDefinedAt(6.5f) should be(true)      
+      warpedImage.isDefinedAt(7f) should be(true)      
+      warpedImage(0) should be(image(-1) plusOrMinus 1e-5f)
+    }
+
+  }
+
 }
 
 class DomainTest extends FunSpec with ShouldMatchers {
-  describe("a domain") { 
+  describe("a domain") {
     it("correctly reports the number of points") {
-      val domain = DiscreteImageDomain2D((0f, 0f), (1f, 2f), (42, 49))      
+      val domain = DiscreteImageDomain2D((0f, 0f), (1f, 2f), (42, 49))
       assert(domain.numberOfPoints === domain.points.size)
     }
-    
+
   }
-  
+
   describe("a discrete domain in 2d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain2D((0f, 0f), (1f, 2f), (42, 49))

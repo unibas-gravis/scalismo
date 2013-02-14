@@ -11,7 +11,7 @@ trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector
 
 case class GradientDescentOptimizer(val numIterations : Int) extends Optimizer {
   
-  val stepLength  : Float = 0.00000000001f
+  val stepLength  : Float = 0.1f
   
   def apply(x0 : ParameterVector, c : CostFunction) : ParameterVector = {
      optimize(x0, c, 0)
@@ -19,9 +19,9 @@ case class GradientDescentOptimizer(val numIterations : Int) extends Optimizer {
   
   private def optimize(x : ParameterVector, c : CostFunction, it : Int) : ParameterVector = {    
     val (newValue, gradient) = c(x)
-    println("iteration " +it +" x " +x)
-    println("iteration " +it +" value " +newValue)
-    println("iteration " +it +" gradinet " +gradient)
+    println("iteration " +it +" parameterVector " +x)
+    println("iteration " +it +" Error value " +newValue)
+    println("iteration " +it +" gradient " +gradient)
     if (it > numIterations) x 
     else {
       //val normalizedGradient = gradient / gradient.norm(2).toFloat

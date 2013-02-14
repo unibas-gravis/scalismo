@@ -15,49 +15,53 @@ import smptk.image.DiscreteDomain
 import smptk.image.DiscreteImageDomain
 import smptk.image.ContinuousImageDomain
 import smptk.image.ContinuousImageDomain
+import smptk.image.ContinuousScalarImage1D
+import smptk.image.Geometry._
+import smptk.image.DiscreteImageDomain1D
 
 object Registration {
 
   case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
-  def registration[CV[A] <: CoordVector[A], Repr, Pixel](
-    fixedImage: ContinuousScalarImage[CV],
-    movingImage: ContinuousScalarImage[CV],
-    transformationSpace: TransformationSpace[CV],
-    metric: ImageMetric[CV, Repr],
+  def registration1D(
+    fixedImage: ContinuousScalarImage1D,
+    movingImage: ContinuousScalarImage1D,
+    transformationSpace: TransformationSpace[CoordVector1D],
+    metric: ImageMetric1D,
     regularization: Regularizer,
-    initialParameters: ParameterVector): (DiscreteImageDomain[CV] => RegistrationResult[CV]) =
+    initialParameters: ParameterVector): (DiscreteImageDomain1D => RegistrationResult[CoordVector1D]) =
     {
       fixedImageRegion =>
         {
           val costFunction = new CostFunction {
 
             def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
-//
-//              val dTransformSpaceDAlpha = transformationSpace.takeDerivative(params)
-//
-//              val warpedImage = new ContinuousScalarImage[CV, Repr] {
-//                def f(pt: CV[Float]) = movingImage.f(transformationSpace(params)(pt))
-//                def isDefinedAt(pt : CV[Float]) = fixedImage.isDefinedAt(pt) && movingImage.isDefinedAt(transformationSpace(params)(pt))
-//                def df(x: CV[Float]) = {
-//                  val grad = movingImage.df(transformationSpace(params)(x))
-//                  dTransformSpaceDAlpha(x) * grad
-//                }
-//              }
-//
-//              val value = metric(warpedImage, fixedImage)(fixedImageRegion) + regularization(params)
-//              val dMetricDalpha: ContinuousScalarImage[CV, Repr	] = metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
-//              val dMovingImageDAlpha: ContinuousVectorImage[CV] = warpedImage.differentiate
-//
-//              val transformParameterGradientImage = new ContinuousVectorImage[CV] {
-//                val pixelDimensionality = params.size
-//                def isDefinedAt(x : CV[Float]) = warpedImage.isDefinedAt(x)
-//                def f(x: CV[Float]) = warpedImage.df(x) * dMetricDalpha(x)
-//              }
-//
-//              val gradient: DenseVector[Float] = integrate(transformParameterGradientImage, fixedImageRegion)
-              val value = 0
-              val gradient = DenseVector.zeros[Float](fixedImageRegion.dimensionality)
+
+              // compute the value of the cost function
+              val transformation = transformationSpace(params)
+              val warpedImage   = movingImage.warp(transformation, fixedImage.isDefinedAt)
+              val value = metric(warpedImage, fixedImage)(fixedImageRegion) + regularization(params)
+
+              // compute the derivative of the cost function
+              
+              val dMetricDalpha = metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
+
+              val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
+              //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
+
+              val parametricTransformGradientImage = new ContinuousVectorImage[CoordVector1D] {
+                val pixelDimensionality = params.size
+                def isDefinedAt(x : Point1D) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x) 
+                def f(x: Point1D) =  dTransformSpaceDAlpha(x) * movingImage.df(transformation(x))* dMetricDalpha(x)  
+              }
+              
+
+              val gradient: DenseVector[Float] = integrate(parametricTransformGradientImage, fixedImageRegion)
+              
+              val dMovingImageDAlpha = warpedImage.differentiate
+
+
+
               (value, gradient)
             }
           }

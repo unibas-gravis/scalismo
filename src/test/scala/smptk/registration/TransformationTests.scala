@@ -21,7 +21,7 @@ class ImageTest extends FunSpec {
       val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
 
       val translation = TranslationSpace2D()(DenseVector[Float](10,0))
-      val translatedImg = continuousImage.warp(translation)
+      val translatedImg = continuousImage.compose(translation)
       val resampledImage = Resample.sample2D[Short](translatedImg, discreteImage.domain, 0)      
       ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
 
@@ -32,7 +32,7 @@ class ImageTest extends FunSpec {
       val continuousImage = ContinuousScalarImage1D(domain.isInside, (x : CoordVector1D[Float]) => x * x, (x : CoordVector1D[Float]) => DenseVector(2 * x ))
 
       val translation = TranslationSpace1D()(DenseVector[Float](10))
-      val translatedImg = continuousImage.warp(translation)
+      val translatedImg = continuousImage.compose(translation)
       
 
       assert(translatedImg(-10) === 0)

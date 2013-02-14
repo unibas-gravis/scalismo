@@ -11,22 +11,26 @@ import smptk.image.Geometry._
 trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVector, Transformation[CV]] {
   type JacobianImage = Function1[CV[Float], DenseMatrix[Float]]
   def parametersDimensionality: Int
-  def takeDerivative(alpha: ParameterVector): JacobianImage
+  def takeDerivativeWRTParameters(alpha: ParameterVector): JacobianImage
 }
 
 trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Float] => CV[Float]) {
-
+  def takeDerivative(x : CV[Float]): DenseMatrix[Float]
 }
 
 case class TranslationSpace1D extends TransformationSpace[CoordVector1D] {
   def apply(p: ParameterVector) = {
-    new Transformation[CoordVector1D] { def apply(pt: Point1D) = p(0) + pt(0) }
+    new Transformation[CoordVector1D] { 
+      
+      def apply(pt: Point1D) =   p(0) + pt(0)
+      def takeDerivative(x : Point1D) = {
+        DenseMatrix.eye[Float](1)
+      } 
+    }
   }
   def parametersDimensionality: Int = 1
-  def takeDerivative(p: ParameterVector) = { x: Point1D =>
-    val M = DenseMatrix.zeros[Float](1, 1)
-    M(0, 0) = x(0)
-    M
+  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point1D =>
+    DenseMatrix.eye[Float](1)
   }
 }
 
@@ -35,14 +39,16 @@ case class TranslationSpace2D extends TransformationSpace[CoordVector2D] {
    def parametersDimensionality: Int = 2
     
   def apply(p: ParameterVector) = {
-    new Transformation[CoordVector2D] { def apply(pt: Point2D) = CoordVector2D(p(0) + pt(0), p(1) + pt(1)) }
-  }
+    new Transformation[CoordVector2D] { 
+      def apply(pt: Point2D) = CoordVector2D(p(0) + pt(0), p(1) + pt(1)) 
+      def takeDerivative(x : Point2D) = {
+        DenseMatrix.eye[Float](2)
+      } 
+    }
+   }
 
-  def takeDerivative(p: ParameterVector) = { x: Point2D =>
-    val M = DenseMatrix.zeros[Float](2, 2)
-    M(0, 0) = x(0)
-    M(1, 1) = x(1)
-    M
+  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point2D =>
+    DenseMatrix.eye[Float](2)
   }
 }
 

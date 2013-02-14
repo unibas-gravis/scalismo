@@ -21,6 +21,8 @@ import smptk.image.DiscreteImage
 import scala.reflect.ClassTag
 import smptk.image.DiscreteImageDomain3D
 import smptk.image.DiscreteScalarImage3D
+import smptk.image.DiscreteImageDomain1D
+import smptk.image.DiscreteScalarImage1D
 
 object ImageIO {
 
@@ -38,8 +40,30 @@ object ImageIO {
     }
   }
 
-  
-    def read3DScalarImage[Scalar : ScalarPixel: TypeTag](f : File): Try[DiscreteScalarImage3D[Scalar]] = {
+  def read1DScalarImage[Scalar: ScalarPixel: TypeTag](f: File): Try[DiscreteScalarImage1D[Scalar]] = {
+
+    f match {
+      case f if f.getAbsolutePath().endsWith(".h5") => {
+
+        val imageDataOrFailure = readHDF5[Scalar](f)
+        imageDataOrFailure.flatMap { imageData =>
+          {
+            if (imageData.hasDimensionality(1) == false) {
+              Failure(new Exception(s"wrong dimensionality in the image data"))
+            } else if (imageData.pixelDimensionality != 1) {
+              Failure(new Exception("wrong pixel dimensionality in image data"))
+            } else {
+              val domain = DiscreteImageDomain1D(imageData.origin(0).toFloat, imageData.spacing(0).toFloat,imageData.size(0).toInt)  
+              Success(DiscreteScalarImage1D(domain, imageData.data))
+            }
+          }
+        }
+      }
+      case _ => Failure(new Exception("Unknown file type received" + f.getAbsolutePath()))
+    }
+  }
+
+  def read3DScalarImage[Scalar: ScalarPixel: TypeTag](f: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -65,8 +89,7 @@ object ImageIO {
     }
   }
 
-  
-  def read2DScalarImage[Scalar : ScalarPixel: TypeTag](f : File): Try[DiscreteScalarImage2D[Scalar]] = {
+  def read2DScalarImage[Scalar: ScalarPixel: TypeTag](f: File): Try[DiscreteScalarImage2D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -121,7 +144,7 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag] (img: DiscreteScalarImage[CV, Scalar], file: File): Try[Unit] = {
+  def writeImage[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[CV, Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -154,9 +177,8 @@ object ImageIO {
 
     // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](
-        Vector[Long](img.domain.dimensionality, img.domain.dimensionality),
-        img.domain.directions
-        )
+      Vector[Long](img.domain.dimensionality, img.domain.dimensionality),
+      img.domain.directions)
 
     val maybeError: Try[Unit] = for {
       _ <- h5file.writeNDArray("/ITKImage/0/Directions", directions)

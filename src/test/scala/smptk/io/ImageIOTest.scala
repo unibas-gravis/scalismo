@@ -11,6 +11,26 @@ import scala.util.Success
 import scala.util.Failure
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
+
+  describe("A 1D scalar image") {
+    it("can be stored and read again") {
+      val domain = DiscreteImageDomain1D(0f, 0.02f, 50)
+      val values = domain.points.map(x => math.sin(2 * math.Pi * x.toDouble).toFloat)
+      val discreteImage = DiscreteScalarImage1D[Float](domain, values)
+
+      val tmpImgFile = File.createTempFile("image1D", ".h5")
+      
+      ImageIO.writeImage(discreteImage, tmpImgFile)
+      ImageIO.writeImage(discreteImage, new File("/home/luethi/workspace/smptkDemo/image1d.h5"))
+      val restoredDiscreteImgOrFailure = ImageIO.read1DScalarImage[Float](tmpImgFile)
+
+      restoredDiscreteImgOrFailure.isSuccess should be(true)
+      discreteImage should equal(restoredDiscreteImgOrFailure.get)
+
+      tmpImgFile.delete()
+    }
+  }
+
   
   describe("A 2D vector image") { 
     it ("can be stored and read again") {

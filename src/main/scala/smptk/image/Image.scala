@@ -65,14 +65,22 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
     else None
   }
 
-  def -(that: this.type): Repr = {
+  def +(that: Repr): Repr = {
+    def f(x: CV[Float]): Float = self.f(x) + that.f(x)
+    def df(x: CV[Float]) = ContinuousScalarImage.this.df(x) + that.df(x)
+    val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
+    newConcreteImageRepr(newDomain, f, df)  
+  }
+
+  
+  def -(that: Repr): Repr = {
     def f(x: CV[Float]): Float = self.f(x) - that.f(x)
     def df(x: CV[Float]) = ContinuousScalarImage.this.df(x) - that.df(x)
     val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
   }
 
-  def :*(that: this.type): Repr = {
+  def :*(that: Repr): Repr = {
    def f(x: CV[Float]): Float =self.f(x) * that.f(x)
    def df(x : CV[Float]) = self.df(x) * that(x) + that.df(x) * self.f(x)
    val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
@@ -86,15 +94,31 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
     newConcreteImageRepr(newDomain, f, df)  
    }
 
-  def warp(t : Transformation[CV]) : Repr  = { 
+    def square: Repr = {
+    	def f(x: CV[Float]): Float = self.f(x) * self.f(x) 
+    	def df(x : CV[Float]) = self.df(x) * self.f(x) * 2f
+    	val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt)
+    newConcreteImageRepr(newDomain, f, df)  
+   }
+
+   
+  def compose(t : Transformation[CV]) : Repr  = { 
       def f(x: CV[Float]) = self.f(t(x))
-      def df(x : CV[Float]) = self.df(t(x))
+      def df(x : CV[Float]) = t.takeDerivative(x) * self.df(t(x))
       val newDomain = (pt: CV[Float]) => self.isDefinedAt(pt) && self.isDefinedAt(t(pt))
 
     newConcreteImageRepr(newDomain, f, df)
   }
    
-   
+  def warp(t : Transformation[CV], imageDomainIndFunc : CV[Float] => Boolean) : Repr  = { 
+      def f(x: CV[Float]) = self.f(t(x))
+      def df(x : CV[Float]) = t.takeDerivative(x) * self.df(t(x))
+      val newDomain = (pt: CV[Float]) => imageDomainIndFunc(pt) &&  self.isDefinedAt(t(pt))
+
+    newConcreteImageRepr(newDomain, f, df)
+  }
+
+  
  
   def differentiate = new ContinuousVectorImage[CV] {
     def isDefinedAt(pt : CV[Float]) = true
