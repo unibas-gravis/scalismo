@@ -74,12 +74,9 @@ object Test {
     
     val numParameters = 1
     val initialParameters = DenseVector.zeros[Float](numParameters)
-    val regularizer = new Regularizer {
-      def apply(p: ParameterVector) = 0f
-    }
     val transform = TranslationSpace1D()
     //val transform = KernelTransformationSpace1D(domain, numParameters, GaussianKernel1D(1f))
-    val regResult = Registration.registration1D(fixedImage, movingImage,  transform, MeanSquaresMetric1D, regularizer, initialParameters)(discreteFixedImage.domain)
+    val regResult = Registration.registration1D(fixedImage, movingImage,  transform, MeanSquaresMetric1D, 0, initialParameters)(discreteFixedImage.domain)
 
     val f = Figure()
     val p = f.subplot(0)

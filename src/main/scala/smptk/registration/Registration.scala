@@ -28,11 +28,14 @@ object Registration {
     movingImage: ContinuousScalarImage1D,
     transformationSpace: TransformationSpace[CoordVector1D],
     metric: ImageMetric1D,
-    regularization: Regularizer,
+    regWeight: Float,
     initialParameters: ParameterVector): (DiscreteImageDomain1D => RegistrationResult[CoordVector1D]) =
     {
       fixedImageRegion =>
         {
+          val regularizer = RKHSNormRegularizer
+          
+          
           val costFunction = new CostFunction {
 
             def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
@@ -40,7 +43,7 @@ object Registration {
               // compute the value of the cost function
               val transformation = transformationSpace(params)
               val warpedImage   = movingImage.warp(transformation, fixedImage.isDefinedAt)
-              val value = metric(warpedImage, fixedImage)(fixedImageRegion) + regularization(params)
+              val value = metric(warpedImage, fixedImage)(fixedImageRegion) + regWeight * regularizer(params)
 
               // compute the derivative of the cost function
               
@@ -57,12 +60,9 @@ object Registration {
               
 
               val gradient: DenseVector[Float] = integrate(parametricTransformGradientImage, fixedImageRegion)
-              
-              val dMovingImageDAlpha = warpedImage.differentiate
+              val dR  = regularizer.takeDerivative(params)
 
-
-
-              (value, gradient)
+              (value, gradient +  dR * regWeight)
             }
           }
 
