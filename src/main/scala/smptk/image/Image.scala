@@ -65,6 +65,14 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
     else None
   }
 
+  def +(that: Repr): Repr = {
+    def f(x: CV[Float]): Float = self.f(x) + that.f(x)
+    def df(x: CV[Float]) = ContinuousScalarImage.this.df(x) + that.df(x)
+    val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
+    newConcreteImageRepr(newDomain, f, df)  
+  }
+
+  
   def -(that: Repr): Repr = {
     def f(x: CV[Float]): Float = self.f(x) - that.f(x)
     def df(x: CV[Float]) = ContinuousScalarImage.this.df(x) - that.df(x)
