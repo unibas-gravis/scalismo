@@ -70,7 +70,7 @@ case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: 
   val directions = Array(1.)
 
   def isInside(pt: Point1D): Boolean = {
-    pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0)
+    pt(0) >= origin(0) && pt(0) <= extent(0)
   }
 
 }
@@ -89,8 +89,8 @@ case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: 
   val directions = Array(1., 0., 0., 1.)
 
   def isInside(pt: Point2D): Boolean = {
-    pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0) &&
-      pt(1) >= origin(1) && pt(1) <= origin(1) + extent(1)
+    pt(0) >= origin(0) && pt(0) <= extent(0) &&
+      pt(1) >= origin(1) && pt(1) <=  extent(1)
   }
 
 }
@@ -112,9 +112,9 @@ case class DiscreteImageDomain3D(val origin: CoordVector3D[Float], val spacing: 
   val	 directions = Array(1., 0., 0., 0., 1., 0., 0., 0., 1)
 
   def isInside(pt: Point3D): Boolean = {
-    pt(0) >= origin(0) && pt(0) <= origin(0) + extent(0) &&
-      pt(1) >= origin(1) && pt(1) <= origin(1) + extent(1) &&
-      pt(2) >= origin(2) && pt(2) <= origin(2) + extent(2)
+    pt(0) >= origin(0) && pt(0) <= extent(0) &&
+      pt(1) >= origin(1) && pt(1) <= extent(1) &&
+      pt(2) >= origin(2) && pt(2) <= extent(2)
   }
 
 }
