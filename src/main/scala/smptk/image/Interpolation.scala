@@ -155,7 +155,7 @@ object Interpolation {
       },
 
       (x: CoordVector1D[Float]) => { //derivative
-        val splineBasisD1: (Float => Float) = { x => bSpline(degree - 1)(x + 0.5f) - bSpline(degree - 1)(x - 0.5f) }
+        val splineBasisD1: (Float => Float) = { x => (bSpline(degree - 1)(x + 0.5f) - bSpline(degree - 1)(x - 0.5f)) * (1/image.domain.spacing(0)) }
         DenseVector(iterateOnPoints(x, splineBasisD1))
 
       })
