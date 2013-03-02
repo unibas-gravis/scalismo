@@ -193,7 +193,7 @@ object Interpolation {
     }
 
     val bSplineNthOrder = bSpline(degree)_
-    val bSplineNmin1thOrder = bSpline(degree - 11)_
+    val bSplineNmin1thOrder = bSpline(degree - 1)_
     new ContinuousScalarImage2D(
       (x: CoordVector2D[Float]) => image.domain.isInside(x),
       (x: CoordVector2D[Float]) => {
@@ -204,7 +204,7 @@ object Interpolation {
       (x: CoordVector2D[Float]) => { //derivative
         val splineBasisD1 = (x: Float, y: Float) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y)
         val splineBasisD2 = (x: Float, y: Float) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f))
-        DenseVector(iterateOnPoints( x,  splineBasisD1), iterateOnPoints(x,splineBasisD2))
+        DenseVector(iterateOnPoints( x,  splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x,splineBasisD2)* (1/image.domain.spacing(1)))
       })
   }
 
@@ -245,7 +245,7 @@ object Interpolation {
     }
 
     val bSplineNthOrder = bSpline(degree)_
-    val bSplineNmin1thOrder = bSpline(degree - 11)_
+    val bSplineNmin1thOrder = bSpline(degree - 1)_
 
     new ContinuousScalarImage3D(
       (x : CoordVector3D[Float]) => image.domain.isInside(x),
@@ -259,7 +259,7 @@ object Interpolation {
         val splineBasisD1 = (x: Float, y: Float, z: Float) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y) * bSplineNthOrder(z)
         val splineBasisD2 = (x: Float, y: Float, z: Float) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f)) * bSplineNthOrder(z)
         val splineBasisD3 = (x: Float, y: Float, z: Float) => bSplineNthOrder(x) * bSplineNthOrder(y) * (bSplineNmin1thOrder(z + 0.5f) - bSplineNmin1thOrder(z - 0.5f))
-        DenseVector(iterateOnPoints(x, splineBasisD1), iterateOnPoints(x, splineBasisD2), iterateOnPoints(x, splineBasisD3))
+        DenseVector(iterateOnPoints(x, splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x, splineBasisD2)* (1/image.domain.spacing(1)), iterateOnPoints(x, splineBasisD3)* (1/image.domain.spacing(2)))
       })
 
   }

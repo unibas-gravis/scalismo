@@ -5,6 +5,9 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import smptk.image.Interpolation._
 import org.scalatest.Ignore
+import smptk.image.Geometry._
+import breeze.plot.Figure
+import breeze.plot._
 
 class InterpolationTest extends FunSpec with ShouldMatchers {
   describe("A 1D Interpolation with 0rd order bspline") {
@@ -32,7 +35,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
 
     
     it("interpolates the values for origin 0 and spacing 1") {
-    	val domain = DiscreteImageDomain1D(0f, 1, 5)
+      val domain = DiscreteImageDomain1D(0f, 1, 5)
       val discreteImage = DiscreteScalarImage1D(domain, Array(3f, 2f, 1.5f, 1f, 0f))
       val continuousImg = interpolate(0)(discreteImage)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
@@ -40,7 +43,26 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
       }
     }
 
-    
+    describe("A 1D Interpolation with 3rd order bspline") {
+
+    it("Derivative of interpolated Sine function is the Cosine") {
+      val domain = DiscreteImageDomain1D(-2f, 0.01f, 400)
+      
+      val discreteSinImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.sin(x*math.Pi)))
+      val interpolatedSinImage = interpolate(3)(discreteSinImage)
+      val derivativeImage = interpolatedSinImage.differentiate
+
+      val discreteCosImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.Pi * math.cos(x*math.Pi)))
+      val interpolatedCosImage = interpolate(3)(discreteCosImage)
+        
+      for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1) < 1.90) )  {  
+        derivativeImage(pt)(0).toDouble should be(discreteCosImage(idx) plusOrMinus 0.0001f)
+      }
+      
+    }
+
+  }
+
   }
 
   describe("A 2D interpolation  Spline") {
@@ -90,6 +112,22 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
         }
       }
+      
+     it("Derivative of interpolated function is correct") {
+      val domain = DiscreteImageDomain2D((-2f, -2f), (0.01f, 0.01f), (400, 400))
+      
+      val discreteFImage = DiscreteScalarImage2D(domain, domain.points.map(x => x(0)*x(0) + x(1)*x(1)))
+      val interpolatedFImage = interpolate2D(3)(discreteFImage)
+      val derivativeImage = interpolatedFImage.differentiate
+ 
+      
+      for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1(0)) < 1.90 &&  math.abs(x._1(1)) < 1.90 ) )  {  
+        derivativeImage(pt)(0) should be((2* pt(0)) plusOrMinus 0.0001f)
+        derivativeImage(pt)(1) should be((2* pt(1)) plusOrMinus 0.0001f)
+      }
+      
+    }
+      
 
     }
   }
@@ -145,6 +183,23 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
         }
       }
+      
+      
+     it("Derivative of interpolated function is correct") {
+      val domain = DiscreteImageDomain3D((-2f, -2f, -2f), (0.1f, 0.1f, 0.1f), (40, 40, 40))
+      
+      val discreteFImage = DiscreteScalarImage3D(domain, domain.points.map(x => x(0)*x(0) + x(1)*x(1) + x(2)*x(2)))
+      val interpolatedFImage = interpolate3D(3)(discreteFImage)
+      val derivativeImage = interpolatedFImage.differentiate
+ 
+      
+      for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1(0)) < 1.20 &&  math.abs(x._1(1)) < 1.20  &&  math.abs(x._1(2)) < 1.20 ))  {  
+        derivativeImage(pt)(0) should be((2* pt(0)) plusOrMinus 0.0001f)
+        derivativeImage(pt)(1) should be((2* pt(1)) plusOrMinus 0.0001f)
+        derivativeImage(pt)(2) should be((2* pt(2)) plusOrMinus 0.0001f)
+      }
+      
+    }
 
     }
 
