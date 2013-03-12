@@ -192,6 +192,7 @@ object ImageIO {
       _ <- h5file.writeString("/ITKImage/0/VoxelType", voxelType)
 
     } yield { () } // if everything is okay, we have a Unit type and no error here
+    h5file.close()
     maybeError
   }
 
