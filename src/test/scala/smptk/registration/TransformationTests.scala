@@ -19,17 +19,23 @@ import smptk.image.Geometry.CoordVector2D
 class ImageTest extends FunSpec with ShouldMatchers {
 
   describe("A Rotation in 2D") {
+    val center = CoordVector2D(2f, 3.5f)
+    val rs = RotationSpace2D(center)
+    val phi = scala.math.Pi / 2
+    val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
+    val rotate = rs(rotationParams)
+    val pt = CoordVector2D(2f, 2f)
+    val rotatedPt = rotate(pt)
     it("Rotates a point correctly") {
-      val center = CoordVector2D(2f, 3.5f)
-      val rs = RotationSpace2D(center)
-      val phi = scala.math.Pi / 2
-      val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
-      val rotate = rs(rotationParams)
-      val pt = CoordVector2D(2f, 2f)
-      val rotatedPt = rotate(pt)
 
       (rotatedPt(0)) should be(3.5f plusOrMinus 0.0001f)
       (rotatedPt(1)) should be(3.5f plusOrMinus 0.0001f)
+    }
+
+    it("can be inverted") {
+        val identitiyTransform = (rs.inverseTransform(rotationParams).get) compose rotate
+    	(identitiyTransform(pt)(0) should be (pt(0) plusOrMinus 0.00001f))
+        (identitiyTransform(pt)(1) should be (pt(1) plusOrMinus 0.00001f))
     }
 
   }
@@ -76,16 +82,21 @@ class ImageTest extends FunSpec with ShouldMatchers {
       it("correctly transforms a point") {
         assert(productTransform(pt) === translatedRotatedPt)
       }
-      val productDerivative = (x: CoordVector2D[Float]) => 
+      val productDerivative = (x: CoordVector2D[Float]) =>
         breeze.linalg.DenseMatrix.horzcat(
-            ts.takeDerivativeWRTParameters(transParams)(x), 
-            (rs.takeDerivativeWRTParameters(rotationParams)(x))
-        )
+          ts.takeDerivativeWRTParameters(transParams)(x),
+          (rs.takeDerivativeWRTParameters(rotationParams)(x)))
       it("differentiates correctly with regard to parameters") {
         assert(productSpace.takeDerivativeWRTParameters(productParams)(pt) === productDerivative(pt))
       }
       it("differenetiates correctly the parametrized transforms") {
         assert(productTransform.takeDerivative(pt) === translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt))
+      }
+      
+      it("can be inverted") {
+        val identitiyTransform = (productSpace.inverseTransform(productParams).get) compose productTransform
+    	(identitiyTransform(pt)(0) should be (pt(0) plusOrMinus 0.00001f))
+        (identitiyTransform(pt)(1) should be (pt(1) plusOrMinus 0.00001f))
       }
     }
 

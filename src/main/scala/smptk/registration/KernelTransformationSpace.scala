@@ -28,7 +28,7 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D, val nu
   val (lambda, phi) = computeNystromApproximation()
 
   def apply(p: ParameterVector) = KernelTransformation1D(p)
-
+  def inverseTransform(p:ParameterVector) = None
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point1D =>
     val terms = for (i <- (0 until p.size)) yield (lambda(i) * phi(i)(x))
     DenseMatrix.create(1, numParameters, terms.toArray)
