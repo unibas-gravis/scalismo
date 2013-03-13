@@ -8,30 +8,44 @@ import Interpolation._
 import org.scalatest.Ignore
 import io.ImageIO
 import java.io.File
-
+import smptk.registration.RotationSpace2D
+import smptk.image.Geometry.CoordVector2D
+import breeze.linalg.DenseVector
 
 class ResampleTest extends FunSpec with ShouldMatchers {
   describe("Resampling a 2D image") {
 
+    
+    // TODO make tests meaningful. currently they are only for visualization (side effect ;-) )
+    
+    val tmpdir = System.getProperty("java.io.tmpdir")
+      val testImgUrl = getClass().getResource("/lena.h5").getPath()
+      val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
+      val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
+
     ignore("yields the original discrete image") {
-    	//val testImgUrl = getClass().getResource("/3ddf.h5").getPath()
-    	val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
-        val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
-        val resampledImage = Resample.sample2D[Short](continuousImage, discreteImage.domain, 0)
-        ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
+      val resampledImage = Resample.sample2D[Short](continuousImage, discreteImage.domain, 0)
+      ImageIO.writeImage(resampledImage, new File(tmpdir, "resampled.h5"))
+      
     }
 
-      ignore("yields the original discrete image for a translated domain") {
-    	//val testImgUrl = getClass().getResource("/3ddf.h5").getPath()
-    	val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
-        val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
-        
-        val origin = discreteImage.domain.origin
-        val translatedDomain = DiscreteImageDomain2D((origin(0) + 10, origin(1) + 10), discreteImage.domain.spacing, discreteImage.domain.size)        
-        val resampledImage = Resample.sample2D[Short](continuousImage, translatedDomain, 0)
-        ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
+    ignore("yields the original discrete image for a translated domain") {
+
+      val origin = discreteImage.domain.origin
+      val translatedDomain = DiscreteImageDomain2D((origin(0) + 10, origin(1) + 10), discreteImage.domain.spacing, discreteImage.domain.size)
+      val resampledImage = Resample.sample2D[Short](continuousImage, translatedDomain, 0)
+      ImageIO.writeImage(resampledImage, new File(tmpdir, "resampled-translated.h5"))
     }
 
-  
+    it("represents a rotated image") {
+      val domain = discreteImage.domain
+      val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) +domain.extent(1) / 2)
+      val rotTransform = RotationSpace2D(center)(DenseVector((math.Pi / 10).toFloat))
+      val rotatedImg = continuousImage compose rotTransform
+      val resampledImage = Resample.sample2D[Short](rotatedImg, domain, 0)
+      ImageIO.writeImage(resampledImage, new File(tmpdir, "resampled-rotated.h5"))
+    }
+    
+    
   }
 }
