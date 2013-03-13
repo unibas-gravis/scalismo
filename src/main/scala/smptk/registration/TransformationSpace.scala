@@ -18,7 +18,7 @@ trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVe
 
   // 
   def product(that: TransformationSpace[CV]): TransformationSpace[CV] = {
-    ProductTransformationSpace(self, that)
+    new ProductTransformationSpace(self, that)
   }
 
   def inverseTransform(p: ParameterVector): Option[Transformation[CV]]
@@ -29,8 +29,10 @@ trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Float] => CV[Float]) {
   def takeDerivative(x: CV[Float]): DenseMatrix[Float]
 }
 
-case class ProductTransformationSpace[CV[A] <: CoordVector[A]](outer: TransformationSpace[CV], inner: TransformationSpace[CV]) extends TransformationSpace[CV] {
-
+class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: TransformationSpace[CV], InnerType <: TransformationSpace[CV]]
+ (outer: OuterType, inner: InnerType) extends TransformationSpace[CV]
+{
+  
   def parametersDimensionality = outer.parametersDimensionality + inner.parametersDimensionality
 
   def apply(p: ParameterVector) = {
@@ -166,7 +168,14 @@ case class RotationSpace2D(val centre: CoordVector2D[Float]) extends Transformat
   }
 }
 
+ 
+case class RigidTransformationSpace2D(center : Point2D)
+extends ProductTransformationSpace[CoordVector2D, TranslationSpace2D, RotationSpace2D](TranslationSpace2D(), RotationSpace2D(center)) {
+  
+}
+
 object TransformationSpace {
   type ParameterVector = DenseVector[Float]
+
 
 }
