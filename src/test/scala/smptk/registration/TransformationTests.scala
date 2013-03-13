@@ -73,7 +73,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val pt = CoordVector2D(2f, 2f)
       val rotatedPt = rotate(pt)
-      println("rotated point " + rotatedPt)
+
       val translatedRotatedPt = translate(rotatedPt)
 
       val productParams = DenseVector.vertcat(transParams, rotationParams)
