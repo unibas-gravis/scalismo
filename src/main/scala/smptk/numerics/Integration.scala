@@ -7,33 +7,33 @@ import smptk.image.Image._
 
 object Integration {
   
-	def integrate[CV[A] <: CoordVector[A]](img : ContinuousScalarImage[CV], integrationRegion : DiscreteImageDomain[CV]) : Float = { 
+	def integrate[CV[A] <: CoordVector[A]](img : ContinuousScalarImage[CV], integrationRegion : DiscreteImageDomain[CV]) : Double = { 
 
   	    // TODO this is terribly innefficient as we are looping twice
-  	    val sampleValues : IndexedSeq[Option[Float]] = integrationRegion.points.map(img.liftPixelValue)
+  	    val sampleValues : IndexedSeq[Option[Double]] = integrationRegion.points.map(img.liftPixelValue)
 	   
-	    val sum = sampleValues.map(_.getOrElse(0f)).sum
-	    var ndVolume = 1f;  	    
+	    val sum = sampleValues.map(_.getOrElse(0.)).sum
+	    var ndVolume = 1.;  	    
 	    for (d <- 0 until integrationRegion.dimensionality) {
 	      ndVolume = integrationRegion.extent(d) * ndVolume
 	    }
 	   	    
-	    sum * ndVolume / integrationRegion.numberOfPoints.toFloat
+	    sum * ndVolume / integrationRegion.numberOfPoints
 	}
      
        
-	def integrate[CV[A] <: CoordVector[A]](img : ContinuousVectorImage[CV], integrationRegion : DiscreteImageDomain[CV]) : DenseVector[Float] = { 
+	def integrate[CV[A] <: CoordVector[A]](img : ContinuousVectorImage[CV], integrationRegion : DiscreteImageDomain[CV]) : DenseVector[Double] = { 
 
-	    val sampleValues : IndexedSeq[Option[DenseVector[Float]]] = integrationRegion.points.map(img.liftPixelValue)
+	    val sampleValues : IndexedSeq[Option[DenseVector[Double]]] = integrationRegion.points.map(img.liftPixelValue)
 	    
-	    var ndVolume = 1f;
+	    var ndVolume = 1.;
 	     for (d <- 0 until integrationRegion.dimensionality) {
 	      ndVolume = integrationRegion.extent(d) * ndVolume
 	    }
 	    
-	    val zeroVector = DenseVector.zeros[Float](img.pixelDimensionality)
-	    val sum : DenseVector[Float] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)(_ + _)
-	    sum * ndVolume / integrationRegion.numberOfPoints.toFloat
+	    val zeroVector = DenseVector.zeros[Double](img.pixelDimensionality)
+	    val sum : DenseVector[Double] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)(_ + _)
+	    sum * ndVolume / integrationRegion.numberOfPoints.toDouble
 	    
 	}
 }

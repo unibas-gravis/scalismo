@@ -28,7 +28,7 @@ object Registration {
     movingImage: ContinuousScalarImage[CV],
     transformationSpace: TransformationSpace[CV],
     metric: ImageMetric[CV],
-    regWeight: Float,
+    regWeight: Double,
     initialParameters: ParameterVector): (DiscreteImageDomain[CV] => RegistrationResult[CV]) =
     {
       fixedImageRegion =>
@@ -38,7 +38,7 @@ object Registration {
           
           val costFunction = new CostFunction {
 
-            def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
+            def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
               // compute the value of the cost function
               val transformation = transformationSpace(params)
@@ -54,12 +54,12 @@ object Registration {
 
               val parametricTransformGradientImage = new ContinuousVectorImage[CV] {
                 val pixelDimensionality = params.size
-                def isDefinedAt(x : CV[Float]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x) 
-                def f(x: CV[Float]) =  dTransformSpaceDAlpha(x) * movingImage.df(transformation(x))* dMetricDalpha(x)  
+                def isDefinedAt(x : CV[Double]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x) 
+                def f(x: CV[Double]) =  dTransformSpaceDAlpha(x) * movingImage.df(transformation(x))* dMetricDalpha(x)  
               }
               
 
-              val gradient: DenseVector[Float] = integrate(parametricTransformGradientImage, fixedImageRegion)
+              val gradient: DenseVector[Double] = integrate(parametricTransformGradientImage, fixedImageRegion)
               val dR  = regularizer.takeDerivative(params)
 
               (value, gradient +  dR * regWeight)

@@ -9,7 +9,7 @@ import smptk.image.CoordVector
 
 object LandmarkRegistration {
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = (0f, 0f)): (Transformation[CoordVector2D], ParameterVector) = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = (0., 0.)): (Transformation[CoordVector2D], ParameterVector) = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)
@@ -18,8 +18,8 @@ object LandmarkRegistration {
     // we can compute the angle from the form of the rotation matrix
     // the acos cannot distinguish between angles in the interval [0,pi] and [-pi, 0]. We double 
     // check with the sin in the rotation matrix and correct the sign accordingly    
-    val phiUpToSign = math.acos(rotMat(0, 0)).toFloat
-    val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001f) -phiUpToSign   else phiUpToSign
+    val phiUpToSign = math.acos(rotMat(0, 0))
+    val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign   else phiUpToSign
 
     // val centerCV = CoordVector2D(0f, 0f)
     val optimalParameters = DenseVector.vertcat(t, DenseVector(phi))
@@ -28,7 +28,7 @@ object LandmarkRegistration {
     (rigidSpace(optimalParameters), optimalParameters)
   }
 
-  private def computeRigidNDTransformParams[CV[A] <: CoordVector[A]](landmarks: IndexedSeq[(CV[Float], CV[Float])], center: CV[Float]): (DenseVector[Float], DenseMatrix[Float]) = {
+  private def computeRigidNDTransformParams[CV[A] <: CoordVector[A]](landmarks: IndexedSeq[(CV[Double], CV[Double])], center: CV[Double]): (DenseVector[Double], DenseMatrix[Double]) = {
 
     //  see Umeyama: Least squares estimation of transformation parameters between two point patterns
 
@@ -47,8 +47,8 @@ object LandmarkRegistration {
       // create a matrix with the point coordinates. The roation in the method by Umeyama is computed
       // with respect to the center of rotation 0 (origin). To allow for a non-zero center, we translate
       // both point clouds by the center before applying his method.
-      X(i, ::) := DenseVector(x.toArray.map(_.toDouble)) - DenseVector(center.toArray).map(_.toDouble)
-      Y(i, ::) := DenseVector(y.toArray.map(_.toDouble)) - DenseVector(center.toArray).map(_.toDouble)
+      X(i, ::) := DenseVector(x.toArray) - DenseVector(center.toArray)
+      Y(i, ::) := DenseVector(y.toArray) - DenseVector(center.toArray)
     }
 
     val mu_x = mean(X.t, Axis._1)
@@ -64,7 +64,7 @@ object LandmarkRegistration {
     val R = uMat * S * vTMat
     val t = mu_y - R * mu_x
 
-    return (t.map(_.toFloat), R.map(_.toFloat))
+    return (t, R)
   }
 
 }

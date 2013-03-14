@@ -17,24 +17,24 @@ trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV
   //def origin: CV[Float]
   //def extent: CV[Float]
   //def directions: CV[CV[Float]]
-  val isInside : CV[Float] => Boolean
+  val isInside : CV[Double] => Boolean
 }
 
-case class ContinuousImageDomain1D(val isInside: Point1D => Boolean) extends ContinuousImageDomain[CoordVector1D] {
-  def dimensionality = 1
-
-}
-
-case class ContinuousImageDomain2D(val isInside: Point2D => Boolean) extends ContinuousImageDomain[CoordVector2D] {
-  def dimensionality = 2
-}
-
-case class ContinuousImageDomain3D(val isInside: Point3D => Boolean) extends ContinuousImageDomain[CoordVector3D] {
-  def dimensionality = 3
-}
+//case class ContinuousImageDomain1D(val isInside: CoordVector1D[Double] => Boolean) extends ContinuousImageDomain[CoordVector1D] {
+//  def dimensionality = 1
+//
+//}
+//
+//case class ContinuousImageDomain2D(val isInside: CoordVector2D[Double] => Boolean) extends ContinuousImageDomain[CoordVector2D] {
+//  def dimensionality = 2
+//}
+//
+//case class ContinuousImageDomain3D(val isInside: CoordVector3D[Double] => Boolean) extends ContinuousImageDomain[CoordVector3D] {
+//  def dimensionality = 3
+//}
 
 trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
-  def points: IndexedSeq[CV[Float]]
+  def points: IndexedSeq[CV[Double]]
 
   def numberOfPoints: Int
 
@@ -43,10 +43,10 @@ trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
 }
 
 trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { //extends ImageDomain[Point] {
-  def origin: CV[Float]
-  def spacing: CV[Float]
+  def origin: CoordVector[Double]
+  def spacing: CV[Double]
   def size: CV[Int]
-  def extent: CV[Float]
+  def extent: CV[Double]
   def directions: Array[Double]
 
   def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
@@ -54,11 +54,11 @@ trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { 
   def indexToLinearIndex(idx: CV[Int]): Int
   def linearIndexToIndex(linearIdx: Int): CV[Int]
 
-  def isInside(pt: CV[Float]): Boolean
+  def isInside(pt: CV[Double]): Boolean
 
 }
 
-case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: CoordVector1D[Float], val size: CoordVector1D[Int]) extends DiscreteImageDomain[CoordVector1D] {
+case class DiscreteImageDomain1D(val origin: Point1D, val spacing: Point1D, val size: CoordVector1D[Int]) extends DiscreteImageDomain[CoordVector1D] {
   val dimensionality = 1
   def points = for (i <- 0 until size(0)) yield CoordVector1D(origin(0) + spacing(0) * i)
 
@@ -69,13 +69,13 @@ case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: 
 
   val directions = Array(1.)
 
-  def isInside(pt: Point1D): Boolean = {
+  def isInside(pt: CoordVector1D[Double]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0)
   }
 
 }
 
-case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: CoordVector2D[Float], val size: CoordVector2D[Int]) extends DiscreteImageDomain[CoordVector2D] {
+case class DiscreteImageDomain2D(val origin: Point2D, val spacing: CoordVector2D[Double], val size: CoordVector2D[Int]) extends DiscreteImageDomain[CoordVector2D] {
   val dimensionality = 2
   def points = for (j <- 0 until size(1); i <- 0 until size(0))
       yield CoordVector2D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j)
@@ -88,14 +88,14 @@ case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: 
 
   val directions = Array(1., 0., 0., 1.)
 
-  def isInside(pt: Point2D): Boolean = {
+  def isInside(pt: CoordVector2D[Double]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0) &&
       pt(1) >= origin(1) && pt(1) <=  extent(1)
   }
 
 }
 
-case class DiscreteImageDomain3D(val origin: CoordVector3D[Float], val spacing: CoordVector3D[Float], val size: CoordVector3D[Int]) extends DiscreteImageDomain[CoordVector3D] {
+case class DiscreteImageDomain3D(val origin: Point3D, val spacing: CoordVector3D[Double], val size: CoordVector3D[Int]) extends DiscreteImageDomain[CoordVector3D] {
   val dimensionality = 3
   def points  = for (k <- 0 until size(2); j <- 0 until size(1); i <- 0 until size(0))
       yield CoordVector3D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j, origin(2) + spacing(2) * k)
@@ -111,7 +111,7 @@ case class DiscreteImageDomain3D(val origin: CoordVector3D[Float], val spacing: 
 
   val	 directions = Array(1., 0., 0., 0., 1., 0., 0., 0., 1)
 
-  def isInside(pt: Point3D): Boolean = {
+  def isInside(pt: CoordVector3D[Double]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0) &&
       pt(1) >= origin(1) && pt(1) <= extent(1) &&
       pt(2) >= origin(2) && pt(2) <= extent(2)

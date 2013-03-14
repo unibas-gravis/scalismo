@@ -9,12 +9,12 @@ import smptk.image.CoordVector
 import smptk.image.DiscreteImageDomain1D
 import breeze.plot._
 
-trait PDKernel[CV[A] <: CoordVector[A]] extends ((CV[Float], CV[Float]) => Float)
+trait PDKernel[CV[A] <: CoordVector[A]] extends ((CV[Double], CV[Double]) => Double)
 
-case class GaussianKernel1D(val sigma2: Float) extends PDKernel[CoordVector1D] {
+case class GaussianKernel1D(val sigma2: Double) extends PDKernel[CoordVector1D] {
   def apply(x: Point1D, y: Point1D) = {
-    val r = (x - y).toDouble
-    scala.math.exp(-(r * r) / sigma2).toFloat
+    val r = (x - y)
+    scala.math.exp(-(r * r) / sigma2)
   }
 }
 
@@ -34,7 +34,7 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D, val nu
     DenseMatrix.create(1, numParameters, terms.toArray)
   }
 
-  private def computeNystromApproximation(): (DenseVector[Float], (Int => Point1D => Float)) = {
+  private def computeNystromApproximation(): (DenseVector[Double], (Int => Point1D => Double)) = {
 
     
     val step = domain.extent(0) / numPointsForNystrom
@@ -45,11 +45,11 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D, val nu
     def phi(i : Int)(x : Point1D) = { 
       val kVec = computeKernelVectorFor(x, ptsForNystrom)
       val value = math.sqrt(numPointsForNystrom)/lambda(i) *  (kVec dot uMat(::, i))
-      value.toFloat
+      value
     }
     
 
-    (lambda.map(_.toFloat), phi)
+    (lambda, phi)
 
   }
 
@@ -98,7 +98,7 @@ object KernelTransformationSpace {
     val f = Figure()
     val p = f.subplot(0)
 
-    //val xs = domain.points.map(_.toFloat)
+    //val xs = domain.points.map(_.toDouble)
 //    val phi = ts.phi
 //    p += plot(xs, xs.map(x => phi(0)(x)))
     val lambda = ts.lambda

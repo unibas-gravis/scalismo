@@ -16,7 +16,7 @@ import smptk.numerics.Integration
 trait ImageMetric[CV[A] <: CoordVector[A]] {
   type Repr  = ContinuousScalarImage[CV]
 
-  def apply(img1: Repr, img2: Repr): (DiscreteImageDomain[CV] => Float)
+  def apply(img1: Repr, img2: Repr): (DiscreteImageDomain[CV] => Double)
 
   def takeDerivativeWRTToMovingImage(fixedImage: Repr, movingImage: Repr): ContinuousScalarImage[CV]
 }

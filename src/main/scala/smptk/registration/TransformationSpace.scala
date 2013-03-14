@@ -12,7 +12,7 @@ import smptk.image.Geometry._
 trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVector, Transformation[CV]] {
   self: TransformationSpace[CV] =>
 
-  type JacobianImage = Function1[CV[Float], DenseMatrix[Float]]
+  type JacobianImage = Function1[CV[Double], DenseMatrix[Double]]
   def parametersDimensionality: Int
   def takeDerivativeWRTParameters(alpha: ParameterVector): JacobianImage
 
@@ -25,8 +25,8 @@ trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVe
 
 }
 
-trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Float] => CV[Float]) {
-  def takeDerivative(x: CV[Float]): DenseMatrix[Float]
+trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double]) {
+  def takeDerivative(x: CV[Double]): DenseMatrix[Double]
 }
 
 class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: TransformationSpace[CV], InnerType <: TransformationSpace[CV]]
@@ -38,13 +38,13 @@ class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: Transform
   def apply(p: ParameterVector) = {
 
     new Transformation[CV] {
-      def apply(x: CV[Float]) = {
+      def apply(x: CV[Double]) = {
         val (pThis, pThat) = splitProductParameterVector(p)
         val outerTransform = outer(pThis)
         val innerTransfrom = inner(pThat)
         (outerTransform compose innerTransfrom)(x)
       }
-      def takeDerivative(x: CV[Float]) = {
+      def takeDerivative(x: CV[Double]) = {
         val (pThis, pThat) = splitProductParameterVector(p)
         val outerTransform = outer(pThis)
         val innerTransform = inner(pThat)
@@ -61,8 +61,8 @@ class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: Transform
       innerInverse <- inner.inverseTransform(pInner)
     } yield {
       new Transformation[CV] {
-        def apply(x: CV[Float]) = (innerInverse compose outerInverse)(x)
-        def takeDerivative(x: CV[Float]) = {
+        def apply(x: CV[Double]) = (innerInverse compose outerInverse)(x)
+        def takeDerivative(x: CV[Double]) = {
           innerInverse.takeDerivative(outerInverse(x)) * outerInverse.takeDerivative(x)
         }
       }
@@ -73,7 +73,7 @@ class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: Transform
   def takeDerivativeWRTParameters(p: ParameterVector) = {
 
     val split = splitProductParameterVector(p)
-    (x: CV[Float]) => DenseMatrix.horzcat(
+    (x: CV[Double]) => DenseMatrix.horzcat(
       outer.takeDerivativeWRTParameters(split._1)(x),
       inner.takeDerivativeWRTParameters(split._2)(x))
   }
@@ -92,7 +92,7 @@ case class TranslationSpace1D extends TransformationSpace[CoordVector1D] {
 
       def apply(pt: Point1D) = p(0) + pt(0)
       def takeDerivative(x: Point1D) = {
-        DenseMatrix.eye[Float](1)
+        DenseMatrix.eye[Double](1)
       }
     }
   }
@@ -102,7 +102,7 @@ case class TranslationSpace1D extends TransformationSpace[CoordVector1D] {
 
   def parametersDimensionality: Int = 1
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point1D =>
-    DenseMatrix.eye[Float](1)
+    DenseMatrix.eye[Double](1)
   }
 }
 
@@ -114,7 +114,7 @@ case class TranslationSpace2D extends TransformationSpace[CoordVector2D] {
     new Transformation[CoordVector2D] {
       def apply(pt: Point2D) = CoordVector2D(p(0) + pt(0), p(1) + pt(1))
       def takeDerivative(x: Point2D) = {
-        DenseMatrix.eye[Float](2)
+        DenseMatrix.eye[Double](2)
       }
     }
   }
@@ -123,14 +123,14 @@ case class TranslationSpace2D extends TransformationSpace[CoordVector2D] {
   }
 
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point2D =>
-    DenseMatrix.eye[Float](2)
+    DenseMatrix.eye[Double](2)
   }
 }
 
-case class RotationSpace2D(val centre: CoordVector2D[Float]) extends TransformationSpace[CoordVector2D] {
+case class RotationSpace2D(val centre: CoordVector2D[Double]) extends TransformationSpace[CoordVector2D] {
 
   def parametersDimensionality: Int = 1 //  angle
-  def rotationParametersToParameterVector(phi: Float): ParameterVector = {
+  def rotationParametersToParameterVector(phi: Double): ParameterVector = {
     DenseVector(phi)
   }
   def apply(p: ParameterVector) = {
@@ -141,12 +141,12 @@ case class RotationSpace2D(val centre: CoordVector2D[Float]) extends Transformat
     new Transformation[CoordVector2D] {
       def apply(pt: Point2D) = {
 
-        val rotCentered = rotMatrix * DenseVector(pt(0) - centre(0), pt(1) - centre(1)).map(_.toDouble)
-        CoordVector2D((rotCentered(0) + centre(0)).toFloat, (rotCentered(1) + centre(1)).toFloat)
+        val rotCentered = rotMatrix * DenseVector(pt(0) - centre(0), pt(1) - centre(1))
+        CoordVector2D((rotCentered(0) + centre(0)), (rotCentered(1) + centre(1)))
 
       }
       def takeDerivative(x: Point2D) = {
-        rotMatrix.map(_.toFloat)
+        rotMatrix
       }
     }
   }
@@ -163,8 +163,8 @@ case class RotationSpace2D(val centre: CoordVector2D[Float]) extends Transformat
     val cy = centre(1)
 
     DenseMatrix(
-      (-sa * (x(0) - cx) - ca * (x(1) - cy)).toFloat,
-      (ca * (x(0) - cx) - sa * (x(1) - cy)).toFloat)
+      (-sa * (x(0) - cx) - ca * (x(1) - cy)),
+      (ca * (x(0) - cx) - sa * (x(1) - cy)))
   }
 }
 
@@ -175,7 +175,7 @@ extends ProductTransformationSpace[CoordVector2D, TranslationSpace2D, RotationSp
 }
 
 object TransformationSpace {
-  type ParameterVector = DenseVector[Float]
+  type ParameterVector = DenseVector[Double]
 
 
 }

@@ -21,18 +21,18 @@ import registration.Transformation
  */
 trait ContinuousImage[CV[A] <: CoordVector[A], @specialized(Short, Float) Pixel] {
   
-  def f(point: CV[Float]): Pixel
-  def apply(x: CV[Float]): Pixel = {
+  def f(point: CV[Double]): Pixel
+  def apply(x: CV[Double]): Pixel = {
     if (!isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
     f(x)
   }
 
-  def liftPixelValue: (CV[Float] => Option[Pixel]) = { x =>
+  def liftPixelValue: (CV[Double] => Option[Pixel]) = { x =>
     if (isDefinedAt(x)) Some(f(x))
     else None
   }
 
-  def isDefinedAt(pt: CV[Float]) : Boolean
+  def isDefinedAt(pt: CV[Double]) : Boolean
   //def differentiate[Value2](): ContinuousImage[Point, Value2]
 
   def pixelDimensionality: Int
@@ -40,17 +40,17 @@ trait ContinuousImage[CV[A] <: CoordVector[A], @specialized(Short, Float) Pixel]
   //TODO add derivative here (use coordinatesVector for return type)
 }
 
-trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, Float] { 
+trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, Double] { 
   type CI = ContinuousScalarImage[CV]
   
   val pixelDimensionality = 1
 
-  def df(point: CV[Float]): DenseVector[Float]
+  def df(point: CV[Double]): DenseVector[Double]
 
 
-  def takeDerivative(x: CV[Float]): DenseVector[Float] 
+  def takeDerivative(x: CV[Double]): DenseVector[Double] 
 
-  def liftDerivative: (CV[Float] => Option[DenseVector[Float]]) 
+  def liftDerivative: (CV[Double] => Option[DenseVector[Double]]) 
 
   def +(that: CI): CI 
 
@@ -59,13 +59,13 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 
   def :*(that: CI): CI 
 
-   def *(s: Float): CI
+   def *(s: Double): CI
 
     def square: CI 
 
    
   def compose(t : Transformation[CV]) : CI   
-  def warp(t : Transformation[CV], imageDomainIndFunc : CV[Float] => Boolean) : CI 
+  def warp(t : Transformation[CV], imageDomainIndFunc : CV[Double] => Boolean) : CI 
   
  
   def differentiate : ContinuousVectorImage[CV]  
@@ -77,70 +77,70 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
  */
 trait ContinuousScalarImageLike[CV[A] <: CoordVector[A], Repr <: ContinuousScalarImage[CV]]  { self : ContinuousScalarImage[CV] =>
  
-  def newConcreteImageRepr(isDefinedAt: CV[Float] => Boolean, f: CV[Float] => Float, df: CV[Float] => DenseVector[Float]) : Repr 
+  def newConcreteImageRepr(isDefinedAt: CV[Double] => Boolean, f: CV[Double] => Double, df: CV[Double] => DenseVector[Double]) : Repr 
 
-  def df(point: CV[Float]): DenseVector[Float]
+  def df(point: CV[Double]): DenseVector[Double]
 
 
-  def takeDerivative(x: CV[Float]): DenseVector[Float] = {
+  def takeDerivative(x: CV[Double]): DenseVector[Double] = {
     if (!isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
     df(x)
   }
 
-  def liftDerivative: (CV[Float] => Option[DenseVector[Float]]) = { x =>
+  def liftDerivative: (CV[Double] => Option[DenseVector[Double]]) = { x =>
     if (isDefinedAt(x)) Some(df(x))
     else None
   }
 
   def +(that: CI): Repr = {
-    def f(x: CV[Float]): Float = self.f(x) + that.f(x)
-    def df(x: CV[Float]) = self.df(x) + that.df(x)
-    val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
+    def f(x: CV[Double]): Double = self.f(x) + that.f(x)
+    def df(x: CV[Double]) = self.df(x) + that.df(x)
+    val newDomain = (pt : CV[Double]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
   }
 
   
   def -(that: CI): Repr = {
-    def f(x: CV[Float]): Float = self.f(x) - that.f(x)
-    def df(x: CV[Float]) = self.df(x) - that.df(x)
-    val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
+    def f(x: CV[Double]): Double = self.f(x) - that.f(x)
+    def df(x: CV[Double]) = self.df(x) - that.df(x)
+    val newDomain = (pt : CV[Double]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
   }
 
   def :*(that: CI): Repr = {
-   def f(x: CV[Float]): Float =self.f(x) * that.f(x)
-   def df(x : CV[Float]) = self.df(x) * that(x) + that.df(x) * self.f(x)
-   val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
+   def f(x: CV[Double]): Double =self.f(x) * that.f(x)
+   def df(x : CV[Double]) = self.df(x) * that(x) + that.df(x) * self.f(x)
+   val newDomain = (pt : CV[Double]) => self.isDefinedAt(pt) && that.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
    }
 
-   def *(s: Float): Repr = {
-   def f(x: CV[Float]): Float = self.f(x) * s
-   def df(x : CV[Float]) = self.df(x) * s 
-   val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt)
+   def *(s: Double): Repr = {
+   def f(x: CV[Double]): Double = self.f(x) * s
+   def df(x : CV[Double]) = self.df(x) * s 
+   val newDomain = (pt : CV[Double]) => self.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
    }
 
     def square: Repr = {
-    	def f(x: CV[Float]): Float = self.f(x) * self.f(x) 
-    	def df(x : CV[Float]) = self.df(x) * self.f(x) * 2f
-    	val newDomain = (pt : CV[Float]) => self.isDefinedAt(pt)
+    	def f(x: CV[Double]): Double = self.f(x) * self.f(x) 
+    	def df(x : CV[Double]) = self.df(x) * self.f(x) * 2.
+    	val newDomain = (pt : CV[Double]) => self.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)  
    }
 
    
   def compose(t : Transformation[CV]) : Repr  = { 
-      def f(x: CV[Float]) = self.f(t(x))
-      def df(x : CV[Float]) = t.takeDerivative(x) * self.df(t(x))
-      val newDomain = (pt: CV[Float]) => self.isDefinedAt(pt) && self.isDefinedAt(t(pt))
+      def f(x: CV[Double]) = self.f(t(x))
+      def df(x : CV[Double]) = t.takeDerivative(x) * self.df(t(x))
+      val newDomain = (pt: CV[Double]) => self.isDefinedAt(pt) && self.isDefinedAt(t(pt))
 
     newConcreteImageRepr(newDomain, f, df)
   }
    
-  def warp(t : Transformation[CV], imageDomainIndFunc : CV[Float] => Boolean) : Repr  = { 
-      def f(x: CV[Float]) = self.f(t(x))
-      def df(x : CV[Float]) = t.takeDerivative(x) * self.df(t(x))
-      val newDomain = (pt: CV[Float]) => imageDomainIndFunc(pt) &&  self.isDefinedAt(t(pt))
+  def warp(t : Transformation[CV], imageDomainIndFunc : CV[Double] => Boolean) : Repr  = { 
+      def f(x: CV[Double]) = self.f(t(x))
+      def df(x : CV[Double]) = t.takeDerivative(x) * self.df(t(x))
+      val newDomain = (pt: CV[Double]) => imageDomainIndFunc(pt) &&  self.isDefinedAt(t(pt))
 
     newConcreteImageRepr(newDomain, f, df)
   }
@@ -148,52 +148,52 @@ trait ContinuousScalarImageLike[CV[A] <: CoordVector[A], Repr <: ContinuousScala
   
  
   def differentiate = new ContinuousVectorImage[CV] {
-    def isDefinedAt(pt : CV[Float]) = true
-    def f(x: CV[Float]) = df(x)
+    def isDefinedAt(pt : CV[Double]) = true
+    def f(x: CV[Double]) = df(x)
     def pixelDimensionality = self.pixelDimensionality
   }
 
 }
 
-trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, DenseVector[Float]] { self =>
+trait ContinuousVectorImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV, DenseVector[Double]] { self =>
 
-  type Pixel = DenseVector[Float]
+  type Pixel = DenseVector[Double]
 
-  def apply(point: CV[Float]): DenseVector[Float]
+  def apply(point: CV[Double]): DenseVector[Double]
 
   def pixelDimensionality: Int
 
 }
 
-case class ContinuousScalarImage1D(_isDefinedAt : Point1D => Boolean, _f: Point1D => Float, _df: Point1D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector1D] with ContinuousScalarImageLike[CoordVector1D, ContinuousScalarImage1D] {
+case class ContinuousScalarImage1D(_isDefinedAt : Point1D => Boolean, _f: Point1D => Double, _df: Point1D => DenseVector[Double]) extends ContinuousScalarImage[CoordVector1D] with ContinuousScalarImageLike[CoordVector1D, ContinuousScalarImage1D] {
  
   override val pixelDimensionality = 1
-  def newConcreteImageRepr(isDefinedAt: CoordVector1D[Float] => Boolean, f: CoordVector1D[Float] => Float, df: CoordVector1D[Float] => DenseVector[Float]) : ContinuousScalarImage1D = ContinuousScalarImage1D(isDefinedAt, f, df)
+  def newConcreteImageRepr(isDefinedAt: CoordVector1D[Double] => Boolean, f: CoordVector1D[Double] => Double, df: CoordVector1D[Double] => DenseVector[Double]) : ContinuousScalarImage1D = ContinuousScalarImage1D(isDefinedAt, f, df)
   
   
   def isDefinedAt(pt : Point1D) = _isDefinedAt(pt)
-  def f(x: CoordVector1D[Float]) = _f(x)
-  def df(x: CoordVector1D[Float]) = _df(x)
+  def f(x: CoordVector1D[Double]) = _f(x)
+  def df(x: CoordVector1D[Double]) = _df(x)
 }
 
-case class ContinuousScalarImage2D(_isDefinedAt : CoordVector2D[Float] => Boolean, _f: Point2D => Float, _df: Point2D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector2D] with ContinuousScalarImageLike[CoordVector2D, ContinuousScalarImage2D] { 
+case class ContinuousScalarImage2D(_isDefinedAt : CoordVector2D[Double] => Boolean, _f: Point2D => Double, _df: Point2D => DenseVector[Double]) extends ContinuousScalarImage[CoordVector2D] with ContinuousScalarImageLike[CoordVector2D, ContinuousScalarImage2D] { 
 
-   def newConcreteImageRepr(isDefinedAt: CoordVector2D[Float] => Boolean, f: CoordVector2D[Float] => Float, df: CoordVector2D[Float] => DenseVector[Float]) : ContinuousScalarImage2D = ContinuousScalarImage2D(isDefinedAt, f, df)
+   def newConcreteImageRepr(isDefinedAt: Point2D => Boolean, f: Point2D => Double, df: Point2D => DenseVector[Double]) : ContinuousScalarImage2D = ContinuousScalarImage2D(isDefinedAt, f, df)
  
   override val pixelDimensionality = 1
-  def f(x: CoordVector2D[Float]) = _f(x)
-  def df(x: CoordVector2D[Float]) = _df(x)
+  def f(x: CoordVector2D[Double]) = _f(x)
+  def df(x: CoordVector2D[Double]) = _df(x)
   def isDefinedAt(pt : Point2D) = _isDefinedAt(pt)  
 }
 
-case class ContinuousScalarImage3D(_isDefinedAt : Point3D => Boolean,  _f: Point3D => Float, _df: Point3D => DenseVector[Float]) extends ContinuousScalarImage[CoordVector3D] with ContinuousScalarImageLike[CoordVector3D, ContinuousScalarImage3D] {
+case class ContinuousScalarImage3D(_isDefinedAt : Point3D => Boolean,  _f: Point3D => Double, _df: Point3D => DenseVector[Double]) extends ContinuousScalarImage[CoordVector3D] with ContinuousScalarImageLike[CoordVector3D, ContinuousScalarImage3D] {
 
 
-   def newConcreteImageRepr(isDefinedAt: CoordVector3D[Float] => Boolean, f: CoordVector3D[Float] => Float, df: CoordVector3D[Float] => DenseVector[Float]) : ContinuousScalarImage3D = ContinuousScalarImage3D(isDefinedAt, f, df)
+   def newConcreteImageRepr(isDefinedAt: Point3D => Boolean, f: Point3D => Double, df: Point3D => DenseVector[Double]) : ContinuousScalarImage3D = ContinuousScalarImage3D(isDefinedAt, f, df)
  
   override val pixelDimensionality = 1
-  def f(x: CoordVector3D[Float]) = _f(x)
-  def df(x: CoordVector3D[Float]) = _df(x)
+  def f(x: Point3D) = _f(x)
+  def df(x: Point3D) = _df(x)
   def isDefinedAt(pt : Point3D) = _isDefinedAt(pt)
 }
 
@@ -201,10 +201,10 @@ case class ContinuousScalarImage3D(_isDefinedAt : Point3D => Boolean,  _f: Point
 // Vector Images
 /////////////////////////////////////////////
 
-case class ContinousVectorImage1D(val _isDefinedAt : CoordVector1D[Float] => Boolean, val pixelDimensionality: Int, val domain: ContinuousImageDomain1D, _f: Point1D => DenseVector[Float], _df: Point1D => DenseMatrix[Float]) extends ContinuousVectorImage[CoordVector1D] {
+case class ContinousVectorImage1D(val _isDefinedAt : Point1D => Boolean, val pixelDimensionality: Int,  _f: Point1D => DenseVector[Double], _df: Point1D => DenseMatrix[Double]) extends ContinuousVectorImage[CoordVector1D] {
 type CV[A] = CoordVector1D[A]
   
-  def f(x: CoordVector1D[Float]) = _f(x)
-  def df(x: CoordVector1D[Float]) = _df(x)
-  def isDefinedAt(x : CoordVector1D[Float]) = _isDefinedAt(x)
+  def f(x: Point1D) = _f(x)
+  def df(x: Point1D) = _df(x)
+  def isDefinedAt(x : Point1D) = _isDefinedAt(x)
 }

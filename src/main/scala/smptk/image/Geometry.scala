@@ -46,20 +46,20 @@ object Geometry {
   
    
   //type Point = CoordVector[Float]
-  type Point1D = CoordVector1D[Float]
-  type Point2D = CoordVector2D[Float]
-  type Point3D = CoordVector3D[Float]
+
+   type Point1D = CoordVector1D[Double]
+  type Point2D = CoordVector2D[Double]
+  type Point3D = CoordVector3D[Double]
   type Index1D = CoordVector1D[Int]
   type Index2D = CoordVector2D[Int]
   type Index3D = CoordVector3D[Int]
-  type Matrix1D = CoordVector1D[CoordVector1D[Float]]
-  type Matrix2D = CoordVector2D[CoordVector2D[Float]]
-  type Matrix3D = CoordVector3D[CoordVector3D[Float]]
+  type Matrix1D = CoordVector1D[CoordVector1D[Double]]
+  type Matrix2D = CoordVector2D[CoordVector2D[Double]]
+  type Matrix3D = CoordVector3D[CoordVector3D[Double]]
   
   
-  implicit def CoordVecFloatToFloat(c : CoordVector1D[Float]) = c(0)
+  implicit def CoordVecDoubleToDouble(c : CoordVector1D[Double]) = c(0)
   
-  implicit def floatToCoordVec(s : Float) = CoordVector1D(s)
   implicit def doubleToCoordVec(s : Double) = CoordVector1D(s)
   implicit def intToCoordVec(s : Int) = CoordVector1D(s)
   implicit def floatTupleToCoordVec(t : Tuple2[Float, Float]) = CoordVector2D(t._1, t._2)

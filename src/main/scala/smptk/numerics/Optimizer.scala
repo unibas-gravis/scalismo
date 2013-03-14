@@ -3,7 +3,7 @@ package smptk.numerics
 import smptk.registration.TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 
-trait CostFunction extends Function1[ParameterVector, (Float, DenseVector[Float])] {}
+trait CostFunction extends Function1[ParameterVector, (Double, DenseVector[Double])] {}
 
 trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector]{
   
@@ -11,7 +11,7 @@ trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector
 
 case class GradientDescentOptimizer(val numIterations : Int) extends Optimizer {
   
-  val stepLength  : Float = 0.1f
+  val stepLength  : Double = 0.1
   
   def apply(x0 : ParameterVector, c : CostFunction) : ParameterVector = {
      optimize(x0, c, 0)

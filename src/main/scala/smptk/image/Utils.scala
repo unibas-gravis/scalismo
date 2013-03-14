@@ -24,14 +24,14 @@ object Utils {
 
   }
 
-  def show1D(img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Float = 0) {
+  def show1D(img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Double = 0) {
 
     val xs = linspace(domain.origin(0).toDouble, domain.origin(0) + domain.extent(0), 1000)
 
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, xs.map(x => img.liftPixelValue(x.toFloat).getOrElse(outsideValue).toDouble))
+    p += plot(xs, xs.map(x => img.liftPixelValue(x).getOrElse(outsideValue)))
 
   }
 
@@ -42,7 +42,7 @@ object Utils {
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, xs.map(x => img(CoordVector1D(x.toFloat))(0).toDouble))
+    p += plot(xs, xs.map(x => img(CoordVector1D(x))(0)))
 
   }
 
