@@ -14,26 +14,25 @@ import smptk.image.Geometry.CoordVector1D
 import smptk.numerics.Integration
 
 trait ImageMetric[CV[A] <: CoordVector[A]] {
-  type Repr <: ContinuousScalarImage[CV]
+  type Repr  = ContinuousScalarImage[CV]
 
   def apply(img1: Repr, img2: Repr): (DiscreteImageDomain[CV] => Float)
 
   def takeDerivativeWRTToMovingImage(fixedImage: Repr, movingImage: Repr): ContinuousScalarImage[CV]
 }
 
-trait ImageMetric1D extends ImageMetric[CoordVector1D] {
-  type Repr = ContinuousScalarImage1D
+trait ImageMetric1D extends  ImageMetric[CoordVector1D] {
 
 }
 
 object MeanSquaresMetric1D extends ImageMetric1D {
 
-  def apply(img1: ContinuousScalarImage1D,
-    img2: ContinuousScalarImage1D) = {
-    region => Integration.integrate((img1 - img2).square, region)
+  def apply(img1: ContinuousScalarImage[CoordVector1D],
+    img2: ContinuousScalarImage[CoordVector1D]) = {
+    (region : DiscreteImageDomain[CoordVector1D]) => Integration.integrate((img1 - img2).square, region)
   }
-  def takeDerivativeWRTToMovingImage(img1: ContinuousScalarImage1D,
-    img2: ContinuousScalarImage1D) = {
+  def takeDerivativeWRTToMovingImage(img1: ContinuousScalarImage[CoordVector1D],
+    img2: ContinuousScalarImage[CoordVector1D]) = {
     (img1 - img2) * 2f
   }
 

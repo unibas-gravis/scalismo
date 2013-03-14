@@ -23,13 +23,13 @@ object Registration {
 
   case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
-  def registration1D(
-    fixedImage: ContinuousScalarImage1D,
-    movingImage: ContinuousScalarImage1D,
-    transformationSpace: TransformationSpace[CoordVector1D],
-    metric: ImageMetric1D,
+  def registrationND[CV[A] <: CoordVector[A]](
+    fixedImage: ContinuousScalarImage[CV],
+    movingImage: ContinuousScalarImage[CV],
+    transformationSpace: TransformationSpace[CV],
+    metric: ImageMetric[CV],
     regWeight: Float,
-    initialParameters: ParameterVector): (DiscreteImageDomain1D => RegistrationResult[CoordVector1D]) =
+    initialParameters: ParameterVector): (DiscreteImageDomain[CV] => RegistrationResult[CV]) =
     {
       fixedImageRegion =>
         {
@@ -52,10 +52,10 @@ object Registration {
               val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
               //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
 
-              val parametricTransformGradientImage = new ContinuousVectorImage[CoordVector1D] {
+              val parametricTransformGradientImage = new ContinuousVectorImage[CV] {
                 val pixelDimensionality = params.size
-                def isDefinedAt(x : Point1D) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x) 
-                def f(x: Point1D) =  dTransformSpaceDAlpha(x) * movingImage.df(transformation(x))* dMetricDalpha(x)  
+                def isDefinedAt(x : CV[Float]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x) 
+                def f(x: CV[Float]) =  dTransformSpaceDAlpha(x) * movingImage.df(transformation(x))* dMetricDalpha(x)  
               }
               
 
@@ -73,4 +73,15 @@ object Registration {
 
         }
     }
+
+  
+  def registration1D(
+    fixedImage: ContinuousScalarImage1D,
+    movingImage: ContinuousScalarImage1D,
+    transformationSpace: TransformationSpace[CoordVector1D],
+    metric: ImageMetric1D,
+    regWeight: Float,
+    initialParameters: ParameterVector): (DiscreteImageDomain1D => RegistrationResult[CoordVector1D]) =
+  
+   registrationND(fixedImage, movingImage, transformationSpace, metric, regWeight, initialParameters)
 }
