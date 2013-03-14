@@ -1,15 +1,20 @@
-package smptk.image
+package smptk
+package image
 
 import breeze.plot._
 import breeze.linalg._
 import Image._
-import smptk.image.Geometry.CoordVector1D
+import Geometry.CoordVector1D
+import ij._
+import ij.process.FloatProcessor
+import ij.ImageStack
+import ij.WindowManager
 
 object Utils {
 
-  def show[Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]) {
-	val pixelConv = implicitly[ScalarPixel[Pixel]]
-	
+  def show1D[Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]) {
+    val pixelConv = implicitly[ScalarPixel[Pixel]]
+
     val xs = img.domain.points.map(_(0).toDouble)
 
     val f = Figure()
@@ -19,8 +24,8 @@ object Utils {
 
   }
 
-  def show(img: ContinuousScalarImage1D, domain : DiscreteImageDomain1D, outsideValue : Float = 0) {
-	
+  def show1D(img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Float = 0) {
+
     val xs = linspace(domain.origin(0).toDouble, domain.origin(0) + domain.extent(0), 1000)
 
     val f = Figure()
@@ -30,8 +35,8 @@ object Utils {
 
   }
 
-    def show(img: ContinuousVectorImage[CoordVector1D], domain : DiscreteImageDomain1D) {
-	
+  def show1D(img: ContinuousVectorImage[CoordVector1D], domain: DiscreteImageDomain1D) {
+
     val xs = linspace(domain.origin(0).toDouble, domain.origin(0) + domain.extent(0), 1000)
 
     val f = Figure()
@@ -41,5 +46,51 @@ object Utils {
 
   }
 
+  def show2D[Pixel: ScalarPixel](img: DiscreteScalarImage2D[Pixel]) {
+    val pixelConv = implicitly[ScalarPixel[Pixel]]
+    val domain = img.domain
+
+    val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
+    val imp = new ImagePlus("2D image", bp)
+    imp.show()
+  }
+
+  def show2D(img: ContinuousScalarImage2D, domain: DiscreteImageDomain2D, outsideValue: Float = 0) {
+    val discreteImg = Resample.sample2D(img, domain, outsideValue)
+    show2D(discreteImg)
+  }
+
+  def show3D[Pixel: ScalarPixel](img: DiscreteScalarImage3D[Pixel]) {
+    val pixelConv = implicitly[ScalarPixel[Pixel]]
+    val domain = img.domain
+    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
+
+    // 	Create 3x3x3 3D stack and fill it with garbage  
+    val stack = new ImageStack(width, height)
+
+    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
+    for (slice <- 0 until size) {
+      val startInd = slice * (width * height)
+      val endInd = (slice + 1) * (width * height)
+      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
+      val bp = new FloatProcessor(width, height, pixelForSlice)
+      stack.addSlice(bp)
+
+    }
+    val imp = new ImagePlus("3D image", stack)
+
+    imp.show()
+  }
+
+//  def main(args: Array[String]) {
+//    import smptk.io.ImageIO
+//    import java.io.File
+//    val img2d = ImageIO.read2DScalarImage[Short](new File("/home/luethi/workspace/smptk/src/test/resources/lena.h5")).get
+//    val img2dcont = Interpolation.interpolate2D(3)(img2d)
+//    show2D(img2dcont, img2d.domain, 0)
+//    //	   val threeDImgFilename = "/home/luethi/workspace/smptk/../smptkDemo/zim_16.h5"
+//    //	   val img3d = ImageIO.read3DScalarImage[Short](new File(threeDImgFilename)).get
+//    //	   show3D(img3d)
+//  }
 
 }
