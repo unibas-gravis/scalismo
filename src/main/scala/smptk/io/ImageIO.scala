@@ -23,6 +23,8 @@ import smptk.image.DiscreteImageDomain3D
 import smptk.image.DiscreteScalarImage3D
 import smptk.image.DiscreteImageDomain1D
 import smptk.image.DiscreteScalarImage1D
+import smptk.image.Geometry.CoordVector1D
+import smptk.image.Geometry.CoordVector3D
 
 object ImageIO {
 
@@ -53,7 +55,8 @@ object ImageIO {
             } else if (imageData.pixelDimensionality != 1) {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
-              val domain = DiscreteImageDomain1D(imageData.origin(0), imageData.spacing(0),imageData.size(0).toInt)  
+
+              val domain = DiscreteImageDomain1D(CoordVector1D(imageData.origin(0)), CoordVector1D(imageData.spacing(0)), CoordVector1D(imageData.size(0).toInt))  
               Success(DiscreteScalarImage1D(domain, imageData.data))
             }
           }
@@ -77,9 +80,10 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain3D(
-                (imageData.origin(0), imageData.origin(1), imageData.origin(2)),
-                (imageData.spacing(0), imageData.spacing(1), imageData.spacing(2)),
-                (imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
+                CoordVector3D(imageData.origin(0), imageData.origin(1), imageData.origin(2)),
+                CoordVector3D(imageData.spacing(0), imageData.spacing(1), imageData.spacing(2)),
+                CoordVector3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
+
               Success(DiscreteScalarImage3D(domain, imageData.data))
             }
           }
@@ -103,9 +107,9 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain2D(
-                (imageData.origin(0), imageData.origin(1)),
-                (imageData.spacing(0), imageData.spacing(1)),
-                (imageData.size(0).toInt, imageData.size(1).toInt))
+                CoordVector2D(imageData.origin(0), imageData.origin(1)),
+                CoordVector2D(imageData.spacing(0), imageData.spacing(1)),
+                CoordVector2D(imageData.size(0).toInt, imageData.size(1).toInt))
               Success(DiscreteScalarImage2D(domain, imageData.data))
             }
           }

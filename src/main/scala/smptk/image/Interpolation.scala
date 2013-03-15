@@ -21,6 +21,10 @@ object Interpolation {
 
   def bSpline(n: Int)(x: Double): Double = {
     val absX = scala.math.abs(x)
+    val absXSquared = absX * absX
+    val absXCube = absXSquared * absX
+    val twoMinAbsX = 2f - absX
+    
     n match {
       case 0 => {
         if (-0.5 < x && x < 0.5) 1f
@@ -34,18 +38,18 @@ object Interpolation {
         else 0
       }
       case 2 => {
-        if (-1.5 <= x && x < -0.5) 0.5 * scala.math.pow(x + 1.5, 2)
-        else if (-0.5 <= x && x < 0.5) -scala.math.pow(x + 0.5, 2) + (x - 0.5) + 1.5
-        else if (x >= 0.5 && x < 1.5) 0.5 * scala.math.pow(1 - (x - 0.5), 2)
-        else 0
+        if (-1.5 <= x && x < -0.5) 0.5 *(x + 1.5)* (x + 1.5)
+        else if (-0.5 <= x && x < 0.5) -(x + 0.5)*(x + 0.5) + (x - 0.5) + 1.5
+        else if (x >= 0.5 && x < 1.5) 0.5 * (1 - (x - 0.5)* (1 - (x - 0.5)))
+        else 0f
 
       }
       case 3 => {
-
+    	  
         if (absX >= 0 && absX < 1)
-          (twoByThree - scala.math.pow(absX, 2) + 0.5 * scala.math.pow(absX, 3))
+          twoByThree - absXSquared + 0.5f * absXCube
         else if (absX >= 1 && absX < 2)
-          (scala.math.pow((2 - absX), 3) / 6)
+          twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6
         else 0
       }
       case _ => throw new NotImplementedError("Bspline of order " + n + " is not implemented yet")
@@ -72,7 +76,7 @@ object Interpolation {
     // the c is an input-output argument here
     val c = img.pixelValues.map(_.toDouble).toArray
     BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-    DenseVector(c.map(_.toDouble))
+    DenseVector(c)
   }
 
   def determineCoefficientsWithLinearSystem[Scalar <% Double: ClassTag](degree: Int, img: DiscreteScalarImage2D[Scalar]): DenseVector[Double] = {
@@ -89,10 +93,10 @@ object Interpolation {
       i <- 0 until img.domain.size(0)
     ) {
       val coordvector2D = img.domain.linearIndexToIndex(ptNumber)
-      betaMat(ptNumber, img.domain.indexToLinearIndex((i, j))) = splineBasis(coordvector2D(0) - i, coordvector2D(1) - j)
+      betaMat(ptNumber, img.domain.indexToLinearIndex(CoordVector2D(i, j))) = splineBasis(coordvector2D(0) - i, coordvector2D(1) - j)
     }
 
-    (betaMat \ I).map(_.toDouble)
+    betaMat \ I
 
   }
 
@@ -106,7 +110,7 @@ object Interpolation {
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
       val idxInCoeffs = img.domain.indexToLinearIndex(CoordVector2D(0, y))
-      coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toDouble))
+      coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
       //coeffs(img.domain.indexToLinearIndex((0,y)) until img.domain.indexToLinearIndex((img.domain.size(0)-1,y))) := DenseVector(c.map(_.toDouble))
     }
     coeffs
@@ -140,7 +144,8 @@ object Interpolation {
 
       var result = 0.
       var k = k1
-      while (k <= scala.math.min(k1 + K - 1, ck.size - 1)) {
+      val upperBound = scala.math.min(k1 + K - 1, ck.size - 1)
+      while (k <= upperBound) {
         result = result + splineBasis(xUnit - k) * ck(k)
         k = k + 1
       }
@@ -177,10 +182,11 @@ object Interpolation {
       var result = 0.
       var k = k1
       var l = l1
-
-      while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
+      val upperBound1 =  scala.math.min(l1 + K - 1, image.domain.size(1) - 1)
+      val upperBound2 = scala.math.min(k1 + K - 1, image.domain.size(0) - 1)
+      while (l <= upperBound1) {
         k = k1
-        while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
+        while (k <= upperBound2) {
 
           val idx = image.domain.indexToLinearIndex(CoordVector2D(k, l))
           result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l)
@@ -226,12 +232,16 @@ object Interpolation {
       var k = k1
       var l = l1
       var m = m1
-
-      while (m <= scala.math.min(m1 + K - 1, image.domain.size(2) - 1)) {
+      
+      val upperBound1 =  scala.math.min(m1 + K - 1, image.domain.size(2) - 1)
+      val upperBound2 =  scala.math.min(l1 + K - 1, image.domain.size(1) - 1)
+      val upperBound3 =  scala.math.min(k1 + K - 1, image.domain.size(0) - 1)
+      
+      while (m <= upperBound1) {
         l = l1
-        while (l <= scala.math.min(l1 + K - 1, image.domain.size(1) - 1)) {
+        while (l <= upperBound2) {
           k = k1
-          while (k <= scala.math.min(k1 + K - 1, image.domain.size(0) - 1)) {
+          while (k <= upperBound3) {
 
             val idx = image.domain.indexToLinearIndex(CoordVector3D(k, l, m))
             result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l, zUnit - m)

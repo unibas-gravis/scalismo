@@ -1,17 +1,13 @@
 
-package smptk.registration
+package smptk
+package registration
 
 import scala.language.higherKinds
 import TransformationSpace.ParameterVector
-import smptk.numerics.Integration._
+import numerics.Integration
 import breeze.linalg.DenseVector
-import smptk.image.ContinuousScalarImage
-import smptk.image.CoordVector
-import smptk.image.DiscreteImageDomain
-import smptk.image.ContinuousScalarImage1D
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.Geometry.CoordVector1D
-import smptk.numerics.Integration
+import image._
+import image.Geometry.{CoordVector1D,CoordVector2D, CoordVector3D}
 
 trait ImageMetric[CV[A] <: CoordVector[A]] {
   type Repr  = ContinuousScalarImage[CV]
@@ -22,21 +18,28 @@ trait ImageMetric[CV[A] <: CoordVector[A]] {
 }
 
 trait ImageMetric1D extends  ImageMetric[CoordVector1D] {
-
 }
 
-object MeanSquaresMetric1D extends ImageMetric1D {
+trait ImageMetric2D extends  ImageMetric[CoordVector2D] {
+}
 
-  def apply(img1: ContinuousScalarImage[CoordVector1D],
-    img2: ContinuousScalarImage[CoordVector1D]) = {
-    (region : DiscreteImageDomain[CoordVector1D]) => Integration.integrate((img1 - img2).square, region)
+trait ImageMetric3D extends  ImageMetric[CoordVector3D] {
+}
+
+
+trait MeanSquaresMetric[CV[A] <: CoordVector[A]] extends ImageMetric[CV] {
+  type CImg = ContinuousScalarImage[CV]
+  def apply(img1: CImg,  img2: CImg) = {
+    (region : DiscreteImageDomain[CV]) => Integration.integrate((img1 - img2).square, region)
   }
-  def takeDerivativeWRTToMovingImage(img1: ContinuousScalarImage[CoordVector1D],
-    img2: ContinuousScalarImage[CoordVector1D]) = {
+  def takeDerivativeWRTToMovingImage(img1: CImg,  img2: CImg) = {
     (img1 - img2) * 2f
   }
-
 }
+
+object MeanSquaresMetric1D extends ImageMetric1D with MeanSquaresMetric[CoordVector1D]
+object MeanSquaresMetric2D extends ImageMetric2D with MeanSquaresMetric[CoordVector2D]
+object MeanSquaresMetric3D extends ImageMetric3D with MeanSquaresMetric[CoordVector3D]
 
 object Metric {
 }

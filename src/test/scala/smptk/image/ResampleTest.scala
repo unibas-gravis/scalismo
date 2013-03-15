@@ -10,6 +10,7 @@ import io.ImageIO
 import java.io.File
 import smptk.registration.RotationSpace2D
 import smptk.image.Geometry.CoordVector2D
+import smptk.image.Geometry.implicits._
 import breeze.linalg.DenseVector
 
 class ResampleTest extends FunSpec with ShouldMatchers {

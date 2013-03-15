@@ -1,25 +1,18 @@
-package smptk.registration
+package smptk
+package registration
 
 import scala.collection.immutable.{ Vector => SVector }
 import TransformationSpace.ParameterVector
 import Registration.RegistrationResult
-import breeze.plot._
-import breeze.linalg._
-import smptk.image.ContinuousScalarImage1D
-import smptk.image.ContinuousDomain
-import smptk.image.Geometry._
-import smptk.image.ContinuousScalarImage
-import smptk.image.DiscreteScalarImage1D
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.Image._
-import smptk.image.Interpolation._
-import smptk.image.ContinuousImageDomain
-import smptk.numerics.Integration
-import smptk.image.ContinuousScalarImage1D
-import smptk.io.ImageIO
-import smptk.image.Interpolation
-import smptk.image.Resample
+import image._
+import image.Geometry._
+import image.Geometry.implicits._
+import image.Image._
+import image.Interpolation._
+import numerics.Integration
+import io.ImageIO
 import java.io.File
+import breeze.linalg.DenseVector
 
 object Test { 
 // def main(args : Array[String])  { 
@@ -110,6 +103,25 @@ object Test {
 //    //    }
 
 //    regResult
+
+      val testImgUrl = "/home/luethi/workspace/smptk/src/test/resources/lena.h5"
+        // getClass().getResource("/lena.h5").getPath()
+      val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
+      val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
+      
+      val domain = discreteFixedImage.domain
+      val center = (domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
+      
+      //val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
+      val translationTransform = TranslationSpace2D()(DenseVector(-1., 5.))
+      val transformedLena =fixedImage compose translationTransform
+      
+      val registration = Registration.registration2D(fixedImage, transformedLena, TranslationSpace2D(), MeanSquaresMetric2D, 
+          0f, DenseVector.zeros[Double](2))
+      
+      val regResult = registration(domain)    
+      println(regResult.parameters)
+          regResult
   }
 
   def main(args: Array[String]) {

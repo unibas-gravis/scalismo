@@ -9,7 +9,7 @@ import smptk.image.CoordVector
 
 object LandmarkRegistration {
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = (0., 0.)): (Transformation[CoordVector2D], ParameterVector) = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = CoordVector2D(0., 0.)): (Transformation[CoordVector2D], ParameterVector) = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)

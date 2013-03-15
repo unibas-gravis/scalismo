@@ -58,8 +58,11 @@ object Geometry {
   type Matrix3D = CoordVector3D[CoordVector3D[Double]]
   
   
+
+
+  object implicits {
+  implicit def CoordVecFloatToFloat(c : CoordVector1D[Float]) = c(0)
   implicit def CoordVecDoubleToDouble(c : CoordVector1D[Double]) = c(0)
-  
   implicit def doubleToCoordVec(s : Double) = CoordVector1D(s)
   implicit def intToCoordVec(s : Int) = CoordVector1D(s)
   implicit def floatTupleToCoordVec(t : Tuple2[Float, Float]) = CoordVector2D(t._1, t._2)
@@ -68,5 +71,5 @@ object Geometry {
   implicit def floatTupleToCoordVec(t : Tuple3[Float, Float, Float]) = CoordVector3D(t._1, t._2, t._3)
   implicit def doubleTupleToCoordVec(t : Tuple3[Double, Double, Double]) = CoordVector3D(t._1, t._2, t._3)
   implicit def intTupleToCoordVec(t : Tuple3[Int, Int, Int]) = CoordVector3D(t._1, t._2, t._3)
-
+  }
 }

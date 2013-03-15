@@ -1,3 +1,4 @@
+package smptk
 package registration
 
 import org.scalatest.FunSpec
@@ -5,16 +6,16 @@ import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
 import smptk.image.DiscreteImageDomain2D
-import smptk.registration.RotationSpace2D
 import smptk.image.Geometry.CoordVector2D
-import smptk.registration.TranslationSpace2D
 import breeze.linalg.DenseVector
-import smptk.registration.LandmarkRegistration
 import org.scalatest.matchers.ShouldMatchers
 import smptk.image.Geometry._
-import smptk.registration.RigidTransformationSpace2D
+import smptk.image.Geometry.implicits._
 import breeze.plot.Figure
 import breeze.plot._
+import smptk.io.ImageIO
+import smptk.image.Interpolation
+import smptk.image.Image._
 
 class ImageTest extends FunSpec with ShouldMatchers {
   describe("A 2D rigid landmark based registration") {
@@ -42,6 +43,33 @@ class ImageTest extends FunSpec with ShouldMatchers {
         (transformedPoints(2)(0) should be(alignedPoints(2)(0) plusOrMinus 0.0001))
         (transformedPoints(2)(1) should be(alignedPoints(2)(1) plusOrMinus 0.0001))
       }
+    }
+  }
+  
+  
+  describe("A 2D image registration") {
+    it("Recovers the correct parameters for a translation transfrom") {
+      val testImgUrl = getClass().getResource("/lena.h5").getPath()
+      val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
+      val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
+      
+      val domain = discreteFixedImage.domain
+      val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
+      
+     // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
+     // val translationTransform = TranslationSpace2D()(DenseVector(-1f, 5f))
+      val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
+      val transformedLena =fixedImage compose rotationTransform
+      
+      val registration = Registration.registration2D(fixedImage, transformedLena, RotationSpace2D(center), MeanSquaresMetric2D, 
+          0f, DenseVector(1.))
+      
+      val regResult = registration(domain)    
+      
+     // (regResult.parameters(0) should be (1f plusOrMinus 0.0001f))
+     // (regResult.parameters(1) should be (5f plusOrMinus 0.0001f))
+      (regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
+      
     }
   }
 }

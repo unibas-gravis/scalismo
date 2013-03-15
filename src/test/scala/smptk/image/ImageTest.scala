@@ -7,6 +7,7 @@ import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector3D
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry._
+import smptk.image.Geometry.implicits._
 import breeze.linalg.DenseVector
 import smptk.registration.TranslationSpace1D
 
