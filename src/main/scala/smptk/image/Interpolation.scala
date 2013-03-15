@@ -14,16 +14,15 @@ import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.CoordVector3D
 import scala.reflect.runtime.universe.{ TypeTag }
 import scala.reflect.ClassTag
-
 object Interpolation {
 
   def splineInterpolate[Point](p: Point): (Point => Float) = p => 0
 
   def bSpline(n: Int)(x: Float): Float = {
-    val absX = scala.math.abs(x)
-    val absXSquared = absX * absX
-    val absXCube = absXSquared * absX
-    val twoMinAbsX = 2f - absX
+    val absX : Float = scala.math.abs(x)
+    val absXSquared : Float = absX * absX
+    val absXCube : Float = absXSquared * absX
+    val twoMinAbsX : Float = 2f - absX
     
     n match {
       case 0 => {
@@ -38,18 +37,18 @@ object Interpolation {
         else 0
       }
       case 2 => {
-        if (-1.5 <= x && x < -0.5) 0.5f *(x + 1.5f)* (x + 1.5f)
-        else if (-0.5 <= x && x < 0.5) -(x + 0.5f)*(x + 0.5f) + (x - 0.5f) + 1.5f
-        else if (x >= 0.5 && x < 1.5) 0.5f * (1 - (x - 0.5f)* (1 - (x - 0.5f)))
-        else 0f
+        if (-1.5 <= x && x < -0.5) 0.5f * (x + 1.5f)*(x + 1.5f)
+        else if  (-0.5 <= x && x < 0.5) -(x + 0.5f)*(x + 0.5f) + (x - 0.5f) + 1.5f
+        else if (x >= 0.5 && x < 1.5) 0.5f * (1 - (x - 0.5f))*(1 - (x - 0.5f))
+        else 0
 
       }
       case 3 => {
-    	  
+
         if (absX >= 0 && absX < 1)
-          0.66666666666f - absXSquared + 0.5f * absXCube
+          (0.66666666 - absXSquared + 0.5 * absXCube).toFloat
         else if (absX >= 1 && absX < 2)
-          twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6
+        	(twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6.).toFloat
         else 0
       }
       case _ => throw new NotImplementedError("Bspline of order " + n + " is not implemented yet")
