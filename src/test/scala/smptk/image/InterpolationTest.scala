@@ -194,10 +194,10 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
       val derivativeImage = interpolatedFImage.differentiate
  
       
-      for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1(0)) < 1.20 &&  math.abs(x._1(1)) < 1.20  &&  math.abs(x._1(2)) < 1.20 ))  {  
-        derivativeImage(pt)(0) should be((2* pt(0)) plusOrMinus 0.0001f)
-        derivativeImage(pt)(1) should be((2* pt(1)) plusOrMinus 0.0001f)
-        derivativeImage(pt)(2) should be((2* pt(2)) plusOrMinus 0.0001f)
+      for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1(0)) < 1. &&  math.abs(x._1(1)) < 1.  &&  math.abs(x._1(2)) < 1. ))  {  
+        derivativeImage(pt)(0) should be((2* pt(0)) plusOrMinus 0.0001)
+        derivativeImage(pt)(1) should be((2* pt(1)) plusOrMinus 0.0001)
+        derivativeImage(pt)(2) should be((2* pt(2)) plusOrMinus 0.0001)
       }
       
     }

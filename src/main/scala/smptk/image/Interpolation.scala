@@ -14,42 +14,42 @@ import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.CoordVector3D
 import scala.reflect.runtime.universe.{ TypeTag }
 import scala.reflect.ClassTag
-
 object Interpolation {
-   val twoByThree = 2./3.
+
+  private val twoByThree = 2.0 / 3.0; // a constant used later on
   def splineInterpolate[Point](p: Point): (Point => Double) = p => 0
 
   def bSpline(n: Int)(x: Double): Double = {
-    val absX = scala.math.abs(x)
-    val absXSquared = absX * absX
-    val absXCube = absXSquared * absX
-    val twoMinAbsX = 2f - absX
+    val absX : Double = scala.math.abs(x)
+    val absXSquared : Double = absX * absX
+    val absXCube : Double = absXSquared * absX
+    val twoMinAbsX : Double = 2. - absX
     
     n match {
       case 0 => {
-        if (-0.5 < x && x < 0.5) 1f
-        else if (absX == 0.5) 0.5f
+        if (-0.5 < x && x < 0.5) 1.
+        else if (absX == 0.5) 0.5
         else 0
 
       }
       case 1 => {
-        if (-1 <= x && x <= 0) 1f + x
-        else if (0 < x && x <= 1) 1f - x
+        if (-1 <= x && x <= 0) 1. + x
+        else if (0 < x && x <= 1) 1. - x
         else 0
       }
       case 2 => {
-        if (-1.5 <= x && x < -0.5) 0.5 *(x + 1.5)* (x + 1.5)
-        else if (-0.5 <= x && x < 0.5) -(x + 0.5)*(x + 0.5) + (x - 0.5) + 1.5
-        else if (x >= 0.5 && x < 1.5) 0.5 * (1 - (x - 0.5)* (1 - (x - 0.5)))
-        else 0f
+        if (-1.5 <= x && x < -0.5) 0.5 * (x + 1.5)*(x + 1.5)
+        else if  (-0.5 <= x && x < 0.5) -(x + 0.5)*(x + 0.5) + (x - 0.5) + 1.5
+        else if (x >= 0.5 && x < 1.5) 0.5 * (1 - (x - 0.5))*(1 - (x - 0.5))
+        else 0
 
       }
       case 3 => {
-    	  
+
         if (absX >= 0 && absX < 1)
-          twoByThree - absXSquared + 0.5f * absXCube
+          twoByThree - absXSquared + 0.5 * absXCube
         else if (absX >= 1 && absX < 2)
-          twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6
+        	twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6.
         else 0
       }
       case _ => throw new NotImplementedError("Bspline of order " + n + " is not implemented yet")
@@ -96,7 +96,7 @@ object Interpolation {
       betaMat(ptNumber, img.domain.indexToLinearIndex(CoordVector2D(i, j))) = splineBasis(coordvector2D(0) - i, coordvector2D(1) - j)
     }
 
-    betaMat \ I
+    (betaMat \ I)
 
   }
 
@@ -126,7 +126,7 @@ object Interpolation {
         val c = rowValues.map(_.toDouble).toArray
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
         val idxInCoeffs = img.domain.indexToLinearIndex(CoordVector3D(0, y, z))
-        coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c.map(_.toDouble))
+        coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
       }
     }
     coeffs
@@ -139,14 +139,14 @@ object Interpolation {
     def iterateOnPoints(x: CoordVector1D[Double], splineBasis: ((Double) => Double)): Double = {
       val xUnit = (x(0) - image.domain.origin(0)) / image.domain.spacing(0)
 
-      val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5 * (degree + 1)).toInt, 0)
+      val k1 = scala.math.max(scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt, 0)
       val K = scala.math.min(degree + 1, ck.size - 1)
 
       var result = 0.
       var k = k1
       val upperBound = scala.math.min(k1 + K - 1, ck.size - 1)
       while (k <= upperBound) {
-        result = result + splineBasis(xUnit - k) * ck(k)
+        result = result + splineBasis(xUnit.toDouble - k) * ck(k)
         k = k + 1
       }
       result
