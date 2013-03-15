@@ -79,7 +79,7 @@ class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: Transform
   }
 
   private def splitProductParameterVector(p: ParameterVector): (ParameterVector, ParameterVector) = {
-    val pThis = p.slice(0, outer.parametersDimensionality, 1) // +1 apparently excludes end
+    val pThis = p.slice(0, outer.parametersDimensionality, 1) 
     val pThat = p.slice(outer.parametersDimensionality, p.length, 1)
     (pThis, pThat)
   }
@@ -90,7 +90,7 @@ case class TranslationSpace1D extends TransformationSpace[CoordVector1D] {
   def apply(p: ParameterVector) = {
     new Transformation[CoordVector1D] {
 
-      def apply(pt: Point1D) = p(0) + pt(0)
+      def apply(pt: Point1D) = CoordVector1D(p(0) + pt(0))
       def takeDerivative(x: Point1D) = {
         DenseMatrix.eye[Float](1)
       }

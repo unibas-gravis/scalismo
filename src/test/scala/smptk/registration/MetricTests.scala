@@ -6,6 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 import image.DiscreteImageDomain1D
 import image.ContinuousScalarImage1D
 import image.Geometry._
+import smptk.image.Geometry.implicits._
 import breeze.linalg.DenseVector
 import registration.Metric._
 

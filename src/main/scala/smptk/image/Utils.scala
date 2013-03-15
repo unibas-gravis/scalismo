@@ -31,7 +31,7 @@ object Utils {
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, xs.map(x => img.liftPixelValue(x.toFloat).getOrElse(outsideValue).toDouble))
+    p += plot(xs, xs.map(x => img.liftPixelValue(CoordVector1D(x.toFloat)).getOrElse(outsideValue).toDouble))
 
   }
 

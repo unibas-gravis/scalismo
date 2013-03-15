@@ -4,6 +4,7 @@ import org.scalatest.matchers.ShouldMatchers
 import smptk.image.DiscreteImageDomain1D
 import smptk.image.ContinuousScalarImage1D
 import smptk.image.Geometry._
+import smptk.image.Geometry.implicits._
 import breeze.linalg.DenseVector
 
 class IntegrationTest extends FunSpec with ShouldMatchers {

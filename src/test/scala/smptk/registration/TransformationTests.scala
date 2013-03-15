@@ -1,22 +1,23 @@
-package smptk.registration
+package smptk
+package registration
 
 import org.scalatest.FunSpec
 import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
-import smptk.image.Interpolation
-import smptk.image.DiscreteImageDomain2D
-import smptk.io.ImageIO
-import smptk.image.Image._
+import image.Interpolation
+import image.DiscreteImageDomain2D
+import io.ImageIO
+import image.Image._
 import breeze.linalg.DenseVector
-import smptk.image.Resample
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.ContinuousScalarImage1D
-import smptk.image.Geometry.CoordVector1D
+import image.Resample
+import image.DiscreteImageDomain1D
+import image.ContinuousScalarImage1D
 import org.scalatest.matchers.ShouldMatchers
-import smptk.image.Geometry.CoordVector2D
+import image.Geometry.{CoordVector1D, CoordVector2D}
+import smptk.image.Geometry.implicits._
 
-class ImageTest extends FunSpec with ShouldMatchers {
+class TransformationTests extends FunSpec with ShouldMatchers {
 
   describe("A Rotation in 2D") {
     val center = CoordVector2D(2f, 3.5f)

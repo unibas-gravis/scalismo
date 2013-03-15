@@ -65,7 +65,7 @@ case class DiscreteImageDomain1D(val origin: CoordVector1D[Float], val spacing: 
   val extent = CoordVector1D(origin(0) + spacing(0) * size(0))
 
   def indexToLinearIndex(idx: CoordVector1D[Int]) = idx(0)
-  def linearIndexToIndex(linearIdx: Int) = linearIdx
+  def linearIndexToIndex(linearIdx: Int) = CoordVector1D(linearIdx)
 
   val directions = Array(1.)
 
@@ -84,7 +84,7 @@ case class DiscreteImageDomain2D(val origin: CoordVector2D[Float], val spacing: 
   val extent = CoordVector2D(origin(0) + spacing(0) * size(0), origin(1) + spacing(1) * size(1))
 
   def indexToLinearIndex(idx: CoordVector2D[Int]) = idx(0) + idx(1) * size(0)
-  def linearIndexToIndex(linearIdx: Int) = (linearIdx % size(0), linearIdx / size(0))
+  def linearIndexToIndex(linearIdx: Int) = (CoordVector2D(linearIdx % size(0), linearIdx / size(0)))
 
   val directions = Array(1., 0., 0., 1.)
 
@@ -104,7 +104,7 @@ case class DiscreteImageDomain3D(val origin: CoordVector3D[Float], val spacing: 
   val extent = CoordVector3D(origin(0) + spacing(0) * size(0), origin(1) + spacing(1) * size(1), origin(2) + spacing(2) * size(2))
   def indexToLinearIndex(idx: CoordVector3D[Int]) = idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
   def linearIndexToIndex(linearIdx: Int) =
-    (
+    CoordVector3D(
       linearIdx % (size(0) * size(1)) % size(0),
       linearIdx % (size(0) * size(1)) / size(0),
       linearIdx / (size(0) * size(1)))

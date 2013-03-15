@@ -13,7 +13,7 @@ trait PDKernel[CV[A] <: CoordVector[A]] extends ((CV[Float], CV[Float]) => Float
 
 case class GaussianKernel1D(val sigma2: Float) extends PDKernel[CoordVector1D] {
   def apply(x: Point1D, y: Point1D) = {
-    val r = (x - y).toDouble
+    val r = (x(0) - y(0)).toDouble
     scala.math.exp(-(r * r) / sigma2).toFloat
   }
 }
@@ -92,7 +92,7 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D, val nu
 
 object KernelTransformationSpace { 
   def main(args : Array[String]) { 
-	val domain = DiscreteImageDomain1D(0f, 0.01f, 3000)
+	val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(3000))
     val ts = KernelTransformationSpace1D(domain, 20, GaussianKernel1D(10f))
     
     val f = Figure()
