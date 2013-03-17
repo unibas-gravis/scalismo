@@ -1,0 +1,7 @@
+# test landmark file
+# ------------------
+landmark1,1, 0, 0
+landmark2,1, 1, 0
+landmark3,1, 1, 1
+landmark4,3, 1, 4
+
