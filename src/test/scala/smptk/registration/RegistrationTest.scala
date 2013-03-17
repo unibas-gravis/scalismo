@@ -57,7 +57,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
       val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
       
      // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
-      val translationTransform = TranslationSpace2D()(DenseVector(-3f, 7f))
+      val translationTransform = TranslationSpace2D()(DenseVector(-1f, 5f))
       //val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
       val transformedLena =fixedImage compose translationTransform
       
@@ -66,8 +66,8 @@ class ImageTest extends FunSpec with ShouldMatchers {
       
       val regResult = registration(domain)    
       
-     (regResult.parameters(0) should be (3. plusOrMinus 0.0001))
-      (regResult.parameters(1) should be (-7. plusOrMinus 0.0001))
+     (regResult.parameters(0) should be (1. plusOrMinus 0.0001))
+      (regResult.parameters(1) should be (-5. plusOrMinus 0.0001))
       //(regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
       
     }
