@@ -22,9 +22,11 @@ import smptk.image.DiscreteImageDomain1D
 import smptk.image.ContinuousScalarImage2D
 import smptk.image.DiscreteImageDomain2D
 
+case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
+
+
 object Registration {
 
-  case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
   def registrationND[CV[A] <: CoordVector[A]](
     fixedImage: ContinuousScalarImage[CV],

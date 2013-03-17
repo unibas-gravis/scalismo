@@ -5,11 +5,13 @@ import image.CoordVector
 import image.Geometry.{ CoordVector2D, Point2D }
 import registration.TransformationSpace.{ ParameterVector }
 import breeze.linalg.{ svd, DenseVector, DenseMatrix, mean, variance, Axis }
-import smptk.image.CoordVector
+
+
 
 object LandmarkRegistration {
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = CoordVector2D(0., 0.)): (Transformation[CoordVector2D], ParameterVector) = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = CoordVector2D(0., 0.)) 
+  : RegistrationResult[CoordVector2D] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)
@@ -25,7 +27,7 @@ object LandmarkRegistration {
     val optimalParameters = DenseVector.vertcat(t, DenseVector(phi))
 
     val rigidSpace = RigidTransformationSpace2D(center)
-    (rigidSpace(optimalParameters), optimalParameters)
+    RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
   private def computeRigidNDTransformParams[CV[A] <: CoordVector[A]](landmarks: IndexedSeq[(CV[Double], CV[Double])], center: CV[Double]): (DenseVector[Double], DenseMatrix[Double]) = {

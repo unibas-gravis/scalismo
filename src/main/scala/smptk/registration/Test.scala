@@ -3,7 +3,6 @@ package registration
 
 import scala.collection.immutable.{ Vector => SVector }
 import TransformationSpace.ParameterVector
-import Registration.RegistrationResult
 import image._
 import image.Geometry._
 import image.Geometry.implicits._

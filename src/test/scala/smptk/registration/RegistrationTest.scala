@@ -32,9 +32,9 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
         val transformedPoints = points.map((pt: CoordVector2D[Double]) => productSpace(productParams)(pt))
 
-        val (optiTransfrom, p) = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), c)
+        val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), c)
 
-        val alignedPoints = points.map((pt: CoordVector2D[Double]) => optiTransfrom(pt))
+        val alignedPoints = points.map((pt: CoordVector2D[Double]) => regResult.transform(pt))
 
         (transformedPoints(0)(0) should be(alignedPoints(0)(0) plusOrMinus 0.0001))
         (transformedPoints(0)(1) should be(alignedPoints(0)(1) plusOrMinus 0.0001))
@@ -57,18 +57,18 @@ class ImageTest extends FunSpec with ShouldMatchers {
       val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
       
      // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
-     // val translationTransform = TranslationSpace2D()(DenseVector(-1f, 5f))
-      val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
-      val transformedLena =fixedImage compose rotationTransform
+      val translationTransform = TranslationSpace2D()(DenseVector(-3f, 7f))
+      //val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
+      val transformedLena =fixedImage compose translationTransform
       
-      val registration = Registration.registration2D(fixedImage, transformedLena, RotationSpace2D(center), MeanSquaresMetric2D, 
-          0f, DenseVector(1.))
+      val registration = Registration.registration2D(fixedImage, transformedLena, TranslationSpace2D(), MeanSquaresMetric2D, 
+          0f, DenseVector(0., 0.))
       
       val regResult = registration(domain)    
       
-     // (regResult.parameters(0) should be (1f plusOrMinus 0.0001f))
-     // (regResult.parameters(1) should be (5f plusOrMinus 0.0001f))
-      (regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
+     (regResult.parameters(0) should be (3. plusOrMinus 0.0001))
+      (regResult.parameters(1) should be (-7. plusOrMinus 0.0001))
+      //(regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
       
     }
   }
