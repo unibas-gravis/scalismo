@@ -12,7 +12,7 @@ import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.LBFGSOptimizer
 import smptk.numerics.CostFunction
 import smptk.image.CoordVector
-import smptk.image.DiscreteDomain
+import smptk.common.DiscreteDomain
 import smptk.image.DiscreteImageDomain
 import smptk.image.ContinuousImageDomain
 import smptk.image.ContinuousImageDomain

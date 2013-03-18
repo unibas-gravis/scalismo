@@ -4,6 +4,7 @@ import scala.language.higherKinds
 import smptk.image._
 import breeze.linalg.DenseVector
 import smptk.image.Image._
+import smptk.image.DiscreteImageDomain
 
 object Integration {
   

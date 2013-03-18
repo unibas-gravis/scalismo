@@ -8,6 +8,7 @@ import numerics.Integration
 import breeze.linalg.DenseVector
 import image._
 import image.Geometry.{CoordVector1D,CoordVector2D, CoordVector3D}
+import smptk.image.DiscreteImageDomain
 
 trait ImageMetric[CV[A] <: CoordVector[A]] {
   type Repr  = ContinuousScalarImage[CV]

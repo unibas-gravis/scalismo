@@ -6,12 +6,11 @@ import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
 import image.Interpolation
-import image.DiscreteImageDomain2D
+import image.{DiscreteImageDomain1D, DiscreteImageDomain2D}
 import io.ImageIO
 import image.Image._
 import breeze.linalg.DenseVector
 import image.Resample
-import image.DiscreteImageDomain1D
 import image.ContinuousScalarImage1D
 import org.scalatest.matchers.ShouldMatchers
 import image.Geometry.{CoordVector1D, CoordVector2D}

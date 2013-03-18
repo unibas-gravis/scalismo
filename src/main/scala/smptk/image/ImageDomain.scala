@@ -1,17 +1,9 @@
-package smptk.image
+package smptk
+package image
 
-import scala.language.higherKinds
-import scala.language.implicitConversions
+import common.{Domain, DiscreteDomain, ContinuousDomain}
 
-import breeze.linalg.DenseVector
 import smptk.image.Geometry._
-
-trait Domain[CV[A] <: CoordVector[A]] {
-  def dimensionality: Int
-}
-
-trait ContinuousDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
-}
 
 trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV] {
   //def origin: CV[Float]
@@ -33,14 +25,6 @@ trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV
 //  def dimensionality = 3
 //}
 
-trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
-  def points: IndexedSeq[CV[Double]]
-
-  def numberOfPoints: Int
-
-  //def neighbors(pt: CoordVector): IndexedSeq[CoordVector]
-  def isDefinedAt(i: Int) = i >= 0 && i <= points.size
-}
 
 trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { //extends ImageDomain[Point] {
   def origin: CoordVector[Double]

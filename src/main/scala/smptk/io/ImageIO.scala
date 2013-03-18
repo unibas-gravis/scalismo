@@ -12,16 +12,14 @@ import smptk.image.DiscreteScalarImage2D
 import smptk.image.CoordVector
 import smptk.image.DiscreteScalarImage
 import scala.util.Success
-import smptk.image.DiscreteImageDomain2D
+import smptk.image.{DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.DiscreteScalarImage2D
 import java.io.IOException
 import smptk.image.DiscreteImage
 import scala.reflect.ClassTag
-import smptk.image.DiscreteImageDomain3D
 import smptk.image.DiscreteScalarImage3D
-import smptk.image.DiscreteImageDomain1D
 import smptk.image.DiscreteScalarImage1D
 import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector3D

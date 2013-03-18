@@ -14,7 +14,6 @@ import image.Geometry._
 import scala.reflect.ClassTag
 import scala.util.Random
 
-
 trait DiscreteImage[CV[A] <: CoordVector[A], @specialized(Float, Short) Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[CV]
   def pixelDimensionality: Int

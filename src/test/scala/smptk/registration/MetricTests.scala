@@ -3,7 +3,7 @@ package registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import image.DiscreteImageDomain1D
+import smptk.image.DiscreteImageDomain1D
 import image.ContinuousScalarImage1D
 import image.Geometry._
 import smptk.image.Geometry.implicits._
