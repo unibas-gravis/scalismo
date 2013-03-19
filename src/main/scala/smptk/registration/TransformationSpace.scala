@@ -168,6 +168,37 @@ case class RotationSpace2D(val centre: CoordVector2D[Double]) extends Transforma
   }
 }
 
+
+case class ScalingSpace2D() extends TransformationSpace[CoordVector2D] {
+  
+  def parametersDimensionality : Int = 1
+  def apply(p: ParameterVector) = {
+    require(p.length == 1)
+    
+    new Transformation[CoordVector2D] {
+      def apply(x: Point2D) = {
+        CoordVector2D(x(0)*p(0), x(1)*p(0))
+      }
+      
+      def takeDerivative(x : Point2D) = {
+        DenseMatrix(p(0),p(0))
+      }
+    }
+  }
+  
+  def inverseTransform(p : ParameterVector) = {
+    if(p(0) == 0) {
+      throw new Exception("Inverse transfrom of scaling by 0 not allowed !!")
+      None
+    }
+    else
+      Some(ScalingSpace2D()(DenseVector(1/p(0))))
+  }
+  
+  def takeDerivativeWRTParameters(p:ParameterVector) = {
+    x: Point2D => DenseMatrix(x(0), x(1))
+  }
+}
  
 case class RigidTransformationSpace2D(center : Point2D)
 extends ProductTransformationSpace[CoordVector2D, TranslationSpace2D, RotationSpace2D](TranslationSpace2D(), RotationSpace2D(center)) {

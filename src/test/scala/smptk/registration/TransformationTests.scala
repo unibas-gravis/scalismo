@@ -6,17 +6,35 @@ import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
 import image.Interpolation
-import image.{DiscreteImageDomain1D, DiscreteImageDomain2D}
+import image.{ DiscreteImageDomain1D, DiscreteImageDomain2D }
 import io.ImageIO
 import image.Image._
 import breeze.linalg.DenseVector
 import image.Resample
 import image.ContinuousScalarImage1D
 import org.scalatest.matchers.ShouldMatchers
-import image.Geometry.{CoordVector1D, CoordVector2D}
+import image.Geometry.{ CoordVector1D, CoordVector2D }
 import smptk.image.Geometry.implicits._
 
 class TransformationTests extends FunSpec with ShouldMatchers {
+
+  describe("A scaling in 2D") {
+    val ss = ScalingSpace2D()
+    val params = DenseVector(3.)
+    val scale = ss(params)
+    val pt = CoordVector2D(2., 1.)
+    val scaledPt = scale(pt)
+    it("Scales a point correctly") {
+      (scaledPt(0)) should be(6. plusOrMinus 0.0001)
+      (scaledPt(1)) should be(3. plusOrMinus 0.0001)
+    }
+
+    it("Can be inverted") {
+      val identitiyTransform = (ss.inverseTransform(params).get) compose scale
+      (identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001))
+      (identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001))
+    }
+  }
 
   describe("A Rotation in 2D") {
     val center = CoordVector2D(2., 3.5)
@@ -27,15 +45,14 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val pt = CoordVector2D(2., 2.)
     val rotatedPt = rotate(pt)
     it("Rotates a point correctly") {
-
       (rotatedPt(0)) should be(3.5 plusOrMinus 0.0001)
       (rotatedPt(1)) should be(3.5 plusOrMinus 0.0001)
     }
 
     it("can be inverted") {
-        val identitiyTransform = (rs.inverseTransform(rotationParams).get) compose rotate
-    	(identitiyTransform(pt)(0) should be (pt(0) plusOrMinus 0.00001))
-        (identitiyTransform(pt)(1) should be (pt(1) plusOrMinus 0.00001))
+      val identitiyTransform = (rs.inverseTransform(rotationParams).get) compose rotate
+      (identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001))
+      (identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001))
     }
 
   }
@@ -92,11 +109,11 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       it("differenetiates correctly the parametrized transforms") {
         assert(productTransform.takeDerivative(pt) === translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt))
       }
-      
+
       it("can be inverted") {
         val identitiyTransform = (productSpace.inverseTransform(productParams).get) compose productTransform
-    	(identitiyTransform(pt)(0) should be (pt(0) plusOrMinus 0.00001f))
-        (identitiyTransform(pt)(1) should be (pt(1) plusOrMinus 0.00001f))
+        (identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001f))
+        (identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001f))
       }
     }
 
