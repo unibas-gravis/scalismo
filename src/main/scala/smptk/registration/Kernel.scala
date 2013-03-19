@@ -7,7 +7,6 @@ import breeze.linalg.DenseMatrix
 import smptk.image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
 
-
 trait PDKernel[CV[A] <: CoordVector[A]] extends ((CV[Double], CV[Double]) => Double)
 
 case class GaussianKernel1D(val sigma2: Double) extends PDKernel[CoordVector1D] {
@@ -27,7 +26,7 @@ case class PolynomialKernel1D(degree: Int) extends PDKernel[CoordVector1D] {
 object Kernel {
   type Sample1D = IndexedSeq[CoordVector1D[Double]]
   val numPointsForNystrom = 500
-  
+
   def computeKernelMatrix(xs: Sample1D, k: PDKernel[CoordVector1D]): DenseMatrix[Double] = {
     val K = DenseMatrix.zeros[Double](xs.size, xs.size)
     for { (xi, i) <- xs.zipWithIndex; (xj, j) <- xs.zipWithIndex } {
@@ -44,26 +43,34 @@ object Kernel {
     }
     kxs
   }
-  
 
-  
-  def computeNystromApproximation(k: PDKernel[CoordVector1D], domain: DiscreteImageDomain1D, numBasisFunctions : Int): IndexedSeq[(Double, (Point1D => Double))] = {
+  def computeNystromApproximation(k: PDKernel[CoordVector1D], domain: DiscreteImageDomain1D, numBasisFunctions: Int): IndexedSeq[(Double, (Point1D => Double))] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
-    
+
     val step = domain.extent(0) / numPointsForNystrom
     val ptsForNystrom = for (i <- 0 until numPointsForNystrom) yield CoordVector1D(domain.origin(0) + i * step)
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
     val (uMat, lambdaMat, _) = breeze.linalg.svd(kernelMatrix) //TODO replace with rand SVD
-    val lambda = lambdaMat.map(_ / numPointsForNystrom) 
-    def phi(i: Int)(x: Point1D) = {
-      val kVec = computeKernelVectorFor(x, ptsForNystrom,k)
-      val value =  math.sqrt(numPointsForNystrom) / lambdaMat(i) * (kVec dot uMat(::, i))
-      value
-    }
+    val lambda = lambdaMat.map(_ / numPointsForNystrom)
 
-    for (i <- (0 until numBasisFunctions)) yield (lambda(i), phi(i)_)    
+
+    
+    val phiCache = scala.collection.mutable.HashMap.empty[(Int, Point1D), Double]
+    phiCache.sizeHint(domain.numberOfPoints * numBasisFunctions)
+    
+    def phi(i: Int)(x: Point1D) = {
+
+      def phiInternal(x: Point1D) = {
+        val kVec = computeKernelVectorFor(x, ptsForNystrom, k)
+        val value = math.sqrt(numPointsForNystrom) / lambdaMat(i) * (kVec dot uMat(::, i))
+        value
+      }
+
+      phiCache.getOrElseUpdate((i, x), phiInternal(x))
+    }
+    for (i <- (0 until numBasisFunctions)) yield (lambda(i), phi(i)_)
 
   }
 

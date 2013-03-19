@@ -116,29 +116,48 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D,
 object KernelTransformationSpace {
   def main(args: Array[String]) {
 
-    val kernel = GaussianKernel1D(2)
-
-    //val kernel = PolynomialKernel1D(4)
-
-    val gp = GaussianProcess1D((_: Point1D) => 0., kernel)
-
-    val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(500))
-    val ts = KernelTransformationSpace1D(domain, 20, gp)
-
-    val f = Figure()
-    val p = f.subplot(0)
-
-    val xs = domain.points
-
-    val trainingData = IndexedSeq((CoordVector1D(0.5), 1.), (CoordVector1D(2.), -1.), (CoordVector1D(3.5), -1.5))
-    val gpp = gp.posterior(trainingData, 0.000001)
-    for (i <- 0 until 5) {
-      val sample = gpp.sample(xs)
-      p += plot(xs.map(_(0)).toArray, sample)
-    }
-    val meanSample = xs.map(gpp.m)
-    p += plot(xs.map(_(0)).toArray, DenseVector(meanSample.toArray), '.')
-    f.saveas("/tmp/plot.png")
+   val N = 100
+      //val kernel = PolynomialKernel1D(3)
+      val kernel = GaussianKernel1D(10)
+      val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(500))
+      val eigenPairs = Kernel.computeNystromApproximation(kernel, domain, 100)
+      
+      def approxKernel(x : Point1D, y : Point1D) = {   
+        eigenPairs.foldLeft(0.)((sum, eigenPair) => {
+          val (lmbda, phi) = eigenPair
+          sum + lmbda * phi(x) * phi(y)
+        })
+      }
+      
+      for (x<-domain.points; y <-domain.points) {
+ 
+        approxKernel(x,y)
+        
+      }
+      
+//    val kernel = GaussianKernel1D(2)
+//
+//    //val kernel = PolynomialKernel1D(4)
+//
+//    val gp = GaussianProcess1D((_: Point1D) => 0., kernel)
+//
+//    val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(500))
+//    val ts = KernelTransformationSpace1D(domain, 20, gp)
+//
+//    val f = Figure()
+//    val p = f.subplot(0)
+//
+//    val xs = domain.points
+//
+//    val trainingData = IndexedSeq((CoordVector1D(0.5), 1.), (CoordVector1D(2.), -1.), (CoordVector1D(3.5), -1.5))
+//    val gpp = gp.posterior(trainingData, 0.000001)
+//    for (i <- 0 until 5) {
+//      val sample = gpp.sample(xs)
+//      p += plot(xs.map(_(0)).toArray, sample)
+//    }
+//    val meanSample = xs.map(gpp.m)
+//    p += plot(xs.map(_(0)).toArray, DenseVector(meanSample.toArray), '.')
+//    f.saveas("/tmp/plot.png")
   }
 }
 

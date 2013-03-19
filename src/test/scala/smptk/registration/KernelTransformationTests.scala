@@ -14,11 +14,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
   describe("The Nystroem approximation of a Kernel matrix") {
     it("Is close enough to kernel matrix") {
-      val N = 100
-      val kernel = PolynomialKernel1D(3)
-      val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(100))
-      val eigenPairs = Kernel.computeNystromApproximation(kernel, domain, 4)
-      
+      val kernel = GaussianKernel1D(10)
+      val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(500))
+      val eigenPairs = Kernel.computeNystromApproximation(kernel, domain, 100)
       def approxKernel(x : Point1D, y : Point1D) = {   
         eigenPairs.foldLeft(0.)((sum, eigenPair) => {
           val (lmbda, phi) = eigenPair
