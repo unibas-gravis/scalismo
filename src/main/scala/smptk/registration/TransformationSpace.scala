@@ -29,10 +29,8 @@ trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double])
   def takeDerivative(x: CV[Double]): DenseMatrix[Double]
 }
 
-class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: TransformationSpace[CV], InnerType <: TransformationSpace[CV]]
- (outer: OuterType, inner: InnerType) extends TransformationSpace[CV]
-{
-  
+class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: TransformationSpace[CV], InnerType <: TransformationSpace[CV]](outer: OuterType, inner: InnerType) extends TransformationSpace[CV] {
+
   def parametersDimensionality = outer.parametersDimensionality + inner.parametersDimensionality
 
   def apply(p: ParameterVector) = {
@@ -73,13 +71,16 @@ class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: Transform
   def takeDerivativeWRTParameters(p: ParameterVector) = {
 
     val split = splitProductParameterVector(p)
-    (x: CV[Double]) => DenseMatrix.horzcat(
-      outer.takeDerivativeWRTParameters(split._1)(x),
-      inner.takeDerivativeWRTParameters(split._2)(x))
+
+    (x: CV[Double]) => {
+      DenseMatrix.horzcat(
+        outer.takeDerivativeWRTParameters(split._1)(x),
+        outer(split._1).takeDerivative(inner(split._2)(x))  * inner.takeDerivativeWRTParameters(split._2)(x) )
+    }
   }
 
   private def splitProductParameterVector(p: ParameterVector): (ParameterVector, ParameterVector) = {
-    val pThis = p.slice(0, outer.parametersDimensionality, 1) 
+    val pThis = p.slice(0, outer.parametersDimensionality, 1)
     val pThat = p.slice(outer.parametersDimensionality, p.length, 1)
     (pThis, pThat)
   }
@@ -150,9 +151,8 @@ case class RotationSpace2D(val centre: CoordVector2D[Double]) extends Transforma
       }
     }
   }
-  
-  
-  def inverseTransform(p:ParameterVector) = {
+
+  def inverseTransform(p: ParameterVector) = {
     Some(RotationSpace2D(centre)(-p))
   }
 
@@ -181,7 +181,7 @@ case class ScalingSpace2D() extends TransformationSpace[CoordVector2D] {
       }
       
       def takeDerivative(x : Point2D) = {
-        DenseMatrix(p(0),p(0))
+        DenseMatrix.eye[Double](2) * p(0)
       }
     }
   }
@@ -196,17 +196,17 @@ case class ScalingSpace2D() extends TransformationSpace[CoordVector2D] {
   }
   
   def takeDerivativeWRTParameters(p:ParameterVector) = {
-    x: Point2D => DenseMatrix(x(0), x(1))
+    x: Point2D => DenseMatrix((x(0)), (x(1)))
   }
 }
  
-case class RigidTransformationSpace2D(center : Point2D)
-extends ProductTransformationSpace[CoordVector2D, TranslationSpace2D, RotationSpace2D](TranslationSpace2D(), RotationSpace2D(center)) {
-  
+
+case class RigidTransformationSpace2D(center: Point2D)
+  extends ProductTransformationSpace[CoordVector2D, TranslationSpace2D, RotationSpace2D](TranslationSpace2D(), RotationSpace2D(center)) {
+
 }
 
 object TransformationSpace {
   type ParameterVector = DenseVector[Double]
-
 
 }
