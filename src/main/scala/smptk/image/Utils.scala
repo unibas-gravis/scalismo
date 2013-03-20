@@ -26,7 +26,7 @@ object Utils {
 
   def show1D(img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Double = 0) {
 
-    val xs = linspace(domain.origin(0).toDouble, domain.origin(0) + domain.extent(0), 1000)
+    val xs = linspace(domain.origin(0).toDouble, domain.extent(0), 1000)
 
     val f = Figure()
     val p = f.subplot(0)
@@ -39,7 +39,7 @@ object Utils {
 
   def show1D(img: ContinuousVectorImage[CoordVector1D], domain: DiscreteImageDomain1D) {
 
-    val xs = linspace(domain.origin(0).toDouble, domain.origin(0) + domain.extent(0), 1000)
+    val xs = linspace(domain.origin(0).toDouble, domain.extent(0), 1000)
 
     val f = Figure()
     val p = f.subplot(0)
