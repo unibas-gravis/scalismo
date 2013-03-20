@@ -70,7 +70,7 @@ object Registration {
           }
 
           val optimizer = LBFGSOptimizer(100)
-          //val optimizer = GradientDescentOptimizer(100)
+          //val optimizer = GradientDescentOptimizer(300)
 
           val optimalParameters = optimizer(initialParameters, costFunction)
           RegistrationResult(transformationSpace(optimalParameters), optimalParameters)

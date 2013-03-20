@@ -9,7 +9,11 @@ import smptk.image.CoordVector
 import smptk.image.DiscreteImageDomain1D
 import breeze.plot._
 import smptk.image.DiscreteImageDomain1D
-
+import smptk.image.Geometry.implicits._
+import smptk.image.Image._
+import smptk.image.DiscreteScalarImage1D
+import smptk.image.Interpolation
+import smptk.image.Utils
 
 
 trait GaussianProcess[CV[A] <: CoordVector[A]] {
@@ -73,7 +77,7 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D,
   def inverseTransform(p: ParameterVector) = None
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point1D =>
     
-    val terms = for ((lambda, phi) <- eigenPairs) yield (lambda * phi(x))
+    val terms = for ((lambda, phi) <- eigenPairs) yield (math.sqrt(lambda) * phi(x))
     DenseMatrix.create(1, numParameters, terms.toArray)
   }
 
@@ -102,8 +106,8 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D,
     require(alpha.size == eigenPairs.size)
     
     def apply(x: Point1D) = {
-      val terms = for (((lambda, phi), i) <- eigenPairs.zipWithIndex view) yield (alpha(i) * lambda * phi(x))
-      CoordVector1D(terms.sum + gp.m(x))
+      val terms = for (((lambda, phi), i) <- eigenPairs.zipWithIndex view) yield (alpha(i) * math.sqrt(lambda) * phi(x))
+      CoordVector1D(x(0) + terms.sum + gp.m(x))
     }
 
     def takeDerivative(x: Point1D) = { throw new NotImplementedError("take derivative of kernel") }
@@ -116,24 +120,58 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D,
 object KernelTransformationSpace {
   def main(args: Array[String]) {
 
-   val N = 100
-      //val kernel = PolynomialKernel1D(3)
-      val kernel = GaussianKernel1D(10)
-      val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(500))
-      val eigenPairs = Kernel.computeNystromApproximation(kernel, domain, 100)
+    
+    
+    val domain = DiscreteImageDomain1D(-5., 0.1,  100)
+      val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
+      val continuousImg = Interpolation.interpolate(3)(discreteImage)
+
       
-      def approxKernel(x : Point1D, y : Point1D) = {   
-        eigenPairs.foldLeft(0.)((sum, eigenPair) => {
-          val (lmbda, phi) = eigenPair
-          sum + lmbda * phi(x) * phi(y)
-        })
-      }
+      val gk = PolynomialKernel1D(5)
+      val gp = GaussianProcess1D((x : Point1D) => 0., gk)
+      val kernelSpace = KernelTransformationSpace1D(domain, 5, gp)
       
-      for (x<-domain.points; y <-domain.points) {
- 
-        approxKernel(x,y)
-        
-      }
+      val transform = kernelSpace(DenseVector.ones[Double](5))
+      val transformedImg = continuousImg compose transform
+      
+//      val f = Figure()
+//      val p = f.subplot(0)
+//      
+//      val xs = domain.points
+//      val eigPairs = Kernel.computeNystromApproximation(gp.k, domain, 5)
+//      for ((lmbda, phi) <- eigPairs) { 
+//    	  p += plot(xs.map(_(0)), xs.map(x => phi(x)))
+//      }
+//	  f.refresh      
+//      Utils.showGrid1D(domain, transform)
+      
+      val regResult = Registration.registration1D(transformedImg, continuousImg, kernelSpace, MeanSquaresMetric1D, 
+      0f, DenseVector(1.,1.,0.,1.,1.))
+      
+      Utils.show1D(continuousImg, domain)
+      Utils.show1D(transformedImg, domain)
+      Utils.show1D(transformedImg compose regResult(domain).transform , domain)
+    
+    
+    
+//   val N = 100
+//      //val kernel = PolynomialKernel1D(3)
+//      val kernel = GaussianKernel1D(10)
+//      val domain = DiscreteImageDomain1D(CoordVector1D(0f), CoordVector1D(0.01f), CoordVector1D(500))
+//      val eigenPairs = Kernel.computeNystromApproximation(kernel, domain, 100)
+//      
+//      def approxKernel(x : Point1D, y : Point1D) = {   
+//        eigenPairs.foldLeft(0.)((sum, eigenPair) => {
+//          val (lmbda, phi) = eigenPair
+//          sum + lmbda * phi(x) * phi(y)
+//        })
+//      }
+//      
+//      for (x<-domain.points; y <-domain.points) {
+// 
+//        approxKernel(x,y)
+//        
+//      }
       
 //    val kernel = GaussianKernel1D(2)
 //

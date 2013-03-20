@@ -49,7 +49,7 @@ object Kernel {
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
-    val step = domain.extent(0) / numPointsForNystrom
+    val step = (domain.extent(0) - domain.origin(0)) / numPointsForNystrom
     val ptsForNystrom = for (i <- 0 until numPointsForNystrom) yield CoordVector1D(domain.origin(0) + i * step)
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
     val (uMat, lambdaMat, _) = breeze.linalg.svd(kernelMatrix) //TODO replace with rand SVD
@@ -58,6 +58,9 @@ object Kernel {
 
     
     val phiCache = scala.collection.mutable.HashMap.empty[(Int, Point1D), Double]
+    
+    // TODO think about size hint
+    // TODO think if we should replace it with a weak HashMap
     phiCache.sizeHint(domain.numberOfPoints * numBasisFunctions)
     
     def phi(i: Int)(x: Point1D) = {

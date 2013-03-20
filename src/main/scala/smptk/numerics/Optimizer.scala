@@ -32,7 +32,7 @@ case class LBFGSOptimizer(val numIterations : Int) extends Optimizer {
 
 case class GradientDescentOptimizer(val numIterations : Int) extends Optimizer {
   
-  val stepLength  : Double = 0.000000000005
+  val stepLength  : Double = 0.05
 
   
   def apply(x0 : ParameterVector, c : CostFunction) : ParameterVector = {
