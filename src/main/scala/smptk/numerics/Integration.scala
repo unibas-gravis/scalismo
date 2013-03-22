@@ -16,7 +16,7 @@ object Integration {
 	    val sum = sampleValues.map(_.getOrElse(0.)).sum
 	    var ndVolume = 1.;  	    
 	    for (d <- 0 until integrationRegion.dimensionality) {
-	      ndVolume = integrationRegion.extent(d) * ndVolume
+	      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
 	    }
 	   	    
 	    sum * ndVolume / integrationRegion.numberOfPoints
@@ -29,7 +29,7 @@ object Integration {
 	    
 	    var ndVolume = 1.;
 	     for (d <- 0 until integrationRegion.dimensionality) {
-	      ndVolume = integrationRegion.extent(d) * ndVolume
+	      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d))* ndVolume
 	    }
 	    
 	    val zeroVector = DenseVector.zeros[Double](img.pixelDimensionality)
