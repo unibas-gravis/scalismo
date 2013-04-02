@@ -20,7 +20,10 @@ import breeze.plot._
 import smptk.io.ImageIO
 import java.io.File
 import smptk.image.Geometry.CoordVector2D
+import smptk.image.Geometry.Point2D
 import smptk.numerics.Integration
+import smptk.image.DiscreteImageDomain2D
+import smptk.numerics.RandomSVD
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
@@ -47,6 +50,79 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       }
     }
+    
+    def approxKernel(x: Point2D, y: Point2D, kernelDim: Int, eigenPairs: IndexedSeq[(Double, CoordVector2D[Double] => DenseVector[Double])]) = {
+        val zero = DenseMatrix.zeros[Double](kernelDim, kernelDim)
+        eigenPairs.foldLeft(zero)((sum, eigenPair) => {
+          val (lmbda, phi) = eigenPair
+          sum + phi(x) * phi(y).t * lmbda
+        })
+      }
+
+      ignore("It's eigenvalues are close enough to the real eigenvalues ") {
+        val kernelDim = 2
+        val scalarKernel = GaussianKernel2D(10)
+        val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
+        val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
+        val (eigenPairs, numParams) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10)
+        val approxLambdas = eigenPairs.map(_._1)
+
+        val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
+
+        for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+          realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain.points(i), domain.points(j))(di, dj)
+        }
+
+        //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
+        val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix, numParams)
+
+        for (l <- approxLambdas.zipWithIndex)
+          l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
+
+      }
+
+      ignore("Real eigenvalues are independant of the spacing ") {
+        val kernelDim = 2
+        val scalarKernel = GaussianKernel2D(10)
+        val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
+        val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
+        val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
+
+        val realKernelMatrix1 = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
+
+        for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+          realKernelMatrix1(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain.points(i), domain.points(j))(di, dj)
+        }
+        
+        val (_, realLambdas1, _) = RandomSVD.computeSVD(realKernelMatrix1, 10)
+        
+        
+        val realKernelMatrix2 = DenseMatrix.zeros[Double](domain2.numberOfPoints * kernelDim, domain2.numberOfPoints * kernelDim)
+
+        for (i <- 0 until domain2.numberOfPoints; j <- 0 until domain2.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+          realKernelMatrix2(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain2.points(i), domain2.points(j))(di, dj)
+        }
+        
+        val (_, realLambdas2, _) = RandomSVD.computeSVD(realKernelMatrix2, 10)
+        
+         for (i <- 0 until  realLambdas1.size)
+          realLambdas1(i) should be(realLambdas2(i) plusOrMinus (0.1))
+       
+      }
+      ignore("The eigenValues are independent of the spacing") {
+        val kernelDim = 2
+        val scalarKernel = GaussianKernel2D(10)
+        val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
+        val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
+        val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
+        val (eigenPairs, numParams) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10)
+        val lambdasDomain1 = eigenPairs.map(_._1)
+        val (eigenPairs2, numParams2) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain2, 10)
+        val lambdasDomain2 = eigenPairs2.map(_._1)
+
+        for (l <- lambdasDomain1.zipWithIndex)
+          l._1 should be(lambdasDomain2(l._2) plusOrMinus (0.001))
+      }
 
      ignore("Is close enough to a scalar valued polynomial kernel matrix") {
       val kernel = PolynomialKernel1D(1)
