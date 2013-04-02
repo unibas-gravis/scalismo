@@ -10,6 +10,7 @@ import ij.process.FloatProcessor
 import ij.ImageStack
 import ij.WindowManager
 import smptk.registration.Transformation
+import smptk.image.Geometry.{Point1D, Point2D}
 
 object Utils {
 
@@ -28,7 +29,6 @@ object Utils {
   def show1D(img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Double = 0) {
 
     val xs = linspace(domain.origin(0).toDouble, domain.extent(0), domain.numberOfPoints)
-
     val f = Figure()
     val p = f.subplot(0)
 
@@ -92,6 +92,25 @@ object Utils {
     imp.show()
   }
 
+  
+  def gridImage2D(gridWidth : Double, tolerance : Double) : ContinuousScalarImage2D = {
+    def grid(x : Point2D) = {
+      if (math.abs(x(0) % gridWidth) < tolerance ||  math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
+    }
+    def df(x : Point2D) = DenseVector(0.,0.)
+    ContinuousScalarImage2D((x : Point2D) =>true, grid, df) 
+        
+  }
+
+  def gridImage1D(gridWidth : Double, tolerance : Double) : ContinuousScalarImage1D = {
+    def grid(x : Point1D) = {
+      if (math.abs(x(0) % gridWidth) < tolerance) 0f else 1f
+    }
+    def df(x : Point1D) = DenseVector(0.)
+    ContinuousScalarImage1D((x : Point1D) =>true, grid, df) 
+  }
+
+  
   //  def main(args: Array[String]) {
   //    import smptk.io.ImageIO
   //    import java.io.File
