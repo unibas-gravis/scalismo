@@ -98,7 +98,7 @@ object Utils {
       if (math.abs(x(0) % gridWidth) < tolerance ||  math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
     }
     def df(x : Point2D) = DenseVector(0.,0.)
-    ContinuousScalarImage2D((x : Point2D) =>true, grid, df) 
+    ContinuousScalarImage2D((x : Point2D) =>true, grid, Some(df)) 
         
   }
 
@@ -107,7 +107,7 @@ object Utils {
       if (math.abs(x(0) % gridWidth) < tolerance) 0f else 1f
     }
     def df(x : Point1D) = DenseVector(0.)
-    ContinuousScalarImage1D((x : Point1D) =>true, grid, df) 
+    ContinuousScalarImage1D((x : Point1D) =>true, grid, Some(df)) 
   }
 
   

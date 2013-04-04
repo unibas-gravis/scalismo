@@ -55,11 +55,12 @@ object Registration {
 
               val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
               //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
-
+             
+              val movingGradientImage = movingImage.differentiate.get               // TODO do proper error handling when image is not differentiable  
               val parametricTransformGradientImage = new ContinuousVectorImage[CV] {
                 val pixelDimensionality = params.size
                 def isDefinedAt(x : CV[Double]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x) 
-                def f(x: CV[Double]) =  dTransformSpaceDAlpha(x).t * movingImage.df(transformation(x))* dMetricDalpha(x)  
+                val f = (x: CV[Double]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x))* dMetricDalpha(x)  
               }
 
               val gradient: DenseVector[Double] = integrate(parametricTransformGradientImage, fixedImageRegion)

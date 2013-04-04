@@ -42,7 +42,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
       def isInside(x: Point1D) = x >= -4 && x <= 6
       val image = ContinuousScalarImage1D(isInside,
         (x: Point1D) => Math.sin(x(0).toDouble).toFloat,
-        (x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat))
+        Some((x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(1f))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4f) === true)
@@ -58,7 +58,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val image = ContinuousScalarImage1D(movingDomainIsInside,
         (x: Point1D) => Math.sin(x(0).toDouble).toFloat,
-        (x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat))
+        Some((x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(-1f))
       
       val warpedImage = image.warp(translationTransform, fixedDomainIsInside)

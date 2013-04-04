@@ -51,7 +51,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
       
       val discreteSinImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.sin(x*math.Pi)))
       val interpolatedSinImage = interpolate(3)(discreteSinImage)
-      val derivativeImage = interpolatedSinImage.differentiate
+      val derivativeImage = interpolatedSinImage.differentiate.get
 
       val discreteCosImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.Pi * math.cos(x*math.Pi)))
       val interpolatedCosImage = interpolate(3)(discreteCosImage)
@@ -119,7 +119,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
       
       val discreteFImage = DiscreteScalarImage2D(domain, domain.points.map(x => x(0)*x(0) + x(1)*x(1)))
       val interpolatedFImage = interpolate2D(3)(discreteFImage)
-      val derivativeImage = interpolatedFImage.differentiate
+      val derivativeImage = interpolatedFImage.differentiate.get
  
       
       for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1(0)) < 1.90 &&  math.abs(x._1(1)) < 1.90 ) )  {  
@@ -191,7 +191,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers {
       
       val discreteFImage = DiscreteScalarImage3D(domain, domain.points.map(x => x(0)*x(0) + x(1)*x(1) + x(2)*x(2)))
       val interpolatedFImage = interpolate3D(3)(discreteFImage)
-      val derivativeImage = interpolatedFImage.differentiate
+      val derivativeImage = interpolatedFImage.differentiate.get
  
       
       for((pt,idx) <- domain.points.zipWithIndex.filter(x =>  math.abs(x._1(0)) < 1. &&  math.abs(x._1(1)) < 1.  &&  math.abs(x._1(2)) < 1. ))  {  

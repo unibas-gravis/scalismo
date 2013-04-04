@@ -167,19 +167,15 @@ object Interpolation {
       result
     }
 
-    new ContinuousScalarImage1D(
-      (x : CoordVector1D[Double]) => image.domain.isInside(x),
-      (x: CoordVector1D[Double]) => {
+    def f(x: CoordVector1D[Double]) = {
         val splineBasis: (Double => Double) = bSpline(degree) // apply function
         iterateOnPoints(x, splineBasis)
-      },
-
-      (x: CoordVector1D[Double]) => { //derivative
+      }
+    def df(x: CoordVector1D[Double]) = { //derivative
         val splineBasisD1: (Double => Double) = { x => (bSpline(degree - 1)(x + 0.5f) - bSpline(degree - 1)(x - 0.5f)) * (1/image.domain.spacing(0)) }
         DenseVector(iterateOnPoints(x, splineBasisD1))
-
-      })
-
+      }    
+    new ContinuousScalarImage1D(image.domain.isInside,   f, Some(df))
   }
 
   def interpolate2D[Scalar : ScalarPixel](degree: Int)(image: DiscreteScalarImage2D[Scalar]): ContinuousScalarImage2D = {
@@ -215,18 +211,18 @@ object Interpolation {
 
     val bSplineNthOrder = bSpline(degree)_
     val bSplineNmin1thOrder = bSpline(degree - 1)_
-    new ContinuousScalarImage2D(
-      (x: CoordVector2D[Double]) => image.domain.isInside(x),
-      (x: CoordVector2D[Double]) => {
-        val splineBasis = (x: Double, y: Double) => bSplineNthOrder(x) * bSplineNthOrder(y) // apply function
-        iterateOnPoints( x,  splineBasis)
-      },
 
-      (x: CoordVector2D[Double]) => { //derivative
+    def f(x: CoordVector2D[Double]) = { 
+        val splineBasis = (x: Double, y: Double) => bSplineNthOrder(x) * bSplineNthOrder(y) // apply function
+        iterateOnPoints( x,  splineBasis)      
+    }
+    def df(x: CoordVector2D[Double]) = { //derivative
         val splineBasisD1 = (x: Double, y: Double) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y)
         val splineBasisD2 = (x: Double, y: Double) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f))
         DenseVector(iterateOnPoints( x,  splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x,splineBasisD2)* (1/image.domain.spacing(1)))
-      })
+      }
+
+    new ContinuousScalarImage2D(image.domain.isInside,f, Some(df))
   }
 
   def interpolate3D[Scalar : ScalarPixel](degree: Int)(image: DiscreteScalarImage3D[Scalar]): ContinuousScalarImage3D = {
@@ -272,22 +268,20 @@ object Interpolation {
     val bSplineNthOrder = bSpline(degree)_
     val bSplineNmin1thOrder = bSpline(degree - 1)_
 
-    new ContinuousScalarImage3D(
-      (x : CoordVector3D[Double]) => image.domain.isInside(x),
-      (x: CoordVector3D[Double]) => { // apply function
+    def f(x: CoordVector3D[Double]) = { 
         val splineBasis = (x: Double, y: Double, z: Double) => bSplineNthOrder(x) * bSplineNthOrder(y) * bSplineNthOrder(z)
         iterateOnPoints(x, splineBasis)
-      },
-
-      (x: CoordVector3D[Double]) => { //derivative
-
+    }
+    def df(x: CoordVector3D[Double]) = { 
         val splineBasisD1 = (x: Double, y: Double, z: Double) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y) * bSplineNthOrder(z)
         val splineBasisD2 = (x: Double, y: Double, z: Double) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f)) * bSplineNthOrder(z)
         val splineBasisD3 = (x: Double, y: Double, z: Double) => bSplineNthOrder(x) * bSplineNthOrder(y) * (bSplineNmin1thOrder(z + 0.5f) - bSplineNmin1thOrder(z - 0.5f))
-        DenseVector(iterateOnPoints(x, splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x, splineBasisD2)* (1/image.domain.spacing(1)), iterateOnPoints(x, splineBasisD3)* (1/image.domain.spacing(2)))
-      })
-
+        DenseVector(iterateOnPoints(x, splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x, splineBasisD2)* (1/image.domain.spacing(1)), iterateOnPoints(x, splineBasisD3)* (1/image.domain.spacing(2)))      
+    }
+    new ContinuousScalarImage3D(image.domain.isInside, f, Some(df))
   }
+  
+  
 //
 //  def main(args: Array[String]) {
 //    val a: Try[Int] = Failure(new IOException("abc"))

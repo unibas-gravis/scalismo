@@ -170,7 +170,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val (eigenPairs, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100)
       
       for ((lambda, phi) <- eigenPairs.take(20)) { 
-          val phiImg = new ContinuousScalarImage1D(domain.isInside, (x : Point1D) =>  phi(x)(0) * phi(x)(0), Point1D => DenseVector[Double](0.))
+          val phiImg = new ContinuousScalarImage1D(domain.isInside, (x : Point1D) =>  phi(x)(0) * phi(x)(0), Some(Point1D => DenseVector[Double](0.)))
       	  val v = Integration.integrate(phiImg , domain)	
 	  v should be (1. plusOrMinus 0.1)
       }                 
@@ -183,7 +183,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       
       for ((lambda, phi) <- eigenPairs.take(20)) { 
       print("lambda: " +lambda)
-          val phiImg = new ContinuousScalarImage1D(domain.isInside, (x : Point1D) =>  phi(x)(0) * phi(x)(0), Point1D => DenseVector[Double](0.))
+          val phiImg = new ContinuousScalarImage1D(domain.isInside, (x : Point1D) =>  phi(x)(0) * phi(x)(0), Some(Point1D => DenseVector[Double](0.)))
       	  val v = Integration.integrate(phiImg , domain)	
 	  v should be (1. plusOrMinus 0.1)
       }                 
