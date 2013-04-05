@@ -52,7 +52,7 @@ object Utils {
     val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 2 == 0) -1. else 1.))
    //val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
 
-    val continuousImg = Interpolation.interpolate(3)(discreteImage)
+    val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
     show1D(continuousImg compose transform, domain)
   }
 

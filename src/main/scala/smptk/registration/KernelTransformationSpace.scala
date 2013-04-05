@@ -148,7 +148,7 @@ object KernelTransformationSpace {
   def main(args: Array[String]) {
       val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
       val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
-      val continuousImg = Interpolation.interpolate(3)(discreteImage)
+      val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
 
       val gk = GaussianKernel1D(0.1)
       val gp = GaussianProcess[CoordVector1D]((x: Point1D) => DenseVector(0.), gk)

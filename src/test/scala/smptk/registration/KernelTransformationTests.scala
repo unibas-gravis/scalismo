@@ -241,7 +241,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
       val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
-      val continuousImg = Interpolation.interpolate(3)(discreteImage)
+      val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
 
       val gk = GaussianKernel1D(0.1)
       val gp = GaussianProcess[CoordVector1D]((x: Point1D) => DenseVector(0.), gk)
@@ -272,10 +272,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     }
   }
 
-  ignore("can be used to get the correct parameters in 2d (doing registration)") {
+  it("can be used to get the correct parameters in 2d (doing registration)") {
 
-    val testImgUrl = getClass().getResource("/lena.h5").getPath()
-    val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
+    val testImgUrl = getClass().getResource("/dm128.h5").getPath()
+    val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
     val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
 
     val domain = discreteFixedImage.domain
@@ -288,12 +288,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     val kernelTransform = transformSpace(DenseVector(15.))
     val transformedLena = fixedImage compose kernelTransform
     Utils.show2D(transformedLena, domain)
-    val registration = Registration.registration2D(fixedImage, transformedLena, transformSpace, MeanSquaresMetric2D,
+    val registration = Registration.registration2D(transformedLena, fixedImage, transformSpace, MeanSquaresMetric2D,
       0f, DenseVector(0.))
 
     val regResult = registration(domain)
 
-    (regResult.parameters(0) should be(1. plusOrMinus 0.0001))
+    (regResult.parameters(0) should be(15. plusOrMinus 0.0001))
     //(regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
 
   }
