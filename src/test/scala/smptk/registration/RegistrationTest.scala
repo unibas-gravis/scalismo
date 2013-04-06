@@ -18,6 +18,8 @@ import smptk.image.Interpolation
 import smptk.image.Image._
 import smptk.image.DiscreteImageDomain1D
 import smptk.image.DiscreteScalarImage1D
+import smptk.numerics.GradientDescentOptimizer
+import smptk.numerics.GradientDescentConfiguration
 
 class ImageTest extends FunSpec with ShouldMatchers {
   describe("A 2D rigid landmark based registration") {
@@ -57,14 +59,22 @@ class ImageTest extends FunSpec with ShouldMatchers {
       
       val domain = discreteFixedImage.domain
       val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
+ 
+    val regConf = RegistrationConfiguration[CoordVector2D] (
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
+        metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
+        transformationSpace = TranslationSpace2D(),
+        regularizer = RKHSNormRegularizer,
+        regularizationWeight = 0.0
+      )
+   
       
      // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
-      val translationTransform = TranslationSpace2D()(DenseVector(-25f, 25f))
+      val translationTransform = regConf.transformationSpace(DenseVector(-25f, 25f))
       //val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
       val transformedLena =fixedImage compose translationTransform
       
-      val registration = Registration.registration2D(fixedImage, transformedLena, TranslationSpace2D(), MeanSquaresMetric2D, 
-          0f, DenseVector(0., 0.))
+      val registration = Registration.registration2D(regConf)(fixedImage, transformedLena)
       
       val regResult = registration(domain)    
       
@@ -77,15 +87,23 @@ class ImageTest extends FunSpec with ShouldMatchers {
   
     it("delete me") {
       val domain = DiscreteImageDomain1D(0., 1, 1000)
-      //val fixedImg = ContinuousScalarImage1D(domain.isInside, (x : Point1D) => x(0), (x : Point1D) => DenseVector(1.))  
+     
       val fixedImg = Interpolation.interpolate1D(3)(DiscreteScalarImage1D(domain, domain.points.map(x => x(0))))
 
-      val t = TranslationSpace1D()(DenseVector(5.))
+      val regConf = RegistrationConfiguration[CoordVector1D] (
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
+        metric = MeanSquaresMetric1D(MeanSquaresMetricConfiguration()),
+        transformationSpace = TranslationSpace1D(),
+        regularizer = RKHSNormRegularizer,
+        regularizationWeight = 0.0
+      )
+   
+
+      val t = regConf.transformationSpace(DenseVector(5.))
 
       val warpedImage = fixedImg.warp(t, domain.isInside)
 
-      val registration = Registration.registration1D(fixedImg, warpedImage, TranslationSpace1D(), MeanSquaresMetric1D,
-        0f, DenseVector(0.))
+      val registration = Registration.registration1D(regConf)(fixedImg, warpedImage)
 
       val regResult = registration(domain)
 

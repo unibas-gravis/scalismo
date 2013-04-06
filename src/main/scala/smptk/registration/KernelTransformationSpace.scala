@@ -17,15 +17,21 @@ import smptk.image.Interpolation
 import smptk.image.Utils
 import smptk.io.ImageIO
 import java.io.File
+import smptk.image.DiscreteImageDomain
+import smptk.numerics.GradientDescentOptimizer
+import smptk.numerics.GradientDescentConfiguration
 
-//trait GaussianProcess[CV[A] <: CoordVector[A]] {
-//  val  m : (CV[Double] => DenseVector[Double])
-//  val k : PDKernel[CV]
-//
-//  def sample: IndexedSeq[CV[Double]] => DenseVector[Double]
-//}
+case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
+    val numComponents : Int,
+    val numPointsForNystrom : Int, 
+    val gp : GaussianProcess[CV]
+    )
+    
+    
+extends TransformationSpaceConfiguration
 
-case class GaussianProcess[CV[A] <: CoordVector[A]](val m: CV[Double] => DenseVector[Double], val k: PDKernel[CV]) {
+
+case class GaussianProcess[CV[A] <: CoordVector[A]](val domain : DiscreteImageDomain[CV], val m: CV[Double] => DenseVector[Double], val k: PDKernel[CV]) {
 
   type PointSample = IndexedSeq[CV[Double]]
 
@@ -70,12 +76,13 @@ case class GaussianProcess[CV[A] <: CoordVector[A]](val m: CV[Double] => DenseVe
   }
 }
 
-case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D,
-  val numParameters: Int, gp: GaussianProcess[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
+case class KernelTransformationSpace1D(configuration : KernelTransformationSpaceConfiguration[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
 
-  def parametersDimensionality = numParameters
-
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, domain, numParameters)
+  def parametersDimensionality = configuration.numComponents
+  def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
+  val gp = configuration.gp
+  
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents, configuration.numPointsForNystrom)
 
   def apply(p: ParameterVector) = KernelTransformation1D(p)
   def inverseTransform(p: ParameterVector) = None
@@ -105,12 +112,13 @@ case class KernelTransformationSpace1D(val domain: DiscreteImageDomain1D,
 
 }
 
-case class KernelTransformationSpace2D(val domain: DiscreteImageDomain2D,
-  val numParameters: Int, gp: GaussianProcess[CoordVector2D]) extends TransformationSpace[CoordVector2D] {
+case class KernelTransformationSpace2D(configuration : KernelTransformationSpaceConfiguration[CoordVector2D]) extends TransformationSpace[CoordVector2D] {
 
-  def parametersDimensionality = numParameters
-
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, domain, numParameters)
+  def parametersDimensionality = configuration.numComponents
+  def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
+  val gp = configuration.gp
+  val domain = gp.domain
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents, configuration.numPointsForNystrom)
 
   def apply(p: ParameterVector) = KernelTransformation2D(p)
   def inverseTransform(p: ParameterVector) = None
@@ -149,27 +157,21 @@ object KernelTransformationSpace {
       val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
       val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
       val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
-
-      val gk = GaussianKernel1D(0.1)
-      val gp = GaussianProcess[CoordVector1D]((x: Point1D) => DenseVector(0.), gk)
-      val kernelSpace = KernelTransformationSpace1D(domain, 50, gp)
+      val gp = GaussianProcess(domain, (_ : CoordVector1D[Double]) => DenseVector(0.), GaussianKernel1D(100))
+      
+      val regConfig = RegistrationConfiguration[CoordVector1D]( 	  
+		  metric = MeanSquaresMetric1D(MeanSquaresMetricConfiguration()), 
+		  transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration(100, 500, gp)),
+		  regularizer = RKHSNormRegularizer, 
+		  regularizationWeight = 0.,
+		  optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001))
+      )
+      val kernelSpace = regConfig.transformationSpace
 
       val transform = kernelSpace(DenseVector.ones[Double](50) * 1.)
       val transformedImg = continuousImg compose transform
 
-      //      val f = Figure()
-      //      val p = f.subplot(0)
-      //      
-      //      val xs = domain.points
-      //      val eigPairs = Kernel.computeNystromApproximation(gp.k, domain, 5)
-      //      for ((lmbda, phi) <- eigPairs) { 
-      //    	  p += plot(xs.map(_(0)), xs.map(x => phi(x)))
-      //      }
-      //	  f.refresh      
-      //      Utils.showGrid1D(domain, transform)
-
-      val regResult = Registration.registration1D(transformedImg, continuousImg, kernelSpace, MeanSquaresMetric1D,
-        0f, DenseVector.zeros[Double](50))
+      val regResult = Registration.registration1D(regConfig)(transformedImg, continuousImg)
 
       Utils.show1D(continuousImg, domain)
       Utils.show1D(transformedImg, domain)

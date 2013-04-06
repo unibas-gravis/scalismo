@@ -8,11 +8,20 @@ import breeze.util.logging.Logger.Level
 
 trait CostFunction extends Function1[ParameterVector, (Double, DenseVector[Double])] {}
 
-trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector]{
-  
-}
 
-case class LBFGSOptimizer(val numIterations : Int) extends Optimizer { 
+sealed trait OptimizationConfiguration 
+
+trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector]{}
+
+
+case class LBFGSOptimizerConfiguration( 
+  val numIterations : Int,
+  val m : Int = 10,
+  val tolerance : Double = 1e-5
+  )  extends OptimizationConfiguration 
+
+
+case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Optimizer { 
   def apply(x0 : ParameterVector, c : CostFunction) : ParameterVector = { 
     optimize(x0, c)    
   }
@@ -24,16 +33,19 @@ case class LBFGSOptimizer(val numIterations : Int) extends Optimizer {
         (v, g)
       }
     }
-    val lbfgs = new LBFGS[DenseVector[Double]](maxIter = numIterations)
+    val lbfgs = new LBFGS[DenseVector[Double]](maxIter = configuration.numIterations, m = configuration.m, tolerance = configuration.tolerance)
     val optParams = lbfgs.minimize(f, x0)
         optParams
   }
 }
 
-case class GradientDescentOptimizer(val numIterations : Int) extends Optimizer {
-  
-  val stepLength  : Double = 0.00001
 
+case class GradientDescentConfiguration(val numIterations : Int, val stepLength : Double) extends OptimizationConfiguration 
+
+case class GradientDescentOptimizer(configuration : GradientDescentConfiguration) extends Optimizer {
+  
+  val stepLength = configuration.stepLength
+  val numIterations = configuration.numIterations
   
   def apply(x0 : ParameterVector, c : CostFunction) : ParameterVector = {
      optimize(x0, c, 0)

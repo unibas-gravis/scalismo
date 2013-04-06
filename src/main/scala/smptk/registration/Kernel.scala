@@ -102,14 +102,11 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: DiscreteImageDomain[CV], numBasisFunctions: Int): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
+  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: DiscreteImageDomain[CV], numBasisFunctions: Int, numPointsForNystrom : Int): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 	val ndVolume : Double = (0 until domain.dimensionality).foldLeft(1.)((p, d) => (domain.extent(d) - domain.origin(d)) * p)
-	println("ndvol : " +ndVolume)
-	val numPtsWithPredefSpacing = (ndVolume / math.pow(nystromSpacing, domain.dimensionality)).toInt
-    val numPointsForNystrom = 500 //math.min(math.max(5 * numBasisFunctions, numPtsWithPredefSpacing), 2000 / k.outputDim)
     val ptsForNystrom = domain.uniformSamples(numPointsForNystrom)
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
 //    val f = Figure()

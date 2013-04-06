@@ -10,6 +10,8 @@ import image._
 import image.Geometry.{CoordVector1D,CoordVector2D, CoordVector3D}
 import smptk.image.DiscreteImageDomain
 
+trait MetricConfiguration 
+
 trait ImageMetric[CV[A] <: CoordVector[A]] {
   type Repr  = ContinuousScalarImage[CV]
 
@@ -28,7 +30,11 @@ trait ImageMetric3D extends  ImageMetric[CoordVector3D] {
 }
 
 
+case class MeanSquaresMetricConfiguration extends MetricConfiguration 
+
 trait MeanSquaresMetric[CV[A] <: CoordVector[A]] extends ImageMetric[CV] {
+  val configuration : MetricConfiguration
+  
   type CImg = ContinuousScalarImage[CV]
   def apply(img1: CImg,  img2: CImg) = {
     (region : DiscreteImageDomain[CV]) => Integration.integrate((img1 - img2).square, region)
@@ -38,9 +44,9 @@ trait MeanSquaresMetric[CV[A] <: CoordVector[A]] extends ImageMetric[CV] {
   }
 }
 
-object MeanSquaresMetric1D extends ImageMetric1D with MeanSquaresMetric[CoordVector1D]
-object MeanSquaresMetric2D extends ImageMetric2D with MeanSquaresMetric[CoordVector2D]
-object MeanSquaresMetric3D extends ImageMetric3D with MeanSquaresMetric[CoordVector3D]
+case class MeanSquaresMetric1D(configuration : MetricConfiguration) extends ImageMetric1D with MeanSquaresMetric[CoordVector1D]
+case class MeanSquaresMetric2D(configuration : MetricConfiguration) extends ImageMetric2D with MeanSquaresMetric[CoordVector2D]
+case class MeanSquaresMetric3D(configuration : MetricConfiguration) extends ImageMetric3D with MeanSquaresMetric[CoordVector3D]
 
 object Metric {
 }
