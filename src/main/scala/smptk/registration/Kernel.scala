@@ -115,21 +115,12 @@ object Kernel {
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix , numBasisFunctions)
     val lambda = lambdaMat.map(lmbda => ndVolume.toDouble /  numPointsForNystrom * lmbda  )
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
-    val phiCache = (0 until numParams).map(_ => scala.collection.mutable.HashMap.empty[CV[Double], DenseVector[Double]])
-
-    // TODO think about size hint
-    // TODO think if we should replace it with a weak HashMap
-    for (i <- 0 until numParams) {phiCache(i).sizeHint(domain.numberOfPoints)}
+  
 
     def phi(i: Int)(x: CV[Double]) = {
-      def phiInternal(x: CV[Double]) = {
         val kx = computeKernelVectorFor(x , ptsForNystrom, k)
         val value = kx * uMat(::, i) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) / lambdaMat(i)
-        value
-      }
-
-      phiCache(i).getOrElseUpdate(x, phiInternal(x))
-      
+        value 
     }
 
     val pairs = for (i <- (0 until numParams) if lambda(i) >= 1e-8) yield (lambda(i), phi(i)_)

@@ -12,11 +12,9 @@ import smptk.image.Geometry._
 
 trait ValueCaching[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double])  {
   
-
   val cache =  scala.collection.mutable.HashMap.empty[CV[Double], CV[Double]]
-  println("**** Mixin 'constructor' called, cache size : "+cache.size)
+
   abstract override def apply(p:CV[Double]): CV[Double] = {
-    println("cache size in use "+cache.size)
     cache.getOrElseUpdate(p,  super.apply(p))
   } 
 } 

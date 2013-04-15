@@ -125,7 +125,6 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching){
-      println("************* Creating a new cached transform")
       new KernelTransformation2D(p) with ValueCaching[CoordVector2D]
     }
     else
