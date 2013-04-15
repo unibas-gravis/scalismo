@@ -9,7 +9,22 @@ import breeze.linalg.DenseMatrix
 import image._
 import smptk.image.Geometry._
 
-trait TransformationSpaceConfiguration {}
+
+trait ValueCaching[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double])  {
+  
+
+  val cache =  scala.collection.mutable.HashMap.empty[CV[Double], CV[Double]]
+  println("**** Mixin 'constructor' called, cache size : "+cache.size)
+  abstract override def apply(p:CV[Double]): CV[Double] = {
+    println("cache size in use "+cache.size)
+    cache.getOrElseUpdate(p,  super.apply(p))
+  } 
+} 
+
+
+trait TransformationSpaceConfiguration {
+  val withValueCaching : Boolean
+}
 
 trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVector, Transformation[CV]] {
   self: TransformationSpace[CV] =>
@@ -29,6 +44,7 @@ trait TransformationSpace[CV[A] <: CoordVector[A]] extends Function1[ParameterVe
 trait Transformation[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double]) {
   def takeDerivative(x: CV[Double]): DenseMatrix[Double]
 }
+
 
 class ProductTransformationSpace[CV[A] <: CoordVector[A], OuterType <: TransformationSpace[CV], InnerType <: TransformationSpace[CV]](outer: OuterType, inner: InnerType) extends TransformationSpace[CV] {
 

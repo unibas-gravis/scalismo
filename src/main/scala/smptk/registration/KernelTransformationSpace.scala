@@ -22,16 +22,14 @@ import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.GradientDescentConfiguration
 
 case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
-    val numComponents : Int,
-    val numPointsForNystrom : Int, 
-    val gp : GaussianProcess[CV]
-    )
-    
-    
-extends TransformationSpaceConfiguration
+  val numComponents: Int,
+  val numPointsForNystrom: Int,
+  val gp: GaussianProcess[CV],
+  val withValueCaching: Boolean = false)
 
+  extends TransformationSpaceConfiguration
 
-case class GaussianProcess[CV[A] <: CoordVector[A]](val domain : DiscreteImageDomain[CV], val m: CV[Double] => DenseVector[Double], val k: PDKernel[CV]) {
+case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: DiscreteImageDomain[CV], val m: CV[Double] => DenseVector[Double], val k: PDKernel[CV]) {
 
   type PointSample = IndexedSeq[CV[Double]]
 
@@ -76,15 +74,20 @@ case class GaussianProcess[CV[A] <: CoordVector[A]](val domain : DiscreteImageDo
   }
 }
 
-case class KernelTransformationSpace1D(configuration : KernelTransformationSpaceConfiguration[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
+case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceConfiguration[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
 
   def parametersDimensionality = configuration.numComponents
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
   val gp = configuration.gp
-  
+
   val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents, configuration.numPointsForNystrom)
 
-  def apply(p: ParameterVector) = KernelTransformation1D(p)
+  def apply(p: ParameterVector) = {
+    if (configuration.withValueCaching)
+      new KernelTransformation1D(p) with ValueCaching[CoordVector1D]
+    else
+      KernelTransformation1D(p)
+  }
   def inverseTransform(p: ParameterVector) = None
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point1D =>
     val J = DenseMatrix.zeros[Double](1, effectiveNumParameters)
@@ -112,7 +115,7 @@ case class KernelTransformationSpace1D(configuration : KernelTransformationSpace
 
 }
 
-case class KernelTransformationSpace2D(configuration : KernelTransformationSpaceConfiguration[CoordVector2D]) extends TransformationSpace[CoordVector2D] {
+case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceConfiguration[CoordVector2D]) extends TransformationSpace[CoordVector2D] {
 
   def parametersDimensionality = configuration.numComponents
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
@@ -120,11 +123,21 @@ case class KernelTransformationSpace2D(configuration : KernelTransformationSpace
   val domain = gp.domain
   val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents, configuration.numPointsForNystrom)
 
-  def apply(p: ParameterVector) = KernelTransformation2D(p)
+  def apply(p: ParameterVector) = {
+    if (configuration.withValueCaching){
+      println("************* Creating a new cached transform")
+      new KernelTransformation2D(p) with ValueCaching[CoordVector2D]
+    }
+    else
+      KernelTransformation2D(p)
+  }
+
   def inverseTransform(p: ParameterVector) = None
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point2D =>
     val J = DenseMatrix.zeros[Double](2, effectiveNumParameters)
-    for (((lambda, phi), j) <- eigenPairs.zipWithIndex) { J(::, j) := phi(x) * math.sqrt(lambda) }
+    for (((lambda, phi), j) <- eigenPairs.zipWithIndex) {
+      J(::, j) := phi(x) * math.sqrt(lambda)
+    }
     J
   }
 
@@ -146,7 +159,7 @@ case class KernelTransformationSpace2D(configuration : KernelTransformationSpace
       CoordVector2D(x(0) + defValue(0) + gp.m(x)(0), x(1) + defValue(1) + gp.m(x)(1))
     }
 
-    def takeDerivative(x: Point2D) = {throw new NotImplementedError("take derivative of kernel") }
+    def takeDerivative(x: Point2D) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
 }
@@ -154,55 +167,55 @@ case class KernelTransformationSpace2D(configuration : KernelTransformationSpace
 object KernelTransformationSpace {
 
   def main(args: Array[String]) {
-      val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
-      val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
-      val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
-      val gp = GaussianProcess(domain, (_ : CoordVector1D[Double]) => DenseVector(0.), GaussianKernel1D(100))
-      
-      val regConfig = RegistrationConfiguration[CoordVector1D]( 	  
-		  metric = MeanSquaresMetric1D(MeanSquaresMetricConfiguration()), 
-		  transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration(100, 500, gp)),
-		  regularizer = RKHSNormRegularizer, 
-		  regularizationWeight = 0.,
-		  optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001))
-      )
-      val kernelSpace = regConfig.transformationSpace
 
-      val transform = kernelSpace(DenseVector.ones[Double](50) * 1.)
-      val transformedImg = continuousImg compose transform
+    val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
+    val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
+    val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
+    val gp = GaussianProcess(domain, (_: CoordVector1D[Double]) => DenseVector(0.), GaussianKernel1D(100))
 
-      val regResult = Registration.registration1D(regConfig)(transformedImg, continuousImg)
+    val regConfig = RegistrationConfiguration[CoordVector1D](
+      metric = MeanSquaresMetric1D(MeanSquaresMetricConfiguration()),
+      transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration(100, 500, gp)),
+      regularizer = RKHSNormRegularizer,
+      regularizationWeight = 0.,
+      optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)))
+    val kernelSpace = regConfig.transformationSpace
 
-      Utils.show1D(continuousImg, domain)
-      Utils.show1D(transformedImg, domain)
-      Utils.show1D(continuousImg.warp(regResult(domain).transform, domain.isInside), domain)
+    val transform = kernelSpace(DenseVector.ones[Double](50) * 1.)
+    val transformedImg = continuousImg compose transform
 
-//    val fixedImage = Utils.gridImage2D(10./64, 1./64)
-//     val domain = DiscreteImageDomain2D(CoordVector2D(0.,0.), CoordVector2D(1./64, 1./64	), CoordVector2D(128, 128))
-//    val testImgUrl = "/home/luethi/workspace/smptk/src/test/resources/lena256.h5"
-//    val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
-//    val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
-//    val domain = discreteFixedImage.domain
-//    Utils.show2D(fixedImage, domain)
-//
-//    val gk = UncorrelatedKernelND[CoordVector2D](GaussianKernel2D(100.0), 2)
-//
-//    //val gk = UncorrelatedKernelND[CoordVector2D](PolynomialKernel2D(2), 2)
-//    val gp = GaussianProcess[CoordVector2D]((x: CoordVector2D[Double]) => DenseVector(0., 0.), gk)
-//
-//    val transformSpace = KernelTransformationSpace2D(domain, 5, gp)
-//    val kernelTransform = transformSpace(DenseVector(100., 100., 100., 20., 20.))
-//
-//    println(transformSpace.eigenPairs.unzip._1)
-//    val transformedLena = fixedImage compose kernelTransform
-//    //val outputDomain = DiscreteImageDomain2D(CoordVector2D(0.,0.), CoordVector2D(0.5, 0.5), CoordVector2D(256, 256))
-//    Utils.show2D(transformedLena, domain)
-//    val registration = Registration.registration2D(transformedLena, fixedImage, transformSpace, MeanSquaresMetric2D,
-//      0f, DenseVector.zeros[Double](5))
-//
-//    val regResult = registration(domain)
-//    val backwarpedLena = transformedLena.compose(regResult.transform)
-//    Utils.show2D(backwarpedLena, domain)
+    val regResult = Registration.registration1D(regConfig)(transformedImg, continuousImg)
+
+    Utils.show1D(continuousImg, domain)
+    Utils.show1D(transformedImg, domain)
+    Utils.show1D(continuousImg.warp(regResult(domain).transform, domain.isInside), domain)
+
+    //    val fixedImage = Utils.gridImage2D(10./64, 1./64)
+    //     val domain = DiscreteImageDomain2D(CoordVector2D(0.,0.), CoordVector2D(1./64, 1./64	), CoordVector2D(128, 128))
+    //    val testImgUrl = "/home/luethi/workspace/smptk/src/test/resources/lena256.h5"
+    //    val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
+    //    val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
+    //    val domain = discreteFixedImage.domain
+    //    Utils.show2D(fixedImage, domain)
+    //
+    //    val gk = UncorrelatedKernelND[CoordVector2D](GaussianKernel2D(100.0), 2)
+    //
+    //    //val gk = UncorrelatedKernelND[CoordVector2D](PolynomialKernel2D(2), 2)
+    //    val gp = GaussianProcess[CoordVector2D]((x: CoordVector2D[Double]) => DenseVector(0., 0.), gk)
+    //
+    //    val transformSpace = KernelTransformationSpace2D(domain, 5, gp)
+    //    val kernelTransform = transformSpace(DenseVector(100., 100., 100., 20., 20.))
+    //
+    //    println(transformSpace.eigenPairs.unzip._1)
+    //    val transformedLena = fixedImage compose kernelTransform
+    //    //val outputDomain = DiscreteImageDomain2D(CoordVector2D(0.,0.), CoordVector2D(0.5, 0.5), CoordVector2D(256, 256))
+    //    Utils.show2D(transformedLena, domain)
+    //    val registration = Registration.registration2D(transformedLena, fixedImage, transformSpace, MeanSquaresMetric2D,
+    //      0f, DenseVector.zeros[Double](5))
+    //
+    //    val regResult = registration(domain)
+    //    val backwarpedLena = transformedLena.compose(regResult.transform)
+    //    Utils.show2D(backwarpedLena, domain)
 
   }
 }
