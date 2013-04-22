@@ -21,12 +21,14 @@ import smptk.io.ImageIO
 import java.io.File
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.Point2D
-import smptk.numerics.Integration
 import smptk.image.DiscreteImageDomain2D
 import smptk.numerics.RandomSVD
 import smptk.image.DiscreteImageDomain
 import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.GradientDescentConfiguration
+import numerics.UniformIntegrator
+import numerics.UniformIntegratorConfiguration
+import breeze.stats.distributions.Uniform
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
@@ -165,14 +167,16 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    ignore("Is leads to orthogonal basis functions on the domain (-5, 5)") {
+    ignore("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = GaussianKernel1D(20)
       val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
       val (eigenPairs, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500)
 
+      val integrator = UniformIntegrator[CoordVector1D](UniformIntegratorConfiguration(domain.numberOfPoints))
+      
       for ((lambda, phi) <- eigenPairs.take(20)) {
         val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phi(x)(0) * phi(x)(0), Some(Point1D => DenseVector[Double](0.)))
-        val v = Integration.integrate(phiImg, domain)
+        val v = integrator.integrateScalar(phiImg, domain)
         v should be(1. plusOrMinus 0.1)
       }
     }
@@ -182,10 +186,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val domain = DiscreteImageDomain1D(CoordVector1D(-1f), CoordVector1D(0.2f), CoordVector1D(200))
       val (eigenPairs, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500)
 
+      val integrator = UniformIntegrator[CoordVector1D](UniformIntegratorConfiguration(domain.numberOfPoints))
+      
       for ((lambda, phi) <- eigenPairs.take(20)) {
         print("lambda: " + lambda)
         val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phi(x)(0) * phi(x)(0), Some(Point1D => DenseVector[Double](0.)))
-        val v = Integration.integrate(phiImg, domain)
+        val v = integrator.integrateScalar(phiImg, domain)
         v should be(1. plusOrMinus 0.1)
       }
     }
@@ -272,35 +278,47 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
   it("can be used to get the correct parameters in 2d (doing registration)") {
 
-    val testImgUrl = getClass().getResource("/dm128.h5").getPath()
-    val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+val testImgUrl = "/home/bouabene/dmFullBone.h5"
+    
+  	val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+ 
     val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
 
     val domain = discreteFixedImage.domain
-    val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
 
-    val gk = UncorrelatedKernelND(GaussianKernel2D(100), 2)
-        val gp = GaussianProcess[CoordVector2D](domain, (x: Point2D) => DenseVector(0., 0.), gk)
+    // Define a transformation    
+    val gk = UncorrelatedKernelND(GaussianKernel2D(400), 2)
+    val gp = GaussianProcess[CoordVector2D](domain, (x: Point2D) => DenseVector(0., 0.), gk)
+    
+    val kernelTransformConfig = KernelTransformationSpaceConfiguration[CoordVector2D](2, 500, gp, true)
+    val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
+   
+    val parameterVector = DenseVector[Double](400., 50.)
+    val transform = transformSpace(parameterVector) 
+    
+    val warpedImage = fixedImage compose transform
 
-      val regConf = RegistrationConfiguration[CoordVector2D](	  
-        regularizationWeight = 0.0,
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
-        metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
-        transformationSpace = KernelTransformationSpace2D(KernelTransformationSpaceConfiguration(100, 500, gp)),
-        regularizer = RKHSNormRegularizer     
-      )
+    //Utils.show2D(warpedImage, domain)
 
-    val transformSpace = regConf.transformationSpace
-    val kernelTransform = transformSpace(DenseVector(15.))
-    val transformedLena = fixedImage compose kernelTransform
-    Utils.show2D(transformedLena, domain)
-    val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
+    val regConf = RegistrationConfiguration[CoordVector2D](
+      regularizationWeight = 0.0,
+      optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 1, true)),
+      //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(100)),
+      //optimizer = BreezeStochGradOptimizer(BreezeStochGradOptimizerConfiguration(100, 1.)), 
+      //metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
+      metric = StochasticSquaresMetric2D(StochasticMetricConfiguration(300)),
+      transformationSpace = KernelTransformationSpace2D(kernelTransformConfig),
+      regularizer = RKHSNormRegularizer)
 
+    val registration = Registration.registration2D(regConf)(warpedImage, fixedImage)
     val regResult = registration(domain)
 
-    (regResult.parameters(0) should be(15. plusOrMinus 0.0001))
-    //(regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
 
+    Utils.show2D(fixedImage compose regResult.transform, domain)
+
+    (regResult.parameters(0) should be(parameterVector(0) plusOrMinus 0.0001))
+    (regResult.parameters(1) should be(parameterVector(1) plusOrMinus 0.0001))
+    
   }
 
 }

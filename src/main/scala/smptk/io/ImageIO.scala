@@ -202,6 +202,7 @@ object ImageIO {
     typeOf[Scalar] match {
       case t if t =:= typeOf[Float] => Some("FLOAT")
       case t if t =:= typeOf[Short] => Some("SHORT")
+      case t if t =:= typeOf[Double] => Some("DOUBLE")
       case _ => None
     }
   }

@@ -1,16 +1,11 @@
 package smptk
 package image
 
-import common.{ Domain, DiscreteDomain, ContinuousDomain }
+import common.{ Domain, DiscreteDomain, BoxedRegion }
 
 import smptk.image.Geometry._
 
-trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV] {
-  //def origin: CV[Float]
-  //def extent: CV[Float]
-  //def directions: CV[CV[Float]]
-  val isInside: CV[Double] => Boolean
-}
+
 
 //case class ContinuousImageDomain1D(val isInside: CoordVector1D[Double] => Boolean) extends ContinuousImageDomain[CoordVector1D] {
 //  def dimensionality = 1
@@ -25,11 +20,11 @@ trait ContinuousImageDomain[CV[A] <: CoordVector[A]] extends ContinuousDomain[CV
 //  def dimensionality = 3
 //}
 
-trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { //extends ImageDomain[Point] {
-  def origin: CoordVector[Double]
+trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] with BoxedRegion[CV]{ //extends ImageDomain[Point] {
+
   def spacing: CV[Double]
   def size: CV[Int]
-  def extent: CV[Double]
+
   def directions: Array[Double]
   def points : IndexedSeq[CV[Double]]
   def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
@@ -39,8 +34,7 @@ trait DiscreteImageDomain[CV[A] <: CoordVector[A]] extends DiscreteDomain[CV] { 
 
   def isInside(pt: CV[Double]): Boolean
 
-  def uniformSamples(n: Int): IndexedSeq[CV[Double]]
-  def uniformDistributionRandomSamples(n :Int) : IndexedSeq[CV[Double]]
+
 
 }
 

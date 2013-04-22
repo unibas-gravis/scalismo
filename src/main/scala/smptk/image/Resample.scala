@@ -11,6 +11,7 @@ object Resample {
       if (img.isDefinedAt(pt)) scalarPixel.fromDouble(img(pt))
       else outsideValue
     })
+    
     DiscreteScalarImage2D(domain, sampledValues)
   }
 

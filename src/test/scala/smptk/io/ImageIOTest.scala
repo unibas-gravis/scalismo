@@ -46,7 +46,9 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
         discreteImage should equal (restoredDiscreteImgOrFailure.get)
        
         tmpImgFile.delete()
-    }
+    }    
+    
+
   }
   
 }

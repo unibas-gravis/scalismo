@@ -6,14 +6,15 @@ import scala.language.implicitConversions
 import scala.{ specialized => spec }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.reflect.ClassTag
-import numerics.Integration._
 import breeze.linalg.DenseVector
-import numerics.Integration
+import numerics.Integrator
 import breeze.linalg.DenseMatrix
 import Geometry._
 import scala.reflect.ClassTag
 import scala.util.Random
 import registration.Transformation
+import smptk.common.BoxedRegion
+import smptk.numerics.Integrator
 
 /**
  * The generic interface for continuous images
@@ -80,7 +81,7 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
 
   def compose(t: Transformation[CV]): CI
   def warp(t: Transformation[CV], imageDomainIndFunc: CV[Double] => Boolean): CI
-
+  // def convolve(filter : CV => Double, imageDomainIndFunc: CV[Double] => Boolean /* later the integration method here */) : CI
 }
 
 /**
@@ -113,7 +114,7 @@ trait ContinuousScalarImageLike[CV[A] <: CoordVector[A], Repr <: ContinuousScala
 
   def *(s: Double): Repr = {
     def f(x: CV[Double]): Double = self.f(x) * s
-    val df =  for (selfdf <- self.df) yield (x: CV[Double]) => selfdf(x) * s
+    val df = for (selfdf <- self.df) yield (x: CV[Double]) => selfdf(x) * s
     val newDomain = (pt: CV[Double]) => self.isDefinedAt(pt)
     newConcreteImageRepr(newDomain, f, df)
   }
@@ -135,7 +136,7 @@ trait ContinuousScalarImageLike[CV[A] <: CoordVector[A], Repr <: ContinuousScala
 
   def warp(t: Transformation[CV], imageDomainIndFunc: CV[Double] => Boolean): Repr = {
     def f(x: CV[Double]) = self.f(t(x))
-    def df(x: CV[Double]) = for (selfdf  <- self.df) yield t.takeDerivative(x) * selfdf(t(x))
+    def df(x: CV[Double]) = for (selfdf <- self.df) yield t.takeDerivative(x) * selfdf(t(x))
     val newDomain = (pt: CV[Double]) => imageDomainIndFunc(pt) && self.isDefinedAt(t(pt))
 
     newConcreteImageRepr(newDomain, f, self.df)
@@ -149,6 +150,25 @@ case class ContinuousScalarImage1D(_isDefinedAt: Point1D => Boolean, val f: Poin
   def newConcreteImageRepr(isDefinedAt: CoordVector1D[Double] => Boolean, f: CoordVector1D[Double] => Double, df: Option[CoordVector1D[Double] => DenseVector[Double]]): ContinuousScalarImage1D = ContinuousScalarImage1D(isDefinedAt, f, df)
 
   def isDefinedAt(pt: Point1D) = _isDefinedAt(pt)
+
+  def convolve(filter: Point1D => Double, filterSupportRegion : BoxedRegion[CoordVector1D], integrator : Integrator[CoordVector1D]): ContinuousScalarImage1D = {
+
+    def f(x: Point1D) = {
+
+      def intermediateF(t: Point1D) = {
+        val p = CoordVector1D(x(0) - t(0))
+        this.f(p) * filter(t)
+      }
+
+      val intermediateContinuousImage = ContinuousScalarImage1D((t: Point1D) => true, intermediateF)
+      integrator.integrateScalar(intermediateContinuousImage, filterSupportRegion)
+
+    }
+    def df(x: Point1D) = new Exception("Not implemented yet !")
+
+    ContinuousScalarImage1D(this.isDefinedAt, f)
+  }
+
 }
 
 case class ContinuousScalarImage2D(_isDefinedAt: CoordVector2D[Double] => Boolean, val f: Point2D => Double, val df: Option[Point2D => DenseVector[Double]] = None) extends ContinuousScalarImage[CoordVector2D] with ContinuousScalarImageLike[CoordVector2D, ContinuousScalarImage2D] {
@@ -157,11 +177,30 @@ case class ContinuousScalarImage2D(_isDefinedAt: CoordVector2D[Double] => Boolea
 
   override val pixelDimensionality = 1
   def isDefinedAt(pt: Point2D) = _isDefinedAt(pt)
+
+  def convolve(filter: Point2D => Double, filterSupportRegion: BoxedRegion[CoordVector2D], integrator: Integrator[CoordVector2D] ): ContinuousScalarImage2D = {
+
+    def f(x: Point2D) = {
+
+      def intermediateF(t: Point2D) = {
+        val p = CoordVector2D( x(0) - t(0) , x(1) - t(1))
+        this.f(p) * filter(t)
+      }
+
+      val intermediateContinuousImage = ContinuousScalarImage2D((t: Point2D) => true, intermediateF)
+      integrator.integrateScalar(intermediateContinuousImage, filterSupportRegion)
+
+    }
+    def df(x: Point1D) = new Exception("Not implemented yet !")
+
+    ContinuousScalarImage2D(this.isDefinedAt, f)
+  }
+
 }
 
 case class ContinuousScalarImage3D(_isDefinedAt: Point3D => Boolean, val f: Point3D => Double, val df: Option[Point3D => DenseVector[Double]] = None) extends ContinuousScalarImage[CoordVector3D] with ContinuousScalarImageLike[CoordVector3D, ContinuousScalarImage3D] {
 
-  def newConcreteImageRepr(isDefinedAt: Point3D => Boolean, f: Point3D => Double, df : Option[Point3D => DenseVector[Double]]): ContinuousScalarImage3D = ContinuousScalarImage3D(isDefinedAt, f, df)
+  def newConcreteImageRepr(isDefinedAt: Point3D => Boolean, f: Point3D => Double, df: Option[Point3D => DenseVector[Double]]): ContinuousScalarImage3D = ContinuousScalarImage3D(isDefinedAt, f, df)
 
   override val pixelDimensionality = 1
   def isDefinedAt(pt: Point3D) = _isDefinedAt(pt)

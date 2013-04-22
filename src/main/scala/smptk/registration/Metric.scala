@@ -4,11 +4,12 @@ package registration
 
 import scala.language.higherKinds
 import TransformationSpace.ParameterVector
-import numerics.Integration
 import breeze.linalg.DenseVector
 import image._
 import image.Geometry.{CoordVector1D,CoordVector2D, CoordVector3D}
 import smptk.image.DiscreteImageDomain
+import numerics.UniformIntegrator
+import numerics.UniformIntegratorConfiguration
 
 trait MetricConfiguration 
 
@@ -39,8 +40,10 @@ trait MeanSquaresMetric[CV[A] <: CoordVector[A]] extends ImageMetric[CV] {
   val configuration : MetricConfiguration
   
   type CImg = ContinuousScalarImage[CV]
+  val integrator = UniformIntegrator[CV]( UniformIntegratorConfiguration(2000) )
   def apply(img1: CImg,  img2: CImg) = {
-    (region : DiscreteImageDomain[CV]) => (Integration.intergrateUniform((img1 - img2).square, region, 2000), region.points)
+    // TODO : incoherence here :   the returned points are not the ones on which the integration has been computed !
+    (region : DiscreteImageDomain[CV]) => ( integrator.integrateScalar((img1 - img2).square, region), region.points)  
   }
   def takeDerivativeWRTToMovingImage(img1: CImg,  img2: CImg) = {
     (img1 - img2) * 2f

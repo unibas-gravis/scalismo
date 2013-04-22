@@ -20,7 +20,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
         (x: Point1D) => x * x,
         Some((x: Point1D) => DenseVector(2.) * x(0)))
 
-      MeanSquaresMetric1D(MeanSquaresMetricConfiguration())(img, img)(region) should be(0. plusOrMinus 0.001)
+      MeanSquaresMetric1D(MeanSquaresMetricConfiguration())(img, img)(region)._1 should be(0. plusOrMinus 0.001)
     }
   }
 }

@@ -95,7 +95,7 @@ public class BSplineCoefficients {
 			throw new Exception("SplineOrder must be between 0 and 3");
 		}
 		
-		double tolerance = Float.intBitsToFloat((int)0x33FFFFFF);
+		double tolerance = 0;//1.;//  Float.intBitsToFloat((int)0x33FFFFFF);
 		
 
 		double lambda = 1.0;

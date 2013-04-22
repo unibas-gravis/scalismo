@@ -5,7 +5,7 @@ import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import smptk.numerics.Integration._
+
 import smptk.image.ContinuousScalarImage
 import smptk.image.ContinuousVectorImage
 import smptk.numerics.GradientDescentOptimizer
@@ -14,81 +14,91 @@ import smptk.numerics.CostFunction
 import smptk.image.CoordVector
 import smptk.common.DiscreteDomain
 import smptk.image.DiscreteImageDomain
-import smptk.image.ContinuousImageDomain
-import smptk.image.ContinuousImageDomain
 import smptk.image.ContinuousScalarImage1D
 import smptk.image.Geometry._
 import smptk.image.DiscreteImageDomain1D
 import smptk.image.ContinuousScalarImage2D
 import smptk.image.DiscreteImageDomain2D
 import smptk.numerics.Optimizer
+import smptk.numerics.UniformIntegrator
 
 case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
-
-case class RegistrationConfiguration[CV[A] <: CoordVector[A]] (  
-  val optimizer : Optimizer,
-   val metric: ImageMetric[CV],
-   val transformationSpace : TransformationSpace[CV],
-   val regularizer : Regularizer,  
-   val regularizationWeight : Double,
-   initialParametersOrNone : Option[DenseVector[Double]] = None 
-) { 
+case class RegistrationConfiguration[CV[A] <: CoordVector[A]](
+  val optimizer: Optimizer,
+  val metric: ImageMetric[CV],
+  val transformationSpace: TransformationSpace[CV],
+  val regularizer: Regularizer,
+  val regularizationWeight: Double,
+  initialParametersOrNone: Option[DenseVector[Double]] = None) {
   def initialParameters = initialParametersOrNone.getOrElse(transformationSpace.identityTransformParameters)
 }
-
 
 object Registration {
 
   def registrationND[CV[A] <: CoordVector[A]](configuration: RegistrationConfiguration[CV])(
     fixedImage: ContinuousScalarImage[CV],
     movingImage: ContinuousScalarImage[CV]): (DiscreteImageDomain[CV] => RegistrationResult[CV]) =
+    {
+      fixedImageRegion =>
         {
-          fixedImageRegion =>
-            {
-              val regularizer = RKHSNormRegularizer
-              
-              val transformationSpace = configuration.transformationSpace
-              
-              val costFunction = new CostFunction {
+          val regularizer = RKHSNormRegularizer
 
-                def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
+          val transformationSpace = configuration.transformationSpace
+          val vectorIntegrator = UniformIntegrator[CV]()
+          
+          val costFunction = new CostFunction {
+            def onlyValue(params: ParameterVector): Double = {
+              val transformation = transformationSpace(params)
+              val warpedImage = movingImage.warp(transformation, fixedImage.isDefinedAt)
 
-                  
-                  // compute the value of the cost function
-                  val transformation = transformationSpace(params)
-                  val warpedImage = movingImage.warp(transformation, fixedImage.isDefinedAt)
-                  val value = configuration.metric(warpedImage, fixedImage)(fixedImageRegion) + configuration.regularizationWeight * regularizer(params)
-
-                  // compute the derivative of the cost function
-
-                  val dMetricDalpha = configuration.metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
-
-                  val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
-                  //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
-
-                  val movingGradientImage = movingImage.differentiate.get // TODO do proper error handling when image is not differentiable  
-                  val parametricTransformGradientImage = new ContinuousVectorImage[CV] {
-                    val pixelDimensionality = params.size
-                    def isDefinedAt(x: CV[Double]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x)
-                    val f = (x: CV[Double]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
-                  }
-
-                  val gradient: DenseVector[Double] = integrate(parametricTransformGradientImage, fixedImageRegion)
-                  val dR = regularizer.takeDerivative(params)
-
-                  (value, gradient + dR * configuration.regularizationWeight)
-                }
-              }
-
-              val optimizer = configuration.optimizer
-
-              val optimalParameters = optimizer(configuration.initialParameters, costFunction)
-              RegistrationResult(transformationSpace(optimalParameters), optimalParameters)
+              configuration.metric(warpedImage, fixedImage)(fixedImageRegion)._1 + configuration.regularizationWeight * regularizer(params)
 
             }
-        }
+            def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
+              // compute the value of the cost function
+              val transformation = transformationSpace(params)
+              val warpedImage = movingImage.warp(transformation, fixedImage.isDefinedAt)
+
+              val (errorVal, sampledPoints) = configuration.metric(warpedImage, fixedImage)(fixedImageRegion)
+
+              val value = errorVal + configuration.regularizationWeight * regularizer(params)
+
+              // compute the derivative of the cost function
+
+              val dMetricDalpha = configuration.metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
+
+              val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
+              //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
+
+              val movingGradientImage = movingImage.differentiate.get // TODO do proper error handling when image is not differentiable  
+              val parametricTransformGradientImage = new ContinuousVectorImage[CV] {
+                val pixelDimensionality = params.size
+                def isDefinedAt(x: CV[Double]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x)
+                val f = (x: CV[Double]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
+              }
+
+              val gradient = if (sampledPoints.size == fixedImageRegion.numberOfPoints)
+                  vectorIntegrator.integrateVector(parametricTransformGradientImage, fixedImageRegion)
+                else {
+                  val zeroVec = DenseVector.zeros[Double](params.size)
+                  sampledPoints.map(p=> parametricTransformGradientImage.liftPixelValue(p).getOrElse(zeroVec)).foldLeft(zeroVec)(_ + _)
+                }
+
+              val dR = regularizer.takeDerivative(params)
+
+              (value, gradient + dR * configuration.regularizationWeight)
+            }
+          }
+
+          val optimizer = configuration.optimizer
+
+          val optimalParameters = optimizer(configuration.initialParameters, costFunction)
+          RegistrationResult(transformationSpace(optimalParameters), optimalParameters)
+
+        }
+    }
 
   def registration1D(configuration: RegistrationConfiguration[CoordVector1D])(
     fixedImage: ContinuousScalarImage1D,

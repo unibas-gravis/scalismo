@@ -20,6 +20,8 @@ import smptk.image.DiscreteImageDomain1D
 import smptk.image.DiscreteScalarImage1D
 import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.GradientDescentConfiguration
+import smptk.numerics.LBFGSOptimizer
+import smptk.numerics.LBFGSOptimizerConfiguration
 
 class ImageTest extends FunSpec with ShouldMatchers {
   describe("A 2D rigid landmark based registration") {
@@ -61,31 +63,33 @@ class ImageTest extends FunSpec with ShouldMatchers {
       val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
  
     val regConf = RegistrationConfiguration[CoordVector2D] (
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
+        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
+        optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
         metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
         transformationSpace = TranslationSpace2D(),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0
       )
    
+     val translationParams =  DenseVector(-25., 25.)
       
      // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
-      val translationTransform = regConf.transformationSpace(DenseVector(-25f, 25f))
+      val translationTransform = regConf.transformationSpace(translationParams)
       //val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
       val transformedLena =fixedImage compose translationTransform
       
-      val registration = Registration.registration2D(regConf)(fixedImage, transformedLena)
+      val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
       
       val regResult = registration(domain)    
       
-     (regResult.parameters(0) should be (20. plusOrMinus 0.0001))
-      (regResult.parameters(1) should be (-20. plusOrMinus 0.0001))
+     (regResult.parameters(0) should be (translationParams(0) plusOrMinus 0.001))
+      (regResult.parameters(1) should be (translationParams(1) plusOrMinus 0.001))
       //(regResult.parameters(0) should be (-3.14/20 plusOrMinus 0.0001))
       
     }
   }
   
-    it("delete me") {
+    ignore("delete me") {
       val domain = DiscreteImageDomain1D(0., 1, 1000)
      
       val fixedImg = Interpolation.interpolate1D(3)(DiscreteScalarImage1D(domain, domain.points.map(x => x(0))))

@@ -5,13 +5,24 @@ import smptk.image._
 import breeze.linalg.DenseVector
 import smptk.image.Image._
 import smptk.image.DiscreteImageDomain
+import smptk.common.BoxedRegion
 
-object Integration {
+
+sealed trait IntegrationConfiguration
+
+trait Integrator[CV[A] <: CoordVector[A]] {
   
-	def integrate[CV[A] <: CoordVector[A]](img : ContinuousScalarImage[CV], integrationRegion : DiscreteImageDomain[CV]) : Double = { 
+  def integrateScalar(img : ContinuousScalarImage[CV], integrationRegion : BoxedRegion[CV]) : Double  
+  def integrateVector(img : ContinuousVectorImage[CV], integrationRegion : BoxedRegion[CV]) : DenseVector[Double]
+  
+}
 
-  	    // TODO this is terribly innefficient as we are looping twice
-  	    val sampleValues : IndexedSeq[Option[Double]] = integrationRegion.points.map(img.liftPixelValue)
+case class UniformIntegratorConfiguration(nbPoints : Int) extends IntegrationConfiguration
+
+case class UniformIntegrator[CV[A] <: CoordVector[A]](configuration : UniformIntegratorConfiguration  =  UniformIntegratorConfiguration(3000)) extends Integrator[CV] {
+		
+	def integrateScalar(img : ContinuousScalarImage[CV], integrationRegion : BoxedRegion[CV]) : Double = { 
+	  val sampleValues : IndexedSeq[Option[Double]] = integrationRegion.uniformSamples(configuration.nbPoints).map(img.liftPixelValue)
 	   
 	    val sum = sampleValues.map(_.getOrElse(0.)).sum
 	    var ndVolume = 1.;  	    
@@ -19,14 +30,12 @@ object Integration {
 	      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
 	    }
 	   	    
-	    sum * ndVolume / integrationRegion.numberOfPoints
+	    sum * ndVolume / configuration.nbPoints.toDouble
 	}
-     
-       
-	def integrate[CV[A] <: CoordVector[A]](img : ContinuousVectorImage[CV], integrationRegion : DiscreteImageDomain[CV]) : DenseVector[Double] = { 
+	
+	def integrateVector(img : ContinuousVectorImage[CV], integrationRegion : BoxedRegion[CV]) : DenseVector[Double] = { 
 
-	    val sampleValues : IndexedSeq[Option[DenseVector[Double]]] = integrationRegion.points.map(img.liftPixelValue)
-	    
+	    val sampleValues : IndexedSeq[Option[DenseVector[Double]]] = integrationRegion.uniformSamples(configuration.nbPoints).map(img.liftPixelValue)	    
 	    var ndVolume = 1.;
 	     for (d <- 0 until integrationRegion.dimensionality) {
 	      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d))* ndVolume
@@ -34,7 +43,9 @@ object Integration {
 	    
 	    val zeroVector = DenseVector.zeros[Double](img.pixelDimensionality)
 	    val sum : DenseVector[Double] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)(_ + _)
-	    sum * ndVolume / integrationRegion.numberOfPoints.toDouble
+	    sum * ndVolume / configuration.nbPoints.toDouble
 	    
 	}
 }
+
+

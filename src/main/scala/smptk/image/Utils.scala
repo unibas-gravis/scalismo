@@ -10,7 +10,12 @@ import ij.process.FloatProcessor
 import ij.ImageStack
 import ij.WindowManager
 import smptk.registration.Transformation
-import smptk.image.Geometry.{Point1D, Point2D}
+import smptk.image.Geometry.{ Point1D, Point2D }
+import smptk.image.Geometry.CoordVector2D
+import smptk.common.BoxedRegion
+import smptk.common.BoxedRegion2D
+import smptk.numerics.Integrator
+import smptk.common.BoxedRegion1D
 
 object Utils {
 
@@ -50,7 +55,7 @@ object Utils {
 
   def showGrid1D(domain: DiscreteImageDomain1D, transform: Transformation[CoordVector1D]) {
     val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 2 == 0) -1. else 1.))
-   //val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
+    //val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
 
     val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
     show1D(continuousImg compose transform, domain)
@@ -92,25 +97,45 @@ object Utils {
     imp.show()
   }
 
-  
-  def gridImage2D(gridWidth : Double, tolerance : Double) : ContinuousScalarImage2D = {
-    def grid(x : Point2D) = {
-      if (math.abs(x(0) % gridWidth) < tolerance ||  math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
+  def gridImage2D(gridWidth: Double, tolerance: Double): ContinuousScalarImage2D = {
+    def grid(x: Point2D) = {
+      if (math.abs(x(0) % gridWidth) < tolerance || math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
     }
-    def df(x : Point2D) = DenseVector(0.,0.)
-    ContinuousScalarImage2D((x : Point2D) =>true, grid, Some(df)) 
-        
+    def df(x: Point2D) = DenseVector(0., 0.)
+    ContinuousScalarImage2D((x: Point2D) => true, grid, Some(df))
+
   }
 
-  def gridImage1D(gridWidth : Double, tolerance : Double) : ContinuousScalarImage1D = {
-    def grid(x : Point1D) = {
+  def gridImage1D(gridWidth: Double, tolerance: Double): ContinuousScalarImage1D = {
+    def grid(x: Point1D) = {
       if (math.abs(x(0) % gridWidth) < tolerance) 0f else 1f
     }
-    def df(x : Point1D) = DenseVector(0.)
-    ContinuousScalarImage1D((x : Point1D) =>true, grid, Some(df)) 
+    def df(x: Point1D) = DenseVector(0.)
+    ContinuousScalarImage1D((x: Point1D) => true, grid, Some(df))
   }
 
-  
+  def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator : Integrator[CoordVector1D]) = {
+
+    val stdDevFactor = 5.
+    val gaussianFilter = (p: Point1D) => (Math.exp(-(p(0) * p(0) / (2 * deviation * deviation)))) / Math.sqrt((Math.PI * 2 * deviation * deviation))
+
+    val extent = stdDevFactor * deviation
+    val filterSupport = BoxedRegion1D(CoordVector1D(-extent), CoordVector1D(extent))
+   
+    img.convolve(gaussianFilter, filterSupport, integrator)
+  }
+
+  def gaussianSmoothing2D(img: ContinuousScalarImage2D, deviation: Double, integrator : Integrator[CoordVector2D]) = {
+
+    val stdDevFactor = 5.
+    val gaussianFilter = (p: Point2D) => (Math.exp(-((p(0) * p(0) + p(1) * p(1)) / (2 * deviation * deviation)))) / (Math.PI * 2 * deviation * deviation)
+
+    val extent = stdDevFactor * deviation
+    val filterSupport = BoxedRegion2D(CoordVector2D(-extent, -extent), CoordVector2D(extent, extent))
+
+    img.convolve(gaussianFilter, filterSupport, integrator)
+  }
+
   //  def main(args: Array[String]) {
   //    import smptk.io.ImageIO
   //    import java.io.File

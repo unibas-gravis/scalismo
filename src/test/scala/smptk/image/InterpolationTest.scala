@@ -126,7 +126,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val diff= for((p,i) <- discreteFixedImage.domain.points.zipWithIndex) yield {          
           interpolatedImage(p) - (discreteFixedImage(i))
         } 
-        println(ImageIO.writeImage(DiscreteScalarImage2D(discreteFixedImage.domain, diff).map(_.toShort), new File("/export/zambia/tmp/lenadiff.h5")))
+        //println(ImageIO.writeImage(DiscreteScalarImage2D(discreteFixedImage.domain, diff).map(_.toShort), new File("/export/zambia/tmp/lenadiff.h5")))
         
         for((p,i) <- discreteFixedImage.domain.points.zipWithIndex){          
           interpolatedImage(p) should be (discreteFixedImage(i).toDouble plusOrMinus 30)

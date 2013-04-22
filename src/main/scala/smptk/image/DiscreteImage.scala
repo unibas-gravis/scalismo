@@ -6,9 +6,9 @@ import scala.language.implicitConversions
 import scala.{ specialized => spec }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.reflect.ClassTag
-import numerics.Integration._
+
 import breeze.linalg.DenseVector
-import numerics.Integration
+
 import breeze.linalg.DenseMatrix
 import image.Geometry._
 import scala.reflect.ClassTag
