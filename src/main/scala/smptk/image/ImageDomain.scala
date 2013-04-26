@@ -53,18 +53,7 @@ case class DiscreteImageDomain1D(val origin: Point1D, val spacing: Point1D, val 
     pt(0) >= origin(0) && pt(0) <= extent(0)
   }
 
-  def uniformSamples(n: Int): IndexedSeq[Point1D] = {
-    val step = (extent(0) - origin(0)) / n
-    for (i <- 0 until n) yield CoordVector1D[Double](origin(0) + i * step)
-  }
 
-  
-  // Note : the points returned here are not necessarily on the grid
-   def uniformDistributionRandomSamples(n :Int) : IndexedSeq[Point1D] = {
-	 val distr = breeze.stats.distributions.Uniform(origin(0), extent(0))
-	 (0 until n).map(i=> CoordVector1D(distr.draw)) 
-   }
-  
 }
 
 case class DiscreteImageDomain2D(val origin: Point2D, val spacing: CoordVector2D[Double], val size: CoordVector2D[Int]) extends DiscreteImageDomain[CoordVector2D] {
@@ -84,20 +73,6 @@ case class DiscreteImageDomain2D(val origin: Point2D, val spacing: CoordVector2D
       pt(1) >= origin(1) && pt(1) <= extent(1)
   }
 
-  def uniformSamples(n: Int): IndexedSeq[CoordVector2D[Double]] = {
-    val nbPerDim = math.sqrt(n).floor.toInt
-    val step0 = (extent(0) - origin(0)) / nbPerDim
-    val step1 = (extent(1) - origin(1)) / nbPerDim
-    for (i <- 0 until nbPerDim; j <- 0 until nbPerDim) yield CoordVector2D[Double](origin(0) + i * step0, origin(1) + j * step1)
-  }
-  
-    // Note : the points returned here are not necessarily on the grid
-   def uniformDistributionRandomSamples(n :Int) : IndexedSeq[Point2D] = {
-	 val distrDim1 = breeze.stats.distributions.Uniform(origin(0), extent(0))
-	 val distrDim2 = breeze.stats.distributions.Uniform(origin(1), extent(1))
-	
-	 (0 until n).map(i=> CoordVector2D(distrDim1.draw, distrDim2.draw)) 
-   }
 
 }
 
@@ -122,22 +97,6 @@ case class DiscreteImageDomain3D(val origin: Point3D, val spacing: CoordVector3D
       pt(2) >= origin(2) && pt(2) <= extent(2)
   }
   
-  def uniformSamples(n: Int): IndexedSeq[CoordVector3D[Double]] = {
-    val nbPerDim = math.cbrt(n) .floor.toInt
-    val step0 = (extent(0) - origin(0)) / nbPerDim
-    val step1 = (extent(1) - origin(1)) / nbPerDim
-    val step2 = (extent(2) - origin(2)) / nbPerDim
- 
-    for (i <- 0 until nbPerDim; j <- 0 until nbPerDim; k <-0 until nbPerDim) 
-      yield CoordVector3D[Double](origin(0) + i * step0, origin(1) + j * step1, origin(2) + k*step2)
-  }
-      // Note : the points returned here are not necessarily on the grid
-   def uniformDistributionRandomSamples(n :Int) : IndexedSeq[Point3D] = {
-	 val distrDim1 = breeze.stats.distributions.Uniform(origin(0), extent(0))
-	 val distrDim2 = breeze.stats.distributions.Uniform(origin(1), extent(1))
-	 val distrDim3 = breeze.stats.distributions.Uniform(origin(2), extent(2))
-	
-	 (0 until n).map(i=> CoordVector3D(distrDim1.draw, distrDim2.draw, distrDim3.draw)) 
-   }
+
 
 }

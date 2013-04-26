@@ -10,6 +10,11 @@ import smptk.image.Geometry.implicits._
 import breeze.linalg.DenseVector
 import registration.Metric._
 
+import smptk.numerics.Integrator
+import smptk.numerics.IntegratorConfiguration
+
+import smptk.numerics.UniformSampler1D
+
 class IntegrationTest extends FunSpec with ShouldMatchers {
 
   describe("A mean squares metric (1D)") {
@@ -19,8 +24,8 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val img = ContinuousScalarImage1D((x: Point1D) => x >= 0 && x <= 1,
         (x: Point1D) => x * x,
         Some((x: Point1D) => DenseVector(2.) * x(0)))
-
-      MeanSquaresMetric1D(MeanSquaresMetricConfiguration())(img, img)(region)._1 should be(0. plusOrMinus 0.001)
+      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(region.numberOfPoints)))
+      MeanSquaresMetric1D()(img, img)(integrator, region) should be(0. plusOrMinus 0.001)
     }
   }
 }

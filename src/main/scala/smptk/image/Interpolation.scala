@@ -219,7 +219,7 @@ object Interpolation {
   /** 
    * The bspline basis function for degrees 0 to 3 
    **/
-  private def bSpline(n: Int)(x: Double): Double = {
+  def bSpline(n: Int)(x: Double): Double = {
     val absX : Double = scala.math.abs(x)
     val absXSquared : Double = absX * absX
     val absXCube : Double = absXSquared * absX

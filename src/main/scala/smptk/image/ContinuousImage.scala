@@ -151,22 +151,39 @@ case class ContinuousScalarImage1D(_isDefinedAt: Point1D => Boolean, val f: Poin
 
   def isDefinedAt(pt: Point1D) = _isDefinedAt(pt)
 
-  def convolve(filter: Point1D => Double, filterSupportRegion : BoxedRegion[CoordVector1D], integrator : Integrator[CoordVector1D]): ContinuousScalarImage1D = {
+  def convolve(filter: Filter[CoordVector1D], integrator: Integrator[CoordVector1D]): ContinuousScalarImage1D = {
+    def convolvedImgFun(x: Point1D) = {
 
-    def f(x: Point1D) = {
-
+      // f(x) = Int (Img(x-t)*G(t) dt
       def intermediateF(t: Point1D) = {
         val p = CoordVector1D(x(0) - t(0))
-        this.f(p) * filter(t)
+        this.liftPixelValue(p).getOrElse(0.) * filter(t)
       }
 
-      val intermediateContinuousImage = ContinuousScalarImage1D((t: Point1D) => true, intermediateF)
-      integrator.integrateScalar(intermediateContinuousImage, filterSupportRegion)
+      val intermediateContinuousImage = ContinuousScalarImage1D(this.isDefinedAt, intermediateF)
+      integrator.integrateScalar(intermediateContinuousImage, filter.support)
 
     }
-    def df(x: Point1D) = new Exception("Not implemented yet !")
 
-    ContinuousScalarImage1D(this.isDefinedAt, f)
+    def convolvedImgDerivative: Option[Point1D => DenseVector[Double]] = {
+      if (this.df.isDefined)
+        Some((x: Point1D) => {
+          val thisDF = this.df.get
+          def intermediateDF(t: Point1D) = {
+            val p = CoordVector1D(x(0) - t(0))
+            if(this.isDefinedAt(p))
+            	thisDF(p) * filter(t)
+            else DenseVector.zeros[Double](pixelDimensionality)
+            	  
+          }
+          val intermediateContinuousImage = ContinuousVectorImage1D((t: Point1D) => true, pixelDimensionality, intermediateDF, None)
+          integrator.integrateVector(intermediateContinuousImage, filter.support)
+        })
+
+      else None
+    }
+
+    ContinuousScalarImage1D(this.isDefinedAt, convolvedImgFun, convolvedImgDerivative)
   }
 
 }
@@ -178,22 +195,42 @@ case class ContinuousScalarImage2D(_isDefinedAt: CoordVector2D[Double] => Boolea
   override val pixelDimensionality = 1
   def isDefinedAt(pt: Point2D) = _isDefinedAt(pt)
 
-  def convolve(filter: Point2D => Double, filterSupportRegion: BoxedRegion[CoordVector2D], integrator: Integrator[CoordVector2D] ): ContinuousScalarImage2D = {
+  def convolve(filter:Filter[CoordVector2D], integrator: Integrator[CoordVector2D]): ContinuousScalarImage2D = {
 
     def f(x: Point2D) = {
 
       def intermediateF(t: Point2D) = {
-        val p = CoordVector2D( x(0) - t(0) , x(1) - t(1))
-        this.f(p) * filter(t)
+        val p = CoordVector2D(x(0) - t(0), x(1) - t(1))
+        this.liftPixelValue(p).getOrElse(0.) * filter(t)
       }
 
       val intermediateContinuousImage = ContinuousScalarImage2D((t: Point2D) => true, intermediateF)
-      integrator.integrateScalar(intermediateContinuousImage, filterSupportRegion)
+      integrator.integrateScalar(intermediateContinuousImage, filter.support)
 
     }
-    def df(x: Point1D) = new Exception("Not implemented yet !")
+    
+    def convolvedImgDerivative: Option[Point2D => DenseVector[Double]] = {
+      if (this.df.isDefined)
+        Some((x: Point2D) => {
+          val thisDF = this.df.get
+          def intermediateDF(t: Point2D) = {
+            val p = CoordVector2D(x(0) - t(0), x(1) - t(1))
+            
+            if(this.isDefinedAt(p))
+            	thisDF(p) * filter(t)
+            else DenseVector.zeros[Double](2)
+            	  
+          }
+          val intermediateContinuousImage = ContinuousVectorImage2D((t: Point2D) => true, 2, intermediateDF, None)
+          integrator.integrateVector(intermediateContinuousImage, filter.support)
+        })
 
-    ContinuousScalarImage2D(this.isDefinedAt, f)
+      else None
+      
+    }
+
+
+    ContinuousScalarImage2D(this.isDefinedAt, f,convolvedImgDerivative)
   }
 
 }
@@ -204,14 +241,65 @@ case class ContinuousScalarImage3D(_isDefinedAt: Point3D => Boolean, val f: Poin
 
   override val pixelDimensionality = 1
   def isDefinedAt(pt: Point3D) = _isDefinedAt(pt)
+  
+    def convolve(filter:Filter[CoordVector3D], integrator: Integrator[CoordVector3D]): ContinuousScalarImage3D = {
+
+    def f(x: Point3D) = {
+
+      def intermediateF(t: Point3D) = {
+        val p = CoordVector3D(x(0) - t(0), x(1) - t(1), x(2) - t(2))
+        this.liftPixelValue(p).getOrElse(0.) * filter(t)
+      }
+
+      val intermediateContinuousImage = ContinuousScalarImage3D((t: Point3D) => true, intermediateF)
+      integrator.integrateScalar(intermediateContinuousImage, filter.support)
+
+    }
+    
+    def convolvedImgDerivative: Option[Point3D => DenseVector[Double]] = {
+      if (this.df.isDefined)
+        Some((x: Point3D) => {
+          val thisDF = this.df.get
+          def intermediateDF(t: Point3D) = {
+            val p = CoordVector3D(x(0) - t(0), x(1) - t(1), x(2) - t(2))
+            
+            if(this.isDefinedAt(p))
+            	thisDF(p) * filter(t)
+            else DenseVector.zeros[Double](3)
+            	  
+          }
+          val intermediateContinuousImage = ContinuousVectorImage3D((t: Point3D) => true, 3, intermediateDF, None)
+          integrator.integrateVector(intermediateContinuousImage, filter.support)
+        })
+
+      else None
+      
+    }
+
+
+    ContinuousScalarImage3D(this.isDefinedAt, f,convolvedImgDerivative)
+  }
 }
 
 /////////////////////////////////////////////
 // Vector Images
 /////////////////////////////////////////////
 
-case class ContinousVectorImage1D(val _isDefinedAt: Point1D => Boolean, val pixelDimensionality: Int, val f: Point1D => DenseVector[Double], val df: Option[Point1D => DenseMatrix[Double]]) extends ContinuousVectorImage[CoordVector1D] {
+case class ContinuousVectorImage1D(val _isDefinedAt: Point1D => Boolean, val pixelDimensionality: Int, val f: Point1D => DenseVector[Double], val df: Option[Point1D => DenseMatrix[Double]]) extends ContinuousVectorImage[CoordVector1D] {
 
   type CV[A] = CoordVector1D[A]
   def isDefinedAt(x: Point1D) = _isDefinedAt(x)
 }
+
+case class ContinuousVectorImage2D(val _isDefinedAt: Point2D => Boolean, val pixelDimensionality: Int, val f: Point2D => DenseVector[Double], val df: Option[Point2D => DenseMatrix[Double]]) extends ContinuousVectorImage[CoordVector2D] {
+
+  type CV[A] = CoordVector2D[A]
+  def isDefinedAt(x: Point2D) = _isDefinedAt(x)
+}
+
+case class ContinuousVectorImage3D(val _isDefinedAt: Point3D => Boolean, val pixelDimensionality: Int, val f: Point3D => DenseVector[Double], val df: Option[Point3D => DenseMatrix[Double]]) extends ContinuousVectorImage[CoordVector3D] {
+
+  type CV[A] = CoordVector3D[A]
+  def isDefinedAt(x: Point3D) = _isDefinedAt(x)
+}
+

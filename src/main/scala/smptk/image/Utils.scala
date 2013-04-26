@@ -115,25 +115,11 @@ object Utils {
   }
 
   def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator : Integrator[CoordVector1D]) = {
-
-    val stdDevFactor = 5.
-    val gaussianFilter = (p: Point1D) => (Math.exp(-(p(0) * p(0) / (2 * deviation * deviation)))) / Math.sqrt((Math.PI * 2 * deviation * deviation))
-
-    val extent = stdDevFactor * deviation
-    val filterSupport = BoxedRegion1D(CoordVector1D(-extent), CoordVector1D(extent))
-   
-    img.convolve(gaussianFilter, filterSupport, integrator)
+    img.convolve(GaussianFilter1D(deviation), integrator)
   }
 
   def gaussianSmoothing2D(img: ContinuousScalarImage2D, deviation: Double, integrator : Integrator[CoordVector2D]) = {
-
-    val stdDevFactor = 5.
-    val gaussianFilter = (p: Point2D) => (Math.exp(-((p(0) * p(0) + p(1) * p(1)) / (2 * deviation * deviation)))) / (Math.PI * 2 * deviation * deviation)
-
-    val extent = stdDevFactor * deviation
-    val filterSupport = BoxedRegion2D(CoordVector2D(-extent, -extent), CoordVector2D(extent, extent))
-
-    img.convolve(gaussianFilter, filterSupport, integrator)
+    img.convolve(GaussianFilter2D(deviation), integrator)
   }
 
   //  def main(args: Array[String]) {

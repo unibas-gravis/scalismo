@@ -9,6 +9,7 @@ import breeze.linalg.DenseVector
 import smptk.numerics.RandomSVD
 import smptk.image.DiscreteImageDomain
 import breeze.plot.Figure
+import smptk.numerics.Sampler
 
 trait PDKernel[CV[A] <: CoordVector[A]] {
   def apply(x : CV[Double], y : CV[Double]) : DenseMatrix[Double]
@@ -20,6 +21,20 @@ case class UncorrelatedKernelND[CV[A] <: CoordVector[A]](k: PDKernel[CV], val ou
   val I = DenseMatrix.eye[Double](outputDim)
   def apply(x: CV[Double], y: CV[Double]) = I * (k(x, y)(0, 0)) // k is scalar valued
 
+}
+
+case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
+  val sigma2 = sigma * sigma
+  def outputDim = 1
+  def apply(x: CoordVector3D[Double], y:CoordVector3D[Double]) = {
+
+    val r0 = (x(0) - y(0)) 
+    val r1 = (x(1) - y(1))    
+    val r2 = (x(2) - y(2))    
+    val normr2 = r0*r0 + r1 * r1 + r2*r2// ||x -y ||^2
+    if (normr2/ sigma2 > 10) DenseMatrix(0.)
+    else DenseMatrix(scala.math.exp(-normr2 / sigma2))
+  }
 }
 
 case class GaussianKernel2D(val sigma: Double) extends PDKernel[CoordVector2D] {
@@ -47,6 +62,15 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[CoordVector1D] {
     else DenseMatrix(scala.math.exp(-(r * r) / sigma2))
   }
 }
+
+
+case class PolynomialKernel3D(degree: Int) extends PDKernel[CoordVector3D] {
+  def outputDim = 1
+  def apply(x: Point3D, y: Point3D) = {    
+    DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + x(2)*y(2) + 1, degree))
+  }
+}
+
 case class PolynomialKernel2D(degree: Int) extends PDKernel[CoordVector2D] {
   def outputDim = 1
   def apply(x: Point2D, y: Point2D) = {    
@@ -102,12 +126,13 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: DiscreteImageDomain[CV], numBasisFunctions: Int, numPointsForNystrom : Int): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
+  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: DiscreteImageDomain[CV], numBasisFunctions: Int, sampler : Sampler[CV]): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 	val ndVolume : Double = (0 until domain.dimensionality).foldLeft(1.)((p, d) => (domain.extent(d) - domain.origin(d)) * p)
-    val ptsForNystrom = domain.uniformSamples(numPointsForNystrom)
+	val ptsForNystrom = sampler.sample(domain)
+	val numPointsForNystrom = ptsForNystrom.size
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
 //    val f = Figure()
 //    val p = f.subplot(0)    

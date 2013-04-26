@@ -111,8 +111,12 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
     val ixs = insideVals.map(t => t._1)
     val ifs = insideVals.map(t => t._2)
 
-    val t = ifs.zipWithIndex.min
-    ixs(t._2)
+    if(ifs.size > 0){
+      val t = ifs.zipWithIndex.min
+      ixs(t._2)
+    }
+    else // all f values are 0, means we most probably mapped the image out ! then simply return the smallest step size
+      xs.min
   }
 
   val stepLength = configuration.stepLength
@@ -132,7 +136,7 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
     if (it > numIterations) x
     else {
       if (configuration.withLineSearch) {
-        val step = goldenSectionLineSearch(8, x, 0, 1, gradient, c)
+        val step = goldenSectionLineSearch(8, x, 0, stepLength, gradient, c)
         println(s"Step size at iteration $it=$step")
         optimize(x - gradient * step, c, it + 1)
 

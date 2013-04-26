@@ -22,10 +22,14 @@ import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.GradientDescentConfiguration
 import smptk.numerics.LBFGSOptimizer
 import smptk.numerics.LBFGSOptimizerConfiguration
+import smptk.numerics.Integrator
+import smptk.numerics.IntegratorConfiguration
+import smptk.numerics.UniformDistributionRandomSampler2D
 
-class ImageTest extends FunSpec with ShouldMatchers {
+
+class RegistrationTest extends FunSpec with ShouldMatchers {
   describe("A 2D rigid landmark based registration") {
-    ignore("can retrieve correct parameters") {
+    it("can retrieve correct parameters") {
       val points = IndexedSeq(CoordVector2D(0., 0.), CoordVector2D(1., 4.), CoordVector2D(2., 0.))
 
       val c = CoordVector2D(1., 4 / 3.)
@@ -63,9 +67,10 @@ class ImageTest extends FunSpec with ShouldMatchers {
       val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
  
     val regConf = RegistrationConfiguration[CoordVector2D] (
-        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
-        optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
-        metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.0001, true)),
+        //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
+        integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(100))),
+        metric = MeanSquaresMetric2D(),
         transformationSpace = TranslationSpace2D(),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0
@@ -89,28 +94,5 @@ class ImageTest extends FunSpec with ShouldMatchers {
     }
   }
   
-    ignore("delete me") {
-      val domain = DiscreteImageDomain1D(0., 1, 1000)
-     
-      val fixedImg = Interpolation.interpolate1D(3)(DiscreteScalarImage1D(domain, domain.points.map(x => x(0))))
-
-      val regConf = RegistrationConfiguration[CoordVector1D] (
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.001)),
-        metric = MeanSquaresMetric1D(MeanSquaresMetricConfiguration()),
-        transformationSpace = TranslationSpace1D(),
-        regularizer = RKHSNormRegularizer,
-        regularizationWeight = 0.0
-      )
-   
-
-      val t = regConf.transformationSpace(DenseVector(5.))
-
-      val warpedImage = fixedImg.warp(t, domain.isInside)
-
-      val registration = Registration.registration1D(regConf)(fixedImg, warpedImage)
-
-      val regResult = registration(domain)
-
-    }
   
 }
