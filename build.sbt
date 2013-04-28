@@ -16,14 +16,14 @@ libraryDependencies  ++= Seq(
             "org.scalanlp" %% "breeze-process" % "0.2",
             "org.scalanlp" %% "breeze-viz" % "0.2",
 "org.scala-lang" % "scala-reflect" %"2.10.0",
-	    "net.imagej" % "ij" % "latest.integration"
+	    "net.imagej" % "ij" % "latest.integration",
+	    "org.scala-lang" % "scala-swing" % "2.10.0"
 )
 
 resolvers ++= Seq(
    "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/",
    "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
    )
-
 
 
 EclipseKeys.withSource := true
