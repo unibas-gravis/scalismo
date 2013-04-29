@@ -33,50 +33,6 @@ case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
 
   extends TransformationSpaceConfiguration
 
-case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: DiscreteImageDomain[CV], val m: CV[Double] => DenseVector[Double], val k: PDKernel[CV]) {
-
-  type PointSample = IndexedSeq[CV[Double]]
-
-  /*
-  def posterior(trainingData: IndexedSeq[(CoordVector1D[Double], Double)], sigma2: Double): GaussianProcess1D = {
-
-    val (xs, ys) = trainingData.unzip
-    val yVec = DenseVector(ys.toArray)
-    val kxx = Kernel.computeKernelMatrix(xs, k)
-
-    val kinv = breeze.linalg.inv(kxx + DenseMatrix.eye[Double](xs.size) * sigma2)
-
-    def mp(x: CoordVector1D[Double]): Double = {
-      val kxs = Kernel.computeKernelVectorFor(x, xs,k)
-      (kxs dot kinv * yVec)
-
-    }
-
-    val kp = new PDKernel[CoordVector1D] {
-      def apply(x1: Point1D, x2: Point1D) = {
-        val kx1xs = Kernel.computeKernelVectorFor(x1, xs, k)
-        val kx2xs = Kernel.computeKernelVectorFor(x2, xs, k)
-        k(x1, x2) - (kx1xs dot (kinv * kx2xs))
-      }
-    }
-    GaussianProcess1D(mp, kp)
-  }
-*/
-  def sample: (PointSample => DenseVector[Double]) = { (xs: PointSample) =>
-    {
-      val n = xs.size
-      val d = k.outputDim
-      val meanVec = DenseVector.zeros[Double](n * d)
-      for (i <- 0 until n; di <- 0 until d) meanVec(i * d + di) = m(xs(i))(di)
-      val covMatrix = Kernel.computeKernelMatrix(xs, k)
-      val noise = breeze.linalg.diag(DenseVector.ones[Double](xs.size)) * 1e-6 // gaussian noise for stability 
-      val lMat = breeze.linalg.cholesky(covMatrix + noise)
-      val u = for (_ <- 0 until xs.size) yield breeze.stats.distributions.Gaussian(0, 1).draw()
-      val uVec = DenseVector(u.toArray)
-      meanVec + lMat * uVec
-    }
-  }
-}
 
 case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceConfiguration[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
 
@@ -85,7 +41,7 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
   val gp = configuration.gp
   
   val sampler = UniformSampler1D(configuration.numPointsForNystrom)
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents,sampler)
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents,sampler)
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching)
@@ -112,7 +68,7 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
         phi(x)(0) * alpha(i) * math.sqrt(lambda)
       }).foldLeft(0.)(_ + _)
 
-      CoordVector1D(x(0) + defValue + gp.m(x)(0))
+      CoordVector1D(x(0) + defValue + gp.mean(x)(0))
     }
 
     def takeDerivative(x: Point1D) = { throw new NotImplementedError("take derivative of kernel") }
@@ -127,7 +83,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
   val gp = configuration.gp
   val domain = gp.domain
   val sampler = UniformSampler2D(configuration.numPointsForNystrom)
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents, sampler)
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, sampler)
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching){
@@ -161,7 +117,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
         phi(x) * alpha(i) * math.sqrt(lambda)
       }).foldLeft(zero)(_ + _)
 
-      CoordVector2D(x(0) + defValue(0) + gp.m(x)(0), x(1) + defValue(1) + gp.m(x)(1))
+      CoordVector2D(x(0) + defValue(0) + gp.mean(x)(0), x(1) + defValue(1) + gp.mean(x)(1))
     }
 
     def takeDerivative(x: Point2D) = { throw new NotImplementedError("take derivative of kernel") }
@@ -176,7 +132,7 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
   val gp = configuration.gp
   val domain = gp.domain
   val sampler = UniformSampler3D(configuration.numPointsForNystrom)
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.k, gp.domain, configuration.numComponents, sampler)
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, sampler)
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching){
@@ -210,7 +166,7 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
         phi(x) * alpha(i) * math.sqrt(lambda)
       }).foldLeft(zero)(_ + _)
 
-      CoordVector3D(x(0) + defValue(0) + gp.m(x)(0), x(1) + defValue(1) + gp.m(x)(1), x(2) + defValue(2) + gp.m(x)(2))
+      CoordVector3D(x(0) + defValue(0) + gp.mean(x)(0), x(1) + defValue(1) + gp.mean(x)(1), x(2) + defValue(2) + gp.mean(x)(2))
     }
 
     def takeDerivative(x: Point3D) = { throw new NotImplementedError("take derivative of kernel") }
