@@ -5,6 +5,7 @@ package common
 import smptk.image.Geometry._
 import smptk.image.CoordVector
 import breeze.linalg.DenseVector
+import scala.collection.SeqView
 
 
 trait Domain[CV[A] <: CoordVector[A]] {
@@ -17,7 +18,7 @@ trait Cell {
 
 
 trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
-  def points: Stream[CV[Double]]
+  def points: SeqView[CV[Double],Seq[_]]
   // def cells : IndexedSeq[Cell] // TODO add it later here
   def numberOfPoints: Int
 

@@ -17,7 +17,7 @@ object Test {
   def resample3D() {
     val path = "/home/bouabene/workspace/smptk/src/test/resources/chimp3D-11.h5"
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate3D(3)(discreteImage)
+    val continuousImage = Interpolation.interpolate3D(0)(discreteImage)
 
     println("before resampling, number of domain points = " + discreteImage.domain.numberOfPoints)
     val resampledImage = Resample.sample3D[Short](continuousImage, discreteImage.domain, 0)
