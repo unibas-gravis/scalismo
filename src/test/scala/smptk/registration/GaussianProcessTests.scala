@@ -10,6 +10,8 @@ import image.DiscreteImageDomain1D
 import image.Geometry.implicits._
 import breeze.linalg.DenseVector
 import smptk.image.DiscreteImageDomain2D
+import smptk.io.MeshIO
+import smptk.image.Utils
 
 
 
@@ -42,5 +44,13 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
+  it("makes faces") {
+      import java.io.File
+         val testMeshURL = getClass().getResource("/facemesh.h5")
+
+         val mesh = MeshIO.readHDF5(new File(testMeshURL.getPath)).get
+         val vtkpd = Utils.meshToVTKMesh(mesh)
+         Utils.ShowVTK(vtkpd)
+  }
   
 }

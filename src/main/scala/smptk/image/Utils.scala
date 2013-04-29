@@ -16,8 +16,53 @@ import smptk.common.BoxedRegion
 import smptk.common.BoxedRegion2D
 import smptk.numerics.Integrator
 import smptk.common.BoxedRegion1D
+import smptk.io.ImageIO
+import smptk.io.MeshIO
+import java.awt.BorderLayout
+import javax.swing.JPanel
+import swing._
+import vtk._
+import smptk.mesh.TriangleMesh
+import smptk.mesh.TriangleMesh
 
 object Utils {
+
+  System.loadLibrary("vtkCommonJava");
+  System.loadLibrary("vtkFilteringJava");
+  System.loadLibrary("vtkIOJava");
+  System.loadLibrary("vtkImagingJava");
+  System.loadLibrary("vtkGraphicsJava");
+
+  case class ShowVTK(pd: vtkPolyData) extends SimpleSwingApplication {
+
+    // Setup VTK rendering panel, this also loads VTK native libraries
+    var renWin: vtkPanel = new vtkPanel
+
+    // Create wrapper to integrate vtkPanel with Scala's Swing API
+    val scalaPanel = new Component {
+      override lazy val peer = new JPanel(new BorderLayout())
+      peer.add(renWin)
+    }
+
+    var coneMapper = new vtkPolyDataMapper
+    coneMapper.SetInput(pd)
+
+    var coneActor = new vtkActor
+    coneActor.SetMapper(coneMapper)
+
+    renWin.GetRenderer.AddActor(coneActor)
+    renWin.GetRenderer.ResetCamera
+
+    // Create the main application window
+    override def top = new MainFrame {
+      title = "ScaleCone"
+      contents = scalaPanel
+    }
+  }
+
+  def showVTK(pd: vtkPolyData) {
+    ShowVTK(pd).main(Array(""))
+  }
 
   def show1D[Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]) {
     val pixelConv = implicitly[ScalarPixel[Pixel]]
@@ -74,34 +119,20 @@ object Utils {
     val discreteImg = Resample.sample2D(img, domain, outsideValue)
     show2D(discreteImg)
   }
+
   
- def show3D(img: ContinuousScalarImage3D, domain: DiscreteImageDomain3D, outsideValue: Float = 0) {
+  def show3D[Pixel: ScalarPixel](img: DiscreteScalarImage3D[Pixel]) {
+ 
+    val imPlus = imageToImageJImagePlus(img)
+    imPlus.show()
+  }
+
+    def show3D(img: ContinuousScalarImage3D, domain: DiscreteImageDomain3D, outsideValue: Float = 0) {
     val discreteImg = Resample.sample3D(img, domain, outsideValue)
     show3D(discreteImg)
   }
+
   
-  def show3D[Pixel: ScalarPixel](img: DiscreteScalarImage3D[Pixel]) {
-    val pixelConv = implicitly[ScalarPixel[Pixel]]
-    val domain = img.domain
-    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
-
-    // 	Create 3x3x3 3D stack and fill it with garbage  
-    val stack = new ImageStack(width, height)
-
-    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
-    for (slice <- 0 until size) {
-      val startInd = slice * (width * height)
-      val endInd = (slice + 1) * (width * height)
-      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
-      val bp = new FloatProcessor(width, height, pixelForSlice)
-      stack.addSlice(bp)
-
-    }
-    val imp = new ImagePlus("3D image", stack)
-
-    imp.show()
-  }
-
   def gridImage2D(gridWidth: Double, tolerance: Double): ContinuousScalarImage2D = {
     def grid(x: Point2D) = {
       if (math.abs(x(0) % gridWidth) < tolerance || math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
@@ -119,23 +150,64 @@ object Utils {
     ContinuousScalarImage1D((x: Point1D) => true, grid, Some(df))
   }
 
-  def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator : Integrator[CoordVector1D]) = {
+  def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator: Integrator[CoordVector1D]) = {
     img.convolve(GaussianFilter1D(deviation), integrator)
   }
 
-  def gaussianSmoothing2D(img: ContinuousScalarImage2D, deviation: Double, integrator : Integrator[CoordVector2D]) = {
+  def gaussianSmoothing2D(img: ContinuousScalarImage2D, deviation: Double, integrator: Integrator[CoordVector2D]) = {
     img.convolve(GaussianFilter2D(deviation), integrator)
   }
 
-  //  def main(args: Array[String]) {
-  //    import smptk.io.ImageIO
-  //    import java.io.File
-  //    val img2d = ImageIO.read2DScalarImage[Short](new File("/home/luethi/workspace/smptk/src/test/resources/lena.h5")).get
-  //    val img2dcont = Interpolation.interpolate2D(3)(img2d)
-  //    show2D(img2dcont, img2d.domain, 0)
-  //    //	   val threeDImgFilename = "/home/luethi/workspace/smptk/../smptkDemo/zim_16.h5"
-  //    //	   val img3d = ImageIO.read3DScalarImage[Short](new File(threeDImgFilename)).get
-  //    //	   show3D(img3d)
-  //  }
+  def imageToImageJImagePlus[Pixel : ScalarPixel](img : DiscreteScalarImage3D[Pixel]) = { 
+       val pixelConv = implicitly[ScalarPixel[Pixel]]
+    val domain = img.domain
+    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
+
+    // 	Create 3x3x3 3D stack and fill it with garbage  
+    val stack = new ImageStack(width, height)
+
+    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
+    for (slice <- 0 until size) {
+      val startInd = slice * (width * height)
+      val endInd = (slice + 1) * (width * height)
+      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
+      val bp = new FloatProcessor(width, height, pixelForSlice)
+      stack.addSlice(bp)
+
+    }
+    new ImagePlus("3D image", stack)
+  }
+  
+  def meshToVTKMesh(mesh: TriangleMesh): vtkPolyData = {
+    val pd = new vtkPolyData()
+    val domain = mesh.domain
+    val pts = new vtkPoints()
+    pts.SetNumberOfPoints(domain.points.size)
+    for ((pt, pt_id) <- domain.points.zipWithIndex) { 
+    	pts.InsertPoint(pt_id, pt(0), pt(1), pt(2))
+    }
+    pd.SetPoints(pts)
+    
+    val triangles = new vtkCellArray
+    triangles.SetNumberOfCells(domain.cells.size)
+    for ((cell, cell_id) <- domain.cells.zipWithIndex) { 
+    	val triangle = new vtkTriangle()
+
+    	triangle.GetPointIds().SetId ( 0, cell.ptId1 );
+    	triangle.GetPointIds().SetId ( 1, cell.ptId2);
+    	triangle.GetPointIds().SetId ( 2, cell.ptId3 );
+    	triangles.InsertNextCell(triangle );
+    }
+    pd.SetPolys(triangles)
+    pd
+  }
+
+
+  def main(args: Array[String]) {
+    import java.io.File
+    val mesh = MeshIO.readHDF5(new File("/tmp/mesh.h5")).get
+    val vtkpd = meshToVTKMesh(mesh)
+    showVTK(vtkpd)
+  }
 
 }
