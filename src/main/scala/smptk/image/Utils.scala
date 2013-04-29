@@ -54,7 +54,7 @@ object Utils {
   }
 
   def showGrid1D(domain: DiscreteImageDomain1D, transform: Transformation[CoordVector1D]) {
-    val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 2 == 0) -1. else 1.))
+    val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 2 == 0) -1. else 1.).toIndexedSeq )
     //val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
 
     val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
@@ -74,7 +74,12 @@ object Utils {
     val discreteImg = Resample.sample2D(img, domain, outsideValue)
     show2D(discreteImg)
   }
-
+  
+ def show3D(img: ContinuousScalarImage3D, domain: DiscreteImageDomain3D, outsideValue: Float = 0) {
+    val discreteImg = Resample.sample3D(img, domain, outsideValue)
+    show3D(discreteImg)
+  }
+  
   def show3D[Pixel: ScalarPixel](img: DiscreteScalarImage3D[Pixel]) {
     val pixelConv = implicitly[ScalarPixel[Pixel]]
     val domain = img.domain

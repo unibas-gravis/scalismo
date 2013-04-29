@@ -52,11 +52,11 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       it("Derivative of interpolated Sine function is the Cosine") {
         val domain = DiscreteImageDomain1D(-2., 0.01, 400)
 
-        val discreteSinImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.sin(x * math.Pi)))
+        val discreteSinImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.sin(x * math.Pi)).toIndexedSeq)
         val interpolatedSinImage = interpolate1D(3)(discreteSinImage)
         val derivativeImage = interpolatedSinImage.differentiate.get
 
-        val discreteCosImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.Pi * math.cos(x * math.Pi)))
+        val discreteCosImage = DiscreteScalarImage1D(domain, domain.points.map(x => math.Pi * math.cos(x * math.Pi)).toIndexedSeq)
         val interpolatedCosImage = interpolate1D(3)(discreteCosImage)
 
         for ((pt, idx) <- domain.points.zipWithIndex.filter(x => math.abs(x._1) < 1.90)) {
@@ -109,7 +109,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
     describe(" of degree 3") {
       it("Interpolates the values for origin (2,3) and spacing (1.5, 2.3)") {
         val domain = DiscreteImageDomain2D((2., 3.), (1.5, 1.3), (10, 10))
-        val discreteImage = DiscreteScalarImage2D(domain, domain.points.map(x => x(0)))
+        val discreteImage = DiscreteScalarImage2D(domain, domain.points.map(x => x(0)).toIndexedSeq)
 
         val continuousImg = interpolate2D(3)(discreteImage)
 
@@ -137,7 +137,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       it("Derivative of interpolated function is correct") {
         val domain = DiscreteImageDomain2D((-2., -2.), (0.01, 0.01), (400, 400))
 
-        val discreteFImage = DiscreteScalarImage2D(domain, domain.points.map(x => x(0) * x(0) + x(1) * x(1)))
+        val discreteFImage = DiscreteScalarImage2D(domain, domain.points.map(x => x(0) * x(0) + x(1) * x(1)).toIndexedSeq)
         val interpolatedFImage = interpolate2D(3)(discreteFImage)
         val derivativeImage = interpolatedFImage.differentiate.get
 
@@ -194,7 +194,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
     describe(" of degree 3") {
       it("Interpolates the values for origin (2,3,0) and spacing (1.5, 1.3, 2)") {
         val domain = DiscreteImageDomain3D((2., 3., 0.), (1.5, 1.3, 2.0), (10, 10, 10))
-        val discreteImage = DiscreteScalarImage3D[Float](domain, domain.points.map(x => x(0).toFloat))
+        val discreteImage = DiscreteScalarImage3D[Float](domain, domain.points.map(x => x(0).toFloat).toIndexedSeq)
 
         val continuousImg = interpolate3D(3)(discreteImage)
 
@@ -206,7 +206,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       it("Derivative of interpolated function is correct") {
         val domain = DiscreteImageDomain3D((-2., -2., -2.), (0.1, 0.1, 0.1), (40, 40, 40))
 
-        val discreteFImage = DiscreteScalarImage3D(domain, domain.points.map(x => x(0) * x(0) + x(1) * x(1) + x(2) * x(2)))
+        val discreteFImage = DiscreteScalarImage3D(domain, domain.points.map(x => x(0) * x(0) + x(1) * x(1) + x(2) * x(2)).toIndexedSeq)
         val interpolatedFImage = interpolate3D(3)(discreteFImage)
         val derivativeImage = interpolatedFImage.differentiate.get
 
@@ -217,7 +217,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         }
 
       }
-
+      
     }
 
   }

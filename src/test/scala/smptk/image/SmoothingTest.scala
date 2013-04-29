@@ -26,7 +26,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
     val distr = breeze.stats.distributions.Gaussian(0., 0.2)
     val domain = DiscreteImageDomain1D(CoordVector1D(-100.), CoordVector1D(0.1), 2000)
-    val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 10 == 0) -1. else 1.))
+    val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 10 == 0) -1. else 1.).toIndexedSeq)
     val continuousImg = Interpolation.interpolate1D(0)(discreteImage)
 
     def noisySine(x: Point1D): Double = {

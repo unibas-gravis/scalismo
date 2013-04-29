@@ -16,7 +16,7 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
   describe("A 1D scalar image") {
     it("can be stored and read again") {
       val domain = DiscreteImageDomain1D(0f, 0.02f, 50)
-      val values = domain.points.map(x => math.sin(2 * math.Pi * x)).map(_.toFloat)
+      val values = domain.points.map(x => math.sin(2 * math.Pi * x)).map(_.toFloat).toIndexedSeq
       val discreteImage = DiscreteScalarImage1D[Float](domain, values)
 
       val tmpImgFile = File.createTempFile("image1D", ".h5")
@@ -49,6 +49,23 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
     }    
     
 
+  }
+  
+  
+  describe("A 3D scalar image") {
+    it("Can be read and written again") {
+      val path = getClass().getResource("/chimp3D-11.h5").getPath()
+      
+      val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+   //   Utils.show3D[Short](discreteImage)
+     
+     val f =  new File("/tmp/dummy.h5")
+     val t =  ImageIO.writeImage(discreteImage,f) 
+     
+     assert (t.isSuccess == true)
+     f.delete()
+    }    
+    
   }
   
 }

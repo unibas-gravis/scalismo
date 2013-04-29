@@ -49,4 +49,21 @@ class ResampleTest extends FunSpec with ShouldMatchers {
     
     
   }
+  
+  
+  describe("Resampling a 3D image") {
+    	val path = getClass().getResource("/chimp3D-11.h5").getPath()
+    	val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get  
+    	val continuousImage = Interpolation.interpolate3D(3)(discreteImage) 
+    	
+    	ignore("yields the original discrete image"){
+    	  println("before resampling, number of domain points = " +  discreteImage.domain.numberOfPoints)
+    	  val resampledImage = Resample.sample3D[Short](continuousImage, discreteImage.domain, 0)
+    	  println("finished resampling")
+    	  
+    	  for(i <-0 until discreteImage.domain.numberOfPoints) { println(i);assert( resampledImage.pixelValues(i) === discreteImage.pixelValues(i) )} 
+    	}
+    
+  } 
+  
 }

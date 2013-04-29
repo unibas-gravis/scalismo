@@ -17,7 +17,7 @@ trait Cell {
 
 
 trait DiscreteDomain[CV[A] <: CoordVector[A]] extends Domain[CV] {
-  def points: IndexedSeq[CV[Double]]
+  def points: Stream[CV[Double]]
   // def cells : IndexedSeq[Cell] // TODO add it later here
   def numberOfPoints: Int
 

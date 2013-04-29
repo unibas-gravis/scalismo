@@ -266,7 +266,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     it("can be used to get the correct parameters in 1d (doing registration)") {
 
       val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
-      val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
+      val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)).toIndexedSeq)
       val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
 
       val gk = GaussianKernel1D(0.1)

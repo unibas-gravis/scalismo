@@ -12,5 +12,28 @@ import io.ImageIO
 import java.io.File
 import breeze.linalg.DenseVector
 
-object Test { 
+object Test {
+  
+  def resample3D() {
+    val path = "/home/bouabene/workspace/smptk/src/test/resources/chimp3D-11.h5"
+    val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+    val continuousImage = Interpolation.interpolate3D(3)(discreteImage)
+
+    println("before resampling, number of domain points = " + discreteImage.domain.numberOfPoints)
+    val resampledImage = Resample.sample3D[Short](continuousImage, discreteImage.domain, 0)
+    println("finished resampling")
+  }
+   def resample2D() {
+    val path = "/home/bouabene/femur-xraySS.h5"
+    val discreteImage = ImageIO.read2DScalarImage[Short](new File(path)).get
+    val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
+
+    println("before resampling, number of domain points = " + discreteImage.domain.numberOfPoints)
+    val resampledImage = Resample.sample2D[Short](continuousImage, discreteImage.domain, 0)
+    println("finished resampling")
+  } 
+  
+  def main(args: Array[String]) {
+    resample3D
+  }
 }
