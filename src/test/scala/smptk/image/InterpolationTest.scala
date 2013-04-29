@@ -219,6 +219,20 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       }
       
     }
+    
+    it("Interpolates a real dataset correctly"){
+      	val path = getClass().getResource("/chimp3D-11.h5").getPath()
+    	val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get  
+    	val continuousImage = Interpolation.interpolate3D(0)(discreteImage) 
+    	
+    	println("before show")
+    	Utils.show3D(continuousImage, discreteImage.domain)
+   	    println("before map")	    	
+    	for((p,i) <- discreteImage.domain.points.zipWithIndex) 
+    		 discreteImage.pixelValues(i).toDouble should be (continuousImage(p) plusOrMinus 0.001 )
+    	
+    }
+    
 
   }
 }

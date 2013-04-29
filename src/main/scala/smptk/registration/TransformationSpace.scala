@@ -181,7 +181,7 @@ case class RotationSpace3D(val centre: CoordVector3D[Double]) extends Transforma
     DenseVector(phi, theta, psi)
   }
   def apply(p: ParameterVector) = {
-    require(p.length == 1) 
+    require(p.length == 3) 
     // rotation matrix from the wikipedia page on rotations
     val cosph = Math.cos(p(0))
     val sinph = Math.sin(p(0))

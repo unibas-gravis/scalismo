@@ -195,7 +195,7 @@ object Interpolation {
     coeffs
   }
 
-  /* determine the b-spline coefficients for a 2D image. The coefficients are returned
+  /* determine the b-spline coefficients for a 3D image. The coefficients are returned
    * as a DenseVector, i.e. the slices and rows are written one after another */
 
   def determineCoefficients[Pixel : ScalarPixel](degree: Int, img: DiscreteScalarImage3D[Pixel]): DenseVector[Double] = {

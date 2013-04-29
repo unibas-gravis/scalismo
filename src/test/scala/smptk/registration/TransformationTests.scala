@@ -13,8 +13,10 @@ import breeze.linalg.DenseVector
 import image.Resample
 import image.ContinuousScalarImage1D
 import org.scalatest.matchers.ShouldMatchers
-import image.Geometry.{ CoordVector1D, CoordVector2D }
+import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D}
 import smptk.image.Geometry.implicits._
+import smptk.image.Utils
+
 
 class TransformationTests extends FunSpec with ShouldMatchers {
 
@@ -129,6 +131,50 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
   }
 
+  describe("In 3D") {
+
+    val path = getClass().getResource("/chimp3D-11.h5").getPath()
+    val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+    val continuousImage = Interpolation.interpolate3D(0)(discreteImage)
+
+    ignore("translation forth and back of a real dataset yields the same image") {
+
+      val parameterVector = DenseVector[Double](75., 50., 25.)
+      val translation = TranslationSpace3D()(parameterVector)
+      val inverseTransform = TranslationSpace3D().inverseTransform(parameterVector).get
+      val translatedForthBackImg = continuousImage.warp(translation, discreteImage.domain.isInside).warp(inverseTransform, discreteImage.domain.isInside)
+
+      Utils.show3D(translatedForthBackImg, discreteImage.domain)
+
+      for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt)) assert(translatedForthBackImg(p) === continuousImage(p))
+    }
+
+  
+
+    it("rotation forth and back of a real dataset yields the same image") {
+
+      val parameterVector = DenseVector[Double](2.*Math.PI, 2.*Math.PI, 2.*Math.PI)
+      val origin = discreteImage.domain.origin
+      val extent = discreteImage.domain.extent
+      val center =  CoordVector3D[Double]( (extent(0)-origin(0))/2., (extent(1)-origin(1))/2. ,(extent(2)-origin(2))/2. )
+        
+      val rotation = RotationSpace3D(center)(parameterVector)
+      
+     // val inverseRotation =  RotationSpace3D(center).inverseTransform(parameterVector).get
+     
+      val rotatedImage = continuousImage.warp(rotation, discreteImage.domain.isInside)
+      
+      Utils.show3D(rotatedImage, discreteImage.domain)
+    
+      for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) assert(rotatedImage(p) === continuousImage(p))
+    }
+    
+    
+    
+  
+  }
+  
+  
   describe("A Transformation space") {
 
   }

@@ -98,6 +98,4 @@ case class DiscreteImageDomain3D(val origin: Point3D, val spacing: CoordVector3D
       pt(2) >= origin(2) && pt(2) <= extent(2)
   }
   
-
-
 }
