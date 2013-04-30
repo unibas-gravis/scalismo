@@ -3,15 +3,21 @@ package registration
 
 import image.CoordVector
 import image.Geometry.{CoordVector1D, CoordVector2D, CoordVector3D}
-import image.DiscreteImageDomain
+import common.BoxedRegion
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
+import smptk.common.DiscreteDomain
+import smptk.common.{BoxedRegion1D, BoxedRegion2D, BoxedRegion3D}
+import smptk.numerics.{UniformSampler1D, UniformSampler2D, UniformSampler3D}
+import smptk.numerics.Sampler
+import smptk.registration.Kernel
 
-case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: DiscreteImageDomain[CV], val mean: CV[Double] => DenseVector[Double], val cov: PDKernel[CV]) {
+
+case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: BoxedRegion[CV], val mean: CV[Double] => DenseVector[Double], val cov: PDKernel[CV]) {
 
   type PointSample = IndexedSeq[CV[Double]]
 
-  def sample: (PointSample => DenseVector[Double]) = { (xs: PointSample) =>
+  def sample: (PointSample => IndexedSeq[DenseVector[Double]]) = { (xs: PointSample) =>
     {
       val n = xs.size
       val d = cov.outputDim
@@ -22,9 +28,61 @@ case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: DiscreteImageDom
       val lMat = breeze.linalg.cholesky(covMatrix + noise)
       val u = for (_ <- 0 until xs.size) yield breeze.stats.distributions.Gaussian(0, 1).draw()
       val uVec = DenseVector(u.toArray)
-      meanVec + lMat * uVec
+      val sampleVec = meanVec + lMat * uVec // the sample as a long vector
+      
+      // now we group it 
+      // TODO make me more efficient and elegant
+      val sampleSeq = sampleVec.toArray.toIndexedSeq
+      val pointSampleValues = sampleSeq.grouped(d).map(ptVec => DenseVector(ptVec.toArray))
+      pointSampleValues.toIndexedSeq
     }
   }
+}
+
+trait LowRankGaussianProcess[CV[A] <: CoordVector[A]] {
+
+  def makeUniformSampler(numPoints : Int) : Sampler[CV]
+  val domain : BoxedRegion[CV]
+  val m : CV[Double] => DenseVector[Double]
+  val k : PDKernel[CV] 
+  
+  val (eigenPairs, n) = Kernel.computeNystromApproximation(k, domain, 20, makeUniformSampler(500))
+
+  def instance(alpha : DenseVector[Double]) : CV[Double] => DenseVector[Double] = {
+    x =>
+    {
+      eigenPairs.zipWithIndex.par.map(eigPairWithIndex => {
+        val ((lambda, phi), i) = eigPairWithIndex
+        phi(x) * alpha(i) * math.sqrt(lambda)
+      }).foldLeft(m(x))(_ + _)
+    }
+    
+  } 
+  def sample: CV[Double] => DenseVector[Double] = { 
+      val coeffs = for (_ <- 0 until n) yield breeze.stats.distributions.Gaussian(0, 1).draw()
+      instance(DenseVector(coeffs.toArray))
+  }
+
+}
+
+
+case class LowRankGaussianProcess1D(val domain: BoxedRegion1D, val m: CoordVector1D[Double] => DenseVector[Double], val k: PDKernel[CoordVector1D]) 
+extends LowRankGaussianProcess[CoordVector1D] {
+	
+	def makeUniformSampler(numPoints : Int) = UniformSampler1D(numPoints)
+}
+
+
+case class LowRankGaussianProcess2D(val domain: BoxedRegion2D, val m: CoordVector2D[Double] => DenseVector[Double], val k: PDKernel[CoordVector2D]) 
+extends LowRankGaussianProcess[CoordVector2D] {
+	
+	def makeUniformSampler(numPoints : Int) = UniformSampler2D(numPoints)
+}
+
+case class LowRankGaussianProcess3D(val domain: BoxedRegion3D, val m: CoordVector3D[Double] => DenseVector[Double], val k: PDKernel[CoordVector3D]) 
+extends LowRankGaussianProcess[CoordVector3D] {
+	
+	def makeUniformSampler(numPoints : Int) = UniformSampler3D(numPoints)
 }
 
 

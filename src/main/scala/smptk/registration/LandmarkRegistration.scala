@@ -2,62 +2,54 @@ package smptk
 package registration
 
 import image.CoordVector
-import image.Geometry.{CoordVector2D, CoordVector3D, Point2D, Point3D }
+import image.Geometry.{ CoordVector2D, CoordVector3D, Point2D, Point3D }
 import registration.TransformationSpace.{ ParameterVector }
 import breeze.linalg.{ svd, DenseVector, DenseMatrix, mean, variance, Axis }
 
-
-
 object LandmarkRegistration {
 
-    def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point3D, Point3D)], center: Point3D = CoordVector3D(0., 0., 0.)) 
-  : RegistrationResult[CoordVector3D] = {
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point3D, Point3D)], center: Point3D = CoordVector3D(0., 0., 0.)): RegistrationResult[CoordVector3D] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
 
+    println("rotMatrix in landmark registration "+ rotMat)	
+    
     // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix 
     // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
-    if( rotMat(2,0) != 1 && rotMat(2,0) != -1 ) { // maybe with an epsilon here ?
-    	val theta1 = - Math.asin(rotMat(2,0))
-    	val theta2 = Math.PI - theta1
-    	val psi1 = Math.atan2(rotMat(2,1)/Math.cos(theta1) ,  rotMat(2,2)/Math.cos(theta1))
-    	val psi2 = Math.atan2(rotMat(2,1)/Math.cos(theta2) ,  rotMat(2,2)/Math.cos(theta2))
-    	
-    	val phi1 = Math.atan2(rotMat(1,0)/Math.cos(theta1) ,  rotMat(0,0)/Math.cos(theta2))
-    	val phi2 = Math.atan2(rotMat(1,0)/Math.cos(theta2) ,  rotMat(0,0)/Math.cos(theta2))
-    	
-    	DenseVector(theta1, phi1, psi1)
-    }
-    else {
-      val phi = 0
-      if(rotMat(2,0) == -1){
-        val theta = Math.PI/2.
-        val psi = phi + Math.atan2(rotMat(0,1), rotMat(0,2))
-        DenseVector(theta, phi, psi)
-      }
-      else{
-        val theta = -Math.PI/2.
-        val psi = -phi + Math.atan2(-rotMat(0,1), -rotMat(0,2))   
-        DenseVector(theta, phi, psi)
-      }
-       
-    }
-    
-    val phiUpToSign = math.acos(rotMat(0, 0))
-    val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign   else phiUpToSign
 
-    // val centerCV = CoordVector2D(0f, 0f)
-    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi))
+    val rotparams =
+      if ( Math.abs(Math.abs(rotMat(2, 0))-1) > 0.0001 ) { 
+        val theta1 = -Math.asin(rotMat(2, 0))
+        val theta2 = Math.PI - theta1
+        val psi1 = Math.atan2(rotMat(2, 1) / Math.cos(theta1), rotMat(2, 2) / Math.cos(theta1))
+        val psi2 = Math.atan2(rotMat(2, 1) / Math.cos(theta2), rotMat(2, 2) / Math.cos(theta2))
+
+        val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta2))
+        val phi2 = Math.atan2(rotMat(1, 0) / Math.cos(theta2), rotMat(0, 0) / Math.cos(theta2))
+
+        DenseVector(phi1, theta1, psi1)
+      } else {
+        val phi = 0
+        if (rotMat(2, 0) == -1) {
+          val theta = Math.PI / 2.
+          val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
+          DenseVector(theta, phi, psi)
+        } else {
+          val theta = -Math.PI / 2.
+          val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
+          DenseVector(phi, theta, psi)
+        }
+      }
+
+    val optimalParameters = DenseVector.vertcat(t, rotparams)
 
     val rigidSpace = RigidTransformationSpace3D(center)
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
-  
-  
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = CoordVector2D(0., 0.)) 
-  : RegistrationResult[CoordVector2D] = {
+
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = CoordVector2D(0., 0.)): RegistrationResult[CoordVector2D] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)
@@ -67,7 +59,7 @@ object LandmarkRegistration {
     // the acos cannot distinguish between angles in the interval [0,pi] and [-pi, 0]. We double 
     // check with the sin in the rotation matrix and correct the sign accordingly    
     val phiUpToSign = math.acos(rotMat(0, 0))
-    val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign   else phiUpToSign
+    val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign else phiUpToSign
 
     // val centerCV = CoordVector2D(0f, 0f)
     val optimalParameters = DenseVector.vertcat(t, DenseVector(phi))

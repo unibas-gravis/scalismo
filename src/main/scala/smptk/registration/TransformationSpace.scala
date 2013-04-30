@@ -175,28 +175,30 @@ case class TranslationSpace3D extends TransformationSpace[CoordVector3D] {
 case class RotationSpace3D(val centre: CoordVector3D[Double]) extends TransformationSpace[CoordVector3D] {
 
   def parametersDimensionality: Int = 3 //  Euler angles 
-  override def identityTransformParameters = DenseVector(0.)
+  override def identityTransformParameters = DenseVector(0., 0., 0.)
 
   def rotationParametersToParameterVector(phi: Double, theta: Double, psi: Double): ParameterVector = {
     DenseVector(phi, theta, psi)
   }
   def apply(p: ParameterVector) = {
     require(p.length == 3) 
-    // rotation matrix from the wikipedia page on rotations
-    val cosph = Math.cos(p(0))
-    val sinph = Math.sin(p(0))
+    // rotation matrix from the wikipedia page on rotations. Had to invert internally phi and psi since they have a different standard
+    val cosph = Math.cos(p(2))
+    val sinph = Math.sin(p(2))
    
     val costh = Math.cos(p(1))
     val sinth = Math.sin(p(1))
     
-    val cosps = Math.cos(p(2))
-    val sinps = Math.sin(p(2))
+    val cosps = Math.cos(p(0))
+    val sinps = Math.sin(p(0))
     
     val rotMatrix = DenseMatrix(
         (  costh*cosps , sinph*sinth*cosps-cosph*sinps , sinph*sinps+cosph*sinth*cosps ),
         (  costh*sinps, cosph*cosps+sinph*sinth*sinps,  cosph*sinth*sinps-sinph*cosps  ),
         ( -sinth, sinph*costh, cosph*costh)  )
         
+        
+ //   println("Rotation matrix in transform "+rotMatrix)     
         
     new Transformation[CoordVector3D] {
       def apply(pt: Point3D) = {
@@ -216,13 +218,13 @@ case class RotationSpace3D(val centre: CoordVector3D[Double]) extends Transforma
   }
 
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point3D =>
-   
-    val cosph = Math.cos(p(0))
-    val sinph = Math.sin(p(0)) 
+ 
+    val cosph = Math.cos(p(2))
+    val sinph = Math.sin(p(2)) 
     val costh = Math.cos(p(1))
     val sinth = Math.sin(p(1))
-    val cosps = Math.cos(p(2))
-    val sinps = Math.sin(p(2))
+    val cosps = Math.cos(p(0))
+    val sinps = Math.sin(p(0))
     
 
     val x0minc0 = x(0)-centre(0)

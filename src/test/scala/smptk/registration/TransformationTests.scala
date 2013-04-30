@@ -13,10 +13,10 @@ import breeze.linalg.DenseVector
 import image.Resample
 import image.ContinuousScalarImage1D
 import org.scalatest.matchers.ShouldMatchers
-import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D}
+import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D }
 import smptk.image.Geometry.implicits._
 import smptk.image.Utils
-
+import smptk.io.MeshIO
 
 class TransformationTests extends FunSpec with ShouldMatchers {
 
@@ -149,32 +149,43 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt)) assert(translatedForthBackImg(p) === continuousImage(p))
     }
 
-  
+    ignore("rotation forth and back of a real dataset yields the same image") {
 
-    it("rotation forth and back of a real dataset yields the same image") {
-
-      val parameterVector = DenseVector[Double](2.*Math.PI, 2.*Math.PI, 2.*Math.PI)
+      val parameterVector = DenseVector[Double](2. * Math.PI, 2. * Math.PI, 2. * Math.PI)
       val origin = discreteImage.domain.origin
       val extent = discreteImage.domain.extent
-      val center =  CoordVector3D[Double]( (extent(0)-origin(0))/2., (extent(1)-origin(1))/2. ,(extent(2)-origin(2))/2. )
-        
+      val center = CoordVector3D[Double]((extent(0) - origin(0)) / 2., (extent(1) - origin(1)) / 2., (extent(2) - origin(2)) / 2.)
+
       val rotation = RotationSpace3D(center)(parameterVector)
-      
-     // val inverseRotation =  RotationSpace3D(center).inverseTransform(parameterVector).get
-     
+
+      // val inverseRotation =  RotationSpace3D(center).inverseTransform(parameterVector).get
+
       val rotatedImage = continuousImage.warp(rotation, discreteImage.domain.isInside)
-      
+
       Utils.show3D(rotatedImage, discreteImage.domain)
-    
+
       for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) assert(rotatedImage(p) === continuousImage(p))
     }
-    
-    
-    
-  
+
+    ignore("rotation works on meshes") {
+
+      val path = getClass().getResource("/facemesh.h5").getPath
+      val mesh = MeshIO.readHDF5(new File(path)).get
+       
+      val region = mesh.boundingBox     
+      val origin = region.origin
+      val extent = region.extent
+      val center = CoordVector3D[Double]((extent(0) - origin(0)) / 2., (extent(1) - origin(1)) / 2., (extent(2) - origin(2)) / 2.)
+
+      val parameterVector = DenseVector[Double](Math.PI, Math.PI, Math.PI)
+      
+      val rotation = RotationSpace3D(center)(parameterVector)
+      val vtkpd = Utils.meshToVTKMesh(mesh compose rotation)
+      Utils.showVTK(vtkpd)
+    }
+
   }
-  
-  
+
   describe("A Transformation space") {
 
   }

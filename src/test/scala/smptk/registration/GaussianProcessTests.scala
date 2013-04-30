@@ -4,7 +4,7 @@ package registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import image.Geometry.{CoordVector1D, CoordVector2D}
+import image.Geometry.{CoordVector1D, CoordVector2D, CoordVector3D}
 import image.CoordVector
 import image.DiscreteImageDomain1D
 import image.Geometry.implicits._
@@ -12,6 +12,11 @@ import breeze.linalg.DenseVector
 import smptk.image.DiscreteImageDomain2D
 import smptk.io.MeshIO
 import smptk.image.Utils
+import smptk.mesh.TriangleMesh
+import smptk.mesh.TriangleMeshDomain
+import smptk.numerics.UniformSampler1D
+import breeze.plot.Figure
+import smptk.common.BoxedRegion1D
 
 
 
@@ -44,13 +49,39 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
+  ignore (" can sample for 1D to delete") {
+         val cov = GaussianKernel1D(20)
+                 
+         val region = BoxedRegion1D(CoordVector1D(0.), CoordVector1D(100.))
+         val gp = LowRankGaussianProcess1D(region, _ => DenseVector(10.), cov)
+         val f = Figure()
+         val p = f.subplot(0)
+         val pts = UniformSampler1D(100).sample(region)
+         for (i <- 0 until 4) {
+           val s=  gp.sample
+           val values = pts.map(x => s(x)(0))
+           p+=breeze.plot.plot(pts.map(_(0)), values)
+         }
+         f.saveas("/tmp/plot.pdf")
+    
+  }
   it("makes faces") {
       import java.io.File
-         val testMeshURL = getClass().getResource("/facemesh.h5")
+         //val testMeshURL = getClass().getResource("/facemesh.h5")
+      
+         val cov = UncorrelatedKernelND(GaussianKernel3D(40), 3)
+         val mesh = MeshIO.readHDF5(new File("/export/zambia/tmp/mesh.h5")).get
+         val meshPoints = mesh.domain.points.toIndexedSeq
+         val region = mesh.boundingBox
+         val gp = LowRankGaussianProcess3D(region, _ => DenseVector(0., 0., 0.), cov)
 
-         val mesh = MeshIO.readHDF5(new File(testMeshURL.getPath)).get
-         val vtkpd = Utils.meshToVTKMesh(mesh)
-         Utils.ShowVTK(vtkpd)
+         val sample = gp.sample
+         val newPoints = meshPoints.map(pt => CoordVector3D(pt(0) + 100 * sample(pt)(0), pt(1) + 100 * sample(pt)(1), pt(2) + 100 * sample(pt)(2))) 
+         val newMesh = TriangleMesh(TriangleMeshDomain(newPoints, mesh.domain.cells))
+      
+      
+         val vtkpd = Utils.meshToVTKMesh(newMesh)
+         Utils.showVTK(vtkpd)
   }
   
 }

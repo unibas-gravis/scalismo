@@ -15,7 +15,7 @@ object MeshIO {
   
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
     val h5file = HDF5Utils.createFile(file)
-    val domainPoints : IndexedSeq[Point3D] = surface.domain.points
+    val domainPoints : IndexedSeq[Point3D] = surface.domain.points.toIndexedSeq
     val cells : IndexedSeq[TriangleCell] = surface.domain.cells
     
     val maybeError: Try[Unit] = for {

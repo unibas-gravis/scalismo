@@ -158,6 +158,10 @@ object Utils {
     img.convolve(GaussianFilter2D(deviation), integrator)
   }
 
+//  def gaussianSmoothing3D(img: ContinuousScalarImage3D, deviation: Double, integrator: Integrator[CoordVector3D]) = {
+//    img.convolve(GaussianFilter3D(deviation), integrator)
+//  }
+  
   def imageToImageJImagePlus[Pixel : ScalarPixel](img : DiscreteScalarImage3D[Pixel]) = { 
        val pixelConv = implicitly[ScalarPixel[Pixel]]
     val domain = img.domain
