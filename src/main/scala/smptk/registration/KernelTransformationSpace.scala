@@ -40,8 +40,8 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
   val gp = configuration.gp
   
-  val sampler = UniformSampler1D(configuration.numPointsForNystrom)
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents,sampler)
+  val sampler = UniformSampler1D()
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, configuration.numPointsForNystrom, sampler)
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching)
@@ -82,8 +82,8 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
   val gp = configuration.gp
   val domain = gp.domain
-  val sampler = UniformSampler2D(configuration.numPointsForNystrom)
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, sampler)
+  val sampler = UniformSampler2D()
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, configuration.numPointsForNystrom, sampler)
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching){
@@ -131,8 +131,8 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
   val gp = configuration.gp
   val domain = gp.domain
-  val sampler = UniformSampler3D(configuration.numPointsForNystrom)
-  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, sampler)
+  val sampler = UniformSampler3D()
+  val (eigenPairs, effectiveNumParameters) = Kernel.computeNystromApproximation(gp.cov, gp.domain, configuration.numComponents, configuration.numPointsForNystrom, sampler)
 
   def apply(p: ParameterVector) = {
     if (configuration.withValueCaching){

@@ -67,7 +67,7 @@ object Registration {
               // and the gradient
 
               val sampleStrategy = new SampleOnceSampler(configuration.integrator.sampler)
-              val integrationStrategy =Integrator[CV](IntegratorConfiguration(sampleStrategy)) 
+              val integrationStrategy =Integrator[CV](IntegratorConfiguration(sampleStrategy, configuration.integrator.configuration.numberOfPoints)) 
               
               // compute the value of the cost function
               val transformation = transformationSpace(params)

@@ -56,7 +56,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
          val gp = LowRankGaussianProcess1D(region, _ => DenseVector(10.), cov)
          val f = Figure()
          val p = f.subplot(0)
-         val pts = UniformSampler1D(100).sample(region)
+         val pts = UniformSampler1D().sample(region, 100)
          for (i <- 0 until 4) {
            val s=  gp.sample
            val values = pts.map(x => s(x)(0))

@@ -12,6 +12,7 @@ import breeze.plot.Figure
 import smptk.numerics.Sampler
 import smptk.common.DiscreteDomain
 import smptk.common.BoxedRegion
+import smptk.numerics.UniformSampler
 
 trait PDKernel[CV[A] <: CoordVector[A]] {
   def apply(x : CV[Double], y : CV[Double]) : DenseMatrix[Double]
@@ -88,7 +89,6 @@ case class PolynomialKernel1D(degree: Int) extends PDKernel[CoordVector1D] {
 }
 
 object Kernel {
-  val nystromSpacing = 10 // the spacing in mm between two grid points for the nystrom approximation
 
   def computeKernelMatrix[CV[A] <: CoordVector[A]](xs: IndexedSeq[CV[Double]], k: PDKernel[CV]): DenseMatrix[Double] = {
     val d = k.outputDim
@@ -127,14 +127,13 @@ object Kernel {
     
     kxs
   }
-
-  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, sampler : Sampler[CV]): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
+  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom : Int, sampler : Sampler[CV]): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 	val ndVolume : Double = (0 until domain.dimensionality).foldLeft(1.)((p, d) => (domain.extent(d) - domain.origin(d)) * p)
-	val ptsForNystrom = sampler.sample(domain)
-	val numPointsForNystrom = ptsForNystrom.size
+	val ptsForNystrom = sampler.sample(domain, numPointsForNystrom)
+
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
 //    val f = Figure()
 //    val p = f.subplot(0)    
@@ -153,5 +152,5 @@ object Kernel {
     val pairs = for (i <- (0 until numParams) if lambda(i) >= 1e-8) yield (lambda(i), phi(i)_)
     (pairs, numParams)
   }
-
+  
 }
