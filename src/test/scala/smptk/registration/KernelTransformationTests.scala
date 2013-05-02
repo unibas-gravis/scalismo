@@ -68,152 +68,87 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    def approxKernel(x: Point2D, y: Point2D, kernelDim: Int, eigenPairs: IndexedSeq[(Double, CoordVector2D[Double] => DenseVector[Double])]) = {
-      val zero = DenseMatrix.zeros[Double](kernelDim, kernelDim)
-      eigenPairs.foldLeft(zero)((sum, eigenPair) => {
-        val (lmbda, phi) = eigenPair
-        sum + phi(x) * phi(y).t * lmbda
-      })
+
+
+      it("It's eigenvalues are close enough to the real eigenvalues for 1D") {
+      val kernelDim = 1
+      val scalarKernel = GaussianKernel1D(10)
+      val domain = DiscreteImageDomain1D(CoordVector1D(0.), CoordVector1D(0.5), CoordVector1D(200))
+      val sampler = UniformSampler1D()
+      val (approxLambdas, phis, effectiveNumComponents) = Kernel.computeNystromApproximation[CoordVector1D](scalarKernel, domain, 10, 500, sampler)
+
+      val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
+
+      for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = scalarKernel(domain.points(i), domain.points(j))(di, dj)
+      }
+
+      //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), effectiveNumComponents)
+
+      for (l <- approxLambdas.zipWithIndex)
+        l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
+
     }
-  }
-//
-//    it("It's eigenvalues are close enough to the real eigenvalues ") {
-//      val kernelDim = 2
-//      val scalarKernel = GaussianKernel2D(10)
-//      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
-//      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
-//      val sampler = UniformSampler2D()
-//      val (eigenPairs, numParams) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
-//      val approxLambdas = eigenPairs.map(_._1)
-//
-//      val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
-//
-//      for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
-//        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain.points(i), domain.points(j))(di, dj)
-//      }
-//
-//      //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
-//      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix, numParams)
-//
-//      for (l <- approxLambdas.zipWithIndex)
-//        l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
-//
-//    }
-//
-//    it("Real eigenvalues are independant of the spacing ") {
-//      val kernelDim = 2
-//      val scalarKernel = GaussianKernel2D(10)
-//      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
-//      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
-//      val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
-//
-//      val realKernelMatrix1 = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
-//
-//      for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
-//        realKernelMatrix1(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain.points(i), domain.points(j))(di, dj)
-//      }
-//
-//      val (_, realLambdas1, _) = RandomSVD.computeSVD(realKernelMatrix1, 10)
-//
-//      val realKernelMatrix2 = DenseMatrix.zeros[Double](domain2.numberOfPoints * kernelDim, domain2.numberOfPoints * kernelDim)
-//
-//      for (i <- 0 until domain2.numberOfPoints; j <- 0 until domain2.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
-//        realKernelMatrix2(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain2.points(i), domain2.points(j))(di, dj)
-//      }
-//
-//      val (_, realLambdas2, _) = RandomSVD.computeSVD(realKernelMatrix2, 10)
-//
-//      for (i <- 0 until realLambdas1.size)
-//        realLambdas1(i) should be(realLambdas2(i) plusOrMinus (0.1))
-//
-//    }
-//    ignore("The eigenValues are independent of the spacing") {
-//      val kernelDim = 2
-//      val scalarKernel = GaussianKernel2D(10)
-//      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
-//      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
-//      val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
-//      val sampler = UniformSampler2D()
-//      val (eigenPairs, numParams) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
-//      val lambdasDomain1 = eigenPairs.map(_._1)
-//      val (eigenPairs2, numParams2) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain2, 10, 500, sampler)
-//      val lambdasDomain2 = eigenPairs2.map(_._1)
-//
-//      for (l <- lambdasDomain1.zipWithIndex)
-//        l._1 should be(lambdasDomain2(l._2) plusOrMinus (0.001))
-//    }
-//
-//    it("Is close enough to a scalar valued polynomial kernel matrix") {
-//      val kernel = PolynomialKernel1D(1)
-//      val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
-//      val sampler = UniformSampler1D()
-//      val (eigenPairs, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
-//      println("numParams : " + numParams)
-//      println("eigParis.size : " + eigenPairs.size)
-//      def approxKernel(x: Point1D, y: Point1D) = {
-//        eigenPairs.foldLeft(0.)((sum, eigenPair) => {
-//          val (lmbda, phi) = eigenPair
-//          sum + lmbda * phi(x)(0) * phi(y)(0)
-//        })
-//      }
-//
-//      for (x <- domain.points.slice(0, 10); y <- domain.points.slice(0, 10)) {
-//        val v1 = kernel(x, y)(0, 0)
-//        val v2 = approxKernel(x, y)
-//        (v2 should be(v1 plusOrMinus 0.001f))
-//
-//      }
-//    }
-//
-//    ignore("It leads to the same deformation for two different domains") {
-//      val kernel1 = GaussianKernel1D(100.0)
-//      val kernel2 = GaussianKernel1D(100.0)
-//      val domain1 = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
-//      val domain2 = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(400))
-//      val sampler = UniformSampler1D()
-//      val (eigPairs1, _) = Kernel.computeNystromApproximation(kernel1, domain1, 1, 500, sampler)
-//      val (eigPairs2, _) = Kernel.computeNystromApproximation(kernel2, domain2, 1, 500, sampler)
-//      for (x <- domain1.points) {
-//        val (lambda1, phi1) = eigPairs1(0)
-//        val (lambda2, phi2) = eigPairs2(0)
-//        println("lambda2 : " + (lambda1, lambda2))
-//        println("vals: : " + (phi1(x)(0), phi2(x)(0)))
-//        println("normalized: " + (phi1(x)(0) * math.sqrt(lambda1), phi2(x)(0) * math.sqrt(lambda2)))
-//        (phi1(x)(0) * math.sqrt(lambda1)) should be((phi2(x)(0) * math.sqrt(lambda2)) plusOrMinus 0.01f)
-//      }
-//    }
-//
-//    it("It leads to orthogonal basis functions on the domain (-5, 5)") {
-//      val kernel = GaussianKernel1D(20)
-//      val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
-//      val sampler = UniformSampler1D()
-//      val (eigenPairs, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
-//
-//      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
-//
-//      for ((lambda, phi) <- eigenPairs.take(20)) {
-//        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phi(x)(0) * phi(x)(0), Some(Point1D => DenseVector[Double](0.)))
-//        val v = integrator.integrateScalar(phiImg, domain)
-//        v should be(1. plusOrMinus 0.1)
-//      }
-//    }
-//
-//    it("Is leads to orthogonal basis functions on the domain (-1, 3)") {
-//      val kernel = GaussianKernel1D(20)
-//      val domain = DiscreteImageDomain1D(CoordVector1D(-1f), CoordVector1D(0.2f), CoordVector1D(200))
-//      val sampler = UniformSampler1D()
-//      val (eigenPairs, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
-//
-//      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
-//
-//      for ((lambda, phi) <- eigenPairs.take(20)) {
-//        print("lambda: " + lambda)
-//        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phi(x)(0) * phi(x)(0), Some(Point1D => DenseVector[Double](0.)))
-//        val v = integrator.integrateScalar(phiImg, domain)
-//        v should be(1. plusOrMinus 0.1)
-//      }
-//    }
-//
+
+  
+    it("It's eigenvalues are close enough to the real eigenvalues in 2D") {
+      val kernelDim = 2
+      val scalarKernel = GaussianKernel2D(10)
+      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
+      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1, 1), CoordVector2D(20, 20))
+      val sampler = UniformSampler2D()
+
+      val (approxLambdas, phis, effectiveNumComponents) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
+
+      val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
+
+      for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain.points(i), domain.points(j))(di, dj)
+      }
+
+      //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), effectiveNumComponents)
+      println("approx lambdas " +approxLambdas)
+      println("real lambdas " +realLambdas)
+      for (l <- approxLambdas.zipWithIndex)
+        l._1 should be(realLambdas(l._2)  plusOrMinus (0.1))
+
+    }
+    
+    it("The eigenValues are independent of the spacing") {
+      val kernelDim = 2
+      val scalarKernel = GaussianKernel2D(10)
+      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
+      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
+      val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
+      val sampler = UniformSampler2D()
+      val (lambdasDomain1, phis, numParams) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
+
+      val (lambdasDomain2, phis2, numParams2) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain2, 10, 500, sampler)
+
+      for (l <- lambdasDomain1.zipWithIndex)
+        l._1 should be((lambdasDomain2(l._2) ) plusOrMinus (0.001))      
+    }
+
+
+    it("It leads to orthogonal basis functions on the domain (-5, 5)") {
+      val kernel = GaussianKernel1D(20)
+      val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
+      val sampler = UniformSampler1D()
+      val (lambdas, phis, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
+
+      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
+
+      
+      for (i <- 0 until 20) {
+
+        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phis(x)(i)(0) * phis(x)(i)(0), Some(Point1D => DenseVector[Double](0.)))
+        val v = integrator.integrateScalar(phiImg, domain)
+        v should be(1. plusOrMinus 0.1)
+      }
+    }
+
 //    it("Is close enough for a 2D matrix valued kernel") {
 //      val kernelDim = 2
 //      val scalarKernel = GaussianKernel1D(10)
@@ -261,6 +196,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 //    }
 //
 //  }
+  }
 //
 //  describe("A kernel transformation") {
 //    ignore("can be used to get the correct parameters in 1d (doing registration)") {
@@ -419,4 +355,5 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 //      (regResult.parameters(1) should be(parameterVector(1) plusOrMinus 0.0001))
 //    }
 //  }
+ 
 }

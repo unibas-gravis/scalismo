@@ -102,24 +102,18 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
   }
 
   def integrateScalar(f: Function1[CV[Double], Option[Double]], integrationRegion: BoxedRegion[CV]): Double = {
-    val sampleValues: IndexedSeq[Option[Double]] = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).map(f)
+    val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(f)
 
     val sum = sampleValues.map(_.getOrElse(0.)).sum
-    var ndVolume = 1.;
-    for (d <- 0 until integrationRegion.dimensionality) {
-      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
-    }
+    val ndVolume = integrationRegion.volume
 
     sum * ndVolume / (configuration.numberOfPoints - 1).toDouble
   }
 
   def integrateVector(img: ContinuousVectorImage[CV], integrationRegion: BoxedRegion[CV]): DenseVector[Double] = {
 
-    val sampleValues: IndexedSeq[Option[DenseVector[Double]]] = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).map(img.liftPixelValue)
-    var ndVolume = 1.;
-    for (d <- 0 until integrationRegion.dimensionality) {
-      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
-    }
+    val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(img.liftPixelValue)
+    val ndVolume = integrationRegion.volume;
 
     val zeroVector = DenseVector.zeros[Double](img.pixelDimensionality)
     val sum: DenseVector[Double] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)((a, b) => { a + b })

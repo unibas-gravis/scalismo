@@ -26,8 +26,6 @@ import smptk.numerics.UniformSampler3D
 import smptk.numerics.UniformSampler
 
 case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
-  val numComponents: Int,
-  val numPointsForNystrom: Int,
   val gp: LowRankGaussianProcess[CV],
   val withValueCaching: Boolean = false)
   extends TransformationSpaceConfiguration
