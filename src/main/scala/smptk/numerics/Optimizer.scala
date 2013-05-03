@@ -64,7 +64,7 @@ case class BreezeStochGradOptimizer(configuration: BreezeStochGradOptimizerConfi
   }
 }
 
-case class GradientDescentConfiguration(val numIterations: Int, val stepLength: Double, val withLineSearch: Boolean = false) extends OptimizationConfiguration
+case class GradientDescentConfiguration(val numIterations: Int, val stepLength: Double, val withLineSearch: Boolean = false, val robinsMonroe: Boolean = false, val stepDecreaseCoeff: Double = 0.) extends OptimizationConfiguration
 
 case class GradientDescentOptimizer(configuration: GradientDescentConfiguration) extends Optimizer {
 
@@ -141,6 +141,12 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
         optimize(x - gradient * step, c, it + 1)
 
       } else
+        if(configuration.robinsMonroe){
+          val step = configuration.stepLength/Math.pow(it+(configuration.numIterations*0.1), configuration.stepDecreaseCoeff) 
+          println(s"Step size at iteration $it=$step")
+          optimize(x - gradient * step, c, it + 1)
+        }
+        else
         optimize(x - gradient * stepLength, c, it + 1)
     }
 

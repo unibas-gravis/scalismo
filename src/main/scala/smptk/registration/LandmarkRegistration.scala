@@ -13,29 +13,26 @@ object LandmarkRegistration {
     // assert(center.size == 2)
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
-
-    println("rotMatrix in landmark registration "+ rotMat)	
-    
+ 
     // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix 
     // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
 
     val rotparams =
       if ( Math.abs(Math.abs(rotMat(2, 0))-1) > 0.0001 ) { 
-        val theta1 = -Math.asin(rotMat(2, 0))
-        val theta2 = Math.PI - theta1
+        val theta1 = Math.asin(-rotMat(2, 0))
+
         val psi1 = Math.atan2(rotMat(2, 1) / Math.cos(theta1), rotMat(2, 2) / Math.cos(theta1))
-        val psi2 = Math.atan2(rotMat(2, 1) / Math.cos(theta2), rotMat(2, 2) / Math.cos(theta2))
-
-        val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta2))
-        val phi2 = Math.atan2(rotMat(1, 0) / Math.cos(theta2), rotMat(0, 0) / Math.cos(theta2))
-
+      
+        val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta1))
+    
         DenseVector(phi1, theta1, psi1)
       } else {
-        val phi = 0
-        if (rotMat(2, 0) == -1) {
+    	/* Gimbal lock, we simply set phi to be 0 */  	
+        val phi = 0.
+        if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
           val theta = Math.PI / 2.
           val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
-          DenseVector(theta, phi, psi)
+          DenseVector(phi, theta, psi)
         } else {
           val theta = -Math.PI / 2.
           val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
@@ -44,7 +41,6 @@ object LandmarkRegistration {
       }
 
     val optimalParameters = DenseVector.vertcat(t, rotparams)
-
     val rigidSpace = RigidTransformationSpace3D(center)
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }

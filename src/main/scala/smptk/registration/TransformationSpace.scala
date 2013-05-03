@@ -182,20 +182,21 @@ case class RotationSpace3D(val centre: CoordVector3D[Double]) extends Transforma
   }
   def apply(p: ParameterVector) = {
     require(p.length == 3) 
-    // rotation matrix from the wikipedia page on rotations. Had to invert internally phi and psi since they have a different standard
-    val cosph = Math.cos(p(2))
-    val sinph = Math.sin(p(2))
+    //
+    // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
+    val cospsi = Math.cos(p(2))
+    val sinpsi = Math.sin(p(2))
    
     val costh = Math.cos(p(1))
     val sinth = Math.sin(p(1))
     
-    val cosps = Math.cos(p(0))
-    val sinps = Math.sin(p(0))
+    val cosphi = Math.cos(p(0))
+    val sinphi = Math.sin(p(0))
     
     val rotMatrix = DenseMatrix(
-        (  costh*cosps , sinph*sinth*cosps-cosph*sinps , sinph*sinps+cosph*sinth*cosps ),
-        (  costh*sinps, cosph*cosps+sinph*sinth*sinps,  cosph*sinth*sinps-sinph*cosps  ),
-        ( -sinth, sinph*costh, cosph*costh)  )
+        (  costh*cosphi , sinpsi*sinth*cosphi-cospsi*sinphi , sinpsi*sinphi+cospsi*sinth*cosphi ),
+        (  costh*sinphi , cospsi*cosphi+sinpsi*sinth*sinphi , cospsi*sinth*sinphi-sinpsi*cosphi ),
+        ( -sinth, sinpsi*costh, cospsi*costh)  )
         
         
  //   println("Rotation matrix in transform "+rotMatrix)     
@@ -219,25 +220,44 @@ case class RotationSpace3D(val centre: CoordVector3D[Double]) extends Transforma
 
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point3D =>
  
-    val cosph = Math.cos(p(2))
-    val sinph = Math.sin(p(2)) 
+    val cospsi = Math.cos(p(2))
+    val sinpsi = Math.sin(p(2)) 
     val costh = Math.cos(p(1))
     val sinth = Math.sin(p(1))
-    val cosps = Math.cos(p(0))
-    val sinps = Math.sin(p(0))
+    val cosphi = Math.cos(p(0))
+    val sinphi = Math.sin(p(0))
     
-
     val x0minc0 = x(0)-centre(0)
     val x1minc1 = x(1)-centre(1)
     val x2minc2 = x(2)-centre(2)
 
     // 3 by 3 matrix (nbrows=point dim, nb cols = param dim )
+    val dr00 = (-sinphi * costh *x0minc0)+(-sinphi*sinpsi*sinth - cospsi*cosphi)*x1minc1 + (sinpsi*cosphi-cospsi*sinth*sinphi)*x2minc2
+    val dr01 = -sinth*cosphi*x0minc0 + costh*sinpsi*cosphi*x1minc1 + cospsi*costh*cosphi*x2minc2
+    val dr02 = (cospsi*sinth*cosphi + sinpsi*sinphi) *x1minc1 + (cospsi*sinphi-sinpsi*sinth*cosphi)*x2minc2
+    
+    val dr10 = costh*cosphi*x0minc0 + (-sinphi*cospsi + sinpsi*sinth*cosphi)*x1minc1 + (cospsi*sinth*cosphi+sinpsi*sinphi)*x2minc2
+    val dr11 = -sinth*sinphi*x0minc0 + sinpsi*costh*sinphi*x1minc1 + cospsi*costh*sinphi*x2minc2
+    val dr12 = (-sinpsi*cosphi+cospsi*sinth*sinphi)*x1minc1 + (-sinpsi*sinth*sinphi-cospsi*cosphi)*x2minc2
+    
+    val dr20 = 0.
+    val dr21 = -costh*x0minc0-sinpsi*sinth*x1minc1-cospsi*sinth*x2minc2
+    val dr22 = cospsi*costh*x1minc1 -sinpsi*costh*x2minc2
+    
+//    val dr00 = (cospsi*sinth*cosphi+sinpsi*sinphi)*x1minc1+(cospsi*sinphi-sinpsi*sinth*cosphi)*x2minc2
+//    val dr01 = (-sinth*cosphi*x0minc0 + costh*cosphi*sinpsi*x1minc1 + cospsi*costh*cosphi* x2minc2)
+//    val dr02 = (-sinphi*costh*x0minc0)+ (-sinphi*sinth*sinpsi - cospsi*cosphi) * x1minc1 + (cosphi*sinpsi-sinphi*sinth*cospsi)* x2minc2
+//    val dr10 = (-sinpsi*cosphi+cospsi*sinth*sinphi)*x1minc1+ (-sinpsi*sinth*sinphi-cospsi*cosphi)*x2minc2
+//    val dr11 = (-sinth*sinphi*x0minc0 + costh*sinpsi*sinphi*x1minc1+cospsi*costh*sinphi*x2minc2)
+//    val dr12 = costh*cosphi*x0minc0+(-sinphi*cospsi+cosphi*sinpsi*sinth)*x1minc1+(cosphi*sinth*cospsi+sinpsi*sinphi)*x2minc2
+//    val dr20 = cospsi*costh*x1minc1
+//    val dr21 = -costh*x0minc0 + -sinth*sinpsi*x1minc1 + (-sinth*cospsi)*x2minc2
+//    val dr22 = 0.
+    
     DenseMatrix(
-      ((cosph*sinth*cosps+sinph*sinps)*x1minc1+(cosph*sinps-sinph*sinth*cosps)*x2minc2, (-sinth*cosps*x0minc0 + costh*cosps*sinph*x1minc1 + cosph*costh*cosps* x2minc2), (-sinps*costh*x0minc0)+ (-sinps*sinth*sinph - cosph*cosps) * x1minc1 + (cosps*sinph-sinps*sinth*cosph)* x2minc2 ),        
-      //second row
-      ( (-sinph*cosps+cosph*sinth*sinps)*x1minc1+ (-sinph*sinth*sinps-cosph*cosps)*x2minc2, (-sinth*sinps*x0minc0 + costh*sinph*sinps*x1minc1+cosph*costh*sinps*x2minc2), costh*cosps*x0minc0+(-sinps*cosph+cosps*sinph*sinth)*x1minc1+(cosps*sinth*cosph+sinph*sinps)*x2minc2),     
-      //third row
-      ( cosph*costh*x1minc1 , -costh*x0minc0 + -sinth*sinph*x1minc1 + (-sinth*cosph)*x2minc2 ,0.)
+      (dr00, dr01, dr02),        
+      (dr10 , dr11, dr12),     
+      (dr20  , dr21 ,dr22)
     )
   }
 }

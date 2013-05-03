@@ -38,6 +38,18 @@ case class GaussianFilter2D(stddev: Double) extends Filter[CoordVector2D] {
 
 
 
+case class GaussianFilter3D(stddev: Double) extends Filter[CoordVector3D] {
+  def apply(p: Point3D) = {
+    val stddev2 =  stddev * stddev 
+    val stddev6 =  stddev2 * stddev2 * stddev2
+
+    val PI3= Math.PI *Math.PI *Math.PI 
+    Math.exp(-((p(0) * p(0) + p(1) * p(1)+  p(2) * p(2)) / (2 * stddev2)))  / Math.sqrt(8*PI3*stddev6)
+  }
+
+  val extent = 3. * stddev
+  def support = BoxedRegion3D(CoordVector3D(-extent, -extent, -extent), CoordVector3D(extent, extent, extent))
+}
 
 case class BoxedFilter1D extends Filter[CoordVector1D] {
   def apply(p: Point1D) = 1.
