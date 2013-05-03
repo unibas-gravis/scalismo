@@ -24,7 +24,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val img = ContinuousScalarImage1D((x: Point1D) => x >= 0 && x <= 1,
         (x: Point1D) => x * x,
         Some((x: Point1D) => DenseVector(2.) * x(0)))
-      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(region.numberOfPoints)))
+      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), region.numberOfPoints))
       MeanSquaresMetric1D()(img, img)(integrator, region) should be(0. plusOrMinus 0.001)
     }
   }

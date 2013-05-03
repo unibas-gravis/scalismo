@@ -12,21 +12,23 @@ import smptk.image.Geometry.CoordVector1D
 import smptk.image.Geometry.CoordVector2D
 import smptk.image.Geometry.CoordVector3D
 
-trait Sampler[CV[A] <: CoordVector[A]] {
-  val numberOfPoints: Int
-  def sample(boxedRegion: BoxedRegion[CV]): IndexedSeq[CV[Double]]
+trait Sampler[CV[A] <: CoordVector[A]] {  
+  def sample(boxedRegion: BoxedRegion[CV], numberOfPoints: Int): IndexedSeq[CV[Double]]
 }
 
-case class UniformSampler1D(val numberOfPoints: Int = 300) extends Sampler[CoordVector1D] {
-  def sample(boxedRegion: BoxedRegion[CoordVector1D]) = {
+trait UniformSampler[CV[A] <: CoordVector[A]] extends Sampler[CV]
+trait RandomSampler[CV[A] <: CoordVector[A]] extends Sampler[CV]
+
+case class UniformSampler1D extends UniformSampler[CoordVector1D] {
+  def sample(boxedRegion: BoxedRegion[CoordVector1D], numberOfPoints: Int = 300) = {
     val step = (boxedRegion.extent(0) - boxedRegion.origin(0)) / numberOfPoints.toDouble
     for (i <- 0 until numberOfPoints) yield CoordVector1D[Double](boxedRegion.origin(0) + i * step)
   }
 
 }
 
-case class UniformSampler2D(val numberOfPoints: Int = 300) extends Sampler[CoordVector2D] {
-  def sample(region: BoxedRegion[CoordVector2D]) = {
+case class UniformSampler2D extends UniformSampler[CoordVector2D] {
+  def sample(region: BoxedRegion[CoordVector2D], numberOfPoints: Int = 300) = {
     val nbPerDim = math.sqrt(numberOfPoints).floor.toInt
     val step0 = (region.extent(0) - region.origin(0)) / nbPerDim
     val step1 = (region.extent(1) - region.origin(1)) / nbPerDim
@@ -34,8 +36,8 @@ case class UniformSampler2D(val numberOfPoints: Int = 300) extends Sampler[Coord
   }
 }
 
-case class UniformSampler3D(val numberOfPoints: Int = 300) extends Sampler[CoordVector3D] {
-  def sample(region: BoxedRegion[CoordVector3D]) = {
+case class UniformSampler3D extends UniformSampler[CoordVector3D] {
+  def sample(region: BoxedRegion[CoordVector3D], numberOfPoints: Int = 300) = {
     val nbPerDim = math.cbrt(numberOfPoints).floor.toInt
     val step0 = (region.extent(0) - region.origin(0)) / nbPerDim
     val step1 = (region.extent(1) - region.origin(1)) / nbPerDim
@@ -48,15 +50,15 @@ case class UniformSampler3D(val numberOfPoints: Int = 300) extends Sampler[Coord
 
 
 
-case class UniformDistributionRandomSampler1D(val numberOfPoints: Int = 300) extends Sampler[CoordVector1D] {
-  def sample(region: BoxedRegion[CoordVector1D]) = {
+case class UniformDistributionRandomSampler1D extends RandomSampler[CoordVector1D] {
+  def sample(region: BoxedRegion[CoordVector1D], numberOfPoints: Int = 300) = {
     val distr = breeze.stats.distributions.Uniform(region.origin(0), region.extent(0))
     (0 until numberOfPoints).map(i => CoordVector1D(distr.draw))
   }
 }
 
-case class UniformDistributionRandomSampler2D(val numberOfPoints: Int = 300) extends Sampler[CoordVector2D] {
-  def sample(region: BoxedRegion[CoordVector2D]) = {
+case class UniformDistributionRandomSampler2D extends RandomSampler[CoordVector2D] {
+  def sample(region: BoxedRegion[CoordVector2D], numberOfPoints: Int = 300) = {
     val distrDim1 = breeze.stats.distributions.Uniform(region.origin(0), region.extent(0))
     val distrDim2 = breeze.stats.distributions.Uniform(region.origin(1), region.extent(1))
 
@@ -64,8 +66,8 @@ case class UniformDistributionRandomSampler2D(val numberOfPoints: Int = 300) ext
   }
 }
 
-case class UniformDistributionRandomSampler3D(val numberOfPoints: Int = 300) extends Sampler[CoordVector3D] {
-  def sample(region: BoxedRegion[CoordVector3D]) = {
+case class UniformDistributionRandomSampler3D extends RandomSampler[CoordVector3D] {
+  def sample(region: BoxedRegion[CoordVector3D], numberOfPoints: Int = 300) = {
     val distrDim1 = breeze.stats.distributions.Uniform(region.origin(0), region.extent(0))
     val distrDim2 = breeze.stats.distributions.Uniform(region.origin(1), region.extent(1))
     val distrDim3 = breeze.stats.distributions.Uniform(region.origin(2), region.extent(2))
@@ -78,19 +80,18 @@ case class UniformDistributionRandomSampler3D(val numberOfPoints: Int = 300) ext
 case class SampleOnceSampler[CV[A] <: CoordVector[A]](sampler: Sampler[CV]) extends Sampler[CV] {
  
   var points : IndexedSeq[CV[Double]] = IndexedSeq()
-  def sample(boxedRegion: BoxedRegion[CV]): IndexedSeq[CV[Double]] = { 
-    if(points.size > 0) points 
+  def sample(boxedRegion: BoxedRegion[CV], numberOfPoints: Int): IndexedSeq[CV[Double]] = { 
+    if(points.size != numberOfPoints) points 
     else {
-      points = sampler.sample(boxedRegion)
+      points = sampler.sample(boxedRegion, numberOfPoints)
       points
     }
   }
     
-  val numberOfPoints = sampler.numberOfPoints
   def sampledPoints = points
 }
 
-case class IntegratorConfiguration[CV[A] <: CoordVector[A]](sampler: Sampler[CV])
+case class IntegratorConfiguration[CV[A] <: CoordVector[A]](sampler: Sampler[CV], numberOfPoints : Int)
 
 case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfiguration[CV]) {
 
@@ -101,7 +102,7 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
   }
 
   def integrateScalar(f: Function1[CV[Double], Option[Double]], integrationRegion: BoxedRegion[CV]): Double = {
-    val sampleValues: IndexedSeq[Option[Double]] = configuration.sampler.sample(integrationRegion).map(f)
+    val sampleValues: IndexedSeq[Option[Double]] = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).map(f)
 
     val sum = sampleValues.map(_.getOrElse(0.)).sum
     var ndVolume = 1.;
@@ -109,12 +110,12 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
       ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
     }
 
-    sum * ndVolume / (configuration.sampler.numberOfPoints - 1).toDouble
+    sum * ndVolume / (configuration.numberOfPoints - 1).toDouble
   }
 
   def integrateVector(img: ContinuousVectorImage[CV], integrationRegion: BoxedRegion[CV]): DenseVector[Double] = {
 
-    val sampleValues: IndexedSeq[Option[DenseVector[Double]]] = configuration.sampler.sample(integrationRegion).map(img.liftPixelValue)
+    val sampleValues: IndexedSeq[Option[DenseVector[Double]]] = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).map(img.liftPixelValue)
     var ndVolume = 1.;
     for (d <- 0 until integrationRegion.dimensionality) {
       ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
@@ -122,7 +123,7 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
 
     val zeroVector = DenseVector.zeros[Double](img.pixelDimensionality)
     val sum: DenseVector[Double] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)((a, b) => { a + b })
-    sum * ndVolume / (configuration.sampler.numberOfPoints - 1).toDouble
+    sum * ndVolume / (configuration.numberOfPoints - 1).toDouble
 
   }
 }

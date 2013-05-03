@@ -43,7 +43,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       val boxFilter = BoxedFilter1D()
       val boxedregion = BoxedRegion1D(-0.5, 0.5)
-      val integrator =  Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(100)))
+      val integrator =  Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 100))
 
       val smoothed = noisyImage.convolve(boxFilter, integrator)
       Utils.show1D(smoothed, discreteDomain)
@@ -51,7 +51,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
     it("Works with Gaussian filter (via Utils method)") {
 
-      val integrator =Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(5000)))
+      val integrator =Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 5000))
       val gaussianSmoothed = Utils.gaussianSmoothing1D(noisyImage, 0.01, integrator)
       Utils.show1D(gaussianSmoothed, discreteDomain)
 
@@ -71,7 +71,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
       val boxImage = ContinuousScalarImage1D(_ => true, (p: CoordVector1D[Double]) => if (p(0) >= -0.5 && p(0) <= 0.5) 1. else 0.)
       val filter = BoxedFilter1D()
 
-      val integrator =Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(100)))
+      val integrator =Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 100))
 
       val convoledOnce = boxImage.convolve(filter, integrator)
       val convolvedTwice = convoledOnce.convolve(filter, integrator)
@@ -103,7 +103,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       Utils.show2D(boxImage, domain)
 
-      val integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(5000)))
+      val integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 5000))
       val filter = GaussianFilter2D(5.)
       val smoothed = boxImage.convolve(filter, integrator)
 
@@ -121,14 +121,14 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       val filterSupport = DiscreteImageDomain2D(CoordVector2D(-1., -1.), CoordVector2D(0.1, 0.1), CoordVector2D(100, 100))
 
-      val integrator =  Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(100)))
+      val integrator =  Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 100))
       val smoothed = originalImage.convolve(boxFilter, integrator)
       Utils.show2D(smoothed, discreteImage.domain)
     }
 
     ignore("works with Gaussian filter") {
 
-      val integrator =  Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(500)))
+      val integrator =  Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 500))
       val deviations = List(8., 6., 4., 2., 1.)
 
       for (d <- deviations) {

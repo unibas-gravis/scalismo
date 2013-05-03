@@ -103,7 +103,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val regConf = RegistrationConfiguration[CoordVector2D](
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.0001, true)),
         //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
-        integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(100))),
+        integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 100)),
         metric = MeanSquaresMetric2D(),
         transformationSpace = TranslationSpace2D(),
         regularizer = RKHSNormRegularizer,
@@ -146,9 +146,11 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       //Utils.show3D(transformed, domain)
 
       val regConf = RegistrationConfiguration[CoordVector3D](
-        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 1., true)),
-        optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
-        integrator = Integrator[CoordVector3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(10000))),
+
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.000001, true)),
+        //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
+        integrator = Integrator[CoordVector3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(), 100)),
+
         metric = MeanSquaresMetric3D(),
         transformationSpace = TranslationSpace3D(),
         regularizer = RKHSNormRegularizer,
@@ -172,7 +174,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val regConf = RegistrationConfiguration[CoordVector3D](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.00000001, true)),
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
-        integrator = Integrator[CoordVector3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(1000))),
+        integrator = Integrator[CoordVector3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(),1000)),
         metric = MeanSquaresMetric3D(),
         transformationSpace = RotationSpace3D(center),
         regularizer = RKHSNormRegularizer,
