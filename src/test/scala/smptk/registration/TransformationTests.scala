@@ -60,7 +60,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
   }
 
   describe("A translation in 2D") {
-    ignore("translates an image") {
+    it("translates an image") {
       val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
       val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
 
@@ -137,7 +137,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
     val continuousImage = Interpolation.interpolate3D(0)(discreteImage)
 
-    ignore("translation forth and back of a real dataset yields the same image") {
+    it("translation forth and back of a real dataset yields the same image") {
 
       val parameterVector = DenseVector[Double](75., 50., 25.)
       val translation = TranslationSpace3D()(parameterVector)
@@ -149,7 +149,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt)) assert(translatedForthBackImg(p) === continuousImage(p))
     }
 
-    ignore("rotation forth and back of a real dataset yields the same image") {
+    it("rotation forth and back of a real dataset yields the same image") {
 
       val parameterVector = DenseVector[Double](2. * Math.PI, 2. * Math.PI, 2. * Math.PI)
       val origin = discreteImage.domain.origin
@@ -167,7 +167,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) assert(rotatedImage(p) === continuousImage(p))
     }
 
-    ignore("rotation works on meshes") {
+    it("rotation works on meshes") {
 
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get

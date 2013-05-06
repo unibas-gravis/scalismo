@@ -19,10 +19,11 @@ import smptk.numerics.UniformSampler1D
 import smptk.numerics.UniformSampler2D
 import smptk.common.BoxedRegion1D
 
+// A lot of the tests below are meant to be evaluated visually and are therefore ignored
 
 class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester {
 
-  ignore("A 1D function smoothing") {
+  describe("A 1D function smoothing") {
 
     val distr = breeze.stats.distributions.Gaussian(0., 0.2)
     val domain = DiscreteImageDomain1D(CoordVector1D(-100.), CoordVector1D(0.1), 2000)
@@ -37,13 +38,13 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
     val noisyImage = ContinuousScalarImage1D((p: Point1D) => (p(0) >= -5. && p(0) <= 5), noisySine)
     val discreteDomain = DiscreteImageDomain1D(CoordVector1D(-5.), CoordVector1D(0.1), 100)
-    Utils.show1D(noisyImage, discreteDomain)
-
+    
+  
     ignore("Works with a box filter (via convolution)") {
-
+      Utils.show1D(noisyImage, discreteDomain)
       val boxFilter = BoxedFilter1D()
       val boxedregion = BoxedRegion1D(-0.5, 0.5)
-      val integrator =  Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 100))
+      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 100))
 
       val smoothed = noisyImage.convolve(boxFilter, integrator)
       Utils.show1D(smoothed, discreteDomain)
@@ -51,15 +52,15 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
     it("Works with Gaussian filter (via Utils method)") {
 
-      val integrator =Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 5000))
+      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 5000))
       val gaussianSmoothed = Utils.gaussianSmoothing1D(noisyImage, 0.01, integrator)
-      Utils.show1D(gaussianSmoothed, discreteDomain)
+      //Utils.show1D(gaussianSmoothed, discreteDomain)
 
       val gaussianSmoothed2 = Utils.gaussianSmoothing1D(noisyImage, 2., integrator)
-      Utils.show1D(gaussianSmoothed2, discreteDomain)
+      //Utils.show1D(gaussianSmoothed2, discreteDomain)
 
       val p = CoordVector1D(0.5)
-      gaussianSmoothed(p) should be(noisySine(p) plusOrMinus 0.0001)
+      gaussianSmoothed(p) should be(Math.sin(p(0)) plusOrMinus 0.01)
     }
 
   }
@@ -71,14 +72,14 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
       val boxImage = ContinuousScalarImage1D(_ => true, (p: CoordVector1D[Double]) => if (p(0) >= -0.5 && p(0) <= 0.5) 1. else 0.)
       val filter = BoxedFilter1D()
 
-      val integrator =Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 100))
+      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), 100))
 
       val convoledOnce = boxImage.convolve(filter, integrator)
       val convolvedTwice = convoledOnce.convolve(filter, integrator)
       val convolvedThreeTimes = convolvedTwice.convolve(filter, integrator)
 
       val domain = DiscreteImageDomain1D(CoordVector1D(-5.), CoordVector1D(0.1), 100)
-      Utils.show1D(convoledOnce, domain)
+      //Utils.show1D(convoledOnce, domain)
 
       convoledOnce(CoordVector1D(0.)) should be(Interpolation.bSpline(1)(0.) plusOrMinus (0.1))
       convolvedTwice(CoordVector1D(0.)) should be(Interpolation.bSpline(2)(0.) plusOrMinus (0.1))
@@ -121,14 +122,14 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       val filterSupport = DiscreteImageDomain2D(CoordVector2D(-1., -1.), CoordVector2D(0.1, 0.1), CoordVector2D(100, 100))
 
-      val integrator =  Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 100))
+      val integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 100))
       val smoothed = originalImage.convolve(boxFilter, integrator)
       Utils.show2D(smoothed, discreteImage.domain)
     }
 
     ignore("works with Gaussian filter") {
 
-      val integrator =  Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 500))
+      val integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 500))
       val deviations = List(8., 6., 4., 2., 1.)
 
       for (d <- deviations) {

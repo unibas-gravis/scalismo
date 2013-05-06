@@ -123,15 +123,15 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
         val interpolatedImage = Interpolation.interpolate2D(2)(discreteFixedImage)
 
-        val diff= for((p,i) <- discreteFixedImage.domain.points.zipWithIndex) yield {          
+        val diff = for ((p, i) <- discreteFixedImage.domain.points.zipWithIndex) yield {
           interpolatedImage(p) - (discreteFixedImage(i))
-        } 
+        }
         //println(ImageIO.writeImage(DiscreteScalarImage2D(discreteFixedImage.domain, diff).map(_.toShort), new File("/export/zambia/tmp/lenadiff.h5")))
-        
-        for((p,i) <- discreteFixedImage.domain.points.zipWithIndex){          
-          interpolatedImage(p) should be (discreteFixedImage(i).toDouble plusOrMinus 30)
-        } 
-       
+
+        for ((p, i) <- discreteFixedImage.domain.points.zipWithIndex) {
+          interpolatedImage(p) should be(discreteFixedImage(i).toDouble plusOrMinus 30)
+        }
+
       }
 
       it("Derivative of interpolated function is correct") {
@@ -217,22 +217,20 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         }
 
       }
-      
-    }
-    
-    it("Interpolates a real dataset correctly"){
-      	val path = getClass().getResource("/chimp3D-11.h5").getPath()
-    	val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get  
-    	val continuousImage = Interpolation.interpolate3D(1)(discreteImage) 
-    	
-    	println("before show")
-    	Utils.show3D(continuousImage, discreteImage.domain)
-   	    println("before map")	    	
-    	for((p,i) <- discreteImage.domain.points.zipWithIndex) 
-    		 discreteImage.pixelValues(i).toDouble should be (continuousImage(p) plusOrMinus 0.001 )
-    	
-    }
-    
 
+      it("Interpolates a real dataset correctly") {
+        val path = getClass().getResource("/chimp3D-11.h5").getPath()
+        val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+        val continuousImage = Interpolation.interpolate3D(1)(discreteImage)
+
+        println("before show")
+        Utils.show3D(continuousImage, discreteImage.domain)
+        println("before map")
+        for ((p, i) <- discreteImage.domain.points.zipWithIndex)
+          discreteImage.pixelValues(i).toDouble should be(continuousImage(p) plusOrMinus 0.001)
+
+      }
+
+    }
   }
 }

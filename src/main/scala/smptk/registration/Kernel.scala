@@ -3,7 +3,7 @@ package registration
 
 import image.Geometry._
 import image.CoordVector
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{pinv, diag, DenseMatrix}
 import smptk.image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
 import smptk.numerics.RandomSVD
@@ -127,30 +127,31 @@ object Kernel {
     
     kxs
   }
-  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom : Int, sampler : Sampler[CV]): (IndexedSeq[(Double, (CV[Double] => DenseVector[Double]))], Int) = {
+
+  
+   def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom : Int, sampler : Sampler[CV]): (IndexedSeq[Double], CV[Double] => IndexedSeq[DenseVector[Double]],  Int) = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
-	val ndVolume : Double = (0 until domain.dimensionality).foldLeft(1.)((p, d) => (domain.extent(d) - domain.origin(d)) * p)
+	
 	val ptsForNystrom = sampler.sample(domain, numPointsForNystrom)
-
+	val ndVolume = domain.volume
+	
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
-//    val f = Figure()
-//    val p = f.subplot(0)    
-//    p += breeze.plot.image(kernelMatrix)
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix , numBasisFunctions)
-    val lambda = lambdaMat.map(lmbda => ndVolume.toDouble /  numPointsForNystrom * lmbda  )
+    val lambda = lambdaMat.map(lmbda => (ndVolume.toDouble /  numPointsForNystrom.toDouble) * lmbda  )
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
   
+    val W = uMat(::, 0 until numParams) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) * pinv(diag(lambdaMat(0 until numParams)))
 
-    def phi(i: Int)(x: CV[Double]) = {
+    def phi(x: CV[Double]) = {
         val kx = computeKernelVectorFor(x , ptsForNystrom, k)
-        val value = kx * uMat(::, i) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) / lambdaMat(i)
-        value 
+        val value = kx * W
+        // return an indexed seq containing with elements corresponding to the i deformations 
+    	(0 until numParams).map(value(::, _))
     }
 
-    val pairs = for (i <- (0 until numParams) if lambda(i) >= 1e-8) yield (lambda(i), phi(i)_)
-    (pairs, numParams)
+    (lambda(0 until numParams).toArray.toIndexedSeq, phi _ , numParams)
   }
-  
+
 }

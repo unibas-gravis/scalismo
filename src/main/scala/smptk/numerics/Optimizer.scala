@@ -31,12 +31,13 @@ case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Op
   private def optimize(x0: ParameterVector, c: CostFunction): ParameterVector = {
     val f = new DiffFunction[DenseVector[Double]] {
       def calculate(x: DenseVector[Double]) = {
-        val (v, g) = c(x)
+        val (v, g) = c(x)   
         (v, g)
       }
     }
     val lbfgs = new LBFGS[DenseVector[Double]](maxIter = configuration.numIterations, m = configuration.m, tolerance = configuration.tolerance)
     val optParams = lbfgs.minimize(f, x0)
+
     optParams
   }
 }

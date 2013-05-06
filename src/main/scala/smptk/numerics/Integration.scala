@@ -32,6 +32,7 @@ case class UniformSampler2D extends UniformSampler[CoordVector2D] {
     val nbPerDim = math.sqrt(numberOfPoints).floor.toInt
     val step0 = (region.extent(0) - region.origin(0)) / nbPerDim
     val step1 = (region.extent(1) - region.origin(1)) / nbPerDim
+    
     for (i <- 0 until nbPerDim; j <- 0 until nbPerDim) yield CoordVector2D[Double](region.origin(0) + i * step0, region.origin(1) + j * step1)
   }
 }
@@ -61,7 +62,7 @@ case class UniformDistributionRandomSampler2D extends RandomSampler[CoordVector2
   def sample(region: BoxedRegion[CoordVector2D], numberOfPoints: Int = 300) = {
     val distrDim1 = breeze.stats.distributions.Uniform(region.origin(0), region.extent(0))
     val distrDim2 = breeze.stats.distributions.Uniform(region.origin(1), region.extent(1))
-
+ 
     (0 until numberOfPoints).map(i => CoordVector2D(distrDim1.draw, distrDim2.draw))
   }
 }
@@ -81,7 +82,10 @@ case class SampleOnceSampler[CV[A] <: CoordVector[A]](sampler: Sampler[CV]) exte
  
   var points : IndexedSeq[CV[Double]] = IndexedSeq()
   def sample(boxedRegion: BoxedRegion[CV], numberOfPoints: Int): IndexedSeq[CV[Double]] = { 
-    if(points.size != numberOfPoints) points 
+    
+    if(points.size == numberOfPoints) {
+      points 
+    }
     else {
       points = sampler.sample(boxedRegion, numberOfPoints)
       points
@@ -102,24 +106,21 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
   }
 
   def integrateScalar(f: Function1[CV[Double], Option[Double]], integrationRegion: BoxedRegion[CV]): Double = {
-    val sampleValues: IndexedSeq[Option[Double]] = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).map(f)
 
+    val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(f)
+  
     val sum = sampleValues.map(_.getOrElse(0.)).sum
-    var ndVolume = 1.;
-    for (d <- 0 until integrationRegion.dimensionality) {
-      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
-    }
+    val ndVolume = integrationRegion.volume
 
     sum * ndVolume / (configuration.numberOfPoints - 1).toDouble
   }
 
   def integrateVector(img: ContinuousVectorImage[CV], integrationRegion: BoxedRegion[CV]): DenseVector[Double] = {
 
-    val sampleValues: IndexedSeq[Option[DenseVector[Double]]] = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).map(img.liftPixelValue)
-    var ndVolume = 1.;
-    for (d <- 0 until integrationRegion.dimensionality) {
-      ndVolume = (integrationRegion.extent(d) - integrationRegion.origin(d)) * ndVolume
-    }
+
+    val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(img.liftPixelValue)
+    val ndVolume = integrationRegion.volume;
+
 
     val zeroVector = DenseVector.zeros[Double](img.pixelDimensionality)
     val sum: DenseVector[Double] = sampleValues.map(_.getOrElse(zeroVector)).foldLeft(zeroVector)((a, b) => { a + b })

@@ -32,7 +32,7 @@ import breeze.linalg.DenseMatrix
 
 class RegistrationTest extends FunSpec with ShouldMatchers {
   describe("A 2D rigid landmark based registration") {
-    ignore("can retrieve correct parameters") {
+    it("can retrieve correct parameters") {
       val points = IndexedSeq(CoordVector2D(0., 0.), CoordVector2D(1., 4.), CoordVector2D(2., 0.))
 
       val c = CoordVector2D(1., 4 / 3.)
@@ -60,7 +60,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   }
 
   describe("A 3D rigid landmark based registration") {
-    ignore("can retrieve correct parameters") {
+    it("can retrieve correct parameters") {
 
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
@@ -92,16 +92,17 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   }
 
   describe("A 2D image registration") {
-    ignore("Recovers the correct parameters for a translation transfrom") {
+    it("Recovers the correct parameters for a translation transfrom") {
       val testImgUrl = getClass().getResource("/dm128.h5").getPath()
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
       val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
 
       val domain = discreteFixedImage.domain
+      Utils.show2D(fixedImage,domain)
       val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) + domain.extent(1) / 2)
-
+      	
       val regConf = RegistrationConfiguration[CoordVector2D](
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.0001, true)),
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.0001, false)),
         //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
         integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 100)),
         metric = MeanSquaresMetric2D(),
@@ -115,6 +116,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val translationTransform = regConf.transformationSpace(translationParams)
       //val rotationTransform = RotationSpace2D(center)(DenseVector(3.14/20))
       val transformedLena = fixedImage compose translationTransform
+      
+      Utils.show2D(transformedLena,domain)
 
       val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
 
@@ -137,7 +140,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
     val extent = domain.extent
     val center = CoordVector3D[Double]((extent(0) - origin(0)) / 2., (extent(1) - origin(1)) / 2., (extent(2) - origin(2)) / 2.)
 
-    ignore("Recovers the correct parameters for a translation transfrom") {
+    it("Recovers the correct parameters for a translation transfrom") {
 
       val translationParams = DenseVector(-25., 25., 50.)
       val translationTransform = TranslationSpace3D()(translationParams)
@@ -150,7 +153,6 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.000001, true)),
         //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
         integrator = Integrator[CoordVector3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(), 100)),
-
         metric = MeanSquaresMetric3D(),
         transformationSpace = TranslationSpace3D(),
         regularizer = RKHSNormRegularizer,

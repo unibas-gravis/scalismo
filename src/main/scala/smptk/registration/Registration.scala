@@ -66,6 +66,7 @@ object Registration {
               // this means, we are always using the same samples for computing the integral over the values
               // and the gradient
 
+              
               val sampleStrategy = new SampleOnceSampler(configuration.integrator.sampler)
               val integrationStrategy =Integrator[CV](IntegratorConfiguration(sampleStrategy, configuration.integrator.configuration.numberOfPoints)) 
               
