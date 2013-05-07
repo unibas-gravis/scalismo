@@ -55,7 +55,7 @@ object Registration {
           val costFunction = new CostFunction {
             def onlyValue(params: ParameterVector): Double = {
               val transformation = transformationSpace(params)
-              val warpedImage = movingImage.warp(transformation, fixedImage.isDefinedAt)
+              val warpedImage = movingImage.backwardWarp(transformation, fixedImage.isDefinedAt)
 
               configuration.metric(warpedImage, fixedImage)(configuration.integrator, fixedImageRegion) + configuration.regularizationWeight * regularizer(params)
 
@@ -72,7 +72,7 @@ object Registration {
               
               // compute the value of the cost function
               val transformation = transformationSpace(params)
-              val warpedImage = movingImage.warp(transformation, fixedImage.isDefinedAt)
+              val warpedImage = movingImage.backwardWarp(transformation, fixedImage.isDefinedAt)
 
               val errorVal = configuration.metric(warpedImage, fixedImage)(integrationStrategy,fixedImageRegion)
 

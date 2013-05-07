@@ -80,7 +80,7 @@ trait ContinuousScalarImage[CV[A] <: CoordVector[A]] extends ContinuousImage[CV,
   def square: CI
 
   def compose(t: Transformation[CV]): CI
-  def warp(t: Transformation[CV], imageDomainIndFunc: CV[Double] => Boolean): CI
+  def backwardWarp(t: Transformation[CV], imageDomainIndFunc: CV[Double] => Boolean): CI
   // def convolve(filter : CV => Double, imageDomainIndFunc: CV[Double] => Boolean /* later the integration method here */) : CI
 }
 
@@ -134,7 +134,7 @@ trait ContinuousScalarImageLike[CV[A] <: CoordVector[A], Repr <: ContinuousScala
     newConcreteImageRepr(newDomain, f, df)
   }
 
-  def warp(t: Transformation[CV], imageDomainIndFunc: CV[Double] => Boolean): Repr = {
+  def backwardWarp(t: Transformation[CV], imageDomainIndFunc: CV[Double] => Boolean): Repr = {
     def f(x: CV[Double]) = self.f(t(x))
     def df(x: CV[Double]) = for (selfdf <- self.df) yield t.takeDerivative(x) * selfdf(t(x))
     val newDomain = (pt: CV[Double]) => imageDomainIndFunc(pt) && self.isDefinedAt(t(pt))

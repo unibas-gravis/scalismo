@@ -171,7 +171,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val pi = Math.PI
       val rotationParams = DenseVector(-pi /6., pi / 5., pi / 5.)
       val rotationTransform = RotationSpace3D(center)(rotationParams)
-      val transformed = fixedImage.warp(rotationTransform, domain.isInside)
+      val transformed = fixedImage.backwardWarp(rotationTransform, domain.isInside)
 
       val regConf = RegistrationConfiguration[CoordVector3D](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.00000001, true)),
@@ -186,7 +186,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val regResult = registration(domain)
 
-      val RegTransformed = fixedImage.warp(regResult.transform, domain.isInside)
+      val RegTransformed = fixedImage.backwardWarp(regResult.transform, domain.isInside)
 
       // here we verify that the angles give similar rotation matrices 
 

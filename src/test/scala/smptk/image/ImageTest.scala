@@ -61,7 +61,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
         Some((x: Point1D) => DenseVector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(-1f))
       
-      val warpedImage = image.warp(translationTransform, fixedDomainIsInside)
+      val warpedImage = image.backwardWarp(translationTransform, fixedDomainIsInside)
       warpedImage.isDefinedAt(-4f) should be(false)
       warpedImage.isDefinedAt(-3f) should be(true)      
       warpedImage.isDefinedAt(5f) should be(true)

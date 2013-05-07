@@ -142,7 +142,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val parameterVector = DenseVector[Double](75., 50., 25.)
       val translation = TranslationSpace3D()(parameterVector)
       val inverseTransform = TranslationSpace3D().inverseTransform(parameterVector).get
-      val translatedForthBackImg = continuousImage.warp(translation, discreteImage.domain.isInside).warp(inverseTransform, discreteImage.domain.isInside)
+      val translatedForthBackImg = continuousImage.backwardWarp(translation, discreteImage.domain.isInside).backwardWarp(inverseTransform, discreteImage.domain.isInside)
 
       Utils.show3D(translatedForthBackImg, discreteImage.domain)
 
@@ -160,7 +160,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       // val inverseRotation =  RotationSpace3D(center).inverseTransform(parameterVector).get
 
-      val rotatedImage = continuousImage.warp(rotation, discreteImage.domain.isInside)
+      val rotatedImage = continuousImage.backwardWarp(rotation, discreteImage.domain.isInside)
 
       Utils.show3D(rotatedImage, discreteImage.domain)
 
