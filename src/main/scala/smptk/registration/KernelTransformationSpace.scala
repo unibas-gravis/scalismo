@@ -33,7 +33,7 @@ case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
 case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceConfiguration[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
 
   val gp = configuration.gp  
-  def parametersDimensionality = gp.effectiveNumBasisFunctions
+  def parametersDimensionality = gp.eigenPairs.size
   def inverseTransform(p : ParameterVector) = None
 
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
@@ -63,7 +63,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
   val gp = configuration.gp
-  def parametersDimensionality = gp.effectiveNumBasisFunctions
+  def parametersDimensionality = gp.eigenPairs.size
   def inverseTransform(p : ParameterVector) = None
 
   // the actual kernel transform
@@ -91,7 +91,7 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
 
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
   val gp = configuration.gp
-  def parametersDimensionality = gp.effectiveNumBasisFunctions
+  def parametersDimensionality = gp.eigenPairs.size
   def inverseTransform(p : ParameterVector) = None
 
   // the actual kernel transform

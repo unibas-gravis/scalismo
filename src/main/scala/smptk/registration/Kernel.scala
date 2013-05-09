@@ -3,7 +3,7 @@ package registration
 
 import image.Geometry._
 import image.CoordVector
-import breeze.linalg.{pinv, diag, DenseMatrix}
+import breeze.linalg.{ pinv, diag, DenseMatrix }
 import smptk.image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
 import smptk.numerics.RandomSVD
@@ -13,9 +13,10 @@ import smptk.numerics.Sampler
 import smptk.common.DiscreteDomain
 import smptk.common.BoxedRegion
 import smptk.numerics.UniformSampler
+import smptk.common.ImmutableLRU
 
 trait PDKernel[CV[A] <: CoordVector[A]] {
-  def apply(x : CV[Double], y : CV[Double]) : DenseMatrix[Double]
+  def apply(x: CV[Double], y: CV[Double]): DenseMatrix[Double]
   def outputDim: Int
 }
 
@@ -29,13 +30,13 @@ case class UncorrelatedKernelND[CV[A] <: CoordVector[A]](k: PDKernel[CV], val ou
 case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
   val sigma2 = sigma * sigma
   def outputDim = 1
-  def apply(x: CoordVector3D[Double], y:CoordVector3D[Double]) = {
+  def apply(x: CoordVector3D[Double], y: CoordVector3D[Double]) = {
 
-    val r0 = (x(0) - y(0)) 
-    val r1 = (x(1) - y(1))    
-    val r2 = (x(2) - y(2))    
-    val normr2 = r0*r0 + r1 * r1 + r2*r2// ||x -y ||^2
-    if (normr2/ sigma2 > 10) DenseMatrix(0.)
+    val r0 = (x(0) - y(0))
+    val r1 = (x(1) - y(1))
+    val r2 = (x(2) - y(2))
+    val normr2 = r0 * r0 + r1 * r1 + r2 * r2 // ||x -y ||^2
+    if (normr2 / sigma2 > 10) DenseMatrix(0.)
     else DenseMatrix(scala.math.exp(-normr2 / sigma2))
   }
 }
@@ -43,12 +44,12 @@ case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
 case class GaussianKernel2D(val sigma: Double) extends PDKernel[CoordVector2D] {
   val sigma2 = sigma * sigma
   def outputDim = 1
-  def apply(x: CoordVector2D[Double], y:CoordVector2D[Double]) = {
+  def apply(x: CoordVector2D[Double], y: CoordVector2D[Double]) = {
 
-    val r0 = (x(0) - y(0)) 
-    val r1 = (x(1) - y(1))    
-    val normr2 = r0*r0 + r1 * r1 // ||x -y ||^2
-    if (normr2/ sigma2 > 10) DenseMatrix(0.)
+    val r0 = (x(0) - y(0))
+    val r1 = (x(1) - y(1))
+    val normr2 = r0 * r0 + r1 * r1 // ||x -y ||^2
+    if (normr2 / sigma2 > 10) DenseMatrix(0.)
     else DenseMatrix(scala.math.exp(-normr2 / sigma2))
   }
 }
@@ -56,7 +57,7 @@ case class GaussianKernel2D(val sigma: Double) extends PDKernel[CoordVector2D] {
 case class GaussianKernel1D(val sigma: Double) extends PDKernel[CoordVector1D] {
 
   val sigma2 = sigma * sigma
-  
+
   def outputDim = 1
   def apply(x: Point1D, y: Point1D) = {
 
@@ -66,17 +67,16 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[CoordVector1D] {
   }
 }
 
-
 case class PolynomialKernel3D(degree: Int) extends PDKernel[CoordVector3D] {
   def outputDim = 1
-  def apply(x: Point3D, y: Point3D) = {    
-    DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + x(2)*y(2) + 1, degree))
+  def apply(x: Point3D, y: Point3D) = {
+    DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + x(2) * y(2) + 1, degree))
   }
 }
 
 case class PolynomialKernel2D(degree: Int) extends PDKernel[CoordVector2D] {
   def outputDim = 1
-  def apply(x: Point2D, y: Point2D) = {    
+  def apply(x: Point2D, y: Point2D) = {
     DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + 1, degree))
   }
 }
@@ -93,7 +93,7 @@ object Kernel {
   def computeKernelMatrix[CV[A] <: CoordVector[A]](xs: IndexedSeq[CV[Double]], k: PDKernel[CV]): DenseMatrix[Double] = {
     val d = k.outputDim
 
-    val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d) 
+    val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
     for { (xi, i) <- xs.zipWithIndex; (xj, j) <- xs.zipWithIndex; di <- 0 until d; dj <- 0 until d } {
       K(i * d + di, j * d + dj) = k(xi, xj)(di, dj)
       K(j * d + dj, i * d + di) = K(i * d + di, j * d + dj)
@@ -113,10 +113,10 @@ object Kernel {
 
     var j = 0
     while (j < xs.size) {
-    var di = 0
+      var di = 0
       while (di < d) {
         var dj = 0
-        while (dj < d) {          
+        while (dj < d) {
           kxs(di, j * d + dj) = k(xs(j), x)(di, dj)
           dj += 1
         }
@@ -124,34 +124,45 @@ object Kernel {
       }
       j += 1
     }
-    
+
     kxs
   }
-  
-   def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom : Int, sampler : Sampler[CV]): (IndexedSeq[Double], CV[Double] => IndexedSeq[DenseVector[Double]],  Int) = {
+
+  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[CV]): IndexedSeq[(Double, CV[Double] => DenseVector[Double])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
-	
-	val ptsForNystrom = sampler.sample(domain, numPointsForNystrom)
-	val ndVolume = domain.volume
-	
+
+    val ptsForNystrom = sampler.sample(domain, numPointsForNystrom)
+    val ndVolume = domain.volume
+
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
-    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix , numBasisFunctions)
-    val lambda = lambdaMat.map(lmbda => (ndVolume.toDouble /  numPointsForNystrom.toDouble) * lmbda  )
+    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
+    val lambda = lambdaMat.map(lmbda => (ndVolume.toDouble / numPointsForNystrom.toDouble) * lmbda)
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
-  
+
     val W = uMat(::, 0 until numParams) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) * pinv(diag(lambdaMat(0 until numParams)))
 
-    def phi(x: CV[Double]) = {
-        val kx = computeKernelVectorFor(x , ptsForNystrom, k)
-        val value = kx * W
-        // return an indexed seq containing with elements corresponding to the i deformations 
-    	(0 until numParams).map(value(::, _))
+    @volatile
+    var kxCache = ImmutableLRU[CV[Double], DenseMatrix[Double]](1000)
+    def phi(i : Int)(x: CV[Double]) = {
+      // check the cache. if value is not there exit
+      // TODO make it nicer using scalaz Memo class
+      // TODO make cache size configurable
+      val (maybeKx, newKxCache) = kxCache.get(x)
+      val kx = maybeKx.getOrElse {
+        val newKx = computeKernelVectorFor(x, ptsForNystrom, k)
+        kxCache = (kxCache + (x, newKx))._2 // ignore evicted key
+        newKx
+      }
+      val value = kx * W
+      // return an indexed seq containing with elements corresponding to the i deformations 
+       value(::, i)
     }
 
-    (lambda(0 until numParams).toArray.toIndexedSeq, phi _ , numParams)
+    val lambdaISeq = lambda(0 until numParams).toArray.toIndexedSeq
+    val phis = (0 until numParams).map(i => phi(i)_)
+    lambdaISeq.zip(phis)
   }
-
 
 }

@@ -17,12 +17,14 @@ libraryDependencies  ++= Seq(
             "org.scalanlp" %% "breeze-viz" % "0.2",
 "org.scala-lang" % "scala-reflect" %"2.10.0",
 	    "net.imagej" % "ij" % "latest.integration",
-	    "org.scala-lang" % "scala-swing" % "2.10.0"
+	    "org.scala-lang" % "scala-swing" % "2.10.0",
+	    "com.twitter"   % "util-collection"   % "5.3.10"
 )
 
 resolvers ++= Seq(
    "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/",
-   "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
+   "imagej.releases" at "http://maven.imagej.net/content/repositories/releases",
+   "twitter" at "http://maven.twttr.com/"
    )
 
 

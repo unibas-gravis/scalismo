@@ -51,12 +51,11 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
       
       val sampler = UniformSampler1D()
-      val (lambdas, phis, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
+      val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
       def approxKernel(x: Point1D, y: Point1D) = {
-        val phisAtx = phis(x)
-        val phisAty = phis(y)
-        (0 until numParams).foldLeft(0.)((sum, i) => {
-          sum + lambdas(i) * phisAtx(i)(0) * phisAty(i)(0)
+        (0 until eigPairs.size).foldLeft(0.)((sum, i) => {
+          val (lambda_i, phi_i) = eigPairs(i)
+          sum + lambda_i * phi_i(x)(0) * phi_i(y)(0)
         })
       }
 
@@ -75,8 +74,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val scalarKernel = GaussianKernel1D(10)
       val domain = DiscreteImageDomain1D(CoordVector1D(0.), CoordVector1D(0.5), CoordVector1D(200))
       val sampler = UniformSampler1D()
-      val (approxLambdas, phis, effectiveNumComponents) = Kernel.computeNystromApproximation[CoordVector1D](scalarKernel, domain, 10, 500, sampler)
-
+      val eigPairsApprox = Kernel.computeNystromApproximation[CoordVector1D](scalarKernel, domain, 10, 500, sampler)
+      val approxLambdas = eigPairsApprox.map(_._1)
+      
       val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
 
       for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
@@ -84,7 +84,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
 
       //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
-      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), effectiveNumComponents)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), eigPairsApprox.size)
 
       for (l <- approxLambdas.zipWithIndex)
         l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
@@ -99,8 +99,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1, 1), CoordVector2D(20, 20))
       val sampler = UniformSampler2D()
 
-      val (approxLambdas, phis, effectiveNumComponents) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
-
+      val eigPairsApprox = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
+      val approxLambdas = eigPairsApprox.map(_._1)
+  
+      
       val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
 
       for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
@@ -108,7 +110,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
 
       //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
-      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), effectiveNumComponents)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), eigPairsApprox.size)
       println("approx lambdas " +approxLambdas)
       println("real lambdas " +realLambdas)
       for (l <- approxLambdas.zipWithIndex)
@@ -123,10 +125,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
       val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
       val sampler = UniformSampler2D()
-      val (lambdasDomain1, phis, numParams) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
-
-      val (lambdasDomain2, phis2, numParams2) = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain2, 10, 500, sampler)
-
+      val eigPairsDomain1 = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
+      val lambdasDomain1 = eigPairsDomain1.map(_._1)
+      val eigPairsDomain2 = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain2, 10, 500, sampler)
+      val lambdasDomain2 = eigPairsDomain2.map(_._1)
       for (l <- lambdasDomain1.zipWithIndex)
         l._1 should be((lambdasDomain2(l._2) ) plusOrMinus (0.001))      
     }
@@ -136,14 +138,14 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val kernel = GaussianKernel1D(20)
       val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
       val sampler = UniformSampler1D()
-      val (lambdas, phis, numParams) = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
+      val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
 
       val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
 
       
       for (i <- 0 until 20) {
-
-        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phis(x)(i)(0) * phis(x)(i)(0), Some(Point1D => DenseVector[Double](0.)))
+    	  val (lambda_i, phi_i) = eigPairs(i)
+        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.)))
         val v = integrator.integrateScalar(phiImg, domain)
         v should be(1. plusOrMinus 0.1)
       }
