@@ -27,7 +27,7 @@ case class UncorrelatedKernelND[CV[A] <: CoordVector[A]](k: PDKernel[CV], val ou
 
 }
 
-case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
+case class GaussianKernel3D(val sigma: Double, val scale : Double = 1.) extends PDKernel[CoordVector3D] {
   val sigma2 = sigma * sigma
   def outputDim = 1
   def apply(x: CoordVector3D[Double], y: CoordVector3D[Double]) = {
@@ -36,8 +36,7 @@ case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
     val r1 = (x(1) - y(1))
     val r2 = (x(2) - y(2))
     val normr2 = r0 * r0 + r1 * r1 + r2 * r2 // ||x -y ||^2
-    if (normr2 / sigma2 > 10) DenseMatrix(0.)
-    else DenseMatrix(scala.math.exp(-normr2 / sigma2))
+    DenseMatrix(scala.math.exp(-normr2 / sigma2)) * scale
   }
 }
 
@@ -49,8 +48,7 @@ case class GaussianKernel2D(val sigma: Double) extends PDKernel[CoordVector2D] {
     val r0 = (x(0) - y(0))
     val r1 = (x(1) - y(1))
     val normr2 = r0 * r0 + r1 * r1 // ||x -y ||^2
-    if (normr2 / sigma2 > 10) DenseMatrix(0.)
-    else DenseMatrix(scala.math.exp(-normr2 / sigma2))
+    DenseMatrix(scala.math.exp(-normr2 / sigma2))
   }
 }
 
@@ -62,8 +60,7 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[CoordVector1D] {
   def apply(x: Point1D, y: Point1D) = {
 
     val r = (x(0) - y(0))
-    if (r * 5 / sigma2 > 10) DenseMatrix(0.)
-    else DenseMatrix(scala.math.exp(-(r * r) / sigma2))
+    DenseMatrix(scala.math.exp(-(r * r) / sigma2))
   }
 }
 
