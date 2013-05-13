@@ -17,7 +17,7 @@ case class TriangleMesh(val domain : TriangleMeshDomain)  {
 	val maxx = domain.points.map(_(0)).max
 	val maxy = domain.points.map(_(1)).max
 	val maxz = domain.points.map(_(2)).max
-	BoxedRegion3D(CoordVector3D(minx, miny, miny), CoordVector3D(maxx, maxy, maxz))
+	BoxedRegion3D(CoordVector3D(minx, miny, minz), CoordVector3D(maxx, maxy, maxz))
   }
   
   def compose(transform : Transformation[CoordVector3D]) = TriangleMesh(TriangleMeshDomain( domain.points.toIndexedSeq.map(transform), domain.cells))
