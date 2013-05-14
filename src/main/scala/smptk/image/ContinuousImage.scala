@@ -19,7 +19,7 @@ import smptk.numerics.Integrator
 /**
  * The generic interface for continuous images
  */
-trait ContinuousImage[CV[A] <: CoordVector[A], @specialized(Short, Float) Pixel] {
+trait ContinuousImage[CV[A] <: CoordVector[A], @specialized(Short, Float) Pixel] extends Function1[CV[Double], Pixel] { self =>
 
   /** the function that defines the image values */
   val f: CV[Double] => Pixel
@@ -39,6 +39,15 @@ trait ContinuousImage[CV[A] <: CoordVector[A], @specialized(Short, Float) Pixel]
 
   def pixelDimensionality: Int
 
+  def lift(fl : Pixel => Pixel) : ContinuousImage[CV, Pixel] => ContinuousImage[CV, Pixel] = { 
+    img : ContinuousImage[CV, Pixel] => new ContinuousImage[CV, Pixel] {
+      override def apply(x : CV[Double]) = fl(img.apply(x))
+      def pixelDimensionality = img.pixelDimensionality
+      val f = img.f
+      def isDefinedAt(pt : CV[Double]) = img.isDefinedAt(pt)
+    }
+  }
+  	
   //TODO add derivative here (use coordinatesVector for return type)
 }
 

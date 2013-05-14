@@ -20,7 +20,7 @@ object LandmarkIO {
     Try {
       val landmarks = for (line <- src.getLines if line.isEmpty() == false && line(0) != '#') yield {
         val elements = line.split(',')
-        val (xStr, yStr, zStr) = (elements(0), elements(1), elements(2))
+        val (xStr, yStr, zStr) = (elements(1), elements(2), elements(3))
         (xStr.toDouble, yStr.toDouble, zStr.toDouble)
       }
       landmarks.toIndexedSeq
