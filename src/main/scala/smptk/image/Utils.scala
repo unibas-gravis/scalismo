@@ -10,7 +10,7 @@ import ij.process.FloatProcessor
 import ij.ImageStack
 import ij.WindowManager
 import smptk.registration.Transformation
-import smptk.image.Geometry.{ Point1D, Point2D }
+import smptk.image.Geometry.{ Point1D, Point2D, CoordVector3D }
 import smptk.image.Geometry.CoordVector2D
 import smptk.common.BoxedRegion
 import smptk.common.BoxedRegion2D
@@ -60,8 +60,47 @@ object Utils {
     }
   }
 
+    case class ShowTwoVTK(pd1: vtkPolyData, pd2 : vtkPolyData) extends SimpleSwingApplication {
+
+    // Setup VTK rendering panel, this also loads VTK native libraries
+    var renWin: vtkPanel = new vtkPanel
+
+    // Create wrapper to integrate vtkPanel with Scala's Swing API
+    val scalaPanel = new Component {
+      override lazy val peer = new JPanel(new BorderLayout())
+      peer.add(renWin)
+    }
+
+    var coneMapper = new vtkPolyDataMapper
+    coneMapper.SetInput(pd1)
+
+    var coneActor = new vtkActor
+    coneActor.SetMapper(coneMapper)
+    
+    var coneMapper2 = new vtkPolyDataMapper
+    coneMapper2.SetInput(pd2)
+
+    var coneActor2 = new vtkActor
+    coneActor2.SetMapper(coneMapper2)
+    coneActor2.GetProperty().SetColor(1.0, 0.0, 0.0); //(R,G,B)
+    
+    renWin.GetRenderer.AddActor(coneActor)
+    renWin.GetRenderer.AddActor(coneActor2)
+    renWin.GetRenderer.ResetCamera
+
+    // Create the main application window
+    override def top = new MainFrame {
+      title = "ScaleCone"
+      contents = scalaPanel
+    }
+  }
+  
   def showVTK(pd: vtkPolyData) {
     ShowVTK(pd).main(Array(""))
+  }
+  
+  def showTwoVTK(pd1: vtkPolyData, pd2: vtkPolyData) {
+    ShowTwoVTK(pd1, pd2).main(Array(""))
   }
 
   def show1D[Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]) {
@@ -158,9 +197,9 @@ object Utils {
     img.convolve(GaussianFilter2D(deviation), integrator)
   }
 
-//  def gaussianSmoothing3D(img: ContinuousScalarImage3D, deviation: Double, integrator: Integrator[CoordVector3D]) = {
-//    img.convolve(GaussianFilter3D(deviation), integrator)
-//  }
+  def gaussianSmoothing3D(img: ContinuousScalarImage3D, deviation: Double, integrator: Integrator[CoordVector3D]) = {
+    img.convolve(GaussianFilter3D(deviation), integrator)
+  }
   
   def imageToImageJImagePlus[Pixel : ScalarPixel](img : DiscreteScalarImage3D[Pixel]) = { 
        val pixelConv = implicitly[ScalarPixel[Pixel]]

@@ -20,7 +20,7 @@ import breeze.plot._
 import smptk.io.ImageIO
 import java.io.File
 import smptk.image.Geometry.CoordVector2D
-import smptk.image.Geometry.Point2D
+import smptk.image.Geometry.{ Point2D, Point3D }
 import smptk.image.DiscreteImageDomain2D
 import smptk.numerics.RandomSVD
 import smptk.image.DiscreteImageDomain
@@ -39,8 +39,9 @@ import numerics.UniformDistributionRandomSampler2D
 import breeze.stats.distributions.Uniform
 import smptk.image.ContinuousScalarImage2D
 import breeze.stats.distributions.Uniform
-import smptk.numerics.UniformSampler1D
-
+import smptk.numerics.{ UniformSampler1D, UniformSampler3D }
+import smptk.image.Geometry.CoordVector3D
+import smptk.image.DiscreteImageDomain3D
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
@@ -71,7 +72,8 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    it("Its eigenvalues are close enough to the real eigenvalues for 1D") {
+
+    ignore("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
       val scalarKernel = GaussianKernel1D(10)
       val domain = DiscreteImageDomain1D(CoordVector1D(0.), CoordVector1D(0.5), CoordVector1D(200))
@@ -92,7 +94,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     }
 
-    it("Its eigenvalues are close enough to the real eigenvalues in 2D") {
+    ignore("Its eigenvalues are close enough to the real eigenvalues in 2D") {
 
       val kernelDim = 2
       val scalarKernel = GaussianKernel2D(10)
@@ -133,7 +135,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         l._1 should be((lambdasDomain2(l._2)) plusOrMinus (0.001))
     }
 
-    it("It leads to orthogonal basis functions on the domain (-5, 5)") {
+    ignore("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = GaussianKernel1D(20)
       val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
       val sampler = UniformSampler1D()
@@ -158,15 +160,15 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
 
         val gk = GaussianKernel1D(0.1)
-  
-        val gp = LowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain,(x: CoordVector1D[Double]) => DenseVector(0.), gk, 10,500))
-        
+
+        val gp = LowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain, (x: CoordVector1D[Double]) => DenseVector(0.), gk, 10, 500))
+
         val regConf = RegistrationConfiguration[CoordVector1D](
           regularizationWeight = 0.0,
           optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.3)),
           integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints)),
           metric = MeanSquaresMetric1D(),
-          transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration( gp)),
+          transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration(gp)),
           regularizer = RKHSNormRegularizer)
 
         val kernelSpace = regConf.transformationSpace
@@ -176,15 +178,14 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val regResult = Registration.registration1D(regConf)(transformedImg, continuousImg)(domain)
 
-//        Utils.show1D(continuousImg, domain)
-//        Utils.show1D(transformedImg, domain)
-//        Utils.show1D(continuousImg.warp(regResult(domain).transform, domain.isInside), domain)
+        //        Utils.show1D(continuousImg, domain)
+        //        Utils.show1D(transformedImg, domain)
+        //        Utils.show1D(continuousImg.warp(regResult(domain).transform, domain.isInside), domain)
         //Utils.show1D(continuousImg compose regResult(domain).transform , domain)
 
-        for(i <- 0 until parameterVector.size)
-          regResult.parameters(i) should be (parameterVector(i) plusOrMinus 0.001)
-        	
-        
+        for (i <- 0 until parameterVector.size)
+          regResult.parameters(i) should be(parameterVector(i) plusOrMinus 0.001)
+
       }
 
       ignore("can be used to get the correct parameters in 2d (doing registration)") {
@@ -199,10 +200,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         // Define a transformation    
         val gk = UncorrelatedKernelND(GaussianKernel2D(400), 2)
-         
-        val gp = LowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain,(x: CoordVector2D[Double]) => DenseVector(0.,0.), gk, 2,500))
-       
-        val kernelTransformConfig = KernelTransformationSpaceConfiguration[CoordVector2D]( gp, true)
+
+        val gp = LowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: CoordVector2D[Double]) => DenseVector(0., 0.), gk, 2, 500))
+
+        val kernelTransformConfig = KernelTransformationSpaceConfiguration[CoordVector2D](gp, true)
         val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
 
         val parameterVector = DenseVector[Double](25., 35.)
@@ -227,15 +228,14 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         val registration = Registration.registration2D(regConf)(warpedImage, fixedImage)
         val regResult = registration(domain)
 
-
-//        Utils.show2D(fixedImage compose regResult.transform, domain)
+        //        Utils.show2D(fixedImage compose regResult.transform, domain)
 
         (regResult.parameters(0) should be(parameterVector(0) plusOrMinus 0.0001))
         (regResult.parameters(1) should be(parameterVector(1) plusOrMinus 0.0001))
 
       }
 
-      it("can be used to get the correct parameters in 2d (doing registration with image pyramids)") {
+      ignore("can be used to get the correct parameters in 2d (doing registration with image pyramids)") {
         val testImgUrl = getClass().getResource("/dm128.h5")
 
         val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl.getPath)).get
@@ -246,9 +246,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         // Define a transformation    
         val gk = UncorrelatedKernelND(GaussianKernel2D(50.), 2)
-       
-        val gp = LowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain,(x: CoordVector2D[Double]) => DenseVector(0.,0.), gk, 2,500))
-       
+
+        val gp = LowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: CoordVector2D[Double]) => DenseVector(0., 0.), gk, 2, 500))
+
         val kernelTransformConfig = KernelTransformationSpaceConfiguration[CoordVector2D](gp, true)
         val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
 

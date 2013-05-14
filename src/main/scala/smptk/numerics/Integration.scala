@@ -108,7 +108,7 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
   def integrateScalar(f: Function1[CV[Double], Option[Double]], integrationRegion: BoxedRegion[CV]): Double = {
 
     val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(f)
-  
+
     val sum = sampleValues.map(_.getOrElse(0.)).sum
     val ndVolume = integrationRegion.volume
 

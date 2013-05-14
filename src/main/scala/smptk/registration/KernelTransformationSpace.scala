@@ -46,7 +46,7 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
 
     def apply(x: Point1D) = {
       val newPointAsVector = instance(x)
-      CoordVector1D(newPointAsVector(0))
+      CoordVector1D(x(0)+newPointAsVector(0))
     }
     def takeDerivative(x: Point1D) = { throw new NotImplementedError("take derivative of kernel") }
   }
@@ -76,7 +76,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
     def apply(x: Point2D) = {
       val newPointAsVector = instance(x)
-      CoordVector2D(newPointAsVector(0), newPointAsVector(1))
+      CoordVector2D(x(0)+newPointAsVector(0), x(1)+newPointAsVector(1))
     }
     def takeDerivative(x: Point2D) = { throw new NotImplementedError("take derivative of kernel") }
   }
@@ -105,7 +105,7 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
 
     def apply(x: Point3D) = {
       val newPointAsVector = instance(x)
-      CoordVector3D(newPointAsVector(0), newPointAsVector(1), newPointAsVector(2))
+      CoordVector3D(x(0)+newPointAsVector(0), x(1)+newPointAsVector(1), x(2)+newPointAsVector(2))
     }
     def takeDerivative(x: Point3D) = { throw new NotImplementedError("take derivative of kernel") }
   }

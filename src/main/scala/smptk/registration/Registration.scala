@@ -25,7 +25,12 @@ import smptk.numerics.IntegratorConfiguration
 import smptk.numerics.Sampler
 import smptk.numerics.SampleOnceSampler
 import smptk.image.DiscreteImageDomain3D
-
+import smptk.image.Utils
+import smptk.image.ContinuousScalarImage3D
+import smptk.image.DiscreteImage3D
+import smptk.image.DiscreteScalarImage3D
+import smptk.image.DiscreteImageDomain3D
+import smptk.common.BoxedRegion3D
 
 case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
@@ -65,23 +70,20 @@ object Registration {
               // create a new sampler, that simply caches the points and returns the same points in every call
               // this means, we are always using the same samples for computing the integral over the values
               // and the gradient
-
-              
+             
               val sampleStrategy = new SampleOnceSampler(configuration.integrator.sampler)
               val integrationStrategy =Integrator[CV](IntegratorConfiguration(sampleStrategy, configuration.integrator.configuration.numberOfPoints)) 
               
               // compute the value of the cost function
               val transformation = transformationSpace(params)
               val warpedImage = movingImage.backwardWarp(transformation, fixedImage.isDefinedAt)
-
+                           
               val errorVal = configuration.metric(warpedImage, fixedImage)(integrationStrategy,fixedImageRegion)
-
               val value = errorVal + configuration.regularizationWeight * regularizer(params)
 
               // compute the derivative of the cost function
 
               val dMetricDalpha = configuration.metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
-
               val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
               //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
 
