@@ -143,18 +143,17 @@ object Kernel {
     val W = uMat(::, 0 until numParams) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) * pinv(diag(lambdaMat(0 until numParams)))
 
     @volatile
-    var kxCache = ImmutableLRU[CV[Double], DenseMatrix[Double]](1000)
+    var cache = ImmutableLRU[CV[Double], DenseMatrix[Double]](1000)
     def phi(i : Int)(x: CV[Double]) = {
       // check the cache. if value is not there exit
       // TODO make it nicer using scalaz Memo class
       // TODO make cache size configurable
-      val (maybeKx, newKxCache) = kxCache.get(x)
-      val kx = maybeKx.getOrElse {
-        val newKx = computeKernelVectorFor(x, ptsForNystrom, k)
-        kxCache = (kxCache + (x, newKx))._2 // ignore evicted key
-        newKx
+      val (maybeKx, _) = cache.get(x)
+      val value = maybeKx.getOrElse {
+        val newValue = computeKernelVectorFor(x, ptsForNystrom, k) * W
+        cache = (cache + (x, newValue))._2 // ignore evicted key
+        newValue
       }
-      val value = kx * W
       // return an indexed seq containing with elements corresponding to the i deformations 
        value(::, i)
     }
