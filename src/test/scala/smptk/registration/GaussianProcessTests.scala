@@ -17,10 +17,13 @@ import smptk.numerics.UniformSampler1D
 import breeze.plot.Figure
 import smptk.common.BoxedRegion1D
 import smptk.image.DiscreteImageDomain3D
+import java.io.File
+import GaussianProcess._
+
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   describe("A Gaussian process regression") {
-    it("keeps the landmark points fixed for a 1D case") {
+    ignore("keeps the landmark points fixed for a 1D case") {
       val domain = DiscreteImageDomain1D(-5., 0.1, 100)
       val config = LowRankGaussianProcessConfiguration[CoordVector1D](domain, _ => DenseVector(0.), GaussianKernel1D(5), 100, 500)
       val gp = GaussianProcess.createLowRankGaussianProcess1D(config)
@@ -34,7 +37,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
   }
 
-  it("keeps the landmark points fixed for a 2D case") {
+  ignore("keeps the landmark points fixed for a 2D case") {
     val domain = DiscreteImageDomain2D(CoordVector2D(-5., -5.), CoordVector2D(0.1, 0.1), CoordVector2D(100, 100))
     val config = LowRankGaussianProcessConfiguration[CoordVector2D](domain, _ => DenseVector(0., 0.), UncorrelatedKernelND(GaussianKernel2D(5), 2), 100, 200)
     val gp = GaussianProcess.createLowRankGaussianProcess2D(config)
@@ -49,7 +52,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
   }
 
 
-  it("keeps the landmark points fixed for a 3D case") {
+  ignore("keeps the landmark points fixed for a 3D case") {
     val domain = DiscreteImageDomain3D(CoordVector3D(-5., -5., -5), CoordVector3D(0.1, 0.1, 0.1), CoordVector3D(100, 100, 100))
     val config = LowRankGaussianProcessConfiguration[CoordVector3D](domain, _ => DenseVector(0., 0., 0.), UncorrelatedKernelND(GaussianKernel3D(5), 3), 100, 400)
     val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
@@ -65,6 +68,33 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
 
 
+  }
+  
+  describe("An optimized (Phi(x) cached) Gaussian Process"){
+    
+    val faceMesh = MeshIO.readHDF5(new File("src/test/resources/facemesh.h5")).get
+
+    val domain = faceMesh.boundingBox
+    val kernel = UncorrelatedKernelND(GaussianKernel3D(100,1), 3)
+    val nbBasisFunctions = 100
+    
+    val config = LowRankGaussianProcessConfiguration(domain, (x:CoordVector3D[Double]) => DenseVector(0.,0.,0.),   kernel, nbBasisFunctions, 500)
+    val gp = createLowRankGaussianProcess3D(config)
+    
+    val optimizedGP = gp.optimizeForPoints(faceMesh.domain.points.toIndexedSeq)
+    
+    it("returns the same values as the non-cached one") {
+      val alphas = DenseVector(new breeze.stats.distributions.Uniform(0,100).sample(nbBasisFunctions).toArray)
+      for(p <-faceMesh.domain.points.toIndexedSeq) assert(gp.instance(alphas)(p) === optimizedGP.instance(alphas)(p))
+          
+    } 
+    
+    it("Throws an exception when used on points other than the one it was optimized for ") {
+      intercept[Exception]{
+        val thisShouldThrowException = optimizedGP.instance(DenseVector.zeros[Double](nbBasisFunctions))(CoordVector3D(0.,0.,0.))
+      }     
+    }
+    
   }
 
 }

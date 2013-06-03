@@ -32,12 +32,11 @@ case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
 
 case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceConfiguration[CoordVector1D]) extends TransformationSpace[CoordVector1D] {
 
-  val gp = configuration.gp  
+  val gp = configuration.gp
   def parametersDimensionality = gp.eigenPairs.size
-  def inverseTransform(p : ParameterVector) = None
+  def inverseTransform(p: ParameterVector) = None
 
   def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
-  
 
   // the actual kernel transform
   case class KernelTransformation1D(alpha: ParameterVector) extends Transformation[CoordVector1D] {
@@ -46,18 +45,21 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
 
     def apply(x: Point1D) = {
       val newPointAsVector = instance(x)
-      CoordVector1D(x(0)+newPointAsVector(0))
+      CoordVector1D(x(0) + newPointAsVector(0))
     }
     def takeDerivative(x: Point1D) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
-  def apply(p : ParameterVector) = KernelTransformation1D(p)
-  
+  def apply(p: ParameterVector) =
+    if (configuration.withValueCaching)
+      new KernelTransformation1D(p) with ValueCaching[CoordVector1D]
+    else
+      KernelTransformation1D(p)
+
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point1D =>
-  	gp.jacobian(p)(x)
+    gp.jacobian(p)(x)
   }
 
-  
 }
 
 case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceConfiguration[CoordVector2D]) extends TransformationSpace[CoordVector2D] {
@@ -67,8 +69,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
   def parametersDimensionality = gp.eigenPairs.size
 
-  def inverseTransform(p : ParameterVector) = None
-
+  def inverseTransform(p: ParameterVector) = None
 
   // the actual kernel transform
   case class KernelTransformation2D(alpha: ParameterVector) extends Transformation[CoordVector2D] {
@@ -77,16 +78,18 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
     def apply(x: Point2D) = {
       val newPointAsVector = instance(x)
-      CoordVector2D(x(0)+newPointAsVector(0), x(1)+newPointAsVector(1))
+      CoordVector2D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1))
     }
     def takeDerivative(x: Point2D) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
-  
-    def apply(p : ParameterVector) = KernelTransformation2D(p)
-  
+  def apply(p: ParameterVector) = if (configuration.withValueCaching)
+    new KernelTransformation2D(p) with ValueCaching[CoordVector2D]
+  else
+    KernelTransformation2D(p)
+
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point2D =>
-  	gp.jacobian(p)(x)
+    gp.jacobian(p)(x)
   }
 
 }
@@ -98,7 +101,7 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
 
   def parametersDimensionality = gp.eigenPairs.size
 
-  def inverseTransform(p : ParameterVector) = None
+  def inverseTransform(p: ParameterVector) = None
 
   // the actual kernel transform
   case class KernelTransformation3D(alpha: ParameterVector) extends Transformation[CoordVector3D] {
@@ -107,15 +110,18 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
 
     def apply(x: Point3D) = {
       val newPointAsVector = instance(x)
-      CoordVector3D(x(0)+newPointAsVector(0), x(1)+newPointAsVector(1), x(2)+newPointAsVector(2))
+      CoordVector3D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1), x(2) + newPointAsVector(2))
     }
     def takeDerivative(x: Point3D) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
-    def apply(p : ParameterVector) = KernelTransformation3D(p)
-  
+  def apply(p: ParameterVector) = if (configuration.withValueCaching)
+    new KernelTransformation3D(p) with ValueCaching[CoordVector3D]
+  else
+    KernelTransformation3D(p)
+
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point3D =>
-  	gp.jacobian(p)(x)
+    gp.jacobian(p)(x)
   }
 
 }

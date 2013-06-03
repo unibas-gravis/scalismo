@@ -10,7 +10,7 @@ import image._
 import smptk.image.Geometry._
 
 
-trait ValueCaching[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double])  {
+trait ValueCaching[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double]) {
   
   val cache =  scala.collection.mutable.HashMap.empty[CV[Double], CV[Double]]
 
@@ -18,7 +18,6 @@ trait ValueCaching[CV[A] <: CoordVector[A]] extends (CV[Double] => CV[Double])  
     cache.getOrElseUpdate(p,  super.apply(p))
   } 
 } 
-
 
 trait TransformationSpaceConfiguration {
   val withValueCaching : Boolean

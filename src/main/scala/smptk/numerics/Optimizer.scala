@@ -14,14 +14,15 @@ trait CostFunction extends Function1[ParameterVector, (Double, DenseVector[Doubl
 
 }
 
-sealed trait OptimizationConfiguration
+trait OptimizationConfiguration { val progressUpdateOrNone: Option[Function2[DenseVector[Double], Int, Unit]] }
 
 trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector] {}
 
 case class LBFGSOptimizerConfiguration(
   val numIterations: Int,
   val m: Int = 10,
-  val tolerance: Double = 1e-5) extends OptimizationConfiguration
+  val tolerance: Double = 1e-5,
+  progressUpdateOrNone: Option[Function2[DenseVector[Double], Int, Unit]] = None) extends OptimizationConfiguration
 
 case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Optimizer {
   def apply(x0: ParameterVector, c: CostFunction): ParameterVector = {
@@ -31,7 +32,7 @@ case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Op
   private def optimize(x0: ParameterVector, c: CostFunction): ParameterVector = {
     val f = new DiffFunction[DenseVector[Double]] {
       def calculate(x: DenseVector[Double]) = {
-        val (v, g) = c(x)   
+        val (v, g) = c(x)
         (v, g)
       }
     }
@@ -45,7 +46,8 @@ case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Op
 case class BreezeStochGradOptimizerConfiguration(
   val numIterations: Int,
   val stepLength: Double,
-  val tolerance: Double = 1e-5) extends OptimizationConfiguration
+  val tolerance: Double = 1e-5,
+  progressUpdateOrNone: Option[Function2[DenseVector[Double], Int, Unit]] = None) extends OptimizationConfiguration
 
 case class BreezeStochGradOptimizer(configuration: BreezeStochGradOptimizerConfiguration) extends Optimizer {
   def apply(x0: ParameterVector, c: CostFunction): ParameterVector = {
@@ -65,7 +67,14 @@ case class BreezeStochGradOptimizer(configuration: BreezeStochGradOptimizerConfi
   }
 }
 
-case class GradientDescentConfiguration(val numIterations: Int, val stepLength: Double, val withLineSearch: Boolean = false, val robinsMonroe: Boolean = false, val stepDecreaseCoeff: Double = 0.) extends OptimizationConfiguration
+case class GradientDescentConfiguration(
+  val numIterations: Int,
+  val stepLength: Double,
+  val withLineSearch: Boolean = false,
+  val robinsMonroe: Boolean = false,
+  val stepDecreaseCoeff: Double = 0.,
+  val verbose: Boolean = true,
+  progressUpdateOrNone: Option[Function2[DenseVector[Double], Int, Unit]] = None) extends OptimizationConfiguration
 
 case class GradientDescentOptimizer(configuration: GradientDescentConfiguration) extends Optimizer {
 
@@ -112,11 +121,10 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
     val ixs = insideVals.map(t => t._1)
     val ifs = insideVals.map(t => t._2)
 
-    if(ifs.size > 0){
+    if (ifs.size > 0) {
       val t = ifs.zipWithIndex.min
       ixs(t._2)
-    }
-    else // all f values are 0, means we most probably mapped the image out ! then simply return the smallest step size
+    } else // all f values are 0, means we most probably mapped the image out ! then simply return the smallest step size
       xs.min
   }
 
@@ -130,24 +138,27 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
 
   private def optimize(x: ParameterVector, c: CostFunction, it: Int): ParameterVector = {
     val (newValue, gradient) = c(x)
-    println("iteration " + it + " parameterVector " + x)
     println("iteration " + it + " Error value " + newValue)
-    println("iteration " + it + " gradient " + gradient)
-
-    if (it > numIterations) x
+    if (configuration.verbose) {
+      println("iteration " + it + " parameterVector " + x)
+      println("iteration " + it + " gradient " + gradient)
+    }
+    
+    if(configuration.progressUpdateOrNone.isDefined) // update on progress
+    	configuration.progressUpdateOrNone.get(x, it)
+    	
+    if (it >= numIterations) x
     else {
       if (configuration.withLineSearch) {
         val step = goldenSectionLineSearch(8, x, 0, stepLength, gradient, c)
-        println(s"Step size at iteration $it=$step")
+        if (configuration.verbose) println(s"Step size at iteration $it=$step")
         optimize(x - gradient * step, c, it + 1)
 
+      } else if (configuration.robinsMonroe) {
+        val step = configuration.stepLength / Math.pow(it + (configuration.numIterations * 0.1), configuration.stepDecreaseCoeff)
+        if (configuration.verbose) println(s"Step size at iteration $it=$step")
+        optimize(x - gradient * step, c, it + 1)
       } else
-        if(configuration.robinsMonroe){
-          val step = configuration.stepLength/Math.pow(it+(configuration.numIterations*0.1), configuration.stepDecreaseCoeff) 
-          println(s"Step size at iteration $it=$step")
-          optimize(x - gradient * step, c, it + 1)
-        }
-        else
         optimize(x - gradient * stepLength, c, it + 1)
     }
 

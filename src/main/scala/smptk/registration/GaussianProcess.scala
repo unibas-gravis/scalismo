@@ -22,7 +22,7 @@ import smptk.numerics.UniformSampler1D
 import breeze.plot.{ plot, Figure }
 import smptk.image.DiscreteImageDomain
 import smptk.common.ImmutableLRU
-
+import scala.collection.mutable.SynchronizedMap
 
 case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: BoxedRegion[CV], val mean: CV[Double] => DenseVector[Double], val cov: PDKernel[CV]) {
 
@@ -57,7 +57,6 @@ case class LowRankGaussianProcessConfiguration[CV[A] <: CoordVector[A]](
   val numBasisFunctions: Int,
   val numPointsForNystrom: Int)
 
-
 class LowRankGaussianProcess[CV[A] <: CoordVector[A]](
   val domain: BoxedRegion[CV],
   val outputDim: Int,
@@ -66,12 +65,10 @@ class LowRankGaussianProcess[CV[A] <: CoordVector[A]](
   //val cov 
   val eigenPairs: IndexedSeq[(Double, CV[Double] => DenseVector[Double])]) {
 
-
   def instance(alpha: DenseVector[Double]): CV[Double] => DenseVector[Double] = {
     require(eigenPairs.size == alpha.size)
     x =>
       {
-
         val deformationsAtX = (0 until eigenPairs.size).map(i => {
           val (lambda_i, phi_i) = eigenPairs(i)
           phi_i(x) * alpha(i) * math.sqrt(lambda_i)
@@ -94,6 +91,77 @@ class LowRankGaussianProcess[CV[A] <: CoordVector[A]](
     })
     J
   }
+
+  /** Full caching **/
+  /** initialized */
+  /** Mutable */
+  /** parallel*/
+  /** synched */
+  def optimizeForPoints(points: IndexedSeq[CV[Double]]): LowRankGaussianProcess[CV] = {
+
+    val cache = new scala.collection.mutable.HashMap[(CV[Double], Int), DenseVector[Double]]() with SynchronizedMap[(CV[Double], Int), DenseVector[Double]]
+    cache.sizeHint(points.size * eigenPairs.size)
+    points.par.foreach(x =>
+      for (triplet <- eigenPairs.zipWithIndex) {
+        val index = triplet._2
+        val phi = triplet._1._2
+        cache += ((x, index) -> phi(x))
+      })
+
+    val newEigenPairs = eigenPairs.zipWithIndex.map(triplet =>
+      {
+        val pair = triplet._1
+        val index = triplet._2
+        val lamda = pair._1
+        val phi = pair._2
+
+        val cachedPhi = (x: CV[Double]) => {
+          val maybePhix = cache.get((x, index))
+          maybePhix.getOrElse {
+            throw new Exception("Optimized Gaussian process applied to a new point")
+          }
+        }
+        (lamda, cachedPhi)
+      })
+
+    new LowRankGaussianProcess[CV](domain, outputDim, mean, newEigenPairs.toIndexedSeq)
+  }
+ 
+  /** Full caching **/
+  /** initialized */
+  /** Mutable */
+  /** Seq */
+  /** No Synch */
+
+//  def optimizeForPoints(points: IndexedSeq[CV[Double]]): LowRankGaussianProcess[CV] = {
+//
+//    val cache = scala.collection.mutable.HashMap[(CV[Double], Int), DenseVector[Double]]()
+//    points.foreach(x =>
+//      for (triplet <- eigenPairs.zipWithIndex) {
+//        val index = triplet._2
+//        val phi = triplet._1._2
+//        cache += ((x, index) -> phi(x))
+//      })
+//
+//    val newEigenPairs = eigenPairs.zipWithIndex.map(triplet =>
+//      {
+//        val pair = triplet._1
+//        val index = triplet._2
+//        val lamda = pair._1
+//        val phi = pair._2
+//
+//        val cachedPhi = (x: CV[Double]) => {
+//          val maybePhix = cache.get((x, index))
+//          maybePhix.getOrElse {
+//            throw new Exception("Optimized Gaussian process applied to a new point")
+//          }
+//        }
+//        (lamda, cachedPhi)
+//      })
+//
+//    new LowRankGaussianProcess[CV](domain, outputDim, mean, newEigenPairs.toIndexedSeq)
+//  }
+
 }
 
 class LowRankGaussianProcess1D(
@@ -221,7 +289,6 @@ object GaussianProcess {
 
     GaussianProcess[CV](gp.domain, mp, kp)
   }
-
 
   def main(args: Array[String]) {
 
