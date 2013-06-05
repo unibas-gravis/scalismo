@@ -50,6 +50,48 @@ case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: BoxedRegion[CV],
   }
 }
 
+class DiscreteGaussianProcess[CV[A] <: CoordVector[A]](
+  val points : IndexedSeq[CV[Double]],
+  val outputDim: Int,
+  val mean: CV[Double] => DenseVector[Double],
+  val eigenPairs: IndexedSeq[(Double, CV[Double] => DenseVector[Double])]) {
+
+  val (lambdas, phis) = eigenPairs.unzip
+  val stddev = DenseVector(lambdas.map(math.sqrt).toArray)
+
+  // precompute mean and basis vectors for the given points
+  val m = DenseVector.zeros[Double](points.size * outputDim)
+  for ((x, i) <- points.zipWithIndex.par) { 
+    m(i * outputDim until (i+1) * outputDim) := mean(x)
+  }
+  
+  val U = DenseMatrix.zeros[Double](points.size * outputDim, eigenPairs.size)
+  for ((x, i) <- points.zipWithIndex.par; (phi_j, j) <- phis.zipWithIndex.par) {  
+    val v = phi_j(x)
+    U(i * outputDim until (i+1) * outputDim, j) := phi_j(x) 
+  }
+  val Q = U * breeze.linalg.diag(stddev)
+  
+  /**
+   * returns a list of deformations of the size points.size
+   */
+  def instance(alpha: DenseVector[Double]): IndexedSeq[DenseVector[Double]] = {
+    require(eigenPairs.size == alpha.size)
+    val instVal = Q * alpha + m
+    for (v <- instVal.toArray.grouped(outputDim).toIndexedSeq) yield { 
+      DenseVector(v)
+    }
+  }
+
+  def sample: IndexedSeq[DenseVector[Double]] = {
+    val coeffs = for (_ <- 0 until eigenPairs.size) yield Gaussian(0, 1).draw()
+    instance(DenseVector(coeffs.toArray))
+  }
+}
+
+
+
+
 case class LowRankGaussianProcessConfiguration[CV[A] <: CoordVector[A]](
   val domain: BoxedRegion[CV],
   val mean: CV[Double] => DenseVector[Double],
@@ -91,41 +133,43 @@ class LowRankGaussianProcess[CV[A] <: CoordVector[A]](
     })
     J
   }
-
+  
+  def discretize(points : IndexedSeq[CV[Double]]) = new DiscreteGaussianProcess[CV](points, outputDim, mean, eigenPairs)
+  
   /** Full caching **/
   /** initialized */
   /** Mutable */
   /** parallel*/
   /** synched */
-  def optimizeForPoints(points: IndexedSeq[CV[Double]]): LowRankGaussianProcess[CV] = {
-
-    val cache = new scala.collection.mutable.HashMap[(CV[Double], Int), DenseVector[Double]]() with SynchronizedMap[(CV[Double], Int), DenseVector[Double]]
-    cache.sizeHint(points.size * eigenPairs.size)
-    points.par.foreach(x =>
-      for (triplet <- eigenPairs.zipWithIndex) {
-        val index = triplet._2
-        val phi = triplet._1._2
-        cache += ((x, index) -> phi(x))
-      })
-
-    val newEigenPairs = eigenPairs.zipWithIndex.map(triplet =>
-      {
-        val pair = triplet._1
-        val index = triplet._2
-        val lamda = pair._1
-        val phi = pair._2
-
-        val cachedPhi = (x: CV[Double]) => {
-          val maybePhix = cache.get((x, index))
-          maybePhix.getOrElse {
-            throw new Exception("Optimized Gaussian process applied to a new point")
-          }
-        }
-        (lamda, cachedPhi)
-      })
-
-    new LowRankGaussianProcess[CV](domain, outputDim, mean, newEigenPairs.toIndexedSeq)
-  }
+//  def optimizeForPoints(points: IndexedSeq[CV[Double]]): LowRankGaussianProcess[CV] = {
+//
+//    val cache = new scala.collection.mutable.HashMap[(CV[Double], Int), DenseVector[Double]]() with SynchronizedMap[(CV[Double], Int), DenseVector[Double]]
+//    cache.sizeHint(points.size * eigenPairs.size)
+//    points.par.foreach(x =>
+//      for (triplet <- eigenPairs.zipWithIndex) {
+//        val index = triplet._2
+//        val phi = triplet._1._2
+//        cache += ((x, index) -> phi(x))
+//      })
+//
+//    val newEigenPairs = eigenPairs.zipWithIndex.map(triplet =>
+//      {
+//        val pair = triplet._1
+//        val index = triplet._2
+//        val lamda = pair._1
+//        val phi = pair._2
+//
+//        val cachedPhi = (x: CV[Double]) => {
+//          val maybePhix = cache.get((x, index))
+//          maybePhix.getOrElse {
+//            throw new Exception("Optimized Gaussian process applied to a new point")
+//          }
+//        }
+//        (lamda, cachedPhi)
+//      })
+//
+//    new LowRankGaussianProcess[CV](domain, outputDim, mean, newEigenPairs.toIndexedSeq)
+//  }
  
   /** Full caching **/
   /** initialized */
@@ -164,6 +208,8 @@ class LowRankGaussianProcess[CV[A] <: CoordVector[A]](
 
 }
 
+
+
 class LowRankGaussianProcess1D(
   domain: BoxedRegion[CoordVector1D],
   outputDim: Int,
@@ -184,6 +230,12 @@ class LowRankGaussianProcess3D(
   mean: CoordVector3D[Double] => DenseVector[Double],
   eigenPairs: IndexedSeq[(Double, CoordVector3D[Double] => DenseVector[Double])])
   extends LowRankGaussianProcess(domain, outputDim, mean, eigenPairs) {}
+
+
+
+
+
+
 
 object GaussianProcess {
 
@@ -292,7 +344,7 @@ object GaussianProcess {
 
   def main(args: Array[String]) {
 
-    val cov = UncorrelatedKernelND(GaussianKernel3D(150, 1), 3)
+    val cov = UncorrelatedKernelND(GaussianKernel3D(100, 100), 3)
     val mesh = MeshIO.readHDF5(new File("/tmp/mesh.h5")).get
     val meshPoints = mesh.domain.points
     val region = mesh.boundingBox
@@ -305,22 +357,20 @@ object GaussianProcess {
       300)
     val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
 
-    val fixedPts = IndexedSeq(CoordVector3D(-42., 33., 87.), CoordVector3D(43., 33., 85.),
-      CoordVector3D(0., 4., 131.),
-      CoordVector3D(-25., -33., 98.), CoordVector3D(23., -32., 98.))
-    val targetPts = IndexedSeq(DenseVector(0., 0., 0.), DenseVector(0., 0., 0.), DenseVector(0., 0., -30.),
-      DenseVector(0., 0., 0.), DenseVector(0., 0., 0.))
-    val gpp = GaussianProcess.regression(gp, fixedPts.zip(targetPts), 1e-5)
+//    val fixedPts = IndexedSeq(CoordVector3D(-42., 33., 87.), CoordVector3D(43., 33., 85.),
+//      CoordVector3D(0., 4., 131.),
+//      CoordVector3D(-25., -33., 98.), CoordVector3D(23., -32., 98.))
+//    val targetPts = IndexedSeq(DenseVector(0., 0., 0.), DenseVector(0., 0., 0.), DenseVector(0., 0., -30.),
+//      DenseVector(0., 0., 0.), DenseVector(0., 0., 0.))
+//    val gpp = GaussianProcess.regression(gp, fixedPts.zip(targetPts), 1e-5)
 
-    for (i <- 0 until 3) {
-      val sample = gpp.sample
-
-      val newPoints = meshPoints.par.map(pt => {
-        val samplePt = sample(pt)
-        CoordVector3D(pt(0) + samplePt(0), pt(1) + samplePt(1), pt(2) + samplePt(2))
-      })
+    val discreteGP = gp.discretize(meshPoints.toIndexedSeq)
+    for (i <- 0 until 10) {
+      
+      val defs = discreteGP.sample
+      val newPoints = for ((pt, samplePt) <- meshPoints.zip(defs)) 
+          yield CoordVector3D(pt(0) + samplePt(0), pt(1) + samplePt(1), pt(2) + samplePt(2))
       val newMesh = TriangleMesh(TriangleMeshDomain(newPoints.toIndexedSeq, mesh.domain.cells))
-      MeshIO.writeHDF5(newMesh, new File("/tmp/shortnose.h5"))
       val vtkpd = Utils.meshToVTKMesh(newMesh)
       Utils.showVTK(vtkpd)
     }
