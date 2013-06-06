@@ -106,9 +106,9 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
   }
 
   def integrateScalar(f: Function1[CV[Double], Option[Double]], integrationRegion: BoxedRegion[CV]): Double = {
-
+        println("before integration vector")
     val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(f)
-
+    println("number of samples integrated " +sampleValues.size)
     val sum = sampleValues.map(_.getOrElse(0.)).sum
     val ndVolume = integrationRegion.volume
 
@@ -117,8 +117,9 @@ case class Integrator[CV[A] <: CoordVector[A]](configuration: IntegratorConfigur
 
   def integrateVector(img: ContinuousVectorImage[CV], integrationRegion: BoxedRegion[CV]): DenseVector[Double] = {
 
-
+        println("before integration vector")
     val sampleValues = configuration.sampler.sample(integrationRegion, configuration.numberOfPoints).par.map(img.liftPixelValue)
+    println("number of samples integrated " +sampleValues.size)
     val ndVolume = integrationRegion.volume;
 
 

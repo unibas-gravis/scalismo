@@ -66,7 +66,7 @@ class DiscreteGaussianProcess[CV[A] <: CoordVector[A]](
   }
   
   val U = DenseMatrix.zeros[Double](points.size * outputDim, eigenPairs.size)
-  for ((x, i) <- points.zipWithIndex.par; (phi_j, j) <- phis.zipWithIndex.par) {  
+  for ((x, i) <- points.zipWithIndex.par; (phi_j, j) <- phis.zipWithIndex) {  
     val v = phi_j(x)
     U(i * outputDim until (i+1) * outputDim, j) := phi_j(x) 
   }
@@ -78,9 +78,8 @@ class DiscreteGaussianProcess[CV[A] <: CoordVector[A]](
   def instance(alpha: DenseVector[Double]): IndexedSeq[DenseVector[Double]] = {
     require(eigenPairs.size == alpha.size)
     val instVal = Q * alpha + m
-    for (v <- instVal.toArray.grouped(outputDim).toIndexedSeq) yield { 
-      DenseVector(v)
-    }
+    val ptVals = for (v <- instVal.toArray.grouped(outputDim)) yield DenseVector(v)
+    ptVals.toIndexedSeq
   }
 
   def sample: IndexedSeq[DenseVector[Double]] = {
