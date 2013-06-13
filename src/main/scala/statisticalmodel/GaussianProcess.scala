@@ -1,5 +1,5 @@
 package smptk
-package registration
+package statisticalmodel
 
 import image.CoordVector
 import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D }
@@ -17,7 +17,7 @@ import smptk.mesh.TriangleMeshDomain
 import java.io.File
 import smptk.numerics.UniformSampler1D
 import smptk.numerics.UniformSampler
-
+import smptk.kernels._
 import smptk.numerics.UniformSampler1D
 import breeze.plot.{ plot, Figure }
 import smptk.image.DiscreteImageDomain

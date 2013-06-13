@@ -1,5 +1,5 @@
 package smptk
-package registration
+package kernels
 
 import image.Geometry._
 import image.CoordVector

@@ -1,25 +1,18 @@
 package smptk
-package registration
+package statisticalmodel
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D }
-import image.CoordVector
 import image.DiscreteImageDomain1D
 import image.Geometry.implicits._
 import breeze.linalg.DenseVector
 import smptk.image.DiscreteImageDomain2D
 import smptk.io.MeshIO
-import smptk.image.Utils
-import smptk.mesh.TriangleMesh
-import smptk.mesh.TriangleMeshDomain
-import smptk.numerics.UniformSampler1D
-import breeze.plot.Figure
-import smptk.common.BoxedRegion1D
 import smptk.image.DiscreteImageDomain3D
 import java.io.File
 import GaussianProcess._
-
+import kernels._
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   describe("A Gaussian process regression") {
@@ -70,31 +63,5 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
   }
   
-  describe("An optimized (Phi(x) cached) Gaussian Process"){
-    
-    val faceMesh = MeshIO.readHDF5(new File("src/test/resources/facemesh.h5")).get
-
-    val domain = faceMesh.boundingBox
-    val kernel = UncorrelatedKernelND(GaussianKernel3D(100,1), 3)
-    val nbBasisFunctions = 100
-    
-    val config = LowRankGaussianProcessConfiguration(domain, (x:CoordVector3D[Double]) => DenseVector(0.,0.,0.),   kernel, nbBasisFunctions, 500)
-    val gp = createLowRankGaussianProcess3D(config)
-    
-    val optimizedGP = gp.optimizeForPoints(faceMesh.domain.points.toIndexedSeq)
-    
-    it("returns the same values as the non-cached one") {
-      val alphas = DenseVector(new breeze.stats.distributions.Uniform(0,100).sample(nbBasisFunctions).toArray)
-      for(p <-faceMesh.domain.points.toIndexedSeq) assert(gp.instance(alphas)(p) === optimizedGP.instance(alphas)(p))
-          
-    } 
-    
-    it("Throws an exception when used on points other than the one it was optimized for ") {
-      intercept[Exception]{
-        val thisShouldThrowException = optimizedGP.instance(DenseVector.zeros[Double](nbBasisFunctions))(CoordVector3D(0.,0.,0.))
-      }     
-    }
-    
-  }
 
 }

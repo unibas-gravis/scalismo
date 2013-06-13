@@ -42,7 +42,9 @@ import breeze.stats.distributions.Uniform
 import smptk.numerics.{ UniformSampler1D, UniformSampler3D }
 import smptk.image.Geometry.CoordVector3D
 import smptk.image.DiscreteImageDomain3D
-import smptk.registration.GaussianProcess._
+import smptk.statisticalmodel.{LowRankGaussianProcessConfiguration}
+import smptk.statisticalmodel.GaussianProcess._
+import smptk.kernels._
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 

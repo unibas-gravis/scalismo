@@ -24,6 +24,7 @@ import smptk.numerics.UniformSampler1D
 import smptk.numerics.UniformSampler2D
 import smptk.numerics.UniformSampler3D
 import smptk.numerics.UniformSampler
+import smptk.statisticalmodel.LowRankGaussianProcess
 
 case class KernelTransformationSpaceConfiguration[CV[A] <: CoordVector[A]](
   val gp: LowRankGaussianProcess[CV],
