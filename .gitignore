@@ -1,0 +1,10 @@
+*.class
+*~
+lib/libvtk*
+*.log
+.cache
+.classpath
+.history
+.project
+\#*\#
+/target
