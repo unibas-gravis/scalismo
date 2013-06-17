@@ -57,10 +57,17 @@ object StatismoIO {
       val mesh = TriangleMesh(TriangleMeshDomain(points, cells))
     } yield {
 
+
+        // statismo stores the mean as the point position and not as a displaceme
+      // ref. we compensate for this
+      def flatten(v: IndexedSeq[CoordVector3D[Double]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
+      val refpointsVec = flatten(mesh.domain.points.toIndexedSeq)
+      val meanDefVector = meanVector - refpointsVec
+
       // statismo stores the pcaBasisMatrix: each column corresponds to phi_i * sqrt(lambda_i)
       // we recover phi_i from it
       val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) 1. / math.sqrt(l) else 0.)
-      StatisticalMeshModel(mesh, meanVector, pcaVarianceVector, pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv))
+      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv))
     }
 
     h5file.close()
