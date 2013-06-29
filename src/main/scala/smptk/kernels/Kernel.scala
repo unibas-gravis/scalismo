@@ -15,9 +15,34 @@ import smptk.common.BoxedRegion
 import smptk.numerics.UniformSampler
 import smptk.common.ImmutableLRU
 
-trait PDKernel[CV[A] <: CoordVector[A]] {
+trait PDKernel[CV[A] <: CoordVector[A]] { self =>
   def apply(x: CV[Double], y: CV[Double]): DenseMatrix[Double]
   def outputDim: Int
+  
+
+  def +(that: PDKernel[CV]): PDKernel[CV] = new PDKernel[CV] {
+    require(self.outputDim == that.outputDim)
+    override def apply(x: CV[Double], y: CV[Double]) = self.apply(x, y) + that.apply(x, y)
+    override def outputDim = self.outputDim
+  }
+
+  def *(that: PDKernel[CV]): PDKernel[CV] = new PDKernel[CV] {
+    require(self.outputDim == that.outputDim)
+    override def apply(x: CV[Double], y: CV[Double]) = self.apply(x, y) * that.apply(x, y)
+    override def outputDim = self.outputDim
+  }
+
+  def *(s: Double): PDKernel[CV] = new PDKernel[CV] {
+    override def apply(x: CV[Double], y: CV[Double]) = self.apply(x, y) * s
+    override def outputDim = self.outputDim
+  }
+  
+  // TODO this could be made more generic by allowing the input of phi to be any type A
+  def compose(phi : CV[Double] => CV[Double]) = new PDKernel[CV] { 
+    override def apply(x: CV[Double], y: CV[Double]) = self.apply(phi(x), phi(y)) 
+    override def outputDim = self.outputDim    
+  }
+
 }
 
 case class UncorrelatedKernelND[CV[A] <: CoordVector[A]](k: PDKernel[CV], val outputDim: Int) extends PDKernel[CV] {
@@ -27,7 +52,7 @@ case class UncorrelatedKernelND[CV[A] <: CoordVector[A]](k: PDKernel[CV], val ou
 
 }
 
-case class GaussianKernel3D(val sigma: Double, val scale : Double = 1.) extends PDKernel[CoordVector3D] {
+case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
   val sigma2 = sigma * sigma
   def outputDim = 1
   def apply(x: CoordVector3D[Double], y: CoordVector3D[Double]) = {
@@ -36,7 +61,7 @@ case class GaussianKernel3D(val sigma: Double, val scale : Double = 1.) extends 
     val r1 = (x(1) - y(1))
     val r2 = (x(2) - y(2))
     val normr2 = r0 * r0 + r1 * r1 + r2 * r2 // ||x -y ||^2
-    DenseMatrix(scala.math.exp(-normr2 / sigma2)) * scale
+    DenseMatrix(scala.math.exp(-normr2 / sigma2))
   }
 }
 
@@ -125,9 +150,7 @@ object Kernel {
     kxs
   }
 
-
   def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[CV]): IndexedSeq[(Double, CV[Double] => DenseVector[Double])] = {
-
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -144,7 +167,7 @@ object Kernel {
 
     @volatile
     var cache = ImmutableLRU[CV[Double], DenseMatrix[Double]](1000)
-    def phi(i : Int)(x: CV[Double]) = {
+    def phi(i: Int)(x: CV[Double]) = {
       // check the cache. if value is not there exit
       // TODO make it nicer using scalaz Memo class
       // TODO make cache size configurable
@@ -155,7 +178,7 @@ object Kernel {
         newValue
       }
       // return an indexed seq containing with elements corresponding to the i deformations 
-       value(::, i)
+      value(::, i)
     }
 
     val lambdaISeq = lambda(0 until numParams).toArray.toIndexedSeq
