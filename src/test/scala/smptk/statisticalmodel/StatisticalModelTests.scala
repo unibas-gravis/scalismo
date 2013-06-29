@@ -16,7 +16,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
-      val cov = UncorrelatedKernelND(GaussianKernel3D(100, 100), 3)
+      val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100, 3)
 
       val meshPoints = mesh.domain.points
       val region = mesh.boundingBox
@@ -28,15 +28,27 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         300)
       val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
-      val discreteGp = gp.discretize(mesh.domain.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
-      val statMeshModel = StatisticalMeshModel(mesh, discreteGp.m, DenseVector(lambdas.toArray), discreteGp.U)
+      val specializedGP = gp.specializeForPoints(mesh.domain.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
+      
+      var mVec = DenseVector.zeros[Double](mesh.domain.numberOfPoints * 3)
+      var U = DenseMatrix.zeros[Double](mesh.domain.numberOfPoints * 3, phis.size)
+      for ((pt, ptId) <- mesh.domain.points.toIndexedSeq.par.zipWithIndex) {
+        val mAtPt = gp.mean(pt)
+        val phisAtPt = phis.map(phi => phi(pt))
+        for (d <- 0 until 3) {
+        	mVec(ptId * 3 + d) = mAtPt(d) 
+        	for (i <- 0 until phis.size) { 
+        	  U(ptId * 3 + d, i) = phisAtPt(i)(d)
+        	}
+        }
+      }
+      val statMeshModel = StatisticalMeshModel(mesh, mVec, DenseVector(lambdas.toArray), U)
 
       val newGP = statMeshModel.gp
       val (newLambdas, newPhis) = newGP.eigenPairs.unzip
       lambdas should equal(newLambdas)
 
       // evaluating the newGP at the points of the mesh should yield the same deformations as the original gp
-      println("starting the comparison")
       for (pt <- mesh.domain.points.par) {
         for (d <- 0 until 3) { gp.mean(pt)(d) should be(newGP.mean(pt)(d) plusOrMinus 1e-5) }
 

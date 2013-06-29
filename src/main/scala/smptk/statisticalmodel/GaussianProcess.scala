@@ -270,7 +270,7 @@ object GaussianProcess {
 
   def main(args: Array[String]) {
 
-    val cov = UncorrelatedKernelND(GaussianKernel3D(100, 100), 3)
+    val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100, 3)
     val mesh = MeshIO.readHDF5(new File("/tmp/mesh.h5")).get
     val meshPoints = mesh.domain.points
     val region = mesh.boundingBox
