@@ -120,14 +120,14 @@ class SpecializedLowRankGaussianProcess[CV[A] <: CoordVector[A]](gp: LowRankGaus
   override val eigenPairs = lambdas.zip(phis)
   override val mean = meanAtPoint _
 
-  def instanceAtPoints(alpha: DenseVector[Double]): IndexedSeq[DenseVector[Double]] = {
+  def instanceAtPoints(alpha: DenseVector[Double]): IndexedSeq[(CV[Double], DenseVector[Double])] = {
     require(eigenPairs.size == alpha.size)
     val instVal = Q * alpha + meanVec
     val ptVals = for (v <- instVal.toArray.grouped(outputDim)) yield DenseVector(v)
-    ptVals.toIndexedSeq
+    points.zip(ptVals.toIndexedSeq)
   }
 
-  def sampleAtPoints: IndexedSeq[DenseVector[Double]] = {
+  def sampleAtPoints: IndexedSeq[(CV[Double], DenseVector[Double])] = {
     val coeffs = for (_ <- 0 until eigenPairs.size) yield Gaussian(0, 1).draw()
     instanceAtPoints(DenseVector(coeffs.toArray))
   }
@@ -325,8 +325,9 @@ object GaussianProcess {
     for (i <- 0 until 10) {
 
       val s = System.currentTimeMillis()
-      val sample = specializedGP.sampleAtPoints
-      val newPoints = for ((pt, samplePt) <- meshPoints.zip(sample)) yield {
+
+      val ptSamples = specializedGP.sampleAtPoints
+      val newPoints = for ((pt, samplePt) <- ptSamples) yield {
         CoordVector3D(pt(0) + samplePt(0), pt(1) + samplePt(1), pt(2) + samplePt(2))
       }
       val newMesh = TriangleMesh(TriangleMeshDomain(newPoints.toIndexedSeq, mesh.domain.cells))
