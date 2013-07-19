@@ -27,11 +27,11 @@ import smptk.mesh.TriangleMesh
 
 object Utils {
 
-  System.loadLibrary("vtkCommonJava");
-  System.loadLibrary("vtkFilteringJava");
-  System.loadLibrary("vtkIOJava");
-  System.loadLibrary("vtkImagingJava");
-  System.loadLibrary("vtkGraphicsJava");
+//  System.loadLibrary("vtkCommonJava");
+//  System.loadLibrary("vtkFilteringJava");
+//  System.loadLibrary("vtkIOJava");
+//  System.loadLibrary("vtkImagingJava");
+//  System.loadLibrary("vtkGraphicsJava");
 
   case class ShowVTK(pd: vtkPolyData) extends SimpleSwingApplication {
 
@@ -45,7 +45,7 @@ object Utils {
     }
 
     var coneMapper = new vtkPolyDataMapper
-    coneMapper.SetInput(pd)
+    coneMapper.SetInputData(pd)
 
     var coneActor = new vtkActor
     coneActor.SetMapper(coneMapper)
@@ -72,13 +72,13 @@ object Utils {
     }
 
     var coneMapper = new vtkPolyDataMapper
-    coneMapper.SetInput(pd1)
+    coneMapper.SetInputData(pd1)
 
     var coneActor = new vtkActor
     coneActor.SetMapper(coneMapper)
     
     var coneMapper2 = new vtkPolyDataMapper
-    coneMapper2.SetInput(pd2)
+    coneMapper2.SetInputData(pd2)
 
     var coneActor2 = new vtkActor
     coneActor2.SetMapper(coneMapper2)
