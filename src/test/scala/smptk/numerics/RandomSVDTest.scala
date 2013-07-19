@@ -2,8 +2,7 @@ package smptk.numerics
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.registration.Kernel
-import smptk.registration.GaussianKernel1D
+import smptk.kernels._
 import smptk.image.Geometry.CoordVector1D
 
 class RandomSVDTest extends FunSpec with ShouldMatchers {

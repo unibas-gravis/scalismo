@@ -31,6 +31,9 @@ import smptk.image.DiscreteImage3D
 import smptk.image.DiscreteScalarImage3D
 import smptk.image.DiscreteImageDomain3D
 import smptk.common.BoxedRegion3D
+import smptk.common.BoxedRegion
+import smptk.common.BoxedRegion1D
+import smptk.common.BoxedRegion2D
 
 case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
 
@@ -49,7 +52,7 @@ object Registration {
 
   def registrationND[CV[A] <: CoordVector[A]](configuration: RegistrationConfiguration[CV])(
     fixedImage: ContinuousScalarImage[CV],
-    movingImage: ContinuousScalarImage[CV]): (DiscreteImageDomain[CV] => RegistrationResult[CV]) =
+    movingImage: ContinuousScalarImage[CV]): (BoxedRegion[CV] => RegistrationResult[CV]) =
     {
       fixedImageRegion =>
         {
@@ -112,21 +115,21 @@ object Registration {
 
   def registration1D(configuration: RegistrationConfiguration[CoordVector1D])(
     fixedImage: ContinuousScalarImage1D,
-    movingImage: ContinuousScalarImage1D): (DiscreteImageDomain1D => RegistrationResult[CoordVector1D]) =
+    movingImage: ContinuousScalarImage1D): (BoxedRegion[CoordVector1D] => RegistrationResult[CoordVector1D]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }
 
   def registration2D(configuration: RegistrationConfiguration[CoordVector2D])(
     fixedImage: ContinuousScalarImage2D,
-    movingImage: ContinuousScalarImage2D): (DiscreteImageDomain2D => RegistrationResult[CoordVector2D]) =
+    movingImage: ContinuousScalarImage2D): (BoxedRegion[CoordVector2D] => RegistrationResult[CoordVector2D]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }
   
   def registration3D(configuration: RegistrationConfiguration[CoordVector3D])(
     fixedImage: ContinuousScalarImage3D,
-    movingImage: ContinuousScalarImage3D): (DiscreteImageDomain3D => RegistrationResult[CoordVector3D]) =
+    movingImage: ContinuousScalarImage3D): (BoxedRegion[CoordVector3D] => RegistrationResult[CoordVector3D]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }

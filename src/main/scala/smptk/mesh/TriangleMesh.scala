@@ -20,6 +20,8 @@ case class TriangleMesh(val domain : TriangleMeshDomain)  {
 	BoxedRegion3D(CoordVector3D(minx, miny, minz), CoordVector3D(maxx, maxy, maxz))
   }
   
+  def findClosestPoint(pt : CoordVector3D[Double]) = domain.findClosestPoint(pt)
+  
   def compose(transform : Transformation[CoordVector3D]) = TriangleMesh(TriangleMeshDomain( domain.points.toIndexedSeq.par.map(transform).toIndexedSeq, domain.cells))
   
 }

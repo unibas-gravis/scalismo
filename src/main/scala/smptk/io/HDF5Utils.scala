@@ -6,6 +6,7 @@ import ncsa.hdf.`object`.h5._
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
+import scala.collection.JavaConversions._
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.reduce(_ * _) == data.length)
@@ -18,7 +19,7 @@ class HDF5File(h5file: FileFormat) {
   def exists(path: String): Boolean = h5file.get(path) != null
 
   def readString(path: String): Try[String] = {
-
+	
     // a string seems to be represented as an array in hdf5
     // we return just the first element
     val stringArrayOrFailure = readNDArray[String](path)
@@ -28,6 +29,26 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
+  def readStringAttribute(path : String, attrName : String) : Try[String] = { 
+    h5file.get(path) match { 
+      case s@(_: H5Group | _ : H5ScalarDS) => { 
+        val metadata = s.getMetadata()
+        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName().equals(attrName) )
+        maybeAttr match { 
+          case Some(a) => {
+            Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[String]](0))
+          }
+          case None => Failure(new Exception("Attribute $attrName not found"))
+        }
+      }
+
+      case _ => { 
+        Failure(new Exception("Expected H5ScalarDS when reading attribute"))
+      }
+    } 
+    
+  }
+  
   def readNDArray[T](path: String): Try[NDArray[T]] = {
 
     h5file.get(path) match {
