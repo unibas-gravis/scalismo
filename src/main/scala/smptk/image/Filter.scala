@@ -1,22 +1,17 @@
 package smptk.image
 
-import smptk.image.Geometry.CoordVector1D
-import smptk.image.Geometry.Point1D
 import smptk.common.BoxedRegion
 import smptk.common.BoxedRegion1D
-import smptk.image.Geometry.CoordVector2D
-import smptk.image.Geometry.Point2D
 import smptk.common.BoxedRegion2D
-import smptk.image.Geometry.CoordVector3D
-import smptk.image.Geometry.Point3D
 import smptk.common.BoxedRegion3D
+import smptk.geometry._
 
-trait Filter[CV[A] <: CoordVector[A]] extends Function1[CV[Double], Double] {
-  def support: BoxedRegion[CV]
+trait Filter[D <: Dim] extends Function1[Point[D], Double] {
+  def support: BoxedRegion[D]
 }
 
-case class GaussianFilter1D(stddev: Double) extends Filter[CoordVector1D] {
-  def apply(p: Point1D) = {
+case class GaussianFilter1D(stddev: Double) extends Filter[OneD] {
+  def apply(p: Point[OneD]) = {
     val x2 = p(0) * p(0)
     1. / (Math.sqrt((Math.PI * 2)) * stddev) * Math.exp(-x2 / (2 * stddev * stddev))
     //    val d= breeze.stats.distributions.Gaussian.distribution(0, stddev*stddev)
@@ -24,22 +19,22 @@ case class GaussianFilter1D(stddev: Double) extends Filter[CoordVector1D] {
   }
 
   val extent = 3. * stddev
-  def support = BoxedRegion1D(CoordVector1D(-extent), CoordVector1D(extent))
+  def support = BoxedRegion1D(Point1D(-extent), Point1D(extent))
 }
 
-case class GaussianFilter2D(stddev: Double) extends Filter[CoordVector2D] {
-  def apply(p: Point2D) = {
+case class GaussianFilter2D(stddev: Double) extends Filter[TwoD] {
+  def apply(p: Point[TwoD]) = {
     (Math.exp(-((p(0) * p(0) + p(1) * p(1)) / (2 * stddev * stddev)))) / (Math.PI * 2 * stddev * stddev)
   }
 
   val extent = 3. * stddev
-  def support = BoxedRegion2D(CoordVector2D(-extent, -extent), CoordVector2D(extent, extent))
+  def support = BoxedRegion2D(Point2D(-extent, -extent), Point2D(extent, extent))
 }
 
 
 
-case class GaussianFilter3D(stddev: Double) extends Filter[CoordVector3D] {
-  def apply(p: Point3D) = {
+case class GaussianFilter3D(stddev: Double) extends Filter[ThreeD] {
+  def apply(p: Point[ThreeD]) = {
     val stddev2 =  stddev * stddev 
     val stddev6 =  stddev2 * stddev2 * stddev2
 
@@ -48,20 +43,20 @@ case class GaussianFilter3D(stddev: Double) extends Filter[CoordVector3D] {
   }
 
   val extent = 3. * stddev
-  def support = BoxedRegion3D(CoordVector3D(-extent, -extent, -extent), CoordVector3D(extent, extent, extent))
+  def support = BoxedRegion3D(Point3D(-extent, -extent, -extent), Point3D(extent, extent, extent))
 }
 
-case class BoxedFilter1D extends Filter[CoordVector1D] {
-  def apply(p: Point1D) = 1.
-  def support = BoxedRegion1D(CoordVector1D(-0.5), CoordVector1D(0.5))
+case class BoxedFilter1D extends Filter[OneD] {
+  def apply(p: Point[OneD]) = 1.
+  def support = BoxedRegion1D(Point1D(-0.5), Point1D(0.5))
 }
 
-case class BoxedFilter2D extends Filter[CoordVector2D] {
-  def apply(p: Point2D) = 1.
-  def support = BoxedRegion2D(CoordVector2D(-0.5, -0.5), CoordVector2D(0.5,0.5))
+case class BoxedFilter2D extends Filter[TwoD] {
+  def apply(p: Point[TwoD]) = 1.
+  def support = BoxedRegion2D(Point2D(-0.5, -0.5), Point2D(0.5,0.5))
 }
 
-case class BoxedFilter3D extends Filter[CoordVector3D] {
-  def apply(p: Point3D) = 1.
-  def support = BoxedRegion3D(CoordVector3D(-0.5, -0.5, -0.5), CoordVector3D(0.5,0.5,0.5))
+case class BoxedFilter3D extends Filter[ThreeD] {
+  def apply(p: Point[ThreeD]) = 1.
+  def support = BoxedRegion3D(Point3D(-0.5, -0.5, -0.5), Point3D(0.5,0.5,0.5))
 }

@@ -13,8 +13,9 @@ import breeze.linalg.DenseVector
 import image.Resample
 import image.ContinuousScalarImage1D
 import org.scalatest.matchers.ShouldMatchers
-import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D }
-import smptk.image.Geometry.implicits._
+import geometry._
+import geometry.implicits._
+
 import smptk.image.Utils
 import smptk.io.MeshIO
 
@@ -24,7 +25,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val ss = ScalingSpace2D()
     val params = DenseVector(3.)
     val scale = ss(params)
-    val pt = CoordVector2D(2., 1.)
+    val pt = Point2D(2., 1.)
     val scaledPt = scale(pt)
     it("Scales a point correctly") {
       (scaledPt(0)) should be(6. plusOrMinus 0.0001)
@@ -39,12 +40,12 @@ class TransformationTests extends FunSpec with ShouldMatchers {
   }
 
   describe("A Rotation in 2D") {
-    val center = CoordVector2D(2., 3.5)
+    val center = Point2D(2., 3.5)
     val rs = RotationSpace2D(center)
     val phi = scala.math.Pi / 2
     val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
     val rotate = rs(rotationParams)
-    val pt = CoordVector2D(2., 2.)
+    val pt = Point2D(2., 2.)
     val rotatedPt = rotate(pt)
     it("Rotates a point correctly") {
       (rotatedPt(0)) should be(3.5 plusOrMinus 0.0001)
@@ -74,7 +75,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     describe("composed with a rotation") {
 
       val ts = TranslationSpace2D()
-      val center = CoordVector2D(2., 3.5)
+      val center = Point2D(2., 3.5)
       val rs = RotationSpace2D(center)
 
       val productSpace = ts.product(rs)
@@ -90,7 +91,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
       val rotate = rs(rotationParams)
 
-      val pt = CoordVector2D(2., 2.)
+      val pt = Point2D(2., 2.)
       val rotatedPt = rotate(pt)
 
       val translatedRotatedPt = translate(rotatedPt)
@@ -101,7 +102,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       it("correctly transforms a point") {
         assert(productTransform(pt) === translatedRotatedPt)
       }
-      val productDerivative = (x: CoordVector2D[Double]) =>
+      val productDerivative = (x: Point[TwoD]) =>
         breeze.linalg.DenseMatrix.horzcat(
           ts.takeDerivativeWRTParameters(transParams)(x),
           (rs.takeDerivativeWRTParameters(rotationParams)(x)))
@@ -121,7 +122,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain1D(-50., 1., 100)
-      val continuousImage = ContinuousScalarImage1D(domain.isInside, (x: CoordVector1D[Double]) => x * x, Some((x: CoordVector1D[Double]) => DenseVector(2. * x)))
+      val continuousImage = ContinuousScalarImage1D(domain.isInside, (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => DenseVector(2. * x)))
 
       val translation = TranslationSpace1D()(DenseVector[Double](10))
       val translatedImg = continuousImage.compose(translation)
@@ -154,7 +155,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val parameterVector = DenseVector[Double](2. * Math.PI, 2. * Math.PI, 2. * Math.PI)
       val origin = discreteImage.domain.origin
       val extent = discreteImage.domain.extent
-      val center = CoordVector3D[Double]((extent(0) - origin(0)) / 2., (extent(1) - origin(1)) / 2., (extent(2) - origin(2)) / 2.)
+      val center = ((extent - origin) * 0.5).toPoint
 
       val rotation = RotationSpace3D(center)(parameterVector)
 
@@ -175,7 +176,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val region = mesh.boundingBox     
       val origin = region.origin
       val extent = region.extent
-      val center = CoordVector3D[Double]((extent(0) - origin(0)) / 2., (extent(1) - origin(1)) / 2., (extent(2) - origin(2)) / 2.)
+      val center = ((extent - origin) * 0.5).toPoint
 
       val parameterVector = DenseVector[Double](Math.PI, Math.PI, Math.PI)
       

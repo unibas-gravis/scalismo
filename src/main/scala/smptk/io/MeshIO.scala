@@ -3,19 +3,18 @@ package io
 
 import java.io.File
 import mesh.TriangleMesh
-import image.Geometry.Point3D
 import scala.util.Try
 import mesh.TriangleCell
 import mesh.TriangleMesh
 import smptk.mesh.TriangleMeshDomain
-import smptk.image.Geometry.CoordVector3D
+import smptk.geometry._
 
 object MeshIO {
 
   
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
     val h5file = HDF5Utils.createFile(file)
-    val domainPoints : IndexedSeq[Point3D] = surface.domain.points.toIndexedSeq
+    val domainPoints : IndexedSeq[Point[ThreeD]] = surface.domain.points.toIndexedSeq
     val cells : IndexedSeq[TriangleCell] = surface.domain.cells
     
     val maybeError: Try[Unit] = for {
@@ -42,7 +41,7 @@ object MeshIO {
   
   private def NDArrayToPointSeq(ndarray : NDArray[Double]) : IndexedSeq[Point3D] =  {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
-	ndarray.data.grouped(3).map(grp => CoordVector3D(grp(0), grp(1), grp(2))).toIndexedSeq
+	ndarray.data.grouped(3).map(grp => Point3D(grp(0), grp(1), grp(2))).toIndexedSeq
   }
 
 private def NDArrayToCellSeq(ndarray : NDArray[Int]) : IndexedSeq[TriangleCell] =  {
@@ -50,8 +49,8 @@ private def NDArrayToCellSeq(ndarray : NDArray[Int]) : IndexedSeq[TriangleCell] 
 	ndarray.data.grouped(3).map(grp => TriangleCell(grp(0), grp(1), grp(2))).toIndexedSeq
   }
 
-  private def pointSeqToNDArray[T](points : IndexedSeq[Point3D]) : NDArray[Double] = 
-    NDArray(Vector(points.size, 3), points.flatten(pt => pt.toArray).toArray)
+  private def pointSeqToNDArray[T](points : IndexedSeq[Point[ThreeD]]) : NDArray[Double] = 
+    NDArray(Vector(points.size, 3), points.flatten(pt => pt.data).toArray)
   
     private def cellSeqToNDArray[T](cells : IndexedSeq[TriangleCell]) : NDArray[Int] = 
       NDArray(Vector(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)

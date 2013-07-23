@@ -1,14 +1,14 @@
 package smptk
 package registration
 
-import image.CoordVector
-import image.Geometry.{ CoordVector2D, CoordVector3D, Point2D, Point3D }
+
 import registration.TransformationSpace.{ ParameterVector }
 import breeze.linalg.{ svd, DenseVector, DenseMatrix, mean, variance, Axis }
+import smptk.geometry._
 
 object LandmarkRegistration {
 
-  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point3D, Point3D)], center: Point3D = CoordVector3D(0., 0., 0.)): RegistrationResult[CoordVector3D] = {
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], center: Point[ThreeD] = Point3D(0., 0., 0.)): RegistrationResult[ThreeD] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 3)
@@ -45,7 +45,7 @@ object LandmarkRegistration {
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point2D, Point2D)], center: Point2D = CoordVector2D(0., 0.)): RegistrationResult[CoordVector2D] = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], center: Point[TwoD] = Point2D(0., 0.)): RegistrationResult[TwoD] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)
@@ -64,7 +64,7 @@ object LandmarkRegistration {
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  private def computeRigidNDTransformParams[CV[A] <: CoordVector[A]](landmarks: IndexedSeq[(CV[Double], CV[Double])], center: CV[Double]): (DenseVector[Double], DenseMatrix[Double]) = {
+  private def computeRigidNDTransformParams[D <: Dim](landmarks: IndexedSeq[(Point[D], Point[D])], center: Point[D]): (DenseVector[Double], DenseMatrix[Double]) = {
 
     //  see Umeyama: Least squares estimation of transformation parameters between two point patterns
 
@@ -83,8 +83,8 @@ object LandmarkRegistration {
       // create a matrix with the point coordinates. The roation in the method by Umeyama is computed
       // with respect to the center of rotation 0 (origin). To allow for a non-zero center, we translate
       // both point clouds by the center before applying his method.
-      X(i, ::) := DenseVector(x.toArray) - DenseVector(center.toArray)
-      Y(i, ::) := DenseVector(y.toArray) - DenseVector(center.toArray)
+      X(i, ::) := DenseVector(x.data) - DenseVector(center.data)
+      Y(i, ::) := DenseVector(y.data) - DenseVector(center.data)
     }
 
     val mu_x = mean(X.t, Axis._1)

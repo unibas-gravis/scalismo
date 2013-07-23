@@ -7,7 +7,7 @@
 package smptk.mesh.kdtree
 
 import scala.math.Numeric.Implicits._
-import smptk.image.Geometry.CoordVector3D
+import smptk.geometry.{Point, ThreeD}
 
 /** Metric is a trait whose instances each represent a way to measure distances between
   * instances of a type.
@@ -54,15 +54,15 @@ object Metric {
   }
 
 
-  implicit def metricFromCoordVector3D(implicit n: Numeric[Double]) = new Metric[CoordVector3D[Double], Double] {
-    def distance(x: CoordVector3D[Double], y: CoordVector3D[Double]): Double = {
+  implicit def metricFromCoordVector3D(implicit n: Numeric[Double]) = new Metric[Point[ThreeD], Double] {
+    def distance(x: Point[ThreeD], y: Point[ThreeD]): Double = {
       val dx = (x(0) - y(0))
       val dy = (x(1) - y(1))
       val dz = (x(2) - y(2))
       dx * dx + dy * dy + dz * dz
     }
 
-    def planarDistance(d: Int)(x : CoordVector3D[Double], y : CoordVector3D[Double]): Double = {
+    def planarDistance(d: Int)(x : Point[ThreeD], y : Point[ThreeD]): Double = {
 
       val dd = x(d) - y(d)
       dd * dd

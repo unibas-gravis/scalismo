@@ -1,15 +1,11 @@
 package smptk.registration
 
 import smptk.numerics.Optimizer
-import smptk.image.CoordVector
 import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.GradientDescentOptimizer
-import smptk.image.Geometry.CoordVector1D
 import smptk.image.DiscreteImageDomain
 import breeze.linalg.DenseVector
 import smptk.numerics.GradientDescentConfiguration
-import smptk.image.Geometry.Point1D
-import smptk.image.Geometry.CoordVector1D
 import smptk.image.DiscreteImageDomain1D
 
 

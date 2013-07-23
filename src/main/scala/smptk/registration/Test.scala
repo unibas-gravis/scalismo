@@ -4,8 +4,6 @@ package registration
 import scala.collection.immutable.{ Vector => SVector }
 import TransformationSpace.ParameterVector
 import image._
-import image.Geometry._
-import image.Geometry.implicits._
 import image.Image._
 import image.Interpolation._
 import io.ImageIO

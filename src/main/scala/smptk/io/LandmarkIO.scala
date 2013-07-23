@@ -2,11 +2,10 @@ package smptk.io
 
 import java.io.File
 import scala.util.Try
-import smptk.image.Geometry._
 import scala.io.Source
-import smptk.image.CoordVector
 import scala.util.Success
 import scala.util.Failure
+import smptk.geometry._
 
 object LandmarkIO {
 
@@ -29,23 +28,23 @@ object LandmarkIO {
 
   def readLandmarks1D(f: File): Try[IndexedSeq[Point1D]] = {
     for (landmarks <- readLandmarks(f)) yield {
-      for (landmark <- landmarks) yield CoordVector1D(landmark._1)
+      for (landmark <- landmarks) yield Point1D(landmark._1)
     }
   }
 
   def readLandmarks2D(f: File): Try[IndexedSeq[Point2D]] = {
     for (landmarks <- readLandmarks(f)) yield {
-      for (landmark <- landmarks) yield CoordVector2D(landmark._1, landmark._2)
+      for (landmark <- landmarks) yield Point2D(landmark._1, landmark._2)
     }
   }
 
   def readLandmarks3D(f: File): Try[IndexedSeq[Point3D]] = {
     for (landmarks <- readLandmarks(f)) yield {
-      for (landmark <- landmarks) yield CoordVector3D(landmark._1, landmark._2, landmark._3)
+      for (landmark <- landmarks) yield Point3D(landmark._1, landmark._2, landmark._3)
     }
   }
 
-  def writeLandmarks[CV[_] <: CoordVector[_]](f : File, landmarks : IndexedSeq[CV[Double]]) : Try[Unit] = { 
+  def writeLandmarks[D <: Dim](f : File, landmarks : IndexedSeq[Point[D]]) : Try[Unit] = { 
     Try { 
     	val out = new java.io.FileWriter(f)
     	for ((landmark, num) <- landmarks.zipWithIndex) {

@@ -1,7 +1,6 @@
 
 package smptk.registration
 
-import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
@@ -10,11 +9,9 @@ import smptk.image.ContinuousVectorImage
 import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.LBFGSOptimizer
 import smptk.numerics.CostFunction
-import smptk.image.CoordVector
 import smptk.common.DiscreteDomain
 import smptk.image.DiscreteImageDomain
 import smptk.image.ContinuousScalarImage1D
-import smptk.image.Geometry._
 import smptk.image.DiscreteImageDomain1D
 import smptk.image.ContinuousScalarImage2D
 import smptk.image.ContinuousScalarImage3D
@@ -34,14 +31,15 @@ import smptk.common.BoxedRegion3D
 import smptk.common.BoxedRegion
 import smptk.common.BoxedRegion1D
 import smptk.common.BoxedRegion2D
+import smptk.geometry._
 
-case class RegistrationResult[CV[A] <: CoordVector[A]](transform: Transformation[CV], parameters: ParameterVector) {}
+case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
 
-case class RegistrationConfiguration[CV[A] <: CoordVector[A]](
+case class RegistrationConfiguration[D <: Dim](
   val optimizer: Optimizer,
-  val integrator: Integrator[CV],
-  val metric: ImageMetric[CV],
-  val transformationSpace: TransformationSpace[CV],
+  val integrator: Integrator[D],
+  val metric: ImageMetric[D],
+  val transformationSpace: TransformationSpace[D],
   val regularizer: Regularizer,
   val regularizationWeight: Double,
   initialParametersOrNone: Option[DenseVector[Double]] = None) {
@@ -50,9 +48,9 @@ case class RegistrationConfiguration[CV[A] <: CoordVector[A]](
 
 object Registration {
 
-  def registrationND[CV[A] <: CoordVector[A]](configuration: RegistrationConfiguration[CV])(
-    fixedImage: ContinuousScalarImage[CV],
-    movingImage: ContinuousScalarImage[CV]): (BoxedRegion[CV] => RegistrationResult[CV]) =
+  def registrationND[D <: Dim](configuration: RegistrationConfiguration[D])(
+    fixedImage: ContinuousScalarImage[D],
+    movingImage: ContinuousScalarImage[D]): (BoxedRegion[D] => RegistrationResult[D]) =
     {
       fixedImageRegion =>
         {
@@ -75,7 +73,7 @@ object Registration {
               // and the gradient
              
               val sampleStrategy = new SampleOnceSampler(configuration.integrator.sampler)
-              val integrationStrategy =Integrator[CV](IntegratorConfiguration(sampleStrategy, configuration.integrator.configuration.numberOfPoints)) 
+              val integrationStrategy =Integrator[D](IntegratorConfiguration(sampleStrategy, configuration.integrator.configuration.numberOfPoints)) 
               
               // compute the value of the cost function
               val transformation = transformationSpace(params)
@@ -91,10 +89,10 @@ object Registration {
               //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
 
               val movingGradientImage = movingImage.differentiate.get // TODO do proper error handling when image is not differentiable  
-              val parametricTransformGradientImage = new ContinuousVectorImage[CV] {
+              val parametricTransformGradientImage = new ContinuousVectorImage[D] {
                 val pixelDimensionality = params.size
-                def isDefinedAt(x: CV[Double]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x)
-                val f = (x: CV[Double]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
+                def isDefinedAt(x: Point[D]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x)
+                val f = (x: Point[D]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
               }
 
               val gradient = integrationStrategy.integrateVector(parametricTransformGradientImage, fixedImageRegion)
@@ -113,23 +111,23 @@ object Registration {
         }
     }
 
-  def registration1D(configuration: RegistrationConfiguration[CoordVector1D])(
+  def registration1D(configuration: RegistrationConfiguration[OneD])(
     fixedImage: ContinuousScalarImage1D,
-    movingImage: ContinuousScalarImage1D): (BoxedRegion[CoordVector1D] => RegistrationResult[CoordVector1D]) =
+    movingImage: ContinuousScalarImage1D): (BoxedRegion[OneD] => RegistrationResult[OneD]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }
 
-  def registration2D(configuration: RegistrationConfiguration[CoordVector2D])(
+  def registration2D(configuration: RegistrationConfiguration[TwoD])(
     fixedImage: ContinuousScalarImage2D,
-    movingImage: ContinuousScalarImage2D): (BoxedRegion[CoordVector2D] => RegistrationResult[CoordVector2D]) =
+    movingImage: ContinuousScalarImage2D): (BoxedRegion[TwoD] => RegistrationResult[TwoD]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }
   
-  def registration3D(configuration: RegistrationConfiguration[CoordVector3D])(
+  def registration3D(configuration: RegistrationConfiguration[ThreeD])(
     fixedImage: ContinuousScalarImage3D,
-    movingImage: ContinuousScalarImage3D): (BoxedRegion[CoordVector3D] => RegistrationResult[CoordVector3D]) =
+    movingImage: ContinuousScalarImage3D): (BoxedRegion[ThreeD] => RegistrationResult[ThreeD]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }

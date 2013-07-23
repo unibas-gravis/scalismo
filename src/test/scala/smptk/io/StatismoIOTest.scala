@@ -6,12 +6,15 @@ import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
-import image.Geometry._
+import geometry._
 import smptk.image.Utils
 import smptk.mesh.{TriangleMesh, TriangleMeshDomain}
+import ch.unibas.gravis.nativelib.NativeLibraryBundles
 
 class StatismoIOTest extends FunSpec with ShouldMatchers {
 
+    NativeLibraryBundles.initialize(NativeLibraryBundles.InitializationMode.WARNONFAIL)
+  
   describe("a Statismo Mesh MOdel") {
     it("can be read") {
       val statismoFile = new File("/tmp/facemodel.h5")

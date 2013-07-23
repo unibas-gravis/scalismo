@@ -7,7 +7,8 @@
 package smptk.mesh.kdtree
 
 import scala.annotation.tailrec
-import smptk.image.Geometry.CoordVector3D
+import smptk.geometry.{Point, ThreeD}
+
 
 /** DimensionalOrdering is a trait whose instances each represent a strategy for ordering instances
   * of a multidimensional type by a projection on a given dimension.
@@ -61,9 +62,9 @@ object DimensionalOrdering {
     }
 
 
-  implicit val dimensionalOrderingForPoint3D = new DimensionalOrdering[CoordVector3D[Double]] {
+  implicit val dimensionalOrderingForPoint3D = new DimensionalOrdering[Point[ThreeD]] {
     val dimensions = 3
-    def compareProjection(d : Int)(x : CoordVector3D[Double], y : CoordVector3D[Double]) =
+    def compareProjection(d : Int)(x : Point[ThreeD], y : Point[ThreeD]) =
       Ordering[Double].compare(x(d), y(d))
   }
 

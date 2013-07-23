@@ -3,26 +3,22 @@ package io
 
 import image.ScalarPixel
 import image.Image._
-import scala.language.higherKinds
 import scala.util.Try
 import scala.util.Failure
 import image.DiscreteScalarImage2D
 import java.io.File
 import smptk.image.DiscreteScalarImage2D
-import smptk.image.CoordVector
 import smptk.image.DiscreteScalarImage
 import scala.util.Success
 import smptk.image.{DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import reflect.runtime.universe.{ TypeTag, typeOf }
-import smptk.image.Geometry.CoordVector2D
 import smptk.image.DiscreteScalarImage2D
 import java.io.IOException
 import smptk.image.DiscreteImage
 import scala.reflect.ClassTag
 import smptk.image.DiscreteScalarImage3D
 import smptk.image.DiscreteScalarImage1D
-import smptk.image.Geometry.CoordVector1D
-import smptk.image.Geometry.CoordVector3D
+import smptk.geometry._
 
 object ImageIO {
 
@@ -54,7 +50,7 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
 
-              val domain = DiscreteImageDomain1D(CoordVector1D(imageData.origin(0)), CoordVector1D(imageData.spacing(0)), CoordVector1D(imageData.size(0).toInt))  
+              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0)), Vector1D(imageData.spacing(0)), Index1D(imageData.size(0).toInt))  
               Success(DiscreteScalarImage1D(domain, imageData.data))
             }
           }
@@ -78,9 +74,9 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain3D(
-                CoordVector3D(imageData.origin(0), imageData.origin(1), imageData.origin(2)),
-                CoordVector3D(imageData.spacing(0), imageData.spacing(1), imageData.spacing(2)),
-                CoordVector3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
+                Point3D(imageData.origin(0), imageData.origin(1), imageData.origin(2)),
+                Vector3D(imageData.spacing(0), imageData.spacing(1), imageData.spacing(2)),
+                Index3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
               Success(DiscreteScalarImage3D(domain, imageData.data))
             }
@@ -105,9 +101,9 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain2D(
-                CoordVector2D(imageData.origin(0), imageData.origin(1)),
-                CoordVector2D(imageData.spacing(0), imageData.spacing(1)),
-                CoordVector2D(imageData.size(0).toInt, imageData.size(1).toInt))
+                Point2D(imageData.origin(0), imageData.origin(1)),
+                Vector2D(imageData.spacing(0), imageData.spacing(1)),
+                Index2D(imageData.size(0).toInt, imageData.size(1).toInt))
               Success(DiscreteScalarImage2D(domain, imageData.data))
             }
           }
@@ -146,7 +142,7 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[CV, Scalar], file: File): Try[Unit] = {
+  def writeImage[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -156,7 +152,7 @@ object ImageIO {
     }
   }
 
-  private def writeHDF5[CV[A] <: CoordVector[A], Scalar: TypeTag: ClassTag](img: DiscreteImage[CV, Scalar], file: File): Try[Unit] = {
+  private def writeHDF5[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteImage[D, Scalar], file: File): Try[Unit] = {
 
     val maybeVoxelType = scalarTypeToString[Scalar]()
     if (maybeVoxelType.isEmpty) {
@@ -172,7 +168,7 @@ object ImageIO {
     // (note that here the dimensions of the voxelArray are reversed compared the the
     // vector dims that is stored in the field Dimensions. This is the convention of the itk implementation
     // which we follow)
-    var voxelArrayDim = img.domain.size.toArray.reverse.map(_.toLong)
+    var voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
 
     if (img.pixelDimensionality > 1)
       voxelArrayDim = voxelArrayDim ++ Vector[Long](img.pixelDimensionality)
@@ -184,9 +180,9 @@ object ImageIO {
 
     val maybeError: Try[Unit] = for {
       _ <- h5file.writeNDArray("/ITKImage/0/Directions", directions)
-      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray.map(_.toLong))
-      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray.map(_.toDouble))
-      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray.map(_.toDouble))
+      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.data.map(_.toLong))
+      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.data.map(_.toDouble))
+      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.data.map(_.toDouble))
       _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.pixelValues.toArray))
       _ <- h5file.createGroup("/ITKImage/0/MetaData")
       _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever

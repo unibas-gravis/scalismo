@@ -4,14 +4,11 @@ package image
 import breeze.plot._
 import breeze.linalg._
 import Image._
-import Geometry.CoordVector1D
 import ij._
 import ij.process.FloatProcessor
 import ij.ImageStack
 import ij.WindowManager
 import smptk.registration.Transformation
-import smptk.image.Geometry.{ Point1D, Point2D, CoordVector3D }
-import smptk.image.Geometry.CoordVector2D
 import smptk.common.BoxedRegion
 import smptk.common.BoxedRegion2D
 import smptk.numerics.Integrator
@@ -24,6 +21,8 @@ import swing._
 import vtk._
 import smptk.mesh.TriangleMesh
 import smptk.mesh.TriangleMesh
+import smptk.geometry
+import smptk.geometry.TwoD
 
 object Utils {
 
@@ -121,23 +120,23 @@ object Utils {
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, xs.map(x => img.liftPixelValue(CoordVector1D(x)).getOrElse(outsideValue).toDouble))
+    p += plot(xs, xs.map(x => img.liftPixelValue(geometry.Point1D(x)).getOrElse(outsideValue).toDouble))
     f.refresh
     f.visible = true
   }
 
-  def show1D(img: ContinuousVectorImage[CoordVector1D], domain: DiscreteImageDomain1D) {
+  def show1D(img: ContinuousVectorImage[geometry.OneD], domain: DiscreteImageDomain1D) {
 
     val xs = linspace(domain.origin(0).toDouble, domain.extent(0), domain.numberOfPoints)
 
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, xs.map(x => img(CoordVector1D(x))(0)))
+    p += plot(xs, xs.map(x => img(geometry.Point1D(x))(0)))
 
   }
 
-  def showGrid1D(domain: DiscreteImageDomain1D, transform: Transformation[CoordVector1D]) {
+  def showGrid1D(domain: DiscreteImageDomain1D, transform: Transformation[geometry.OneD]) {
     val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 2 == 0) -1. else 1.).toIndexedSeq )
     //val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)))
 
@@ -173,31 +172,31 @@ object Utils {
 
   
   def gridImage2D(gridWidth: Double, tolerance: Double): ContinuousScalarImage2D = {
-    def grid(x: Point2D) = {
+    def grid(x: geometry.Point[geometry.TwoD]) = {
       if (math.abs(x(0) % gridWidth) < tolerance || math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
     }
-    def df(x: Point2D) = DenseVector(0., 0.)
-    ContinuousScalarImage2D((x: Point2D) => true, grid, Some(df))
+    def df(x: geometry.Point[geometry.TwoD]) = DenseVector(0., 0.)
+    ContinuousScalarImage2D((x: geometry.Point[geometry.TwoD]) => true, grid, Some(df))
 
   }
 
   def gridImage1D(gridWidth: Double, tolerance: Double): ContinuousScalarImage1D = {
-    def grid(x: Point1D) = {
+    def grid(x: geometry.Point[geometry.OneD]) = {
       if (math.abs(x(0) % gridWidth) < tolerance) 0f else 1f
     }
-    def df(x: Point1D) = DenseVector(0.)
-    ContinuousScalarImage1D((x: Point1D) => true, grid, Some(df))
+    def df(x: geometry.Point[geometry.OneD]) = DenseVector(0.)
+    ContinuousScalarImage1D((x: geometry.Point[geometry.OneD]) => true, grid, Some(df))
   }
 
-  def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator: Integrator[CoordVector1D]) = {
+  def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator: Integrator[geometry.OneD]) = {
     img.convolve(GaussianFilter1D(deviation), integrator)
   }
 
-  def gaussianSmoothing2D(img: ContinuousScalarImage2D, deviation: Double, integrator: Integrator[CoordVector2D]) = {
+  def gaussianSmoothing2D(img: ContinuousScalarImage2D, deviation: Double, integrator: Integrator[geometry.TwoD]) = {
     img.convolve(GaussianFilter2D(deviation), integrator)
   }
 
-  def gaussianSmoothing3D(img: ContinuousScalarImage3D, deviation: Double, integrator: Integrator[CoordVector3D]) = {
+  def gaussianSmoothing3D(img: ContinuousScalarImage3D, deviation: Double, integrator: Integrator[geometry.ThreeD]) = {
     img.convolve(GaussianFilter3D(deviation), integrator)
   }
   
