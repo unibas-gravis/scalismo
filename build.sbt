@@ -27,6 +27,7 @@ resolvers ++= Seq(
    "twitter" at "http://maven.twttr.com/"
    )
 
+fork := true
 
 EclipseKeys.withSource := true
 
