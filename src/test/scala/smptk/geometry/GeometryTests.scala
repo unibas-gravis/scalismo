@@ -9,12 +9,10 @@ class GeometryTests extends FunSpec with ShouldMatchers {
   val p = Point3D(0.1, 3., 1.1)
   val pGeneric = new Point[ThreeD] {
     val data = Array(0.1, 3., 1.1)
-    val dimensionality = 3
   }
   val v = Vector3D(0.1, 3., 1.1)
   val vGeneric = new Vector[ThreeD] {
     val data = Array(0.1, 3., 1.1)
-    val dimensionality = 3
   }  
   
   describe("A 3D Point") {
@@ -41,5 +39,14 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     it("equals a point when converted to point") {
       v.toPoint should equal(p)
     }
+    
+    it("gives the correct norm and normsquared for various test cases") {
+    	Vector1D(1).norm2 should equal(1)
+    	Vector2D(1,1).norm2 should equal(2)
+    	Vector3D(1, 1,1).norm2 should equal(3)
+    	Vector2D(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 plusOrMinus(1e-5))
+    	v.norm should be(math.sqrt(v.norm2) plusOrMinus(1e-5))
+    }
+    
   }
 }
