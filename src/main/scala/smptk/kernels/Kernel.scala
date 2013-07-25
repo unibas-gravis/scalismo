@@ -1,8 +1,6 @@
 package smptk
 package kernels
 
-import image.Geometry._
-import image.CoordVector
 import breeze.linalg.{ pinv, diag, DenseMatrix }
 import smptk.image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
@@ -14,48 +12,49 @@ import smptk.common.DiscreteDomain
 import smptk.common.BoxedRegion
 import smptk.numerics.UniformSampler
 import smptk.common.ImmutableLRU
+import smptk.geometry._
 
-trait PDKernel[CV[A] <: CoordVector[A]] { self =>
-  def apply(x: CV[Double], y: CV[Double]): DenseMatrix[Double]
+trait PDKernel[D <: Dim] { self =>
+  def apply(x: Point[D], y: Point[D]): DenseMatrix[Double]
   def outputDim: Int
   
 
-  def +(that: PDKernel[CV]): PDKernel[CV] = new PDKernel[CV] {
+  def +(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     require(self.outputDim == that.outputDim)
-    override def apply(x: CV[Double], y: CV[Double]) = self.apply(x, y) + that.apply(x, y)
+    override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
     override def outputDim = self.outputDim
   }
 
-  def *(that: PDKernel[CV]): PDKernel[CV] = new PDKernel[CV] {
+  def *(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     require(self.outputDim == that.outputDim)
-    override def apply(x: CV[Double], y: CV[Double]) = self.apply(x, y) * that.apply(x, y)
+    override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) * that.apply(x, y)
     override def outputDim = self.outputDim
   }
 
-  def *(s: Double): PDKernel[CV] = new PDKernel[CV] {
-    override def apply(x: CV[Double], y: CV[Double]) = self.apply(x, y) * s
+  def *(s: Double): PDKernel[D] = new PDKernel[D] {
+    override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) * s
     override def outputDim = self.outputDim
   }
   
   // TODO this could be made more generic by allowing the input of phi to be any type A
-  def compose(phi : CV[Double] => CV[Double]) = new PDKernel[CV] { 
-    override def apply(x: CV[Double], y: CV[Double]) = self.apply(phi(x), phi(y)) 
+  def compose(phi : Point[D] => Point[D]) = new PDKernel[D] { 
+    override def apply(x: Point[D], y: Point[D]) = self.apply(phi(x), phi(y)) 
     override def outputDim = self.outputDim    
   }
 
 }
 
-case class UncorrelatedKernelND[CV[A] <: CoordVector[A]](k: PDKernel[CV], val outputDim: Int) extends PDKernel[CV] {
+case class UncorrelatedKernelND[D <: Dim](k: PDKernel[D], val outputDim: Int) extends PDKernel[D] {
   if (k.outputDim != 1) throw new IllegalArgumentException("Can only build Uncorrelated kernels from scalar valued kernels")
   val I = DenseMatrix.eye[Double](outputDim)
-  def apply(x: CV[Double], y: CV[Double]) = I * (k(x, y)(0, 0)) // k is scalar valued
+  def apply(x: Point[D], y: Point[D]) = I * (k(x, y)(0, 0)) // k is scalar valued
 
 }
 
-case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
+case class GaussianKernel3D(val sigma: Double) extends PDKernel[ThreeD] {
   val sigma2 = sigma * sigma
   def outputDim = 1
-  def apply(x: CoordVector3D[Double], y: CoordVector3D[Double]) = {
+  def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
 
     val r0 = (x(0) - y(0))
     val r1 = (x(1) - y(1))
@@ -65,10 +64,10 @@ case class GaussianKernel3D(val sigma: Double) extends PDKernel[CoordVector3D] {
   }
 }
 
-case class GaussianKernel2D(val sigma: Double) extends PDKernel[CoordVector2D] {
+case class GaussianKernel2D(val sigma: Double) extends PDKernel[TwoD] {
   val sigma2 = sigma * sigma
   def outputDim = 1
-  def apply(x: CoordVector2D[Double], y: CoordVector2D[Double]) = {
+  def apply(x: Point[TwoD], y: Point[TwoD]) = {
 
     val r0 = (x(0) - y(0))
     val r1 = (x(1) - y(1))
@@ -77,42 +76,42 @@ case class GaussianKernel2D(val sigma: Double) extends PDKernel[CoordVector2D] {
   }
 }
 
-case class GaussianKernel1D(val sigma: Double) extends PDKernel[CoordVector1D] {
+case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
 
   val sigma2 = sigma * sigma
 
   def outputDim = 1
-  def apply(x: Point1D, y: Point1D) = {
+  def apply(x: Point[OneD], y: Point[OneD]) = {
 
     val r = (x(0) - y(0))
     DenseMatrix(scala.math.exp(-(r * r) / sigma2))
   }
 }
 
-case class PolynomialKernel3D(degree: Int) extends PDKernel[CoordVector3D] {
+case class PolynomialKernel3D(degree: Int) extends PDKernel[ThreeD] {
   def outputDim = 1
-  def apply(x: Point3D, y: Point3D) = {
+  def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
     DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + x(2) * y(2) + 1, degree))
   }
 }
 
-case class PolynomialKernel2D(degree: Int) extends PDKernel[CoordVector2D] {
+case class PolynomialKernel2D(degree: Int) extends PDKernel[TwoD] {
   def outputDim = 1
-  def apply(x: Point2D, y: Point2D) = {
+  def apply(x: Point[TwoD], y: Point[TwoD]) = {
     DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + 1, degree))
   }
 }
 
-case class PolynomialKernel1D(degree: Int) extends PDKernel[CoordVector1D] {
+case class PolynomialKernel1D(degree: Int) extends PDKernel[OneD] {
   def outputDim = 1
-  def apply(x: Point1D, y: Point1D) = {
+  def apply(x: Point[OneD], y: Point[OneD]) = {
     DenseMatrix(math.pow(x(0) * y(0) + 1, degree))
   }
 }
 
 object Kernel {
 
-  def computeKernelMatrix[CV[A] <: CoordVector[A]](xs: IndexedSeq[CV[Double]], k: PDKernel[CV]): DenseMatrix[Double] = {
+  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: PDKernel[D]): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
@@ -128,7 +127,7 @@ object Kernel {
    * kx = (k(x, x1), ... k(x, xm))
    * since the kernel is matrix valued, kx is actually a matrix
    */
-  def computeKernelVectorFor[CV[A] <: CoordVector[A]](x: CV[Double], xs: IndexedSeq[CV[Double]], k: PDKernel[CV]): DenseMatrix[Double] = {
+  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: PDKernel[D]): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val kxs = DenseMatrix.zeros[Double](d, xs.size * d)
@@ -150,7 +149,7 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[CV[A] <: CoordVector[A]](k: PDKernel[CV], domain: BoxedRegion[CV], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[CV]): IndexedSeq[(Double, CV[Double] => DenseVector[Double])] = {
+  def computeNystromApproximation[D <: Dim](k: PDKernel[D], domain: BoxedRegion[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -166,8 +165,8 @@ object Kernel {
     val W = uMat(::, 0 until numParams) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) * pinv(diag(lambdaMat(0 until numParams)))
 
     @volatile
-    var cache = ImmutableLRU[CV[Double], DenseMatrix[Double]](1000)
-    def phi(i: Int)(x: CV[Double]) = {
+    var cache = ImmutableLRU[Point[D], DenseMatrix[Double]](1000)
+    def phi(i: Int)(x: Point[D]) = {
       // check the cache. if value is not there exit
       // TODO make it nicer using scalaz Memo class
       // TODO make cache size configurable

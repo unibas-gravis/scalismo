@@ -2,9 +2,9 @@ package smptk
 package statisticalmodel
 
 import smptk.mesh.TriangleMesh
-import smptk.image.Geometry._
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import smptk.common.ImmutableLRU
+import smptk.geometry._
 
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh
@@ -37,9 +37,9 @@ object StatisticalMeshModel {
     val numPCAComponents = phiMat.cols
 
     @volatile
-    var closestPointCache = ImmutableLRU[CoordVector3D[Double], (CoordVector3D[Double], Int)](1000)
+    var closestPointCache = ImmutableLRU[Point[ThreeD], (Point[ThreeD], Int)](1000)
 
-    def findClosestPointMemoized(pt: CoordVector3D[Double]) = {
+    def findClosestPointMemoized(pt: Point[ThreeD]) = {
       val (maybeClosestPt, newClosestPointCache) = closestPointCache.get(pt)
       maybeClosestPt.getOrElse {
     	  val closestPtWithId = mesh.findClosestPoint(pt)
@@ -49,12 +49,12 @@ object StatisticalMeshModel {
     }
 
     
-    def mean(pt: CoordVector3D[Double]): DenseVector[Double] = {
+    def mean(pt: Point[ThreeD]): DenseVector[Double] = {
       val (closestPt, closestPtId) = findClosestPointMemoized(pt)
       meanVec(closestPtId * 3 until (closestPtId + 1) * 3)
     }
 
-    def phi(i : Int)(pt: CoordVector3D[Double]): DenseVector[Double] = {
+    def phi(i : Int)(pt: Point[ThreeD]): DenseVector[Double] = {
       val (closestPt, closestPtId) = findClosestPointMemoized(pt)
       DenseVector(phiMat(closestPtId  * 3, i), phiMat(closestPtId  * 3 + 1, i), phiMat(closestPtId  * 3 + 2, i)) 
     }

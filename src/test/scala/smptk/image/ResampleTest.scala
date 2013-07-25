@@ -9,8 +9,8 @@ import org.scalatest.Ignore
 import io.ImageIO
 import java.io.File
 import smptk.registration.RotationSpace2D
-import smptk.image.Geometry.CoordVector2D
-import smptk.image.Geometry.implicits._
+import smptk.geometry._
+import smptk.geometry.implicits._
 import breeze.linalg.DenseVector
 
 class ResampleTest extends FunSpec with ShouldMatchers {
@@ -40,7 +40,7 @@ class ResampleTest extends FunSpec with ShouldMatchers {
 
     it("represents a rotated image") {
       val domain = discreteImage.domain
-      val center = CoordVector2D(domain.origin(0) + domain.extent(0) / 2, domain.origin(1) +domain.extent(1) / 2)
+      val center = ((domain.extent - domain.origin) * 0.5).toPoint 
       val rotTransform = RotationSpace2D(center)(DenseVector((math.Pi / 10).toFloat))
       val rotatedImg = continuousImage compose rotTransform
       val resampledImage = Resample.sample2D[Short](rotatedImg, domain, 0)

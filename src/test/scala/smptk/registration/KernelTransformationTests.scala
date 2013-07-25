@@ -6,10 +6,10 @@ import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
 import smptk.image.DiscreteImageDomain1D
 import smptk.image.ContinuousScalarImage1D
-import smptk.image.Geometry.CoordVector1D
-import smptk.image.Geometry.Point1D
+import geometry._
+import geometry.implicits._
 import com.sun.org.apache.xpath.internal.operations.Plus
-import image.Geometry.implicits._
+
 import image.Image._
 import smptk.image.DiscreteScalarImage1D
 import smptk.image.Interpolation
@@ -19,8 +19,6 @@ import breeze.plot.Figure
 import breeze.plot._
 import smptk.io.ImageIO
 import java.io.File
-import smptk.image.Geometry.CoordVector2D
-import smptk.image.Geometry.{ Point2D, Point3D }
 import smptk.image.DiscreteImageDomain2D
 import smptk.numerics.RandomSVD
 import smptk.image.DiscreteImageDomain
@@ -40,7 +38,6 @@ import breeze.stats.distributions.Uniform
 import smptk.image.ContinuousScalarImage2D
 import breeze.stats.distributions.Uniform
 import smptk.numerics.{ UniformSampler1D, UniformSampler3D }
-import smptk.image.Geometry.CoordVector3D
 import smptk.image.DiscreteImageDomain3D
 import smptk.statisticalmodel.{LowRankGaussianProcessConfiguration}
 import smptk.statisticalmodel.GaussianProcess._
@@ -53,13 +50,13 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   describe("The Nystroem approximation of a Kernel matrix") {
     it("Is close enough to a scalar valued kernel matrix") {
       val kernel = GaussianKernel1D(20)
-      val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
+      val domain = DiscreteImageDomain1D(-5, 2, 100)
 
       val sampler = UniformSampler1D()
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
 
-      def approxKernel(x: Point1D, y: Point1D) = {
+      def approxKernel(x: Point[OneD], y: Point[OneD]) = {
         (0 until eigPairs.size).foldLeft(0.)((sum, i) => {
           val (lambda_i, phi_i) = eigPairs(i)
           sum + lambda_i * phi_i(x)(0) * phi_i(y)(0)
@@ -78,9 +75,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     ignore("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
       val scalarKernel = GaussianKernel1D(10)
-      val domain = DiscreteImageDomain1D(CoordVector1D(0.), CoordVector1D(0.5), CoordVector1D(200))
+      val domain = DiscreteImageDomain1D(0.,0.5, 200)
       val sampler = UniformSampler1D()
-      val eigPairsApprox = Kernel.computeNystromApproximation[CoordVector1D](scalarKernel, domain, 10, 500, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, domain, 10, 500, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
       
       val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
@@ -101,12 +98,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val kernelDim = 2
       val scalarKernel = GaussianKernel2D(10)
-      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
-      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1, 1), CoordVector2D(20, 20))
+      val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
+      val domain = DiscreteImageDomain2D((0., 0.), (1., 1.), (20, 20))
       val sampler = UniformSampler2D()
 
 
-      val eigPairsApprox = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, domain, 10, 500, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
   
       
@@ -130,14 +127,14 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     ignore("The eigenValues are independent of the spacing") {
       val kernelDim = 2
       val scalarKernel = GaussianKernel2D(10)
-      val ndKernel = UncorrelatedKernelND[CoordVector2D](scalarKernel, kernelDim)
-      val domain = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(1., 1.), CoordVector2D(20, 20))
-      val domain2 = DiscreteImageDomain2D(CoordVector2D(0., 0.), CoordVector2D(0.5, 0.5), CoordVector2D(20, 20))
+      val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
+      val domain = DiscreteImageDomain2D((0., 0.), (1., 1.), (20, 20))
+      val domain2 = DiscreteImageDomain2D((0., 0.), (0.5, 0.5), (20, 20))
       val sampler = UniformSampler2D()
 
-      val eigPairsDomain1 = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain, 10, 500, sampler)
+      val eigPairsDomain1 = Kernel.computeNystromApproximation[TwoD](ndKernel, domain, 10, 500, sampler)
       val lambdasDomain1 = eigPairsDomain1.map(_._1)
-      val eigPairsDomain2 = Kernel.computeNystromApproximation[CoordVector2D](ndKernel, domain2, 10, 500, sampler)
+      val eigPairsDomain2 = Kernel.computeNystromApproximation[TwoD](ndKernel, domain2, 10, 500, sampler)
       val lambdasDomain2 = eigPairsDomain2.map(_._1)
 
       for (l <- lambdasDomain1.zipWithIndex)
@@ -146,18 +143,18 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     ignore("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = GaussianKernel1D(20)
-      val domain = DiscreteImageDomain1D(CoordVector1D(-5f), CoordVector1D(2f), CoordVector1D(100))
+      val domain = DiscreteImageDomain1D(-5., 2., 100)
       val sampler = UniformSampler1D()
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
 
 
-      val integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
+      val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
 
       for (i <- 0 until 20) {
 
     	val (lambda_i, phi_i) = eigPairs(i)
-        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point1D) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.)))
+        val phiImg = new ContinuousScalarImage1D(domain.isInside, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.)))
 
         val v = integrator.integrateScalar(phiImg, domain)
         v should be(1. plusOrMinus 0.1)
@@ -173,12 +170,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val gk = GaussianKernel1D(0.1)
 
-        val gp = createLowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain, (x: CoordVector1D[Double]) => DenseVector(0.), gk, 10, 500))
+        val gp = createLowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain, (x: Point[OneD]) => DenseVector(0.), gk, 10, 500))
 
-        val regConf = RegistrationConfiguration[CoordVector1D](
+        val regConf = RegistrationConfiguration(
           regularizationWeight = 0.0,
           optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.3)),
-          integrator = Integrator[CoordVector1D](IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints)),
+          integrator = Integrator(IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints)),
           metric = MeanSquaresMetric1D(),
           transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration(gp)),
           regularizer = RKHSNormRegularizer)
@@ -213,9 +210,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         // Define a transformation    
         val gk = UncorrelatedKernelND(GaussianKernel2D(400), 2)
 
-        val gp = createLowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: CoordVector2D[Double]) => DenseVector(0., 0.), gk, 2, 500))
+        val gp = createLowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: Point[TwoD]) => DenseVector(0., 0.), gk, 2, 500))
 
-        val kernelTransformConfig = KernelTransformationSpaceConfiguration[CoordVector2D](gp, true)
+        val kernelTransformConfig = KernelTransformationSpaceConfiguration(gp, true)
         val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
 
         val parameterVector = DenseVector[Double](25., 35.)
@@ -225,12 +222,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         //Utils.show2D(warpedImage, domain)
 
-        val regConf = RegistrationConfiguration[CoordVector2D](
+        val regConf = RegistrationConfiguration(
           regularizationWeight = 0.0,
           optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.000001, false, true, 0.602)),
           //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(100)),
           //optimizer = BreezeStochGradOptimizer(BreezeStochGradOptimizerConfiguration(100, 1.)),
-          integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 200)),
+          integrator = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler2D(), 200)),
           //integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 300)),
           //metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
           metric = MeanSquaresMetric2D(),
@@ -259,9 +256,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         // Define a transformation    
         val gk = UncorrelatedKernelND(GaussianKernel2D(50.), 2)
 
-        val gp = createLowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: CoordVector2D[Double]) => DenseVector(0., 0.), gk, 2, 500))
+        val gp = createLowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: Point[TwoD]) => DenseVector(0., 0.), gk, 2, 500))
 
-        val kernelTransformConfig = KernelTransformationSpaceConfiguration[CoordVector2D](gp, true)
+        val kernelTransformConfig = KernelTransformationSpaceConfiguration(gp, true)
         val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
 
         val parameterVector = DenseVector[Double](20., 10.)
@@ -273,20 +270,20 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         def pyramidRegistation(fixedImage: ContinuousScalarImage2D, movingImage: ContinuousScalarImage2D,
           domain: DiscreteImageDomain2D,
-          regConf: RegistrationConfiguration[CoordVector2D],
+          regConf: RegistrationConfiguration[TwoD],
           deviations: List[Double],
-          latestRegResults: Option[RegistrationResult[CoordVector2D]]): RegistrationResult[CoordVector2D] = {
+          latestRegResults: Option[RegistrationResult[TwoD]]): RegistrationResult[TwoD] = {
 
           if (deviations.size > 0)
             println("Pyramid registration for deviation " + deviations(0))
 
-          val integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(), 50))
+          val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(), 50))
           val image = if (deviations.size == 0) movingImage else Utils.gaussianSmoothing2D(movingImage, deviations(0), integrator)
           val smoothedFixedImage = if (deviations.size == 0) fixedImage else Utils.gaussianSmoothing2D(fixedImage, deviations(0), integrator)
 
           val lastParams = if (latestRegResults.isDefined) latestRegResults.get.parameters else regConf.initialParameters
 
-          val newRegConf = RegistrationConfiguration[CoordVector2D](
+          val newRegConf = RegistrationConfiguration[TwoD](
             regularizationWeight = regConf.regularizationWeight,
             optimizer = regConf.optimizer,
             integrator = regConf.integrator,
@@ -309,13 +306,13 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val decreasingDeviations = List(8., 6., 4., 1.)
 
-        val regConf = RegistrationConfiguration[CoordVector2D](
+        val regConf = RegistrationConfiguration[TwoD](
           regularizationWeight = 0.0,
           //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(15, 0.00003, false, true, 0.602)),
           optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(20)),
           //optimizer = BreezeStochGradOptimizer(BreezeStochGradOptimizerConfiguration(100, 1.)), 
 
-          integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 124)),
+          integrator = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler2D(), 124)),
           //integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(124))),
 
           //metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),

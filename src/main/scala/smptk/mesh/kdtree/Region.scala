@@ -5,6 +5,7 @@
 */
 
 package smptk.mesh.kdtree
+import scala.language.implicitConversions
 
 import scala.math.Ordering.Implicits._
 

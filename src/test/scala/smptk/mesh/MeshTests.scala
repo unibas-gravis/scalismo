@@ -2,7 +2,7 @@ package smptk
 package mesh
 
 import smptk.io.MeshIO
-import smptk.image.Geometry._
+import smptk.geometry._
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
@@ -21,11 +21,11 @@ class MeshTests extends FunSpec with ShouldMatchers {
       }
     }
     it("finds the right closest point for a point that is not defined on the mesh") {
-      val pts = IndexedSeq(CoordVector3D(0., 0., 0.), CoordVector3D(1., 1., 1.), CoordVector3D(1., 1., 5.))
+      val pts = IndexedSeq(Point3D(0., 0., 0.), Point3D(1., 1., 1.), Point3D(1., 1., 5.))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val meshDomain = TriangleMeshDomain(pts, cells)
 
-      val newPt = CoordVector3D(1.1, 1.1, 4)
+      val newPt = Point3D(1.1, 1.1, 4)
       val (closestPt, closestPtId) = meshDomain.findClosestPoint(newPt)
       assert(closestPtId === 2)
       assert(closestPt === pts(2))

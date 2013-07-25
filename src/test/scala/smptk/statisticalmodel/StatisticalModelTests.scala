@@ -3,7 +3,8 @@ package statisticalmodel
 
 import smptk.io.MeshIO
 import smptk.kernels._
-import smptk.image.Geometry._
+import geometry._
+import geometry.implicits._
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
 import org.scalatest.FunSpec
@@ -20,9 +21,9 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
       val meshPoints = mesh.domain.points
       val region = mesh.boundingBox
-      val gpConfiguration = LowRankGaussianProcessConfiguration[CoordVector3D](
+      val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
         region,
-        (x: CoordVector3D[Double]) => DenseVector(0., 0., 0.),
+        (x: Point[ThreeD]) => DenseVector(0., 0., 0.),
         cov,
         20,
         300)

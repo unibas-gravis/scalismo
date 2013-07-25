@@ -5,8 +5,8 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import smptk.image.Interpolation._
 import org.scalatest.Ignore
-import smptk.image.Geometry._
-import smptk.image.Geometry.implicits._
+import smptk.geometry._
+import smptk.geometry.implicits._
 import breeze.plot.Figure
 import breeze.plot._
 import org.scalatest.PrivateMethodTester

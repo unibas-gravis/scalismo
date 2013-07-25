@@ -1,8 +1,6 @@
 package smptk
 package statisticalmodel
 
-import image.CoordVector
-import image.Geometry.{ CoordVector1D, CoordVector2D, CoordVector3D }
 import common.BoxedRegion
 import breeze.linalg.{ DenseVector, DenseMatrix, linspace }
 import breeze.stats.distributions.Gaussian
@@ -23,10 +21,12 @@ import breeze.plot.{ plot, Figure }
 import smptk.image.DiscreteImageDomain
 import smptk.common.ImmutableLRU
 import scala.collection.immutable.HashMap
+import smptk.geometry._
 
-case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: BoxedRegion[CV], val mean: CV[Double] => DenseVector[Double], val cov: PDKernel[CV]) {
 
-  type PointSample = IndexedSeq[CV[Double]]
+case class GaussianProcess[D <: Dim](val domain: BoxedRegion[D], val mean: Point[D] => DenseVector[Double], val cov: PDKernel[D]) {
+
+  type PointSample = IndexedSeq[Point[D]]
 
   def sample: (PointSample => IndexedSeq[DenseVector[Double]]) = { (xs: PointSample) =>
     {
@@ -50,23 +50,23 @@ case class GaussianProcess[CV[A] <: CoordVector[A]](val domain: BoxedRegion[CV],
   }
 }
 
-case class LowRankGaussianProcessConfiguration[CV[A] <: CoordVector[A]](
-  val domain: BoxedRegion[CV],
-  val mean: CV[Double] => DenseVector[Double],
-  val cov: PDKernel[CV],
+case class LowRankGaussianProcessConfiguration[D <: Dim](
+  val domain: BoxedRegion[D],
+  val mean: Point[D] => DenseVector[Double],
+  val cov: PDKernel[D],
   val numBasisFunctions: Int,
   val numPointsForNystrom: Int)
 
-trait LowRankGaussianProcess[CV[A] <: CoordVector[A]] {
+trait LowRankGaussianProcess[D <: Dim] {
 
-  val domain: BoxedRegion[CV]
+  val domain: BoxedRegion[D]
   val outputDim: Int
-  val mean: CV[Double] => DenseVector[Double]
-  val eigenPairs: IndexedSeq[(Double, CV[Double] => DenseVector[Double])]
+  val mean: Point[D] => DenseVector[Double]
+  val eigenPairs: IndexedSeq[(Double, Point[D] => DenseVector[Double])]
 
   def rank = eigenPairs.size
 
-  def instance(alpha: DenseVector[Double]): CV[Double] => DenseVector[Double] = {
+  def instance(alpha: DenseVector[Double]): Point[D] => DenseVector[Double] = {
     require(eigenPairs.size == alpha.size)
     x =>
       {
@@ -78,12 +78,12 @@ trait LowRankGaussianProcess[CV[A] <: CoordVector[A]] {
       }
   }
 
-  def sample: CV[Double] => DenseVector[Double] = {
+  def sample: Point[D] => DenseVector[Double] = {
     val coeffs = for (_ <- 0 until eigenPairs.size) yield Gaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 
-  def jacobian(p: DenseVector[Double]) = { x: CV[Double] =>
+  def jacobian(p: DenseVector[Double]) = { x: Point[D] =>
     val dim = x.dimensionality
     val J = DenseMatrix.zeros[Double](dim, eigenPairs.size)
     (0 until eigenPairs.size).map(i => {
@@ -97,14 +97,14 @@ trait LowRankGaussianProcess[CV[A] <: CoordVector[A]] {
    * returns a new gaussian process, where the values for the points are
    * pre-computed and hence fast to obtain
    */
-  def specializeForPoints(points: IndexedSeq[CV[Double]]) = {
+  def specializeForPoints(points: IndexedSeq[Point[D]]) = {
     new SpecializedLowRankGaussianProcess(this, points)
 
   }
 }
 
-class SpecializedLowRankGaussianProcess[CV[A] <: CoordVector[A]](gp: LowRankGaussianProcess[CV], points: IndexedSeq[CV[Double]])
-  extends LowRankGaussianProcess[CV] {
+class SpecializedLowRankGaussianProcess[D <: Dim](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]])
+  extends LowRankGaussianProcess[D] {
 
   private val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
   private val pointToIdxMap = points.zipWithIndex.toMap
@@ -120,26 +120,26 @@ class SpecializedLowRankGaussianProcess[CV[A] <: CoordVector[A]](gp: LowRankGaus
   override val eigenPairs = lambdas.zip(phis)
   override val mean = meanAtPoint _
 
-  def instanceAtPoints(alpha: DenseVector[Double]): IndexedSeq[(CV[Double], DenseVector[Double])] = {
+  def instanceAtPoints(alpha: DenseVector[Double]): IndexedSeq[(Point[D], DenseVector[Double])] = {
     require(eigenPairs.size == alpha.size)
     val instVal = Q * alpha + meanVec
     val ptVals = for (v <- instVal.toArray.grouped(outputDim)) yield DenseVector(v)
     points.zip(ptVals.toIndexedSeq)
   }
 
-  def sampleAtPoints: IndexedSeq[(CV[Double], DenseVector[Double])] = {
+  def sampleAtPoints: IndexedSeq[(Point[D], DenseVector[Double])] = {
     val coeffs = for (_ <- 0 until eigenPairs.size) yield Gaussian(0, 1).draw()
     instanceAtPoints(DenseVector(coeffs.toArray))
   }
 
-  private def meanAtPoint(pt: CV[Double]) = {
+  private def meanAtPoint(pt: Point[D]) = {
     pointToIdxMap.get(pt) match {
       case Some(ptId) => meanVec(ptId * outputDim until (ptId + 1) * outputDim)
       case None => gp.mean(pt)
     }
   }
 
-  private def phiAtPoint(i: Int)(pt: CV[Double]) = {
+  private def phiAtPoint(i: Int)(pt: Point[D]) = {
     pointToIdxMap.get(pt) match {
       case Some(ptId) => eigenMatrix(ptId * gp.outputDim until (ptId + 1) * gp.outputDim, i)
       case None => gpPhis(i)(pt)
@@ -166,48 +166,48 @@ class SpecializedLowRankGaussianProcess[CV[A] <: CoordVector[A]](gp: LowRankGaus
 }
 
 class LowRankGaussianProcess1D(
-  val domain: BoxedRegion[CoordVector1D],
+  val domain: BoxedRegion[OneD],
   val outputDim: Int,
-  val mean: CoordVector1D[Double] => DenseVector[Double],
-  val eigenPairs: IndexedSeq[(Double, CoordVector1D[Double] => DenseVector[Double])])
-  extends LowRankGaussianProcess[CoordVector1D] {}
+  val mean: Point[OneD] => DenseVector[Double],
+  val eigenPairs: IndexedSeq[(Double, Point[OneD] => DenseVector[Double])])
+  extends LowRankGaussianProcess[OneD] {}
 
 class LowRankGaussianProcess2D(
-  val domain: BoxedRegion[CoordVector2D],
+  val domain: BoxedRegion[TwoD],
   val outputDim: Int,
-  val mean: CoordVector2D[Double] => DenseVector[Double],
-  val eigenPairs: IndexedSeq[(Double, CoordVector2D[Double] => DenseVector[Double])])
-  extends LowRankGaussianProcess[CoordVector2D] {}
+  val mean: Point[TwoD] => DenseVector[Double],
+  val eigenPairs: IndexedSeq[(Double, Point[TwoD] => DenseVector[Double])])
+  extends LowRankGaussianProcess[TwoD] {}
 
 class LowRankGaussianProcess3D(
-  val domain: BoxedRegion[CoordVector3D],
+  val domain: BoxedRegion[ThreeD],
   val outputDim: Int,
-  val mean: CoordVector3D[Double] => DenseVector[Double],
-  val eigenPairs: IndexedSeq[(Double, CoordVector3D[Double] => DenseVector[Double])])
-  extends LowRankGaussianProcess[CoordVector3D] {}
+  val mean: Point[ThreeD] => DenseVector[Double],
+  val eigenPairs: IndexedSeq[(Double, Point[ThreeD] => DenseVector[Double])])
+  extends LowRankGaussianProcess[ThreeD] {}
 
 object GaussianProcess {
 
-  def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[CoordVector1D]) = {
+  def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
     def uniformSampler = UniformSampler1D()
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, uniformSampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
-  def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[CoordVector2D]) = {
+  def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[TwoD]) = {
     def uniformSampler = UniformSampler2D()
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, uniformSampler)
     new LowRankGaussianProcess2D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
-  def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[CoordVector3D]) = {
+  def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[ThreeD]) = {
     def uniformSampler = UniformSampler3D()
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, uniformSampler)
     new LowRankGaussianProcess3D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   // Gaussian process regression for a low rank gaussian process
-  def regression[CV[A] <: CoordVector[A]](gp: LowRankGaussianProcess[CV], trainingData: IndexedSeq[(CV[Double], DenseVector[Double])], sigma2: Double, meanOnly: Boolean = false) = {
+  def regression[D <: Dim](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], DenseVector[Double])], sigma2: Double, meanOnly: Boolean = false) = {
 
     def flatten(v: IndexedSeq[DenseVector[Double]]) = DenseVector(v.flatten(_.toArray).toArray)
 
@@ -233,8 +233,8 @@ object GaussianProcess {
     val mean_p = gp.instance(mean_coeffs)
 
     if (meanOnly == true) {
-      val emptyEigenPairs = IndexedSeq[(Double, CV[Double] => DenseVector[Double])]()
-      new LowRankGaussianProcess[CV] {
+      val emptyEigenPairs = IndexedSeq[(Double, Point[D] => DenseVector[Double])]()
+      new LowRankGaussianProcess[D] {
         val domain = gp.domain
         val outputDim = gp.outputDim
         val mean = mean_p
@@ -246,9 +246,9 @@ object GaussianProcess {
       val (innerU, innerD2, _) = breeze.linalg.svd(Sigma)
 
       @volatile
-      var phisAtXCache = ImmutableLRU[CV[Double], DenseMatrix[Double]](1000)
+      var phisAtXCache = ImmutableLRU[Point[D], DenseMatrix[Double]](1000)
 
-      def phip(i: Int)(x: CV[Double]) = { // should be phi_p but _ is treated as partial function
+      def phip(i: Int)(x: Point[D]) = { // should be phi_p but _ is treated as partial function
         val (maybePhisAtX, newPhisAtXCache) = phisAtXCache.get(x)
         val phisAtX = maybePhisAtX.getOrElse {
           val newPhisAtX = {
@@ -266,7 +266,7 @@ object GaussianProcess {
 
       val phis_p = for (i <- 0 until phis.size) yield (x => phip(i)(x))
       val lambdas_p = innerD2.toArray.toIndexedSeq
-      new LowRankGaussianProcess[CV] {
+      new LowRankGaussianProcess[D] {
         val domain = gp.domain
         val outputDim = gp.outputDim
         val mean = mean_p
@@ -276,7 +276,7 @@ object GaussianProcess {
   }
 
   // Gaussian process regression for a standard gaussian process
-  def regression[CV[A] <: CoordVector[A]](gp: GaussianProcess[CV], trainingData: IndexedSeq[(CV[Double], DenseVector[Double])], sigma2: Double) = {
+  def regression[D <: Dim](gp: GaussianProcess[D], trainingData: IndexedSeq[(Point[D], DenseVector[Double])], sigma2: Double) = {
 
     def flatten(v: IndexedSeq[DenseVector[Double]]) = DenseVector(v.flatten(_.toArray).toArray)
     val d = gp.cov.outputDim
@@ -288,14 +288,14 @@ object GaussianProcess {
 
     val kinv = breeze.linalg.inv(kxx + DenseMatrix.eye[Double](kxx.cols) * sigma2)
 
-    def mp(x: CV[Double]): DenseVector[Double] = {
+    def mp(x: Point[D]): DenseVector[Double] = {
       val kxs = Kernel.computeKernelVectorFor(x, xs, gp.cov)
       gp.mean(x) + (kxs * (kinv * (yVec - mVec)))
 
     }
 
-    val kp = new PDKernel[CV] {
-      def apply(x1: CV[Double], x2: CV[Double]): DenseMatrix[Double] = {
+    val kp = new PDKernel[D] {
+      def apply(x1: Point[D], x2: Point[D]): DenseMatrix[Double] = {
         val kx1xs = Kernel.computeKernelVectorFor(x1, xs, gp.cov)
         val kx2xs = Kernel.computeKernelVectorFor(x2, xs, gp.cov)
         gp.cov(x1, x2) - (kx1xs * (kinv * kx2xs.t))
@@ -303,7 +303,7 @@ object GaussianProcess {
       def outputDim = d
     }
 
-    GaussianProcess[CV](gp.domain, mp, kp)
+    GaussianProcess[D](gp.domain, mp, kp)
   }
 
   def main(args: Array[String]) {
@@ -313,9 +313,9 @@ object GaussianProcess {
     val meshPoints = mesh.domain.points
     val region = mesh.boundingBox
     println("region: " + region)
-    val gpConfiguration = LowRankGaussianProcessConfiguration[CoordVector3D](
+    val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
       region,
-      (x: CoordVector3D[Double]) => DenseVector(0., 0., 0.),
+      (x: Point[ThreeD]) => DenseVector(0., 0., 0.),
       cov,
       20,
       300)
@@ -328,7 +328,7 @@ object GaussianProcess {
 
       val ptSamples = specializedGP.sampleAtPoints
       val newPoints = for ((pt, samplePt) <- ptSamples) yield {
-        CoordVector3D(pt(0) + samplePt(0), pt(1) + samplePt(1), pt(2) + samplePt(2))
+        Point3D(pt(0) + samplePt(0), pt(1) + samplePt(1), pt(2) + samplePt(2))
       }
       val newMesh = TriangleMesh(TriangleMeshDomain(newPoints.toIndexedSeq, mesh.domain.cells))
       println("time in ms " +(System.currentTimeMillis() - s))

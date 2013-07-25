@@ -2,7 +2,6 @@ package smptk
 package io
 
 import java.io.File
-import smptk.image.Geometry._
 import scala.util.Try
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
@@ -14,6 +13,7 @@ import smptk.mesh.TriangleCell
 import smptk.mesh.TriangleMesh
 import smptk.mesh.TriangleMeshDomain
 import statisticalmodel.StatisticalMeshModel
+import smptk.geometry._
 
 object StatismoIO {
 
@@ -45,7 +45,7 @@ object StatismoIO {
         else
           Success(vertArray))
       val vertMat = ndArrayToMatrix(vertArray)
-      val points = for (i <- 0 until vertMat.cols) yield CoordVector3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
+      val points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
       cellArray <- h5file.readNDArray[Int]("/representer/cells").flatMap(cellArray =>
         if (cellArray.dims(0) != 3)
           Failure(new Exception("the representer cells are not triangles"))
@@ -60,7 +60,7 @@ object StatismoIO {
 
         // statismo stores the mean as the point position and not as a displaceme
       // ref. we compensate for this
-      def flatten(v: IndexedSeq[CoordVector3D[Double]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
+      def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.domain.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 

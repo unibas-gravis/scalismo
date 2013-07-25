@@ -3,14 +3,14 @@ package smptk.numerics
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import smptk.kernels._
-import smptk.image.Geometry.CoordVector1D
+import smptk.geometry._
 
 class RandomSVDTest extends FunSpec with ShouldMatchers {
 
   describe("The random svd") { 
     it("accurately approximates the first 10 eigenvectors and eigenvalues of a gaussian kernel matrix") { 
       val k = GaussianKernel1D(10)
-      val xs = (0 until 500).map(x => CoordVector1D(x.toDouble)) 
+      val xs = (0 until 500).map(x => Point1D(x.toDouble)) 
       val K = Kernel.computeKernelMatrix(xs, k)
       
       val (ur, lr, vrt) = RandomSVD.computeSVD(K, 10)
