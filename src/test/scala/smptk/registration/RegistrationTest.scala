@@ -76,16 +76,16 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val rotated = mesh compose trans
       //Utils.showVTK(Utils.meshToVTKMesh(rotatedTrans))
 
-      val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.domain.points.zip(rotated.domain.points).toIndexedSeq, center)
+      val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.points.zip(rotated.points).toIndexedSeq, center)
       //Utils.showVTK(Utils.meshToVTKMesh(mesh compose regResult.transform))
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regRotated = mesh compose regResult.transform
 
-      for ((p, i) <- regRotated.domain.points.zipWithIndex) {
-        p(0) should be(rotated.domain.points(i)(0) plusOrMinus 0.0001)
-        p(1) should be(rotated.domain.points(i)(1) plusOrMinus 0.0001)
-        p(2) should be(rotated.domain.points(i)(2) plusOrMinus 0.0001)
+      for ((p, i) <- regRotated.points.zipWithIndex) {
+        p(0) should be(rotated.points(i)(0) plusOrMinus 0.0001)
+        p(1) should be(rotated.points(i)(1) plusOrMinus 0.0001)
+        p(2) should be(rotated.points(i)(2) plusOrMinus 0.0001)
       }
     }
   }

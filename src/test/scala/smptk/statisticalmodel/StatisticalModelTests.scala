@@ -19,7 +19,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val mesh = MeshIO.readHDF5(new File(path)).get
       val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100, 3)
 
-      val meshPoints = mesh.domain.points
+      val meshPoints = mesh.points
       val region = mesh.boundingBox
       val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
         region,
@@ -29,11 +29,11 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         300)
       val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
-      val specializedGP = gp.specializeForPoints(mesh.domain.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
+      val specializedGP = gp.specializeForPoints(mesh.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
       
-      var mVec = DenseVector.zeros[Double](mesh.domain.numberOfPoints * 3)
-      var U = DenseMatrix.zeros[Double](mesh.domain.numberOfPoints * 3, phis.size)
-      for ((pt, ptId) <- mesh.domain.points.toIndexedSeq.par.zipWithIndex) {
+      var mVec = DenseVector.zeros[Double](mesh.numberOfPoints * 3)
+      var U = DenseMatrix.zeros[Double](mesh.numberOfPoints * 3, phis.size)
+      for ((pt, ptId) <- mesh.points.toIndexedSeq.par.zipWithIndex) {
         val mAtPt = gp.mean(pt)
         val phisAtPt = phis.map(phi => phi(pt))
         for (d <- 0 until 3) {
@@ -50,7 +50,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       lambdas should equal(newLambdas)
 
       // evaluating the newGP at the points of the mesh should yield the same deformations as the original gp
-      for (pt <- mesh.domain.points.par) {
+      for (pt <- mesh.points.par) {
         for (d <- 0 until 3) { gp.mean(pt)(d) should be(newGP.mean(pt)(d) plusOrMinus 1e-5) }
 
         for (i <- 0 until newLambdas.size) {

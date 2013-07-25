@@ -11,7 +11,6 @@ import scala.reflect.ClassTag
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import smptk.mesh.TriangleCell
 import smptk.mesh.TriangleMesh
-import smptk.mesh.TriangleMeshDomain
 import statisticalmodel.StatisticalMeshModel
 import smptk.geometry._
 
@@ -33,40 +32,40 @@ object StatismoIO {
      
       
       meanArray <- h5file.readNDArray[Float]("/model/mean")
-      val meanVector = DenseVector(meanArray.data).map(_.toDouble)
+      meanVector = DenseVector(meanArray.data).map(_.toDouble)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
-      val pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
+      pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
-      val pcaVarianceVector = DenseVector(pcaVarianceArray.data).map(_.toDouble)
+      pcaVarianceVector = DenseVector(pcaVarianceArray.data).map(_.toDouble)
 
       vertArray <- h5file.readNDArray[Float]("/representer/points").flatMap(vertArray =>
         if (vertArray.dims(0) != 3)
           Failure(new Exception("the representer points are not 3D points"))
         else
           Success(vertArray))
-      val vertMat = ndArrayToMatrix(vertArray)
-      val points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
+      vertMat = ndArrayToMatrix(vertArray)
+      points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
       cellArray <- h5file.readNDArray[Int]("/representer/cells").flatMap(cellArray =>
         if (cellArray.dims(0) != 3)
           Failure(new Exception("the representer cells are not triangles"))
         else
           Success(cellArray))
-      val cellMat = ndArrayToMatrix(cellArray)
-      val cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
+      cellMat = ndArrayToMatrix(cellArray)
+      cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
       cellArray <- h5file.readNDArray[Int]("/representer/cells")
-      val mesh = TriangleMesh(TriangleMeshDomain(points, cells))
+      mesh = TriangleMesh(points, cells)
     } yield {
 
 
         // statismo stores the mean as the point position and not as a displaceme
       // ref. we compensate for this
       def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
-      val refpointsVec = flatten(mesh.domain.points.toIndexedSeq)
+      val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
       // statismo stores the pcaBasisMatrix: each column corresponds to phi_i * sqrt(lambda_i)
       // we recover phi_i from it
-      val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) 1. / math.sqrt(l) else 0.)
+      val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) 1.0 / math.sqrt(l) else 0.0)
       StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv))
     }
 

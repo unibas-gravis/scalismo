@@ -8,7 +8,7 @@ import scala.util.Success
 import scala.util.Failure
 import geometry._
 import smptk.image.Utils
-import smptk.mesh.{TriangleMesh, TriangleMeshDomain}
+import smptk.mesh.{TriangleMesh}
 import ch.unibas.gravis.nativelib.NativeLibraryBundles
 
 class StatismoIOTest extends FunSpec with ShouldMatchers {
@@ -22,7 +22,7 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
       maybeModel match {
         case Success(model) => {
           val refMesh = model.mesh
-          val meshPts = refMesh.domain.points
+          val meshPts = refMesh.points
           // TODO fix this test
         }
         case Failure(e) => {

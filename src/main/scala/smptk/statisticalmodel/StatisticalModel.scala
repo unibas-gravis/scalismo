@@ -30,7 +30,7 @@ object StatisticalMeshModel {
    */ 
   def apply(mesh: TriangleMesh, meanVec: DenseVector[Double], pcaVariance: DenseVector[Double], phiMat: DenseMatrix[Double]) = {
 
-    require(mesh.domain.numberOfPoints * 3 == meanVec.size)
+    require(mesh.numberOfPoints * 3 == meanVec.size)
     require(meanVec.size == phiMat.rows)
     require(pcaVariance.size == phiMat.cols)
 

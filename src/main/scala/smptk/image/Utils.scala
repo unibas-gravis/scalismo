@@ -21,8 +21,7 @@ import swing._
 import vtk._
 import smptk.mesh.TriangleMesh
 import smptk.mesh.TriangleMesh
-import smptk.geometry
-import smptk.geometry.TwoD
+import smptk.geometry._
 
 object Utils {
 
@@ -222,7 +221,7 @@ object Utils {
   
   def meshToVTKMesh(mesh: TriangleMesh): vtkPolyData = {
     val pd = new vtkPolyData()
-    val domain = mesh.domain
+    val domain = mesh
     val pts = new vtkPoints()
     pts.SetNumberOfPoints(domain.points.size)
     for ((pt, pt_id) <- domain.points.zipWithIndex) { 
