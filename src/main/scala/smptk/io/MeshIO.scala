@@ -6,7 +6,6 @@ import mesh.TriangleMesh
 import scala.util.Try
 import mesh.TriangleCell
 import mesh.TriangleMesh
-import smptk.mesh.TriangleMeshDomain
 import smptk.geometry._
 
 object MeshIO {
@@ -14,8 +13,8 @@ object MeshIO {
   
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
     val h5file = HDF5Utils.createFile(file)
-    val domainPoints : IndexedSeq[Point[ThreeD]] = surface.domain.points.toIndexedSeq
-    val cells : IndexedSeq[TriangleCell] = surface.domain.cells
+    val domainPoints : IndexedSeq[Point[ThreeD]] = surface.points.toIndexedSeq
+    val cells : IndexedSeq[TriangleCell] = surface.cells
     
     val maybeError: Try[Unit] = for {
       _ <- h5file.writeNDArray("/Surface/0/Vertices", pointSeqToNDArray(domainPoints))
@@ -33,7 +32,7 @@ object MeshIO {
     val maybeSurface = for {    
       vertArray <- h5file.readNDArray[Double]("/Surface/0/Vertices")
       cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")      
-    } yield TriangleMesh(TriangleMeshDomain(NDArrayToPointSeq(vertArray), NDArrayToCellSeq(cellArray)))
+    } yield TriangleMesh(NDArrayToPointSeq(vertArray), NDArrayToCellSeq(cellArray))
 
     h5file.close()
     maybeSurface

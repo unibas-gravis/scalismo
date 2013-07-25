@@ -11,7 +11,6 @@ import smptk.numerics.Sampler
 import smptk.io.MeshIO
 import smptk.mesh.TriangleMesh
 import smptk.image.Utils
-import smptk.mesh.TriangleMeshDomain
 import java.io.File
 import smptk.numerics.UniformSampler1D
 import smptk.numerics.UniformSampler
@@ -310,7 +309,7 @@ object GaussianProcess {
 
     val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100., 3)
     val mesh = MeshIO.readHDF5(new File("/tmp/mesh.h5")).get
-    val meshPoints = mesh.domain.points
+    val meshPoints = mesh.points
     val region = mesh.boundingBox
     println("region: " + region)
     val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
@@ -330,7 +329,7 @@ object GaussianProcess {
       val newPoints = for ((pt, samplePt) <- ptSamples) yield {
         Point3D(pt(0) + samplePt(0), pt(1) + samplePt(1), pt(2) + samplePt(2))
       }
-      val newMesh = TriangleMesh(TriangleMeshDomain(newPoints.toIndexedSeq, mesh.domain.cells))
+      val newMesh = TriangleMesh(newPoints.toIndexedSeq, mesh.cells)
       println("time in ms " +(System.currentTimeMillis() - s))
       //val vtkpd = Utils.meshToVTKMesh(newMesh)
       //Utils.showVTK(vtkpd)
