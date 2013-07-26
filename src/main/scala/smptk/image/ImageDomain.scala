@@ -1,7 +1,7 @@
 package smptk
 package image
 
-import common.{ Domain, DiscreteDomain, BoxedRegion }
+import common.{ Domain, DiscreteDomain, BoxedDomain }
 import smptk.geometry._
 import com.sun.org.apache.xml.internal.serializer.ToStream
 
@@ -20,7 +20,7 @@ import com.sun.org.apache.xml.internal.serializer.ToStream
 //  def dimensionality = 3
 //}
 
-trait DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with BoxedRegion[D]{ //extends ImageDomain[Point] {
+trait DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with BoxedDomain[D]{ //extends ImageDomain[Point] {
 
   def spacing: Vector[D]
   def size: Index[D]

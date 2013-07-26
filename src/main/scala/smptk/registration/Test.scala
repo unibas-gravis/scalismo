@@ -11,7 +11,7 @@ import java.io.File
 import breeze.linalg.DenseVector
 
 object Test {
-  
+  smptk.initialize()
   def resample3D() {
     val path = "/home/bouabene/workspace/smptk/src/test/resources/chimp3D-11.h5"
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get

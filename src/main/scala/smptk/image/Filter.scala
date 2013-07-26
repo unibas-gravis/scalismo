@@ -1,13 +1,13 @@
 package smptk.image
 
-import smptk.common.BoxedRegion
-import smptk.common.BoxedRegion1D
-import smptk.common.BoxedRegion2D
-import smptk.common.BoxedRegion3D
+import smptk.common.BoxedDomain
+import smptk.common.BoxedDomain1D
+import smptk.common.BoxedDomain2D
+import smptk.common.BoxedDomain3D
 import smptk.geometry._
 
 trait Filter[D <: Dim] extends Function1[Point[D], Double] {
-  def support: BoxedRegion[D]
+  def support: BoxedDomain[D]
 }
 
 case class GaussianFilter1D(stddev: Double) extends Filter[OneD] {
@@ -19,7 +19,7 @@ case class GaussianFilter1D(stddev: Double) extends Filter[OneD] {
   }
 
   val extent = 3. * stddev
-  def support = BoxedRegion1D(Point1D(-extent), Point1D(extent))
+  def support = BoxedDomain1D(Point1D(-extent), Point1D(extent))
 }
 
 case class GaussianFilter2D(stddev: Double) extends Filter[TwoD] {
@@ -28,7 +28,7 @@ case class GaussianFilter2D(stddev: Double) extends Filter[TwoD] {
   }
 
   val extent = 3. * stddev
-  def support = BoxedRegion2D(Point2D(-extent, -extent), Point2D(extent, extent))
+  def support = BoxedDomain2D(Point2D(-extent, -extent), Point2D(extent, extent))
 }
 
 
@@ -43,20 +43,20 @@ case class GaussianFilter3D(stddev: Double) extends Filter[ThreeD] {
   }
 
   val extent = 3. * stddev
-  def support = BoxedRegion3D(Point3D(-extent, -extent, -extent), Point3D(extent, extent, extent))
+  def support = BoxedDomain3D(Point3D(-extent, -extent, -extent), Point3D(extent, extent, extent))
 }
 
 case class BoxedFilter1D extends Filter[OneD] {
   def apply(p: Point[OneD]) = 1.
-  def support = BoxedRegion1D(Point1D(-0.5), Point1D(0.5))
+  def support = BoxedDomain1D(Point1D(-0.5), Point1D(0.5))
 }
 
 case class BoxedFilter2D extends Filter[TwoD] {
   def apply(p: Point[TwoD]) = 1.
-  def support = BoxedRegion2D(Point2D(-0.5, -0.5), Point2D(0.5,0.5))
+  def support = BoxedDomain2D(Point2D(-0.5, -0.5), Point2D(0.5,0.5))
 }
 
 case class BoxedFilter3D extends Filter[ThreeD] {
   def apply(p: Point[ThreeD]) = 1.
-  def support = BoxedRegion3D(Point3D(-0.5, -0.5, -0.5), Point3D(0.5,0.5,0.5))
+  def support = BoxedDomain3D(Point3D(-0.5, -0.5, -0.5), Point3D(0.5,0.5,0.5))
 }

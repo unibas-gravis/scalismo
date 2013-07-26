@@ -9,7 +9,7 @@ import smptk.image.DiscreteImageDomain
 import breeze.plot.Figure
 import smptk.numerics.Sampler
 import smptk.common.DiscreteDomain
-import smptk.common.BoxedRegion
+import smptk.common.BoxedDomain
 import smptk.numerics.UniformSampler
 import smptk.common.ImmutableLRU
 import smptk.geometry._
@@ -149,7 +149,7 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim](k: PDKernel[D], domain: BoxedRegion[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
+  def computeNystromApproximation[D <: Dim](k: PDKernel[D], domain: BoxedDomain[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99

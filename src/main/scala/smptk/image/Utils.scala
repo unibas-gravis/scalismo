@@ -9,10 +9,10 @@ import ij.process.FloatProcessor
 import ij.ImageStack
 import ij.WindowManager
 import smptk.registration.Transformation
-import smptk.common.BoxedRegion
-import smptk.common.BoxedRegion2D
+import smptk.common.BoxedDomain
+import smptk.common.BoxedDomain2D
 import smptk.numerics.Integrator
-import smptk.common.BoxedRegion1D
+import smptk.common.BoxedDomain1D
 import smptk.io.ImageIO
 import smptk.io.MeshIO
 import java.awt.BorderLayout
@@ -170,22 +170,22 @@ object Utils {
   }
 
   
-  def gridImage2D(gridWidth: Double, tolerance: Double): ContinuousScalarImage2D = {
-    def grid(x: geometry.Point[geometry.TwoD]) = {
-      if (math.abs(x(0) % gridWidth) < tolerance || math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
-    }
-    def df(x: geometry.Point[geometry.TwoD]) = DenseVector(0., 0.)
-    ContinuousScalarImage2D((x: geometry.Point[geometry.TwoD]) => true, grid, Some(df))
-
-  }
-
-  def gridImage1D(gridWidth: Double, tolerance: Double): ContinuousScalarImage1D = {
-    def grid(x: geometry.Point[geometry.OneD]) = {
-      if (math.abs(x(0) % gridWidth) < tolerance) 0f else 1f
-    }
-    def df(x: geometry.Point[geometry.OneD]) = DenseVector(0.)
-    ContinuousScalarImage1D((x: geometry.Point[geometry.OneD]) => true, grid, Some(df))
-  }
+//  def gridImage2D(gridWidth: Double, tolerance: Double): ContinuousScalarImage2D = {
+//    def grid(x: geometry.Point[geometry.TwoD]) = {
+//      if (math.abs(x(0) % gridWidth) < tolerance || math.abs(x(1) % gridWidth) < tolerance) 0f else 1f
+//    }
+//    def df(x: geometry.Point[geometry.TwoD]) = DenseVector(0., 0.)
+//    ContinuousScalarImage2D((x: geometry.Point[geometry.TwoD]) => true, grid, Some(df))
+//
+//  }
+//
+//  def gridImage1D(gridWidth: Double, tolerance: Double): ContinuousScalarImage1D = {
+//    def grid(x: geometry.Point[geometry.OneD]) = {
+//      if (math.abs(x(0) % gridWidth) < tolerance) 0f else 1f
+//    }
+//    def df(x: geometry.Point[geometry.OneD]) = DenseVector(0.)
+//    ContinuousScalarImage1D((x: geometry.Point[geometry.OneD]) => true, grid, Some(df))
+//  }
 
   def gaussianSmoothing1D(img: ContinuousScalarImage1D, deviation: Double, integrator: Integrator[geometry.OneD]) = {
     img.convolve(GaussianFilter1D(deviation), integrator)

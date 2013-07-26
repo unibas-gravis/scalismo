@@ -30,6 +30,7 @@ import smptk.io.MeshIO
 import breeze.linalg.DenseMatrix
 
 class RegistrationTest extends FunSpec with ShouldMatchers {
+  smptk.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
       val points : IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0., 0.), Point2D(1., 4.), Point2D(2., 0.))
@@ -170,7 +171,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val pi = Math.PI
       val rotationParams = DenseVector(-pi /6., pi / 5., pi / 5.)
       val rotationTransform = RotationSpace3D(center)(rotationParams)
-      val transformed = fixedImage.backwardWarp(rotationTransform, domain.isInside)
+      val transformed = fixedImage.compose(rotationTransform)
 
       val regConf = RegistrationConfiguration[ThreeD](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.00000001, true)),
@@ -185,7 +186,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val regResult = registration(domain)
 
-      val RegTransformed = fixedImage.backwardWarp(regResult.transform, domain.isInside)
+      val RegTransformed = fixedImage.compose(regResult.transform)
 
       // here we verify that the angles give similar rotation matrices 
 

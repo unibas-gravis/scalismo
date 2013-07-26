@@ -51,7 +51,7 @@ object Interpolation {
         val splineBasisD1: (Double => Double) = { x => (bSpline(degree - 1)(x + 0.5f) - bSpline(degree - 1)(x - 0.5f)) * (1/image.domain.spacing(0)) }
         DenseVector(iterateOnPoints(x, splineBasisD1))
       }    
-    new ContinuousScalarImage1D(image.domain.isInside,   f, Some(df))
+    new ContinuousScalarImage1D(image.domain,   f, Some(df))
   }
 
 
@@ -99,7 +99,7 @@ object Interpolation {
         DenseVector(iterateOnPoints( x,  splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x,splineBasisD2)* (1/image.domain.spacing(1)))
       }
 
-    new ContinuousScalarImage2D(image.domain.isInside,f, Some(df))
+    new ContinuousScalarImage2D(image.domain,f, Some(df))
   }
 
   
@@ -157,7 +157,7 @@ object Interpolation {
         val splineBasisD3 = (x: Double, y: Double, z: Double) => bSplineNthOrder(x) * bSplineNthOrder(y) * (bSplineNmin1thOrder(z + 0.5f) - bSplineNmin1thOrder(z - 0.5f))
         DenseVector(iterateOnPoints(x, splineBasisD1)* (1/image.domain.spacing(0)), iterateOnPoints(x, splineBasisD2)* (1/image.domain.spacing(1)), iterateOnPoints(x, splineBasisD3)* (1/image.domain.spacing(2)))      
     }
-    new ContinuousScalarImage3D(image.domain.isInside, f, Some(df))
+    new ContinuousScalarImage3D(image.domain, f, Some(df))
   }
 
   
