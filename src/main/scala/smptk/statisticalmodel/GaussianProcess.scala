@@ -1,11 +1,11 @@
 package smptk
 package statisticalmodel
 
-import common.BoxedRegion
+import common.BoxedDomain
 import breeze.linalg.{ DenseVector, DenseMatrix, linspace }
 import breeze.stats.distributions.Gaussian
 import smptk.common.DiscreteDomain
-import smptk.common.{ BoxedRegion1D, BoxedRegion2D, BoxedRegion3D }
+import smptk.common.{ BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
 import smptk.numerics.{ UniformSampler1D, UniformSampler2D, UniformSampler3D }
 import smptk.numerics.Sampler
 import smptk.io.MeshIO
@@ -23,7 +23,7 @@ import scala.collection.immutable.HashMap
 import smptk.geometry._
 
 
-case class GaussianProcess[D <: Dim](val domain: BoxedRegion[D], val mean: Point[D] => DenseVector[Double], val cov: PDKernel[D]) {
+case class GaussianProcess[D <: Dim](val domain: BoxedDomain[D], val mean: Point[D] => DenseVector[Double], val cov: PDKernel[D]) {
 
   type PointSample = IndexedSeq[Point[D]]
 
@@ -50,7 +50,7 @@ case class GaussianProcess[D <: Dim](val domain: BoxedRegion[D], val mean: Point
 }
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
-  val domain: BoxedRegion[D],
+  val domain: BoxedDomain[D],
   val mean: Point[D] => DenseVector[Double],
   val cov: PDKernel[D],
   val numBasisFunctions: Int,
@@ -58,7 +58,7 @@ case class LowRankGaussianProcessConfiguration[D <: Dim](
 
 trait LowRankGaussianProcess[D <: Dim] {
 
-  val domain: BoxedRegion[D]
+  val domain: BoxedDomain[D]
   val outputDim: Int
   val mean: Point[D] => DenseVector[Double]
   val eigenPairs: IndexedSeq[(Double, Point[D] => DenseVector[Double])]
@@ -165,21 +165,21 @@ class SpecializedLowRankGaussianProcess[D <: Dim](gp: LowRankGaussianProcess[D],
 }
 
 class LowRankGaussianProcess1D(
-  val domain: BoxedRegion[OneD],
+  val domain: BoxedDomain[OneD],
   val outputDim: Int,
   val mean: Point[OneD] => DenseVector[Double],
   val eigenPairs: IndexedSeq[(Double, Point[OneD] => DenseVector[Double])])
   extends LowRankGaussianProcess[OneD] {}
 
 class LowRankGaussianProcess2D(
-  val domain: BoxedRegion[TwoD],
+  val domain: BoxedDomain[TwoD],
   val outputDim: Int,
   val mean: Point[TwoD] => DenseVector[Double],
   val eigenPairs: IndexedSeq[(Double, Point[TwoD] => DenseVector[Double])])
   extends LowRankGaussianProcess[TwoD] {}
 
 class LowRankGaussianProcess3D(
-  val domain: BoxedRegion[ThreeD],
+  val domain: BoxedDomain[ThreeD],
   val outputDim: Int,
   val mean: Point[ThreeD] => DenseVector[Double],
   val eigenPairs: IndexedSeq[(Double, Point[ThreeD] => DenseVector[Double])])

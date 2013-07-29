@@ -27,10 +27,10 @@ import smptk.image.ContinuousScalarImage3D
 import smptk.image.DiscreteImage3D
 import smptk.image.DiscreteScalarImage3D
 import smptk.image.DiscreteImageDomain3D
-import smptk.common.BoxedRegion3D
-import smptk.common.BoxedRegion
-import smptk.common.BoxedRegion1D
-import smptk.common.BoxedRegion2D
+import smptk.common.BoxedDomain3D
+import smptk.common.BoxedDomain
+import smptk.common.BoxedDomain1D
+import smptk.common.BoxedDomain2D
 import smptk.geometry._
 
 case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
@@ -50,7 +50,7 @@ object Registration {
 
   def registrationND[D <: Dim](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
-    movingImage: ContinuousScalarImage[D]): (BoxedRegion[D] => RegistrationResult[D]) =
+    movingImage: ContinuousScalarImage[D]): (BoxedDomain[D] => RegistrationResult[D]) =
     {
       fixedImageRegion =>
         {
@@ -61,7 +61,7 @@ object Registration {
           val costFunction = new CostFunction {
             def onlyValue(params: ParameterVector): Double = {
               val transformation = transformationSpace(params)
-              val warpedImage = movingImage.backwardWarp(transformation, fixedImage.isDefinedAt)
+              val warpedImage = movingImage.compose(transformation)
 
               configuration.metric(warpedImage, fixedImage)(configuration.integrator, fixedImageRegion) + configuration.regularizationWeight * regularizer(params)
 
@@ -77,7 +77,7 @@ object Registration {
               
               // compute the value of the cost function
               val transformation = transformationSpace(params)
-              val warpedImage = movingImage.backwardWarp(transformation, fixedImage.isDefinedAt)
+              val warpedImage = movingImage.compose(transformation)
                            
               val errorVal = configuration.metric(warpedImage, fixedImage)(integrationStrategy,fixedImageRegion)
               val value = errorVal + configuration.regularizationWeight * regularizer(params)
@@ -91,7 +91,7 @@ object Registration {
               val movingGradientImage = movingImage.differentiate.get // TODO do proper error handling when image is not differentiable  
               val parametricTransformGradientImage = new ContinuousVectorImage[D] {
                 val pixelDimensionality = params.size
-                def isDefinedAt(x: Point[D]) = warpedImage.isDefinedAt(x) && dMetricDalpha.isDefinedAt(x)
+                def domain = warpedImage.domain.intersection(dMetricDalpha.domain)
                 val f = (x: Point[D]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
               }
 
@@ -113,21 +113,21 @@ object Registration {
 
   def registration1D(configuration: RegistrationConfiguration[OneD])(
     fixedImage: ContinuousScalarImage1D,
-    movingImage: ContinuousScalarImage1D): (BoxedRegion[OneD] => RegistrationResult[OneD]) =
+    movingImage: ContinuousScalarImage1D): (BoxedDomain[OneD] => RegistrationResult[OneD]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }
 
   def registration2D(configuration: RegistrationConfiguration[TwoD])(
     fixedImage: ContinuousScalarImage2D,
-    movingImage: ContinuousScalarImage2D): (BoxedRegion[TwoD] => RegistrationResult[TwoD]) =
+    movingImage: ContinuousScalarImage2D): (BoxedDomain[TwoD] => RegistrationResult[TwoD]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }
   
   def registration3D(configuration: RegistrationConfiguration[ThreeD])(
     fixedImage: ContinuousScalarImage3D,
-    movingImage: ContinuousScalarImage3D): (BoxedRegion[ThreeD] => RegistrationResult[ThreeD]) =
+    movingImage: ContinuousScalarImage3D): (BoxedDomain[ThreeD] => RegistrationResult[ThreeD]) =
     {
       registrationND(configuration)(fixedImage, movingImage)
     }

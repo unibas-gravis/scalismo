@@ -3,6 +3,8 @@ package smptk.mesh
 import smptk.image.ContinuousScalarImage3D
 import breeze.linalg.DenseVector
 import smptk.geometry.{Point, ThreeD}
+import smptk.common.RealSpace3D
+
 
 object Mesh {
 
@@ -20,7 +22,7 @@ object Mesh {
       val grad = DenseVector(pt(0) - closestPt(0) , pt(1) - closestPt(1) , pt(2) - closestPt(2) )
       grad / breeze.linalg.norm(grad, 2)
     }
-    ContinuousScalarImage3D((pt: Point[ThreeD]) => true, (pt: Point[ThreeD]) => dist(pt), Some((pt: Point[ThreeD]) => grad(pt)))
+    ContinuousScalarImage3D(RealSpace3D, (pt: Point[ThreeD]) => dist(pt), Some((pt: Point[ThreeD]) => grad(pt)))
   }
 
 }

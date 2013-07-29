@@ -17,7 +17,10 @@ import smptk.numerics.Integrator
 import smptk.numerics.IntegratorConfiguration
 import smptk.numerics.UniformSampler1D
 import smptk.numerics.UniformSampler2D
-import smptk.common.BoxedRegion1D
+import smptk.common.BoxedDomain1D
+import smptk.common.BoxedDomain1D
+import smptk.common.RealSpace1D
+import smptk.common.BoxedDomain2D
 
 // A lot of the tests below are meant to be evaluated visually and are therefore ignored
 
@@ -36,14 +39,14 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
     }
 
-    val noisyImage = ContinuousScalarImage1D((p: Point[OneD]) => (p(0) >= -5. && p(0) <= 5), noisySine)
+    val noisyImage = ContinuousScalarImage1D(BoxedDomain1D(-5.0, 5.0), noisySine)
     val discreteDomain = DiscreteImageDomain1D(-5., 0.1, 100)
     
   
     ignore("Works with a box filter (via convolution)") {
       Utils.show1D(noisyImage, discreteDomain)
       val boxFilter = BoxedFilter1D()
-      val boxedregion = BoxedRegion1D(-0.5, 0.5)
+      val boxedregion = BoxedDomain1D(-0.5, 0.5)
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(), 100))
 
       val smoothed = noisyImage.convolve(boxFilter, integrator)
@@ -69,7 +72,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
     it("gives the b-spline basis function when convolving a box with a box filter") {
 
-      val boxImage = ContinuousScalarImage1D(_ => true, (p: Point[OneD]) => if (p(0) >= -0.5 && p(0) <= 0.5) 1. else 0.)
+      val boxImage = ContinuousScalarImage1D(RealSpace1D, (p: Point[OneD]) => if (p(0) >= -0.5 && p(0) <= 0.5) 1. else 0.)
       val filter = BoxedFilter1D()
 
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(), 100))
@@ -98,7 +101,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       def innerBox(origin: Point2D, extent: Point2D) = (p: Point[TwoD]) => if (domainBox(origin, extent)(p)) 2. else 1.
 
-      val boxImage = ContinuousScalarImage2D(domainBox((-5., -5.), (5., 5.)), innerBox((-2., -2.), (3., 2.)))
+      val boxImage = ContinuousScalarImage2D(BoxedDomain2D((-5., -5.), (5., 5.)), innerBox((-2., -2.), (3., 2.)))
 
       val domain = DiscreteImageDomain2D((-6., -6.), (0.1, 0.1), (120, 120))
 

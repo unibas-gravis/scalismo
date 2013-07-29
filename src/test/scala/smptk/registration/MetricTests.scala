@@ -9,11 +9,10 @@ import geometry._
 import geometry.implicits._
 import breeze.linalg.DenseVector
 import registration.Metric._
-
 import smptk.numerics.Integrator
 import smptk.numerics.IntegratorConfiguration
-
 import smptk.numerics.UniformSampler1D
+import smptk.common.BoxedDomain1D
 
 class IntegrationTest extends FunSpec with ShouldMatchers {
 
@@ -21,7 +20,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
     it("returns 0 if provided twice the same image") {
 
       val region = DiscreteImageDomain1D(0f, 0.001f, 1000)
-      val img = ContinuousScalarImage1D((x: Point[OneD]) => x >= 0 && x <= 1,
+      val img = ContinuousScalarImage1D(BoxedDomain1D(0.0, 1.0),
         (x: Point[OneD]) => x * x,
         Some((x: Point[OneD]) => DenseVector(2.) * x(0)))
       val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(), region.numberOfPoints))
