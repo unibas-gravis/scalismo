@@ -20,7 +20,7 @@ import com.sun.org.apache.xml.internal.serializer.ToStream
 //  def dimensionality = 3
 //}
 
-trait DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with BoxedDomain[D]{ //extends ImageDomain[Point] {
+abstract class DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with BoxedDomain[D]{ //extends ImageDomain[Point] {
 
   def spacing: Vector[D]
   def size: Index[D]

@@ -1,7 +1,7 @@
 package smptk
 package common
 
-import geometry.{Point, Vector, Dim, OneD, TwoD, ThreeD}
+import geometry.{Point, Vector, Dim, OneD, TwoD, ThreeD, DimTraits}
 import breeze.linalg.DenseVector
 
 

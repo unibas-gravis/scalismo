@@ -16,13 +16,10 @@ import smptk.geometry._
 import smptk.common.Domain
 import smptk.common.ImplicitDomain
 
-
-
-
 /**
  * The generic interface for continuous images
  */
-trait ContinuousImage[D <: Dim, @specialized(Short, Float) Pixel] extends Function1[Point[D], Pixel] { self =>
+abstract class ContinuousImage[D <: Dim, @specialized(Short, Float) Pixel] extends Function1[Point[D], Pixel] { self =>
 
   /** the function that defines the image values */
   val f: Point[D] => Pixel
@@ -37,6 +34,7 @@ trait ContinuousImage[D <: Dim, @specialized(Short, Float) Pixel] extends Functi
     else None
   }
 
+
   def domain : Domain[D]
   def isDefinedAt(pt: Point[D]): Boolean = domain.isDefinedAt(pt)
   
@@ -44,29 +42,22 @@ trait ContinuousImage[D <: Dim, @specialized(Short, Float) Pixel] extends Functi
 
   def pixelDimensionality: Int
 
-  def lift(fl : Pixel => Pixel) : ContinuousImage[D, Pixel] => ContinuousImage[D, Pixel] = { 
-    img : ContinuousImage[D, Pixel] => new ContinuousImage[D,  Pixel] {
-      override def apply(x : Point[D]) = fl(img.apply(x))
-      def pixelDimensionality = img.pixelDimensionality
-      val f = img.f
-      def domain = img.domain
-    }
+  def lift(fl: Pixel => Pixel): ContinuousImage[D, Pixel] => ContinuousImage[D, Pixel] = {
+    img: ContinuousImage[D, Pixel] =>
+      new ContinuousImage[D, Pixel] {
+        override def apply(x: Point[D]) = fl(img.apply(x))
+        def pixelDimensionality = img.pixelDimensionality
+        val f = img.f
+        def domain = img.domain
+      }
   }
-  	
+
   //TODO add derivative here (use coordinatesVector for return type)
 }
 
-trait ContinuousVectorImage[D <: Dim] extends ContinuousImage[D, DenseVector[Double]] { self =>
+abstract class ContinuousVectorImage[D <: Dim] extends ContinuousImage[D, DenseVector[Double]] {}
 
-  type Pixel = DenseVector[Double]
-
-  def apply(point: Point[D]): DenseVector[Double]
-
-  def pixelDimensionality: Int
-
-}
-
-trait ContinuousScalarImage[D <: Dim] extends ContinuousImage[D, Double] { self: ContinuousImage[D, Double] =>
+abstract class ContinuousScalarImage[D <: Dim] extends ContinuousImage[D, Double] { self: ContinuousImage[D, Double] =>
   type CI = ContinuousScalarImage[D]
 
   val pixelDimensionality = 1
@@ -102,11 +93,11 @@ trait ContinuousScalarImage[D <: Dim] extends ContinuousImage[D, Double] { self:
  */
 trait ContinuousScalarImageLike[D <: Dim, Repr <: ContinuousScalarImage[D]] { self: ContinuousScalarImage[D] =>
 
-  def newConcreteImageRepr(domain : Domain[D], f: Point[D] => Double, df: Option[Point[D] => DenseVector[Double]]): Repr
+  def newConcreteImageRepr(domain: Domain[D], f: Point[D] => Double, df: Option[Point[D] => DenseVector[Double]]): Repr
 
   def +(that: CI): Repr = {
     def f(x: Point[D]): Double = self.f(x) + that.f(x)
-    def df = for (selfdf <- self.df; thatdf <- that.df) yield ((x: Point[D]) => selfdf(x) + thatdf(x)) 
+    def df = for (selfdf <- self.df; thatdf <- that.df) yield ((x: Point[D]) => selfdf(x) + thatdf(x))
     newConcreteImageRepr(self.domain.intersection(that.domain), f, df)
   }
 
@@ -142,7 +133,7 @@ trait ContinuousScalarImageLike[D <: Dim, Repr <: ContinuousScalarImage[D]] { se
     def f(x: Point[D]) = self.f(t(x))
     val df = for (selfdf <- self.df) yield ((x: Point[D]) => t.takeDerivative(x) * selfdf(t(x)))
     val newDomain = new ImplicitDomain[D] {
-      override val chi = (pt : Point[D]) => self.isDefinedAt(t(pt))
+      override val chi = (pt: Point[D]) => self.isDefinedAt(t(pt))
     }
     newConcreteImageRepr(newDomain, f, df)
   }
@@ -152,7 +143,6 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
 
   override val pixelDimensionality = 1
   def newConcreteImageRepr(domain: Domain[OneD], f: Point[OneD] => Double, df: Option[Point[OneD] => DenseVector[Double]]): ContinuousScalarImage1D = ContinuousScalarImage1D(domain, f, df)
-
 
   def convolve(filter: Filter[OneD], integrator: Integrator[OneD]): ContinuousScalarImage1D = {
     def convolvedImgFun(x: Point[OneD]) = {
@@ -174,10 +164,10 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
           val thisDF = this.df.get
           def intermediateDF(t: Point[OneD]) = {
             val p = Point1D(x(0) - t(0))
-            if(this.isDefinedAt(p))
-            	thisDF(p) * filter(t)
+            if (this.isDefinedAt(p))
+              thisDF(p) * filter(t)
             else DenseVector.zeros[Double](pixelDimensionality)
-            	  
+
           }
           val intermediateContinuousImage = ContinuousVectorImage1D(this.domain, pixelDimensionality, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage, filter.support)
@@ -191,13 +181,15 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
 
 }
 
+
 case class ContinuousScalarImage2D(domain : Domain[TwoD], val f: Point[TwoD] => Double, val df: Option[Point[TwoD] => DenseVector[Double]] = None) extends ContinuousScalarImage[TwoD] with ContinuousScalarImageLike[TwoD, ContinuousScalarImage2D] {
 
   def newConcreteImageRepr(domain : Domain[TwoD], f: Point[TwoD] => Double, df: Option[Point[TwoD] => DenseVector[Double]]): ContinuousScalarImage2D = ContinuousScalarImage2D(domain, f, df)
 
+
   override val pixelDimensionality = 1
 
-  def convolve(filter:Filter[TwoD], integrator: Integrator[TwoD]): ContinuousScalarImage2D = {
+  def convolve(filter: Filter[TwoD], integrator: Integrator[TwoD]): ContinuousScalarImage2D = {
 
     def f(x: Point[TwoD]) = {
 
@@ -210,40 +202,39 @@ case class ContinuousScalarImage2D(domain : Domain[TwoD], val f: Point[TwoD] => 
       integrator.integrateScalar(intermediateContinuousImage, filter.support)
 
     }
-    
+
     def convolvedImgDerivative: Option[Point[TwoD] => DenseVector[Double]] = {
       if (this.df.isDefined)
         Some((x: Point[TwoD]) => {
           val thisDF = this.df.get
           def intermediateDF(t: Point[TwoD]) = {
             val p = Point2D(x(0) - t(0), x(1) - t(1))
-            
-            if(this.isDefinedAt(p))
-            	thisDF(p) * filter(t)
+
+            if (this.isDefinedAt(p))
+              thisDF(p) * filter(t)
             else DenseVector.zeros[Double](2)
-            	  
+
           }
           val intermediateContinuousImage = ContinuousVectorImage2D(this.domain, 2, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage, filter.support)
         })
 
       else None
-      
+
     }
 
-
-    ContinuousScalarImage2D(this.domain, f,convolvedImgDerivative)
+    ContinuousScalarImage2D(this.domain, f, convolvedImgDerivative)
   }
 
 }
 
-case class ContinuousScalarImage3D(domain : Domain[ThreeD], val f: Point[ThreeD] => Double, val df: Option[Point[ThreeD] => DenseVector[Double]] = None) extends ContinuousScalarImage[ThreeD] with ContinuousScalarImageLike[ThreeD, ContinuousScalarImage3D] {
+case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] => Double, val df: Option[Point[ThreeD] => DenseVector[Double]] = None) extends ContinuousScalarImage[ThreeD] with ContinuousScalarImageLike[ThreeD, ContinuousScalarImage3D] {
 
-  def newConcreteImageRepr(domain : Domain[ThreeD], f: Point[ThreeD] => Double, df: Option[Point[ThreeD] => DenseVector[Double]]): ContinuousScalarImage3D = ContinuousScalarImage3D(domain, f, df)
+  def newConcreteImageRepr(domain: Domain[ThreeD], f: Point[ThreeD] => Double, df: Option[Point[ThreeD] => DenseVector[Double]]): ContinuousScalarImage3D = ContinuousScalarImage3D(domain, f, df)
 
   override val pixelDimensionality = 1
-  
-    def convolve(filter:Filter[ThreeD], integrator: Integrator[ThreeD]): ContinuousScalarImage3D = {
+
+  def convolve(filter: Filter[ThreeD], integrator: Integrator[ThreeD]): ContinuousScalarImage3D = {
 
     def f(x: Point[ThreeD]) = {
 
@@ -256,29 +247,28 @@ case class ContinuousScalarImage3D(domain : Domain[ThreeD], val f: Point[ThreeD]
       integrator.integrateScalar(intermediateContinuousImage, filter.support)
 
     }
-    
+
     def convolvedImgDerivative: Option[Point[ThreeD] => DenseVector[Double]] = {
       if (this.df.isDefined)
         Some((x: Point[ThreeD]) => {
           val thisDF = this.df.get
           def intermediateDF(t: Point[ThreeD]) = {
             val p = Point3D(x(0) - t(0), x(1) - t(1), x(2) - t(2))
-            
-            if(this.isDefinedAt(p))
-            	thisDF(p) * filter(t)
+
+            if (this.isDefinedAt(p))
+              thisDF(p) * filter(t)
             else DenseVector.zeros[Double](3)
-            	  
+
           }
           val intermediateContinuousImage = ContinuousVectorImage3D(this.domain, 3, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage, filter.support)
         })
 
       else None
-      
+
     }
 
-
-    ContinuousScalarImage3D(this.domain, f,convolvedImgDerivative)
+    ContinuousScalarImage3D(this.domain, f, convolvedImgDerivative)
   }
 }
 

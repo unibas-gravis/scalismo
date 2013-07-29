@@ -5,7 +5,6 @@ import scala.language.implicitConversions
 import breeze.linalg.DenseVector
 import scala.reflect.ClassTag
 
-
 /** a marker trait to distinguish the dimension */
 sealed trait Dim
 trait OneD extends Dim
@@ -15,20 +14,21 @@ trait ThreeD extends Dim
 /**
  * The basic N-tuple in R^N with scalar type S
  */
-trait Coordinate[D <: Dim, @specialized(Int, Float, Double) S] {
+abstract class Coordinate[D <: Dim: DimTraits, @specialized(Int, Float, Double) S] {
   val data: Array[S]
-  def dimensionality: Int = data.size
+  def dimensionality: Int = implicitly[DimTraits[D]].dimensionality
   def apply(i: Int): S = data(i)
 
-  override def toString : String = {    
+  override def toString: String = {
     "(" + data.mkString(", ") + ")"
   }
+
 }
 
 /**
  * An ND Point
  */
-trait Point[D <: Dim] extends Coordinate[D, Double] { self: Coordinate[D, Double] =>
+abstract class Point[D <: Dim: DimTraits] extends Coordinate[D, Double] { self: Coordinate[D, Double] =>
 
   def +(that: Vector[D]): Point[D] = new Point[D] {
     val data = (self.data zip that.data).map { case (s, t) => s + t }
@@ -58,7 +58,7 @@ trait Point[D <: Dim] extends Coordinate[D, Double] { self: Coordinate[D, Double
 
 }
 
-trait Vector[D <: Dim] extends Coordinate[D, Double] { self: Vector[D] =>
+abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Double] { self: Vector[D] =>
   def +(that: Vector[D]): Vector[D] = new Vector[D] {
     val data = (self.data zip that.data).map { case (s, t) => s + t }
   }
@@ -71,9 +71,9 @@ trait Vector[D <: Dim] extends Coordinate[D, Double] { self: Vector[D] =>
     val data = self.data.map(v => s * v)
   }
 
-  def norm2 : Double = data.map(v => v * v).sum
+  def norm2: Double = data.map(v => v * v).sum
   def norm = math.sqrt(norm2)
-  
+
   def toPoint: Point[D] = new Point[D] {
     val data = self.data
   }
@@ -92,7 +92,7 @@ trait Vector[D <: Dim] extends Coordinate[D, Double] { self: Vector[D] =>
 
 }
 
-trait Index[D <: Dim] extends Coordinate[D, Int] {
+abstract class Index[D <: Dim: DimTraits] extends Coordinate[D, Int] {
 
   override def hashCode = data.hashCode()
 
@@ -109,7 +109,6 @@ trait Index[D <: Dim] extends Coordinate[D, Int] {
 }
 
 // Concrete instances for 1D, 2D and 3D
-
 case class Point1D(v: Double) extends Point[OneD] {
   override val data = Array(v)
 }

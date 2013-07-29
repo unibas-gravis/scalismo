@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
 import scala.util.Random
 import smptk.geometry._
 
-trait DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PartialFunction[Int, Pixel] {
+abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[D]
   def pixelDimensionality: Int
   def pixelValues: IndexedSeq[Pixel]
@@ -28,7 +28,7 @@ trait DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PartialF
   def foreach[A](f: Pixel => A): Unit = pixelValues.foreach(f)
 }
 
-trait DiscreteScalarImage[D <: Dim, Pixel] extends DiscreteImage[D, Pixel] {
+abstract class DiscreteScalarImage[D <: Dim, Pixel] extends DiscreteImage[D, Pixel] {
   def pixelDimensionality = 1
 
 }
