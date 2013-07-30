@@ -7,13 +7,9 @@ import implicits._
 
 class GeometryTests extends FunSpec with ShouldMatchers {
   val p = Point3D(0.1, 3., 1.1)
-  val pGeneric = new Point[ThreeD] {
-    val data = Array(0.1, 3., 1.1)
-  }
+  val pGeneric : Point[ThreeD] = p
   val v = Vector3D(0.1, 3., 1.1)
-  val vGeneric = new Vector[ThreeD] {
-    val data = Array(0.1, 3., 1.1)
-  }  
+  val vGeneric : Vector[ThreeD] = v
   
   describe("A 3D Point") {
     it("equals a Point[ThreeD]") {

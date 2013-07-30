@@ -18,120 +18,133 @@ abstract class Coordinate[D <: Dim: DimTraits, @specialized(Int, Float, Double) 
   val data: Array[S]
   def dimensionality: Int = implicitly[DimTraits[D]].dimensionality
   def apply(i: Int): S = data(i)
-
-  override def toString: String = {
-    "(" + data.mkString(", ") + ")"
-  }
-
 }
+
+/*======================================
+ * Point definitions
+ *=======================================*/
 
 /**
  * An ND Point
  */
 abstract class Point[D <: Dim: DimTraits] extends Coordinate[D, Double] { self: Coordinate[D, Double] =>
 
-  def +(that: Vector[D]): Point[D] = new Point[D] {
-    val data = (self.data zip that.data).map { case (s, t) => s + t }
-  }
-
-  def -(that: Vector[D]): Point[D] = new Point[D] {
-    val data = (self.data zip that.data).map { case (s, t) => s - t }
-  }
-
-  def -(that: Point[D]): Vector[D] = new Vector[D] {
-    val data = (self.data zip that.data).map { case (s, t) => s - t }
-  }
-
-  override def hashCode = {
-    data.hashCode()
-  }
-
-  override def equals(other: Any): Boolean = other match {
-
-    case that: Point[D] => (
-      that.canEqual(this)
-      && this.data.deep == (that.data.deep))
-
-    case _ => false
-  }
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Point[D]]
+  def +(that: Vector[D]): Point[D]
+  def -(that: Vector[D]): Point[D]
+  def -(that: Point[D]): Vector[D]
 
 }
 
-abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Double] { self: Vector[D] =>
-  def +(that: Vector[D]): Vector[D] = new Vector[D] {
-    val data = (self.data zip that.data).map { case (s, t) => s + t }
-  }
 
-  def -(that: Vector[D]): Vector[D] = new Vector[D] {
-    val data = (self.data zip that.data).map { case (s, t) => s - t }
-  }
+trait PointLike[D <: Dim, PointRepr <: Point[D], VectorRepr <: Vector[D]] { self: Point[D] =>
 
-  def *(s: Double): Vector[D] = new Vector[D] {
-    val data = self.data.map(v => s * v)
-  }
+  def createPoint(data: Array[Double]): PointRepr
+  def createVector(data: Array[Double]): VectorRepr
 
-  def norm2: Double = data.map(v => v * v).sum
-  def norm = math.sqrt(norm2)
+  override def +(that: Vector[D]): PointRepr = createPoint(
+    (self.data zip that.data).map { case (s, t) => s + t })
 
-  def toPoint: Point[D] = new Point[D] {
-    val data = self.data
-  }
+  override def -(that: Vector[D]): PointRepr = createPoint(
+    (self.data zip that.data).map { case (s, t) => s - t })
 
-  override def hashCode = data.hashCode()
-
-  override def equals(other: Any): Boolean = other match {
-
-    case that: Vector[D] => (
-      that.canEqual(this)
-      && this.data.deep == (that.data.deep))
-
-    case _ => false
-  }
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Vector[D]]
-
-}
-
-abstract class Index[D <: Dim: DimTraits] extends Coordinate[D, Int] {
-
-  override def hashCode = data.hashCode()
-
-  override def equals(other: Any): Boolean = other match {
-
-    case that: Index[D] => (
-      that.canEqual(this)
-      && this.data.deep == (that.data.deep))
-
-    case _ => false
-  }
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Index[D]]
+  override def -(that: Point[D]): VectorRepr = createVector(
+    (self.data zip that.data).map { case (s, t) => s - t })
 
 }
 
 // Concrete instances for 1D, 2D and 3D
-case class Point1D(v: Double) extends Point[OneD] {
+case class Point1D(v: Double) extends Point[OneD] with PointLike[OneD, Point1D, Vector1D] {
+
+  def createPoint(data: Array[Double]) = Point1D(data(0))
+  def createVector(data: Array[Double]) = Vector1D(data(0))
+
   override val data = Array(v)
 }
 
-case class Point2D(x: Double, y: Double) extends Point[TwoD] {
+case class Point2D(x: Double, y: Double) extends Point[TwoD] with PointLike[TwoD, Point2D, Vector2D] {
+
+  def createPoint(data: Array[Double]) = Point2D(data(0), data(1))
+  def createVector(data: Array[Double]) = Vector2D(data(0), data(1))
+
   override val data = Array(x, y)
 }
 
-case class Point3D(x: Double, y: Double, z: Double) extends Point[ThreeD] {
+case class Point3D(x: Double, y: Double, z: Double) extends Point[ThreeD] with PointLike[ThreeD, Point3D, Vector3D] {
+
+  def createPoint(data: Array[Double]) = Point3D(data(0), data(1), data(2))
+  def createVector(data: Array[Double]) = Vector3D(data(0), data(1), data(2))
+
   override val data = Array(x, y, z)
 }
 
-case class Vector1D(x: Double) extends Vector[OneD] {
+
+/*======================================
+ * Vector definitions
+ *=======================================*/
+
+abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Double] { self: Vector[D] =>
+
+  def +(that: Vector[D]): Vector[D]
+  def -(that: Vector[D]): Vector[D]
+  def *(s: Double): Vector[D]
+  def norm2: Double = data.map(v => v * v).sum
+  def norm = math.sqrt(norm2)
+
+  def toPoint: Point[D]
+}
+
+trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { self: Vector[D] =>
+
+  def createPoint(data: Array[Double]): PointRepr
+  def createVector(data: Array[Double]): VectorRepr
+
+  override def +(that: Vector[D]): VectorRepr = createVector(
+    (self.data zip that.data).map { case (s, t) => s + t })
+
+  override def -(that: Vector[D]): VectorRepr = createVector(
+    (self.data zip that.data).map { case (s, t) => s - t })
+
+  override def *(s: Double): VectorRepr = createVector(
+    self.data.map(v => s * v))
+
+  def toPoint: PointRepr = createPoint(
+    self.data)
+
+}
+
+case class Vector1D(x: Double) extends Vector[OneD] with VectorLike[OneD, Vector1D, Point1D]{
+  def createPoint(data: Array[Double]) = Point1D(data(0))
+  def createVector(data: Array[Double]) = Vector1D(data(0))
+
   val data = Array(x)
 }
 
-case class Vector2D(x: Double, y: Double) extends Vector[TwoD] {
+case class Vector2D(x: Double, y: Double) extends Vector[TwoD] with VectorLike[TwoD, Vector2D, Point2D] {
+  type TVector = Vector2D
+  type TPoint = Point2D
+
+  def createPoint(data: Array[Double]) = Point2D(data(0), data(1))
+  def createVector(data: Array[Double]) = Vector2D(data(0), data(1))
+
   val data = Array(x, y)
 }
 
-case class Vector3D(x: Double, y: Double, z: Double) extends Vector[ThreeD] {
+case class Vector3D(x: Double, y: Double, z: Double) extends Vector[ThreeD] with VectorLike[ThreeD, Vector3D, Point3D]{
+  type TVector = Vector3D
+  type TPoint = Point3D
+
+  def createPoint(data: Array[Double]) = Point3D(data(0), data(1), data(2))
+  def createVector(data: Array[Double]) = Vector3D(data(0), data(1), data(2))
+
   val data = Array(x, y, z)
 }
+
+/*======================================
+ * Index definitions
+ *=======================================*/
+
+abstract class Index[D <: Dim: DimTraits] extends Coordinate[D, Int] {}
+
 
 case class Index1D(i: Int) extends Index[OneD] {
   val data = Array(i)
