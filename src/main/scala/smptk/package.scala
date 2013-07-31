@@ -5,7 +5,11 @@ package object smptk {
 
   def initialize(): Unit = {
     if (initialized == false) {
-      NativeLibraryBundles.initialize(NativeLibraryBundles.InitializationMode.WARNONFAIL)
+      try { // TODO exception should not be caught. This is only until the classloader stuff is fixed in NativeLib 
+        NativeLibraryBundles.initialize(NativeLibraryBundles.InitializationMode.WARNONFAIL)
+      } catch {
+        case e : Exception => println(e.getMessage())
+      }
       initialized = true
     }
 

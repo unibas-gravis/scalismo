@@ -166,7 +166,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
         val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)).toIndexedSeq)
-        val continuousImg = Interpolation.interpolate1D(3)(discreteImage)
+        val continuousImg = Interpolation.interpolate(discreteImage, 3)
 
         val gk = GaussianKernel1D(0.1)
 
@@ -203,7 +203,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
 
-        val fixedImage = Interpolation.interpolate2D(3)(discreteFixedImage)
+        val fixedImage = Interpolation.interpolate(discreteFixedImage, 0)
 
         val domain = discreteFixedImage.domain
 
@@ -249,7 +249,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl.getPath)).get
 
-        val originalImage = Interpolation.interpolate2D(3)(discreteFixedImage)
+        val originalImage = Interpolation.interpolate(discreteFixedImage, 3)
 
         val domain = discreteFixedImage.domain
 
@@ -322,7 +322,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
         val regResult = pyramidRegistation(warpedImage, originalImage, domain, regConf, decreasingDeviations, None)
 
-        Utils.show2D(originalImage compose regResult.transform, domain)
+        //Utils.show(originalImage compose regResult.transform, domain)
 
         (regResult.parameters(0) should be(parameterVector(0) plusOrMinus 0.0001))
         (regResult.parameters(1) should be(parameterVector(1) plusOrMinus 0.0001))

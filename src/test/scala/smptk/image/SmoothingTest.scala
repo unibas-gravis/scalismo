@@ -31,7 +31,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
     val distr = breeze.stats.distributions.Gaussian(0., 0.2)
     val domain = DiscreteImageDomain1D(-100., 0.1, 2000)
     val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => if (math.round(x(0)) % 10 == 0) -1. else 1.).toIndexedSeq)
-    val continuousImg = Interpolation.interpolate1D(0)(discreteImage)
+    val continuousImg = Interpolation.interpolate(discreteImage, 0)
 
     def noisySine(x: Point[OneD]): Double = {
       //continuousImg(x)
@@ -44,13 +44,13 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
     
   
     ignore("Works with a box filter (via convolution)") {
-      Utils.show1D(noisyImage, discreteDomain)
+      //Utils.show1D(noisyImage, discreteDomain)
       val boxFilter = BoxedFilter1D()
       val boxedregion = BoxedDomain1D(-0.5, 0.5)
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(), 100))
 
       val smoothed = noisyImage.convolve(boxFilter, integrator)
-      Utils.show1D(smoothed, discreteDomain)
+      //Utils.show1D(smoothed, discreteDomain)
     }
 
     it("Works with Gaussian filter (via Utils method)") {
@@ -105,18 +105,18 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       val domain = DiscreteImageDomain2D((-6., -6.), (0.1, 0.1), (120, 120))
 
-      Utils.show2D(boxImage, domain)
+      //Utils.show2D(boxImage, domain)
 
       val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(), 5000))
       val filter = GaussianFilter2D(5.)
       val smoothed = boxImage.convolve(filter, integrator)
 
-      Utils.show2D(smoothed, domain)
+      //Utils.show2D(smoothed, domain)
 
     }
 
     val discreteImage = ImageIO.read2DScalarImage[Short](new File(getClass.getResource("/lena256.h5").getPath())).get
-    val originalImage = Interpolation.interpolate2D(3)(discreteImage)
+    val originalImage = Interpolation.interpolate(discreteImage, 3)
     //Utils.show2D(originalImage, discreteImage.domain)
 
     ignore("works with box filter") {
@@ -127,7 +127,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(), 100))
       val smoothed = originalImage.convolve(boxFilter, integrator)
-      Utils.show2D(smoothed, discreteImage.domain)
+      //Utils.show2D(smoothed, discreteImage.domain)
     }
 
     ignore("works with Gaussian filter") {
@@ -137,7 +137,7 @@ class SmoothingTest extends FunSpec with ShouldMatchers with PrivateMethodTester
 
       for (d <- deviations) {
         val smoothed = Utils.gaussianSmoothing2D(originalImage, d, integrator)
-        Utils.show2D(smoothed, discreteImage.domain)
+       // Utils.show2D(smoothed, discreteImage.domain)
       }
     }
 

@@ -36,6 +36,7 @@ abstract class DiscreteScalarImage[D <: Dim, Pixel] extends DiscreteImage[D, Pix
 case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain1D, val pixelValues: IndexedSeq[Pixel]) extends DiscreteScalarImage[OneD, Pixel] {
   require(domain.numberOfPoints == pixelValues.size)
   def map[@specialized(Short, Float) A: ScalarPixel  : ClassTag](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.pixelValues.map(f))
+  
 }
 
 case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarPixel](val domain: DiscreteImageDomain2D, val pixelValues: IndexedSeq[Pixel]) extends DiscreteScalarImage[TwoD, Pixel] {

@@ -15,19 +15,19 @@ object Test {
   def resample3D() {
     val path = "/home/bouabene/workspace/smptk/src/test/resources/chimp3D-11.h5"
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate3D(0)(discreteImage)
+    val continuousImage = Interpolation.interpolate(discreteImage, 0)
 
     println("before resampling, number of domain points = " + discreteImage.domain.numberOfPoints)
-    val resampledImage = Resample.sample3D[Short](continuousImage, discreteImage.domain, 0)
+    val resampledImage = Resample.sample[Short](continuousImage, discreteImage.domain, 0)
     println("finished resampling")
   }
    def resample2D() {
     val path = "/home/bouabene/femur-xraySS.h5"
     val discreteImage = ImageIO.read2DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
+    val continuousImage = Interpolation.interpolate(discreteImage, 3)
 
     println("before resampling, number of domain points = " + discreteImage.domain.numberOfPoints)
-    val resampledImage = Resample.sample2D[Short](continuousImage, discreteImage.domain, 0)
+    val resampledImage = Resample.sample[Short](continuousImage, discreteImage.domain, 0.0)
     println("finished resampling")
   } 
   
