@@ -1,7 +1,10 @@
 package smptk.utils
 
 import smptk.mesh.TriangleMesh
-import vtk._
+import vtk.vtkPolyData
+import vtk.vtkCellArray
+import vtk.vtkTriangle
+import vtk.vtkPoints
 import smptk.image.ScalarPixel
 import smptk.image.DiscreteScalarImage3D
 import ij.ImageStack
@@ -18,6 +21,12 @@ import scala.NotImplementedError
 import scala.reflect.ClassTag
 import scala.util.Try
 import scala.util.Success
+import vtk.vtkCharArray
+import vtk.vtkShortArray
+import vtk.vtkIntArray
+import vtk.vtkLongArray
+import vtk.vtkFloatArray
+import vtk.vtkDoubleArray
 
 object VTKHelpers {
   val VTK_CHAR = 2

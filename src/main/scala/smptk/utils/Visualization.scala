@@ -211,9 +211,9 @@ object Visualization {
 
   def main(args: Array[String]): Unit = {
     smptk.initialize()
-    val lena = smptk.io.ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/test.h5")).get
+    //val lena = smptk.io.ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/test.h5")).get
     //val lena = smptk.io.ImageIO.read2DScalarImage[Short](new java.io.File("/tmp/lena.h5")).get
-    //val lena = smptk.io.MeshIO.readHDF5(new java.io.File("/tmp/facemesh.h5")).get
+    val lena = smptk.io.MeshIO.readHDF5(new java.io.File("/tmp/facemesh.h5")).get
     show(lena)
   }
 }
