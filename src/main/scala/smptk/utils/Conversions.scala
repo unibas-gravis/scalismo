@@ -27,6 +27,11 @@ import vtk.vtkIntArray
 import vtk.vtkLongArray
 import vtk.vtkFloatArray
 import vtk.vtkDoubleArray
+import smptk.geometry.Point3D
+import vtk.vtkIdList
+import smptk.mesh.TriangleCell
+import scala.util.Success
+import scala.util.Failure
 
 object VTKHelpers {
   val VTK_CHAR = 2
@@ -104,22 +109,48 @@ object VTKHelpers {
 }
 
 object MeshConversion {
+
+  def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
+    val pointsArrayVtk = pd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
+    val pointsArray = pointsArrayVtk.GetJavaArray()
+    val points = pointsArray.grouped(3).map(p => Point3D(p(0), p(1), p(2)))
+
+    val polys = pd.GetPolys()
+
+    val numPolys = polys.GetNumberOfCells()
+    
+    val cellsOrFailure = Try {
+      for (i <- 0 until numPolys) yield {  
+    	  val idList = new vtkIdList()
+    	  pd.GetCellPoints(i, idList)
+    	  if (idList.GetNumberOfIds() != 3) {
+    	    throw  new Exception("currently only triangle meshes can be read")
+    	  }
+    	  TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
+      }
+    }
+    // TODO currently all data arrays are ignored
+    cellsOrFailure.map { cells => 
+    	TriangleMesh(points.toIndexedSeq, cells)
+    }
+  }
+
   def meshToVTKPolyData(mesh: TriangleMesh): vtkPolyData = {
-    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten
+    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten.map(_.toFloat)
     val pd = new vtkPolyData()
 
     val pointDataArrayVTK = VTKHelpers.createVtkDataArray(pointDataArray, 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
     pd.SetPoints(pointsVTK)
-    
+
     val triangleDataArray = mesh.cells.toArray.map(_.pointIds).flatten
     val cellDataArrayVTK = VTKHelpers.createVtkDataArray(triangleDataArray, 3)
     val polysVTK = new vtkCellArray
 
-    
     val triangles = new vtkCellArray
     triangles.SetNumberOfCells(mesh.cells.size)
+    triangles.Initialize()
     for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
       val triangle = new vtkTriangle()
 
@@ -129,10 +160,10 @@ object MeshConversion {
       triangles.InsertNextCell(triangle);
     }
     triangles.Squeeze()
-    pd.SetPolys(triangles)    
+    pd.SetPolys(triangles)
     pd
   }
-   
+
 }
 
 object ImageConversion {
@@ -141,8 +172,8 @@ object ImageConversion {
     val domain = img.domain
     sp.SetDimensions(domain.size(0), domain.size(1), 1)
     sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
-    sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)    
-    
+    sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
+
     val info = new vtkInformation() // TODO check what to do with the info
     sp.SetNumberOfScalarComponents(1, info)
     sp.SetScalarType(VTKHelpers.getVtkScalarType[Pixel], info)
@@ -157,7 +188,7 @@ object ImageConversion {
     val domain = img.domain
     sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
     sp.SetOrigin(domain.origin(0), domain.origin(1), domain.origin(2))
-    sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))        
+    sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
     val info = new vtkInformation() // TODO check what to do with the info
     sp.SetNumberOfScalarComponents(1, info)
     sp.SetScalarType(VTKHelpers.getVtkScalarType[Pixel], info)
@@ -191,5 +222,6 @@ object ImageConversion {
     val domain = img.domain
     val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
     new ImagePlus("2D image", bp)
-  }
+  }  
+  
 }
