@@ -16,6 +16,8 @@ import vtk.vtkInformation
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.NotImplementedError
 import scala.reflect.ClassTag
+import scala.util.Try
+import scala.util.Success
 
 object VTKHelpers {
   val VTK_CHAR = 2
@@ -41,8 +43,8 @@ object VTKHelpers {
       case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[Pixel])
     }
   }
-  def createVtkDataArray[Pixel: ScalarPixel: TypeTag](data: Array[Pixel], numComp: Int) = {
-    typeOf[Pixel] match {
+  def createVtkDataArray[A: TypeTag](data: Array[A], numComp: Int) = {
+    typeOf[A] match {
       case t if t =:= typeOf[Byte] => {
         val a = new vtkCharArray()
         a.SetNumberOfComponents(numComp)
@@ -87,21 +89,26 @@ object VTKHelpers {
         a.SetJavaArray(data.asInstanceOf[Array[Double]])
         a
       }
-      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[Pixel])
+      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[A])
     }
   }
 }
 
 object MeshConversion {
   def meshToVTKPolyData(mesh: TriangleMesh): vtkPolyData = {
+    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten
     val pd = new vtkPolyData()
-    val pts = new vtkPoints()
-    pts.SetNumberOfPoints(mesh.points.size)
-    for ((pt, pt_id) <- mesh.points.zipWithIndex) {
-      pts.InsertPoint(pt_id, pt(0), pt(1), pt(2))
-    }
-    pd.SetPoints(pts)
 
+    val pointDataArrayVTK = VTKHelpers.createVtkDataArray(pointDataArray, 3)
+    val pointsVTK = new vtkPoints
+    pointsVTK.SetData(pointDataArrayVTK)
+    pd.SetPoints(pointsVTK)
+    
+    val triangleDataArray = mesh.cells.toArray.map(_.pointIds).flatten
+    val cellDataArrayVTK = VTKHelpers.createVtkDataArray(triangleDataArray, 3)
+    val polysVTK = new vtkCellArray
+
+    
     val triangles = new vtkCellArray
     triangles.SetNumberOfCells(mesh.cells.size)
     for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
@@ -112,9 +119,11 @@ object MeshConversion {
       triangle.GetPointIds().SetId(2, cell.ptId3);
       triangles.InsertNextCell(triangle);
     }
-    pd.SetPolys(triangles)
+    triangles.Squeeze()
+    pd.SetPolys(triangles)    
     pd
   }
+   
 }
 
 object ImageConversion {

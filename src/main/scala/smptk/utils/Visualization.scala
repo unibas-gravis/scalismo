@@ -55,7 +55,35 @@ object Visualization {
     }
   }
 
-  private case class VTKImageViewer(sp: vtkStructuredPoints) extends SimpleSwingApplication {
+  private case class VTKImageViewer2D(sp: vtkStructuredPoints) extends SimpleSwingApplication {
+
+    val vPanel = new vtkCanvas() {
+      val style = new vtkInteractorStyleImage();
+      style.SetInteractionModeToImage2D()
+      val im = new vtkImageResliceMapper()
+      val actor = new vtkImageActor()
+      actor.SetInputData(sp)
+      iren.SetInteractorStyle(style)
+      ren.AddActor(actor)
+      ren.SetRenderWindow(rw);
+      iren.SetInteractorStyle(style);
+      ren.ResetCamera()
+      
+      }
+
+    val scalaPanel = new Component {
+      override lazy val peer = new JPanel(new BorderLayout())
+      peer.add(vPanel)
+    }
+
+    // Create the main application window
+    override def top = new MainFrame {
+      title = "ScaleImageViewer"
+      contents = scalaPanel
+    }
+  }
+
+  private case class VTKImageViewer3D(sp: vtkStructuredPoints) extends SimpleSwingApplication {
 
     val vPanel = new vtkCanvas() {
       val style = new vtkInteractorStyleImage();
@@ -143,7 +171,7 @@ object Visualization {
     val imgVTK = ImageConversion.image2DTovtkStructuredPoints(img)
     //    val imp = ImageConversion.image2DToImageJImagePlus(img)
     //    imp.show()
-    VTKImageViewer(imgVTK).main(Array(""))
+    VTKImageViewer2D(imgVTK).main(Array(""))
   }
 
   def show[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) {
@@ -152,7 +180,7 @@ object Visualization {
     val imgVTK = ImageConversion.image3DTovtkStructuredPoints(img)
     //    val imp = ImageConversion.image2DToImageJImagePlus(img)
     //    imp.show()
-    VTKImageViewer(imgVTK).main(Array(""))
+    VTKImageViewer3D(imgVTK).main(Array(""))
 
   }
 
@@ -185,6 +213,7 @@ object Visualization {
     smptk.initialize()
     val lena = smptk.io.ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/test.h5")).get
     //val lena = smptk.io.ImageIO.read2DScalarImage[Short](new java.io.File("/tmp/lena.h5")).get
+    //val lena = smptk.io.MeshIO.readHDF5(new java.io.File("/tmp/facemesh.h5")).get
     show(lena)
   }
 }
