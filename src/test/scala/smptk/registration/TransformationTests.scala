@@ -63,11 +63,11 @@ class TransformationTests extends FunSpec with ShouldMatchers {
   describe("A translation in 2D") {
     it("translates an image") {
       val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
-      val continuousImage = Interpolation.interpolate2D(3)(discreteImage)
+      val continuousImage = Interpolation.interpolate(discreteImage, 3)
 
       val translation = TranslationSpace2D()(DenseVector[Double](10, 0))
       val translatedImg = continuousImage.compose(translation)
-      val resampledImage = Resample.sample2D[Short](translatedImg, discreteImage.domain, 0)
+      val resampledImage = Resample.sample[Short](translatedImg, discreteImage.domain, 0)
       ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
 
     }
@@ -136,7 +136,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     val path = getClass().getResource("/chimp3D-11.h5").getPath()
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate3D(0)(discreteImage)
+    val continuousImage = Interpolation.interpolate(discreteImage, 0)
 
     it("translation forth and back of a real dataset yields the same image") {
 
@@ -145,7 +145,6 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val inverseTransform = TranslationSpace3D().inverseTransform(parameterVector).get
       val translatedForthBackImg = continuousImage.compose(translation).compose(inverseTransform)
 
-      Utils.show3D(translatedForthBackImg, discreteImage.domain)
 
       for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt)) assert(translatedForthBackImg(p) === continuousImage(p))
     }
@@ -163,7 +162,6 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val rotatedImage = continuousImage.compose(rotation)
 
-      Utils.show3D(rotatedImage, discreteImage.domain)
 
       for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) assert(rotatedImage(p) === continuousImage(p))
     }
@@ -181,8 +179,6 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val parameterVector = DenseVector[Double](Math.PI, Math.PI, Math.PI)
       
       val rotation = RotationSpace3D(center)(parameterVector)
-      val vtkpd = Utils.meshToVTKMesh(mesh compose rotation)
-      Utils.showVTK(vtkpd)
     }
 
   }

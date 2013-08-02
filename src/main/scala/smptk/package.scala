@@ -8,6 +8,5 @@ package object smptk {
       NativeLibraryBundles.initialize(NativeLibraryBundles.InitializationMode.WARNONFAIL)
       initialized = true
     }
-
   }
 }

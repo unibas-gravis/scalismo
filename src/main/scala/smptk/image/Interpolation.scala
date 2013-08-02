@@ -18,7 +18,7 @@ object Interpolation {
   /** 
    * performs a b-spline interpolation of given degree of a 1D image 
    * */ 
-  def interpolate1D[Scalar : ScalarPixel](degree: Int)(image: DiscreteScalarImage1D[Scalar]): ContinuousScalarImage1D = {
+  def interpolate[Scalar : ScalarPixel](image: DiscreteScalarImage1D[Scalar], degree: Int): ContinuousScalarImage1D = {
 
     val ck = determineCoefficients(degree, image)
 
@@ -58,7 +58,7 @@ object Interpolation {
    /** 
    * performs a b-spline interpolation of given degree of a 2D image 
    * */ 
-  def interpolate2D[Scalar : ScalarPixel](degree: Int)(image: DiscreteScalarImage2D[Scalar]): ContinuousScalarImage2D = {
+  def interpolate[Scalar : ScalarPixel](image: DiscreteScalarImage2D[Scalar], degree: Int): ContinuousScalarImage2D = {
     val ck = determineCoefficients(degree, image)
 
     def iterateOnPoints( x: Point[TwoD], splineBasis: ((Double, Double) => Double)): Double = {
@@ -106,7 +106,7 @@ object Interpolation {
    /** 
    * performs a b-spline interpolation of given degree of a 3D image 
    * */   
-  def interpolate3D[Scalar : ScalarPixel](degree: Int)(image: DiscreteScalarImage3D[Scalar]): ContinuousScalarImage3D = {
+  def interpolate[Scalar : ScalarPixel](image: DiscreteScalarImage3D[Scalar], degree: Int): ContinuousScalarImage3D = {
     val ck = determineCoefficients(degree, image)
 
     def iterateOnPoints(x: Point[ThreeD], splineBasis: ((Double, Double, Double) => Double)): Double = {

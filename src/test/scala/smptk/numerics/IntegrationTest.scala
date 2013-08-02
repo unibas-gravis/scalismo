@@ -43,7 +43,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
 
       val img =  ContinuousScalarImage1D( BoxedDomain1D(-1.0, 1.0),  (x: Point[OneD]) => 1.)
 
-      Utils.show1D(img, DiscreteImageDomain1D(-2., 0.1, 40))
+      //Utils.show1D(img, DiscreteImageDomain1D(-2., 0.1, 40))
       
       val region1 = BoxedDomain1D(-1.01, 1.01) 
       val region2 = BoxedDomain1D(-8.01, 8.01)
