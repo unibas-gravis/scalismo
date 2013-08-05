@@ -25,6 +25,19 @@ import geometry._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 import smptk.common.{ BoxedDomain, BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
+import smptk.statisticalmodel.StatisticalMeshModel
+import scala.swing.Slider
+import scala.swing.BoxPanel
+import scala.swing.Orientation
+import smptk.io.StatismoIO
+import scala.swing.event.ValueChanged
+import java.awt.geom.Dimension2D
+import java.awt.Dimension
+import scala.swing.Button
+import scala.swing.event.ButtonClicked
+import smptk.io.MeshIO
+import javax.swing.UIManager
+import javax.swing.WindowConstants.{ DISPOSE_ON_CLOSE, DO_NOTHING_ON_CLOSE }
 
 object Visualization {
 
@@ -52,6 +65,8 @@ object Visualization {
     override def top = new MainFrame {
       title = "ScaleCone"
       contents = scalaPanel
+      peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+      override def closeOperation() { dispose() }
     }
   }
 
@@ -68,8 +83,8 @@ object Visualization {
       ren.SetRenderWindow(rw);
       iren.SetInteractorStyle(style);
       ren.ResetCamera()
-      
-      }
+
+    }
 
     val scalaPanel = new Component {
       override lazy val peer = new JPanel(new BorderLayout())
@@ -80,6 +95,8 @@ object Visualization {
     override def top = new MainFrame {
       title = "ScaleImageViewer"
       contents = scalaPanel
+      peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+      override def closeOperation() { dispose() }
     }
   }
 
@@ -113,43 +130,125 @@ object Visualization {
     override def top = new MainFrame {
       title = "ScaleImageViewer"
       contents = scalaPanel
+      peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+      override def closeOperation() { dispose() }
+
     }
   }
 
-  //    case class ShowTwoVTK(pd1: vtkPolyData, pd2 : vtkPolyData) extends SimpleSwingApplication {
-  //
-  //    // Setup VTK rendering panel, this also loads VTK native libraries
-  //    var renWin: vtkPanel = new vtkPanel
-  //
-  //    // Create wrapper to integrate vtkPanel with Scala's Swing API
-  //    val scalaPanel = new Component {
-  //      override lazy val peer = new JPanel(new BorderLayout())
-  //      peer.add(renWin)
-  //    }
-  //
-  //    var coneMapper = new vtkPolyDataMapper
-  //    coneMapper.SetInputData(pd1)
-  //
-  //    var coneActor = new vtkActor
-  //    coneActor.SetMapper(coneMapper)
-  //    
-  //    var coneMapper2 = new vtkPolyDataMapper
-  //    coneMapper2.SetInputData(pd2)
-  //
-  //    var coneActor2 = new vtkActor
-  //    coneActor2.SetMapper(coneMapper2)
-  //    coneActor2.GetProperty().SetColor(1.0, 0.0, 0.0); //(R,G,B)
-  //    
-  //    renWin.GetRenderer.AddActor(coneActor)
-  //    renWin.GetRenderer.AddActor(coneActor2)
-  //    renWin.GetRenderer.ResetCamera
-  //
-  //    // Create the main application window
-  //    override def top = new MainFrame {
-  //      title = "ScaleCone"
-  //      contents = scalaPanel
-  //    }
-  //  }
+  private case class VTKStatmodelViewer(statmodel: StatisticalMeshModel) extends SimpleSwingApplication {
+    val mesh = statmodel.mesh
+    val pd = MeshConversion.meshToVTKPolyData(mesh)
+    val gp = statmodel.gp.specializeForPoints(mesh.points.force)
+    val numComps = gp.eigenPairs.size
+    val coeffs = DenseVector.zeros[Double](numComps)
+
+    // Setup VTK rendering panel, this also loads VTK native libraries
+    var renWin: vtkPanel = new vtkPanel
+    val sliders = for (i <- 0 until 30) yield {
+      val slider = new Slider()
+      slider.min = -5
+      slider.max = 5
+      slider.snapToTicks = true
+      slider.majorTickSpacing = 1
+      slider.name = i.toString
+      slider.value = 0
+      slider
+    }
+    val resetButton = new Button()
+    resetButton.text = "reset"
+    resetButton.name = "reset"
+
+    val randomButton = new Button()
+    randomButton.text = "random"
+    randomButton.name = "random"
+    val sliderPanel = new BoxPanel(Orientation.Vertical) {
+      for (slider <- sliders) {
+        contents += slider
+        contents += resetButton
+        contents += randomButton
+      }
+
+    }
+    // Create wrapper to integrate vtkPanel with Scala's Swing API
+    val scalaPanel = new Component {
+      override lazy val peer = new JPanel(new BorderLayout())
+      peer.add(renWin)
+    }
+
+    var mapper = new vtkPolyDataMapper
+    mapper.SetInputData(pd)
+
+    var actor = new vtkActor
+    actor.SetMapper(mapper)
+
+    updateMesh(coeffs) // render the mean
+    renWin.GetRenderer.AddActor(actor)
+    renWin.GetRenderer.ResetCamera
+
+    def updateMesh(coeffs: DenseVector[Double]) {
+      val ptdefs = gp.instanceAtPoints(coeffs)
+      val newptseq = for ((pt, df) <- ptdefs) yield (Array((pt(0) + df(0)).toFloat, (pt(1) + df(1)).toFloat, (pt(2) + df(2)).toFloat))
+      val ptarray = newptseq.flatten
+      val arrayVTK = new vtkFloatArray()
+      arrayVTK.SetNumberOfValues(mesh.numberOfPoints)
+      arrayVTK.SetNumberOfComponents(3)
+      arrayVTK.SetJavaArray(ptarray.toArray)
+
+      pd.GetPoints().SetData(arrayVTK)
+      pd.Modified()
+      renWin.Render()
+
+    }
+
+    // Create the main application window
+    override def top = new MainFrame {
+      title = "ScaleCone"
+
+      peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+      override def closeOperation() { dispose() }
+
+      contents = new BoxPanel(Orientation.Horizontal) {
+        contents += scalaPanel
+        contents += sliderPanel
+      }
+      size = new Dimension(1024, 700)
+      for (slider <- sliders) {
+        listenTo(slider)
+      }
+      listenTo(resetButton)
+      listenTo(randomButton)
+      reactions += {
+        case ValueChanged(s) => {
+          val slider = s.asInstanceOf[Slider]
+          coeffs(slider.name.toInt) = slider.value.toDouble
+          updateMesh(coeffs)
+        }
+        case ButtonClicked(b) => {
+          b.name match {
+            case "reset" => {
+              for (slider <- sliders) slider.value = 0
+              coeffs.foreach(s => 0)
+              updateMesh(coeffs)
+            }
+            case "random" => {
+              val gaussian = breeze.stats.distributions.Gaussian(0, 1)
+              coeffs.foreach(s => 0)
+              for ((slider, i) <- sliders.zipWithIndex) {
+                val r = gaussian.draw
+                slider.value = 0
+                coeffs(i) = r
+              }
+              updateMesh(coeffs)
+            }
+          }
+
+        }
+
+      }
+
+    }
+  }
 
   def show(mesh: TriangleMesh) {
     val vtkpd = MeshConversion.meshToVTKPolyData(mesh)
@@ -170,18 +269,12 @@ object Visualization {
 
   def show[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage2D[Pixel]) {
     val imgVTK = ImageConversion.image2DTovtkStructuredPoints(img)
-    //    val imp = ImageConversion.image2DToImageJImagePlus(img)
-    //    imp.show()
     VTKImageViewer2D(imgVTK).main(Array(""))
     imgVTK.Delete()
   }
 
   def show[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) {
-    //    val imp = ImageConversion.image3DToImageJImagePlus(img)
-    //    imp.show()
     val imgVTK = ImageConversion.image3DTovtkStructuredPoints(img)
-    //    val imp = ImageConversion.image2DToImageJImagePlus(img)
-    //    imp.show()
     VTKImageViewer3D(imgVTK).main(Array(""))
     imgVTK.Delete()
 
@@ -212,12 +305,17 @@ object Visualization {
     show(discreteImg)
   }
 
+  def show(model: StatisticalMeshModel) {
+    VTKStatmodelViewer(model).main(Array(""))
+  }
+
+  // testing purpose
   def main(args: Array[String]): Unit = {
     smptk.initialize()
-    //val lena = smptk.io.ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/test.h5")).get
-    //val lena = smptk.io.ImageIO.read2DScalarImage[Short](new java.io.File("/tmp/lena.h5")).get
-    val lena = smptk.io.MeshIO.readHDF5(new java.io.File("/tmp/facemesh.h5")).get
-    show(lena)
+    val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
+    //val model = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
+    show(model)
   }
+
 }
 
