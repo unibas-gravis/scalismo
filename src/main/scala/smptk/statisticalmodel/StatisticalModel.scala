@@ -13,12 +13,12 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
 
   private val meshBB = mesh.boundingBox
   private val gpDomain = gp.domain
-  require(meshBB.origin(0) <= gpDomain.origin(0)
-    && meshBB.origin(1) <= gpDomain.origin(1)
-    && meshBB.origin(2) <= gpDomain.origin(2)
-    && meshBB.extent(0) >= gpDomain.extent(0)
-    && meshBB.extent(1) >= gpDomain.extent(1)
-    && meshBB.extent(2) >= gpDomain.extent(2))  
+  require(meshBB.origin(0) >= gpDomain.origin(0)
+    && meshBB.origin(1) >= gpDomain.origin(1)
+    && meshBB.origin(2) >= gpDomain.origin(2)
+    && meshBB.extent(0) <= gpDomain.extent(0)
+    && meshBB.extent(1) <= gpDomain.extent(1)
+    && meshBB.extent(2) <= gpDomain.extent(2))  
   
 }
 
