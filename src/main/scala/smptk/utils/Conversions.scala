@@ -27,6 +27,19 @@ import vtk.vtkIntArray
 import vtk.vtkLongArray
 import vtk.vtkFloatArray
 import vtk.vtkDoubleArray
+import smptk.geometry.Point3D
+import vtk.vtkIdList
+import smptk.mesh.TriangleCell
+import scala.util.Success
+import scala.util.Failure
+import smptk.geometry.Index3D
+import smptk.geometry.Vector3D
+import smptk.geometry.Vector2D
+import smptk.geometry.Point2D
+import smptk.geometry.Index2D
+import smptk.image.DiscreteImageDomain2D
+import vtk.vtkDataArray
+import smptk.image.DiscreteImageDomain3D
 
 object VTKHelpers {
   val VTK_CHAR = 2
@@ -101,25 +114,74 @@ object VTKHelpers {
       case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[A])
     }
   }
+
+  def getVTKArrayAsJavaArray[A: TypeTag](vtkType: Int, arrayVTK: vtkDataArray): Try[Array[A]] = {
+    vtkType match {
+      case VTK_CHAR => {
+        Try { arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray().asInstanceOf[Array[A]] }
+      }
+      case VTK_SHORT => {
+        Try { arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray().asInstanceOf[Array[A]] }
+      }
+      case VTK_INT => {
+        Try { arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray().asInstanceOf[Array[A]] }
+      }
+      case VTK_FLOAT => {
+        Try { arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray().asInstanceOf[Array[A]] }
+      }
+      case VTK_DOUBLE => {
+        Try { arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray().asInstanceOf[Array[A]] }
+      }
+      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[A])
+    }
+  }
 }
 
 object MeshConversion {
+
+  def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
+    val pointsArrayVtk = pd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
+    val pointsArray = pointsArrayVtk.GetJavaArray()
+    val points = pointsArray.grouped(3).map(p => Point3D(p(0), p(1), p(2)))
+
+    val polys = pd.GetPolys()
+
+    val numPolys = polys.GetNumberOfCells()
+
+    val cellsOrFailure = Try {
+      val idList = new vtkIdList()
+      val cells = for (i <- 0 until numPolys) yield {
+        pd.GetCellPoints(i, idList)
+        if (idList.GetNumberOfIds() != 3) {
+          throw new Exception("currently only triangle meshes can be read")
+        }
+        TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
+      }
+      idList.Delete()
+      cells
+    }
+    // TODO currently all data arrays are ignored
+    cellsOrFailure.map { cells =>
+      TriangleMesh(points.toIndexedSeq, cells)
+    }
+  }
+
   def meshToVTKPolyData(mesh: TriangleMesh): vtkPolyData = {
-    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten
+    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten.map(_.toFloat)
     val pd = new vtkPolyData()
 
     val pointDataArrayVTK = VTKHelpers.createVtkDataArray(pointDataArray, 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
     pd.SetPoints(pointsVTK)
-    
+
     val triangleDataArray = mesh.cells.toArray.map(_.pointIds).flatten
     val cellDataArrayVTK = VTKHelpers.createVtkDataArray(triangleDataArray, 3)
     val polysVTK = new vtkCellArray
 
-    
     val triangles = new vtkCellArray
     triangles.SetNumberOfCells(mesh.cells.size)
+    triangles.Initialize()
     for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
       val triangle = new vtkTriangle()
 
@@ -129,10 +191,10 @@ object MeshConversion {
       triangles.InsertNextCell(triangle);
     }
     triangles.Squeeze()
-    pd.SetPolys(triangles)    
+    pd.SetPolys(triangles)
     pd
   }
-   
+
 }
 
 object ImageConversion {
@@ -141,8 +203,8 @@ object ImageConversion {
     val domain = img.domain
     sp.SetDimensions(domain.size(0), domain.size(1), 1)
     sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
-    sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)    
-    
+    sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
+
     val info = new vtkInformation() // TODO check what to do with the info
     sp.SetNumberOfScalarComponents(1, info)
     sp.SetScalarType(VTKHelpers.getVtkScalarType[Pixel], info)
@@ -157,13 +219,63 @@ object ImageConversion {
     val domain = img.domain
     sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
     sp.SetOrigin(domain.origin(0), domain.origin(1), domain.origin(2))
-    sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))        
+    sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
     val info = new vtkInformation() // TODO check what to do with the info
     sp.SetNumberOfScalarComponents(1, info)
     sp.SetScalarType(VTKHelpers.getVtkScalarType[Pixel], info)
     val dataArray = VTKHelpers.createVtkDataArray(img.pixelValues.toArray, 1)
     sp.GetPointData().SetScalars(dataArray)
     sp
+  }
+
+  def vtkStructuredPointsTo3DScalarImage[Pixel: ScalarPixel: TypeTag](sp: vtkStructuredPoints): Try[DiscreteScalarImage3D[Pixel]] = {
+    if (sp.GetNumberOfScalarComponents() != 1) {
+      return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
+    }
+
+    if (sp.GetDimensions()(2) == 1 || sp.GetDimensions()(2) == 0) {
+      return Failure(new Exception(s"The image is a 2D image - require a 3D image"))
+    }
+
+    val requiredScalarType = VTKHelpers.getVtkScalarType[Pixel]
+    val spScalarType = sp.GetScalarType()
+    if (requiredScalarType != spScalarType) {
+      return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
+    }
+
+    val origin = Point3D(sp.GetOrigin()(0), sp.GetOrigin()(1), sp.GetOrigin()(2))
+    val spacing = Vector3D(sp.GetSpacing()(0), sp.GetSpacing()(1), sp.GetSpacing()(2))
+    val size = Index3D(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
+
+    val domain = DiscreteImageDomain3D(origin, spacing, size)
+    val scalars = sp.GetPointData().GetScalars()
+    val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
+    pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage3D(domain, pixelArray.toIndexedSeq))
+  }
+
+  def vtkStructuredPointsTo2DScalarImage[Pixel: ScalarPixel: TypeTag](sp: vtkStructuredPoints): Try[DiscreteScalarImage2D[Pixel]] = {
+    if (sp.GetNumberOfScalarComponents() != 1) {
+      return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
+    }
+
+    if (sp.GetDimensions()(2) != 1 && sp.GetDimensions()(2) != 0) {
+      return Failure(new Exception(s"The image is a 3D image - require a 2D image"))
+    }
+
+    val requiredScalarType = VTKHelpers.getVtkScalarType[Pixel]
+    val spScalarType = sp.GetScalarType()
+    if (requiredScalarType != spScalarType) {
+      return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
+    }
+
+    val origin = Point2D(sp.GetOrigin()(0), sp.GetOrigin()(1))
+    val spacing = Vector2D(sp.GetSpacing()(0), sp.GetSpacing()(1))
+    val size = Index2D(sp.GetDimensions()(0), sp.GetDimensions()(1))
+
+    val domain = DiscreteImageDomain2D(origin, spacing, size)
+    val scalars = sp.GetPointData().GetScalars()
+    val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
+    pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage2D(domain, pixelArray.toIndexedSeq))
   }
 
   def image3DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[ThreeD, Pixel]) = {
@@ -192,4 +304,5 @@ object ImageConversion {
     val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
     new ImagePlus("2D image", bp)
   }
+
 }

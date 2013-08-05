@@ -10,7 +10,7 @@ import java.io.File
 import smptk.image.DiscreteScalarImage2D
 import smptk.image.DiscreteScalarImage
 import scala.util.Success
-import smptk.image.{DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D}
+import smptk.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import smptk.image.DiscreteScalarImage2D
 import java.io.IOException
@@ -19,6 +19,8 @@ import scala.reflect.ClassTag
 import smptk.image.DiscreteScalarImage3D
 import smptk.image.DiscreteScalarImage1D
 import smptk.geometry._
+import vtk.vtkStructuredPointsReader
+import smptk.utils.ImageConversion
 
 object ImageIO {
 
@@ -50,7 +52,7 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
 
-              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0)), Vector1D(imageData.spacing(0)), Index1D(imageData.size(0).toInt))  
+              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0)), Vector1D(imageData.spacing(0)), Index1D(imageData.size(0).toInt))
               Success(DiscreteScalarImage1D(domain, imageData.data))
             }
           }
@@ -83,6 +85,21 @@ object ImageIO {
           }
         }
       }
+      case f if f.getAbsolutePath().endsWith(".vtk") => {
+        val reader = new vtkStructuredPointsReader()
+        reader.SetFileName(f.getAbsolutePath)
+        reader.Update()
+        val errCode = reader.GetErrorCode()
+        if (errCode != 0) {
+          return Failure(new IOException("Failed to read vtk file ${f.getAbsolutePath()}. " +
+            "(error code from vtkReader = $errCode"))
+        }
+        val sp = reader.GetOutput()
+        val img = ImageConversion.vtkStructuredPointsTo3DScalarImage[Scalar](sp)
+        reader.Delete()
+        sp.Delete()
+        img
+      }
       case _ => Failure(new Exception("Unknown file type received" + f.getAbsolutePath()))
     }
   }
@@ -109,6 +126,22 @@ object ImageIO {
           }
         }
       }
+      case f if f.getAbsolutePath().endsWith(".vtk") => {
+        val reader = new vtkStructuredPointsReader()
+        reader.SetFileName(f.getAbsolutePath)
+        reader.Update()
+        val errCode = reader.GetErrorCode()
+        if (errCode != 0) {
+          return Failure(new IOException("Failed to read vtk file ${f.getAbsolutePath()}. " +
+            "(error code from vtkReader = $errCode"))
+        }
+        val sp = reader.GetOutput()
+        val img = ImageConversion.vtkStructuredPointsTo2DScalarImage[Scalar](sp)
+        reader.Delete()
+        sp.Delete()
+        img
+      }
+
       case _ => Failure(new Exception("Unknown file type received" + f.getAbsolutePath()))
     }
   }

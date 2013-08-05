@@ -9,11 +9,10 @@ import scala.util.Failure
 import geometry._
 import smptk.image.Utils
 import smptk.mesh.{TriangleMesh}
-import ch.unibas.gravis.nativelib.NativeLibraryBundles
 
 class StatismoIOTest extends FunSpec with ShouldMatchers {
 
-    NativeLibraryBundles.initialize(NativeLibraryBundles.InitializationMode.WARNONFAIL)
+    smptk.initialize()
   
   describe("a Statismo Mesh MOdel") {
     it("can be read") {

@@ -1,4 +1,4 @@
-import ch.unibas.gravis.nativelib.NativeLibraryBundles
+import org.statismo.support.nativelibs._
 package object smptk {
 
   var initialized = false

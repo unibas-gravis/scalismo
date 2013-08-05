@@ -154,6 +154,7 @@ object Visualization {
   def show(mesh: TriangleMesh) {
     val vtkpd = MeshConversion.meshToVTKPolyData(mesh)
     VTKMeshViewer(vtkpd).main(Array(""))
+    vtkpd.Delete()
   }
 
   def show[D <: Dim, Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]): Unit = {
@@ -172,6 +173,7 @@ object Visualization {
     //    val imp = ImageConversion.image2DToImageJImagePlus(img)
     //    imp.show()
     VTKImageViewer2D(imgVTK).main(Array(""))
+    imgVTK.Delete()
   }
 
   def show[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) {
@@ -181,6 +183,7 @@ object Visualization {
     //    val imp = ImageConversion.image2DToImageJImagePlus(img)
     //    imp.show()
     VTKImageViewer3D(imgVTK).main(Array(""))
+    imgVTK.Delete()
 
   }
 

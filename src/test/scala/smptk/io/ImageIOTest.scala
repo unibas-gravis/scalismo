@@ -11,11 +11,10 @@ import geometry.implicits._
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
-import ch.unibas.gravis.nativelib.NativeLibraryBundles
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
 
-  NativeLibraryBundles.initialize(NativeLibraryBundles.InitializationMode.WARNONFAIL)
+  smptk.initialize()
   
   describe("A 1D scalar image") {
     it("can be stored and read again") {
