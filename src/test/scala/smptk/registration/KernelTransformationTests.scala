@@ -9,7 +9,6 @@ import smptk.image.ContinuousScalarImage1D
 import geometry._
 import geometry.implicits._
 import com.sun.org.apache.xpath.internal.operations.Plus
-
 import image.Image._
 import smptk.image.DiscreteScalarImage1D
 import smptk.image.Interpolation
@@ -42,6 +41,10 @@ import smptk.image.DiscreteImageDomain3D
 import smptk.statisticalmodel.{LowRankGaussianProcessConfiguration}
 import smptk.statisticalmodel.GaussianProcess._
 import smptk.kernels._
+import smptk.common.BoxedDomain1D
+import smptk.common.BoxedDomain
+import smptk.common.BoxedDomain2D
+import smptk.image.ContinuousScalarImage1D
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
@@ -50,9 +53,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   describe("The Nystroem approximation of a Kernel matrix") {
     it("Is close enough to a scalar valued kernel matrix") {
       val kernel = GaussianKernel1D(20)
-      val domain = DiscreteImageDomain1D(-5, 2, 100)
+      val domain = BoxedDomain1D(-5.0, 195.0)
 
-      val sampler = UniformSampler1D()
+      val sampler = UniformSampler1D(domain)
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
 
@@ -63,7 +66,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         })
       }
 
-      for (x <- domain.points.slice(0, 10); y <- domain.points.slice(0, 10)) {
+      for ((x, _) <- sampler.sample(10); (y,_) <- sampler.sample(10)) {
         val v1 = kernel(x, y)(0, 0)
         val v2 = approxKernel(x, y)
         (v2 should be(v1 plusOrMinus 0.001f))
@@ -72,50 +75,51 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     }
 
 
-    ignore("Its eigenvalues are close enough to the real eigenvalues for 1D") {
+    it("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
       val scalarKernel = GaussianKernel1D(10)
-      val domain = DiscreteImageDomain1D(0.,0.5, 200)
-      val sampler = UniformSampler1D()
-      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, domain, 10, 500, sampler)
+      val domain = BoxedDomain1D(0.,10.)
+      val sampler = UniformSampler1D(domain)
+      val numPoints = 500
+      val (points, _) = sampler.sample(numPoints).unzip
+      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, domain, 10, numPoints, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
       
-      val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
+      val realKernelMatrix = DenseMatrix.zeros[Double](numPoints * kernelDim, numPoints * kernelDim)
 
-      for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
-        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = scalarKernel(domain.points(i), domain.points(j))(di, dj)
+      for (i <- 0 until numPoints; j <- 0 until numPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = scalarKernel(points(i), points(j))(di, dj)
       }
 
       //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
-      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), eigPairsApprox.size)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / numPoints), eigPairsApprox.size)
 
       for (l <- approxLambdas.zipWithIndex)
         l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
 
     }
 
-    ignore("Its eigenvalues are close enough to the real eigenvalues in 2D") {
+    it("Its eigenvalues are close enough to the real eigenvalues in 2D") {
 
       val kernelDim = 2
       val scalarKernel = GaussianKernel2D(10)
       val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
-      val domain = DiscreteImageDomain2D((0., 0.), (1., 1.), (20, 20))
-      val sampler = UniformSampler2D()
+      val domain = BoxedDomain2D((0., 0.),  (5.0, 5.0))
+      val sampler = UniformSampler2D(domain)
+      val (pts, _) = sampler.sample(500).unzip
 
-
-      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, domain, 10, 500, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, domain, 10, 400, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
   
       
-      val realKernelMatrix = DenseMatrix.zeros[Double](domain.numberOfPoints * kernelDim, domain.numberOfPoints * kernelDim)
+      val realKernelMatrix = DenseMatrix.zeros[Double](pts.size * kernelDim, pts.size * kernelDim)
 
-      for (i <- 0 until domain.numberOfPoints; j <- 0 until domain.numberOfPoints; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
-        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = ndKernel(domain.points(i), domain.points(j))(di, dj)
+      for (i <- 0 until pts.size; j <- 0 until pts.size; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+        realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = ndKernel(pts(i), pts(j))(di, dj)
       }
 
-      //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
-
-      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / domain.numberOfPoints), eigPairsApprox.size)
+ 
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / pts.size), eigPairsApprox.size)
       println("approx lambdas " +approxLambdas)
       println("real lambdas " +realLambdas)
 
@@ -124,208 +128,22 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     }
 
-    ignore("The eigenValues are independent of the spacing") {
-      val kernelDim = 2
-      val scalarKernel = GaussianKernel2D(10)
-      val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
-      val domain = DiscreteImageDomain2D((0., 0.), (1., 1.), (20, 20))
-      val domain2 = DiscreteImageDomain2D((0., 0.), (0.5, 0.5), (20, 20))
-      val sampler = UniformSampler2D()
-
-      val eigPairsDomain1 = Kernel.computeNystromApproximation[TwoD](ndKernel, domain, 10, 500, sampler)
-      val lambdasDomain1 = eigPairsDomain1.map(_._1)
-      val eigPairsDomain2 = Kernel.computeNystromApproximation[TwoD](ndKernel, domain2, 10, 500, sampler)
-      val lambdasDomain2 = eigPairsDomain2.map(_._1)
-
-      for (l <- lambdasDomain1.zipWithIndex)
-        l._1 should be((lambdasDomain2(l._2)) plusOrMinus (0.001))
-    }
-
-    ignore("It leads to orthogonal basis functions on the domain (-5, 5)") {
-      val kernel = GaussianKernel1D(20)
-      val domain = DiscreteImageDomain1D(-5., 2., 100)
-      val sampler = UniformSampler1D()
+    it("It leads to orthogonal basis functions on the domain (-5, 5)") {
+      val kernel = GaussianKernel1D(1.0)
+      val domain = BoxedDomain1D(-5.0,5.0)
+      val sampler = UniformSampler1D(domain)
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
 
-
-      val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints))
+      val integrator = Integrator(IntegratorConfiguration(sampler, 500))
 
       for (i <- 0 until 20) {
 
     	val (lambda_i, phi_i) = eigPairs(i)
         val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.)))
 
-        val v = integrator.integrateScalar(phiImg, domain)
+        val v = integrator.integrateScalar(phiImg)
         v should be(1. plusOrMinus 0.1)
-      }
-    }
-
-    describe("A kernel transformation") {
-      ignore("can be used to get the correct parameters in 1d (doing registration)") {
-
-        val domain = DiscreteImageDomain1D(-5., 0.1, 1000)
-        val discreteImage = DiscreteScalarImage1D(domain, domain.points.map(x => x(0)).toIndexedSeq)
-        val continuousImg = Interpolation.interpolate(discreteImage, 3)
-
-        val gk = GaussianKernel1D(0.1)
-
-        val gp = createLowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain, (x: Point[OneD]) => DenseVector(0.), gk, 10, 500))
-
-        val regConf = RegistrationConfiguration(
-          regularizationWeight = 0.0,
-          optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.3)),
-          integrator = Integrator(IntegratorConfiguration(UniformSampler1D(), domain.numberOfPoints)),
-          metric = MeanSquaresMetric1D(),
-          transformationSpace = KernelTransformationSpace1D(KernelTransformationSpaceConfiguration(gp)),
-          regularizer = RKHSNormRegularizer)
-
-        val kernelSpace = regConf.transformationSpace
-        val parameterVector = DenseVector.ones[Double](10) * 1.
-        val transform = kernelSpace(parameterVector)
-        val transformedImg = continuousImg compose transform
-
-        val regResult = Registration.registration1D(regConf)(transformedImg, continuousImg)(domain)
-
-        //        Utils.show1D(continuousImg, domain)
-        //        Utils.show1D(transformedImg, domain)
-        //        Utils.show1D(continuousImg.warp(regResult(domain).transform, domain.isInside), domain)
-        //Utils.show1D(continuousImg compose regResult(domain).transform , domain)
-
-        for (i <- 0 until parameterVector.size)
-          regResult.parameters(i) should be(parameterVector(i) plusOrMinus 0.001)
-
-      }
-
-      ignore("can be used to get the correct parameters in 2d (doing registration)") {
-
-        val testImgUrl = "/home/bouabene/dmFullBone.h5"
-
-        val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-
-        val fixedImage = Interpolation.interpolate(discreteFixedImage, 0)
-
-        val domain = discreteFixedImage.domain
-
-        // Define a transformation    
-        val gk = UncorrelatedKernelND(GaussianKernel2D(400), 2)
-
-        val gp = createLowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: Point[TwoD]) => DenseVector(0., 0.), gk, 2, 500))
-
-        val kernelTransformConfig = KernelTransformationSpaceConfiguration(gp, true)
-        val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
-
-        val parameterVector = DenseVector[Double](25., 35.)
-        val transform = transformSpace(parameterVector)
-
-        val warpedImage = fixedImage compose transform
-
-        //Utils.show2D(warpedImage, domain)
-
-        val regConf = RegistrationConfiguration(
-          regularizationWeight = 0.0,
-          optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.000001, false, true, 0.602)),
-          //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(100)),
-          //optimizer = BreezeStochGradOptimizer(BreezeStochGradOptimizerConfiguration(100, 1.)),
-          integrator = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler2D(), 200)),
-          //integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 300)),
-          //metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
-          metric = MeanSquaresMetric2D(),
-          transformationSpace = KernelTransformationSpace2D(kernelTransformConfig),
-          regularizer = RKHSNormRegularizer)
-
-        val registration = Registration.registration2D(regConf)(warpedImage, fixedImage)
-        val regResult = registration(domain)
-
-        //        Utils.show2D(fixedImage compose regResult.transform, domain)
-
-        (regResult.parameters(0) should be(parameterVector(0) plusOrMinus 0.0001))
-        (regResult.parameters(1) should be(parameterVector(1) plusOrMinus 0.0001))
-
-      }
-
-      ignore("can be used to get the correct parameters in 2d (doing registration with image pyramids)") {
-        val testImgUrl = getClass().getResource("/dm128.h5")
-
-        val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl.getPath)).get
-
-        val originalImage = Interpolation.interpolate(discreteFixedImage, 3)
-
-        val domain = discreteFixedImage.domain
-
-        // Define a transformation    
-        val gk = UncorrelatedKernelND(GaussianKernel2D(50.), 2)
-
-        val gp = createLowRankGaussianProcess2D(LowRankGaussianProcessConfiguration(domain, (x: Point[TwoD]) => DenseVector(0., 0.), gk, 2, 500))
-
-        val kernelTransformConfig = KernelTransformationSpaceConfiguration(gp, true)
-        val transformSpace = KernelTransformationSpace2D(kernelTransformConfig)
-
-        val parameterVector = DenseVector[Double](20., 10.)
-        val transform = transformSpace(parameterVector)
-
-        val warpedImage = originalImage compose transform
-
-        // Utils.show2D(warpedImage, domain)
-
-        def pyramidRegistation(fixedImage: ContinuousScalarImage2D, movingImage: ContinuousScalarImage2D,
-          domain: DiscreteImageDomain2D,
-          regConf: RegistrationConfiguration[TwoD],
-          deviations: List[Double],
-          latestRegResults: Option[RegistrationResult[TwoD]]): RegistrationResult[TwoD] = {
-
-          if (deviations.size > 0)
-            println("Pyramid registration for deviation " + deviations(0))
-
-          val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(), 50))
-          val image = if (deviations.size == 0) movingImage else Utils.gaussianSmoothing2D(movingImage, deviations(0), integrator)
-          val smoothedFixedImage = if (deviations.size == 0) fixedImage else Utils.gaussianSmoothing2D(fixedImage, deviations(0), integrator)
-
-          val lastParams = if (latestRegResults.isDefined) latestRegResults.get.parameters else regConf.initialParameters
-
-          val newRegConf = RegistrationConfiguration[TwoD](
-            regularizationWeight = regConf.regularizationWeight,
-            optimizer = regConf.optimizer,
-            integrator = regConf.integrator,
-            metric = regConf.metric,
-            transformationSpace = regConf.transformationSpace,
-            regularizer = RKHSNormRegularizer,
-            initialParametersOrNone = Some(lastParams))
-
-          val registration = Registration.registration2D(newRegConf)(smoothedFixedImage, image)
-          val regResult = registration(domain)
-
-          if (deviations.size > 0)
-            println("parameters for smoothing " + deviations(0) + " = " + regResult.parameters)
-
-          if (deviations.size == 0)
-            regResult
-          else
-            pyramidRegistation(fixedImage, movingImage, domain, regConf, deviations.tail, Some(regResult))
-        }
-
-        val decreasingDeviations = List(8., 6., 4., 1.)
-
-        val regConf = RegistrationConfiguration[TwoD](
-          regularizationWeight = 0.0,
-          //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(15, 0.00003, false, true, 0.602)),
-          optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(20)),
-          //optimizer = BreezeStochGradOptimizer(BreezeStochGradOptimizerConfiguration(100, 1.)), 
-
-          integrator = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler2D(), 124)),
-          //integrator = Integrator[CoordVector2D](IntegratorConfiguration(UniformSampler2D(124))),
-
-          //metric = MeanSquaresMetric2D(MeanSquaresMetricConfiguration()),
-          metric = MeanSquaresMetric2D(),
-          transformationSpace = KernelTransformationSpace2D(kernelTransformConfig),
-          regularizer = RKHSNormRegularizer)
-
-        val regResult = pyramidRegistation(warpedImage, originalImage, domain, regConf, decreasingDeviations, None)
-
-        //Utils.show(originalImage compose regResult.transform, domain)
-
-        (regResult.parameters(0) should be(parameterVector(0) plusOrMinus 0.0001))
-        (regResult.parameters(1) should be(parameterVector(1) plusOrMinus 0.0001))
       }
     }
   }

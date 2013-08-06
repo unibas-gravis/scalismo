@@ -4,6 +4,7 @@ package image
 import common.{ Domain, DiscreteDomain, BoxedDomain }
 import smptk.geometry._
 import com.sun.org.apache.xml.internal.serializer.ToStream
+import smptk.common.BoxedDomain1D
 
 
 
@@ -38,7 +39,7 @@ abstract class DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with Boxe
 
 }
 
-case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[OneD], val size: Index[OneD]) extends DiscreteImageDomain[OneD] {
+case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[OneD], val size: Index[OneD]) extends DiscreteImageDomain[OneD]  {
   val dimensionality = 1
   def points = for (i <- (0 until size(0)).view) yield Point1D(origin(0) + spacing(0) * i) // TODO replace with operator version
 

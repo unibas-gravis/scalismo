@@ -16,7 +16,7 @@ trait MetricConfiguration
 
 trait ImageMetric[D <: Dim] {
   type Repr  = ContinuousScalarImage[D]
-  def apply(img1: Repr, img2: Repr) :  (Integrator[D], BoxedDomain[D]) => Double
+  def apply(img1: Repr, img2: Repr) :  (Integrator[D]) => Double
 
   def takeDerivativeWRTToMovingImage(fixedImage: Repr, movingImage: Repr): ContinuousScalarImage[D]
 }
@@ -37,7 +37,7 @@ trait MeanSquaresMetric[D <: Dim] extends ImageMetric[D] {
   type CImg = ContinuousScalarImage[D]
 
   def apply(img1: CImg,  img2: CImg) = {
-    (integrator : Integrator[D], region : BoxedDomain[D]) => integrator.integrateScalar((img1 - img2).square, region)  
+    (integrator : Integrator[D]) => integrator.integrateScalar((img1 - img2).square)  
   }
   def takeDerivativeWRTToMovingImage(img1: CImg,  img2: CImg) = {
     (img1 - img2) * 2f

@@ -14,6 +14,8 @@ import smptk.geometry.implicits._
 import breeze.linalg.DenseVector
 
 class ResampleTest extends FunSpec with ShouldMatchers {
+  smptk.initialize()
+  
   describe("Resampling a 2D image") {
 
     

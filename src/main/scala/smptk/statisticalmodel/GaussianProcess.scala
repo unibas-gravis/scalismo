@@ -7,13 +7,11 @@ import breeze.stats.distributions.Gaussian
 import smptk.common.DiscreteDomain
 import smptk.common.{ BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
 import smptk.numerics.{ UniformSampler1D, UniformSampler2D, UniformSampler3D }
-import smptk.numerics.Sampler
 import smptk.io.MeshIO
 import smptk.mesh.TriangleMesh
 import smptk.image.Utils
 import java.io.File
 import smptk.numerics.UniformSampler1D
-import smptk.numerics.UniformSampler
 import smptk.kernels._
 import smptk.numerics.UniformSampler1D
 import breeze.plot.{ plot, Figure }
@@ -21,6 +19,8 @@ import smptk.image.DiscreteImageDomain
 import smptk.common.ImmutableLRU
 import scala.collection.immutable.HashMap
 import smptk.geometry._
+import smptk.numerics.Sampler
+import smptk.numerics.UniformSampler3D
 
 
 case class GaussianProcess[D <: Dim](val domain: BoxedDomain[D], val mean: Point[D] => DenseVector[Double], val cov: PDKernel[D]) {
@@ -51,10 +51,11 @@ case class GaussianProcess[D <: Dim](val domain: BoxedDomain[D], val mean: Point
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
   val domain: BoxedDomain[D],
+  val sampler : Sampler[D, Point[D]],  
   val mean: Point[D] => DenseVector[Double],
   val cov: PDKernel[D],
   val numBasisFunctions: Int,
-  val numPointsForNystrom: Int)
+  val numPointsForNystrom: Int  )
 
 trait LowRankGaussianProcess[D <: Dim] {
 
@@ -175,7 +176,7 @@ class LowRankGaussianProcess2D(
   val domain: BoxedDomain[TwoD],
   val outputDim: Int,
   val mean: Point[TwoD] => DenseVector[Double],
-  val eigenPairs: IndexedSeq[(Double, Point[TwoD] => DenseVector[Double])])
+  val eigenPairs: IndexedSeq[(Double, Point[TwoD] => DenseVector[Double])])  
   extends LowRankGaussianProcess[TwoD] {}
 
 class LowRankGaussianProcess3D(
@@ -188,20 +189,17 @@ class LowRankGaussianProcess3D(
 object GaussianProcess {
 
   def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
-    def uniformSampler = UniformSampler1D()
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, uniformSampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[TwoD]) = {
-    def uniformSampler = UniformSampler2D()
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, uniformSampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
     new LowRankGaussianProcess2D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[ThreeD]) = {
-    def uniformSampler = UniformSampler3D()
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, uniformSampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
     new LowRankGaussianProcess3D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
@@ -314,6 +312,7 @@ object GaussianProcess {
     println("region: " + region)
     val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
       region,
+      UniformSampler3D(region),
       (x: Point[ThreeD]) => DenseVector(0., 0., 0.),
       cov,
       20,

@@ -10,7 +10,6 @@ import breeze.plot.Figure
 import smptk.numerics.Sampler
 import smptk.common.DiscreteDomain
 import smptk.common.BoxedDomain
-import smptk.numerics.UniformSampler
 import smptk.common.ImmutableLRU
 import smptk.geometry._
 
@@ -149,16 +148,18 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim](k: PDKernel[D], domain: BoxedDomain[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
+  def computeNystromApproximation[D <: Dim](k: PDKernel[D], domain: BoxedDomain[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
-    val ptsForNystrom = sampler.sample(domain, numPointsForNystrom)
+    val (ptsForNystrom, _) = sampler.sample(numPointsForNystrom).unzip
     val ndVolume = domain.volume
 
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
+    
+    // TODO check that this is also correct for non-rectangular domains
     val lambda = lambdaMat.map(lmbda => (ndVolume.toDouble / numPointsForNystrom.toDouble) * lmbda)
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
 

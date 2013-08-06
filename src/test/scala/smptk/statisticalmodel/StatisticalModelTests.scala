@@ -9,6 +9,7 @@ import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
+import smptk.numerics.UniformSampler3D
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
@@ -23,6 +24,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val region = mesh.boundingBox
       val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
         region,
+        UniformSampler3D(region),
         (x: Point[ThreeD]) => DenseVector(0., 0., 0.),
         cov,
         20,

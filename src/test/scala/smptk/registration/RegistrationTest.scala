@@ -102,15 +102,15 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
       	
       val regConf = RegistrationConfiguration[TwoD](
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.0001, false)),
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
-        integrator = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(), 100)),
+        integrator = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain), 100)),
         metric = MeanSquaresMetric2D(),
         transformationSpace = TranslationSpace2D(),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
-      val translationParams = DenseVector(-25., 25.)
+      val translationParams = DenseVector(-10., 5.)
 
       // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
       val translationTransform = regConf.transformationSpace(translationParams)
@@ -131,7 +131,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   }
 
   describe("A 3D image registration") {
-    val testImgUrl = getClass().getResource("/chimp3D-11-DM.h5").getPath()
+    val testImgUrl = getClass().getResource("/3ddm.h5").getPath()
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(testImgUrl)).get
     val fixedImage = Interpolation.interpolate(discreteFixedImage, 3)
 
@@ -150,9 +150,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val regConf = RegistrationConfiguration[ThreeD](
 
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.000001, true)),
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.000001, true)),
         //optimizer = LBFGSOptimizer( LBFGSOptimizerConfiguration(300)), 
-        integrator = Integrator[ThreeD](IntegratorConfiguration(UniformDistributionRandomSampler3D(), 100)),
+        integrator = Integrator[ThreeD](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain), 100)),
         metric = MeanSquaresMetric3D(),
         transformationSpace = TranslationSpace3D(),
         regularizer = RKHSNormRegularizer,
@@ -169,14 +169,14 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
     it("Recovers the correct parameters for a SMALL rotation transform") {
       val pi = Math.PI
-      val rotationParams = DenseVector(-pi /6., pi / 5., pi / 5.)
+      val rotationParams = DenseVector(-pi /6., 0, 0)
       val rotationTransform = RotationSpace3D(center)(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
       val regConf = RegistrationConfiguration[ThreeD](
-        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.00000001, true)),
-        optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
-        integrator = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(),1000)),
+        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(300, 0.000000000001, true)),
+        //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
+        integrator = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(domain),3000)),
         metric = MeanSquaresMetric3D(),
         transformationSpace = RotationSpace3D(center),
         regularizer = RKHSNormRegularizer,
@@ -187,7 +187,12 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val regResult = registration(domain)
 
       val RegTransformed = fixedImage.compose(regResult.transform)
-
+      
+      val regParams : DenseVector[Double] = regResult.parameters
+      for (i <- 0 until rotationParams.size ) {
+    	  regParams(i) should be(rotationParams(i))
+      }
+      
       // here we verify that the angles give similar rotation matrices 
 
       def computeRotMatrix(p: DenseVector[Double]) = {

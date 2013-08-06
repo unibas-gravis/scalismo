@@ -154,7 +154,7 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
       }
 
       val intermediateContinuousImage = ContinuousScalarImage1D(this.domain, intermediateF)
-      integrator.integrateScalar(intermediateContinuousImage, filter.support)
+      integrator.integrateScalar(intermediateContinuousImage)
 
     }
 
@@ -170,7 +170,7 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
 
           }
           val intermediateContinuousImage = ContinuousVectorImage1D(this.domain, pixelDimensionality, intermediateDF, None)
-          integrator.integrateVector(intermediateContinuousImage, filter.support)
+          integrator.integrateVector(intermediateContinuousImage)
         })
 
       else None
@@ -199,7 +199,7 @@ case class ContinuousScalarImage2D(domain : Domain[TwoD], val f: Point[TwoD] => 
       }
 
       val intermediateContinuousImage = ContinuousScalarImage2D(this.domain, intermediateF)
-      integrator.integrateScalar(intermediateContinuousImage, filter.support)
+      integrator.integrateScalar(intermediateContinuousImage)
 
     }
 
@@ -216,7 +216,7 @@ case class ContinuousScalarImage2D(domain : Domain[TwoD], val f: Point[TwoD] => 
 
           }
           val intermediateContinuousImage = ContinuousVectorImage2D(this.domain, 2, intermediateDF, None)
-          integrator.integrateVector(intermediateContinuousImage, filter.support)
+          integrator.integrateVector(intermediateContinuousImage)
         })
 
       else None
@@ -244,7 +244,7 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
       }
 
       val intermediateContinuousImage = ContinuousScalarImage3D(this.domain, intermediateF)
-      integrator.integrateScalar(intermediateContinuousImage, filter.support)
+      integrator.integrateScalar(intermediateContinuousImage)
 
     }
 
@@ -261,7 +261,7 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
 
           }
           val intermediateContinuousImage = ContinuousVectorImage3D(this.domain, 3, intermediateDF, None)
-          integrator.integrateVector(intermediateContinuousImage, filter.support)
+          integrator.integrateVector(intermediateContinuousImage)
         })
 
       else None

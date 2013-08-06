@@ -5,6 +5,7 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import geometry._
 import geometry.implicits._
+import numerics._
 import image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
 import smptk.image.DiscreteImageDomain2D
@@ -13,12 +14,15 @@ import smptk.image.DiscreteImageDomain3D
 import java.io.File
 import GaussianProcess._
 import kernels._
+import smptk.common.BoxedDomain1D
+import smptk.common.BoxedDomain2D
+import smptk.common.BoxedDomain3D
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   describe("A Gaussian process regression") {
     ignore("keeps the landmark points fixed for a 1D case") {
-      val domain = DiscreteImageDomain1D(-5., 0.1, 100)
-      val config = LowRankGaussianProcessConfiguration[OneD](domain, _ => DenseVector(0.), GaussianKernel1D(5), 100, 500)
+      val domain = BoxedDomain1D(-5., 5)
+      val config = LowRankGaussianProcessConfiguration[OneD](domain, UniformSampler1D(domain), _ => DenseVector(0.), GaussianKernel1D(5), 100, 500)
       val gp = GaussianProcess.createLowRankGaussianProcess1D(config)
 
       val trainingData = IndexedSeq((-3., 1.), (-1., 3.), (0., -1.), (1., -1.), (3., 0.)).map(t => (Point1D(t._1), DenseVector(t._2)))
@@ -31,8 +35,8 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
   }
 
   ignore("keeps the landmark points fixed for a 2D case") {
-    val domain = DiscreteImageDomain2D((-5., -5.), (0.1, 0.1), (100, 100))
-    val config = LowRankGaussianProcessConfiguration[TwoD](domain, _ => DenseVector(0., 0.), UncorrelatedKernelND(GaussianKernel2D(5), 2), 100, 200)
+    val domain = BoxedDomain2D((-5., -5.), (5.0, 5.0))
+    val config = LowRankGaussianProcessConfiguration[TwoD](domain, UniformSampler2D(domain), _ => DenseVector(0., 0.), UncorrelatedKernelND(GaussianKernel2D(5), 2), 100, 200)
     val gp = GaussianProcess.createLowRankGaussianProcess2D(config)
 
     val trainingData = IndexedSeq((Point2D(-3., -3.), DenseVector(1., 1.)),( Point2D(-1., 3.),  DenseVector(0., -1.)))
@@ -46,8 +50,8 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
 
   ignore("keeps the landmark points fixed for a 3D case") {
-    val domain = DiscreteImageDomain3D((-5., -5., -5.), (0.1, 0.1, 0.1), (100, 100, 100))
-    val config = LowRankGaussianProcessConfiguration[ThreeD](domain, _ => DenseVector(0., 0., 0.), UncorrelatedKernelND(GaussianKernel3D(5), 3), 100, 400)
+    val domain = BoxedDomain3D((-5., -5., -5.), (5.0, 5.0, 5.0))
+    val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain), _ => DenseVector(0., 0., 0.), UncorrelatedKernelND(GaussianKernel3D(5), 3), 100, 400)
     val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
 
 

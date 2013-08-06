@@ -19,12 +19,12 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
   describe("A mean squares metric (1D)") {
     it("returns 0 if provided twice the same image") {
 
-      val region = DiscreteImageDomain1D(0f, 0.001f, 1000)
+      val domain = BoxedDomain1D(0f, 1.0)
       val img = ContinuousScalarImage1D(BoxedDomain1D(0.0, 1.0),
         (x: Point[OneD]) => x * x,
         Some((x: Point[OneD]) => DenseVector(2.) * x(0)))
-      val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(), region.numberOfPoints))
-      MeanSquaresMetric1D()(img, img)(integrator, region) should be(0. plusOrMinus 0.001)
+      val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(domain), 1000))
+      MeanSquaresMetric1D()(img, img)(integrator) should be(0. plusOrMinus 0.001)
     }
   }
 }

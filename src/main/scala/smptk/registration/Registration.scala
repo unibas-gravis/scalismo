@@ -19,8 +19,7 @@ import smptk.image.DiscreteImageDomain2D
 import smptk.numerics.Optimizer
 import smptk.numerics.Integrator
 import smptk.numerics.IntegratorConfiguration
-import smptk.numerics.Sampler
-import smptk.numerics.SampleOnceSampler
+import smptk.numerics.{Sampler, SampleOnceSampler}
 import smptk.image.DiscreteImageDomain3D
 import smptk.image.Utils
 import smptk.image.ContinuousScalarImage3D
@@ -63,7 +62,7 @@ object Registration {
               val transformation = transformationSpace(params)
               val warpedImage = movingImage.compose(transformation)
 
-              configuration.metric(warpedImage, fixedImage)(configuration.integrator, fixedImageRegion) + configuration.regularizationWeight * regularizer(params)
+              configuration.metric(warpedImage, fixedImage)(configuration.integrator) + configuration.regularizationWeight * regularizer(params)
 
             }
             def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
@@ -79,7 +78,7 @@ object Registration {
               val transformation = transformationSpace(params)
               val warpedImage = movingImage.compose(transformation)
                            
-              val errorVal = configuration.metric(warpedImage, fixedImage)(integrationStrategy,fixedImageRegion)
+              val errorVal = configuration.metric(warpedImage, fixedImage)(integrationStrategy)
               val value = errorVal + configuration.regularizationWeight * regularizer(params)
 
               // compute the derivative of the cost function
@@ -95,7 +94,7 @@ object Registration {
                 val f = (x: Point[D]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
               }
 
-              val gradient = integrationStrategy.integrateVector(parametricTransformGradientImage, fixedImageRegion)
+              val gradient = integrationStrategy.integrateVector(parametricTransformGradientImage)
              
               val dR = regularizer.takeDerivative(params)
 

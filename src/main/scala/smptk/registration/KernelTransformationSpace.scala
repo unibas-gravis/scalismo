@@ -21,7 +21,6 @@ import smptk.numerics.GradientDescentConfiguration
 import smptk.numerics.UniformSampler1D
 import smptk.numerics.UniformSampler2D
 import smptk.numerics.UniformSampler3D
-import smptk.numerics.UniformSampler
 import smptk.statisticalmodel.LowRankGaussianProcess
 import smptk.geometry._
 

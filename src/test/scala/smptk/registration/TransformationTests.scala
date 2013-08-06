@@ -62,7 +62,8 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
   describe("A translation in 2D") {
     it("translates an image") {
-      val discreteImage = ImageIO.read2DScalarImage[Short](new File("/tmp/test.h5")).get
+      val testImgUrl = getClass().getResource("/lena.h5").getPath()
+      val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
       val continuousImage = Interpolation.interpolate(discreteImage, 3)
 
       val translation = TranslationSpace2D()(DenseVector[Double](10, 0))
@@ -134,7 +135,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
   describe("In 3D") {
 
-    val path = getClass().getResource("/chimp3D-11.h5").getPath()
+    val path = getClass().getResource("/3dimage.h5").getPath()
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
     val continuousImage = Interpolation.interpolate(discreteImage, 0)
 
