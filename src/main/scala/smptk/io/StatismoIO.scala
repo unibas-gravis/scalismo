@@ -18,19 +18,12 @@ object StatismoIO {
 
   def readStatismoMeshModel(file: File): Try[StatisticalMeshModel] = {
     val filename = file.getAbsolutePath()
-    val h5file = HDF5Utils.openFileForReading(file)
-
-    val datasetTypeOrFailure = h5file.readStringAttribute("/representer/", "datasetType")
-    datasetTypeOrFailure match { 
-      case Success("POLYGON_MESH") => {}
-      case Success(datasetType) => { return Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead")) }
-      case Failure(ex) => { return Failure(ex) }
-    }
-    
     
     val modelOrFailure = for {
-     
-      
+      h5file <- HDF5Utils.openFileForReading(file)
+      datasetType <- h5file.readStringAttribute("/representer/", "datasetType")
+      _ <- if (datasetType != "POLYGON_MESH")  Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
+      else Success(())      
       meanArray <- h5file.readNDArray[Float]("/model/mean")
       meanVector = DenseVector(meanArray.data).map(_.toDouble)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
@@ -54,9 +47,8 @@ object StatismoIO {
       cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
       cellArray <- h5file.readNDArray[Int]("/representer/cells")
       mesh = TriangleMesh(points, cells)
+      _ <- Try{h5file.close()}
     } yield {
-
-
         // statismo stores the mean as the point position and not as a displaceme
       // ref. we compensate for this
       def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
@@ -69,7 +61,6 @@ object StatismoIO {
       StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv))
     }
 
-    h5file.close()
     modelOrFailure
   }
 

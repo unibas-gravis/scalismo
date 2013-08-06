@@ -40,15 +40,17 @@ object MeshIO {
   }
 
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
-    val h5file = HDF5Utils.createFile(file)
+
     val domainPoints: IndexedSeq[Point[ThreeD]] = surface.points.toIndexedSeq
     val cells: IndexedSeq[TriangleCell] = surface.cells
 
     val maybeError: Try[Unit] = for {
+      h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeNDArray("/Surface/0/Vertices", pointSeqToNDArray(domainPoints))
       _ <- h5file.writeNDArray("/Surface/0/Cells", cellSeqToNDArray(cells))
+      _ <- Try{h5file.close()}
     } yield { () }
-    h5file.close()
+    
     maybeError
   }
 
@@ -89,14 +91,15 @@ object MeshIO {
   def readHDF5(file: File): Try[TriangleMesh] = {
 
     val filename = file.getAbsolutePath()
-    val h5file = HDF5Utils.openFileForReading(file)
 
     val maybeSurface = for {
+      h5file <- HDF5Utils.openFileForReading(file)      
       vertArray <- h5file.readNDArray[Double]("/Surface/0/Vertices")
-      cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")
+      cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")      
+      _ <- Try{h5file.close()}
     } yield TriangleMesh(NDArrayToPointSeq(vertArray), NDArrayToCellSeq(cellArray))
 
-    h5file.close()
+
     maybeSurface
   }
 

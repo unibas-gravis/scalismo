@@ -7,6 +7,7 @@ import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
 import scala.collection.JavaConversions._
+import java.io.IOException
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.reduce(_ * _) == data.length)
@@ -19,7 +20,7 @@ class HDF5File(h5file: FileFormat) {
   def exists(path: String): Boolean = h5file.get(path) != null
 
   def readString(path: String): Try[String] = {
-	
+
     // a string seems to be represented as an array in hdf5
     // we return just the first element
     val stringArrayOrFailure = readNDArray[String](path)
@@ -29,12 +30,12 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
-  def readStringAttribute(path : String, attrName : String) : Try[String] = { 
-    h5file.get(path) match { 
-      case s@(_: H5Group | _ : H5ScalarDS) => { 
+  def readStringAttribute(path: String, attrName: String): Try[String] = {
+    h5file.get(path) match {
+      case s @ (_: H5Group | _: H5ScalarDS) => {
         val metadata = s.getMetadata()
-        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName().equals(attrName) )
-        maybeAttr match { 
+        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName().equals(attrName))
+        maybeAttr match {
           case Some(a) => {
             Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[String]](0))
           }
@@ -42,13 +43,13 @@ class HDF5File(h5file: FileFormat) {
         }
       }
 
-      case _ => { 
+      case _ => {
         Failure(new Exception("Expected H5ScalarDS when reading attribute"))
       }
-    } 
-    
+    }
+
   }
-  
+
   def readNDArray[T](path: String): Try[NDArray[T]] = {
 
     h5file.get(path) match {
@@ -72,9 +73,9 @@ class HDF5File(h5file: FileFormat) {
 
   def readArray[T](path: String): Try[Array[T]] = {
 
-    readNDArray[T](path).map { ndArray => 
-        assume(ndArray.dims.length == 1)
-        ndArray.data
+    readNDArray[T](path).map { ndArray =>
+      assume(ndArray.dims.length == 1)
+      ndArray.data
     }
   }
 
@@ -111,7 +112,7 @@ class HDF5File(h5file: FileFormat) {
         }
         case _ => {
           // TODO error handling
-          Failure(new Exception("unknown type for path " +path))
+          Failure(new Exception("unknown type for path " + path))
         }
       }
 
@@ -221,8 +222,8 @@ object HDF5Utils {
     new HDF5File(h5file)
   }
 
-  def openFileForReading(file: File): HDF5File = openFile(file, READ)
-  def openFileForWriting(file: File): HDF5File = openFile(file, WRITE)
-  def createFile(file: File): HDF5File = openFile(file, CREATE)
+  def openFileForReading(file: File): Try[HDF5File] = Try {openFile(file, READ)}
+  def openFileForWriting(file: File): Try[HDF5File] = Try {openFile(file, WRITE)}
+  def createFile(file: File): Try[HDF5File] = Try {openFile(file, CREATE)}
 
 }

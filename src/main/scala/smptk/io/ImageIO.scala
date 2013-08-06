@@ -155,22 +155,23 @@ object ImageIO {
 
   private def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
     val filename = file.getAbsolutePath()
-    val h5file = HDF5Utils.openFileForReading(file)
+
 
     def pixelDimensionality(dims: Array[Long], dataDims: IndexedSeq[Long]): Int = {
       if (dims.length == dataDims.length) 1 else dataDims.last.toInt
     }
 
     val genericImageData = for {
+       h5file <- HDF5Utils.openFileForReading(file)
       directions <- h5file.readNDArray[Double]("/ITKImage/0/Directions")
       voxelType <- h5file.readString("/ITKImage/0/VoxelType")
       dims <- h5file.readArray[Long]("/ITKImage/0/Dimension")
       origin <- h5file.readArray[Double]("/ITKImage/0/Origin")
       spacing <- h5file.readArray[Double]("/ITKImage/0/Spacing")
       voxelData <- readAndCheckVoxelData[Scalar](h5file, voxelType)
+      _ <- Try{h5file.close}
     } yield GenericImageData(origin, spacing, dims, pixelDimensionality(dims, voxelData.dims), voxelType, voxelData.data)
 
-    h5file.close()
 
     genericImageData
   }
@@ -193,7 +194,6 @@ object ImageIO {
     }
     val voxelType = maybeVoxelType.get
 
-    val h5file = HDF5Utils.createFile(file)
 
     // append the number of components to the image dimensionality. 
     // The data of an image of size m x n will be saved as an array of dims n x m x d, 
@@ -212,6 +212,7 @@ object ImageIO {
       img.domain.directions)
 
     val maybeError: Try[Unit] = for {
+       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeNDArray("/ITKImage/0/Directions", directions)
       _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.data.map(_.toLong))
       _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.data.map(_.toDouble))
@@ -221,9 +222,8 @@ object ImageIO {
       _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever
       _ <- h5file.writeString("/HDFVersion", HDF5Utils.hdf5Version)
       _ <- h5file.writeString("/ITKImage/0/VoxelType", voxelType)
-
+      _ <- Try{h5file.close()}
     } yield { () } // if everything is okay, we have a Unit type and no error here
-    h5file.close()
     maybeError
   }
 
