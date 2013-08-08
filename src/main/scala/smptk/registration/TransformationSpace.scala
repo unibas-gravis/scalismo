@@ -310,7 +310,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
 
     new Transformation[ThreeD] {
       def apply(x: Point[ThreeD]) : Point[ThreeD] = {
-        Point3D(x(0) * p(0), x(1) * p(0), x(2) * p(2))
+        Point3D(x(0) * p(0), x(1) * p(0), x(2) * p(0))
       }
 
       def takeDerivative(x: Point[ThreeD]) = {
