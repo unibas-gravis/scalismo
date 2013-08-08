@@ -189,17 +189,17 @@ class LowRankGaussianProcess3D(
 object GaussianProcess {
 
   def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[TwoD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
     new LowRankGaussianProcess2D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[ThreeD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.domain, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
     new LowRankGaussianProcess3D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 

@@ -148,22 +148,26 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim](k: PDKernel[D], domain: BoxedDomain[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
+  def computeNystromApproximation[D <: Dim](k: PDKernel[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
+    val volumeOfSampleRegion = sampler.volumeOfSampleRegion
+    
     val (ptsForNystrom, _) = sampler.sample(numPointsForNystrom).unzip
-    val ndVolume = domain.volume
-
+    
+    // deppending on the sampler, it may happen that we did not sample all the points we wanted 
+    val effectiveNumberOfPointsSampled = ptsForNystrom.size 
+    
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
     
     // TODO check that this is also correct for non-rectangular domains
-    val lambda = lambdaMat.map(lmbda => (ndVolume.toDouble / numPointsForNystrom.toDouble) * lmbda)
+    val lambda = lambdaMat.map(lmbda => (volumeOfSampleRegion / effectiveNumberOfPointsSampled.toDouble) * lmbda)
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
 
-    val W = uMat(::, 0 until numParams) * math.sqrt(numPointsForNystrom / ndVolume.toDouble) * pinv(diag(lambdaMat(0 until numParams)))
+    val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled / volumeOfSampleRegion) * pinv(diag(lambdaMat(0 until numParams)))
 
     @volatile
     var cache = ImmutableLRU[Point[D], DenseMatrix[Double]](1000)

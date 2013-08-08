@@ -57,7 +57,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val sampler = UniformSampler1D(domain)
 
-      val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
+      val eigPairs = Kernel.computeNystromApproximation(kernel, 100, 500, sampler)
 
       def approxKernel(x: Point[OneD], y: Point[OneD]) = {
         (0 until eigPairs.size).foldLeft(0.)((sum, i) => {
@@ -82,7 +82,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val sampler = UniformSampler1D(domain)
       val numPoints = 500
       val (points, _) = sampler.sample(numPoints).unzip
-      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, domain, 10, numPoints, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, 10, numPoints, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
       
       val realKernelMatrix = DenseMatrix.zeros[Double](numPoints * kernelDim, numPoints * kernelDim)
@@ -108,7 +108,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val sampler = UniformSampler2D(domain)
       val (pts, _) = sampler.sample(500).unzip
 
-      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, domain, 10, 400, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, 10, 400, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
   
       
@@ -133,7 +133,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val domain = BoxedDomain1D(-5.0,5.0)
       val sampler = UniformSampler1D(domain)
 
-      val eigPairs = Kernel.computeNystromApproximation(kernel, domain, 100, 500, sampler)
+      val eigPairs = Kernel.computeNystromApproximation(kernel, 100, 500, sampler)
 
       val integrator = Integrator(IntegratorConfiguration(sampler, 500))
 
