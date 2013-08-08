@@ -31,11 +31,15 @@ case class UniformSampler1D(val domain: BoxedDomain1D)  extends Sampler[OneD, Po
 }
 
 case class UniformSampler2D(val domain: BoxedDomain2D) extends Sampler[TwoD, Point2D] {
+
   val p = 1.0 / domain.volume
   def volumeOfSampleRegion = domain.volume
   // TODO this actually samples less points than it is supposed to . 
   // Check how we can fix it.
   override def sample(numberOfPoints: Int) = {
+    if (math.pow(math.floor(math.sqrt(numberOfPoints)), 2) < numberOfPoints ) {
+      throw new Exception("The number of points for sampling needs to be a power of 2")
+    }
     val nbPerDim = math.sqrt(numberOfPoints).floor.toInt
     val step0 = (domain.extent(0) - domain.origin(0)) / nbPerDim
     val step1 = (domain.extent(1) - domain.origin(1)) / nbPerDim
@@ -47,6 +51,10 @@ case class UniformSampler3D(val domain: BoxedDomain3D) extends Sampler[ThreeD, P
   val p = 1.0 / domain.volume
   def volumeOfSampleRegion = domain.volume
   override def sample(numberOfPoints: Int) = {
+    if (math.pow(math.floor(math.cbrt(numberOfPoints)), 3) < numberOfPoints ) {
+      throw new Exception("The number of points for sampling needs to be a power of 3")
+    }
+    
     val nbPerDim = math.cbrt(numberOfPoints).floor.toInt
     val step0 = (domain.extent(0) - domain.origin(0)) / nbPerDim
     val step1 = (domain.extent(1) - domain.origin(1)) / nbPerDim
