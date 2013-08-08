@@ -42,4 +42,18 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
 
   def compose(transform: Transformation[ThreeD]) = TriangleMesh(points.toIndexedSeq.par.map(transform).toIndexedSeq, cells)
 
+  val area = cells.map(triangle => computeTriangleArea(triangle)).sum
+  
+  private def computeTriangleArea(t : TriangleCell) : Double = {
+    // compute are of the triangle using heron's formula
+    val A = meshPoints(t.ptId1)
+    val B = meshPoints(t.ptId2)
+    val C = meshPoints(t.ptId3)
+    val a = (B - A).norm
+    val b = (C - B).norm
+    val c = (C - A).norm
+    val s = (a + b + c) / 2
+    math.sqrt(s * (s - a) * (s - b) * (s - c))
+  }
+  
 }
