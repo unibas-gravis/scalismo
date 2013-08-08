@@ -100,9 +100,9 @@ class ProductTransformationSpace[D <: Dim, OuterType <: TransformationSpace[D], 
 
 }
 
-case class TranslationSpace1D extends TransformationSpace[OneD] {
+case class TranslationSpace1D() extends TransformationSpace[OneD] {
   
-  override def identityTransformParameters = DenseVector(0.)
+  override def identityTransformParameters = DenseVector(0.0)
   
   def apply(p: ParameterVector) = {
     new Transformation[OneD] {
@@ -123,11 +123,11 @@ case class TranslationSpace1D extends TransformationSpace[OneD] {
   }
 }
 
-case class TranslationSpace2D extends TransformationSpace[TwoD] {
+case class TranslationSpace2D() extends TransformationSpace[TwoD] {
 
   
   def parametersDimensionality: Int = 2
-  override def identityTransformParameters = DenseVector(0., 0.)
+  override def identityTransformParameters = DenseVector(0.0, 0.0)
   
   def apply(p: ParameterVector) = {
     new Transformation[TwoD] {
@@ -146,10 +146,10 @@ case class TranslationSpace2D extends TransformationSpace[TwoD] {
   }
 }
 
-case class TranslationSpace3D extends TransformationSpace[ThreeD] {
+case class TranslationSpace3D() extends TransformationSpace[ThreeD] {
   
   def parametersDimensionality: Int = 3
-  override def identityTransformParameters = DenseVector(0., 0., 0.)
+  override def identityTransformParameters = DenseVector(0.0, 0.0, 0.0)
   
   def apply(p: ParameterVector) = {
     new Transformation[ThreeD] {
@@ -172,7 +172,7 @@ case class TranslationSpace3D extends TransformationSpace[ThreeD] {
 case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpace[ThreeD] {
 
   def parametersDimensionality: Int = 3 //  Euler angles 
-  override def identityTransformParameters = DenseVector(0., 0., 0.)
+  override def identityTransformParameters = DenseVector(0.0, 0.0, 0.0)
 
   def rotationParametersToParameterVector(phi: Double, theta: Double, psi: Double): ParameterVector = {
     DenseVector(phi, theta, psi)
@@ -237,7 +237,7 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
     val dr11 = -sinth*sinphi*x0minc0 + sinpsi*costh*sinphi*x1minc1 + cospsi*costh*sinphi*x2minc2
     val dr12 = (-sinpsi*cosphi+cospsi*sinth*sinphi)*x1minc1 + (-sinpsi*sinth*sinphi-cospsi*cosphi)*x2minc2
     
-    val dr20 = 0.
+    val dr20 = 0.0
     val dr21 = -costh*x0minc0-sinpsi*sinth*x1minc1-cospsi*sinth*x2minc2
     val dr22 = cospsi*costh*x1minc1 -sinpsi*costh*x2minc2
     
@@ -262,7 +262,7 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
 case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[TwoD] {
 
   def parametersDimensionality: Int = 1 //  angle
-override def identityTransformParameters = DenseVector(0.)	
+override def identityTransformParameters = DenseVector(0.0)	
   
   def rotationParametersToParameterVector(phi: Double): ParameterVector = {
     DenseVector(phi)
@@ -304,7 +304,7 @@ override def identityTransformParameters = DenseVector(0.)
 case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
 
   def parametersDimensionality: Int = 1
-    override def identityTransformParameters = DenseVector(1.)
+    override def identityTransformParameters = DenseVector(1.0)
   def apply(p: ParameterVector) = {
     require(p.length == 1)
 
@@ -335,7 +335,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
 case class ScalingSpace2D() extends TransformationSpace[TwoD] {
 
   def parametersDimensionality: Int = 1
-    override def identityTransformParameters = DenseVector(1.)
+    override def identityTransformParameters = DenseVector(1.0)
   def apply(p: ParameterVector) = {
     require(p.length == 1)
 

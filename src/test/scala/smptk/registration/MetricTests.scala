@@ -22,9 +22,9 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val domain = BoxedDomain1D(0f, 1.0)
       val img = ContinuousScalarImage1D(BoxedDomain1D(0.0, 1.0),
         (x: Point[OneD]) => x * x,
-        Some((x: Point[OneD]) => DenseVector(2.) * x(0)))
+        Some((x: Point[OneD]) => DenseVector(2.0) * x(0)))
       val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(domain), 1000))
-      MeanSquaresMetric1D()(img, img)(integrator) should be(0. plusOrMinus 0.001)
+      MeanSquaresMetric1D()(img, img)(integrator) should be(0.0 plusOrMinus 0.001)
     }
   }
 }

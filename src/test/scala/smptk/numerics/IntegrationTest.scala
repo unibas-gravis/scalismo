@@ -16,13 +16,13 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => DenseVector(2.) * x(0) ))  
+      val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => DenseVector(2.0) * x(0) ))  
 
       val domain = BoxedDomain1D(-1.0, 1.0)
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain), 1000))  
     
       val res = integrator.integrateScalar(img)
-      res should be(1. / 3. plusOrMinus 0.001)
+      res should be(1.0 / 3.0 plusOrMinus 0.001)
     }
     it("Correctly integrates sin(x) on interval [-Pi, Pi]") {
 
@@ -36,13 +36,13 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain), 1000))  
         
       val res = integrator.integrateScalar(img)
-      res should be(0. plusOrMinus 0.001)
+      res should be(0.0 plusOrMinus 0.001)
 
     }
     
     it("Correctly integrates integrates a compact function") {
 
-      val img =  ContinuousScalarImage1D( BoxedDomain1D(-1.0, 1.0),  (x: Point[OneD]) => 1.)
+      val img =  ContinuousScalarImage1D( BoxedDomain1D(-1.0, 1.0),  (x: Point[OneD]) => 1.0)
 
       //Utils.show1D(img, DiscreteImageDomain1D(-2., 0.1, 40))
       

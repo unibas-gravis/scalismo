@@ -31,7 +31,7 @@ object Interpolation {
       val k1 = scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt
       val K =degree + 1
 
-      var result = 0.
+      var result = 0.0
       var k = k1
       while (k <=  k1 + K - 1) {
     	val kBC = applyMirrorBoundaryCondition(k, image.domain.size(0))
@@ -70,7 +70,7 @@ object Interpolation {
 
       val K = degree + 1
 
-      var result = 0.
+      var result = 0.0
       var l = l1
       while (l <= l1 + K - 1) {
         val lBC = applyMirrorBoundaryCondition(l, image.domain.size(1))        		
@@ -120,7 +120,7 @@ object Interpolation {
 
       val K = degree + 1
 
-      var result = 0.
+      var result = 0.0
       var k = k1
       var l = l1
       var m = m1
@@ -219,18 +219,18 @@ object Interpolation {
     val absX : Double = scala.math.abs(x)
     val absXSquared : Double = absX * absX
     val absXCube : Double = absXSquared * absX
-    val twoMinAbsX : Double = 2. - absX
+    val twoMinAbsX : Double = 2.0 - absX
     
     n match {
       case 0 => {
-        if (-0.5 < x && x < 0.5) 1.
+        if (-0.5 < x && x < 0.5) 1.0
         else if (absX == 0.5) 0.5
         else 0
 
       }
       case 1 => {
-        if (-1 <= x && x <= 0) 1. + x
-        else if (0 < x && x <= 1) 1. - x
+        if (-1 <= x && x <= 0) 1.0 + x
+        else if (0 < x && x <= 1) 1.0 - x
         else 0
       }
       case 2 => {
@@ -245,7 +245,7 @@ object Interpolation {
         if (absX >= 0 && absX < 1)
           twoByThree - absXSquared + 0.5 * absXCube
         else if (absX >= 1 && absX < 2)
-        	twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6.
+        	twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6.0
         else 0
       }
       case _ => throw new NotImplementedError("Bspline of order " + n + " is not implemented yet")

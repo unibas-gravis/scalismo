@@ -72,7 +72,7 @@ case class GradientDescentConfiguration(
   val stepLength: Double,
   val withLineSearch: Boolean = false,
   val robinsMonroe: Boolean = false,
-  val stepDecreaseCoeff: Double = 0.,
+  val stepDecreaseCoeff: Double = 0.0,
   val verbose: Boolean = true,
   progressUpdateOrNone: Option[Function2[DenseVector[Double], Int, Unit]] = None) extends OptimizationConfiguration
 

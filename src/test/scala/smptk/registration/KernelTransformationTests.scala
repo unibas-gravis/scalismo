@@ -60,7 +60,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, 500, sampler)
 
       def approxKernel(x: Point[OneD], y: Point[OneD]) = {
-        (0 until eigPairs.size).foldLeft(0.)((sum, i) => {
+        (0 until eigPairs.size).foldLeft(0.0)((sum, i) => {
           val (lambda_i, phi_i) = eigPairs(i)
           sum + lambda_i * phi_i(x)(0) * phi_i(y)(0)
         })
@@ -78,7 +78,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     it("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
       val scalarKernel = GaussianKernel1D(10)
-      val domain = BoxedDomain1D(0.,10.)
+      val domain = BoxedDomain1D(0.0,10.0)
       val sampler = UniformSampler1D(domain)
       val numPoints = 500
       val (points, _) = sampler.sample(numPoints).unzip
@@ -104,7 +104,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val kernelDim = 2
       val scalarKernel = GaussianKernel2D(10)
       val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
-      val domain = BoxedDomain2D((0., 0.),  (5.0, 5.0))
+      val domain = BoxedDomain2D((0.0, 0.0),  (5.0, 5.0))
       val sampler = UniformSampler2D(domain)
       val (pts, _) = sampler.sample(500).unzip
 
@@ -140,10 +140,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       for (i <- 0 until 20) {
 
     	val (lambda_i, phi_i) = eigPairs(i)
-        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.)))
+        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.0)))
 
         val v = integrator.integrateScalar(phiImg)
-        v should be(1. plusOrMinus 0.1)
+        v should be(1.0 plusOrMinus 0.1)
       }
     }
   }

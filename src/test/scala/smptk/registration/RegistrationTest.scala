@@ -33,9 +33,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   smptk.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
-      val points : IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0., 0.), Point2D(1., 4.), Point2D(2., 0.))
+      val points : IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))
 
-      val c = Point2D(1., 4 / 3.)
+      val c = Point2D(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotationParams = DenseVector(-angle)
         val transParams = DenseVector[Double](1f, 1.5f)
@@ -70,8 +70,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val extent = region.extent
       val center = ((extent - origin) * 0.5).toPoint
 
-      val translationParams = DenseVector(1.5, 1., 3.5)
-      val parameterVector = DenseVector(1.5, 1., 3.5, Math.PI, -Math.PI / 2., -Math.PI)
+      val translationParams = DenseVector(1.5, 1.0, 3.5)
+      val parameterVector = DenseVector(1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val trans = RigidTransformationSpace3D(center)(parameterVector)
 
       val rotated = mesh compose trans
@@ -110,7 +110,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
-      val translationParams = DenseVector(-10., 5.)
+      val translationParams = DenseVector(-10.0, 5.0)
 
       // val rigidTransform = RigidTransformationSpace2D(center)(DenseVector(-0f,-0f, 3.14f  / 20))
       val translationTransform = regConf.transformationSpace(translationParams)
@@ -142,7 +142,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
     it("Recovers the correct parameters for a translation transfrom") {
 
-      val translationParams = DenseVector(-25., 25., 50.)
+      val translationParams = DenseVector(-25.0, 25.0, 50.0)
       val translationTransform = TranslationSpace3D()(translationParams)
       val transformed = fixedImage compose translationTransform
 
@@ -169,7 +169,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
     it("Recovers the correct parameters for a SMALL rotation transform") {
       val pi = Math.PI
-      val rotationParams = DenseVector(-pi /6., 0, 0)
+      val rotationParams = DenseVector(-pi /6.0, 0, 0)
       val rotationTransform = RotationSpace3D(center)(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 

@@ -217,7 +217,7 @@ object HDF5Utils {
       case CREATE => FileFormat.CREATE
     }
     val fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
-    val h5file = fileFormat.open(filename, h5fileAccessMode);
+    val h5file = fileFormat.createInstance(filename, h5fileAccessMode);
     h5file.open()
     new HDF5File(h5file)
   }

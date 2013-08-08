@@ -48,7 +48,7 @@ case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[On
   def indexToLinearIndex(idx: Index[OneD]) = idx(0)
   def linearIndexToIndex(linearIdx: Int) = Index1D(linearIdx)
 
-  val directions = Array(1.)
+  val directions = Array(1.0)
 
   def isInside(pt: Point[OneD]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0)
@@ -67,7 +67,7 @@ case class DiscreteImageDomain2D(val origin: Point[TwoD], val spacing: Vector[Tw
   def indexToLinearIndex(idx: Index[TwoD]) = idx(0) + idx(1) * size(0)
   def linearIndexToIndex(linearIdx: Int) = (Index2D(linearIdx % size(0), linearIdx / size(0)))
 
-  val directions = Array(1., 0., 0., 1.)
+  val directions = Array(1.0, 0.0, 0.0, 1.0)
 
   override def isInside(pt: Point[TwoD]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0) &&
@@ -91,7 +91,7 @@ case class DiscreteImageDomain3D(val origin: Point[ThreeD], val spacing: Vector[
       linearIdx % (size(0) * size(1)) / size(0),
       linearIdx / (size(0) * size(1)))
 
-  val directions = Array(1., 0., 0., 0., 1., 0., 0., 0., 1)
+  val directions = Array(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1)
 
   def isInside(pt: Point[ThreeD]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0) &&

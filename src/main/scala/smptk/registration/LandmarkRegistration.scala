@@ -8,7 +8,7 @@ import smptk.geometry._
 
 object LandmarkRegistration {
 
-  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], center: Point[ThreeD] = Point3D(0., 0., 0.)): RegistrationResult[ThreeD] = {
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], center: Point[ThreeD] = Point3D(0.0, 0.0, 0.0)): RegistrationResult[ThreeD] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 3)
@@ -28,13 +28,13 @@ object LandmarkRegistration {
         DenseVector(phi1, theta1, psi1)
       } else {
     	/* Gimbal lock, we simply set phi to be 0 */  	
-        val phi = 0.
+        val phi = 0.0
         if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
-          val theta = Math.PI / 2.
+          val theta = Math.PI / 2.0
           val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
           DenseVector(phi, theta, psi)
         } else {
-          val theta = -Math.PI / 2.
+          val theta = -Math.PI / 2.0
           val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
           DenseVector(phi, theta, psi)
         }
@@ -45,7 +45,7 @@ object LandmarkRegistration {
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], center: Point[TwoD] = Point2D(0., 0.)): RegistrationResult[TwoD] = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], center: Point[TwoD] = Point2D(0.0, 0.0)): RegistrationResult[TwoD] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)

@@ -23,13 +23,13 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
   describe("A scaling in 2D") {
     val ss = ScalingSpace2D()
-    val params = DenseVector(3.)
+    val params = DenseVector(3.0)
     val scale = ss(params)
-    val pt = Point2D(2., 1.)
+    val pt = Point2D(2.0, 1.0)
     val scaledPt = scale(pt)
     it("Scales a point correctly") {
-      (scaledPt(0)) should be(6. plusOrMinus 0.0001)
-      (scaledPt(1)) should be(3. plusOrMinus 0.0001)
+      (scaledPt(0)) should be(6.0 plusOrMinus 0.0001)
+      (scaledPt(1)) should be(3.0 plusOrMinus 0.0001)
     }
 
     it("Can be inverted") {
@@ -40,12 +40,12 @@ class TransformationTests extends FunSpec with ShouldMatchers {
   }
 
   describe("A Rotation in 2D") {
-    val center = Point2D(2., 3.5)
+    val center = Point2D(2.0, 3.5)
     val rs = RotationSpace2D(center)
     val phi = scala.math.Pi / 2
     val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
     val rotate = rs(rotationParams)
-    val pt = Point2D(2., 2.)
+    val pt = Point2D(2.0, 2.0)
     val rotatedPt = rotate(pt)
     it("Rotates a point correctly") {
       (rotatedPt(0)) should be(3.5 plusOrMinus 0.0001)
@@ -76,7 +76,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     describe("composed with a rotation") {
 
       val ts = TranslationSpace2D()
-      val center = Point2D(2., 3.5)
+      val center = Point2D(2.0, 3.5)
       val rs = RotationSpace2D(center)
 
       val productSpace = ts.product(rs)
@@ -85,14 +85,14 @@ class TransformationTests extends FunSpec with ShouldMatchers {
         assert(productSpace.parametersDimensionality === ts.parametersDimensionality + rs.parametersDimensionality)
       }
 
-      val transParams = DenseVector(1., 1.5)
+      val transParams = DenseVector(1.0, 1.5)
       val translate = ts(transParams)
 
       val phi = scala.math.Pi / 2
       val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
       val rotate = rs(rotationParams)
 
-      val pt = Point2D(2., 2.)
+      val pt = Point2D(2.0, 2.0)
       val rotatedPt = rotate(pt)
 
       val translatedRotatedPt = translate(rotatedPt)
@@ -122,8 +122,8 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     }
 
     it("translates a 1D image") {
-      val domain = DiscreteImageDomain1D(-50., 1., 100)
-      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => DenseVector(2. * x)))
+      val domain = DiscreteImageDomain1D(-50.0, 1.0, 100)
+      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => DenseVector(2.0 * x)))
 
       val translation = TranslationSpace1D()(DenseVector[Double](10))
       val translatedImg = continuousImage.compose(translation)
@@ -141,7 +141,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("translation forth and back of a real dataset yields the same image") {
 
-      val parameterVector = DenseVector[Double](75., 50., 25.)
+      val parameterVector = DenseVector[Double](75.0, 50.0, 25.0)
       val translation = TranslationSpace3D()(parameterVector)
       val inverseTransform = TranslationSpace3D().inverseTransform(parameterVector).get
       val translatedForthBackImg = continuousImage.compose(translation).compose(inverseTransform)
@@ -152,7 +152,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("rotation forth and back of a real dataset yields the same image") {
 
-      val parameterVector = DenseVector[Double](2. * Math.PI, 2. * Math.PI, 2. * Math.PI)
+      val parameterVector = DenseVector[Double](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
       val origin = discreteImage.domain.origin
       val extent = discreteImage.domain.extent
       val center = ((extent - origin) * 0.5).toPoint

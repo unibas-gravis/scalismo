@@ -20,20 +20,20 @@ class LandmarkIOTest extends FunSpec with ShouldMatchers {
       landmarksOrError.isSuccess should be(true)
       val landmarks = landmarksOrError.get
       landmarks.size should be(4)
-      landmarks(3) should be(Point3D(3., 1., 4.))
+      landmarks(3) should be(Point3D(3.0, 1.0, 4.0))
     }
     it("can read 2d landmarks from a testfile") {
       val landmarksOrError = LandmarkIO.readLandmarks2D(new File(testUrl))
       landmarksOrError.isSuccess should be(true)
       val landmarks = landmarksOrError.get
       landmarks.size should be(4)
-      landmarks(3) should be(Point2D(3., 1.))
+      landmarks(3) should be(Point2D(3.0, 1.0))
 
     }
 
     it("can write a file to disk and restore the landmarks") {
       val tmpFile = File.createTempFile("landmark", "txt")
-      val landmarks = IndexedSeq(Point3D(1., 2., 3.), Point3D(2., 1., 3.))
+      val landmarks = IndexedSeq(Point3D(1.0, 2.0, 3.0), Point3D(2.0, 1.0, 3.0))
       val maybeFailure = LandmarkIO.writeLandmarks(tmpFile, landmarks)
       maybeFailure.isSuccess should be(true)
 
