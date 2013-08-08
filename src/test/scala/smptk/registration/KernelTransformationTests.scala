@@ -1,50 +1,23 @@
-package smptk
-package registration
+package smptk.registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.ContinuousScalarImage1D
-import geometry._
-import geometry.implicits._
-import com.sun.org.apache.xpath.internal.operations.Plus
-import image.Image._
-import smptk.image.DiscreteScalarImage1D
-import smptk.image.Interpolation
-import breeze.linalg.DenseVector
+import smptk.geometry._
+import smptk.geometry.implicits._
+import smptk.image.Image._
 import smptk.image.Utils
-import breeze.plot.Figure
-import breeze.plot._
+import smptk.image._
+import breeze.linalg.DenseVector
 import smptk.io.ImageIO
 import java.io.File
-import smptk.image.DiscreteImageDomain2D
-import smptk.numerics.RandomSVD
-import smptk.image.DiscreteImageDomain
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.GradientDescentConfiguration
-import smptk.numerics.LBFGSOptimizer
-import smptk.numerics.BreezeStochGradOptimizer
-import smptk.numerics.BreezeStochGradOptimizerConfiguration
-import smptk.numerics.LBFGSOptimizerConfiguration
-import numerics.Integrator
-import numerics.IntegratorConfiguration
-import numerics.UniformSampler1D
-import numerics.UniformSampler2D
-import numerics.UniformDistributionRandomSampler1D
-import numerics.UniformDistributionRandomSampler2D
+import smptk.numerics._
 import breeze.stats.distributions.Uniform
 import smptk.image.ContinuousScalarImage2D
 import breeze.stats.distributions.Uniform
-import smptk.numerics.{ UniformSampler1D, UniformSampler3D }
-import smptk.image.DiscreteImageDomain3D
 import smptk.statisticalmodel.{LowRankGaussianProcessConfiguration}
-import smptk.statisticalmodel.GaussianProcess._
 import smptk.kernels._
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain
-import smptk.common.BoxedDomain2D
-import smptk.image.ContinuousScalarImage1D
+import smptk.common._
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
@@ -106,7 +79,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
       val domain = BoxedDomain2D((0.0, 0.0),  (5.0, 5.0))
       val sampler = UniformSampler2D(domain)
-      val (pts, _) = sampler.sample(500).unzip
+      val (pts, _) = sampler.sample(20*20).unzip
 
       val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, 10, 400, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
@@ -135,7 +108,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, 500, sampler)
 
-      val integrator = Integrator(IntegratorConfiguration(sampler, 500))
+      val integrator = Integrator(IntegratorConfiguration(sampler, 20 * 20))
 
       for (i <- 0 until 20) {
 

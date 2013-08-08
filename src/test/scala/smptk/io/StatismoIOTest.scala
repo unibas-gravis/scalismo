@@ -1,12 +1,11 @@
-package smptk
-package io
+package smptk.io
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
-import geometry._
+import smptk.geometry._
 import smptk.image.Utils
 import smptk.mesh.{TriangleMesh}
 

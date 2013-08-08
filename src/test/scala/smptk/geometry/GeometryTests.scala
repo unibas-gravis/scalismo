@@ -1,5 +1,4 @@
-package smptk
-package geometry
+package smptk.geometry
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers

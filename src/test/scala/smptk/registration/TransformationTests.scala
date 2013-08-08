@@ -1,26 +1,24 @@
-package smptk
-package registration
+package smptk.registration
 
 import org.scalatest.FunSpec
+import org.scalatest.matchers.ShouldMatchers
 import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
-import image.Interpolation
-import image.{ DiscreteImageDomain1D, DiscreteImageDomain2D }
-import io.ImageIO
-import image.Image._
+import smptk.image._
+import smptk.image.Image._
+import smptk.io.ImageIO
 import breeze.linalg.DenseVector
-import image.Resample
-import image.ContinuousScalarImage1D
-import org.scalatest.matchers.ShouldMatchers
-import geometry._
-import geometry.implicits._
+
+import smptk.geometry._
+import smptk.geometry.implicits._
 
 import smptk.image.Utils
 import smptk.io.MeshIO
 
 class TransformationTests extends FunSpec with ShouldMatchers {
-
+  smptk.initialize()
+  
   describe("A scaling in 2D") {
     val ss = ScalingSpace2D()
     val params = DenseVector(3.0)

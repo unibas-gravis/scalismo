@@ -1,13 +1,12 @@
-package smptk
-package io
+package smptk.io
 
-import image.Image._
+import smptk.image.Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import image.Interpolation._
-import image._
-import geometry._
-import geometry.implicits._
+import smptk.image.Interpolation._
+import smptk.image._
+import smptk.geometry._
+import smptk.geometry.implicits._
 import java.io.File
 import scala.util.Success
 import scala.util.Failure

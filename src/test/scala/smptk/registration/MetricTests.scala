@@ -1,14 +1,13 @@
-package smptk
-package registration
+package smptk.registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import smptk.image.DiscreteImageDomain1D
-import image.ContinuousScalarImage1D
-import geometry._
-import geometry.implicits._
+import smptk.image.ContinuousScalarImage1D
+import smptk.geometry._
+import smptk.geometry.implicits._
 import breeze.linalg.DenseVector
-import registration.Metric._
+import smptk.registration.Metric._
 import smptk.numerics.Integrator
 import smptk.numerics.IntegratorConfiguration
 import smptk.numerics.UniformSampler1D
