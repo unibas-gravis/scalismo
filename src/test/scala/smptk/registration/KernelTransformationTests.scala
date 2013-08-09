@@ -93,9 +93,6 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
  
       val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / pts.size), eigPairsApprox.size)
-      println("approx lambdas " +approxLambdas)
-      println("real lambdas " +realLambdas)
-
       for (l <- approxLambdas.zipWithIndex)
         l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
 
