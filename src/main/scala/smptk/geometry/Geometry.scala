@@ -35,7 +35,6 @@ abstract class Point[D <: Dim: DimTraits] extends Coordinate[D, Double] { self: 
 
 }
 
-
 trait PointLike[D <: Dim, PointRepr <: Point[D], VectorRepr <: Vector[D]] { self: Point[D] =>
 
   def createPoint(data: Array[Double]): PointRepr
@@ -58,7 +57,8 @@ case class Point1D(v: Double) extends Point[OneD] with PointLike[OneD, Point1D, 
   def createPoint(data: Array[Double]) = Point1D(data(0))
   def createVector(data: Array[Double]) = Vector1D(data(0))
 
-  override val data = Array(v)
+  override val data = Array(v)  
+  override def apply(i: Int) = if (i == 0) v else throw new ArrayIndexOutOfBoundsException("index $i > 0")
 }
 
 case class Point2D(x: Double, y: Double) extends Point[TwoD] with PointLike[TwoD, Point2D, Vector2D] {
@@ -67,6 +67,9 @@ case class Point2D(x: Double, y: Double) extends Point[TwoD] with PointLike[TwoD
   def createVector(data: Array[Double]) = Vector2D(data(0), data(1))
 
   override val data = Array(x, y)
+  override def apply(i: Int) = {
+    if (i == 0) x else if (i == 1) y else throw new ArrayIndexOutOfBoundsException("index $i > 1")
+  }
 }
 
 case class Point3D(x: Double, y: Double, z: Double) extends Point[ThreeD] with PointLike[ThreeD, Point3D, Vector3D] {
@@ -75,8 +78,11 @@ case class Point3D(x: Double, y: Double, z: Double) extends Point[ThreeD] with P
   def createVector(data: Array[Double]) = Vector3D(data(0), data(1), data(2))
 
   override val data = Array(x, y, z)
-}
+  override def apply(i: Int) = {
+    if (i == 0) x else if (i == 1) y else if (i == 2) z else throw new ArrayIndexOutOfBoundsException("index $i > 2")
+  }
 
+}
 
 /*======================================
  * Vector definitions
@@ -112,9 +118,13 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
 
 }
 
-case class Vector1D(x: Double) extends Vector[OneD] with VectorLike[OneD, Vector1D, Point1D]{
+case class Vector1D(x: Double) extends Vector[OneD] with VectorLike[OneD, Vector1D, Point1D] {
   def createPoint(data: Array[Double]) = Point1D(data(0))
   def createVector(data: Array[Double]) = Vector1D(data(0))
+
+  override def apply(i: Int) = {
+    if (i == 0) x else throw new ArrayIndexOutOfBoundsException("index $i > 0")
+  }
 
   val data = Array(x)
 }
@@ -126,15 +136,24 @@ case class Vector2D(x: Double, y: Double) extends Vector[TwoD] with VectorLike[T
   def createPoint(data: Array[Double]) = Point2D(data(0), data(1))
   def createVector(data: Array[Double]) = Vector2D(data(0), data(1))
 
+    override def apply(i : Int) = {
+    if (i == 0) x else if (i == 1) y else throw new ArrayIndexOutOfBoundsException("index $i > 1")  
+  }
+
+  
   val data = Array(x, y)
 }
 
-case class Vector3D(x: Double, y: Double, z: Double) extends Vector[ThreeD] with VectorLike[ThreeD, Vector3D, Point3D]{
+case class Vector3D(x: Double, y: Double, z: Double) extends Vector[ThreeD] with VectorLike[ThreeD, Vector3D, Point3D] {
   type TVector = Vector3D
   type TPoint = Point3D
 
   def createPoint(data: Array[Double]) = Point3D(data(0), data(1), data(2))
   def createVector(data: Array[Double]) = Vector3D(data(0), data(1), data(2))
+
+  override def apply(i : Int) = {
+    if (i == 0) x else if (i == 1) y else if (i ==2) z else throw new ArrayIndexOutOfBoundsException("index $i > 2")  
+  }
 
   val data = Array(x, y, z)
 }
@@ -145,17 +164,29 @@ case class Vector3D(x: Double, y: Double, z: Double) extends Vector[ThreeD] with
 
 abstract class Index[D <: Dim: DimTraits] extends Coordinate[D, Int] {}
 
-
 case class Index1D(i: Int) extends Index[OneD] {
   val data = Array(i)
+    override def apply(id : Int) = {
+    if (id == 0) i else throw new ArrayIndexOutOfBoundsException("index $i > 0")  
+  }
+
 }
 
 case class Index2D(i: Int, j: Int) extends Index[TwoD] {
   val data = Array(i, j)
+
+  override def apply(id : Int) = {
+    if (id == 0) i else if (id == 1) j  else throw new ArrayIndexOutOfBoundsException("index $i > 2")  
+  }
+
 }
 
 case class Index3D(i: Int, j: Int, k: Int) extends Index[ThreeD] {
   val data = Array(i, j, k)
+    override def apply(id : Int) = {
+    if (id == 0) i else if (id == 1) j else if (id ==2) k else throw new ArrayIndexOutOfBoundsException("index $i > 2")  
+  }
+
 }
 
 object implicits {
