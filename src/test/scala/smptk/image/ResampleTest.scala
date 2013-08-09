@@ -42,7 +42,7 @@ class ResampleTest extends FunSpec with ShouldMatchers {
 
     it("yields the original discrete image") {
       val resampledImage = Resample.sample[Short](continuousImage, discreteImage.domain, 0)
-      for (i <- 0 until discreteImage.pixelValues.size) {
+      for (i <- 0 until discreteImage.pixelValues.size by 100) {
         discreteImage.pixelValues(i) should be(resampledImage.pixelValues(i))
       }
     }
