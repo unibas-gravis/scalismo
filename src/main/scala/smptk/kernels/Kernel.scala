@@ -13,15 +13,13 @@ import smptk.common.BoxedDomain
 import smptk.common.ImmutableLRU
 import smptk.geometry._
 
-trait PDKernel[D <: Dim] { self =>
-  def apply(x: Point[D], y: Point[D]): DenseMatrix[Double]
-  def outputDim: Int
+abstract class PDKernel[D <: Dim] { self =>
+  def apply(x: Point[D], y: Point[D]): Double
+  def outputDim: Int = 1
   
-
-  def +(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
+    def +(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     require(self.outputDim == that.outputDim)
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
-    override def outputDim = self.outputDim
   }
 
   def *(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
@@ -34,44 +32,70 @@ trait PDKernel[D <: Dim] { self =>
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) * s
     override def outputDim = self.outputDim
   }
-  
+
   // TODO this could be made more generic by allowing the input of phi to be any type A
-  def compose(phi : Point[D] => Point[D]) = new PDKernel[D] { 
-    override def apply(x: Point[D], y: Point[D]) = self.apply(phi(x), phi(y)) 
-    override def outputDim = self.outputDim    
+  def compose(phi: Point[D] => Point[D]) = new PDKernel[D] {
+    override def apply(x: Point[D], y: Point[D]) = self.apply(phi(x), phi(y))
+    override def outputDim = self.outputDim
   }
 
 }
 
-case class UncorrelatedKernelND[D <: Dim](k: PDKernel[D], val outputDim: Int) extends PDKernel[D] {
-  if (k.outputDim != 1) throw new IllegalArgumentException("Can only build Uncorrelated kernels from scalar valued kernels")
+abstract class MatrixValuedPDKernel[D <: Dim] { self =>
+  def apply(x: Point[D], y: Point[D]): DenseMatrix[Double]
+  def outputDim: Int
+
+  def +(that: MatrixValuedPDKernel[D]): MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
+    require(self.outputDim == that.outputDim)
+    override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
+    override def outputDim = self.outputDim
+  }
+
+  def *(that: MatrixValuedPDKernel[D]): MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
+    require(self.outputDim == that.outputDim)
+    override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) :* that.apply(x, y)
+    override def outputDim = self.outputDim
+  }
+
+  def *(s: Double): MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
+    override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) * s
+    override def outputDim = self.outputDim
+  }
+
+  // TODO this could be made more generic by allowing the input of phi to be any type A
+  def compose(phi: Point[D] => Point[D]) = new MatrixValuedPDKernel[D] {
+    override def apply(x: Point[D], y: Point[D]) = self.apply(phi(x), phi(y))
+    override def outputDim = self.outputDim
+  }
+
+}
+
+case class UncorrelatedKernelND[D <: Dim](k: PDKernel[D], val outputDim: Int) extends MatrixValuedPDKernel[D] {
   val I = DenseMatrix.eye[Double](outputDim)
-  def apply(x: Point[D], y: Point[D]) = I * (k(x, y)(0, 0)) // k is scalar valued
+  def apply(x: Point[D], y: Point[D]) = I * (k(x, y)) // k is scalar valued
 
 }
 
 case class GaussianKernel3D(val sigma: Double) extends PDKernel[ThreeD] {
   val sigma2 = sigma * sigma
-  def outputDim = 1
   def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
 
     val r0 = (x(0) - y(0))
     val r1 = (x(1) - y(1))
     val r2 = (x(2) - y(2))
     val normr2 = r0 * r0 + r1 * r1 + r2 * r2 // ||x -y ||^2
-    DenseMatrix(scala.math.exp(-normr2 / sigma2))
+    scala.math.exp(-normr2 / sigma2)
   }
 }
 
 case class GaussianKernel2D(val sigma: Double) extends PDKernel[TwoD] {
   val sigma2 = sigma * sigma
-  def outputDim = 1
   def apply(x: Point[TwoD], y: Point[TwoD]) = {
 
     val r0 = (x(0) - y(0))
     val r1 = (x(1) - y(1))
     val normr2 = r0 * r0 + r1 * r1 // ||x -y ||^2
-    DenseMatrix(scala.math.exp(-normr2 / sigma2))
+    scala.math.exp(-normr2 / sigma2)
   }
 }
 
@@ -79,38 +103,16 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
 
   val sigma2 = sigma * sigma
 
-  def outputDim = 1
   def apply(x: Point[OneD], y: Point[OneD]) = {
 
     val r = (x(0) - y(0))
-    DenseMatrix(scala.math.exp(-(r * r) / sigma2))
-  }
-}
-
-case class PolynomialKernel3D(degree: Int) extends PDKernel[ThreeD] {
-  def outputDim = 1
-  def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
-    DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + x(2) * y(2) + 1, degree))
-  }
-}
-
-case class PolynomialKernel2D(degree: Int) extends PDKernel[TwoD] {
-  def outputDim = 1
-  def apply(x: Point[TwoD], y: Point[TwoD]) = {
-    DenseMatrix(math.pow(x(0) * y(0) + x(1) * y(1) + 1, degree))
-  }
-}
-
-case class PolynomialKernel1D(degree: Int) extends PDKernel[OneD] {
-  def outputDim = 1
-  def apply(x: Point[OneD], y: Point[OneD]) = {
-    DenseMatrix(math.pow(x(0) * y(0) + 1, degree))
+    scala.math.exp(-(r * r) / sigma2)
   }
 }
 
 object Kernel {
 
-  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: PDKernel[D]): DenseMatrix[Double] = {
+  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
@@ -126,7 +128,7 @@ object Kernel {
    * kx = (k(x, x1), ... k(x, xm))
    * since the kernel is matrix valued, kx is actually a matrix
    */
-  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: PDKernel[D]): DenseMatrix[Double] = {
+  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val kxs = DenseMatrix.zeros[Double](d, xs.size * d)
@@ -148,21 +150,21 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim](k: PDKernel[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
+  def computeNystromApproximation[D <: Dim](k: MatrixValuedPDKernel[D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Double, Point[D] => DenseVector[Double])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
     val volumeOfSampleRegion = sampler.volumeOfSampleRegion
-    
+
     val (ptsForNystrom, _) = sampler.sample(numPointsForNystrom).unzip
-    
+
     // deppending on the sampler, it may happen that we did not sample all the points we wanted 
-    val effectiveNumberOfPointsSampled = ptsForNystrom.size 
-    
+    val effectiveNumberOfPointsSampled = ptsForNystrom.size
+
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
-    
+
     // TODO check that this is also correct for non-rectangular domains
     val lambda = lambdaMat.map(lmbda => (volumeOfSampleRegion / effectiveNumberOfPointsSampled.toDouble) * lmbda)
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size

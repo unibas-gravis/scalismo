@@ -15,7 +15,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
   describe("A statistical model") {
     it("yields the right mean and deformations when created from a discretized gp") {
-
+    	smptk.initialize()
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
       val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100, 3)

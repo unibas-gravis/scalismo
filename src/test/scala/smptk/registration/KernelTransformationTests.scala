@@ -25,7 +25,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
   describe("The Nystroem approximation of a Kernel matrix") {
     it("Is close enough to a scalar valued kernel matrix") {
-      val kernel = GaussianKernel1D(20)
+      val kernel = UncorrelatedKernelND(GaussianKernel1D(20), 1)
       val domain = BoxedDomain1D(-5.0, 195.0)
 
       val sampler = UniformSampler1D(domain)
@@ -50,7 +50,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     it("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
-      val scalarKernel = GaussianKernel1D(10)
+      val scalarKernel = UncorrelatedKernelND(GaussianKernel1D(10), 1)
       val domain = BoxedDomain1D(0.0,10.0)
       val sampler = UniformSampler1D(domain)
       val numPoints = 500
@@ -99,7 +99,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     }
 
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
-      val kernel = GaussianKernel1D(1.0)
+      val kernel = UncorrelatedKernelND(GaussianKernel1D(1.0), 1)
       val domain = BoxedDomain1D(-5.0,5.0)
       val sampler = UniformSampler1D(domain)
 

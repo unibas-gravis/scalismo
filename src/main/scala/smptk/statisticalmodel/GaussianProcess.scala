@@ -23,7 +23,7 @@ import smptk.numerics.Sampler
 import smptk.numerics.UniformSampler3D
 
 
-case class GaussianProcess[D <: Dim](val domain: BoxedDomain[D], val mean: Point[D] => DenseVector[Double], val cov: PDKernel[D]) {
+case class GaussianProcess[D <: Dim](val domain: BoxedDomain[D], val mean: Point[D] => DenseVector[Double], val cov: MatrixValuedPDKernel[D]) {
 
   type PointSample = IndexedSeq[Point[D]]
 
@@ -53,7 +53,7 @@ case class LowRankGaussianProcessConfiguration[D <: Dim](
   val domain: BoxedDomain[D],
   val sampler : Sampler[D, Point[D]],  
   val mean: Point[D] => DenseVector[Double],
-  val cov: PDKernel[D],
+  val cov: MatrixValuedPDKernel[D],
   val numBasisFunctions: Int,
   val numPointsForNystrom: Int  )
 
@@ -291,7 +291,7 @@ object GaussianProcess {
 
     }
 
-    val kp = new PDKernel[D] {
+    val kp = new MatrixValuedPDKernel[D] {
       def apply(x1: Point[D], x2: Point[D]): DenseMatrix[Double] = {
         val kx1xs = Kernel.computeKernelVectorFor(x1, xs, gp.cov)
         val kx2xs = Kernel.computeKernelVectorFor(x2, xs, gp.cov)
@@ -305,7 +305,7 @@ object GaussianProcess {
 
   def main(args: Array[String]) {
 
-    val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100.0, 3)
+    val cov = UncorrelatedKernelND(GaussianKernel3D(100), 3) * 100
     val mesh = MeshIO.readHDF5(new File("/tmp/mesh.h5")).get
     val meshPoints = mesh.points
     val region = mesh.boundingBox

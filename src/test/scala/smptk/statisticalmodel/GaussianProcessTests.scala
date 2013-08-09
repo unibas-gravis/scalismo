@@ -21,7 +21,8 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
   describe("A Gaussian process regression") {
     it("keeps the landmark points fixed for a 1D case") {
       val domain = BoxedDomain1D(-5.0, 5)
-      val config = LowRankGaussianProcessConfiguration[OneD](domain, UniformSampler1D(domain), _ => DenseVector(0.0), GaussianKernel1D(5), 100, 500)
+      val kernel = UncorrelatedKernelND(GaussianKernel1D(5), 1)
+      val config = LowRankGaussianProcessConfiguration[OneD](domain, UniformSampler1D(domain), _ => DenseVector(0.0), kernel, 100, 500)
       val gp = GaussianProcess.createLowRankGaussianProcess1D(config)
 
       val trainingData = IndexedSeq((-3.0, 1.0), (-1.0, 3.0), (0.0, -1.0), (1.0, -1.0), (3.0, 0.0)).map(t => (Point1D(t._1), DenseVector(t._2)))
