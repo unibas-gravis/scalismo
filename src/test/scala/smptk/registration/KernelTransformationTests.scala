@@ -1,11 +1,11 @@
 package smptk.registration
 
+import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
 import smptk.geometry._
 import smptk.geometry.implicits._
-import smptk.image.Image._
 import smptk.image.Utils
 import smptk.image._
 import breeze.linalg.DenseVector
@@ -21,11 +21,13 @@ import smptk.common._
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
+    implicit def doubleToFloat(d : Double) = d.toFloat
+  
   // TODO add a  test for testing the posterior kernel
 
   describe("The Nystroem approximation of a Kernel matrix") {
     it("Is close enough to a scalar valued kernel matrix") {
-      val kernel = UncorrelatedKernelND(GaussianKernel1D(20), 1)
+      val kernel = UncorrelatedKernel1x1(GaussianKernel1D(20))
       val domain = BoxedDomain1D(-5.0, 195.0)
 
       val sampler = UniformSampler1D(domain)
@@ -42,7 +44,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       for ((x, _) <- sampler.sample(10); (y,_) <- sampler.sample(10)) {
         val v1 = kernel(x, y)(0, 0)
         val v2 = approxKernel(x, y)
-        (v2 should be(v1 plusOrMinus 0.001f))
+        (v2.toFloat should be(v1 plusOrMinus 0.001f))
 
       }
     }
@@ -50,7 +52,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     it("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
-      val scalarKernel = UncorrelatedKernelND(GaussianKernel1D(10), 1)
+      val scalarKernel = UncorrelatedKernel1x1(GaussianKernel1D(10))
       val domain = BoxedDomain1D(0.0,10.0)
       val sampler = UniformSampler1D(domain)
       val numPoints = 500
@@ -68,7 +70,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / numPoints), eigPairsApprox.size)
 
       for (l <- approxLambdas.zipWithIndex)
-        l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
+        l._1 should be(realLambdas(l._2).toFloat plusOrMinus (0.1f))
 
     }
 
@@ -76,7 +78,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val kernelDim = 2
       val scalarKernel = GaussianKernel2D(10)
-      val ndKernel = UncorrelatedKernelND(scalarKernel, kernelDim)
+      val ndKernel = UncorrelatedKernel2x2(scalarKernel)
       val domain = BoxedDomain2D((0.0, 0.0),  (5.0, 5.0))
       val sampler = UniformSampler2D(domain)
       val (pts, _) = sampler.sample(20*20).unzip
@@ -94,12 +96,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
  
       val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / pts.size), eigPairsApprox.size)
       for (l <- approxLambdas.zipWithIndex)
-        l._1 should be(realLambdas(l._2) plusOrMinus (0.1))
+        l._1 should be(realLambdas(l._2).toFloat plusOrMinus (0.1))
 
     }
 
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
-      val kernel = UncorrelatedKernelND(GaussianKernel1D(1.0), 1)
+      val kernel = UncorrelatedKernel1x1(GaussianKernel1D(1.0))
       val domain = BoxedDomain1D(-5.0,5.0)
       val sampler = UniformSampler1D(domain)
 
@@ -110,10 +112,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       for (i <- 0 until 20) {
 
     	val (lambda_i, phi_i) = eigPairs(i)
-        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => DenseVector[Double](0.0)))
+        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => Vector1D(0.0)))
 
         val v = integrator.integrateScalar(phiImg)
-        v should be(1.0 plusOrMinus 0.1)
+        v should be(1f plusOrMinus 0.1)
       }
     }
   }

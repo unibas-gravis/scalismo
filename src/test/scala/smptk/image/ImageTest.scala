@@ -12,8 +12,11 @@ import smptk.common.ImplicitDomain
 import smptk.common.ImplicitDomain1D
 import smptk.common.BoxedDomain1D
 import smptk.common.BoxedDomain2D
+import scala.language.implicitConversions
 
 class ImageTest extends FunSpec with ShouldMatchers {
+  implicit def doubleToFloat(d : Double) = d.toFloat
+  
   describe("A discrete 1D image") {
     it("returns the same points for a 1d index and a coordinate index") {
       val domain = DiscreteImageDomain1D(0.0, 1, 5)
@@ -44,7 +47,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0, 6.0),
         (x: Point[OneD]) => Math.sin(x(0).toDouble).toFloat,
-        Some((x: Point[OneD]) => DenseVector(Math.cos(x(0).toDouble).toFloat)))
+        Some((x: Point[OneD]) => Vector1D(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(1f))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4f) === true)
@@ -58,7 +61,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0, 6.0),
         (x: Point[OneD]) => Math.sin(x(0).toDouble).toFloat,
-        Some((x: Point[OneD]) => DenseVector(Math.cos(x(0).toDouble).toFloat)))
+        Some((x: Point[OneD]) => Vector1D(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(-1f))
       
       val warpedImage = image.compose(translationTransform)

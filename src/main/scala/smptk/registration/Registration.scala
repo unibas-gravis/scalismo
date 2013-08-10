@@ -41,13 +41,13 @@ case class RegistrationConfiguration[D <: Dim](
   val transformationSpace: TransformationSpace[D],
   val regularizer: Regularizer,
   val regularizationWeight: Double,
-  initialParametersOrNone: Option[DenseVector[Double]] = None) {
+  initialParametersOrNone: Option[DenseVector[Float]] = None) {
   def initialParameters = initialParametersOrNone.getOrElse(transformationSpace.identityTransformParameters)
 }
 
 object Registration {
 
-  def registrationND[D <: Dim](configuration: RegistrationConfiguration[D])(
+  def registrationND[D <: Dim : DimTraits](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): (BoxedDomain[D] => RegistrationResult[D]) =
     {
@@ -65,7 +65,7 @@ object Registration {
               configuration.metric(warpedImage, fixedImage)(configuration.integrator) + configuration.regularizationWeight * regularizer(params)
 
             }
-            def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
+            def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
 
               // create a new sampler, that simply caches the points and returns the same points in every call
               // this means, we are always using the same samples for computing the integral over the values
@@ -88,17 +88,20 @@ object Registration {
               //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
 
               val movingGradientImage = movingImage.differentiate.get // TODO do proper error handling when image is not differentiable  
-              val parametricTransformGradientImage = new ContinuousVectorImage[D] {
-                val pixelDimensionality = params.size
-                def domain = warpedImage.domain.intersection(dMetricDalpha.domain)
-                val f = (x: Point[D]) => dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)) * dMetricDalpha(x)
+ 
+              // the first derivative (after applying the chain rule) at each point
+              val parametricTransformGradient = (x: Point[D]) => {
+                val domain = warpedImage.domain.intersection(dMetricDalpha.domain)
+                if (domain.isDefinedAt(x)) 
+                	Some(dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)).toBreezeVector * dMetricDalpha(x))
+                else None
               }
-
-              val gradient = integrationStrategy.integrateVector(parametricTransformGradientImage)
+              
+              val gradient = integrationStrategy.integrateVector(parametricTransformGradient, params.size)
              
               val dR = regularizer.takeDerivative(params)
 
-              (value, gradient + dR * configuration.regularizationWeight)
+              (value.toFloat, gradient + dR * configuration.regularizationWeight.toFloat)
             }
           }
 

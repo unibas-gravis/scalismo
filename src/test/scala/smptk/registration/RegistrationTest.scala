@@ -1,6 +1,7 @@
 package smptk
 package registration
 
+import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import java.nio.ByteBuffer
 import java.io.File
@@ -38,6 +39,9 @@ import smptk.numerics.GradientDescentOptimizer
 import smptk.numerics.GradientDescentConfiguration
 
 class RegistrationTest extends FunSpec with ShouldMatchers {
+  
+  implicit def doubleToFloat(d : Double) =d.toFloat
+  
   smptk.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
@@ -45,8 +49,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val c = Point2D(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
-        val rotationParams = DenseVector(-angle)
-        val transParams = DenseVector[Double](1f, 1.5f)
+        val rotationParams = DenseVector[Float](-angle)
+        val transParams = DenseVector[Float](1f, 1.5f)
         val productParams = DenseVector.vertcat(transParams, rotationParams)
 
         val productSpace = RigidTransformationSpace2D(c)
@@ -79,8 +83,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val extent = region.extent
       val center = ((extent - origin) * 0.5).toPoint
 
-      val translationParams = DenseVector(1.5, 1.0, 3.5)
-      val parameterVector = DenseVector(1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+      val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
+      val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val trans = RigidTransformationSpace3D(center)(parameterVector)
 
       val rotated = mesh compose trans
@@ -118,7 +122,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
-      val translationParams = DenseVector(-10.0, 5.0)
+      val translationParams = DenseVector[Float](-10.0, 5.0)
       val translationTransform = regConf.transformationSpace(translationParams)
       val transformedLena = fixedImage compose translationTransform
       val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
@@ -146,7 +150,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
-      val rotationParams = DenseVector(math.Pi/8.0)
+      val rotationParams = DenseVector[Float](math.Pi/8.0)
       val transform = regConf.transformationSpace(rotationParams)
       val transformedLena = fixedImage compose transform
       val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
@@ -170,7 +174,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
     it("Recovers the correct parameters for a translation transfrom") {
 
-      val translationParams = DenseVector(-10.0, 0, 0)
+      val translationParams = DenseVector[Float](-10.0, 0, 0)
       val translationTransform = TranslationSpace3D()(translationParams)
       val transformed = fixedImage compose translationTransform
 
@@ -192,7 +196,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
     ignore("Recovers the correct parameters for a SMALL rotation transform") {
       val pi = Math.PI
-      val rotationParams = DenseVector(-pi / 10, 0, 0)
+      val rotationParams = DenseVector[Float](-pi / 10, 0, 0)
       val rotationTransform = RotationSpace3D(center)(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
@@ -210,14 +214,14 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val RegTransformed = fixedImage.compose(regResult.transform)
 
-      val regParams: DenseVector[Double] = regResult.parameters
+      val regParams: DenseVector[Float] = regResult.parameters
       for (i <- 0 until rotationParams.size) {
         regParams(i) should be(rotationParams(i) plusOrMinus(0.01))
       }
 
       // here we verify that the angles give similar rotation matrices 
 
-      def computeRotMatrix(p: DenseVector[Double]) = {
+      def computeRotMatrix(p: DenseVector[Float]) : DenseMatrix[Float] = {
         val cospsi = Math.cos(p(2))
         val sinpsi = Math.sin(p(2))
 
@@ -230,7 +234,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         DenseMatrix(
           (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
           (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
-          (-sinth, sinpsi * costh, cospsi * costh))
+          (-sinth, sinpsi * costh, cospsi * costh)).map(_.toFloat)
       }
 
       val rotMat1 = computeRotMatrix(rotationParams)

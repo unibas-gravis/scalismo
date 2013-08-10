@@ -1,4 +1,6 @@
 package smptk.numerics
+
+import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import smptk.image.DiscreteImageDomain1D
@@ -13,30 +15,32 @@ import smptk.common.BoxedDomain1D
 
 class IntegrationTest extends FunSpec with ShouldMatchers {
 
+    implicit def doubleToFloat(d : Double) = d.toFloat
+  
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => DenseVector(2.0) * x(0) ))  
+      val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => Vector1D(2f) * x(0) ))  
 
       val domain = BoxedDomain1D(-1.0, 1.0)
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain), 1000))  
     
       val res = integrator.integrateScalar(img)
-      res should be(1.0 / 3.0 plusOrMinus 0.001)
+      res should be((1.0 / 3.0).toFloat plusOrMinus 0.001)
     }
     it("Correctly integrates sin(x) on interval [-Pi, Pi]") {
 
       val img =  ContinuousScalarImage1D( 
           BoxedDomain1D(-math.Pi, math.Pi), 
           (x: Point[OneD]) => math.sin(x.toDouble).toFloat, 
-          Some((x: Point[OneD]) => DenseVector( - math.cos(x.toDouble).toFloat ))
+          Some((x: Point[OneD]) => Vector1D( - math.cos(x.toDouble).toFloat ))
           )
 
       val domain = BoxedDomain1D(-math.Pi, math.Pi)
       val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain), 1000))  
         
       val res = integrator.integrateScalar(img)
-      res should be(0.0 plusOrMinus 0.001)
+      res should be(0.0f plusOrMinus 0.001)
 
     }
     

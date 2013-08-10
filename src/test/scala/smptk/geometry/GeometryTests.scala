@@ -3,21 +3,27 @@ package smptk.geometry
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import implicits._
+import breeze.linalg.DenseMatrix
+import breeze.linalg.DenseVector
+import scala.language.implicitConversions
 
 class GeometryTests extends FunSpec with ShouldMatchers {
+
+  implicit def doubleToFloat(d: Double) = d.toFloat
+
   val p = Point3D(0.1, 3.0, 1.1)
-  val pGeneric : Point[ThreeD] = p
+  val pGeneric: Point[ThreeD] = p
   val v = Vector3D(0.1, 3.0, 1.1)
-  val vGeneric : Vector[ThreeD] = v
-  
+  val vGeneric: Vector[ThreeD] = v
+
   describe("A 3D Point") {
     it("equals a Point[ThreeD]") {
       p should equal(pGeneric)
     }
 
     it("does not equal a Vector[ThreeD]") {
-      p should not equal(v)
-      p should not equal(vGeneric)
+      p should not equal (v)
+      p should not equal (vGeneric)
     }
   }
 
@@ -28,20 +34,107 @@ class GeometryTests extends FunSpec with ShouldMatchers {
 
     it("does not equal a Point[ThreeD]") {
       v should not equal (p)
-      v should not equal (pGeneric)      
+      v should not equal (pGeneric)
     }
 
     it("equals a point when converted to point") {
       v.toPoint should equal(p)
     }
-    
+
     it("gives the correct norm and normsquared for various test cases") {
-    	Vector1D(1).norm2 should equal(1)
-    	Vector2D(1,1).norm2 should equal(2)
-    	Vector3D(1, 1,1).norm2 should equal(3)
-    	Vector2D(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 plusOrMinus(1e-5))
-    	v.norm should be(math.sqrt(v.norm2) plusOrMinus(1e-5))
+      Vector1D(1).norm2 should equal(1)
+      Vector2D(1, 1).norm2 should equal(2)
+      Vector3D(1, 1, 1).norm2 should equal(3)
+      Vector2D(math.sqrt(2).toFloat, math.sqrt(2).toFloat).norm2 should be(4.0 plusOrMinus (1e-5))
+      v.norm should be(math.sqrt(v.norm2) plusOrMinus (1e-5))
     }
-    
+
   }
+  describe("a 3x3 matrix") {
+
+    // storage is column major
+    val m = Matrix3x3(Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
+
+    it("can be correclty initialized by a tuple") {
+      val mInitFromTuple = Matrix3x3((1.1, 1.2, 1.3), (2.1, 2.2, 2.3), (3.1, 3.2, 3.3))
+      mInitFromTuple should equal(m)
+    }
+
+    it("should euqal another 3x3 matrix with the same values") {
+      val m = Matrix3x3(Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      val m2 = Matrix3x3(Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      m should equal(m2)
+    }
+
+    it("can be converted to a breeze matrix") {
+      val mbreeze = DenseMatrix.create[Float](3, 3, Array[Float](1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      m.toBreezeMatrix should equal(mbreeze)
+    }
+
+    it("can be indexed correctly") {
+      val mbreeze = m.toBreezeMatrix
+      m(1, 2) should equal(2.3f)
+      m(1, 2) should equal(mbreeze(1, 2))
+      m(0, 0) should equal(1.1f)
+      m(0, 0) should equal(mbreeze(0, 0))
+      m(2, 1) should equal(3.2f)
+      m(2, 1) should equal(mbreeze(2, 1))
+      m(2, 2) should equal(3.3f)
+    }
+
+    it("can be multiplied by a vector") {
+      val v = Vector3D(1, 2, 3)
+      val vBreeze = DenseVector(1f, 2f, 3f)
+      val mxv = m * v
+      val mxvBreeze = m.toBreezeMatrix * vBreeze
+      for (i <- 0 until 3) {
+        mxv(i) should be(mxvBreeze(i) plusOrMinus (1e-8))
+      }
+
+    }
+
+    it("can be multiplied by a scalar") {
+      val m1 = (m * 0.1).toBreezeMatrix
+      val m2 = m.toBreezeMatrix * 0.1f
+      for (i <- 0 until 3; j <- 0 until 3) {
+        m1(i, j) should be(m2(i, j) plusOrMinus (1e-8))
+      }
+    }
+
+    it("can be added to another matrix") {
+      val m1 = m + m
+      val m2 = m.toBreezeMatrix + m.toBreezeMatrix
+      for (i <- 0 until 3; j <- 0 until 3) {
+        m1(i, j) should be(m2(i, j) plusOrMinus (1e-8))
+      }
+    }
+
+    it("can be multiplied (elementwise) with another matrix") {
+      val m1 = m :* m
+      val m2 = m.toBreezeMatrix :* m.toBreezeMatrix
+      for (i <- 0 until 3; j <- 0 until 3) {
+        m1(i, j) should be(m2(i, j) plusOrMinus (1e-8))
+      }
+    }
+
+    it("can be multiplied (matrix product) with another matrix") {
+      val m = Matrix3x3((1,2,3), (2,7,3), (9,2,8))
+      val m2 = Matrix3x3((3,4,1), (3,7,2), (7,9,11))
+
+      val res = m * m2
+      val resBreeze = m.toBreezeMatrix * m2.toBreezeMatrix 
+ 
+      for (i <- 0 until 3; j <- 0 until 3) {
+        res(i, j) should be(resBreeze(i, j) plusOrMinus (1e-5))
+      }
+    }
+
+    it("fullfills some simple identities with ones,zeros and ident") {
+      val v = Vector3D(1, 2, 3)
+      Matrix3x3.eye * v should equal(v)
+      Matrix3x3.zeros * v should equal(Vector3D(0, 0, 0))
+      Matrix3x3.ones * v should equal(Vector3D(6, 6, 6))
+    }
+  }
+
 }

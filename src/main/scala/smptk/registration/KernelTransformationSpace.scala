@@ -24,6 +24,7 @@ import smptk.numerics.UniformSampler3D
 import smptk.statisticalmodel.LowRankGaussianProcess
 import smptk.geometry._
 
+// TODO call them GaussianProcessTransformationSpace
 case class KernelTransformationSpaceConfiguration[D <: Dim](
   val gp: LowRankGaussianProcess[D],
   val withValueCaching: Boolean = false)
@@ -35,7 +36,7 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
   def parametersDimensionality = gp.eigenPairs.size
   def inverseTransform(p: ParameterVector) = None
 
-  def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
+  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
 
   // the actual kernel transform
   case class KernelTransformation1D(alpha: ParameterVector) extends Transformation[OneD] {
@@ -63,7 +64,7 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
 
 case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceConfiguration[TwoD]) extends TransformationSpace[TwoD] {
 
-  def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
+  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
   val gp = configuration.gp
 
   def parametersDimensionality = gp.eigenPairs.size
@@ -95,7 +96,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
 case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceConfiguration[ThreeD]) extends TransformationSpace[ThreeD] {
 
-  def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
+  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
   val gp = configuration.gp
 
   def parametersDimensionality = gp.eigenPairs.size

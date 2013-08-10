@@ -8,7 +8,7 @@ import smptk.geometry._
 
 object LandmarkRegistration {
 
-  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], center: Point[ThreeD] = Point3D(0.0, 0.0, 0.0)): RegistrationResult[ThreeD] = {
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], center: Point[ThreeD] = Point3D(0f, 0f, 0f)): RegistrationResult[ThreeD] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 3)
@@ -40,12 +40,12 @@ object LandmarkRegistration {
         }
       }
 
-    val optimalParameters = DenseVector.vertcat(t, rotparams)
+    val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
     val rigidSpace = RigidTransformationSpace3D(center)
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], center: Point[TwoD] = Point2D(0.0, 0.0)): RegistrationResult[TwoD] = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], center: Point[TwoD] = Point2D(0f, 0f)): RegistrationResult[TwoD] = {
     val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
     // assert(center.size == 2)
     assert(t.size == 2)
@@ -58,7 +58,7 @@ object LandmarkRegistration {
     val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign else phiUpToSign
 
     // val centerCV = CoordVector2D(0f, 0f)
-    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi))
+    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat)
 
     val rigidSpace = RigidTransformationSpace2D(center)
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
@@ -83,8 +83,8 @@ object LandmarkRegistration {
       // create a matrix with the point coordinates. The roation in the method by Umeyama is computed
       // with respect to the center of rotation 0 (origin). To allow for a non-zero center, we translate
       // both point clouds by the center before applying his method.
-      X(i, ::) := DenseVector(x.data) - DenseVector(center.data)
-      Y(i, ::) := DenseVector(y.data) - DenseVector(center.data)
+      X(i, ::) := DenseVector(x.data.map(_.toDouble)) - DenseVector(center.data.map(_.toDouble))
+      Y(i, ::) := DenseVector(y.data.map(_.toDouble)) - DenseVector(center.data.map(_.toDouble))
     }
 
     val mu_x = mean(X.t, Axis._1)

@@ -141,7 +141,7 @@ object Visualization {
     val pd = MeshConversion.meshToVTKPolyData(mesh)
     val gp = statmodel.gp.specializeForPoints(mesh.points.force)
     val numComps = gp.eigenPairs.size
-    val coeffs = DenseVector.zeros[Double](numComps)
+    val coeffs = DenseVector.zeros[Float](numComps)
 
     // Setup VTK rendering panel, this also loads VTK native libraries
     var renWin: vtkPanel = new vtkPanel
@@ -186,7 +186,7 @@ object Visualization {
     renWin.GetRenderer.AddActor(actor)
     renWin.GetRenderer.ResetCamera
 
-    def updateMesh(coeffs: DenseVector[Double]) {
+    def updateMesh(coeffs: DenseVector[Float]) {
       val ptdefs = gp.instanceAtPoints(coeffs)
       val newptseq = for ((pt, df) <- ptdefs) yield (Array((pt(0) + df(0)).toFloat, (pt(1) + df(1)).toFloat, (pt(2) + df(2)).toFloat))
       val ptarray = newptseq.flatten
@@ -221,7 +221,7 @@ object Visualization {
       reactions += {
         case ValueChanged(s) => {
           val slider = s.asInstanceOf[Slider]
-          coeffs(slider.name.toInt) = slider.value.toDouble
+          coeffs(slider.name.toInt) = slider.value.toFloat
           updateMesh(coeffs)
         }
         case ButtonClicked(b) => {
@@ -235,7 +235,7 @@ object Visualization {
               val gaussian = breeze.stats.distributions.Gaussian(0, 1)
               coeffs.foreach(s => 0)
               for ((slider, i) <- sliders.zipWithIndex) {
-                val r = gaussian.draw
+                val r = gaussian.draw.toFloat
                 slider.value = 0
                 coeffs(i) = r
               }
@@ -282,24 +282,25 @@ object Visualization {
 
   def show(img: ContinuousScalarImage1D, domain: BoxedDomain1D, outsideValue: Double): Unit = {
 
-    val xs = linspace(domain.origin(0).toDouble, domain.extent(0), 512)
+    val xs = linspace(domain.origin(0), domain.extent(0), 512)
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, xs.map(x => img.liftPixelValue(Point1D(x)).getOrElse(outsideValue).toDouble))
+    val liftedImg = (x : Double) => img.liftPixelValue(Point1D(x.toFloat)).getOrElse(outsideValue.toFloat).toDouble
+    p += plot(xs, xs.map(x => liftedImg(x)))
     f.refresh
     f.visible = true
   }
 
   def show(img: ContinuousScalarImage2D, domain: BoxedDomain2D, outsideValue: Double): Unit = {
-    val spacing = (domain.extent - domain.origin) * (1.0 / 512.0)
+    val spacing = (domain.extent - domain.origin) * (1.0 / 512.0).toFloat
     val discreteDomain = DiscreteImageDomain2D(domain.origin, spacing, Index2D(512, 512))
     val discreteImg = Resample.sample[Double](img, discreteDomain, outsideValue)
     show(discreteImg)
   }
 
   def show(img: ContinuousScalarImage3D, domain: BoxedDomain3D, outsideValue: Double): Unit = {
-    val spacing = (domain.extent - domain.origin) * (1.0 / 256.0)
+    val spacing = (domain.extent - domain.origin) * (1.0 / 256.0).toFloat
     val discreteDomain = DiscreteImageDomain3D(domain.origin, spacing, Index3D(256, 256, 256))
     val discreteImg = Resample.sample[Double](img, discreteDomain, outsideValue)
     show(discreteImg)

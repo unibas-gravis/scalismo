@@ -24,7 +24,7 @@ case class UniformSampler1D(val domain: BoxedDomain1D)  extends Sampler[OneD, Po
   val p = 1.0 / domain.volume
 
   override def sample(numberOfPoints: Int) = {
-    val step = (domain.extent(0) - domain.origin(0)) / numberOfPoints.toDouble
+    val step = (domain.extent(0) - domain.origin(0)) / numberOfPoints.toFloat
     for (i <- 0 until numberOfPoints) yield (Point1D(domain.origin(0) + i * step), p)
   }
 
@@ -70,7 +70,7 @@ case class UniformDistributionRandomSampler1D(val domain: BoxedDomain1D) extends
   val p = 1.0 / domain.volume
   override def sample(numberOfPoints: Int) = {
     val distr = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
-    (0 until numberOfPoints).map(i => (Point1D(distr.draw), p))
+    (0 until numberOfPoints).map(i => (Point1D(distr.draw.toFloat), p))
   }
 }
 
@@ -81,7 +81,7 @@ case class UniformDistributionRandomSampler2D(val domain: BoxedDomain[TwoD]) ext
     val distrDim1 = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
     val distrDim2 = breeze.stats.distributions.Uniform(domain.origin(1), domain.extent(1))
 
-    (0 until numberOfPoints).map(i => (Point2D(distrDim1.draw, distrDim2.draw), p))
+    (0 until numberOfPoints).map(i => (Point2D(distrDim1.draw.toFloat, distrDim2.draw.toFloat), p))
   }
 }
 
@@ -93,7 +93,7 @@ case class UniformDistributionRandomSampler3D(val domain: BoxedDomain[ThreeD]) e
     val distrDim2 = breeze.stats.distributions.Uniform(domain.origin(1), domain.extent(1))
     val distrDim3 = breeze.stats.distributions.Uniform(domain.origin(2), domain.extent(2))
 
-    (0 until numberOfPoints).map(i => (Point3D(distrDim1.draw, distrDim2.draw, distrDim3.draw), p))
+    (0 until numberOfPoints).map(i => (Point3D(distrDim1.draw.toFloat, distrDim2.draw.toFloat, distrDim3.draw.toFloat), p))
   }
 }
 

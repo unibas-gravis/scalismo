@@ -1,5 +1,6 @@
 package smptk.io
 
+import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
@@ -11,6 +12,9 @@ import smptk.geometry._
 import smptk.geometry.implicits._
 
 class LandmarkIOTest extends FunSpec with ShouldMatchers {
+  
+    implicit def doubleToFloat(d : Double) = d.toFloat
+  
   describe("LandmarkIO") {
 
     val testUrl = getClass().getResource("/landmarks.txt").getPath()

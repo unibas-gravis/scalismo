@@ -4,10 +4,10 @@ package image
 import breeze.plot._
 import breeze.linalg._
 import Image._
-import ij._
-import ij.process.FloatProcessor
-import ij.ImageStack
-import ij.WindowManager
+//import ij._
+//import ij.process.FloatProcessor
+//import ij.ImageStack
+//import ij.WindowManager
 import smptk.registration.Transformation
 import smptk.common.BoxedDomain
 import smptk.common.BoxedDomain2D

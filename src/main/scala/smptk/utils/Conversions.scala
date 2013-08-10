@@ -7,9 +7,9 @@ import vtk.vtkTriangle
 import vtk.vtkPoints
 import smptk.image.ScalarPixel
 import smptk.image.DiscreteScalarImage3D
-import ij.ImageStack
-import ij.process.FloatProcessor
-import ij.ImagePlus
+//import ij.ImageStack
+//import ij.process.FloatProcessor
+//import ij.ImagePlus
 import smptk.image.DiscreteScalarImage2D
 import smptk.geometry.ThreeD
 import smptk.image.DiscreteScalarImage
@@ -243,8 +243,8 @@ object ImageConversion {
       return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
     }
 
-    val origin = Point3D(sp.GetOrigin()(0), sp.GetOrigin()(1), sp.GetOrigin()(2))
-    val spacing = Vector3D(sp.GetSpacing()(0), sp.GetSpacing()(1), sp.GetSpacing()(2))
+    val origin = Point3D(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
+    val spacing = Vector3D(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
     val size = Index3D(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
 
     val domain = DiscreteImageDomain3D(origin, spacing, size)
@@ -268,8 +268,8 @@ object ImageConversion {
       return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
     }
 
-    val origin = Point2D(sp.GetOrigin()(0), sp.GetOrigin()(1))
-    val spacing = Vector2D(sp.GetSpacing()(0), sp.GetSpacing()(1))
+    val origin = Point2D(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
+    val spacing = Vector2D(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
     val size = Index2D(sp.GetDimensions()(0), sp.GetDimensions()(1))
 
     val domain = DiscreteImageDomain2D(origin, spacing, size)
@@ -278,31 +278,31 @@ object ImageConversion {
     pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage2D(domain, pixelArray.toIndexedSeq))
   }
 
-  def image3DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[ThreeD, Pixel]) = {
-    val pixelConv = implicitly[ScalarPixel[Pixel]]
-    val domain = img.domain
-    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
-
-    // 	Create 3x3x3 3D stack and fill it with garbage  
-    val stack = new ImageStack(width, height)
-
-    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
-    for (slice <- 0 until size) {
-      val startInd = slice * (width * height)
-      val endInd = (slice + 1) * (width * height)
-      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
-      val bp = new FloatProcessor(width, height, pixelForSlice)
-      stack.addSlice(bp)
-
-    }
-    new ImagePlus("3D image", stack)
-  }
-
-  def image2DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[TwoD, Pixel]) = {
-    val pixelConv = implicitly[ScalarPixel[Pixel]]
-    val domain = img.domain
-    val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
-    new ImagePlus("2D image", bp)
-  }
+//  def image3DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[ThreeD, Pixel]) = {
+//    val pixelConv = implicitly[ScalarPixel[Pixel]]
+//    val domain = img.domain
+//    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
+//
+//    // 	Create 3x3x3 3D stack and fill it with garbage  
+//    val stack = new ImageStack(width, height)
+//
+//    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
+//    for (slice <- 0 until size) {
+//      val startInd = slice * (width * height)
+//      val endInd = (slice + 1) * (width * height)
+//      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
+//      val bp = new FloatProcessor(width, height, pixelForSlice)
+//      stack.addSlice(bp)
+//
+//    }
+//    new ImagePlus("3D image", stack)
+//  }
+//
+//  def image2DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[TwoD, Pixel]) = {
+//    val pixelConv = implicitly[ScalarPixel[Pixel]]
+//    val domain = img.domain
+//    val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
+//    new ImagePlus("2D image", bp)
+//  }
 
 }

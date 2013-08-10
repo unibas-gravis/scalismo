@@ -25,11 +25,11 @@ object StatismoIO {
       _ <- if (datasetType != "POLYGON_MESH")  Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
       else Success(())      
       meanArray <- h5file.readNDArray[Float]("/model/mean")
-      meanVector = DenseVector(meanArray.data).map(_.toDouble)
+      meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
       pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
-      pcaVarianceVector = DenseVector(pcaVarianceArray.data).map(_.toDouble)
+      pcaVarianceVector = DenseVector(pcaVarianceArray.data)
 
       vertArray <- h5file.readNDArray[Float]("/representer/points").flatMap(vertArray =>
         if (vertArray.dims(0) != 3)
@@ -57,7 +57,7 @@ object StatismoIO {
 
       // statismo stores the pcaBasisMatrix: each column corresponds to phi_i * sqrt(lambda_i)
       // we recover phi_i from it
-      val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) 1.0 / math.sqrt(l) else 0.0)
+      val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) (1.0 / math.sqrt(l)).toFloat else 0f)
       StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv))
     }
 
@@ -67,13 +67,13 @@ object StatismoIO {
   private def ndArrayToMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit, dummy2: DummyImplicit) = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
-    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).map(_.toDouble).t
+    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
   private def ndArrayToMatrix(array: NDArray[Double])(implicit dummy: DummyImplicit) = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
-    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).map(_.toDouble).t
+    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
   private def ndArrayToMatrix(array: NDArray[Int]) = {

@@ -1,6 +1,7 @@
 package smptk
 package statisticalmodel
 
+import scala.language.implicitConversions
 import smptk.io.MeshIO
 import smptk.kernels._
 import geometry._
@@ -13,19 +14,21 @@ import smptk.numerics.UniformSampler3D
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
+  implicit def doubleToFloat(d : Double) = d.toFloat
+
   describe("A statistical model") {
     it("yields the right mean and deformations when created from a discretized gp") {
     	smptk.initialize()
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
-      val cov = UncorrelatedKernelND(GaussianKernel3D(100) * 100, 3)
+      val cov = UncorrelatedKernel3x3(GaussianKernel3D(100) * 100)
 
       val meshPoints = mesh.points
       val region = mesh.boundingBox
       val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
         region,
         UniformSampler3D(region),
-        (x: Point[ThreeD]) => DenseVector(0.0, 0.0, 0.0),
+        (x: Point[ThreeD]) => Vector3D(0.0, 0.0, 0.0),
         cov,
         20,
         8 * 8 * 8)
@@ -33,8 +36,8 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val (lambdas, phis) = gp.eigenPairs.unzip
       val specializedGP = gp.specializeForPoints(mesh.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
       
-      var mVec = DenseVector.zeros[Double](mesh.numberOfPoints * 3)
-      var U = DenseMatrix.zeros[Double](mesh.numberOfPoints * 3, phis.size)
+      var mVec = DenseVector.zeros[Float](mesh.numberOfPoints * 3)
+      var U = DenseMatrix.zeros[Float](mesh.numberOfPoints * 3, phis.size)
       for ((pt, ptId) <- mesh.points.toIndexedSeq.par.zipWithIndex) {
         val mAtPt = gp.mean(pt)
         val phisAtPt = phis.map(phi => phi(pt))
@@ -45,7 +48,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         	}
         }
       }
-      val statMeshModel = StatisticalMeshModel(mesh, mVec, DenseVector(lambdas.toArray), U)
+      val statMeshModel = StatisticalMeshModel(mesh, mVec, DenseVector[Float](lambdas.toArray), U)
 
       val newGP = statMeshModel.gp
       val (newLambdas, newPhis) = newGP.eigenPairs.unzip

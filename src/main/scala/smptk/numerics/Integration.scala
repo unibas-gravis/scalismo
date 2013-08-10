@@ -1,6 +1,5 @@
 package smptk.numerics
 
-
 import smptk.image._
 import breeze.linalg.DenseVector
 import smptk.geometry._
@@ -8,7 +7,6 @@ import smptk.image.DiscreteImageDomain
 import smptk.common.BoxedDomain
 import smptk.common.BoxedDomain1D
 import smptk.common.BoxedDomain2D
-
 
 //trait Sampler[D <: Dim] {  
 //  def sample(boxedRegion: BoxedDomain[D], numberOfPoints: Int): IndexedSeq[Point[D]]
@@ -93,35 +91,46 @@ import smptk.common.BoxedDomain2D
 //  def sampledPoints = points
 //}
 
-case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D, Point[D]], numberOfPoints : Int)
+case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D, Point[D]], numberOfPoints: Int)
 
-case class Integrator[D <: Dim](configuration: IntegratorConfiguration[D]) {
+case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguration[D]) {
+
+  val dimtraits = implicitly[DimTraits[D]]
 
   def sampler = configuration.sampler
 
-  def integrateScalar(img: ContinuousScalarImage[D]): Double = {
+  def integrateScalar(img: ContinuousScalarImage[D]): Float = {
     integrateScalar(img.liftPixelValue)
   }
 
-  def integrateScalar(f: Function1[Point[D], Option[Double]]): Double = {
+  def integrateScalar(f: Function1[Point[D], Option[Float]]): Float = {
     val samples = configuration.sampler.sample(configuration.numberOfPoints)
-    
-    val sum = samples.par.map{case(pt, p) => f(pt).getOrElse(0.0) * 1.0 / p}.sum
 
-    sum / (configuration.numberOfPoints - 1).toDouble
+    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * 1f / p.toFloat }.sum
+
+    sum / (configuration.numberOfPoints - 1).toFloat
   }
 
-  def integrateVector(img: ContinuousVectorImage[D]): DenseVector[Double] = {
+  def integrateVector(img: ContinuousVectorImage[D]): Vector[D] = {
     integrateVector(img.liftPixelValue, img.pixelDimensionality)
   }
-  
-  def integrateVector(f: Function1[Point[D], Option[DenseVector[Double]]], pixelDimensionality : Int): DenseVector[Double] = {
-    val samples = configuration.sampler.sample(configuration.numberOfPoints)    
 
-    val zeroVector = DenseVector.zeros[Double](pixelDimensionality)
-    val sum: DenseVector[Double] = samples.par.map{case(pt, p) => f(pt).getOrElse(zeroVector) * 1.0 / p}.foldLeft(zeroVector)((a, b) => { a + b })
-    sum / (configuration.numberOfPoints - 1).toDouble
+  def integrateVector(f: Function1[Point[D], Option[Vector[D]]], pixelDimensionality: Int): Vector[D] = {
+    val samples = configuration.sampler.sample(configuration.numberOfPoints)
+
+    val zeroVector = dimtraits.zeroVector
+    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1f / p.toFloat) }.foldLeft(zeroVector)((a, b) => { a + b })
+    sum * (1f / (configuration.numberOfPoints - 1).toFloat)
   }
+
+  def integrateVector(f: Function1[Point[D], Option[DenseVector[Float]]], dimensionality: Int): DenseVector[Float] = {
+    val samples = configuration.sampler.sample(configuration.numberOfPoints)
+
+    val zeroVector = DenseVector.zeros[Float](dimensionality)
+    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1f / p.toFloat) }.foldLeft(zeroVector)((a, b) => { a + b })
+    sum * (1f / (configuration.numberOfPoints - 1).toFloat)
+  }
+
 }
 
 

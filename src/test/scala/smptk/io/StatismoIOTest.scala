@@ -15,6 +15,7 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
   
   describe("a Statismo Mesh MOdel") {
     it("can be read") {
+      // TODO add a model to the resource directory and change path
       val statismoFile = new File("/tmp/facemodel.h5")
       val maybeModel = StatismoIO.readStatismoMeshModel(statismoFile)
       maybeModel match {

@@ -13,14 +13,14 @@ object LandmarkIO {
    * read a file of the form
    * label, x, y, z
    */
-  private def readLandmarks(f: File): Try[IndexedSeq[(Double, Double, Double)]] = {
+  private def readLandmarks(f: File): Try[IndexedSeq[(Float, Float, Float)]] = {
     val src = Source.fromFile(f)
     val iter = src.getLines()
     Try {
       val landmarks = for (line <- src.getLines if line.isEmpty() == false && line(0) != '#') yield {
         val elements = line.split(',')
         val (xStr, yStr, zStr) = (elements(1), elements(2), elements(3))
-        (xStr.toDouble, yStr.toDouble, zStr.toDouble)
+        (xStr.toFloat, yStr.toFloat, zStr.toFloat)
       }
       landmarks.toIndexedSeq
     }

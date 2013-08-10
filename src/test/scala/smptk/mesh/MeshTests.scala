@@ -1,5 +1,6 @@
 package smptk.mesh
 
+import scala.language.implicitConversions
 import smptk.io.MeshIO
 import smptk.geometry._
 import smptk.geometry.implicits._
@@ -14,6 +15,9 @@ import smptk.registration.ScalingSpace3D
 import smptk.registration.RotationSpace3D
 
 class MeshTests extends FunSpec with ShouldMatchers {
+  
+    implicit def doubleToFloat(d : Double) = d.toFloat
+  
   smptk.initialize()
   describe("a mesh") {
     it("finds the right closest points for all the points that define the mesh") {
@@ -46,7 +50,7 @@ class MeshTests extends FunSpec with ShouldMatchers {
       val s = ScalingSpace3D()(DenseVector(2.0))
       val transformedMesh = mesh.compose(R).compose(s)
       mesh.area should be(0.5 plusOrMinus 1e-8)
-      transformedMesh.area should be(4.0 * mesh.area plusOrMinus 1e-8) // scaling by two gives 4 times the area 
+      transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 
     }
   }
 }

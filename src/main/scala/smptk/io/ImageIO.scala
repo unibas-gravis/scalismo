@@ -52,7 +52,7 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
 
-              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0)), Vector1D(imageData.spacing(0)), Index1D(imageData.size(0).toInt))
+              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0).toFloat), Vector1D(imageData.spacing(0).toFloat), Index1D(imageData.size(0).toInt))
               Success(DiscreteScalarImage1D(domain, imageData.data))
             }
           }
@@ -76,8 +76,8 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain3D(
-                Point3D(imageData.origin(0), imageData.origin(1), imageData.origin(2)),
-                Vector3D(imageData.spacing(0), imageData.spacing(1), imageData.spacing(2)),
+                Point3D(imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
+                Vector3D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
                 Index3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
               Success(DiscreteScalarImage3D(domain, imageData.data))
@@ -118,8 +118,8 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain2D(
-                Point2D(imageData.origin(0), imageData.origin(1)),
-                Vector2D(imageData.spacing(0), imageData.spacing(1)),
+                Point2D(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
+                Vector2D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
                 Index2D(imageData.size(0).toInt, imageData.size(1).toInt))
               Success(DiscreteScalarImage2D(domain, imageData.data))
             }

@@ -9,8 +9,8 @@ class RandomSVDTest extends FunSpec with ShouldMatchers {
 
   describe("The random svd") { 
     it("accurately approximates the first 10 eigenvectors and eigenvalues of a gaussian kernel matrix") { 
-      val k = UncorrelatedKernelND(GaussianKernel1D(10), 1)
-      val xs = (0 until 500).map(x => Point1D(x.toDouble)) 
+      val k = UncorrelatedKernel1x1(GaussianKernel1D(10))
+      val xs = (0 until 500).map(x => Point1D(x)) 
       val K = Kernel.computeKernelMatrix(xs, k)
       
       val (ur, lr, vrt) = RandomSVD.computeSVD(K, 10)

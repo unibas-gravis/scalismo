@@ -1,5 +1,6 @@
 package smptk.image
 
+import scala.language.implicitConversions
 import Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
@@ -15,15 +16,18 @@ import smptk.io.ImageIO
 import java.io.File
 
 class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTester {
+
+  implicit def doubleToFloat(d : Double) = d.toFloat  
+  
   smptk.initialize()
   describe("A 1D Interpolation with 0rd order bspline") {
 
     it("interpolates the values for origin 2.3 and spacing 1.5") {
       val domain = DiscreteImageDomain1D(2.3, 1.5, 7)
-      val discreteImage = DiscreteScalarImage1D(domain, Array(1.4, 2.1, 7.5, 9.0, 8.0, 0.0, 2.1))
+      val discreteImage = DiscreteScalarImage1D(domain, Array[Float](1.4, 2.1, 7.5, 9.0, 8.0, 0.0, 2.1))
       val continuousImg = interpolate(discreteImage, 0)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-        assert(continuousImg(pt) === discreteImage(idx))
+        continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
       }
     }
   }
@@ -32,7 +36,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
 
     it("interpolates the values for origin 2.3 and spacing 1.5") {
       val domain = DiscreteImageDomain1D(2.3f, 1.5f, 7)
-      val discreteImage = DiscreteScalarImage1D(domain, Array(1.4, 2.1, 7.5, 9, 8, 0, 2.1))
+      val discreteImage = DiscreteScalarImage1D[Float](domain, Array[Float](1.4, 2.1, 7.5, 9, 8, 0, 2.1))
       val continuousImg = interpolate(discreteImage, 1)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
         continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -130,7 +134,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         //println(ImageIO.writeImage(DiscreteScalarImage2D(discreteFixedImage.domain, diff).map(_.toShort), new File("/export/zambia/tmp/lenadiff.h5")))
 
         for ((p, i) <- discreteFixedImage.domain.points.zipWithIndex) {
-          interpolatedImage(p) should be(discreteFixedImage(i).toDouble plusOrMinus 30)
+          interpolatedImage(p).toShort should be(discreteFixedImage(i) plusOrMinus 30)
         }
 
       }
@@ -225,7 +229,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImage = Interpolation.interpolate(discreteImage, 1)
 
         for ((p, i) <- discreteImage.domain.points.zipWithIndex)
-          discreteImage.pixelValues(i).toDouble should be(continuousImage(p) plusOrMinus 0.001)
+          discreteImage.pixelValues(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
 
       }
 

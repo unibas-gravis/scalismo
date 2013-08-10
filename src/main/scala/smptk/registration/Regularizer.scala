@@ -5,7 +5,7 @@ import breeze.linalg.DenseVector
 
 trait Regularizer extends (ParameterVector => Double) { 
   
-  def takeDerivative(p : ParameterVector) : DenseVector[Double]
+  def takeDerivative(p : ParameterVector) : DenseVector[Float]
 }
 
 object RKHSNormRegularizer extends Regularizer {

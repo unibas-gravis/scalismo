@@ -28,7 +28,7 @@ object StatisticalMeshModel {
    * This process is then extended to the full bounding box of the mesh, where each point of the bounding box has the value
    * of its closest point on the mesh
    */ 
-  def apply(mesh: TriangleMesh, meanVec: DenseVector[Double], pcaVariance: DenseVector[Double], phiMat: DenseMatrix[Double]) = {
+  def apply(mesh: TriangleMesh, meanVec: DenseVector[Float], pcaVariance: DenseVector[Float], phiMat: DenseMatrix[Float]) = {
 
     require(mesh.numberOfPoints * 3 == meanVec.size)
     require(meanVec.size == phiMat.rows)
@@ -49,14 +49,14 @@ object StatisticalMeshModel {
     }
 
     
-    def mean(pt: Point[ThreeD]): DenseVector[Double] = {
+    def mean(pt: Point[ThreeD]): Vector3D = {
       val (closestPt, closestPtId) = findClosestPointMemoized(pt)
-      meanVec(closestPtId * 3 until (closestPtId + 1) * 3)
+      Vector3D(meanVec(closestPtId * 3), meanVec(closestPtId * 3 + 1), meanVec(closestPtId *3 + 2))
     }
 
-    def phi(i : Int)(pt: Point[ThreeD]): DenseVector[Double] = {
+    def phi(i : Int)(pt: Point[ThreeD]): Vector[ThreeD] = {
       val (closestPt, closestPtId) = findClosestPointMemoized(pt)
-      DenseVector(phiMat(closestPtId  * 3, i), phiMat(closestPtId  * 3 + 1, i), phiMat(closestPtId  * 3 + 2, i)) 
+      Vector3D(phiMat(closestPtId  * 3, i), phiMat(closestPtId  * 3 + 1, i), phiMat(closestPtId  * 3 + 2, i)) 
     }
 
     val eigenPairs = (0 until numPCAComponents) map (i => (pcaVariance(i), phi(i)_))
