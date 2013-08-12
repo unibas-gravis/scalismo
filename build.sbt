@@ -18,17 +18,19 @@ libraryDependencies  ++= Seq(
 "org.scala-lang" % "scala-reflect" %"2.10.0",
 	    //"net.imagej" % "ij" % "latest.integration",
 	    "org.scala-lang" % "scala-swing" % "2.10.0",
-	    "com.twitter"   % "util-collection"   % "5.3.10"
-)
+	    "com.twitter"   % "util-collection"   % "5.3.10",
+  	    "org.statismo"  %% "nativelibs" % "0.1.0-SNAPSHOT"
+	    )
 
 resolvers ++= Seq(
    "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/",
    "imagej.releases" at "http://maven.imagej.net/content/repositories/releases",
-   "twitter" at "http://maven.twttr.com/"
+   "twitter" at "http://maven.twttr.com/",
+   "statismo" at "/export/contrib/statismo/repo"
    )
 
 EclipseKeys.withSource := true
 
 scalacOptions += "-feature"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.2"
