@@ -3,7 +3,6 @@ package image
 
 import common.{ Domain, DiscreteDomain, BoxedDomain }
 import smptk.geometry._
-import com.sun.org.apache.xml.internal.serializer.ToStream
 import smptk.common.BoxedDomain1D
 
 
@@ -80,7 +79,7 @@ case class DiscreteImageDomain2D(val origin: Point[TwoD], val spacing: Vector[Tw
 case class DiscreteImageDomain3D(val origin: Point[ThreeD], val spacing: Vector[ThreeD], val size: Index[ThreeD]) extends DiscreteImageDomain[ThreeD] {
   val dimensionality = 3
   
-  def points = for (k <- (0 until size(2)).view; j <- (0 until size(1)).toStream; i <- (0 until size(0)).view)
+  def points = for (k <- (0 until size(2)).view; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
     yield Point3D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j, origin(2) + spacing(2) * k)
 
   val extent : Point3D = Point3D(origin(0) + spacing(0) * size(0), origin(1) + spacing(1) * size(1), origin(2) + spacing(2) * size(2)) // TODO replace with operator version
