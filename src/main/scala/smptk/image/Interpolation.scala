@@ -171,7 +171,7 @@ object Interpolation {
     val scalarPixel = implicitly[ScalarPixel[Pixel]]
 
     // the c is an input-output argument here
-    val c = img.pixelValues.map(scalarPixel.toDouble).toArray
+    val c = img.pixelValues.map(scalarPixel.toFloat).toArray
     BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
     c.map(_.toFloat)
   }
@@ -181,19 +181,19 @@ object Interpolation {
    * as a DenseVector, i.e. the rows are written one after another */
   def determineCoefficients[@specialized(Short, Int, Float, Double) Pixel : ScalarPixel](degree: Int, img: DiscreteScalarImage2D[Pixel]): Array[Float] = {
 	val scalarPixel = implicitly[ScalarPixel[Pixel]]
-    val coeffs = DenseVector.zeros[Double](img.pixelValues.size)
+    val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
     for (y <- 0 until img.domain.size(1)) {
       val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex(Index2D(x, y))))
 
       // the c is an input-output argument here
-      val c = rowValues.map(scalarPixel.toDouble).toArray
+      val c = rowValues.map(scalarPixel.toFloat).toArray
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
       val idxInCoeffs = img.domain.indexToLinearIndex(Index2D(0, y))
       coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
   
     }
-    coeffs.data.map(_.toFloat)
+    coeffs.data
   }
 
   /* determine the b-spline coefficients for a 3D image. The coefficients are returned
@@ -201,19 +201,19 @@ object Interpolation {
 
   def determineCoefficients[@specialized(Short, Int, Float, Double) Pixel : ScalarPixel](degree: Int, img: DiscreteScalarImage3D[Pixel]): Array[Float] = {
     val scalarPixel = implicitly[ScalarPixel[Pixel]]
-    val coeffs = DenseVector.zeros[Double](img.pixelValues.size)
+    val coeffs = DenseVector.zeros[Float](img.pixelValues.size)
     for (z <- 0 until img.domain.size(2)) {
       for (y <- 0 until img.domain.size(1)) {
         val rowValues = (0 until img.domain.size(0)).map(x => img.pixelValues(img.domain.indexToLinearIndex(Index3D(x, y, z))))
 
         // the c is an input-output argument here
-        val c = rowValues.map(scalarPixel.toDouble).toArray
+        val c = rowValues.map(scalarPixel.toFloat).toArray
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
         val idxInCoeffs = img.domain.indexToLinearIndex(Index3D(0, y, z))
         coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
       }
     }
-    coeffs.data.map(_.toFloat)
+    coeffs.data
   }  
   
   
