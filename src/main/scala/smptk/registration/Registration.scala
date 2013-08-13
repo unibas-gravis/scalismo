@@ -32,7 +32,7 @@ import smptk.common.BoxedDomain1D
 import smptk.common.BoxedDomain2D
 import smptk.geometry._
 
-case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
+case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector, configurationFileName : Option[String] = None) {}
 
 case class RegistrationConfiguration[D <: Dim](
   val optimizer: Optimizer,
