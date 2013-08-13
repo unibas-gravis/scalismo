@@ -210,7 +210,8 @@ abstract class MatrixNxN[D <: Dim: DimTraits] {
   def *(f: Float): MatrixNxN[D]
   def *(d: Double): MatrixNxN[D] = this * d.toFloat
   def +(that: MatrixNxN[D]): MatrixNxN[D]
-
+  def -(that: MatrixNxN[D]): MatrixNxN[D]
+  
   override def hashCode = data.deep.hashCode
   override def equals(other: Any): Boolean = other match {
     case that: MatrixNxN[D] => {
@@ -288,6 +289,12 @@ trait MatrixNxNLike[D <: Dim, MatrixRepr <: MatrixNxN[D], VectorRepr <: Vector[D
 
   }
 
+   override def -(that: MatrixNxN[D]): MatrixRepr = {
+    val newData = self.data.zip(that.data).map { case (s, t) => s - t }
+    createMatrix(newData)
+  }
+
+  
   override def +(that: MatrixNxN[D]): MatrixRepr = {
     val newData = self.data.zip(that.data).map { case (s, t) => s + t }
     createMatrix(newData)
