@@ -112,10 +112,10 @@ case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguratio
   }
 
   def integrateVector(img: ContinuousVectorImage[D]): Vector[D] = {
-    integrateVector(img.liftPixelValue, img.pixelDimensionality)
+    integrateVector(img.liftPixelValue)
   }
 
-  def integrateVector(f: Function1[Point[D], Option[Vector[D]]], pixelDimensionality: Int): Vector[D] = {
+  def integrateVector(f: Function1[Point[D], Option[Vector[D]]]): Vector[D] = {
     val samples = configuration.sampler.sample(configuration.numberOfPoints)
 
     val zeroVector = dimtraits.zeroVector
