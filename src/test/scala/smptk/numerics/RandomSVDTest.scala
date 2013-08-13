@@ -12,9 +12,9 @@ class RandomSVDTest extends FunSpec with ShouldMatchers {
       val k = UncorrelatedKernel1x1(GaussianKernel1D(10))
       val xs = (0 until 500).map(x => Point1D(x)) 
       val K = Kernel.computeKernelMatrix(xs, k)
-      
-      val (ur, lr, vrt) = RandomSVD.computeSVD(K, 10)
-      val (ub, lb, vbt) = breeze.linalg.svd(K)
+      val Kdouble = K.map(_.toDouble)
+      val (ur, lr, vrt) = RandomSVD.computeSVD(Kdouble, 10)
+      val (ub, lb, vbt) = breeze.linalg.svd(Kdouble)
 
       for  (j <- 0 until 10) {
         (lr(j) should be (lb(j) plusOrMinus 0.001))

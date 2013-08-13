@@ -23,31 +23,31 @@ import smptk.numerics.Sampler
 import smptk.numerics.UniformSampler3D
 
 
-//case class GaussianProcess[D <: Dim](val domain: BoxedDomain[D], val mean: Point[D] => DenseVector[Double], val cov: MatrixValuedPDKernel[D]) {
-//
-//  type PointSample = IndexedSeq[Point[D]]
-//
-//  def sample: (PointSample => IndexedSeq[DenseVector[Double]]) = { (xs: PointSample) =>
-//    {
-//      val n = xs.size
-//      val d = cov.outputDim
-//      val meanVec = DenseVector.zeros[Double](n * d)
-//      for (i <- 0 until n; di <- 0 until d) meanVec(i * d + di) = mean(xs(i))(di)
-//      val covMatrix = Kernel.computeKernelMatrix(xs, cov)
-//      val noise = breeze.linalg.diag(DenseVector.ones[Double](xs.size)) * 1e-6 // gaussian noise for stability 
-//      val lMat = breeze.linalg.cholesky(covMatrix + noise)
-//      val u = for (_ <- 0 until xs.size) yield breeze.stats.distributions.Gaussian(0, 1).draw()
-//      val uVec = DenseVector(u.toArray)
-//      val sampleVec = meanVec + lMat * uVec // the sample as a long vector
-//
-//      // now we group it 
-//      // TODO make me more efficient and elegant
-//      val sampleSeq = sampleVec.toArray.toIndexedSeq
-//      val pointSampleValues = sampleSeq.grouped(d).map(ptVec => DenseVector(ptVec.toArray))
-//      pointSampleValues.toIndexedSeq
-//    }
-//  }
-//}
+case class GaussianProcess[D <: Dim : DimTraits](val domain: BoxedDomain[D], val mean: Point[D] => Vector[D], val cov: MatrixValuedPDKernel[D, D]) {
+	val dimTraits = implicitly[DimTraits[D]]
+  type PointSample = IndexedSeq[Point[D]]
+		 
+  def sample: (PointSample => IndexedSeq[Vector[D]]) = { (xs: PointSample) =>
+    {
+      val n = xs.size
+      val d = cov.outputDim
+      val meanVec = DenseVector.zeros[Double](n * d)
+      for (i <- 0 until n; di <- 0 until d) meanVec(i * d + di) = mean(xs(i))(di)
+      val covMatrix = Kernel.computeKernelMatrix(xs, cov)
+      val noise = breeze.linalg.diag(DenseVector.ones[Float](xs.size)) * 1e-6f // gaussian noise for stability 
+      val lMat = breeze.linalg.cholesky((covMatrix + noise).map(_.toDouble))
+      val u = for (_ <- 0 until xs.size) yield breeze.stats.distributions.Gaussian(0, 1).draw()
+      val uVec = DenseVector(u.toArray)
+      val sampleVec = (meanVec + lMat * uVec).map(_.toFloat) // the sample as a long vector
+
+      // now we group it 
+      // TODO make me more efficient and elegant
+      val sampleSeq = sampleVec.toArray.toIndexedSeq
+      val pointSampleValues = sampleSeq.grouped(d).map(ptVec => dimTraits.createVector(ptVec.toArray))
+      pointSampleValues.toIndexedSeq
+    }
+  }
+}
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
   val domain: BoxedDomain[D],
@@ -113,7 +113,6 @@ class SpecializedLowRankGaussianProcess[D <: Dim : DimTraits](gp: LowRankGaussia
   private val (meanVec, lambdas, eigenMatrix) = precomputeGPAtPoints
 
   private val stddev = DenseVector(lambdas.map(x => math.sqrt(x).toFloat).toArray)
-  private val Q = eigenMatrix * breeze.linalg.diag(stddev)
   private val phis = (0 until lambdas.size).map(i => phiAtPoint(i)_)
 
   override val domain = gp.domain
@@ -124,7 +123,8 @@ class SpecializedLowRankGaussianProcess[D <: Dim : DimTraits](gp: LowRankGaussia
 
   def instanceAtPoints(alpha: DenseVector[Float]): IndexedSeq[(Point[D], Vector[D])] = {
     require(eigenPairs.size == alpha.size)
-    val instVal = Q * alpha + meanVec
+     // (this corresponds to eigenMatrix * diag(stddef) * alpha + meanVec, but is more efficient
+    val instVal = eigenMatrix * (stddev :* alpha) + meanVec  
     val ptVals = for (v <- instVal.toArray.grouped(outputDim)) yield dimTraits.createVector(v)
     points.zip(ptVals.toIndexedSeq)
   }
@@ -288,35 +288,37 @@ object GaussianProcess {
   }
 
   // Gaussian process regression for a standard gaussian process
-//  def regression[D <: Dim](gp: GaussianProcess[D], trainingData: IndexedSeq[(Point[D], DenseVector[Double])], sigma2: Double) = {
-//
-//    def flatten(v: IndexedSeq[DenseVector[Double]]) = DenseVector(v.flatten(_.toArray).toArray)
-//    val d = gp.cov.outputDim
-//    val (xs, ys) = trainingData.unzip
-//    val yVec = flatten(ys)
-//    val meanValues = xs.map(gp.mean(_))
-//    val mVec = flatten(meanValues)
-//    val kxx = Kernel.computeKernelMatrix(xs, gp.cov)
-//
-//    val kinv = breeze.linalg.inv(kxx + DenseMatrix.eye[Double](kxx.cols) * sigma2)
-//
-//    def mp(x: Point[D]): DenseVector[Double] = {
-//      val kxs = Kernel.computeKernelVectorFor(x, xs, gp.cov)
-//      gp.mean(x) + (kxs * (kinv * (yVec - mVec)))
-//
-//    }
-//
-//    val kp = new MatrixValuedPDKernel[D] {
-//      def apply(x1: Point[D], x2: Point[D]): DenseMatrix[Double] = {
-//        val kx1xs = Kernel.computeKernelVectorFor(x1, xs, gp.cov)
-//        val kx2xs = Kernel.computeKernelVectorFor(x2, xs, gp.cov)
-//        gp.cov(x1, x2) - (kx1xs * (kinv * kx2xs.t))
-//      }
-//      def outputDim = d
-//    }
-//
-//    GaussianProcess[D](gp.domain, mp, kp)
-//  }
+  def regression[D <: Dim : DimTraits](gp: GaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double) = {
+
+    val dimTraits = implicitly[DimTraits[D]]
+    def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
+    val d = gp.cov.outputDim
+    val (xs, ys) = trainingData.unzip
+    val yVec = flatten(ys)
+    val meanValues = xs.map(gp.mean(_))
+    val mVec = flatten(meanValues)
+    val kxx = Kernel.computeKernelMatrix(xs, gp.cov)
+
+    val kinv = (breeze.linalg.inv(kxx + DenseMatrix.eye[Float](kxx.cols) * sigma2.toFloat)).map(_.toFloat)
+
+    def mp(x: Point[D]): Vector[D] = {
+      val kxs = Kernel.computeKernelVectorFor(x, xs, gp.cov)
+      val meandf = kxs * (kinv * (yVec - mVec))
+      gp.mean(x) + dimTraits.createVector(meandf.data)
+
+    }
+
+    val kp : MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
+      def apply(x1: Point[D], x2: Point[D]): MatrixNxN[D] = {
+        val kx1xs = Kernel.computeKernelVectorFor(x1, xs, gp.cov)
+        val kx2xs = Kernel.computeKernelVectorFor(x2, xs, gp.cov)
+        val cov = (kx1xs * (kinv * kx2xs.t))
+        gp.cov(x1, x2) - dimTraits.createMatrixNxN(cov.data)
+      }
+    }
+
+    GaussianProcess[D](gp.domain, mp, kp)
+  }
 
   def main(args: Array[String]) {
 

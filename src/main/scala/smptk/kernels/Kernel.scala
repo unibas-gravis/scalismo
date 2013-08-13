@@ -112,10 +112,10 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
 
 object Kernel {
 
-  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Double] = {
+  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
     val d = k.outputDim
 
-    val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
+    val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
     for { (xi, i) <- xs.zipWithIndex; (xj, j) <- xs.zipWithIndex; di <- 0 until d; dj <- 0 until d } {
       K(i * d + di, j * d + dj) = k(xi, xj)(di, dj)
       K(j * d + dj, i * d + di) = K(i * d + di, j * d + dj)
@@ -128,10 +128,10 @@ object Kernel {
    * kx = (k(x, x1), ... k(x, xm))
    * since the kernel is matrix valued, kx is actually a matrix
    */
-  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Double] = {
+  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
     val d = k.outputDim
 
-    val kxs = DenseMatrix.zeros[Double](d, xs.size * d)
+    val kxs = DenseMatrix.zeros[Float](d, xs.size * d)
 
     var j = 0
     while (j < xs.size) {
@@ -163,16 +163,16 @@ object Kernel {
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k)
-    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
+    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix.map(_.toDouble), numBasisFunctions)
 
     // TODO check that this is also correct for non-rectangular domains
     val lambda = lambdaMat.map(lmbda => (volumeOfSampleRegion / effectiveNumberOfPointsSampled.toDouble) * lmbda)
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
 
-    val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled / volumeOfSampleRegion) * pinv(diag(lambdaMat(0 until numParams)))
+    val W = (uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled / volumeOfSampleRegion) * pinv(diag(lambdaMat(0 until numParams)))).map(_.toFloat)
 
     @volatile
-    var cache = ImmutableLRU[Point[D], DenseMatrix[Double]](1000)
+    var cache = ImmutableLRU[Point[D], DenseMatrix[Float]](1000)
     def phi(i: Int)(x: Point[D]) = {
       // check the cache. if value is not there exit
       // TODO make it nicer using scalaz Memo class
