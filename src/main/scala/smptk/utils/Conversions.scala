@@ -248,7 +248,7 @@ object ImageConversion {
     val domain = DiscreteImageDomain3D(origin, spacing, size)
     val scalars = sp.GetPointData().GetScalars()
     val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
-    pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage3D(domain, pixelArray.toIndexedSeq))
+    pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage3D(domain, pixelArray))
   }
 
   def vtkStructuredPointsTo2DScalarImage[Pixel: ScalarPixel: TypeTag](sp: vtkStructuredPoints): Try[DiscreteScalarImage2D[Pixel]] = {
@@ -273,7 +273,7 @@ object ImageConversion {
     val domain = DiscreteImageDomain2D(origin, spacing, size)
     val scalars = sp.GetPointData().GetScalars()
     val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
-    pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage2D(domain, pixelArray.toIndexedSeq))
+    pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage2D(domain, pixelArray))
   }
 
 //  def image3DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[ThreeD, Pixel]) = {

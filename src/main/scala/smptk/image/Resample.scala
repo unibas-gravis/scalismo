@@ -16,7 +16,7 @@ object Resample {
       else scalarPixel.fromDouble(outsideValue)
     })
 
-    DiscreteScalarImage3D(domain, sampledValues.toIndexedSeq)
+    DiscreteScalarImage3D(domain, sampledValues.toArray)
   }
 
   def sample[@specialized(Short, Float, Double) Pixel: ScalarPixel: ClassTag](img: ContinuousScalarImage2D, domain: DiscreteImageDomain2D, outsideValue: Double): DiscreteScalarImage2D[Pixel] = {
@@ -26,7 +26,7 @@ object Resample {
       else scalarPixel.fromDouble(outsideValue)
     })
 
-    DiscreteScalarImage2D(domain, sampledValues.toIndexedSeq)
+    DiscreteScalarImage2D(domain, sampledValues.toArray)
   }
 
   def sample[@specialized(Short, Float, Double) Pixel: ScalarPixel: ClassTag](img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Double): DiscreteScalarImage1D[Pixel] = {
@@ -35,7 +35,7 @@ object Resample {
       if (img.isDefinedAt(pt)) scalarPixel.fromDouble(img(pt))
       else scalarPixel.fromDouble(outsideValue)
     })
-    DiscreteScalarImage1D(domain, sampledValues.toIndexedSeq)
+    DiscreteScalarImage1D(domain, sampledValues.toArray)
   }
 }
 

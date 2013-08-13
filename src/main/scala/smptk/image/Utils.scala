@@ -18,7 +18,6 @@ import smptk.io.MeshIO
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import swing._
-import vtk._
 import smptk.mesh.TriangleMesh
 import smptk.mesh.TriangleMesh
 import smptk.geometry._
