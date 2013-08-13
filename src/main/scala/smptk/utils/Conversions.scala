@@ -7,9 +7,6 @@ import vtk.vtkTriangle
 import vtk.vtkPoints
 import smptk.image.ScalarPixel
 import smptk.image.DiscreteScalarImage3D
-//import ij.ImageStack
-//import ij.process.FloatProcessor
-//import ij.ImagePlus
 import smptk.image.DiscreteScalarImage2D
 import smptk.geometry.ThreeD
 import smptk.image.DiscreteScalarImage
@@ -40,6 +37,7 @@ import smptk.geometry.Index2D
 import smptk.image.DiscreteImageDomain2D
 import vtk.vtkDataArray
 import smptk.image.DiscreteImageDomain3D
+import vtk.vtkImageData
 
 object VTKHelpers {
   val VTK_CHAR = 2
@@ -228,7 +226,7 @@ object ImageConversion {
     sp
   }
 
-  def vtkStructuredPointsTo3DScalarImage[Pixel: ScalarPixel: TypeTag](sp: vtkStructuredPoints): Try[DiscreteScalarImage3D[Pixel]] = {
+  def vtkStructuredPointsTo3DScalarImage[Pixel: ScalarPixel: TypeTag](sp: vtkImageData): Try[DiscreteScalarImage3D[Pixel]] = {
     if (sp.GetNumberOfScalarComponents() != 1) {
       return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
     }
