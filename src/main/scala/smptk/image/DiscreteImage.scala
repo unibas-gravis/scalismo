@@ -26,6 +26,16 @@ abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends
 
   def map[Pixel2: ScalarPixel : ClassTag](f: Pixel => Pixel2): DiscreteScalarImage[D, Pixel2]
   def foreach[A](f: Pixel => A): Unit = pixelValues.foreach(f)
+  
+  def hashCode = pixelValues.deep.hashCode
+  def equals(other: Any): Boolean = other match {
+    case that: DiscreteImage[D, Pixel] => {
+      that.canEqual(this) && this.pixelValues.deep == that.pixelValues.deep
+    }
+    case _ => false
+  }
+  
+  def canEqual(other: Any): Boolean = other.isInstanceOf[DiscreteImage[D, Pixel]]  
 }
 
 abstract class DiscreteScalarImage[D <: Dim, Pixel] extends DiscreteImage[D, Pixel] {
