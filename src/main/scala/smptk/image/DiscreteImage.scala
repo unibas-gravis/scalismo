@@ -30,7 +30,7 @@ abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends
   override def hashCode = pixelValues.deep.hashCode
   override def equals(other: Any): Boolean = other match {
     case that: DiscreteImage[D, Pixel] => {
-      that.canEqual(this) && this.pixelValues.deep == that.pixelValues.deep
+      that.canEqual(this) && this.pixelValues.deep == that.pixelValues.deep && this.domain == that.domain
     }
     case _ => false
   }
