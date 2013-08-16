@@ -21,6 +21,10 @@ import smptk.image.DiscreteScalarImage1D
 import smptk.geometry._
 import vtk.vtkStructuredPointsReader
 import smptk.utils.ImageConversion
+import vtk.vtkImageWriter
+import vtk.vtkImageData
+import vtk.vtkStructuredPointsWriter
+import vtk.vtkStructuredPoints
 
 object ImageIO {
 
@@ -156,27 +160,25 @@ object ImageIO {
   private def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
     val filename = file.getAbsolutePath()
 
-
     def pixelDimensionality(dims: Array[Long], dataDims: IndexedSeq[Long]): Int = {
       if (dims.length == dataDims.length) 1 else dataDims.last.toInt
     }
 
     val genericImageData = for {
-       h5file <- HDF5Utils.openFileForReading(file)
+      h5file <- HDF5Utils.openFileForReading(file)
       directions <- h5file.readNDArray[Double]("/ITKImage/0/Directions")
       voxelType <- h5file.readString("/ITKImage/0/VoxelType")
       dims <- h5file.readArray[Long]("/ITKImage/0/Dimension")
       origin <- h5file.readArray[Double]("/ITKImage/0/Origin")
       spacing <- h5file.readArray[Double]("/ITKImage/0/Spacing")
       voxelData <- readAndCheckVoxelData[Scalar](h5file, voxelType)
-      _ <- Try{h5file.close}
+      _ <- Try { h5file.close }
     } yield GenericImageData(origin, spacing, dims, pixelDimensionality(dims, voxelData.dims), voxelType, voxelData.data)
-
 
     genericImageData
   }
 
-  def writeImage[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarPixel : TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -186,6 +188,53 @@ object ImageIO {
     }
   }
 
+  def writeImage[Scalar: ScalarPixel: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
+    val filename = file.getAbsolutePath()
+    filename match {
+      case f if f.endsWith(".h5") => writeHDF5(img, file)
+      case f if f.endsWith(".vtk") => writeVTK(img, file)
+      case _ => {
+        Failure(new IOException("Unknown file type received" + filename))
+      }
+    }
+  }
+
+  def writeImage[Scalar: ScalarPixel : TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+    val filename = file.getAbsolutePath()
+    filename match {
+      case f if f.endsWith(".h5") => writeHDF5(img, file)
+      case f if f.endsWith(".vtk") => writeVTK(img, file)
+      case _ => {
+        Failure(new IOException("Unknown file type received" + filename))
+      }
+    }
+  }
+
+  private def writeVTK[Scalar: ScalarPixel: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
+
+    val imgVtk = ImageConversion.image2DTovtkStructuredPoints(img)
+    writeVTKInternal(imgVtk, file)
+  }
+
+  private def writeVTK[Scalar: ScalarPixel: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+    val imgVtk = ImageConversion.image3DTovtkStructuredPoints(img)
+    writeVTKInternal(imgVtk, file)
+  }
+
+  private def writeVTKInternal(imgVtk: vtkStructuredPoints, file: File): Try[Unit] = {
+    val writer = new vtkStructuredPointsWriter()
+    writer.SetInputData(imgVtk)
+    writer.SetFileName(file.getAbsolutePath())
+    writer.Update()
+    val errorCode = writer.GetErrorCode()
+    if (errorCode != 0) {
+      return Failure(new IOException(s"Error writing vtk file ${file.getAbsolutePath()} (error code $errorCode"))
+    } else {
+      Success(())
+    }
+
+  }
+
   private def writeHDF5[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteImage[D, Scalar], file: File): Try[Unit] = {
 
     val maybeVoxelType = scalarTypeToString[Scalar]()
@@ -193,7 +242,6 @@ object ImageIO {
       return Failure(new Exception(s"invalid voxeltype " + typeOf[Scalar]))
     }
     val voxelType = maybeVoxelType.get
-
 
     // append the number of components to the image dimensionality. 
     // The data of an image of size m x n will be saved as an array of dims n x m x d, 
@@ -212,7 +260,7 @@ object ImageIO {
       img.domain.directions)
 
     val maybeError: Try[Unit] = for {
-       h5file <- HDF5Utils.createFile(file)
+      h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeNDArray("/ITKImage/0/Directions", directions)
       _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.data.map(_.toLong))
       _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.data.map(_.toDouble))
@@ -222,7 +270,7 @@ object ImageIO {
       _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever
       _ <- h5file.writeString("/HDFVersion", HDF5Utils.hdf5Version)
       _ <- h5file.writeString("/ITKImage/0/VoxelType", voxelType)
-      _ <- Try{h5file.close()}
+      _ <- Try { h5file.close() }
     } yield { () } // if everything is okay, we have a Unit type and no error here
     maybeError
   }
