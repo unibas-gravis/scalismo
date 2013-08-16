@@ -36,8 +36,6 @@ resolvers ++= Seq(
 
 EclipseKeys.withSource := true
 
-initialCommands in console := """smptk.initialize; import java.io.File"""
-
 scalacOptions += "-feature"
 
 scalaVersion := "2.10.2"
