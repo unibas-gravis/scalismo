@@ -48,7 +48,7 @@ class MeshTests extends FunSpec with ShouldMatchers {
       
       val R = RotationSpace3D((0.0, 0.0, 0.0))(DenseVector(0.3, 0.4, 0.1))
       val s = ScalingSpace3D()(DenseVector(2.0))
-      val transformedMesh = mesh.compose(R).compose(s)
+      val transformedMesh = mesh.warp(R).warp(s)
       mesh.area should be(0.5 plusOrMinus 1e-8)
       transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 
     }

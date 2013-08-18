@@ -40,7 +40,7 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     BoxedDomain3D(Point3D(minx, miny, minz), Point3D(maxx, maxy, maxz))
   }
 
-  def compose(transform: Transformation[ThreeD]) = TriangleMesh(points.toIndexedSeq.par.map(transform).toIndexedSeq, cells)
+  def warp(transform: Function1[Point[ThreeD], Point[ThreeD]]) = TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells)
 
   val area = cells.map(triangle => computeTriangleArea(triangle)).sum
   
