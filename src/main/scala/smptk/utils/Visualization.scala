@@ -22,6 +22,7 @@ import smptk.image.Resample
 import smptk.image._
 import smptk.common.BoxedDomain
 import geometry._
+import scala.util.Try
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 import smptk.common.{ BoxedDomain, BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
@@ -34,39 +35,192 @@ import scala.swing.event.ValueChanged
 import java.awt.geom.Dimension2D
 import java.awt.Dimension
 import scala.swing.Button
-import scala.swing.event.ButtonClicked
+import scala.swing.event.{ ButtonClicked }
 import smptk.io.MeshIO
 import javax.swing.UIManager
 import javax.swing.WindowConstants.{ DISPOSE_ON_CLOSE, DO_NOTHING_ON_CLOSE }
-
+import scala.collection.mutable.ListBuffer
+import java.awt.Color
+import scala.util.Success
+import scala.util.Failure
+import smptk.io.ImageIO
+import javax.swing.JLabel
+import scala.swing.Label
+import scala.swing.BorderPanel
+import javax.swing.border.EmptyBorder
+import javax.swing.border.BevelBorder
 object Visualization {
 
-  private case class VTKMeshViewer(pd: vtkPolyData) extends SimpleSwingApplication {
+  class VTKViewer() extends SimpleSwingApplication {
+
+    def onEDT(prog: => Unit): Unit =
+      if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+        javax.swing.SwingUtilities.invokeLater {
+          new Runnable() {
+            def run() = prog
+          }
+        }
+      } else prog //val actors = ListBuffer[vtkActor]()
 
     // Setup VTK rendering panel, this also loads VTK native libraries
-    var renWin: vtkPanel = new vtkPanel
+    var renWin: vtkPanel = new vtkCanvas
 
     // Create wrapper to integrate vtkPanel with Scala's Swing API
-    val scalaPanel = new Component {
+    val viewerPanel = new Component {
       override lazy val peer = new JPanel(new BorderLayout())
       peer.add(renWin)
     }
 
-    var mapper = new vtkPolyDataMapper
-    mapper.SetInputData(pd)
-
-    var actor = new vtkActor
-    actor.SetMapper(mapper)
-
-    renWin.GetRenderer.AddActor(actor)
-    renWin.GetRenderer.ResetCamera
+    val controlPanel = new BoxPanel(Orientation.Vertical) {
+      def addControl(c: Component) = {
+        contents += c
+      }
+    }
 
     // Create the main application window
     override def top = new MainFrame {
       title = "ScaleCone"
-      contents = scalaPanel
+      contents = new BoxPanel(Orientation.Horizontal) {
+        contents += controlPanel
+        contents += viewerPanel
+      }
+
       peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
       override def closeOperation() { dispose() }
+    }
+
+    def addMesh(mesh: TriangleMesh, color: Char = 'w') = {
+      onEDT {
+        val pd = MeshConversion.meshToVTKPolyData(mesh)
+        var mapper = new vtkPolyDataMapper
+        mapper.SetInputData(pd)
+        mapper.ScalarVisibilityOff()
+
+        var actor = new vtkActor
+        actor.SetMapper(mapper)
+        val colorAWT = colorCodeToAWTColor(color).get
+        actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
+        renWin.GetRenderer.AddActor(actor)
+        resetSceneAndRender()
+
+      }
+    }
+
+    def addImage[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) = {
+      onEDT {
+
+        val sp = ImageConversion.image3DTovtkStructuredPoints(img)
+        val planeWidgetX = new vtkImagePlaneWidget()
+        planeWidgetX.SetInputData(sp)
+        planeWidgetX.SetPlaneOrientationToXAxes()
+        planeWidgetX.SetInteractor(renWin.GetRenderWindow().GetInteractor())
+
+        val planeWidgetY = new vtkImagePlaneWidget()
+        planeWidgetY.SetInputData(sp)
+        planeWidgetY.SetPlaneOrientationToYAxes()
+        planeWidgetY.SetInteractor(renWin.GetRenderWindow().GetInteractor())
+
+        val planeWidgetZ = new vtkImagePlaneWidget()
+        planeWidgetZ.SetInputData(sp)
+        planeWidgetZ.SetPlaneOrientationToZAxes()
+        planeWidgetZ.SetInteractor(renWin.GetRenderWindow().GetInteractor())
+
+        resetSceneAndRender()
+        planeWidgetX.On()
+        planeWidgetY.On()
+        planeWidgetZ.On()
+
+        val sliderX = new Slider { override val name = "x" }
+        sliderX.min = 0; sliderX.max = sp.GetDimensions()(0); sliderX.majorTickSpacing = 1; sliderX.snapToTicks = true
+        val sliderY = new Slider { override val name = "y" }
+        sliderY.min = 0; sliderY.max = sp.GetDimensions()(1); sliderY.majorTickSpacing = 1; sliderY.snapToTicks = true
+        val sliderZ = new Slider { override val name = "z" }
+        sliderZ.min = 0; sliderZ.max = sp.GetDimensions()(2); sliderZ.majorTickSpacing = 1; sliderZ.snapToTicks = true
+        listenTo(sliderX)
+        listenTo(sliderY)
+        listenTo(sliderZ)
+
+        reactions += {
+          case ValueChanged(s) => {
+            val slider = s.asInstanceOf[Slider]
+            slider.name match {
+              case "x" => {
+                planeWidgetX.SetSliceIndex(slider.value)
+              }
+              case "y" => {
+                planeWidgetY.SetSliceIndex(slider.value)
+              }
+              case "z" => {
+                planeWidgetZ.SetSliceIndex(slider.value)
+              }
+              case _ => {}
+            }
+            renWin.Render
+          }
+        }
+
+        val control = new BoxPanel(Orientation.Vertical) {
+          border = new BevelBorder(BevelBorder.LOWERED)
+          contents += new Label("Image Controls")
+          contents += new BoxPanel(Orientation.Vertical) {
+            contents += sliderX
+            contents += sliderY
+            contents += sliderZ
+          }
+        }
+        controlPanel.addControl(control)
+
+      }
+    }
+
+    private def colorCodeToAWTColor(c: Char): Try[Color] = {
+      c match {
+        case 'w' => Success(Color.WHITE)
+        case 'k' => Success(Color.BLACK)
+        case 'r' => Success(Color.RED)
+        case 'g' => Success(Color.GREEN)
+        case 'b' => Success(Color.BLUE)
+        case _ => Failure(new Exception("Invalid color code " + c))
+      }
+    }
+
+    def addPoints(pts: Seq[Point[ThreeD]], color: Char = 'w', size: Double = 2.0) = {
+      onEDT {
+        val sphereSrc = new vtkSphereSource()
+        sphereSrc.SetRadius(size)
+        val glyph = new vtkGlyph3D
+        val ptsVTK = new vtkPoints()
+        ptsVTK.SetNumberOfPoints(pts.size)
+        ptsVTK.Initialize()
+        for (pt <- pts) {
+          ptsVTK.InsertNextPoint(pt.data.map(_.toDouble))
+        }
+        val pd = new vtkPolyData()
+        pd.SetPoints(ptsVTK)
+        glyph.SetInputData(pd)
+        glyph.SetSourceConnection(sphereSrc.GetOutputPort())
+        var mapper = new vtkPolyDataMapper
+        mapper.SetInputConnection(glyph.GetOutputPort())
+        val actor = new vtkActor
+        actor.SetMapper(mapper)
+        val colorAWT = colorCodeToAWTColor(color).get
+        actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
+        renWin.GetRenderer.AddActor(actor)
+        resetSceneAndRender()
+      }
+    }
+
+    def resetSceneAndRender() {
+      renWin.GetRenderer.ResetCamera
+      renWin.Render
+    }
+  }
+
+  object VTKViewer {
+    def apply() = {
+      val app = new VTKViewer()
+      app.main(Array(""))
+      app
     }
   }
 
@@ -250,12 +404,6 @@ object Visualization {
     }
   }
 
-  def show(mesh: TriangleMesh) {
-    val vtkpd = MeshConversion.meshToVTKPolyData(mesh)
-    VTKMeshViewer(vtkpd).main(Array(""))
-    vtkpd.Delete()
-  }
-
   def show[D <: Dim, Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]): Unit = {
     val pixelConv = implicitly[ScalarPixel[Pixel]]
     val xs = img.domain.points.map(_(0).toDouble)
@@ -286,7 +434,7 @@ object Visualization {
     val f = Figure()
     val p = f.subplot(0)
 
-    val liftedImg = (x : Double) => img.liftPixelValue(Point1D(x.toFloat)).getOrElse(outsideValue.toFloat).toDouble
+    val liftedImg = (x: Double) => img.liftPixelValue(Point1D(x.toFloat)).getOrElse(outsideValue.toFloat).toDouble
     p += plot(xs, xs.map(x => liftedImg(x)))
     f.refresh
     f.visible = true
@@ -313,10 +461,15 @@ object Visualization {
   // testing purpose
   def main(args: Array[String]): Unit = {
     smptk.initialize()
-    val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
-    //val model = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
-    show(model)
+    //    val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
+    val mesh = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
+    val img = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img.h5")).get
+    val viewer = VTKViewer()
+    viewer.addImage(img)
+    viewer.addMesh(mesh, color = 'w')
+    viewer.addMesh(mesh.warp(p => p + Vector3D(150, 0, 0)), color = 'r')
+    val pts = IndexedSeq(mesh.points(10000), mesh.points(20000))
+    viewer.addPoints(pts, color = 'b', size = 2.0)
   }
-
 }
 
