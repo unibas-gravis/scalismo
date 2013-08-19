@@ -142,15 +142,14 @@ object Visualization {
 
         reactions += {
           case ValueChanged(s) => {
-            val slider = s.asInstanceOf[Slider]
-            slider.name match {
-              case "x" => {
+            s match {
+              case slider: Slider if slider == sliderX => {
                 planeWidgetX.SetSliceIndex(slider.value)
               }
-              case "y" => {
+              case slider: Slider if slider == sliderY => {
                 planeWidgetY.SetSliceIndex(slider.value)
               }
-              case "z" => {
+              case slider: Slider if slider == sliderZ => {
                 planeWidgetZ.SetSliceIndex(slider.value)
               }
               case _ => {}
@@ -461,15 +460,17 @@ object Visualization {
   // testing purpose
   def main(args: Array[String]): Unit = {
     smptk.initialize()
-    //    val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
+   // val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
     val mesh = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
     val img = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img.h5")).get
     val viewer = VTKViewer()
-    viewer.addImage(img)
+//    viewer.addImage(img)
     viewer.addMesh(mesh, color = 'w')
     viewer.addMesh(mesh.warp(p => p + Vector3D(150, 0, 0)), color = 'r')
     val pts = IndexedSeq(mesh.points(10000), mesh.points(20000))
     viewer.addPoints(pts, color = 'b', size = 2.0)
+//    val img2 = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img2.vtk")).get
+//    viewer.addImage(img2)
   }
 }
 
