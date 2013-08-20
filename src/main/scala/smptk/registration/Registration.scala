@@ -107,7 +107,7 @@ object Registration {
 
           val optimizer = configuration.optimizer
 
-          val optimalParameters = optimizer(configuration.initialParameters, costFunction)
+          val optimalParameters = optimizer.minimize(configuration.initialParameters, costFunction)
           RegistrationResult(transformationSpace(optimalParameters), optimalParameters)
 
         }

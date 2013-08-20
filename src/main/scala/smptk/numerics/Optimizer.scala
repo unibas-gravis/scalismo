@@ -6,30 +6,38 @@ import breeze.optimize.LBFGS
 import breeze.optimize.DiffFunction
 import breeze.util.logging.Logger.Level
 import breeze.optimize.StochasticGradientDescent
-
 import breeze.optimize.StochasticGradientDescent.SimpleSGD
+import scala.collection.Iterator
 
 trait CostFunction extends Function1[ParameterVector, (Float, DenseVector[Float])] {
   def onlyValue(p: ParameterVector): Double
 
 }
 
-trait OptimizationConfiguration { val progressUpdateOrNone: Option[Function2[DenseVector[Float], Int, Unit]] }
+trait OptimizationConfiguration { }
 
-trait Optimizer extends Function2[ParameterVector, CostFunction, ParameterVector] {}
+trait Optimizer {
+
+  case class State(iteration : Int, value: Double, gradient : DenseVector[Float], parameters: ParameterVector, stepLength : Double)
+
+  def minimize(x0: ParameterVector, c: CostFunction): ParameterVector
+}
 
 case class LBFGSOptimizerConfiguration(
   val numIterations: Int,
   val m: Int = 10,
-  val tolerance: Double = 1e-5,
-  progressUpdateOrNone: Option[Function2[DenseVector[Float], Int, Unit]] = None) extends OptimizationConfiguration
+  val tolerance: Double = 1e-5) extends OptimizationConfiguration
 
 case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Optimizer {
-  def apply(x0: ParameterVector, c: CostFunction): ParameterVector = {
+  def iterations(x0: ParameterVector, c: CostFunction): Iterator[State] = {
     optimize(x0, c)
   }
+  def minimize(x0: ParameterVector, c: CostFunction): ParameterVector = {
+    val it = iterations(x0, c)
+    it.toSeq.last.parameters
+  }
 
-  private def optimize(x0: ParameterVector, c: CostFunction): ParameterVector = {
+  private def optimize(x0: ParameterVector, c: CostFunction): Iterator[State] = {
     val f = new DiffFunction[DenseVector[Double]] {
       def calculate(x: DenseVector[Double]) = {
         val (v, g) = c(x.map(_.toFloat))
@@ -37,9 +45,8 @@ case class LBFGSOptimizer(configuration: LBFGSOptimizerConfiguration) extends Op
       }
     }
     val lbfgs = new LBFGS[DenseVector[Double]](maxIter = configuration.numIterations, m = configuration.m, tolerance = configuration.tolerance)
-    val optParams = lbfgs.minimize(f, x0.map(_.toDouble))
-
-    optParams.map(_.toFloat)
+    for (it <- lbfgs.iterations(f, x0.map(_.toDouble)))
+      yield (State(it.iter, it.value, it.grad.map(_.toFloat), it.x.map(_.toFloat), 0))
   }
 }
 
@@ -72,9 +79,7 @@ case class GradientDescentConfiguration(
   val stepLength: Double,
   val withLineSearch: Boolean = false,
   val robinsMonroe: Boolean = false,
-  val stepDecreaseCoeff: Double = 0.0,
-  val verbose: Boolean = true,
-  progressUpdateOrNone: Option[Function2[DenseVector[Float], Int, Unit]] = None) extends OptimizationConfiguration
+  val stepDecreaseCoeff: Double = 0.0) extends OptimizationConfiguration
 
 case class GradientDescentOptimizer(configuration: GradientDescentConfiguration) extends Optimizer {
 
@@ -115,8 +120,6 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
         fs(i) = fb
       }
     }
-    println("xs =" + xs.deep)
-    println("fs =" + fs.deep)
     val insideVals = xs.zip(fs).filter(f => f._2 != 0)
     val ixs = insideVals.map(t => t._1)
     val ifs = insideVals.map(t => t._2)
@@ -131,38 +134,34 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
   val stepLength = configuration.stepLength
   val numIterations = configuration.numIterations
 
-  def apply(x0: ParameterVector, c: CostFunction): ParameterVector = {
-    println("Starting optimization")
+  def iterations(x0: ParameterVector, c: CostFunction): Iterator[State] = {
     optimize(x0, c, 0)
   }
 
-  private def optimize(x: ParameterVector, c: CostFunction, it: Int): ParameterVector = {
-    val (newValue, gradient) = c(x)
-    println("iteration " + it + " Error value " + newValue)
-    if (configuration.verbose) {
-      println("iteration " + it + " parameterVector " + x)
-      println("iteration " + it + " gradient " + gradient)
-    }
-    
-    configuration.progressUpdateOrNone match {
-      case Some(f) => f(x,it)
-      case None => {}
-      
-    }
+  def minimize(x0: ParameterVector, c: CostFunction): ParameterVector = {
+    iterations(x0, c).toSeq.last.parameters
+  }
 
-    if (it >= numIterations) x
+  private def optimize(x: ParameterVector, c: CostFunction, it: Int): Iterator[State] = {
+    val (newValue, gradient) = c(x)
+
+
+    if (it >= numIterations) Iterator(State(it, newValue, gradient, x, stepLength))
     else {
+    
       if (configuration.withLineSearch) {
         val step = goldenSectionLineSearch(8, x, 0, stepLength, gradient, c)
-        if (configuration.verbose) println(s"Step size at iteration $it=$step")
-        optimize(x - gradient * step.toFloat, c, it + 1)
+        val newParam = x - gradient * step.toFloat
+        optimize(newParam, c, it + 1) ++ Iterator(State(it, newValue, gradient, newParam, step))
 
       } else if (configuration.robinsMonroe) {
         val step = configuration.stepLength / Math.pow(it + (configuration.numIterations * 0.1), configuration.stepDecreaseCoeff)
-        if (configuration.verbose) println(s"Step size at iteration $it=$step")
-        optimize(x - gradient * step.toFloat, c, it + 1)
-      } else
-        optimize(x - gradient * stepLength.toFloat, c, it + 1)
+        val newParam = x - gradient * step.toFloat
+        Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * step.toFloat, c, it + 1)
+      } else {
+        val newParam = x - gradient * stepLength.toFloat
+        Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * stepLength.toFloat, c, it + 1) 
+      }
     }
 
   }
