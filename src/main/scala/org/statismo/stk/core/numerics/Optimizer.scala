@@ -1,6 +1,6 @@
-package smptk.numerics
+package org.statismo.stk.core.numerics
 
-import smptk.registration.TransformationSpace.ParameterVector
+import org.statismo.stk.core.registration.TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.optimize.LBFGS
 import breeze.optimize.DiffFunction

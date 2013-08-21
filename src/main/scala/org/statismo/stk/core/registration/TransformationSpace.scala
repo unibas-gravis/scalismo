@@ -1,11 +1,11 @@
-package smptk
+package org.statismo.stk.core
 package registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 
 
 trait ValueCaching[D <: Dim] extends (Point[D] => Point[D]) {

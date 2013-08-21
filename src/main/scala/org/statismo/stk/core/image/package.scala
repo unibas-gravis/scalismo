@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 
 package object image {
   implicit val pixelFloatConversions = new ScalarPixel[Float] {

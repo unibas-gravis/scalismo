@@ -1,15 +1,15 @@
 
-package smptk
+package org.statismo.stk.core
 package registration
 
 import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
-import smptk.geometry._
-import smptk.image.ContinuousScalarImage
-import smptk.image.DiscreteImageDomain
-import smptk.numerics.Integrator
-import smptk.common.BoxedDomain
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.image.ContinuousScalarImage
+import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.common.BoxedDomain
 
 trait MetricConfiguration 
 

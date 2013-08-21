@@ -1,17 +1,17 @@
-package smptk.image
+package org.statismo.stk.core.image
 
 import Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import breeze.linalg.DenseVector
-import smptk.registration.TranslationSpace1D
-import smptk.registration.TranslationSpace2D
-import smptk.common.ImplicitDomain
-import smptk.common.ImplicitDomain1D
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain2D
+import org.statismo.stk.core.registration.TranslationSpace1D
+import org.statismo.stk.core.registration.TranslationSpace2D
+import org.statismo.stk.core.common.ImplicitDomain
+import org.statismo.stk.core.common.ImplicitDomain1D
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.common.BoxedDomain2D
 import scala.language.implicitConversions
 
 class ImageTest extends FunSpec with ShouldMatchers {

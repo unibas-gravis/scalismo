@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package object geometry {
   // additional information associate to the DIM Type
   sealed trait DimTraits[D <: Dim] {

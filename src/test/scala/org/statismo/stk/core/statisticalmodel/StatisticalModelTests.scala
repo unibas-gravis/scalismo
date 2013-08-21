@@ -1,16 +1,16 @@
-package smptk
+package org.statismo.stk.core
 package statisticalmodel
 
 import scala.language.implicitConversions
-import smptk.io.MeshIO
-import smptk.kernels._
+import org.statismo.stk.core.io.MeshIO
+import org.statismo.stk.core.kernels._
 import geometry._
 import geometry.implicits._
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.numerics.UniformSampler3D
+import org.statismo.stk.core.numerics.UniformSampler3D
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
@@ -18,7 +18,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
   describe("A statistical model") {
     it("yields the right mean and deformations when created from a discretized gp") {
-    	smptk.initialize()
+    	org.statismo.stk.core.initialize()
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
       val cov = UncorrelatedKernel3x3(GaussianKernel3D(100) * 100)

@@ -1,19 +1,19 @@
-package smptk.io
+package org.statismo.stk.core.io
 
-import smptk.image.Image._
+import org.statismo.stk.core.image.Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.image.Interpolation._
-import smptk.image._
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.image.Interpolation._
+import org.statismo.stk.core.image._
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
 
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
 
   describe("A 1D scalar image") {
     it("can be stored and read again") {

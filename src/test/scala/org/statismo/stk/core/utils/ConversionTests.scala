@@ -1,18 +1,18 @@
 
-package smptk.utils
+package org.statismo.stk.core.utils
 
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import vtk.vtkPolyDataReader
-import smptk._
-import smptk.io.MeshIO
-import smptk.io.ImageIO
+import org.statismo.stk.core._
+import org.statismo.stk.core.io.MeshIO
+import org.statismo.stk.core.io.ImageIO
 
 class ConversionTests extends FunSpec with ShouldMatchers {
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
 
   describe("a Mesh ") {
 

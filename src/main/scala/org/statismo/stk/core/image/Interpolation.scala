@@ -1,4 +1,4 @@
-package smptk.image
+package org.statismo.stk.core.image
 
 import scala.language.implicitConversions
 
@@ -6,7 +6,7 @@ import breeze.plot._
 import breeze.linalg._
 import scala.util._
 import java.io.IOException
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 import Image._
 import scala.reflect.runtime.universe.{ TypeTag }
 import scala.reflect.ClassTag

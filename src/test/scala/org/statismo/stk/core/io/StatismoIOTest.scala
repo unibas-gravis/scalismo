@@ -1,17 +1,17 @@
-package smptk.io
+package org.statismo.stk.core.io
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
-import smptk.geometry._
-import smptk.image.Utils
-import smptk.mesh.{TriangleMesh}
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.mesh.{TriangleMesh}
 
 class StatismoIOTest extends FunSpec with ShouldMatchers {
 
-    smptk.initialize()
+    org.statismo.stk.core.initialize()
   
   describe("a Statismo Mesh MOdel") {
     it("can be read") {

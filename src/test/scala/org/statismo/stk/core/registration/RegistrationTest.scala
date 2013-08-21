@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package registration
 
 import scala.language.implicitConversions
@@ -6,43 +6,43 @@ import org.scalatest.FunSpec
 import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
-import smptk.image.DiscreteImageDomain2D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
 import geometry._
 import geometry.implicits._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import breeze.plot.Figure
 import breeze.plot._
-import smptk.io.ImageIO
-import smptk.image.Interpolation
-import smptk.image.Image._
-import smptk.image.{ DiscreteImageDomain1D, ContinuousScalarImage3D, DiscreteImageDomain3D }
-import smptk.image.DiscreteScalarImage1D
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.GradientDescentConfiguration
-import smptk.numerics.LBFGSOptimizer
-import smptk.numerics.LBFGSOptimizerConfiguration
-import smptk.numerics.Integrator
-import smptk.numerics.IntegratorConfiguration
-import smptk.numerics.{ UniformDistributionRandomSampler2D, UniformDistributionRandomSampler3D }
-import smptk.image.Utils
-import smptk.numerics.UniformSampler3D
-import smptk.io.MeshIO
+import org.statismo.stk.core.io.ImageIO
+import org.statismo.stk.core.image.Interpolation
+import org.statismo.stk.core.image.Image._
+import org.statismo.stk.core.image.{ DiscreteImageDomain1D, ContinuousScalarImage3D, DiscreteImageDomain3D }
+import org.statismo.stk.core.image.DiscreteScalarImage1D
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.GradientDescentConfiguration
+import org.statismo.stk.core.numerics.LBFGSOptimizer
+import org.statismo.stk.core.numerics.LBFGSOptimizerConfiguration
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.numerics.IntegratorConfiguration
+import org.statismo.stk.core.numerics.{ UniformDistributionRandomSampler2D, UniformDistributionRandomSampler3D }
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.numerics.UniformSampler3D
+import org.statismo.stk.core.io.MeshIO
 import breeze.linalg.DenseMatrix
-import smptk.numerics.GradientDescentConfiguration
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.LBFGSOptimizer
-import smptk.numerics.LBFGSOptimizerConfiguration
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.GradientDescentConfiguration
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.GradientDescentConfiguration
+import org.statismo.stk.core.numerics.GradientDescentConfiguration
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.LBFGSOptimizer
+import org.statismo.stk.core.numerics.LBFGSOptimizerConfiguration
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.GradientDescentConfiguration
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.GradientDescentConfiguration
 
 class RegistrationTest extends FunSpec with ShouldMatchers {
   
   implicit def doubleToFloat(d : Double) =d.toFloat
   
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
       val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))

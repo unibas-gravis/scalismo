@@ -1,19 +1,19 @@
-package smptk.image
+package org.statismo.stk.core.image
 
 import Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import Interpolation._
 import org.scalatest.Ignore
-import smptk.io.ImageIO
+import org.statismo.stk.core.io.ImageIO
 import java.io.File
-import smptk.registration.RotationSpace2D
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.registration.RotationSpace2D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import breeze.linalg.DenseVector
 
 class ResampleTest extends FunSpec with ShouldMatchers {
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
 
   describe("Resampling a 2D image") {
 

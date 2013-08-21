@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package io
 
 import image.ScalarPixel
@@ -7,20 +7,20 @@ import scala.util.Try
 import scala.util.Failure
 import image.DiscreteScalarImage2D
 import java.io.File
-import smptk.image.DiscreteScalarImage2D
-import smptk.image.DiscreteScalarImage
+import org.statismo.stk.core.image.DiscreteScalarImage2D
+import org.statismo.stk.core.image.DiscreteScalarImage
 import scala.util.Success
-import smptk.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
+import org.statismo.stk.core.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
 import reflect.runtime.universe.{ TypeTag, typeOf }
-import smptk.image.DiscreteScalarImage2D
+import org.statismo.stk.core.image.DiscreteScalarImage2D
 import java.io.IOException
-import smptk.image.DiscreteImage
+import org.statismo.stk.core.image.DiscreteImage
 import scala.reflect.ClassTag
-import smptk.image.DiscreteScalarImage3D
-import smptk.image.DiscreteScalarImage1D
-import smptk.geometry._
+import org.statismo.stk.core.image.DiscreteScalarImage3D
+import org.statismo.stk.core.image.DiscreteScalarImage1D
+import org.statismo.stk.core.geometry._
 import vtk.vtkStructuredPointsReader
-import smptk.utils.ImageConversion
+import org.statismo.stk.core.utils.ImageConversion
 import vtk.vtkImageWriter
 import vtk.vtkImageData
 import vtk.vtkStructuredPointsWriter

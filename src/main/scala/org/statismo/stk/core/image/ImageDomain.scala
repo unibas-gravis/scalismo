@@ -1,9 +1,9 @@
-package smptk
+package org.statismo.stk.core
 package image
 
 import common.{ Domain, DiscreteDomain, BoxedDomain }
-import smptk.geometry._
-import smptk.common.BoxedDomain1D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.common.BoxedDomain1D
 
 
 

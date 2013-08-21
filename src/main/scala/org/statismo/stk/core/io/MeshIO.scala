@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package io
 
 import java.io.File
@@ -6,11 +6,11 @@ import mesh.TriangleMesh
 import scala.util.Try
 import mesh.TriangleCell
 import mesh.TriangleMesh
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 import scala.util.Failure
 import java.io.IOException
 import vtk.vtkPolyDataReader
-import smptk.utils.MeshConversion
+import org.statismo.stk.core.utils.MeshConversion
 import vtk.vtkPolyDataWriter
 import scala.util.Success
 

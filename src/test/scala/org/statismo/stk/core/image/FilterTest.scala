@@ -1,12 +1,12 @@
-package smptk.image
+package org.statismo.stk.core.image
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.numerics.Integrator
-import smptk.numerics.IntegratorConfiguration
-import smptk.numerics.{UniformSampler1D, UniformSampler2D, UniformSampler3D }
-import smptk.geometry._
-import smptk.image.Image._
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.numerics.IntegratorConfiguration
+import org.statismo.stk.core.numerics.{UniformSampler1D, UniformSampler2D, UniformSampler3D }
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.image.Image._
 
 
 class FilterTest extends FunSpec with ShouldMatchers {

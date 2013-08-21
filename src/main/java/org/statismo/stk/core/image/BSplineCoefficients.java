@@ -45,7 +45,7 @@
  | based on it.
  \===================================================================*/
 
-package smptk.image;
+package org.statismo.stk.core.image;
 
 public class BSplineCoefficients {
 

@@ -1,4 +1,4 @@
-package smptk.registration
+package org.statismo.stk.core.registration
 
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
@@ -6,22 +6,22 @@ import org.scalatest.matchers.ShouldMatchers
 import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
-import smptk.image._
-import smptk.image.Image._
-import smptk.io.ImageIO
+import org.statismo.stk.core.image._
+import org.statismo.stk.core.image.Image._
+import org.statismo.stk.core.io.ImageIO
 import breeze.linalg.DenseVector
 
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 
-import smptk.image.Utils
-import smptk.io.MeshIO
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.io.MeshIO
 
 class TransformationTests extends FunSpec with ShouldMatchers {
   
     implicit def doubleToFloat(d : Double) =d.toFloat
   
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
   
   describe("A scaling in 2D") {
     val ss = ScalingSpace2D()

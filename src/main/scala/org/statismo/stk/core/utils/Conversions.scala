@@ -1,16 +1,16 @@
-package smptk.utils
+package org.statismo.stk.core.utils
 
-import smptk.mesh.TriangleMesh
+import org.statismo.stk.core.mesh.TriangleMesh
 import vtk.vtkPolyData
 import vtk.vtkCellArray
 import vtk.vtkTriangle
 import vtk.vtkPoints
-import smptk.image.ScalarPixel
-import smptk.image.DiscreteScalarImage3D
-import smptk.image.DiscreteScalarImage2D
-import smptk.geometry.ThreeD
-import smptk.image.DiscreteScalarImage
-import smptk.geometry.TwoD
+import org.statismo.stk.core.image.ScalarPixel
+import org.statismo.stk.core.image.DiscreteScalarImage3D
+import org.statismo.stk.core.image.DiscreteScalarImage2D
+import org.statismo.stk.core.geometry.ThreeD
+import org.statismo.stk.core.image.DiscreteScalarImage
+import org.statismo.stk.core.geometry.TwoD
 import vtk.vtkStructuredPoints
 import vtk.vtkInformation
 import reflect.runtime.universe.{ TypeTag, typeOf }
@@ -24,19 +24,19 @@ import vtk.vtkIntArray
 import vtk.vtkLongArray
 import vtk.vtkFloatArray
 import vtk.vtkDoubleArray
-import smptk.geometry.Point3D
+import org.statismo.stk.core.geometry.Point3D
 import vtk.vtkIdList
-import smptk.mesh.TriangleCell
+import org.statismo.stk.core.mesh.TriangleCell
 import scala.util.Success
 import scala.util.Failure
-import smptk.geometry.Index3D
-import smptk.geometry.Vector3D
-import smptk.geometry.Vector2D
-import smptk.geometry.Point2D
-import smptk.geometry.Index2D
-import smptk.image.DiscreteImageDomain2D
+import org.statismo.stk.core.geometry.Index3D
+import org.statismo.stk.core.geometry.Vector3D
+import org.statismo.stk.core.geometry.Vector2D
+import org.statismo.stk.core.geometry.Point2D
+import org.statismo.stk.core.geometry.Index2D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
 import vtk.vtkDataArray
-import smptk.image.DiscreteImageDomain3D
+import org.statismo.stk.core.image.DiscreteImageDomain3D
 import vtk.vtkImageData
 
 object VTKHelpers {

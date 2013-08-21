@@ -1,4 +1,4 @@
-package smptk.geometry
+package org.statismo.stk.core.geometry
 
 import scala.language.implicitConversions
 import breeze.linalg.DenseVector

@@ -1,26 +1,26 @@
-package smptk
+package org.statismo.stk.core
 package statisticalmodel
 
 import common.BoxedDomain
 import breeze.linalg.{ DenseVector, DenseMatrix, linspace }
 import breeze.stats.distributions.Gaussian
-import smptk.common.DiscreteDomain
-import smptk.common.{ BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
-import smptk.numerics.{ UniformSampler1D, UniformSampler2D, UniformSampler3D }
-import smptk.io.MeshIO
-import smptk.mesh.TriangleMesh
-import smptk.image.Utils
+import org.statismo.stk.core.common.DiscreteDomain
+import org.statismo.stk.core.common.{ BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
+import org.statismo.stk.core.numerics.{ UniformSampler1D, UniformSampler2D, UniformSampler3D }
+import org.statismo.stk.core.io.MeshIO
+import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.image.Utils
 import java.io.File
-import smptk.numerics.UniformSampler1D
-import smptk.kernels._
-import smptk.numerics.UniformSampler1D
+import org.statismo.stk.core.numerics.UniformSampler1D
+import org.statismo.stk.core.kernels._
+import org.statismo.stk.core.numerics.UniformSampler1D
 import breeze.plot.{ plot, Figure }
-import smptk.image.DiscreteImageDomain
-import smptk.common.ImmutableLRU
+import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.common.ImmutableLRU
 import scala.collection.immutable.HashMap
-import smptk.geometry._
-import smptk.numerics.Sampler
-import smptk.numerics.UniformSampler3D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.numerics.Sampler
+import org.statismo.stk.core.numerics.UniformSampler3D
 
 case class GaussianProcess[D <: Dim: DimTraits](val domain: BoxedDomain[D], val mean: Point[D] => Vector[D], val cov: MatrixValuedPDKernel[D, D]) {
   val dimTraits = implicitly[DimTraits[D]]

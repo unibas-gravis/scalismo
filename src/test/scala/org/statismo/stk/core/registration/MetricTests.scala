@@ -1,17 +1,17 @@
-package smptk.registration
+package org.statismo.stk.core.registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.ContinuousScalarImage1D
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.ContinuousScalarImage1D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import breeze.linalg.DenseVector
-import smptk.registration.Metric._
-import smptk.numerics.Integrator
-import smptk.numerics.IntegratorConfiguration
-import smptk.numerics.UniformSampler1D
-import smptk.common.BoxedDomain1D
+import org.statismo.stk.core.registration.Metric._
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.numerics.IntegratorConfiguration
+import org.statismo.stk.core.numerics.UniformSampler1D
+import org.statismo.stk.core.common.BoxedDomain1D
 
 class IntegrationTest extends FunSpec with ShouldMatchers {
 

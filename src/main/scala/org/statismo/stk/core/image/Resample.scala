@@ -1,7 +1,7 @@
-package smptk
+package org.statismo.stk.core
 package image
 import Image._
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 import scala.reflect.ClassTag
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._

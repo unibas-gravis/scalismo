@@ -1,4 +1,4 @@
-package smptk.geometry
+package org.statismo.stk.core.geometry
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers

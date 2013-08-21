@@ -1,4 +1,4 @@
-package smptk.registration
+package org.statismo.stk.core.registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector

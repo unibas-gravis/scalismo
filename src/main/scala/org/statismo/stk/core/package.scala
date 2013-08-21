@@ -1,5 +1,8 @@
+package org.statismo.stk
+
 import org.statismo.support.nativelibs._
-package object smptk {
+
+package object core {
 
   var initialized = false
 

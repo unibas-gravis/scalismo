@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package image
 
 import breeze.plot._
@@ -8,19 +8,19 @@ import Image._
 //import ij.process.FloatProcessor
 //import ij.ImageStack
 //import ij.WindowManager
-import smptk.registration.Transformation
-import smptk.common.BoxedDomain
-import smptk.common.BoxedDomain2D
-import smptk.numerics.Integrator
-import smptk.common.BoxedDomain1D
-import smptk.io.ImageIO
-import smptk.io.MeshIO
+import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.io.ImageIO
+import org.statismo.stk.core.io.MeshIO
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import swing._
-import smptk.mesh.TriangleMesh
-import smptk.mesh.TriangleMesh
-import smptk.geometry._
+import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.geometry._
 
 object Utils {
 

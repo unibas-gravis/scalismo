@@ -1,4 +1,4 @@
-package smptk.io
+package org.statismo.stk.core.io
 
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
@@ -8,8 +8,8 @@ import org.scalatest.FailureMessages
 import scala.util.Failure
 import scala.util.Success
 import org.scalatest.exceptions.TestFailedException
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 
 class LandmarkIOTest extends FunSpec with ShouldMatchers {
   

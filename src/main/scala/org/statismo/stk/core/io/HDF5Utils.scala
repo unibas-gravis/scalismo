@@ -1,4 +1,4 @@
-package smptk.io
+package org.statismo.stk.core.io
 
 import java.io.File
 import ncsa.hdf.`object`._

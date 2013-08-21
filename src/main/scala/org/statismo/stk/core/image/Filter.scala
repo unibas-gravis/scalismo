@@ -1,10 +1,10 @@
-package smptk.image
+package org.statismo.stk.core.image
 
-import smptk.common.BoxedDomain
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain2D
-import smptk.common.BoxedDomain3D
-import smptk.geometry._
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.geometry._
 
 trait Filter[D <: Dim] extends Function1[Point[D], Float] {
   def support: BoxedDomain[D]

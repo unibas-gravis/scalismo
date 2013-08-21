@@ -1,4 +1,4 @@
-package smptk.io
+package org.statismo.stk.core.io
 
 import play.api.libs.json._
 import play.api.libs.functional._
@@ -6,12 +6,12 @@ import play.api.libs.functional.syntax._
 import breeze.linalg.DenseVector
 import play.api.data.validation.ValidationError
 import play.api.libs.json.Writes._
-import smptk.registration.RegistrationResult
-import smptk.geometry.TwoD
-import smptk.registration.TransformationSpace.ParameterVector
-import smptk.geometry.ThreeD
+import org.statismo.stk.core.registration.RegistrationResult
+import org.statismo.stk.core.geometry.TwoD
+import org.statismo.stk.core.registration.TransformationSpace.ParameterVector
+import org.statismo.stk.core.geometry.ThreeD
 import com.twitter.util.Eval
-import smptk.registration.RegistrationConfiguration
+import org.statismo.stk.core.registration.RegistrationConfiguration
 import java.io.File
 
 object RegistrationResultsIO {

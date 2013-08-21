@@ -1,10 +1,10 @@
-package smptk
+package org.statismo.stk.core
 package registration
 
 
 import registration.TransformationSpace.{ ParameterVector }
 import breeze.linalg.{ svd, DenseVector, DenseMatrix, mean, variance, Axis }
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 
 object LandmarkRegistration {
 

@@ -1,4 +1,4 @@
-package smptk.numerics
+package org.statismo.stk.core.numerics
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers

@@ -1,9 +1,9 @@
-package smptk.kernels
+package org.statismo.stk.core.kernels
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.geometry.Point1D
-import smptk.geometry.implicits._
+import org.statismo.stk.core.geometry.Point1D
+import org.statismo.stk.core.geometry.implicits._
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 

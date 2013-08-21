@@ -1,17 +1,17 @@
-package smptk.filters
+package org.statismo.stk.core.filters
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.geometry._
-import smptk.image.Image._
-import smptk.image.DiscreteScalarImage1D
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.DiscreteImageDomain2D
-import smptk.image.DiscreteScalarImage2D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.image.Image._
+import org.statismo.stk.core.image.DiscreteScalarImage1D
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.image.DiscreteScalarImage2D
 import scala.language.implicitConversions
 
 class DistanceTransformTests extends FunSpec with ShouldMatchers {
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
 
   implicit def doubleToFloat(d : Double) = d.toFloat
   

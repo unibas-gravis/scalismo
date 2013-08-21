@@ -4,7 +4,7 @@
 * https://github.com/thesamet/kdtree-scala
 */
 
-package smptk.mesh.kdtree
+package org.statismo.stk.core.mesh.kdtree
 
 import scala.annotation.tailrec
 import scala.math.Ordering.Implicits._

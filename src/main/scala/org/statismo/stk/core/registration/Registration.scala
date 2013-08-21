@@ -1,36 +1,36 @@
 
-package smptk.registration
+package org.statismo.stk.core.registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import smptk.image.ContinuousScalarImage
-import smptk.image.ContinuousVectorImage
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.LBFGSOptimizer
-import smptk.numerics.CostFunction
-import smptk.common.DiscreteDomain
-import smptk.image.DiscreteImageDomain
-import smptk.image.ContinuousScalarImage1D
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.ContinuousScalarImage2D
-import smptk.image.ContinuousScalarImage3D
-import smptk.image.DiscreteImageDomain2D
-import smptk.numerics.Optimizer
-import smptk.numerics.Integrator
-import smptk.numerics.IntegratorConfiguration
-import smptk.numerics.{Sampler, SampleOnceSampler}
-import smptk.image.DiscreteImageDomain3D
-import smptk.image.Utils
-import smptk.image.ContinuousScalarImage3D
-import smptk.image.DiscreteImage3D
-import smptk.image.DiscreteScalarImage3D
-import smptk.image.DiscreteImageDomain3D
-import smptk.common.BoxedDomain3D
-import smptk.common.BoxedDomain
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain2D
-import smptk.geometry._
+import org.statismo.stk.core.image.ContinuousScalarImage
+import org.statismo.stk.core.image.ContinuousVectorImage
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.LBFGSOptimizer
+import org.statismo.stk.core.numerics.CostFunction
+import org.statismo.stk.core.common.DiscreteDomain
+import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.image.ContinuousScalarImage1D
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.ContinuousScalarImage2D
+import org.statismo.stk.core.image.ContinuousScalarImage3D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.numerics.Optimizer
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.numerics.IntegratorConfiguration
+import org.statismo.stk.core.numerics.{Sampler, SampleOnceSampler}
+import org.statismo.stk.core.image.DiscreteImageDomain3D
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.image.ContinuousScalarImage3D
+import org.statismo.stk.core.image.DiscreteImage3D
+import org.statismo.stk.core.image.DiscreteScalarImage3D
+import org.statismo.stk.core.image.DiscreteImageDomain3D
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.geometry._
 
 case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector, configurationFileName : Option[String] = None) {}
 

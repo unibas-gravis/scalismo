@@ -1,13 +1,13 @@
-package smptk
+package org.statismo.stk.core
 package mesh
 
 import common.DiscreteDomain
-import smptk.common.BoxedDomain
-import smptk.common.BoxedDomain3D
-import smptk.registration.Transformation
-import smptk.geometry.{ Point, ThreeD, Point3D }
-import smptk.mesh.kdtree.KDTreeMap
-import smptk.common.Cell
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.geometry.{ Point, ThreeD, Point3D }
+import org.statismo.stk.core.mesh.kdtree.KDTreeMap
+import org.statismo.stk.core.common.Cell
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = Vector(ptId1, ptId2, ptId3)

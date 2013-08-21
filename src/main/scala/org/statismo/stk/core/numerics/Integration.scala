@@ -1,12 +1,12 @@
-package smptk.numerics
+package org.statismo.stk.core.numerics
 
-import smptk.image._
+import org.statismo.stk.core.image._
 import breeze.linalg.DenseVector
-import smptk.geometry._
-import smptk.image.DiscreteImageDomain
-import smptk.common.BoxedDomain
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain2D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.common.BoxedDomain2D
 
 //trait Sampler[D <: Dim] {  
 //  def sample(boxedRegion: BoxedDomain[D], numberOfPoints: Int): IndexedSeq[Point[D]]

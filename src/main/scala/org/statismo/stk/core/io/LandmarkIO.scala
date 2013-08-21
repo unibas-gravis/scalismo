@@ -1,11 +1,11 @@
-package smptk.io
+package org.statismo.stk.core.io
 
 import java.io.File
 import scala.util.Try
 import scala.io.Source
 import scala.util.Success
 import scala.util.Failure
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 
 object LandmarkIO {
 

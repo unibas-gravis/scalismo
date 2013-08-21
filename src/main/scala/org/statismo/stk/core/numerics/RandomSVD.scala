@@ -1,4 +1,4 @@
-package smptk.numerics
+package org.statismo.stk.core.numerics
 
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector

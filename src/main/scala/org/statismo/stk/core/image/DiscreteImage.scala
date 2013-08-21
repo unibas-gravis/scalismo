@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package image
 
 import scala.language.implicitConversions
@@ -11,7 +11,7 @@ import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import scala.reflect.ClassTag
 import scala.util.Random
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 
 abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteImageDomain[D]

@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package registration
 
 import scala.collection.immutable.{ Vector => SVector }
@@ -11,9 +11,9 @@ import java.io.File
 import breeze.linalg.DenseVector
 
 object Test {
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
   def resample3D() {
-    val path = "/home/bouabene/workspace/smptk/src/test/resources/chimp3D-11.h5"
+    val path = "/home/bouabene/workspace/org.statismo.stk.core/src/test/resources/chimp3D-11.h5"
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
     val continuousImage = Interpolation.interpolate(discreteImage, 0)
 

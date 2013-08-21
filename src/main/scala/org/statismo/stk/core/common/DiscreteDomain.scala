@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package common
 
 import scala.collection.SeqView

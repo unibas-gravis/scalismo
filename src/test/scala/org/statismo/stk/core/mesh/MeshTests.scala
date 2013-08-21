@@ -1,24 +1,24 @@
-package smptk.mesh
+package org.statismo.stk.core.mesh
 
 import scala.language.implicitConversions
-import smptk.io.MeshIO
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.io.MeshIO
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.registration.RotationSpace3D
+import org.statismo.stk.core.registration.RotationSpace3D
 import breeze.linalg.DenseVector
-import smptk.registration.ProductTransformationSpace
-import smptk.registration.ScalingSpace3D
-import smptk.registration.ScalingSpace3D
-import smptk.registration.RotationSpace3D
+import org.statismo.stk.core.registration.ProductTransformationSpace
+import org.statismo.stk.core.registration.ScalingSpace3D
+import org.statismo.stk.core.registration.ScalingSpace3D
+import org.statismo.stk.core.registration.RotationSpace3D
 
 class MeshTests extends FunSpec with ShouldMatchers {
   
     implicit def doubleToFloat(d : Double) = d.toFloat
   
-  smptk.initialize()
+  org.statismo.stk.core.initialize()
   describe("a mesh") {
     it("finds the right closest points for all the points that define the mesh") {
       val path = getClass().getResource("/facemesh.h5").getPath

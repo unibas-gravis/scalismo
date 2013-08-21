@@ -1,4 +1,4 @@
-package smptk.common;
+package org.statismo.stk.core.common;
 
 
 

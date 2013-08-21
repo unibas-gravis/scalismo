@@ -1,12 +1,12 @@
-package smptk.registration
+package org.statismo.stk.core.registration
 
-import smptk.numerics.Optimizer
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.GradientDescentOptimizer
-import smptk.image.DiscreteImageDomain
+import org.statismo.stk.core.numerics.Optimizer
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.image.DiscreteImageDomain
 import breeze.linalg.DenseVector
-import smptk.numerics.GradientDescentConfiguration
-import smptk.image.DiscreteImageDomain1D
+import org.statismo.stk.core.numerics.GradientDescentConfiguration
+import org.statismo.stk.core.image.DiscreteImageDomain1D
 
 
 

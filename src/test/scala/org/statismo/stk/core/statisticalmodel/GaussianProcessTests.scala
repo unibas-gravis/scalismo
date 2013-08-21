@@ -1,22 +1,22 @@
-package smptk.statisticalmodel
+package org.statismo.stk.core.statisticalmodel
 
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.geometry._
-import smptk.geometry.implicits._
-import smptk.numerics._
-import smptk.image.DiscreteImageDomain1D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.numerics._
+import org.statismo.stk.core.image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
-import smptk.image.DiscreteImageDomain2D
-import smptk.io.MeshIO
-import smptk.image.DiscreteImageDomain3D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.io.MeshIO
+import org.statismo.stk.core.image.DiscreteImageDomain3D
 import java.io.File
 import GaussianProcess._
-import smptk.kernels._
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain2D
-import smptk.common.BoxedDomain3D
+import org.statismo.stk.core.kernels._
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.common.BoxedDomain3D
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat

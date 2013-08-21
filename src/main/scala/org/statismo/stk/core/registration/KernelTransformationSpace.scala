@@ -1,28 +1,28 @@
-package smptk
+package org.statismo.stk.core
 package registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseMatrix
 import scala.NotImplementedError
 import breeze.linalg.DenseVector
-import smptk.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.DiscreteImageDomain1D
 import breeze.plot._
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.DiscreteImageDomain2D
-import smptk.image.Image._
-import smptk.image.DiscreteScalarImage1D
-import smptk.image.Interpolation
-import smptk.image.Utils
-import smptk.io.ImageIO
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.image.Image._
+import org.statismo.stk.core.image.DiscreteScalarImage1D
+import org.statismo.stk.core.image.Interpolation
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.io.ImageIO
 import java.io.File
-import smptk.image.DiscreteImageDomain
-import smptk.numerics.GradientDescentOptimizer
-import smptk.numerics.GradientDescentConfiguration
-import smptk.numerics.UniformSampler1D
-import smptk.numerics.UniformSampler2D
-import smptk.numerics.UniformSampler3D
-import smptk.statisticalmodel.LowRankGaussianProcess
-import smptk.geometry._
+import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.numerics.GradientDescentOptimizer
+import org.statismo.stk.core.numerics.GradientDescentConfiguration
+import org.statismo.stk.core.numerics.UniformSampler1D
+import org.statismo.stk.core.numerics.UniformSampler2D
+import org.statismo.stk.core.numerics.UniformSampler3D
+import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
+import org.statismo.stk.core.geometry._
 
 // TODO call them GaussianProcessTransformationSpace
 case class KernelTransformationSpaceConfiguration[D <: Dim](

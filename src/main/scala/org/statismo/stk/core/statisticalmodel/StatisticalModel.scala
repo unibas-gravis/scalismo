@@ -1,10 +1,10 @@
-package smptk
+package org.statismo.stk.core
 package statisticalmodel
 
-import smptk.mesh.TriangleMesh
+import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.linalg.{ DenseVector, DenseMatrix }
-import smptk.common.ImmutableLRU
-import smptk.geometry._
+import org.statismo.stk.core.common.ImmutableLRU
+import org.statismo.stk.core.geometry._
 
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh

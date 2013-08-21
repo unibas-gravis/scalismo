@@ -1,10 +1,10 @@
-package smptk.mesh
+package org.statismo.stk.core.mesh
 
-import smptk.image.ContinuousScalarImage3D
+import org.statismo.stk.core.image.ContinuousScalarImage3D
 import breeze.linalg.DenseVector
-import smptk.geometry.{Point, ThreeD}
-import smptk.common.RealSpace3D
-import smptk.geometry.Vector3D
+import org.statismo.stk.core.geometry.{Point, ThreeD}
+import org.statismo.stk.core.common.RealSpace3D
+import org.statismo.stk.core.geometry.Vector3D
 
 
 object Mesh {

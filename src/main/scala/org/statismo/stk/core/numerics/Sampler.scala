@@ -1,11 +1,11 @@
-package smptk
+package org.statismo.stk.core
 package numerics
 
-import smptk.common.BoxedDomain
-import smptk.geometry._
-import smptk.common.BoxedDomain2D
-import smptk.common.BoxedDomain1D
-import smptk.common.BoxedDomain3D
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.common.BoxedDomain3D
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim, +Pt <: Point[D]] {

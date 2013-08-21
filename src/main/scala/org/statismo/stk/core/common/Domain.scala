@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package common
 
 import geometry.{Point, Vector, Dim, OneD, TwoD, ThreeD, DimTraits}

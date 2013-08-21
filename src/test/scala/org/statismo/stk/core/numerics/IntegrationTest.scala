@@ -1,16 +1,16 @@
-package smptk.numerics
+package org.statismo.stk.core.numerics
 
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.ContinuousScalarImage1D
-import smptk.geometry._
-import smptk.geometry.implicits._
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.ContinuousScalarImage1D
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
 import breeze.linalg.DenseVector
-import smptk.image.DiscreteImageDomain2D
-import smptk.image.Utils
-import smptk.common.BoxedDomain1D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.common.BoxedDomain1D
 
 
 class IntegrationTest extends FunSpec with ShouldMatchers {

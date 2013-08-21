@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package io
 
 import java.io.File
@@ -9,10 +9,10 @@ import scala.util.Failure
 import scala.util.Success
 import scala.reflect.ClassTag
 import reflect.runtime.universe.{ TypeTag, typeOf }
-import smptk.mesh.TriangleCell
-import smptk.mesh.TriangleMesh
+import org.statismo.stk.core.mesh.TriangleCell
+import org.statismo.stk.core.mesh.TriangleMesh
 import statisticalmodel.StatisticalMeshModel
-import smptk.geometry._
+import org.statismo.stk.core.geometry._
 
 object StatismoIO {
 

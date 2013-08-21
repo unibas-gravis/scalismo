@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package utils
 
 import image.ScalarPixel
@@ -10,40 +10,40 @@ import scala.swing.Component
 import javax.swing.JPanel
 import java.awt.BorderLayout
 import scala.swing.MainFrame
-import smptk.image.DiscreteScalarImage1D
-import smptk.mesh.TriangleMesh
-import smptk.image.ContinuousScalarImage1D
-import smptk.image.DiscreteImageDomain1D
-import smptk.image.ContinuousVectorImage
-import smptk.image.DiscreteScalarImage2D
-import smptk.image.ContinuousScalarImage2D
-import smptk.image.DiscreteImageDomain2D
-import smptk.image.Resample
-import smptk.image._
-import smptk.common.BoxedDomain
+import org.statismo.stk.core.image.DiscreteScalarImage1D
+import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.image.ContinuousScalarImage1D
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.ContinuousVectorImage
+import org.statismo.stk.core.image.DiscreteScalarImage2D
+import org.statismo.stk.core.image.ContinuousScalarImage2D
+import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.image.Resample
+import org.statismo.stk.core.image._
+import org.statismo.stk.core.common.BoxedDomain
 import geometry._
 import scala.util.Try
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
-import smptk.common.{ BoxedDomain, BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
-import smptk.statisticalmodel.StatisticalMeshModel
+import org.statismo.stk.core.common.{ BoxedDomain, BoxedDomain1D, BoxedDomain2D, BoxedDomain3D }
+import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 import scala.swing.Slider
 import scala.swing.BoxPanel
 import scala.swing.Orientation
-import smptk.io.StatismoIO
+import org.statismo.stk.core.io.StatismoIO
 import scala.swing.event.ValueChanged
 import java.awt.geom.Dimension2D
 import java.awt.Dimension
 import scala.swing.Button
 import scala.swing.event.{ ButtonClicked }
-import smptk.io.MeshIO
+import org.statismo.stk.core.io.MeshIO
 import javax.swing.UIManager
 import javax.swing.WindowConstants.{ DISPOSE_ON_CLOSE, DO_NOTHING_ON_CLOSE }
 import scala.collection.mutable.ListBuffer
 import java.awt.Color
 import scala.util.Success
 import scala.util.Failure
-import smptk.io.ImageIO
+import org.statismo.stk.core.io.ImageIO
 import javax.swing.JLabel
 import scala.swing.Label
 import scala.swing.BorderPanel
@@ -459,7 +459,7 @@ object Visualization {
 
   // testing purpose
   def main(args: Array[String]): Unit = {
-    smptk.initialize()
+    org.statismo.stk.core.initialize()
    // val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
     val mesh = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
     val img = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img.h5")).get

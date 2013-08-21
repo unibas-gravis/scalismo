@@ -1,4 +1,4 @@
-package smptk
+package org.statismo.stk.core
 package image
 
 import scala.language.implicitConversions
@@ -11,10 +11,10 @@ import breeze.linalg.DenseMatrix
 import scala.reflect.ClassTag
 import scala.util.Random
 import registration.Transformation
-import smptk.numerics.Integrator
-import smptk.geometry._
-import smptk.common.Domain
-import smptk.common.ImplicitDomain
+import org.statismo.stk.core.numerics.Integrator
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.common.Domain
+import org.statismo.stk.core.common.ImplicitDomain
 
 /**
  * The generic interface for continuous images

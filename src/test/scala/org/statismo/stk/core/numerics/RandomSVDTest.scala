@@ -1,9 +1,9 @@
-package smptk.numerics
+package org.statismo.stk.core.numerics
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import smptk.kernels._
-import smptk.geometry._
+import org.statismo.stk.core.kernels._
+import org.statismo.stk.core.geometry._
 
 class RandomSVDTest extends FunSpec with ShouldMatchers {
 

@@ -1,23 +1,23 @@
-package smptk.registration
+package org.statismo.stk.core.registration
 
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
-import smptk.geometry._
-import smptk.geometry.implicits._
-import smptk.image.Utils
-import smptk.image._
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.image.Utils
+import org.statismo.stk.core.image._
 import breeze.linalg.DenseVector
-import smptk.io.ImageIO
+import org.statismo.stk.core.io.ImageIO
 import java.io.File
-import smptk.numerics._
+import org.statismo.stk.core.numerics._
 import breeze.stats.distributions.Uniform
-import smptk.image.ContinuousScalarImage2D
+import org.statismo.stk.core.image.ContinuousScalarImage2D
 import breeze.stats.distributions.Uniform
-import smptk.statisticalmodel.{LowRankGaussianProcessConfiguration}
-import smptk.kernels._
-import smptk.common._
+import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcessConfiguration}
+import org.statismo.stk.core.kernels._
+import org.statismo.stk.core.common._
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
 

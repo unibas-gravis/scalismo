@@ -4,10 +4,10 @@
 * https://github.com/thesamet/kdtree-scala
 */
 
-package smptk.mesh.kdtree
+package org.statismo.stk.core.mesh.kdtree
 
 import scala.math.Numeric.Implicits._
-import smptk.geometry.{Point, ThreeD}
+import org.statismo.stk.core.geometry.{Point, ThreeD}
 
 /** Metric is a trait whose instances each represent a way to measure distances between
   * instances of a type.

@@ -1,17 +1,17 @@
-package smptk
+package org.statismo.stk.core
 package kernels
 
 import breeze.linalg.{ pinv, diag, DenseMatrix }
-import smptk.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.DiscreteImageDomain1D
 import breeze.linalg.DenseVector
-import smptk.numerics.RandomSVD
-import smptk.image.DiscreteImageDomain
+import org.statismo.stk.core.numerics.RandomSVD
+import org.statismo.stk.core.image.DiscreteImageDomain
 import breeze.plot.Figure
-import smptk.numerics.Sampler
-import smptk.common.DiscreteDomain
-import smptk.common.BoxedDomain
-import smptk.common.ImmutableLRU
-import smptk.geometry._
+import org.statismo.stk.core.numerics.Sampler
+import org.statismo.stk.core.common.DiscreteDomain
+import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.ImmutableLRU
+import org.statismo.stk.core.geometry._
 
 abstract class PDKernel[D <: Dim] { self =>
   def apply(x: Point[D], y: Point[D]): Double
