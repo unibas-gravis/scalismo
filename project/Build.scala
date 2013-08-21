@@ -5,6 +5,7 @@ object BuildSettings {
   val buildOrganization = "org.statismo"
   val buildVersion = "0.1.0-SNAPSHOT"
   val buildScalaVersion = "2.10.2"
+  val publishURL = Resolver.file("file",  new File( "/export/contrib/statismo/repo" ))  
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
@@ -86,6 +87,7 @@ object STKBuild extends Build {
     file("."),
     settings = buildSettings ++ Seq(
         libraryDependencies ++= commonDeps,
-        resolvers ++= stkResolvers
+        resolvers ++= stkResolvers,
+        publishTo := Some(publishURL)        
         )) 
 }
