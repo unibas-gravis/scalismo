@@ -32,7 +32,7 @@ import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.geometry._
 
-case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector, configurationFileName : Option[String] = None) {}
+case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
 
 case class RegistrationConfiguration[D <: Dim](
   val optimizer: Optimizer,
