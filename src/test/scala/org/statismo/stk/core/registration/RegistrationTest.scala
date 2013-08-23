@@ -125,9 +125,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val translationParams = DenseVector[Float](-10.0, 5.0)
       val translationTransform = regConf.transformationSpace(translationParams)
       val transformedLena = fixedImage compose translationTransform
-      val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
+      val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
 
-      val regResult = registration(domain)
 
       (regResult.parameters(0) should be(translationParams(0) plusOrMinus 0.01))
       (regResult.parameters(1) should be(translationParams(1) plusOrMinus 0.01))
@@ -153,9 +152,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val rotationParams = DenseVector[Float](math.Pi/8.0)
       val transform = regConf.transformationSpace(rotationParams)
       val transformedLena = fixedImage compose transform
-      val registration = Registration.registration2D(regConf)(transformedLena, fixedImage)
+      val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
 
-      val regResult = registration(domain)
 
       (regResult.parameters(0) should be(rotationParams(0) plusOrMinus 0.01))
     }
@@ -187,8 +185,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
-      val registration = Registration.registration3D(regConf)(transformed, fixedImage)
-      val regResult = registration(domain)
+      val regResult = Registration.registration(regConf)(transformed, fixedImage)
       (regResult.parameters(0) should be(translationParams(0) plusOrMinus 0.01))
       (regResult.parameters(1) should be(translationParams(1) plusOrMinus 0.01))
       (regResult.parameters(2) should be(translationParams(2) plusOrMinus 0.01))
@@ -208,9 +205,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
-      val registration = Registration.registration3D(regConf)(transformed, fixedImage)
+      val regResult = Registration.registration(regConf)(transformed, fixedImage)
 
-      val regResult = registration(domain)
 
       val RegTransformed = fixedImage.compose(regResult.transform)
 
