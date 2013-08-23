@@ -9,7 +9,7 @@ import org.statismo.stk.core.geometry._
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh
  */
-class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProcess3D) {
+class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProcess[ThreeD]) {
 
   private val meshBB = mesh.boundingBox
   private val gpDomain = gp.domain
