@@ -12,11 +12,11 @@ import org.statismo.stk.core.common.BoxedDomain2D
 
 val space = RotationSpace2D(Point2D(0,0))
 val domain = BoxedDomain2D(Point2D(0,0),Point2D(10,10))
-
+val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain), 1000))
 val regConf1 = new RegistrationConfiguration[TwoD](optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.00001, false, true, 0.602)),
-  integrator = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain), 1000)),
+  integrator = integr,
        
-  metric = MeanSquaresMetric2D(),
+  metric = MeanSquaresMetric2D(integr),
   transformationSpace = space,
   regularizer = RKHSNormRegularizer,
   regularizationWeight = 0.0,
@@ -24,8 +24,8 @@ val regConf1 = new RegistrationConfiguration[TwoD](optimizer = GradientDescentOp
   
   
 val regConf2 = new RegistrationConfiguration[TwoD](optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.00001, false, true, 0.602)),
-  integrator = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain), 1000)),       
-  metric = MeanSquaresMetric2D(),
+  integrator = integr,       
+  metric = MeanSquaresMetric2D(integr),
   transformationSpace = TranslationSpace2D(),
   regularizer = RKHSNormRegularizer,
   regularizationWeight = 0.0,

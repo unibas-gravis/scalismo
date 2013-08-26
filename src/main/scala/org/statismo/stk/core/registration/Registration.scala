@@ -62,7 +62,7 @@ object Registration {
           val transformation = transformationSpace(params)
           val warpedImage = movingImage.compose(transformation)
 
-          configuration.metric(warpedImage, fixedImage)(configuration.integrator) + configuration.regularizationWeight * regularizer(params)
+          configuration.metric(warpedImage, fixedImage) + configuration.regularizationWeight * regularizer(params)
 
         }
         def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
@@ -78,7 +78,7 @@ object Registration {
           val transformation = transformationSpace(params)
           val warpedImage = movingImage.compose(transformation)
 
-          val errorVal = configuration.metric(warpedImage, fixedImage)(integrationStrategy)
+          val errorVal = configuration.metric(warpedImage, fixedImage)
           val value = errorVal + configuration.regularizationWeight * regularizer(params)
 
           // compute the derivative of the cost function

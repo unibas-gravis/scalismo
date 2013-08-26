@@ -23,7 +23,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
         (x: Point[OneD]) => x * x,
         Some((x: Point[OneD]) => Vector1D(2f) * x(0)))
       val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(domain), 1000))
-      MeanSquaresMetric1D()(img, img)(integrator) should be(0.0 plusOrMinus 0.001)
+      MeanSquaresMetric1D(integrator)(img, img) should be(0.0 plusOrMinus 0.001)
     }
   }
 }

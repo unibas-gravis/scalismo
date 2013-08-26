@@ -16,38 +16,31 @@ trait MetricConfiguration
 
 trait ImageMetric[D <: Dim] {
   type Repr  = ContinuousScalarImage[D]
-  def apply(img1: Repr, img2: Repr) :  (Integrator[D]) => Double
+  def apply(img1: Repr, img2: Repr) : Double
 
   def takeDerivativeWRTToMovingImage(fixedImage: Repr, movingImage: Repr): ContinuousScalarImage[D]
 }
 
-trait ImageMetric1D extends  ImageMetric[OneD] {
-}
 
-trait ImageMetric2D extends  ImageMetric[TwoD] {
-}
-
-trait ImageMetric3D extends  ImageMetric[ThreeD] {
-}
 
 //case class MeanSquaresMetricConfiguration extends MetricConfiguration 
 
-trait MeanSquaresMetric[D <: Dim] extends ImageMetric[D] {
+abstract class MeanSquaresMetric[D <: Dim](val integrator : Integrator[D]) extends ImageMetric[D] {
  // val configuration : MetricConfiguration
   type CImg = ContinuousScalarImage[D]
-
+  
   def apply(img1: CImg,  img2: CImg) = {
-    (integrator : Integrator[D]) => integrator.integrateScalar((img1 - img2).square)  
+   integrator.integrateScalar((img1 - img2).square) / integrator.sampler.volumeOfSampleRegion
   }
   def takeDerivativeWRTToMovingImage(img1: CImg,  img2: CImg) = {
-    (img1 - img2) * 2f
+    (img1 - img2) * (2f  / integrator.sampler.volumeOfSampleRegion)
   }
   
 }
 
-case class MeanSquaresMetric1D() extends ImageMetric1D with MeanSquaresMetric[OneD] 
-case class MeanSquaresMetric2D() extends ImageMetric2D with MeanSquaresMetric[TwoD]
-case class MeanSquaresMetric3D() extends ImageMetric3D with MeanSquaresMetric[ThreeD]
+case class MeanSquaresMetric1D(override val integrator: Integrator[OneD]) extends  MeanSquaresMetric[OneD](integrator)
+case class MeanSquaresMetric2D(override val integrator: Integrator[TwoD]) extends MeanSquaresMetric[TwoD](integrator)
+case class MeanSquaresMetric3D(override val integrator: Integrator[ThreeD]) extends MeanSquaresMetric[ThreeD](integrator)
 
 object Metric {
 }
