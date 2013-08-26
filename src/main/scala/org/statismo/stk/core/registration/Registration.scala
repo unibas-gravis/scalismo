@@ -47,7 +47,7 @@ case class RegistrationConfiguration[D <: Dim](
 
 object Registration {
 
-  case class RegistrationState[D <: Dim](iteration : Int, transform : Transformation[D], optimizerState : Optimizer#State)
+  case class RegistrationState[D <: Dim](iteration : Int, registrationResult : RegistrationResult[D], optimizerState : Optimizer#State)
   
   def iterations[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
@@ -109,7 +109,9 @@ object Registration {
       optimizer.iterations(configuration.initialParameters, costFunction).map { optimizerState =>
         val optParams = optimizerState.parameters
         val transformation = transformationSpace(optParams)
-        RegistrationState(optimizerState.iteration, transformation, optimizerState)        
+
+        val regRes = RegistrationResult(transformation, optParams)
+        RegistrationState(optimizerState.iteration, regRes, optimizerState)
       }
     }
 
@@ -118,9 +120,7 @@ object Registration {
     movingImage: ContinuousScalarImage[D]): RegistrationResult[D] =
     {
         val regStates = iterations(configuration)(fixedImage, movingImage)
-        val lastRegState = regStates.toSeq.last
-        RegistrationResult(lastRegState.transform, lastRegState.optimizerState.parameters)
+        regStates.toSeq.last.registrationResult      
     }
-
 
 }
