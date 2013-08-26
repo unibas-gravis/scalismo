@@ -106,12 +106,11 @@ object Registration {
       }
 
       val optimizer = configuration.optimizer
-      for (optimizerState <- optimizer.iterations(configuration.initialParameters, costFunction)) yield {
+      optimizer.iterations(configuration.initialParameters, costFunction).map { optimizerState =>
         val optParams = optimizerState.parameters
         val transformation = transformationSpace(optParams)
-        RegistrationState(optimizerState.iteration, transformation, optimizerState)
+        RegistrationState(optimizerState.iteration, transformation, optimizerState)        
       }
-
     }
 
   def registration[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
