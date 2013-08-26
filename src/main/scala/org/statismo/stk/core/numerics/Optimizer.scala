@@ -20,6 +20,7 @@ trait Optimizer {
 
   case class State(iteration : Int, value: Double, gradient : DenseVector[Float], parameters: ParameterVector, stepLength : Double)
 
+  def iterations(x0: ParameterVector, c: CostFunction): Iterator[State]
   def minimize(x0: ParameterVector, c: CostFunction): ParameterVector
 }
 
