@@ -40,8 +40,6 @@ object Resolvers {
   val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
   val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   val twitter = "twitter" at "http://maven.twttr.com/"
-  val mandubianSnapshots = "Mandubian repository snapshots" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots/"
-  val mandubian = "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/releases/"
   val statismoSnapshot = "statismo" at "file:///export/contrib/statismo/repo"
   
   val stkResolvers = Seq(sonatypeSnapshots, imagej, twitter, mandubianSnapshots, mandubian, statismoSnapshot )
@@ -58,7 +56,6 @@ object Dependencies {
   val scalaSwing = "org.scala-lang" % "scala-swing" % "2.10.0"
   val twitterUtilCollection = "com.twitter" % "util-collection" % "5.3.10"
   val twitterUtilEval = "com.twitter" %% "util-eval" % "6.2.4"
-  val playJson = "play" %% "play-json" % "2.2-SNAPSHOT"
   val statismoNativelibs = "org.statismo" %% "nativelibs" % "0.1.0-SNAPSHOT"
 }
 
