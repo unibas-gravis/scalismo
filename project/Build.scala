@@ -42,7 +42,7 @@ object Resolvers {
   val twitter = "twitter" at "http://maven.twttr.com/"
   val statismoSnapshot = "statismo" at "file:///export/contrib/statismo/repo"
   
-  val stkResolvers = Seq(sonatypeSnapshots, imagej, twitter, mandubianSnapshots, mandubian, statismoSnapshot )
+  val stkResolvers = Seq(sonatypeSnapshots, imagej, twitter, statismoSnapshot )
 }
 
 object Dependencies {
@@ -75,7 +75,6 @@ object STKBuild extends Build {
     scalaSwing,
     twitterUtilCollection,
     twitterUtilEval,
-    playJson,
     statismoNativelibs)
 
 
