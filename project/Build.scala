@@ -79,7 +79,7 @@ object STKBuild extends Build {
 
 
   lazy val cdap2 = Project(
-    "stk",
+    "stk.core",
     file("."),
     settings = buildSettings ++ Seq(
         libraryDependencies ++= commonDeps,
