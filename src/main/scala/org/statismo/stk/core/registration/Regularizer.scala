@@ -9,7 +9,7 @@ trait Regularizer extends (ParameterVector => Double) {
 }
 
 object RKHSNormRegularizer extends Regularizer {
-	def apply(alpha : ParameterVector) = alpha.norm(2)
+	def apply(alpha : ParameterVector) = { val t = alpha.norm(2);  t*t}
   
-  def takeDerivative(alpha : ParameterVector) = alpha
+  def takeDerivative(alpha : ParameterVector) = alpha * 2f
 }
