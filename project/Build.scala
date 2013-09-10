@@ -1,11 +1,12 @@
 import sbt._
 import Keys._
-
+import com.typesafe.sbteclipse.plugin.EclipsePlugin._
+        
 object BuildSettings {
   val buildOrganization = "org.statismo"
   val buildVersion = "0.1.0-SNAPSHOT"
   val buildScalaVersion = "2.10.2"
-  val publishURL = Resolver.file("file",  new File( "/export/contrib/statismo/repo" ))  
+  val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
@@ -41,8 +42,8 @@ object Resolvers {
   val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   val twitter = "twitter" at "http://maven.twttr.com/"
   val statismoSnapshot = "statismo" at "file:///export/contrib/statismo/repo"
-  
-  val stkResolvers = Seq(sonatypeSnapshots, imagej, twitter, statismoSnapshot )
+
+  val stkResolvers = Seq(sonatypeSnapshots, imagej, twitter, statismoSnapshot)
 }
 
 object Dependencies {
@@ -77,13 +78,12 @@ object STKBuild extends Build {
     twitterUtilEval,
     statismoNativelibs)
 
-
   lazy val cdap2 = Project(
     "stkcore",
     file("."),
     settings = buildSettings ++ Seq(
-        libraryDependencies ++= commonDeps,
-        resolvers ++= stkResolvers,
-        publishTo := Some(publishURL)        
-        )) 
+      libraryDependencies ++= commonDeps,
+      resolvers ++= stkResolvers,
+      publishTo := Some(publishURL),
+      EclipseKeys.withSource := true))
 }
