@@ -86,6 +86,7 @@ object Visualization {
       }
 
       peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+      peer.setSize(800, 600)
       override def closeOperation() { dispose() }
     }
 
@@ -189,13 +190,15 @@ object Visualization {
         sphereSrc.SetRadius(size)
         val glyph = new vtkGlyph3D
         val ptsVTK = new vtkPoints()
-        ptsVTK.SetNumberOfPoints(pts.size)
-        ptsVTK.Initialize()
         for (pt <- pts) {
           ptsVTK.InsertNextPoint(pt.data.map(_.toDouble))
         }
+        val cells = new vtkCellArray()
+        cells.SetNumberOfCells(0)
+
         val pd = new vtkPolyData()
         pd.SetPoints(ptsVTK)
+        pd.SetPolys(cells)
         glyph.SetInputData(pd)
         glyph.SetSourceConnection(sphereSrc.GetOutputPort())
         var mapper = new vtkPolyDataMapper
@@ -209,10 +212,93 @@ object Visualization {
       }
     }
 
-    def resetSceneAndRender() {
-      renWin.GetRenderer.ResetCamera
-      renWin.Render
+    def addStatisticalModel(statmodel: StatisticalMeshModel, color: Char = 'w', numberOfBars: Int = 40) = {
+
+      // TODO do cleanup
+
+      val numPoints = statmodel.mesh.numberOfPoints
+      val gp = statmodel.gp.specializeForPoints(statmodel.mesh.points.toIndexedSeq)
+      val barchartActor = new vtkBarChartActor
+      val bccoeffArray = new vtkFloatArray
+      val coeffsVector = DenseVector.zeros[Float](statmodel.gp.rank)
+      val bcDataObject = new vtkDataObject();
+      val pd = MeshConversion.meshToVTKPolyData(statmodel.mesh)
+      val ng = new vtkPolyDataNormals
+      var mapper = new vtkPolyDataMapper
+      var actor = new vtkActor
+
+      onEDT {
+        bccoeffArray.SetNumberOfTuples(numberOfBars + 1) // we add a "ghost bar"
+        bccoeffArray.SetNumberOfComponents(1)
+        bcDataObject.GetFieldData().AddArray(bccoeffArray);
+
+        barchartActor.SetInput(bcDataObject)
+        barchartActor.SetLegendVisibility(0)
+        barchartActor.SetPosition(0, 0)
+        barchartActor.SetWidth(1)
+        barchartActor.SetHeight(0.2)
+        barchartActor.SetDisplayPosition(100, 0)
+        barchartActor.SetLabelVisibility(0)
+
+        ng.SetInputData(pd)
+        ng.Update()
+
+        mapper.SetInputConnection(ng.GetOutputPort())
+
+        actor.SetMapper(mapper)
+        renWin.GetRenderer.AddActor2D(barchartActor)
+        renWin.GetRenderer.AddActor(actor)
+
+        updateCoeffs(coeffsVector) // render the mean
+        renWin.GetRenderer.ResetCamera
+      }
+      def updateCoeffs(coeffs: DenseVector[Float]) {
+        onEDT {
+          val ptdefs = gp.instanceAtPoints(coeffs)
+          val newptseq = for ((pt, df) <- ptdefs) yield (Array((pt(0) + df(0)).toFloat, (pt(1) + df(1)).toFloat, (pt(2) + df(2)).toFloat))
+          val ptarray = newptseq.flatten
+          val arrayVTK = new vtkFloatArray()
+          arrayVTK.SetNumberOfValues(numPoints)
+          arrayVTK.SetNumberOfComponents(3)
+          arrayVTK.SetJavaArray(ptarray.toArray)
+
+          pd.GetPoints().SetData(arrayVTK)
+          pd.Modified()
+
+          val array = coeffs(0 until numberOfBars + 1).toArray
+          array(numberOfBars) = 8
+          bccoeffArray.SetJavaArray(array)
+          bccoeffArray.Modified()
+          bcDataObject.Modified()
+
+          // update bc array
+          val colorAWT = colorCodeToAWTColor(color).get
+          for (i <- 0 until numberOfBars) {
+            if (coeffs(i) < 0)
+              barchartActor.SetBarColor(i, 0, 1, 0)
+            else
+              barchartActor.SetBarColor(i, 1, 0, 0)
+          }
+          barchartActor.SetBarColor(numberOfBars, 0, 0, 0) // the last one is only to set the scale. it should not be shown
+
+          barchartActor.Modified()
+          renWin.Render()
+        }
+      }
+
+      resetSceneAndRender()
+
+      updateCoeffs _
+
     }
+
+    def resetSceneAndRender() {
+      onEDT {
+        renWin.GetRenderer.ResetCamera
+        renWin.Render
+      }
+    }
+
   }
 
   object VTKViewer {
@@ -284,6 +370,7 @@ object Visualization {
       title = "ScaleImageViewer"
       contents = scalaPanel
       peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+      peer.setSize(800, 600)
       override def closeOperation() { dispose() }
 
     }
@@ -460,17 +547,25 @@ object Visualization {
   // testing purpose
   def main(args: Array[String]): Unit = {
     org.statismo.stk.core.initialize()
-   // val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
-    val mesh = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
-    val img = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img.h5")).get
+    val model = StatismoIO.readStatismoMeshModel(new java.io.File("/tmp/facemodel.h5")).get
+    //val mesh = MeshIO.readMesh(new java.io.File("/tmp/facemesh.h5")).get
+    //    val img = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img.h5")).get
+
     val viewer = VTKViewer()
-//    viewer.addImage(img)
-    viewer.addMesh(mesh, color = 'w')
-    viewer.addMesh(mesh.warp(p => p + Vector3D(150, 0, 0)), color = 'r')
-    val pts = IndexedSeq(mesh.points(10000), mesh.points(20000))
+    ////    viewer.addImage(img)
+    val updateFun = viewer.addStatisticalModel(model, color = 'w')
+
+    val pts = IndexedSeq(model.mesh.points(10000), model.mesh.points(20000))
     viewer.addPoints(pts, color = 'b', size = 2.0)
-//    val img2 = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img2.vtk")).get
-//    viewer.addImage(img2)
+
+    for (i <- 0 until 20) {
+      Thread.sleep(1000)
+      val coeffs = for (_ <- 0 until model.gp.rank) yield breeze.stats.distributions.Gaussian(0, 1).draw().toFloat
+      updateFun(DenseVector(coeffs.toArray))
+    }
+    //    viewer.addMesh(mesh.warp(p => p + Vector3D(150, 0, 0)), color = 'r')
+    //    val img2 = ImageIO.read3DScalarImage[Short](new java.io.File("/tmp/img2.vtk")).get
+    //    viewer.addImage(img2)
   }
 }
 
