@@ -90,21 +90,22 @@ object Visualization {
       override def closeOperation() { dispose() }
     }
 
-    def addMesh(mesh: TriangleMesh, color: Char = 'w') = {
+    def addMesh(mesh: TriangleMesh, color: Char = 'w'): vtkActor = {
+      val pd = MeshConversion.meshToVTKPolyData(mesh)
+      var mapper = new vtkPolyDataMapper
+      var actor = new vtkActor
+
       onEDT {
-        val pd = MeshConversion.meshToVTKPolyData(mesh)
-        var mapper = new vtkPolyDataMapper
         mapper.SetInputData(pd)
         mapper.ScalarVisibilityOff()
 
-        var actor = new vtkActor
         actor.SetMapper(mapper)
         val colorAWT = colorCodeToAWTColor(color).get
         actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
         renWin.GetRenderer.AddActor(actor)
         resetSceneAndRender()
-
       }
+      actor
     }
 
     def addImage[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) = {
@@ -184,35 +185,39 @@ object Visualization {
       }
     }
 
-    def addPoints(pts: Seq[Point[ThreeD]], color: Char = 'w', size: Double = 2.0) = {
+    def addPoints(pts: Seq[Point[ThreeD]], color: Char = 'w', size: Double = 2.0): vtkActor = {
+      val sphereSrc = new vtkSphereSource()
+      val glyph = new vtkGlyph3D
+      val ptsVTK = new vtkPoints()
+      val cells = new vtkCellArray()
+      val pd = new vtkPolyData()
+      var mapper = new vtkPolyDataMapper
+      val actor = new vtkActor
+
       onEDT {
-        val sphereSrc = new vtkSphereSource()
+
         sphereSrc.SetRadius(size)
-        val glyph = new vtkGlyph3D
-        val ptsVTK = new vtkPoints()
         for (pt <- pts) {
           ptsVTK.InsertNextPoint(pt.data.map(_.toDouble))
         }
-        val cells = new vtkCellArray()
+
         cells.SetNumberOfCells(0)
 
-        val pd = new vtkPolyData()
         pd.SetPoints(ptsVTK)
         pd.SetPolys(cells)
         glyph.SetInputData(pd)
         glyph.SetSourceConnection(sphereSrc.GetOutputPort())
-        var mapper = new vtkPolyDataMapper
         mapper.SetInputConnection(glyph.GetOutputPort())
-        val actor = new vtkActor
         actor.SetMapper(mapper)
         val colorAWT = colorCodeToAWTColor(color).get
         actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
         renWin.GetRenderer.AddActor(actor)
         resetSceneAndRender()
       }
+      actor
     }
 
-    def addStatisticalModel(statmodel: StatisticalMeshModel, color: Char = 'w', numberOfBars: Int = 40) = {
+    def addStatisticalModel(statmodel: StatisticalMeshModel, color: Char = 'w', numberOfBars: Int = 40) : Tuple2[vtkActor, DenseVector[Float] => Unit] = {
 
       // TODO do cleanup
 
@@ -288,8 +293,7 @@ object Visualization {
 
       resetSceneAndRender()
 
-      updateCoeffs _
-
+      (actor, updateCoeffs _)
     }
 
     def resetSceneAndRender() {
@@ -553,7 +557,7 @@ object Visualization {
 
     val viewer = VTKViewer()
     ////    viewer.addImage(img)
-    val updateFun = viewer.addStatisticalModel(model, color = 'w')
+    val (modelActor, updateFun) = viewer.addStatisticalModel(model, color = 'w')
 
     val pts = IndexedSeq(model.mesh.points(10000), model.mesh.points(20000))
     viewer.addPoints(pts, color = 'b', size = 2.0)
