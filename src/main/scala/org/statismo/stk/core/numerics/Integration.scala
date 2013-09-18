@@ -91,7 +91,7 @@ import org.statismo.stk.core.common.BoxedDomain2D
 //  def sampledPoints = points
 //}
 
-case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D, Point[D]], numberOfPoints: Int)
+case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D, Point[D]])
 
 case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguration[D]) {
 
@@ -104,11 +104,11 @@ case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguratio
   }
 
   def integrateScalar(f: Function1[Point[D], Option[Float]]): Float = {
-    val samples = configuration.sampler.sample(configuration.numberOfPoints)
+    val samples = configuration.sampler.sample
 
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * 1f / p.toFloat }.sum
 
-    sum / (configuration.numberOfPoints - 1).toFloat
+    sum / (sampler.numberOfPoints - 1).toFloat
   }
 
   def integrateVector(img: ContinuousVectorImage[D]): Vector[D] = {
@@ -116,19 +116,19 @@ case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguratio
   }
 
   def integrateVector(f: Function1[Point[D], Option[Vector[D]]]): Vector[D] = {
-    val samples = configuration.sampler.sample(configuration.numberOfPoints)
+    val samples = configuration.sampler.sample
 
     val zeroVector = dimtraits.zeroVector
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1f / p.toFloat) }.foldLeft(zeroVector)((a, b) => { a + b })
-    sum * (1f / (configuration.numberOfPoints - 1).toFloat)
+    sum * (1f / (sampler.numberOfPoints - 1).toFloat)
   }
 
   def integrateVector(f: Function1[Point[D], Option[DenseVector[Float]]], dimensionality: Int): DenseVector[Float] = {
-    val samples = configuration.sampler.sample(configuration.numberOfPoints)
+    val samples = configuration.sampler.sample
 
     val zeroVector = DenseVector.zeros[Float](dimensionality)
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1f / p.toFloat) }.foldLeft(zeroVector)((a, b) => { a + b })
-    sum * (1f / (configuration.numberOfPoints - 1).toFloat)
+    sum * (1f / (sampler.numberOfPoints - 1).toFloat)
   }
 
 }

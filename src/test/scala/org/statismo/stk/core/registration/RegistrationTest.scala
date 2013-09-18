@@ -113,7 +113,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain), 4000))
+      val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
       val regConf = RegistrationConfiguration[TwoD](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
@@ -141,7 +141,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain), 4000))
+      val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
       val regConf = RegistrationConfiguration[TwoD](
         //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(300, 1e-4)),
@@ -178,7 +178,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace3D()(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val integr = Integrator[ThreeD](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain), 20000))
+      val integr = Integrator[ThreeD](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 20000)))
       val regConf = RegistrationConfiguration[ThreeD](
 
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
@@ -200,7 +200,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val rotationTransform = RotationSpace3D(center)(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
       
-      val integr = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(domain), 10000))
+      val integr = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 10000)))
       val regConf = RegistrationConfiguration[ThreeD](
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(400, 2e-12)),
         integrator = integr,

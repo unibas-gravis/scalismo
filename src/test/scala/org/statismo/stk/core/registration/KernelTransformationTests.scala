@@ -30,9 +30,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(20))
       val domain = BoxedDomain1D(-5.0, 195.0)
 
-      val sampler = UniformSampler1D(domain)
+      val sampler = UniformSampler1D(domain, 500)
 
-      val eigPairs = Kernel.computeNystromApproximation(kernel, 100, 500, sampler)
+      val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
       def approxKernel(x: Point[OneD], y: Point[OneD]) = {
         (0 until eigPairs.size).foldLeft(0.0)((sum, i) => {
@@ -41,7 +41,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         })
       }
 
-      for ((x, _) <- sampler.sample(10); (y,_) <- sampler.sample(10)) {
+      for ((x, _) <- sampler.sample; (y,_) <- sampler.sample) {
         val v1 = kernel(x, y)(0, 0)
         val v2 = approxKernel(x, y)
         (v2.toFloat should be(v1 plusOrMinus 0.001f))
@@ -54,10 +54,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val kernelDim = 1
       val scalarKernel = UncorrelatedKernel1x1(GaussianKernel1D(10))
       val domain = BoxedDomain1D(0.0,10.0)
-      val sampler = UniformSampler1D(domain)
-      val numPoints = 500
-      val (points, _) = sampler.sample(numPoints).unzip
-      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, 10, numPoints, sampler)
+      val numPoints =500
+      val sampler = UniformSampler1D(domain, numPoints)
+      val (points, _) = sampler.sample.unzip
+      val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, 10, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
       
       val realKernelMatrix = DenseMatrix.zeros[Double](numPoints * kernelDim, numPoints * kernelDim)
@@ -80,10 +80,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val scalarKernel = GaussianKernel2D(10)
       val ndKernel = UncorrelatedKernel2x2(scalarKernel)
       val domain = BoxedDomain2D((0.0, 0.0),  (5.0, 5.0))
-      val sampler = UniformSampler2D(domain)
-      val (pts, _) = sampler.sample(20*20).unzip
+      val sampler = UniformSampler2D(domain, 400)
+      val (pts, _) = sampler.sample.unzip
 
-      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, 10, 400, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, 10, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
   
       
@@ -103,11 +103,11 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(1.0))
       val domain = BoxedDomain1D(-5.0,5.0)
-      val sampler = UniformSampler1D(domain)
+      val sampler = UniformSampler1D(domain, 500)
 
-      val eigPairs = Kernel.computeNystromApproximation(kernel, 100, 500, sampler)
+      val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
-      val integrator = Integrator(IntegratorConfiguration(sampler, 20 * 20))
+      val integrator = Integrator(IntegratorConfiguration(sampler))
 
       for (i <- 0 until 20) {
 

@@ -150,14 +150,14 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim : DimTraits](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, numPointsForNystrom: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim : DimTraits](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
     val volumeOfSampleRegion = sampler.volumeOfSampleRegion
 
-    val (ptsForNystrom, _) = sampler.sample(numPointsForNystrom).unzip
+    val (ptsForNystrom, _) = sampler.sample.unzip
 
     // deppending on the sampler, it may happen that we did not sample all the points we wanted 
     val effectiveNumberOfPointsSampled = ptsForNystrom.size

@@ -53,8 +53,7 @@ case class LowRankGaussianProcessConfiguration[D <: Dim](
   val sampler: Sampler[D, Point[D]],
   val mean: Point[D] => Vector[D],
   val cov: MatrixValuedPDKernel[D, D],
-  val numBasisFunctions: Int,
-  val numPointsForNystrom: Int)
+  val numBasisFunctions: Int)
 
 abstract class LowRankGaussianProcess[D <: Dim: DimTraits] {
 
@@ -201,17 +200,17 @@ class LowRankGaussianProcess3D(
 object GaussianProcess {
 
   def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions,configuration.sampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[TwoD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess2D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[ThreeD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.numPointsForNystrom, configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess3D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
@@ -331,11 +330,10 @@ object GaussianProcess {
 
     val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
       region,
-      UniformSampler3D(region),
+      UniformSampler3D(region, 300),
       (x: Point[ThreeD]) => Vector3D(0f, 0f, 0f),
       cov,
-      20,
-      300)
+      20)
     val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
 
     val specializedGP = gp.specializeForPoints(meshPoints.toIndexedSeq)

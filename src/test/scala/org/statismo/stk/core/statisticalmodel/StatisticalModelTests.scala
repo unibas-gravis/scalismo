@@ -14,11 +14,11 @@ import org.statismo.stk.core.numerics.UniformSampler3D
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
-  implicit def doubleToFloat(d : Double) = d.toFloat
+  implicit def doubleToFloat(d: Double) = d.toFloat
 
   describe("A statistical model") {
     it("yields the right mean and deformations when created from a discretized gp") {
-    	org.statismo.stk.core.initialize()
+      org.statismo.stk.core.initialize()
       val path = getClass().getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
       val cov = UncorrelatedKernel3x3(GaussianKernel3D(100) * 100)
@@ -27,25 +27,24 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val region = mesh.boundingBox
       val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
         region,
-        UniformSampler3D(region),
+        UniformSampler3D(region, 8 * 8 * 8),
         (x: Point[ThreeD]) => Vector3D(0.0, 0.0, 0.0),
         cov,
-        20,
-        8 * 8 * 8)
+        20)
       val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
       val specializedGP = gp.specializeForPoints(mesh.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
-      
+
       var mVec = DenseVector.zeros[Float](mesh.numberOfPoints * 3)
       var U = DenseMatrix.zeros[Float](mesh.numberOfPoints * 3, phis.size)
       for ((pt, ptId) <- mesh.points.toIndexedSeq.par.zipWithIndex) {
         val mAtPt = gp.mean(pt)
         val phisAtPt = phis.map(phi => phi(pt))
         for (d <- 0 until 3) {
-        	mVec(ptId * 3 + d) = mAtPt(d) 
-        	for (i <- 0 until phis.size) { 
-        	  U(ptId * 3 + d, i) = phisAtPt(i)(d)
-        	}
+          mVec(ptId * 3 + d) = mAtPt(d)
+          for (i <- 0 until phis.size) {
+            U(ptId * 3 + d, i) = phisAtPt(i)(d)
+          }
         }
       }
       val statMeshModel = StatisticalMeshModel(mesh, mVec, DenseVector[Float](lambdas.toArray), U)
