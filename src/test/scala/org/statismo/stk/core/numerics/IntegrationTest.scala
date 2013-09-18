@@ -23,7 +23,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => Vector1D(2f) * x(0) ))  
 
       val domain = BoxedDomain1D(-1.0, 1.0)
-      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain), 1000))  
+      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain, 1000)))  
     
       val res = integrator.integrateScalar(img)
       res should be((1.0 / 3.0).toFloat plusOrMinus 0.001)
@@ -37,7 +37,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
           )
 
       val domain = BoxedDomain1D(-math.Pi, math.Pi)
-      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain), 1000))  
+      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain, 1000)))  
         
       val res = integrator.integrateScalar(img)
       res should be(0.0f plusOrMinus 0.001)
@@ -53,8 +53,8 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val region1 = BoxedDomain1D(-1.0, 1.0) 
       val region2 = BoxedDomain1D(-8.0, 8.0)
       
-      val integrator1 = Integrator(IntegratorConfiguration(UniformSampler1D(region1), 1000))  
-      val integrator2 = Integrator(IntegratorConfiguration(UniformSampler1D(region2), 1000))
+      val integrator1 = Integrator(IntegratorConfiguration(UniformSampler1D(region1, 1000)))  
+      val integrator2 = Integrator(IntegratorConfiguration(UniformSampler1D(region2, 1000)))
       val res1 = integrator1.integrateScalar(img)
       val res2 = integrator2.integrateScalar(img)
       

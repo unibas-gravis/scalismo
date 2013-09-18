@@ -49,6 +49,7 @@ import scala.swing.Label
 import scala.swing.BorderPanel
 import javax.swing.border.EmptyBorder
 import javax.swing.border.BevelBorder
+import java.io.File
 object Visualization {
 
   class VTKViewer() extends SimpleSwingApplication {
@@ -156,7 +157,9 @@ object Visualization {
               }
               case _ => {}
             }
+            renWin.lock()
             renWin.Render
+            renWin.unlock()
           }
         }
 
@@ -210,17 +213,18 @@ object Visualization {
         mapper.SetInputConnection(glyph.GetOutputPort())
         actor.SetMapper(mapper)
         val colorAWT = colorCodeToAWTColor(color).get
-        actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
+        actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)        
         renWin.GetRenderer.AddActor(actor)
         resetSceneAndRender()
       }
       actor
     }
 
-    def addStatisticalModel(statmodel: StatisticalMeshModel, color: Char = 'w', numberOfBars: Int = 40) : Tuple2[vtkActor, DenseVector[Float] => Unit] = {
+    def addStatisticalModel(statmodel: StatisticalMeshModel, color: Char = 'w', numberOfBars: Int = 40): Tuple2[vtkActor, DenseVector[Float] => Unit] = {
 
       // TODO do cleanup
-
+      // TODO this method currently does not work if the number of coefficients is smaller than the number of bars
+      // TODO placement of barchartActor depending on number of bars and window width
       val numPoints = statmodel.mesh.numberOfPoints
       val gp = statmodel.gp.specializeForPoints(statmodel.mesh.points.toIndexedSeq)
       val barchartActor = new vtkBarChartActor
@@ -242,9 +246,12 @@ object Visualization {
         barchartActor.SetPosition(0, 0)
         barchartActor.SetWidth(1)
         barchartActor.SetHeight(0.2)
-        barchartActor.SetDisplayPosition(100, 0)
+        barchartActor.SetDisplayPosition(60, 0)
         barchartActor.SetLabelVisibility(0)
 
+        val bgColor = renWin.GetRenderer().GetBackground()
+        barchartActor.GetLabelTextProperty().SetColor(bgColor(0), bgColor(1), bgColor(2))
+        barchartActor.GetProperty().SetColor(bgColor(0), bgColor(1), bgColor(2))
         ng.SetInputData(pd)
         ng.Update()
 
@@ -269,9 +276,11 @@ object Visualization {
 
           pd.GetPoints().SetData(arrayVTK)
           pd.Modified()
-
           val array = coeffs(0 until numberOfBars + 1).toArray
-          array(numberOfBars) = 8
+
+          // set the last coefficient to a values that is unlieklie to be N(0,1), in order to callibrate the axis
+          // (vtk does not support to set the axis limits)
+          array(numberOfBars) = 10
           bccoeffArray.SetJavaArray(array)
           bccoeffArray.Modified()
           bcDataObject.Modified()
@@ -284,10 +293,13 @@ object Visualization {
             else
               barchartActor.SetBarColor(i, 1, 0, 0)
           }
-          barchartActor.SetBarColor(numberOfBars, 0, 0, 0) // the last one is only to set the scale. it should not be shown
+          val bgColor = renWin.GetRenderer().GetBackground()
+          barchartActor.SetBarColor(numberOfBars, bgColor(0), bgColor(1), bgColor(2)) // the last one is only to set the scale. it should not be shown
 
           barchartActor.Modified()
+          renWin.lock()
           renWin.Render()
+          renWin.unlock()
         }
       }
 
@@ -299,8 +311,28 @@ object Visualization {
     def resetSceneAndRender() {
       onEDT {
         renWin.GetRenderer.ResetCamera
+        renWin.lock()
         renWin.Render
+        renWin.unlock()
       }
+    }
+    
+    def saveScreenshot(outputfile : File) : Unit = {
+
+      onEDT {
+        val winToImg = new vtkWindowToImageFilter
+
+        renWin.lock()
+        winToImg.SetInput(renWin.GetRenderWindow())
+        winToImg.Update()
+
+        val writer = new vtkPNGWriter
+        writer.SetInputConnection(winToImg.GetOutputPort())
+        writer.SetFileName(outputfile.getAbsolutePath())
+        writer.Write()
+        renWin.unlock()
+
+      }    
     }
 
   }
