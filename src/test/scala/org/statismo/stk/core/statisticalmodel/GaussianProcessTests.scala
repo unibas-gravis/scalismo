@@ -86,6 +86,34 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         df should equal(gpInstance(pt))
       }
     }
+
+    it("yields the same result for gp regression as a normal gp") {
+      val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 8 * 8 * 8), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
+      val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
+
+      val trainingData = IndexedSeq((Point3D(-3.0, -3.0, -1.0), Vector3D(1.0, 1.0, 2.0)), (Point3D(-1.0, 3.0, 0.0), Vector3D(0.0, -1.0, 0.0)))
+      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
+
+      // do the same with a specialized
+      val sampler = UniformSampler3D(domain, 3 * 3 * 3)
+      val specializedPoints = sampler.sample.map(_._1)
+      val specializedGp = gp.specializeForPoints(specializedPoints)
+      val specializedPosteriorGP: SpecializedLowRankGaussianProcess[ThreeD] = GaussianProcess.regression(specializedGp, trainingData, 1e-5, false)
+
+      val meanPosterior = posteriorGP.mean
+      val meanPosteriorSpecialized = specializedPosteriorGP.mean
+      val phi1Posterior = posteriorGP.eigenPairs(0)._2
+      val phi1PosteriorSpezialized = specializedPosteriorGP.eigenPairs(0)._2
+      
+      // both posterior processes should give the same values at the specialized points
+      for (pt <- specializedPoints) {
+        for (d <- 0 until 3) {
+          meanPosterior(pt)(d) should be(meanPosteriorSpecialized(pt)(d) plusOrMinus 1e-5)
+          phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(pt)(d) plusOrMinus 1e-5)
+        }
+      }
+    }
   }
 
 }
