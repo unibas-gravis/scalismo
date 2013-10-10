@@ -161,12 +161,14 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
   private def precomputeGPAtPoints = {
 
     val m = DenseVector.zeros[Float](points.size * gp.outputDim)
-    for ((x, i) <- points.zipWithIndex.par) {
+    for (xWithIndex <- points.zipWithIndex.par) {
+      val (x, i) = xWithIndex
       m(i * gp.outputDim until (i + 1) * gp.outputDim) := gp.mean(x).toBreezeVector
     }
 
     val U = DenseMatrix.zeros[Float](points.size * gp.outputDim, gp.rank)
-    for ((x, i) <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
+    for (xWithIndex <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
+      val (x, i) = xWithIndex
       val v = phi_j(x)
       U(i * gp.outputDim until (i + 1) * gp.outputDim, j) := phi_j(x).toBreezeVector
     }
