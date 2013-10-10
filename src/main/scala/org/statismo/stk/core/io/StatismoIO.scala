@@ -46,7 +46,7 @@ object StatismoIO {
       cellMat = ndArrayToMatrix(cellArray)
       cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
       cellArray <- h5file.readNDArray[Int]("/representer/cells")
-      mesh = TriangleMesh(points, cells)
+      mesh = TriangleMesh(points, cells)      
       _ <- Try{h5file.close()}
     } yield {
         // statismo stores the mean as the point position and not as a displaceme
@@ -54,11 +54,18 @@ object StatismoIO {
       def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
-
       // statismo stores the pcaBasisMatrix: each column corresponds to phi_i * sqrt(lambda_i)
       // we recover phi_i from it
       val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) (1.0 / math.sqrt(l)).toFloat else 0f)
-      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv))
+
+      // efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
+      // (diag returns densematrix, so the direct computation would be very slow)
+      val pcaBasisNormalized = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
+      for (i <- 0 until pcaBasisMatrix.cols) {
+        pcaBasisNormalized(::, i) := pcaBasisMatrix(::,i) * lambdaSqrtInv(i)
+      }
+      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisNormalized)
+      
     }
 
     modelOrFailure
