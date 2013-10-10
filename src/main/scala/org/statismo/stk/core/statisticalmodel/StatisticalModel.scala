@@ -60,7 +60,11 @@ object StatisticalMeshModel {
     }
 
     val eigenPairs = (0 until numPCAComponents) map (i => (pcaVariance(i), phi(i)_))
-
-    new StatisticalMeshModel(mesh, new LowRankGaussianProcess3D(mesh.boundingBox, 3, mean, eigenPairs))
+    val gp = new LowRankGaussianProcess3D(mesh.boundingBox, 3, mean, eigenPairs) 
+    val lambdas = pcaVariance.toArray.toIndexedSeq
+    
+    // the most common use case is, that we evaluate the process as the mehs points. Hence we specialize on them
+    val specializedGP = new SpecializedLowRankGaussianProcess(gp, mesh.points.toIndexedSeq, meanVec, lambdas, phiMat)
+    new StatisticalMeshModel(mesh, specializedGP)
   }
 }
