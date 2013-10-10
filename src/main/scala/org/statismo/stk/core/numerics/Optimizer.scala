@@ -4,7 +4,6 @@ import org.statismo.stk.core.registration.TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.optimize.LBFGS
 import breeze.optimize.DiffFunction
-import breeze.util.logging.Logger.Level
 import breeze.optimize.StochasticGradientDescent
 import breeze.optimize.StochasticGradientDescent.SimpleSGD
 import scala.collection.Iterator

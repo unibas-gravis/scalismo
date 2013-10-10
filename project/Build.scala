@@ -39,20 +39,19 @@ object ShellPrompt {
 
 object Resolvers {
   val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
+  val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
   val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   val twitter = "twitter" at "http://maven.twttr.com/"
   val statismoSnapshot = "statismo" at "file:///export/contrib/statismo/repo"
 
-  val stkResolvers = Seq(sonatypeSnapshots, imagej, twitter, statismoSnapshot)
+  val stkResolvers = Seq(sonatypeSnapshots, sonatypeRelease, imagej, twitter, statismoSnapshot)
 }
 
 object Dependencies {
 
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze-math" % "0.2"
-  val breezeLearn = "org.scalanlp" %% "breeze-learn" % "0.2"
-  val breezeProcess = "org.scalanlp" %% "breeze-process" % "0.2"
-  val breezeViz = "org.scalanlp" %% "breeze-viz" % "0.2"
+  val breezeMath = "org.scalanlp" %% "breeze-math" % "0.4"
+  val breezeViz = "org.scalanlp" %% "breeze-viz" % "0.4"
   val scalaReflect = "org.scala-lang" % "scala-reflect" % "2.10.0"
   val scalaSwing = "org.scala-lang" % "scala-swing" % "2.10.0"
   val twitterUtilCollection = "com.twitter" % "util-collection" % "5.3.10"
@@ -69,8 +68,6 @@ object STKBuild extends Build {
   val commonDeps = Seq(
     scalatest,
     breezeMath,
-    breezeLearn,
-    breezeProcess,
     breezeViz,
     scalaReflect,
     scalaSwing,
