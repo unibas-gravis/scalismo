@@ -96,35 +96,38 @@ abstract class LowRankGaussianProcess[D <: Dim: DimTraits] {
    * pre-computed and hence fast to obtain
    */
   def specializeForPoints(points: IndexedSeq[Point[D]]) = {
-    new SpecializedLowRankGaussianProcess(this, points)
-
+    SpecializedLowRankGaussianProcess(this, points)
   }
 }
 
-class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]])
+class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], val points: IndexedSeq[Point[D]], val meanVector: DenseVector[Float], val lambdas: IndexedSeq[Float], val eigenMatrix: DenseMatrix[Float])
   extends LowRankGaussianProcess[D] {
 
   val dimTraits = implicitly[DimTraits[D]]
 
   private val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
   private val pointToIdxMap = points.zipWithIndex.toMap
-  private val (meanVec, lambdas, eigenMatrix) = precomputeGPAtPoints
-
   private val stddev = DenseVector(lambdas.map(x => math.sqrt(x).toFloat).toArray)
   private val phis = (0 until lambdas.size).map(i => phiAtPoint(i)_)
 
+  // define all fields required to qualify as a "ordinary" LowRankGaussianProcess
   override val domain = gp.domain
   override val outputDim = gp.outputDim
-
   override val eigenPairs = lambdas.zip(phis)
   override val mean = meanAtPoint _
 
   def instanceAtPoints(alpha: DenseVector[Float]): IndexedSeq[(Point[D], Vector[D])] = {
-    require(eigenPairs.size == alpha.size)
-    // (this corresponds to eigenMatrix * diag(stddef) * alpha + meanVec, but is more efficient
-    val instVal = eigenMatrix * (stddev :* alpha) + meanVec
+    require(eigenPairs.size == alpha.size) 
+    val instVal = instanceVector(alpha)
     val ptVals = for (v <- instVal.toArray.grouped(outputDim)) yield dimTraits.createVector(v)
     points.zip(ptVals.toIndexedSeq)
+  }
+
+  def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
+    require(eigenPairs.size == alpha.size)
+    // (this corresponds to eigenMatrix * diag(stddef) * alpha + meanVec, but is more efficient
+    eigenMatrix * (stddev :* alpha) + meanVector
+
   }
 
   def sampleAtPoints: IndexedSeq[(Point[D], Vector[D])] = {
@@ -137,7 +140,7 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
       case Some(ptId) => {
         // we need the copy here, as otherwise vec.data will be the array of the  
         // original vector (from which we extracted a slice)
-        val vec = meanVec(ptId * outputDim until (ptId + 1) * outputDim).copy
+        val vec = meanVector(ptId * outputDim until (ptId + 1) * outputDim).copy
         dimTraits.createVector(vec.data)
       }
       case None => gp.mean(pt)
@@ -156,22 +159,27 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
       case None => gpPhis(i)(pt)
     }
   }
+}
 
-  // precompute mean and basis vectors for the given points
-  private def precomputeGPAtPoints = {
+object SpecializedLowRankGaussianProcess {
+  def apply[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]]) = {
 
+    // precompute all the at the given points
+    val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
     val m = DenseVector.zeros[Float](points.size * gp.outputDim)
-    for ((x, i) <- points.zipWithIndex.par) {
+    for (xWithIndex <- points.zipWithIndex.par) {
+      val (x, i) = xWithIndex
       m(i * gp.outputDim until (i + 1) * gp.outputDim) := gp.mean(x).toBreezeVector
     }
 
     val U = DenseMatrix.zeros[Float](points.size * gp.outputDim, gp.rank)
-    for ((x, i) <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
+    for (xWithIndex <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
+      val (x, i) = xWithIndex
       val v = phi_j(x)
       U(i * gp.outputDim until (i + 1) * gp.outputDim, j) := phi_j(x).toBreezeVector
     }
 
-    (m, gpLambdas, U)
+    new SpecializedLowRankGaussianProcess(gp, points, m, gpLambdas, U)
   }
 
 }
@@ -200,7 +208,7 @@ class LowRankGaussianProcess3D(
 object GaussianProcess {
 
   def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions,configuration.sampler)
+    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
@@ -214,8 +222,123 @@ object GaussianProcess {
     new LowRankGaussianProcess3D(configuration.domain, configuration.cov.outputDim, configuration.mean, eigenPairs)
   }
 
+   /**
+   * Full Gausssian process regression for a specialzed GP 
+   */
+  def regression[D <: Dim: DimTraits](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double) : SpecializedLowRankGaussianProcess[D]= { 
+    regression(gp, trainingData, sigma2, false)
+  }
+  
+  
+  
+  /**
+   * Gausssian process regression for a specialzed GP. 
+   * This implementation explicitly returns a SpecializedLowRankGaussainProcess  
+   * TODO the implementation is almost the same as for the standard regression. Maybe they couuld be merged 
+   */
+  def regression[D <: Dim: DimTraits](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean): SpecializedLowRankGaussianProcess[D] = {
+
+    val dimTraits = implicitly[DimTraits[D]]
+    def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
+
+    val (xs, ys) = trainingData.unzip
+
+    val yVec = flatten(ys)
+    val meanValues = xs.map(gp.mean)
+    val mVec = flatten(meanValues)
+
+    val d = gp.outputDim
+    val (lambdas, phis) = gp.eigenPairs.unzip
+
+    // TODO that the dimensionality is okay
+    val Q = DenseMatrix.zeros[Double](trainingData.size * d, phis.size)
+    for ((x_i, i) <- xs.zipWithIndex; (phi_j, j) <- phis.zipWithIndex) {
+      Q(i * d until i * d + d, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
+    }
+
+    val M = Q.t * Q + DenseMatrix.eye[Double](phis.size) * sigma2
+    val Minv = breeze.linalg.pinv(M)
+    val mean_coeffs = (Minv * Q.t).map(_.toFloat) * (yVec - mVec)
+
+    gp.instanceAtPoints(mean_coeffs)
+
+    val mean_p = gp.instance(mean_coeffs)
+    val mean_pVector = gp.instanceVector(mean_coeffs)
+
+    if (meanOnly == true) {
+      // create an empty gaussian process (not specialized), which is needed in order to be able to construct 
+      // the specialized one
+      val emptyEigenPairs = IndexedSeq[(Float, Point[D] => Vector[D])]()
+      val meanOnlyGp = new LowRankGaussianProcess[D] {
+        val domain = gp.domain
+        val outputDim = gp.outputDim
+        val mean = mean_p
+        val eigenPairs = emptyEigenPairs
+      }
+    
+      new SpecializedLowRankGaussianProcess[D](meanOnlyGp,
+         gp.points,
+        mean_pVector,
+        IndexedSeq[Float](), 
+        DenseMatrix.zeros[Float](mean_pVector.size, 0) 
+      )
+    } else {
+      val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
+      val Sigma = D * Minv * D * sigma2
+      val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
+      val innerU = innerUDbl.map(_.toFloat)
+      @volatile
+      var phisAtXCache = ImmutableLRU[Point[D], DenseMatrix[Float]](1000)
+
+      def phip(i: Int)(x: Point[D]): Vector[D] = { // should be phi_p but _ is treated as partial function
+        val (maybePhisAtX, newPhisAtXCache) = phisAtXCache.get(x)
+        val phisAtX = maybePhisAtX.getOrElse {
+          val newPhisAtX = {
+            val innerPhisAtx = DenseMatrix.zeros[Float](d, gp.rank)
+            var j = 0;
+            while (j < phis.size) {
+              val phi_j = phis(j)
+              innerPhisAtx(0 until d, j) := phi_j(x).toBreezeVector
+              j += 1
+            }
+            innerPhisAtx
+          }
+          phisAtXCache = (phisAtXCache + (x, newPhisAtX))._2 // ignore evicted key
+          newPhisAtX
+        }
+        val vec = phisAtX * innerU(::, i)
+        dimTraits.createVector(vec.data)
+      }
+
+      val phis_p = for (i <- 0 until phis.size) yield (x => phip(i)(x))
+      val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
+      val unspecializedGP = new LowRankGaussianProcess[D] {
+        val domain = gp.domain
+        val outputDim = gp.outputDim
+        val mean = mean_p
+        val eigenPairs = lambdas_p.zip(phis_p)
+      }
+      // we do the follwoing computation
+      // val eigenMatrix_p = gp.eigenMatrix * innerU // IS this correct?
+      // but in parallel
+      val eigenMatrix_p = DenseMatrix.zeros[Float](gp.eigenMatrix.rows, innerU.cols)
+      for (rowInd <- (0 until gp.eigenMatrix.rows).par) {
+        eigenMatrix_p(rowInd, ::) := gp.eigenMatrix(rowInd, ::) * innerU
+      }
+      
+      new SpecializedLowRankGaussianProcess(unspecializedGP, gp.points, mean_pVector, lambdas_p, eigenMatrix_p)
+    }    
+  }
+
+  // 
+  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double) : LowRankGaussianProcess[D] = {
+	  regression(gp, trainingData, sigma2, false)
+  }
+  
   // Gaussian process regression for a low rank gaussian process
-  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false) = {
+  // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
+  // TODO maybe the implementations can be joined.
+  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly : Boolean) : LowRankGaussianProcess[D] = {
 
     val dimTraits = implicitly[DimTraits[D]]
     def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
