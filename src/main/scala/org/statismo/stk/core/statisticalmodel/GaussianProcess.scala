@@ -234,7 +234,7 @@ object GaussianProcess {
   /**
    * Gausssian process regression for a specialzed GP. 
    * This implementation explicitly returns a SpecializedLowRankGaussainProcess  
-   * TODO the implementation is almost the same as for the standard regression. Maybe they could be joined? 
+   * TODO the implementation is almost the same as for the standard regression. Maybe they couuld be merged 
    */
   def regression[D <: Dim: DimTraits](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean): SpecializedLowRankGaussianProcess[D] = {
 
@@ -318,7 +318,14 @@ object GaussianProcess {
         val mean = mean_p
         val eigenPairs = lambdas_p.zip(phis_p)
       }
-      val eigenMatrix_p = gp.eigenMatrix * innerU // IS this correct? 
+      // we do the follwoing computation
+      // val eigenMatrix_p = gp.eigenMatrix * innerU // IS this correct?
+      // but in parallel
+      val eigenMatrix_p = DenseMatrix.zeros[Float](gp.eigenMatrix.rows, innerU.cols)
+      for (rowInd <- (0 until gp.eigenMatrix.rows).par) {
+        eigenMatrix_p(rowInd, ::) := gp.eigenMatrix(rowInd, ::) * innerU
+      }
+      
       new SpecializedLowRankGaussianProcess(unspecializedGP, gp.points, mean_pVector, lambdas_p, eigenMatrix_p)
     }    
   }
