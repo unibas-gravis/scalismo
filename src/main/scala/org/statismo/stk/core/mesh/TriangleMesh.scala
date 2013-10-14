@@ -53,7 +53,9 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     val b = (C - B).norm
     val c = (C - A).norm
     val s = (a + b + c) / 2
-    math.sqrt(s * (s - a) * (s - b) * (s - c))
+    val areaSquared = s * (s - a) * (s - b) * (s - c)
+    // it can happen that the area is negative, due to a degenerate triangle. 
+    if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared) 
   }
   
 }
