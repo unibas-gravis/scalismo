@@ -95,8 +95,8 @@ abstract class LowRankGaussianProcess[D <: Dim: DimTraits] extends GaussianProce
   /**
    * Compute the marginal distribution for the given point
    */
-    def marginal(pt : Point[D]) : PointNormalDistribution[D] = {     
-      PointNormalDistribution(pt, mean(pt), cov(pt, pt))      
+    def marginal(pt : Point[D]) : MVNormalForPoint[D] = {     
+      MVNormalForPoint(pt, mean(pt), cov(pt, pt))      
     }
 }
 

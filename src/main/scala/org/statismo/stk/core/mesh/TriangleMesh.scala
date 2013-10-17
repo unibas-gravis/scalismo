@@ -24,12 +24,14 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
 
   def findClosestPoint(pt: Point[ThreeD]): (Point[ThreeD], Int) = {
     val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
-    val (nearestPt, nearestIdx) = nearestPtsAndIndices(0)
-
-    (points(nearestIdx), nearestIdx)
-
+    nearestPtsAndIndices(0)
   }
-
+  
+  def findNClosestPoints(pt : Point[ThreeD], n : Int) : Seq[(Point[ThreeD], Int)]= { 
+    kdTreeMap.findNearest(pt, n)
+  }
+  
+  
   def boundingBox: BoxedDomain3D = {
     val minx = points.map(_(0)).min
     val miny = points.map(_(1)).min

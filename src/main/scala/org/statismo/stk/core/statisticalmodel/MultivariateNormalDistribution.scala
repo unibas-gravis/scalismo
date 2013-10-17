@@ -36,7 +36,7 @@ class MultivariateNormalDistribution(mean : DenseVector[Float], cov : DenseMatri
    
 }
 
-case class PointNormalDistribution[D <: Dim : DimTraits](val pt : Point[D], val mean : Vector[D], val cov : MatrixNxN[D]) extends MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix) { 
-  def pdf(x : Point[D]) : Double =  pdf(x.toBreezeVector)
-  def logpdf(x : Point[D]) : Double = logpdf(x.toBreezeVector)
+case class MVNormalForPoint[D <: Dim : DimTraits](val pt : Point[D], val mean : Vector[D], val cov : MatrixNxN[D]) extends MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix) { 
+  def pdf(x : Vector[D]) : Double =  pdf(x.toBreezeVector)
+  def logpdf(x : Vector[D]) : Double = logpdf(x.toBreezeVector)
 }
