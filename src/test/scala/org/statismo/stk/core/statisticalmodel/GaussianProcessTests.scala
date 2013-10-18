@@ -67,6 +67,27 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
   }
 
+  
+  describe("a lowRankGaussian process") {
+    it ("yields the same covariance as given by the kernel") {
+      val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val kernel = UncorrelatedKernel3x3(GaussianKernel3D(10))
+      val sampler = UniformSampler3D(domain, 8 * 8 * 8)
+      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, sampler, _ => Vector3D(0.0, 0.0, 0.0), kernel, 100)
+      val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
+      
+      val fewPointsSampler = UniformSampler3D(domain, 2 * 2 * 2)
+      val pts = fewPointsSampler.sample.map(_._1)
+      for (pt1 <- pts; pt2 <- pts) {        
+    	  val covGP = gp.cov(pt1, pt2)
+    	  val covKernel = kernel(pt1, pt2)
+    	  for (i <- 0 until 3; j <- 0 until 3) {
+    	     covGP(i,j) should be(covKernel(i,j) plusOrMinus 1e-2)
+    	  }
+      }
+    }
+  }
+  
   describe("a specialized Gaussian process") {
     it("yields the same deformations at the specialized points") {
       val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))

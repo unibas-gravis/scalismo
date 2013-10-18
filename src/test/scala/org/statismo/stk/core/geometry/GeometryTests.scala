@@ -6,6 +6,7 @@ import implicits._
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
 import scala.language.implicitConversions
+import breeze.linalg.LinearAlgebra
 
 class GeometryTests extends FunSpec with ShouldMatchers {
 
@@ -49,12 +50,33 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       v.norm should be(math.sqrt(v.norm2) plusOrMinus (1e-5))
     }
 
+    it("gives the correct dot value for the dot product") {
+      val v1 = Vector3D(4.9, -3.5, -1.0)
+      val v2 = Vector3D(3.1, 2.1, 5.0)
+      v1 dot v2 should be(v1.toBreezeVector dot v2.toBreezeVector)
+    }
+    
+    it("gives the correct value for the outer product") {
+      val v1 = Vector3D(4.0, -3.0, -1.0)
+      val v2 = Vector3D(3.0, 2.0, 5.0)
+      val res = Matrix3x3((12f, 8f, 20f), (-9f, -6f, -15f), (-3f, -2f, -5f))
+      (v1 outer v2)  should be(res)
+    }
+    
   }
   describe("a 3x3 matrix") {
 
     // storage is column major
     val m = Matrix3x3(Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
 
+    
+    it("can be created using zeros") {
+      val m = MatrixNxN.zeros[ThreeD]
+      for (i <- 0 until 3; j <- 0 until 3) {
+        m(i,j) should be(0f) 
+      }
+    }
+    
     it("can be correclty initialized by a tuple") {
       val mInitFromTuple = Matrix3x3((1.1, 1.2, 1.3), (2.1, 2.2, 2.3), (3.1, 3.2, 3.3))
       mInitFromTuple should equal(m)
