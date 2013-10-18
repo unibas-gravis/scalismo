@@ -19,10 +19,12 @@ class MeshTests extends FunSpec with ShouldMatchers {
     implicit def doubleToFloat(d : Double) = d.toFloat
   
   org.statismo.stk.core.initialize()
+
   describe("a mesh") {
-    it("finds the right closest points for all the points that define the mesh") {
-      val path = getClass().getResource("/facemesh.h5").getPath
+    val path = getClass().getResource("/facemesh.h5").getPath
       val facemesh = MeshIO.readHDF5(new File(path)).get
+      
+    it("finds the right closest points for all the points that define the mesh") {
 
       for ((pt, id) <- facemesh.points.zipWithIndex) {
         val (closestPt, closestId) = facemesh.findClosestPoint(pt)
@@ -52,5 +54,14 @@ class MeshTests extends FunSpec with ShouldMatchers {
       mesh.area should be(0.5 plusOrMinus 1e-8)
       transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 
     }
+    
+    it("can be clipped") {
+      def ptIdSmallerThan100(pt : Point[ThreeD]) = facemesh.findClosestPoint(pt)._2 < 100
+      val clippedMesh = Mesh.clipMesh(facemesh, ptIdSmallerThan100 _)
+      
+      clippedMesh.numberOfPoints should be(facemesh.numberOfPoints - 100)
+      
+    }
   }
+    
 }
