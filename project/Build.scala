@@ -71,8 +71,6 @@ object STKBuild extends Build {
     breezeViz,
     scalaReflect,
     scalaSwing,
-    twitterUtilCollection,
-    twitterUtilEval,
     statismoNativelibs)
 
   lazy val cdap2 = Project(
