@@ -164,32 +164,43 @@ object MeshConversion {
     }
   }
 
-  def meshToVTKPolyData(mesh: TriangleMesh): vtkPolyData = {
-    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten.map(_.toFloat)
-    val pd = new vtkPolyData()
+  def meshToVTKPolyData(mesh: TriangleMesh, template: Option[vtkPolyData] = None): vtkPolyData = {
 
+    val pd = new vtkPolyData()
+    
+    template match {
+      case Some(template) => {
+        // copy triangles from template if given; actual points are set unconditionally in code below.
+        pd.ShallowCopy(template)
+      }
+      case None => {
+        val triangleDataArray = mesh.cells.toArray.map(_.pointIds).flatten
+        val cellDataArrayVTK = VTKHelpers.createVtkDataArray(triangleDataArray, 3)
+        val polysVTK = new vtkCellArray
+
+        val triangles = new vtkCellArray
+        triangles.SetNumberOfCells(mesh.cells.size)
+        triangles.Initialize()
+        for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
+          val triangle = new vtkTriangle()
+
+          triangle.GetPointIds().SetId(0, cell.ptId1);
+          triangle.GetPointIds().SetId(1, cell.ptId2);
+          triangle.GetPointIds().SetId(2, cell.ptId3);
+          triangles.InsertNextCell(triangle);
+        }
+        triangles.Squeeze()
+        pd.SetPolys(triangles)
+      }
+    }
+
+    // set points
+    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten.map(_.toFloat)
     val pointDataArrayVTK = VTKHelpers.createVtkDataArray(pointDataArray, 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
     pd.SetPoints(pointsVTK)
 
-    val triangleDataArray = mesh.cells.toArray.map(_.pointIds).flatten
-    val cellDataArrayVTK = VTKHelpers.createVtkDataArray(triangleDataArray, 3)
-    val polysVTK = new vtkCellArray
-
-    val triangles = new vtkCellArray
-    triangles.SetNumberOfCells(mesh.cells.size)
-    triangles.Initialize()
-    for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
-      val triangle = new vtkTriangle()
-
-      triangle.GetPointIds().SetId(0, cell.ptId1);
-      triangle.GetPointIds().SetId(1, cell.ptId2);
-      triangle.GetPointIds().SetId(2, cell.ptId3);
-      triangles.InsertNextCell(triangle);
-    }
-    triangles.Squeeze()
-    pd.SetPolys(triangles)
     pd
   }
 
@@ -276,31 +287,31 @@ object ImageConversion {
     pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage2D(domain, pixelArray))
   }
 
-//  def image3DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[ThreeD, Pixel]) = {
-//    val pixelConv = implicitly[ScalarPixel[Pixel]]
-//    val domain = img.domain
-//    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
-//
-//    // 	Create 3x3x3 3D stack and fill it with garbage  
-//    val stack = new ImageStack(width, height)
-//
-//    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
-//    for (slice <- 0 until size) {
-//      val startInd = slice * (width * height)
-//      val endInd = (slice + 1) * (width * height)
-//      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
-//      val bp = new FloatProcessor(width, height, pixelForSlice)
-//      stack.addSlice(bp)
-//
-//    }
-//    new ImagePlus("3D image", stack)
-//  }
-//
-//  def image2DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[TwoD, Pixel]) = {
-//    val pixelConv = implicitly[ScalarPixel[Pixel]]
-//    val domain = img.domain
-//    val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
-//    new ImagePlus("2D image", bp)
-//  }
+  //  def image3DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[ThreeD, Pixel]) = {
+  //    val pixelConv = implicitly[ScalarPixel[Pixel]]
+  //    val domain = img.domain
+  //    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
+  //
+  //    // 	Create 3x3x3 3D stack and fill it with garbage  
+  //    val stack = new ImageStack(width, height)
+  //
+  //    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
+  //    for (slice <- 0 until size) {
+  //      val startInd = slice * (width * height)
+  //      val endInd = (slice + 1) * (width * height)
+  //      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
+  //      val bp = new FloatProcessor(width, height, pixelForSlice)
+  //      stack.addSlice(bp)
+  //
+  //    }
+  //    new ImagePlus("3D image", stack)
+  //  }
+  //
+  //  def image2DToImageJImagePlus[Pixel: ScalarPixel](img: DiscreteScalarImage[TwoD, Pixel]) = {
+  //    val pixelConv = implicitly[ScalarPixel[Pixel]]
+  //    val domain = img.domain
+  //    val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
+  //    new ImagePlus("2D image", bp)
+  //  }
 
 }
