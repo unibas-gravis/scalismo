@@ -44,7 +44,7 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
 
   val area = cells.map(triangle => computeTriangleArea(triangle)).sum
   
-  private def computeTriangleArea(t : TriangleCell) : Double = {
+   def computeTriangleArea(t : TriangleCell) : Double = {
     // compute are of the triangle using heron's formula
     val A = meshPoints(t.ptId1)
     val B = meshPoints(t.ptId2)
@@ -54,6 +54,20 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     val c = (C - A).norm
     val s = (a + b + c) / 2
     math.sqrt(s * (s - a) * (s - b) * (s - c))
+  }
+  
+  def samplePointInTriangleCell( t: TriangleCell, seed : Long) : Point[ThreeD] = {
+    val A = meshPoints(t.ptId1) - Point3D(0,0,0)
+    val B = meshPoints(t.ptId2) - Point3D(0,0,0)
+    val C = meshPoints(t.ptId3) - Point3D(0,0,0)
+    
+    scala.util.Random.setSeed(seed)
+    val u = scala.util.Random.nextFloat()
+    val d = scala.util.Random.nextFloat()
+    val v = if(d+u<=1) d else 1-u
+    
+    val s = A*u+ B*v +  C * (1 - (u+v))
+    Point3D(s(0), s(1), s(2))    
   }
   
 }

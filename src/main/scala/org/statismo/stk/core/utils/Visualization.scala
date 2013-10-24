@@ -188,6 +188,32 @@ object Visualization {
       }
     }
 
+    def addLabel(pt: Point[ThreeD], label: String, color: Char = 'w', scale: Double=8.0): vtkActor = {
+
+      val zLabel = new vtkFollower
+      val zText = new vtkVectorText
+      val zTextMapper = new vtkPolyDataMapper
+
+
+      onEDT {
+        zText.SetText(label);
+        zTextMapper.SetInputConnection(zText.GetOutputPort());
+
+        zLabel.SetMapper(zTextMapper);
+        zLabel.SetScale(scale);
+        
+        zLabel.SetCamera(renWin.GetRenderer.GetActiveCamera());
+        zLabel.SetPosition(pt.data.map(_.toDouble)); 
+        zLabel.PickableOff();
+        val colorAWT = colorCodeToAWTColor(color).get
+        zLabel.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
+        
+        renWin.GetRenderer.AddActor(zLabel)
+        resetSceneAndRender()
+      }
+      zLabel   
+    }
+
     def addPoints(pts: Seq[Point[ThreeD]], color: Char = 'w', size: Double = 2.0): vtkActor = {
       val sphereSrc = new vtkSphereSource()
       val glyph = new vtkGlyph3D
@@ -213,7 +239,7 @@ object Visualization {
         mapper.SetInputConnection(glyph.GetOutputPort())
         actor.SetMapper(mapper)
         val colorAWT = colorCodeToAWTColor(color).get
-        actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)        
+        actor.GetProperty().SetColor(colorAWT.getRed() / 255, colorAWT.getGreen() / 255, colorAWT.getBlue() / 255)
         renWin.GetRenderer.AddActor(actor)
         resetSceneAndRender()
       }
@@ -316,8 +342,8 @@ object Visualization {
         renWin.unlock()
       }
     }
-    
-    def saveScreenshot(outputfile : File) : Unit = {
+
+    def saveScreenshot(outputfile: File): Unit = {
 
       onEDT {
         val winToImg = new vtkWindowToImageFilter
@@ -332,7 +358,7 @@ object Visualization {
         writer.Write()
         renWin.unlock()
 
-      }    
+      }
     }
 
   }
