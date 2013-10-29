@@ -56,12 +56,11 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     math.sqrt(s * (s - a) * (s - b) * (s - c))
   }
   
-  def samplePointInTriangleCell( t: TriangleCell, seed : Long) : Point[ThreeD] = {
+  def samplePointInTriangleCell( t: TriangleCell) : Point[ThreeD] = {
     val A = meshPoints(t.ptId1) - Point3D(0,0,0)
     val B = meshPoints(t.ptId2) - Point3D(0,0,0)
     val C = meshPoints(t.ptId3) - Point3D(0,0,0)
     
-    scala.util.Random.setSeed(seed)
     val u = scala.util.Random.nextFloat()
     val d = scala.util.Random.nextFloat()
     val v = if(d+u<=1) d else 1-u
