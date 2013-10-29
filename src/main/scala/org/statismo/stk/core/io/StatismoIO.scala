@@ -19,7 +19,6 @@ import ncsa.hdf.`object`._; // the common object package
 import ncsa.hdf.`object`.h5._; // the HDF5 implementation
 import java.util.List;
 
-case class StatismoModelBuilder(buildTime: String, builderName: String, dataInfo: Option[Seq[(String, String)]], parameters: Option[Seq[(String, String)]])
 
 object StatismoIO {
 
@@ -78,37 +77,8 @@ object StatismoIO {
     modelOrFailure
   }
 
-  def writeStatismoMeshModel(
-    model: StatisticalMeshModel,
-    file: File,
-    previousInfo: Option[Seq[StatismoModelBuilder]] = None,
-    dataInfo: Option[Seq[(String, String)]] = None,
-    parameters: Option[Seq[(String, String)]] = None,
-    pointScalarData: Option[Seq[Double]]=None,
-    pointVectorData: Option[Seq[DenseVector[Double]]]=None
-   ): Try[Unit] = {
+  def writeStatismoMeshModel(model: StatisticalMeshModel,  file: File): Try[Unit] = {
 
-    def flatten[T](xs: Seq[Try[T]]): Try[Seq[T]] = {
-      val (ss: Seq[Success[T]] @unchecked, fs: Seq[Failure[T]] @unchecked) =
-        xs.partition(_.isSuccess)
-
-      if (fs.isEmpty) Success(ss map (_.get))
-      else Failure[Seq[T]](fs(0).exception) // Only keep the first failure
-    }
-
-    def writeModelInfo(info: StatismoModelBuilder, idx: Int, h5file: HDF5File) = {
-      for {
-        _ <- h5file.writeString("/modelinfo/modelBuilder-" + idx + "/buildTime", info.buildTime)
-        _ <- h5file.writeString("/modelinfo/modelBuilder-" + idx + "/builderName", info.builderName)
-        val part2 = info.dataInfo.map(dtInfSeq => flatten(dtInfSeq.map(dtInf => h5file.writeString("/modelinfo/modelBuilder-" + idx + "/datainfo/" + dtInf._1, dtInf._2))))
-        res1 <- if (part2.isDefined) part2.get else Success(Seq(()))
-        val part3 = info.parameters.map(paramSeq => flatten(paramSeq.map(prm => h5file.writeString("/modelinfo/modelBuilder-" + idx + "/parameters/" + prm._1, prm._2))))
-        res2 <- part3.getOrElse(Success(Seq(())))
-      } yield res2
-    }
-
-    //prepare the data
-    val attributesSeq = Seq(("name", "itkStandardMeshRepresenter"), ("version", "0.1"), ("datasetType", "POLYGON_MESH"))
     val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
     val pts = model.mesh.points.toIndexedSeq.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
@@ -127,22 +97,15 @@ object StatismoIO {
       _ <- h5file.writeArray("/model/pcaVariance", model.gp.eigenPairs.map(p => p._1).toArray)
       _ <- h5file.writeString("/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup("/representer")
-      _ <- flatten(attributesSeq.map(pair => h5file.writeStringAttribute(group.getFullName, pair._1, pair._2)))
+      
+      _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
+      _ <- h5file.writeStringAttribute(group.getFullName, "version", "0.1")
+      _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
+      
       _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
       _ <- h5file.writeNDArray[Float]("/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
-
-      _ <- pointScalarData.map(data =>  h5file.writeNDArray[Double]("/representer/pointData/scalars", NDArray(Vector(1, data.size), data.toArray))).getOrElse(Success())      
-      _ <- pointScalarData.map(data => h5file.writeIntAttribute("/representer/pointData/scalars", "datatype", 11)).getOrElse(Success())
-      _ <- pointVectorData.map(data => {
-        val dim = data(0).size
-        val dataArray = data.map(v => for (i <- 0 until dim) yield v(i).toDouble).flatten(s => s)
-        h5file.writeNDArray[Double]("/representer/pointData/vectors", NDArray(Vector(data(0).size, data.size), dataArray.toArray))
-      }).getOrElse(Success())
-      _ <- pointVectorData.map(data => h5file.writeIntAttribute("/representer/pointData/vectors", "datatype", 11)).getOrElse(Success())
-      _ <- writeModelInfo(StatismoModelBuilder(Calendar.getInstance.getTime.toString, "Scala StatismoWriter", dataInfo, parameters), previousInfo.map(_.size).getOrElse(0), h5file)
-   
-      // write any previous info here
-      _ <- previousInfo.map(infoList => flatten(infoList.zipWithIndex.map(pair => writeModelInfo(pair._1, pair._2, h5file)))).getOrElse(Success())
+      _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
+      _ <- h5file.writeString("/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
       _ <- Try { h5file.close() }
 
     } yield ()
