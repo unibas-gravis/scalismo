@@ -47,7 +47,30 @@ class HDF5File(h5file: FileFormat) {
         Failure(new Exception("Expected H5ScalarDS when reading attribute"))
       }
     }
+  }
 
+  def writeIntAttribute(path: String, attrName: String, attrValue: Int) = {
+    Try {
+      val s = h5file.get(path)
+      val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE);
+
+      val attr = new Attribute(attrName, dtype, Array(1))
+      attr.setValue(Array(attrValue))
+      s.writeMetadata(attr)
+    }
+  }
+// should be merged with some type magic
+  def writeStringAttribute(path: String, attrName: String, attrValue: String) = {
+    Try {
+      val s = h5file.get(path)
+      val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length+1, Datatype.NATIVE, Datatype.NATIVE);
+
+      val attr = new Attribute(attrName, dtype, Array(1))
+      attr.setValue(Array(attrValue))
+      s.writeMetadata(attr)
+    }
   }
 
   def readNDArray[T](path: String): Try[NDArray[T]] = {
@@ -222,8 +245,8 @@ object HDF5Utils {
     new HDF5File(h5file)
   }
 
-  def openFileForReading(file: File): Try[HDF5File] = Try {openFile(file, READ)}
-  def openFileForWriting(file: File): Try[HDF5File] = Try {openFile(file, WRITE)}
-  def createFile(file: File): Try[HDF5File] = Try {openFile(file, CREATE)}
+  def openFileForReading(file: File): Try[HDF5File] = Try { openFile(file, READ) }
+  def openFileForWriting(file: File): Try[HDF5File] = Try { openFile(file, WRITE) }
+  def createFile(file: File): Try[HDF5File] = Try { openFile(file, CREATE) }
 
 }
