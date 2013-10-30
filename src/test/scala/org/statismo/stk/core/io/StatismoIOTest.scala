@@ -36,8 +36,9 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
 
     it("can be written and read again") {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
-      val dummyFile = new File("/tmp/dummy.h5")
-      
+      val dummyFile = File.createTempFile("dummy", "h5")
+      dummyFile.deleteOnExit
+          
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
         _ <- writeStatismoMeshModel(model, dummyFile)
