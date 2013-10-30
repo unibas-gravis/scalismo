@@ -120,7 +120,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val sampler = UniformSampler3D(domain, 3 * 3 * 3)
       val specializedPoints = sampler.sample.map(_._1)
       val specializedGp = gp.specializeForPoints(specializedPoints)
-      val specializedPosteriorGP: SpecializedLowRankGaussianProcess[ThreeD] = GaussianProcess.regression(specializedGp, trainingData, 1e-5, false)
+      val specializedPosteriorGP: LowRankGaussianProcess[ThreeD] = GaussianProcess.regression(specializedGp, trainingData, 1e-5, false)
 
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = specializedPosteriorGP.mean
