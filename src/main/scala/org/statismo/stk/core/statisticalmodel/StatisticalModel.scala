@@ -20,6 +20,11 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
     && meshBB.extent(1) <= gpDomain.extent(1)
     && meshBB.extent(2) <= gpDomain.extent(2))  
   
+  def posterior(trainingData : IndexedSeq[(Point[ThreeD], Vector[ThreeD])], sigma2 : Double , meanOnly : Boolean = false) : StatisticalMeshModel = {
+    val posteriorGP = GaussianProcess.regression(gp, trainingData, sigma2, meanOnly) 
+    new StatisticalMeshModel(mesh, posteriorGP)
+  }
+  
 }
 
 object StatisticalMeshModel {
