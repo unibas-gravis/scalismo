@@ -16,9 +16,9 @@ trait ThreeD extends Dim
  */
 abstract class Coordinate[D <: Dim: DimTraits, @specialized(Int, Float, Double) S] {
   val data: Array[S]
-  def dimensionality: Int = implicitly[DimTraits[D]].dimensionality
+  val dimensionality: Int = implicitly[DimTraits[D]].dimensionality
   def apply(i: Int): S = data(i)
-  def toBreezeVector = DenseVector(data) 
+  def toBreezeVector = DenseVector(data)
 }
 
 /*======================================
@@ -41,15 +41,35 @@ trait PointLike[D <: Dim, PointRepr <: Point[D], VectorRepr <: Vector[D]] { self
   def createPoint(data: Array[Float]): PointRepr
   def createVector(data: Array[Float]): VectorRepr
 
-  override def +(that: Vector[D]): PointRepr = createPoint(
-    (self.data zip that.data).map { case (s, t) => s + t })
+  override def +(that: Vector[D]): PointRepr = {
+    var newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = this.data(i) + that.data(i)
+      i += 1
+    }
+    createPoint(newData)
+  }
 
-  override def -(that: Vector[D]): PointRepr = createPoint(
-    (self.data zip that.data).map { case (s, t) => s - t })
+  override def -(that: Vector[D]): PointRepr = {
+    var newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = this.data(i) - that.data(i)
+      i += 1
+    }
+    createPoint(newData)
+  }
 
-  override def -(that: Point[D]): VectorRepr = createVector(
-    (self.data zip that.data).map { case (s, t) => s - t })
-
+  override def -(that: Point[D]): VectorRepr = {
+    var newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = this.data(i) - that.data(i)
+      i += 1
+    }
+    createVector(newData)
+  }
 }
 
 // Concrete instances for 1D, 2D and 3D
@@ -80,7 +100,8 @@ case class Point3D(x: Float, y: Float, z: Float) extends Point[ThreeD] with Poin
 
   override val data = Array(x, y, z)
   override def apply(i: Int) = {
-    if (i == 0) x else if (i == 1) y else if (i == 2) z else throw new ArrayIndexOutOfBoundsException("index $i > 2")
+    data(i)
+    //if (i == 0) x else if (i == 1) y else if (i == 2) z else throw new ArrayIndexOutOfBoundsException("index $i > 2")
   }
 
 }
@@ -95,7 +116,15 @@ abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Float] { self: 
   def +(that: Vector[D]): Vector[D]
   def -(that: Vector[D]): Vector[D]
   def *(s: Double): Vector[D]
-  def norm2: Double = data.map(v => v * v).sum
+  def norm2: Double = {
+    var norm2 = 0.0
+    var i = 0;
+    while (i < dimensionality) {
+      norm2 += data(i) * data(i)
+      i += 1
+    }
+    norm2
+  }
   def norm = math.sqrt(norm2)
 
   def outer(that: Vector[D]): MatrixNxN[D]
@@ -109,14 +138,36 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
   def createPoint(data: Array[Float]): PointRepr
   def createVector(data: Array[Float]): VectorRepr
 
-  override def +(that: Vector[D]): VectorRepr = createVector(
-    (self.data zip that.data).map { case (s, t) => s + t })
+  override def +(that: Vector[D]): VectorRepr = {
+    var newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = this.data(i) + that.data(i)
+      i += 1
+    }
+    createVector(newData)
+  }
 
-  override def -(that: Vector[D]): VectorRepr = createVector(
-    (self.data zip that.data).map { case (s, t) => s - t })
+  override def -(that: Vector[D]): VectorRepr = {
+    var newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = this.data(i) - that.data(i)
+      i += 1
+    }
+    createVector(newData)
+  }
 
-  override def *(s: Double): VectorRepr = createVector(
-    self.data.map(v => s.toFloat * v))
+  override def *(s: Double): VectorRepr = {
+    var newData = new Array[Float](dimensionality)
+    var i = 0
+    var sFloat = s.toFloat
+    while (i < dimensionality) {
+      newData(i) = this.data(i) * sFloat
+      i += 1
+    }
+    createVector(newData)
+  }
 
   def toPoint: PointRepr = createPoint(
     self.data)
@@ -280,7 +331,13 @@ trait MatrixNxNLike[D <: Dim, MatrixRepr <: MatrixNxN[D], VectorRepr <: Vector[D
   def createMatrix(data: Array[Float]): MatrixRepr
 
   override def *(s: Float): MatrixRepr = {
-    val newData = data.map(_ * s)
+    val numElements = dimensionality * dimensionality
+    val newData = new Array[Float](numElements)
+    var i = 0;
+    while (i < numElements) {
+      newData(i) = data(i) * s
+      i += 1
+    }
     createMatrix(newData)
   }
 
@@ -326,17 +383,35 @@ trait MatrixNxNLike[D <: Dim, MatrixRepr <: MatrixNxN[D], VectorRepr <: Vector[D
   }
 
   override def -(that: MatrixNxN[D]): MatrixRepr = {
-    val newData = self.data.zip(that.data).map { case (s, t) => s - t }
+    val dim2 = dimensionality * dimensionality
+    var newData = new Array[Float](dim2)
+    var i = 0
+    while (i < dim2) {
+      newData(i) = this.data(i) - that.data(i)
+      i += 1
+    }
     createMatrix(newData)
   }
 
   override def +(that: MatrixNxN[D]): MatrixRepr = {
-    val newData = self.data.zip(that.data).map { case (s, t) => s + t }
+    val dim2 = dimensionality * dimensionality
+    var newData = new Array[Float](dim2)
+    var i = 0
+    while (i < dim2) {
+      newData(i) = this.data(i) + that.data(i)
+      i += 1
+    }
     createMatrix(newData)
   }
 
   override def :*(that: MatrixNxN[D]): MatrixRepr = {
-    val newData = self.data.zip(that.data).map { case (s, t) => s * t }
+    val dim2 = dimensionality * dimensionality
+    var newData = new Array[Float](dim2)
+    var i = 0
+    while (i < dim2) {
+      newData(i) = this.data(i) * that.data(i)
+      i += 1
+    }
     createMatrix(newData)
   }
 
@@ -384,12 +459,12 @@ object MatrixNxN {
 
   def ones[D <: Dim: DimTraits]: MatrixNxN[D] = MatrixNxN.fill[D](1)
 
-  def fill[D <: Dim: DimTraits](elem: => Float) : MatrixNxN[D] = { 
+  def fill[D <: Dim: DimTraits](elem: => Float): MatrixNxN[D] = {
     val dimTraits = implicitly[DimTraits[D]]
     val data = Array.fill[Float](dimTraits.dimensionality * dimTraits.dimensionality)(elem)
     dimTraits.createMatrixNxN(data)
   }
-  
+
 }
 
 object implicits {
