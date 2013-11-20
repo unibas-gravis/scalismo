@@ -52,7 +52,7 @@ import javax.swing.border.BevelBorder
 import java.io.File
 object Visualization {
 
-  class VTKViewer() extends SimpleSwingApplication {
+  class VTKViewer private() extends SimpleSwingApplication {
 
     def onEDT(prog: => Unit): Unit =
       if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
@@ -335,8 +335,8 @@ object Visualization {
 
     def resetSceneAndRender() {
       onEDT {
-        renWin.GetRenderer.ResetCamera
         renWin.lock()
+        renWin.GetRenderer.ResetCamera
         renWin.Render
         renWin.unlock()
       }
