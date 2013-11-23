@@ -15,7 +15,6 @@ import org.statismo.stk.core.geometry._
 
 abstract class PDKernel[D <: Dim] { self =>
   def apply(x: Point[D], y: Point[D]): Double
-  def outputDim: Int = 1
 
   def +(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
@@ -79,7 +78,7 @@ case class UncorrelatedKernel3x3(k: PDKernel[ThreeD]) extends MatrixValuedPDKern
 case class GaussianKernel3D(val sigma: Double) extends PDKernel[ThreeD] {
   val sigma2 = sigma * sigma
   def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
-    val r = x - y 
+    val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
@@ -87,7 +86,7 @@ case class GaussianKernel3D(val sigma: Double) extends PDKernel[ThreeD] {
 case class GaussianKernel2D(val sigma: Double) extends PDKernel[TwoD] {
   val sigma2 = sigma * sigma
   def apply(x: Point[TwoD], y: Point[TwoD]) = {
-    val r = x - y 
+    val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
@@ -97,20 +96,31 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
   val sigma2 = sigma * sigma
 
   def apply(x: Point[OneD], y: Point[OneD]) = {
-    val r = x - y 
+    val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
 object Kernel {
 
-  private def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
+  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
     val d = k.outputDim
 
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
-    for { (xi, i) <- xs.zipWithIndex; (xj, j) <- xs.zipWithIndex; di <- 0 until d; dj <- 0 until d } {      
-      K(i * d + di, j * d + dj) = k(xi, xj)(di, dj)
-      K(j * d + dj, i * d + di) = K(i * d + di, j * d + dj)
+    val xiWithIndex = xs.zipWithIndex.par
+    val xjWithIndex = xs.zipWithIndex
+    for { (xi, i) <- xiWithIndex; (xj, j) <- xjWithIndex } {
+      val kxixj = k(xi, xj);
+      var di = 0;
+      while (di < d) {
+        var dj = 0;
+        while (dj < d) {
+          K(i * d + di, j * d + dj) = kxixj(di, dj)
+          K(j * d + dj, i * d + di) = K(i * d + di, j * d + dj)
+          dj += 1
+        }
+        di += 1
+      }
     }
     K
   }
@@ -119,8 +129,8 @@ object Kernel {
    * for every domain point x in the list, we compute the kernel vector
    * kx = (k(x, x1), ... k(x, xm))
    * since the kernel is matrix valued, kx is actually a matrix
-   * 
-   * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is 
+   *
+   * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
    * faster (breeze implementation detail). This should be replaced at some point
    */
   private def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Double] = {
@@ -131,10 +141,11 @@ object Kernel {
     var j = 0
     while (j < xs.size) {
       var di = 0
+      val kxjx = k(xs(j), x)
       while (di < d) {
         var dj = 0
         while (dj < d) {
-          kxs(di, j * d + dj) = k(xs(j), x)(di, dj)
+          kxs(di, j * d + dj) = kxjx(di, dj)
           dj += 1
         }
         di += 1
@@ -151,7 +162,7 @@ object Kernel {
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
     val createVector = implicitly[DimTraits[D]].createVector _ // get the create vector function for the right dimension
-    
+
     val volumeOfSampleRegion = sampler.volumeOfSampleRegion
 
     val (ptsForNystrom, _) = sampler.sample.unzip
@@ -176,11 +187,11 @@ object Kernel {
       // TODO make cache size configurable
       val (maybeKx, _) = cache.get(x)
       val value = maybeKx.getOrElse {
-        val newValue : DenseMatrix[Double]= (computeKernelVectorFor(x, ptsForNystrom, k) * W)
+        val newValue: DenseMatrix[Double] = (computeKernelVectorFor(x, ptsForNystrom, k) * W)
         cache = (cache + (x, newValue))._2 // ignore evicted key
         newValue
       }
- 
+
       // create a vector or the right type
       createVector(value(::, i).toArray.map(_.toFloat))
 
