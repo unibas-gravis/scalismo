@@ -141,11 +141,11 @@ object Kernel {
     var j = 0
     while (j < xs.size) {
       var di = 0
-      val kxjx = k(xs(j), x)
+      val kxxj = k(x, xs(j))
       while (di < d) {
         var dj = 0
         while (dj < d) {
-          kxs(di, j * d + dj) = kxjx(dj, di) // make sure its k(x, x1) not k(x, x1)^T
+          kxs(di, j * d + dj) = kxxj(di, dj) 
           dj += 1
         }
         di += 1
