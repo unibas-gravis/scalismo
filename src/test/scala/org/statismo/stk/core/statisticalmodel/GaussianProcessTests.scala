@@ -125,30 +125,6 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    //    it("approximates correctly the first eigenfunction of a given gp") {
-    //      val f = Fixture
-    //      // create a new gp with cov from the given gp
-    //      val config = LowRankGaussianProcessConfiguration[ThreeD](f.domain, f.sampler, _ => Vector3D(0.0, 0.0, 0.0), f.gp.cov, 2)
-    //      val newGp = GaussianProcess.createLowRankGaussianProcess3D(config)
-    //      val (gpLambdas, gpPhis) = f.gp.eigenPairs.unzip
-    //      val (newgpLambdas, newGpPhis) = newGp.eigenPairs.unzip
-    //
-    ////      for ((gpLambda, newgplambda) <- gpLambdas.zip(newgpLambdas)) {
-    ////        gpLambda should be (newgplambda plusOrMinus 1e-3)
-    ////      }
-    //      
-    //      val pts = f.sampler.sample.map(_._1)
-    //      for (pt <- pts) {
-    //        val phiVal = gpPhis(1)(pt)
-    //        val newPhiVal = newGpPhis(1)(pt)
-    //        println(s"${newgpLambdas(1)} * ${newPhiVal(1
-    //            )} should be(${gpLambdas(1)} * ${phiVal(1)} plusOrMinus 1e-2)")
-    //        newgpLambdas(0) * newPhiVal(0) should be(gpLambdas(0) * phiVal(0) plusOrMinus 1e-2)
-    // 
-    //      }
-    //
-    //    }
-
   }
 
   describe("a specialized Gaussian process") {

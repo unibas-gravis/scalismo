@@ -114,29 +114,20 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
   override val eigenPairs = lambdas.zip(phis)
   override val mean = meanAtPoint _
 
-  override val cov: MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
+  override val cov: MatrixValuedPDKernel[D, D] = {
+    new MatrixValuedPDKernel[D, D] {
+      def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
 
-    // TODO this could be made faster by avoiding multiplication with the diag matrix (which is a dense matrix)
-    val lambdaDiag = breeze.linalg.diag(stddev :* stddev)
+        // if pt is in our map, we compute it efficiently, otherwise we 
+        // fall back to generic version
+        val cov: Option[MatrixNxN[D]] = for {
+          ptId1 <- pointToIdxMap.get(x)
+          ptId2 <- pointToIdxMap.get(y)
+        } yield computeCov(ptId1, ptId2)
 
-    def computeCov(ptId1: Int, ptId2: Int) = {
-      val eigenMatrixForPtId1 = eigenMatrix(ptId1 * outputDim until (ptId1 + 1) * outputDim , ::)
-      val eigenMatrixForPtId2 = eigenMatrix(ptId2 * outputDim until (ptId2 + 1) * outputDim , ::)
-      val covValue = eigenMatrixForPtId1 * lambdaDiag * eigenMatrixForPtId2.t 
-      dimTraits.createMatrixNxN(covValue.data)
-
+        cov.getOrElse(gp.cov(x, y))
+      }
     }
-    def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
-      // if pt is in our map, we compute it efficiently, otherwise we 
-      // fall back to generic version
-      val cov : Option[MatrixNxN[D]] = for {
-        ptId1 <- pointToIdxMap.get(x)
-        ptId2 <- pointToIdxMap.get(y)
-      } yield computeCov(ptId1, ptId2)
-     
-      cov.getOrElse(gp.cov(x, y))
-    }
-
   }
 
   def instanceAtPoints(alpha: DenseVector[Float]): IndexedSeq[(Point[D], Vector[D])] = {
@@ -181,6 +172,36 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
       }
       case None => gpPhis(i)(pt)
     }
+  }
+
+  //compute covariance for two points with given ptIds
+  private def computeCov(ptId1: Int, ptId2: Int) = {
+    val eigenMatrixForPtId1 = eigenMatrix(ptId1 * outputDim until (ptId1 + 1) * outputDim, ::)
+    val eigenMatrixForPtId2 = eigenMatrix(ptId2 * outputDim until (ptId2 + 1) * outputDim, ::)
+    //val covValue = eigenMatrixForPtId1 * breeze.linalg.diag(stddev :* stddev) * eigenMatrixForPtId2.t 
+
+    // same as commented line above, but just much more efficient (as breeze does not have diag matrix, 
+    // the upper command does a lot of  unnecessary computations
+    val covValue = DenseMatrix.zeros[Float](outputDim, outputDim)
+    var i = 0
+    while (i < outputDim) {
+      val ind1 = ptId1 * outputDim + i
+      var j = 0
+      while (j < outputDim) {
+        val ind2 = ptId2 * outputDim + j
+        var k = 0
+        var valueIJ = 0f
+        while (k < eigenMatrix.cols) {
+          valueIJ += eigenMatrix(ind1, k) * eigenMatrix(ind2, k) * lambdas(k)
+          k += 1
+        }
+        covValue(i, j) = valueIJ
+        j += 1
+      }
+      i += 1
+    }
+
+    dimTraits.createMatrixNxN(covValue.data)
   }
 }
 
