@@ -21,6 +21,8 @@ import scala.collection.immutable.HashMap
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.numerics.UniformSampler3D
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 trait GaussianProcess[D <: Dim] {
   val domain: BoxedDomain[D]
@@ -139,8 +141,22 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
 
   def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
     require(eigenPairs.size == alpha.size)
-    // (this corresponds to eigenMatrix * diag(stddef) * alpha + meanVec, but is more efficient
-    eigenMatrix * (stddev :* alpha) + meanVector
+
+    // the following code corrresponds to the breeze code:
+    //eigenMatrix * (stddev :* alpha) + meanVector
+    // but is much more efficient (and parallel)
+
+    val q = stddev :* alpha
+    val instance = DenseVector.zeros[Float](meanVector.size)
+    for (i <- (0 until instance.size).par) {
+      var j = 0;
+      while (j < alpha.size) {
+        instance(i) += eigenMatrix(i, j) * q(j)
+        j += 1
+      }
+      instance(i) += meanVector(i)
+    }
+    instance
 
   }
 
@@ -183,8 +199,8 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
     // same as commented line above, but just much more efficient (as breeze does not have diag matrix, 
     // the upper command does a lot of  unnecessary computations
     val covValue = DenseMatrix.zeros[Float](outputDim, outputDim)
-    var i = 0
-    while (i < outputDim) {
+
+    for (i <- (0 until outputDim).par) {
       val ind1 = ptId1 * outputDim + i
       var j = 0
       while (j < outputDim) {
@@ -198,7 +214,6 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
         covValue(i, j) = valueIJ
         j += 1
       }
-      i += 1
     }
 
     dimTraits.createMatrixNxN(covValue.data)
