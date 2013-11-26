@@ -17,6 +17,7 @@ import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.io.StatismoIO
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
@@ -67,71 +68,124 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
   }
 
-  
   describe("a lowRankGaussian process") {
-    it ("yields the same covariance as given by the kernel") {
+    object Fixture {
       val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val sampler = UniformSampler3D(domain, 7 * 7 * 7)
       val kernel = UncorrelatedKernel3x3(GaussianKernel3D(10))
-      val sampler = UniformSampler3D(domain, 8 * 8 * 8)
-      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, sampler, _ => Vector3D(0.0, 0.0, 0.0), kernel, 100)
-      val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
-      
-      val fewPointsSampler = UniformSampler3D(domain, 2 * 2 * 2)
-      val pts = fewPointsSampler.sample.map(_._1)
-      for (pt1 <- pts; pt2 <- pts) {        
-    	  val covGP = gp.cov(pt1, pt2)
-    	  val covKernel = kernel(pt1, pt2)
-    	  for (i <- 0 until 3; j <- 0 until 3) {
-    	     covGP(i,j) should be(covKernel(i,j) plusOrMinus 1e-2)
-    	  }
+      val gp = {
+        val config = LowRankGaussianProcessConfiguration[ThreeD](domain, sampler, _ => Vector3D(0.0, 0.0, 0.0), kernel, 100)
+        GaussianProcess.createLowRankGaussianProcess3D(config)
       }
     }
+
+    it("yields the same covariance as given by the kernel") {
+      val f = Fixture
+      val fewPointsSampler = UniformSampler3D(f.domain, 2 * 2 * 2)
+      val pts = fewPointsSampler.sample.map(_._1)
+      for (pt1 <- pts.par; pt2 <- pts) {
+        val covGP = f.gp.cov(pt1, pt2)
+        val covKernel = f.kernel(pt1, pt2)
+        for (i <- 0 until 3; j <- 0 until 3) {
+          covGP(i, j) should be(covKernel(i, j) plusOrMinus 1e-2)
+        }
+      }
+    }
+
+    it("yields the same covariance as given by the kernel for a real matrix valued kernel (with nondiagonal block structure)") {
+
+      val covKernel = new MatrixValuedPDKernel[ThreeD, ThreeD] {
+        val f0 = (pt: Point[ThreeD]) => pt.toBreezeVector
+        val f1 = (pt: Point[ThreeD]) => Point3D(pt(0) * 2, pt(1) * 0.5, pt(2) * 3).toBreezeVector
+        val f = (pt1: Point[ThreeD], pt2: Point[ThreeD]) => {
+          f0(pt1).asDenseMatrix.t * f0(pt2).asDenseMatrix + f1(pt1).asDenseMatrix.t * f1(pt2).asDenseMatrix
+        }
+
+        def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
+          implicitly[DimTraits[ThreeD]].createMatrixNxN(f(x, y).data)
+        }
+      }
+
+      val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val sampler = UniformSampler3D(domain, 7 * 7 * 7)
+      val kernel = covKernel
+      val gp = {
+        val config = LowRankGaussianProcessConfiguration[ThreeD](domain, sampler, _ => Vector3D(0.0, 0.0, 0.0), kernel, 5)
+        GaussianProcess.createLowRankGaussianProcess3D(config)
+      }
+      val fewPointsSampler = UniformSampler3D(domain, 2 * 2 * 2)
+      val pts = fewPointsSampler.sample.map(_._1)
+
+      for (pt1 <- pts; pt2 <- pts) {
+        val covGP = gp.cov(pt1, pt2)
+        val covKernel = kernel(pt1, pt2)
+        for (i <- 0 until 3; j <- 0 until 3) {
+          covGP(i, j) should be(covKernel(i, j) plusOrMinus 1e-2)
+        }
+      }
+    }
+
   }
-  
+
   describe("a specialized Gaussian process") {
-    it("yields the same deformations at the specialized points") {
+
+    object Fixture {
       val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
       val sampler = UniformSampler3D(domain, 6 * 6 * 6)
-      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, sampler, _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
-      val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
-      val points = sampler.sample.map(_._1)
-      val specializedGp = gp.specializeForPoints(points)
-      val coeffs = DenseVector.zeros[Float](gp.eigenPairs.size)
-      val gpInstance = gp.instance(coeffs)
-      val specializedGpInstance = specializedGp.instance(coeffs)
-      for (pt <- points) {
+      val gp = {
+        val config = LowRankGaussianProcessConfiguration[ThreeD](domain, sampler, _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
+        GaussianProcess.createLowRankGaussianProcess3D(config)
+      }
+      val specializedPoints = sampler.sample.map(_._1)
+      val specializedGp = gp.specializeForPoints(specializedPoints)
+    }
+
+    it("yields the same deformations at the specialized points") {
+      val f = Fixture
+
+      val coeffs = DenseVector.zeros[Float](f.gp.eigenPairs.size)
+      val gpInstance = f.gp.instance(coeffs)
+      val specializedGpInstance = f.specializedGp.instance(coeffs)
+      for (pt <- f.specializedPoints) {
         gpInstance(pt) should equal(specializedGpInstance(pt))
       }
 
-      for ((pt, df) <- specializedGp.instanceAtPoints(coeffs)) {
+      for ((pt, df) <- f.specializedGp.instanceAtPoints(coeffs)) {
         df should equal(gpInstance(pt))
       }
     }
 
     it("yields the same result for gp regression as a normal gp") {
-      val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 8 * 8 * 8), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
-      val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
+      val f = Fixture
 
       val trainingData = IndexedSeq((Point3D(-3.0, -3.0, -1.0), Vector3D(1.0, 1.0, 2.0)), (Point3D(-1.0, 3.0, 0.0), Vector3D(0.0, -1.0, 0.0)))
-      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
-
-      // do the same with a specialized
-      val sampler = UniformSampler3D(domain, 3 * 3 * 3)
-      val specializedPoints = sampler.sample.map(_._1)
-      val specializedGp = gp.specializeForPoints(specializedPoints)
-      val specializedPosteriorGP: LowRankGaussianProcess[ThreeD] = GaussianProcess.regression(specializedGp, trainingData, 1e-5, false)
+      val posteriorGP = GaussianProcess.regression(f.gp, trainingData, 1e-5)
+      val specializedPosteriorGP: LowRankGaussianProcess[ThreeD] = GaussianProcess.regression(f.specializedGp, trainingData, 1e-5, false)
 
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = specializedPosteriorGP.mean
       val phi1Posterior = posteriorGP.eigenPairs(0)._2
       val phi1PosteriorSpezialized = specializedPosteriorGP.eigenPairs(0)._2
-      
+
       // both posterior processes should give the same values at the specialized points
-      for (pt <- specializedPoints) {
+      for (pt <- f.specializedPoints.par) {
         for (d <- 0 until 3) {
           meanPosterior(pt)(d) should be(meanPosteriorSpecialized(pt)(d) plusOrMinus 1e-5)
           phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(pt)(d) plusOrMinus 1e-5)
+        }
+      }
+    }
+
+    it("yields the same covariance function as a normal gp") {
+      val f = Fixture
+
+      val specializedCov = f.specializedGp.cov
+      val cov = f.gp.cov
+      for (pt1 <- f.specializedPoints.par; pt2 <- f.specializedPoints) {
+        val covGp = cov(pt1, pt2)
+        val covSpecialized = specializedCov(pt1, pt2)
+        for (i <- 0 until 3; j <- 0 until 3) {
+          covGp(i, j) should be(covSpecialized(i, j) plusOrMinus 1e-5)
         }
       }
     }

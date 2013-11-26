@@ -80,12 +80,12 @@ object StatismoIO {
   def writeStatismoMeshModel(model: StatisticalMeshModel,  file: File): Try[Unit] = {
 
     val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
-    val pts = model.mesh.points.toIndexedSeq.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
+    val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
     val discretizedMean = model.mesh.points.map(p => p + model.gp.mean(p)).toIndexedSeq.flatten(_.data)
     val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDim, model.gp.rank)
     for {
-      (point, idx) <- model.mesh.points.toSeq.zipWithIndex
+      (point, idx) <- model.mesh.points.toSeq.par.zipWithIndex
       ((lmda, phi), j) <- model.gp.eigenPairs.zipWithIndex
     } pcaBasis(idx * model.gp.outputDim until (idx + 1) * model.gp.outputDim, j) := (phi(point) * Math.sqrt(lmda)).toBreezeVector
 
