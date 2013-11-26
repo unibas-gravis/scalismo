@@ -21,6 +21,8 @@ import scala.collection.immutable.HashMap
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.numerics.UniformSampler3D
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 trait GaussianProcess[D <: Dim] {
   val domain: BoxedDomain[D]
@@ -43,7 +45,7 @@ abstract class LowRankGaussianProcess[D <: Dim: DimTraits] extends GaussianProce
   def outputDim = dimTraits.dimensionality
   def rank = eigenPairs.size
 
-  val cov = new MatrixValuedPDKernel[D, D] {
+  val cov: MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
     def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
       val ptDim = dimTraits.dimensionality
       val phis = eigenPairs.map(_._2)
@@ -95,9 +97,9 @@ abstract class LowRankGaussianProcess[D <: Dim: DimTraits] extends GaussianProce
   /**
    * Compute the marginal distribution for the given point
    */
-    def marginal(pt : Point[D]) : MVNormalForPoint[D] = {     
-      MVNormalForPoint(pt, mean(pt), cov(pt, pt))      
-    }
+  def marginal(pt: Point[D]): MVNormalForPoint[D] = {
+    MVNormalForPoint(pt, mean(pt), cov(pt, pt))
+  }
 }
 
 class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], val points: IndexedSeq[Point[D]], val meanVector: DenseVector[Float], val lambdas: IndexedSeq[Float], val eigenMatrix: DenseMatrix[Float])
@@ -114,6 +116,22 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
   override val eigenPairs = lambdas.zip(phis)
   override val mean = meanAtPoint _
 
+  override val cov: MatrixValuedPDKernel[D, D] = {
+    new MatrixValuedPDKernel[D, D] {
+      def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
+
+        // if pt is in our map, we compute it efficiently, otherwise we 
+        // fall back to generic version
+        val cov: Option[MatrixNxN[D]] = for {
+          ptId1 <- pointToIdxMap.get(x)
+          ptId2 <- pointToIdxMap.get(y)
+        } yield computeCov(ptId1, ptId2)
+
+        cov.getOrElse(gp.cov(x, y))
+      }
+    }
+  }
+
   def instanceAtPoints(alpha: DenseVector[Float]): IndexedSeq[(Point[D], Vector[D])] = {
     require(eigenPairs.size == alpha.size)
     val instVal = instanceVector(alpha)
@@ -123,8 +141,22 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
 
   def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
     require(eigenPairs.size == alpha.size)
-    // (this corresponds to eigenMatrix * diag(stddef) * alpha + meanVec, but is more efficient
-    eigenMatrix * (stddev :* alpha) + meanVector
+
+    // the following code corrresponds to the breeze code:
+    //eigenMatrix * (stddev :* alpha) + meanVector
+    // but is much more efficient (and parallel)
+
+    val q = stddev :* alpha
+    val instance = DenseVector.zeros[Float](meanVector.size)
+    for (i <- (0 until instance.size).par) {
+      var j = 0;
+      while (j < alpha.size) {
+        instance(i) += eigenMatrix(i, j) * q(j)
+        j += 1
+      }
+      instance(i) += meanVector(i)
+    }
+    instance
 
   }
 
@@ -156,6 +188,35 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
       }
       case None => gpPhis(i)(pt)
     }
+  }
+
+  //compute covariance for two points with given ptIds
+  private def computeCov(ptId1: Int, ptId2: Int) = {
+    val eigenMatrixForPtId1 = eigenMatrix(ptId1 * outputDim until (ptId1 + 1) * outputDim, ::)
+    val eigenMatrixForPtId2 = eigenMatrix(ptId2 * outputDim until (ptId2 + 1) * outputDim, ::)
+    //val covValue = eigenMatrixForPtId1 * breeze.linalg.diag(stddev :* stddev) * eigenMatrixForPtId2.t 
+
+    // same as commented line above, but just much more efficient (as breeze does not have diag matrix, 
+    // the upper command does a lot of  unnecessary computations
+    val covValue = DenseMatrix.zeros[Float](outputDim, outputDim)
+
+    for (i <- (0 until outputDim).par) {
+      val ind1 = ptId1 * outputDim + i
+      var j = 0
+      while (j < outputDim) {
+        val ind2 = ptId2 * outputDim + j
+        var k = 0
+        var valueIJ = 0f
+        while (k < eigenMatrix.cols) {
+          valueIJ += eigenMatrix(ind1, k) * eigenMatrix(ind2, k) * lambdas(k)
+          k += 1
+        }
+        covValue(i, j) = valueIJ
+        j += 1
+      }
+    }
+
+    dimTraits.createMatrixNxN(covValue.data)
   }
 }
 
@@ -209,30 +270,27 @@ object GaussianProcess {
 
   def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[TwoD]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
-    new LowRankGaussianProcess2D(configuration.domain,  configuration.mean, eigenPairs)
+    new LowRankGaussianProcess2D(configuration.domain, configuration.mean, eigenPairs)
   }
 
   def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[ThreeD]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
-    new LowRankGaussianProcess3D(configuration.domain,  configuration.mean, eigenPairs)
+    new LowRankGaussianProcess3D(configuration.domain, configuration.mean, eigenPairs)
   }
-
-
 
   // Gaussian process regression for a low rank gaussian process
   // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
   // TODO maybe the implementations can be joined.
   def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
-	  gp match {
-	    case gp : SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, sigma2, meanOnly)
-	    case gp => regressionLowRankGP(gp, trainingData, sigma2, meanOnly)
-	  }
-	  
+    gp match {
+      case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, sigma2, meanOnly)
+      case gp => regressionLowRankGP(gp, trainingData, sigma2, meanOnly)
+    }
+
   }
-  
-  private def regressionLowRankGP[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean): LowRankGaussianProcess[D] = {  
-    
-    
+
+  private def regressionLowRankGP[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean): LowRankGaussianProcess[D] = {
+
     val dimTraits = implicitly[DimTraits[D]]
     def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -397,6 +455,5 @@ object GaussianProcess {
       new SpecializedLowRankGaussianProcess(unspecializedGP, gp.points, mean_pVector, lambdas_p, eigenMatrix_p)
     }
   }
-
 
 }
