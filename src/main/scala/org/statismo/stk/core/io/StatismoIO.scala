@@ -14,10 +14,12 @@ import org.statismo.stk.core.mesh.TriangleMesh
 import statisticalmodel.StatisticalMeshModel
 import org.statismo.stk.core.geometry._
 import java.util.Calendar
-
-import ncsa.hdf.`object`._; // the common object package
-import ncsa.hdf.`object`.h5._; // the HDF5 implementation
-import java.util.List;
+import ncsa.hdf.`object`._
+import ncsa.hdf.`object`.h5._
+import java.util.List
+import java.io.DataOutputStream
+import java.io.FileOutputStream
+import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
 
 
 object StatismoIO {
@@ -27,9 +29,6 @@ object StatismoIO {
 
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
-      datasetType <- h5file.readStringAttribute("/representer/", "datasetType")
-      _ <- if (!datasetType.equals("POLYGON_MESH")) Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
-      else Success(())
       meanArray <- h5file.readNDArray[Float]("/model/mean")
       meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
@@ -37,22 +36,19 @@ object StatismoIO {
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
       pcaVarianceVector = DenseVector(pcaVarianceArray.data)
 
-      vertArray <- h5file.readNDArray[Float]("/representer/points").flatMap(vertArray =>
-        if (vertArray.dims(0) != 3)
-          Failure(new Exception("the representer points are not 3D points"))
-        else
-          Success(vertArray))
-      vertMat = ndArrayToMatrix(vertArray)
-      points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
-      cellArray <- h5file.readNDArray[Int]("/representer/cells").flatMap(cellArray =>
-        if (cellArray.dims(0) != 3)
-          Failure(new Exception("the representer cells are not triangles"))
-        else
-          Success(cellArray))
-      cellMat = ndArrayToMatrix(cellArray)
-      cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
-      cellArray <- h5file.readNDArray[Int]("/representer/cells")
-      mesh = TriangleMesh(points, cells)
+      // read mesh according to type given in representer
+      mesh <- h5file.readStringAttribute("/representer/", "name") match {
+        case Success("vtkPolyDataRepresenter") => readVTKMeshFromRepresenterGroup(h5file)
+        case Success("itkMeshRepresenter") => readVTKMeshFromRepresenterGroup(h5file)
+        case Success(_) => {
+          h5file.readStringAttribute("/representer/", "datasetType") match {
+            case Success("POLYGON_MESH") => readStandardMeshFromRepresenterGroup(h5file)
+            case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
+            case Failure(t) => Failure(t)
+          }
+        }
+        case Failure(t) => Failure(t)
+      }
       _ <- Try { h5file.close() }
     } yield {
       // statismo stores the mean as the point position and not as a displaceme
@@ -77,7 +73,7 @@ object StatismoIO {
     modelOrFailure
   }
 
-  def writeStatismoMeshModel(model: StatisticalMeshModel,  file: File): Try[Unit] = {
+  def writeStatismoMeshModel(model: StatisticalMeshModel, file: File): Try[Unit] = {
 
     val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
     val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
@@ -97,11 +93,11 @@ object StatismoIO {
       _ <- h5file.writeArray("/model/pcaVariance", model.gp.eigenPairs.map(p => p._1).toArray)
       _ <- h5file.writeString("/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup("/representer")
-      
+
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
       _ <- h5file.writeStringAttribute(group.getFullName, "version", "0.1")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
-      
+
       _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
       _ <- h5file.writeNDArray[Float]("/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
       _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
@@ -132,4 +128,54 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
+  private def readStandardMeshFromRepresenterGroup(h5file: HDF5File): Try[TriangleMesh] = {
+    for {
+      vertArray <- h5file.readNDArray[Float]("/representer/points").flatMap(vertArray =>
+        if (vertArray.dims(0) != 3)
+          Failure(new Exception("the representer points are not 3D points"))
+        else
+          Success(vertArray))
+      vertMat = ndArrayToMatrix(vertArray)
+      points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
+      cellArray <- h5file.readNDArray[Int]("/representer/cells").flatMap(cellArray =>
+        if (cellArray.dims(0) != 3)
+          Failure(new Exception("the representer cells are not triangles"))
+        else
+          Success(cellArray))
+      cellMat = ndArrayToMatrix(cellArray)
+      cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
+      cellArray <- h5file.readNDArray[Int]("/representer/cells")
+    } yield TriangleMesh(points, cells)
+  }
+
+  /*
+   * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
+   */
+  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File): Try[TriangleMesh] = {
+    for {
+      rawdata <- h5file.readNDArray[Byte]("/representer/reference")
+      vtkFile <- writeTmpFile(rawdata.data)
+      triangleMesh <- MeshIO.readMesh(vtkFile)
+    } yield triangleMesh
+  }
+  
+  private def writeTmpFile(data: Array[Byte]): Try[File] = {
+    val tmpfile = File.createTempFile("temp", ".vtk")
+    tmpfile.deleteOnExit()
+
+    Try { 
+      val stream = new DataOutputStream(new FileOutputStream(tmpfile))
+      stream.write(data)
+      stream.close()
+    } map ( _ => tmpfile)
+  }
+  
+  def main(args : Array[String]) : Unit = { 
+    org.statismo.stk.core.initialize
+    readStatismoMeshModel(new File("c:/Users/Luethi/Downloads/ssmModel2.h5")) match { 
+      case Success(model) =>  VTKStatmodelViewer(model).startup(Array())
+      case Failure(f) => f.printStackTrace()
+    }
+  }
+  
 }
