@@ -49,9 +49,9 @@ object LandmarkIO {
     	val out = new java.io.FileWriter(f)
     	for (landmark<- landmarks) {
     	  val line = landmark._2.dimensionality match { 
-    	    case 1 =>  landmark._1 +"," + landmark._2(0) +",0,0"
-    	    case 2 => landmark._1 +"," + landmark._2(0) +"," +landmark._2(1) + ",0"
-    	    case 3 =>  landmark._1 +"," + landmark._2(0) +"," +landmark._2(1) + "," + landmark._2(2)
+    	    case 1 =>  landmark._1.trim +"," + landmark._2(0) +",0,0"
+    	    case 2 => landmark._1.trim +"," + landmark._2(0) +"," +landmark._2(1) + ",0"
+    	    case 3 =>  landmark._1.trim +"," + landmark._2(0) +"," +landmark._2(1) + "," + landmark._2(2)
     	    case _ => Failure(new Exception("Landmarks with dimensionality "+landmark._2.dimensionality +"not supported"))
     	  }
     	  out.write(line +"\n")
