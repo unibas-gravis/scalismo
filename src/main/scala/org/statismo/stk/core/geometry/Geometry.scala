@@ -33,6 +33,7 @@ abstract class Point[D <: Dim: DimTraits] extends Coordinate[D, Float] { self: C
   def +(that: Vector[D]): Point[D]
   def -(that: Vector[D]): Point[D]
   def -(that: Point[D]): Vector[D]
+  def toVector: Vector[D]
 
 }
 
@@ -70,6 +71,9 @@ trait PointLike[D <: Dim, PointRepr <: Point[D], VectorRepr <: Vector[D]] { self
     }
     createVector(newData)
   }
+
+  override def toVector: VectorRepr = createVector(self.data)
+
 }
 
 // Concrete instances for 1D, 2D and 3D
