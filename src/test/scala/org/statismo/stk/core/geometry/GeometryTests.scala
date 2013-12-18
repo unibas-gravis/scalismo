@@ -26,6 +26,9 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       p should not equal (v)
       p should not equal (vGeneric)
     }
+    it("can be described as a Vector3D") {
+      p.toVector should equal (v)
+    }
   }
 
   describe("A 3D Vector") {
