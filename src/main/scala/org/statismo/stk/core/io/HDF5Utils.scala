@@ -174,15 +174,14 @@ class HDF5File(h5file: FileFormat) {
     if (trimmedPath == "") return Success(parent)
 
     val groupnames = trimmedPath.split("/", 2)
-
-    val newGroupOrNull = h5file.get(parent.getFullName() + "/" + groupnames(0))
-    val newgroup = if (newGroupOrNull == null) {
-      // the group does not yet exist 
-      h5file.createGroup(groupnames(0), parent)
-    } else {
-      // the group already existed - return it
-      newGroupOrNull.asInstanceOf[Group]
+    
+    def getMember(name : String) = parent.getMemberList().find(_.getName() == name.trim())
+    
+    val newgroup = getMember(groupnames(0)) match { 
+      case Some(g) => g.asInstanceOf[Group]
+      case None =>   h5file.createGroup(groupnames(0), parent)
     }
+
     if (groupnames.length == 1) {
       // the path is just the group name, we are done and return
       Success(newgroup)
