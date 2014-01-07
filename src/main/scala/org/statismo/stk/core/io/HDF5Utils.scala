@@ -60,12 +60,12 @@ class HDF5File(h5file: FileFormat) {
       s.writeMetadata(attr)
     }
   }
-// should be merged with some type magic
+  // should be merged with some type magic
   def writeStringAttribute(path: String, attrName: String, attrValue: String) = {
     Try {
       val s = h5file.get(path)
       val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
-      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length+1, Datatype.NATIVE, Datatype.NATIVE);
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length + 1, Datatype.NATIVE, Datatype.NATIVE);
 
       val attr = new Attribute(attrName, dtype, Array(1))
       attr.setValue(Array(attrValue))
@@ -174,12 +174,12 @@ class HDF5File(h5file: FileFormat) {
     if (trimmedPath == "") return Success(parent)
 
     val groupnames = trimmedPath.split("/", 2)
-    
-    def getMember(name : String) = parent.getMemberList().find(_.getName() == name.trim())
-    
-    val newgroup = getMember(groupnames(0)) match { 
+
+    def getMember(name: String) = parent.getMemberList().find(_.getName() == name.trim())
+
+    val newgroup = getMember(groupnames(0)) match {
       case Some(g) => g.asInstanceOf[Group]
-      case None =>   h5file.createGroup(groupnames(0), parent)
+      case None => h5file.createGroup(groupnames(0), parent)
     }
 
     if (groupnames.length == 1) {
@@ -194,10 +194,13 @@ class HDF5File(h5file: FileFormat) {
 
   def createGroup(absolutePath: String): Try[Group] = {
 
-    val root = h5file.getRootNode().
-      asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject().
-      asInstanceOf[Group]
-
+    val root = if (h5file.getRootNode() == null) 
+      return Failure(new Throwable("file not correctly opened"))
+    else {
+      h5file.getRootNode()
+        .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject()
+        .asInstanceOf[Group]
+    }
     if (absolutePath.startsWith("/") == false)
       return Failure(new Exception("relative path provieded tocreateGroup: " + absolutePath))
     if (absolutePath.trim == "/")
@@ -230,7 +233,7 @@ object HDF5Utils {
 
   def hdf5Version = "to be defined"
 
-  def openFile(file: File, mode: FileAccessMode): HDF5File = {
+  def openFile(file: File, mode: FileAccessMode): Try[HDF5File] = {
 
     val filename = file.getAbsolutePath()
     val h5fileAccessMode = mode match {
@@ -238,14 +241,18 @@ object HDF5Utils {
       case WRITE => FileFormat.WRITE
       case CREATE => FileFormat.CREATE
     }
+
     val fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
     val h5file = fileFormat.createInstance(filename, h5fileAccessMode);
-    h5file.open()
-    new HDF5File(h5file)
+
+    if (h5file.open() == -1)
+      Failure(new Throwable("could not open file " + file.getAbsolutePath()))
+    else Success(new HDF5File(h5file))
+
   }
 
-  def openFileForReading(file: File): Try[HDF5File] = Try { openFile(file, READ) }
-  def openFileForWriting(file: File): Try[HDF5File] = Try { openFile(file, WRITE) }
-  def createFile(file: File): Try[HDF5File] = Try { openFile(file, CREATE) }
+  def openFileForReading(file: File): Try[HDF5File] = openFile(file, READ)
+  def openFileForWriting(file: File): Try[HDF5File] = openFile(file, WRITE)
+  def createFile(file: File): Try[HDF5File] = openFile(file, CREATE)
 
 }
