@@ -73,7 +73,7 @@ trait PointLike[D <: Dim, PointRepr <: Point[D], VectorRepr <: Vector[D]] { self
   }
 
   override def toVector: VectorRepr = createVector(self.data)
-
+  
 }
 
 // Concrete instances for 1D, 2D and 3D
