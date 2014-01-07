@@ -12,6 +12,7 @@ import org.statismo.stk.core.common.DiscreteDomain
 import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.registration.Transformation
 
 abstract class PDKernel[D <: Dim] { self =>
   def apply(x: Point[D], y: Point[D]): Double
@@ -101,6 +102,47 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
   }
 }
 
+case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint : Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
+  val dimTraits3D = implicitly[DimTraits[ThreeD]]
+
+  def mu(x: Point[ThreeD]): Vector[ThreeD] = {
+    var meanDisplacement = dimTraits3D.zeroVector
+    var i = 0;
+    while (i < ts.size) {
+      val t = ts(i)
+      meanDisplacement = meanDisplacement + (t(x) - x)
+      i += 1
+    }
+    meanDisplacement * (1.0 / ts.size)
+  }
+
+  @volatile
+  var cache = ImmutableLRU[Point[ThreeD], Vector[ThreeD]](cacheSizeHint)
+
+  def mu_memoized(x: Point[ThreeD]): Vector[ThreeD] = {
+    val (maybeMu, _) = cache.get(x)
+    maybeMu.getOrElse {
+      val newValue: Vector[ThreeD] = mu(x)
+      cache = (cache + (x, newValue))._2 // ignore evicted key
+      newValue
+    }
+  }
+
+  def apply(x: Point[ThreeD], y: Point[ThreeD]): Matrix3x3 = {
+    var ms = Matrix3x3.zeros
+    var i = 0;
+    while (i < ts.size) {
+      val t = ts(i)
+      val ux = t(x) - x
+      val uy = t(y) - y
+      ms = ms + (ux - mu_memoized(x)).outer(uy - mu_memoized(y))
+      i += 1
+    }
+    ms * (1f / (ts.size - 1))
+  }
+
+}
+
 object Kernel {
 
   def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
@@ -145,7 +187,7 @@ object Kernel {
       while (di < d) {
         var dj = 0
         while (dj < d) {
-          kxs(di, j * d + dj) = kxxj(di, dj) 
+          kxs(di, j * d + dj) = kxxj(di, dj)
           dj += 1
         }
         di += 1
