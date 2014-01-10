@@ -6,6 +6,8 @@ import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.mesh.TriangleMesh
+import breeze.stats.distributions.RandBasis
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim, +Pt <: Point[D]] {
@@ -115,6 +117,77 @@ case class SampleOnceSampler[D <: Dim, Pt <: Point[D]](val sampler: Sampler[D, P
   }
 }
 
+case class RandomMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
+
+  val p = 1.0 / mesh.area // should be replaced with real mesh volume
+  val volumeOfSampleRegion = mesh.area
+  def sample = {
+    val points = mesh.points.force
+    val m = new breeze.stats.random.MersenneTwister(seed = seed)
+    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.numberOfPoints)(new RandBasis(m))
+    val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
+    pts
+  }
+}
+
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
+  val p = 1.0 / mesh.area
+  val volumeOfSampleRegion = mesh.area
+  val areas = mesh.cells.map(mesh.computeTriangleArea)
+  val min = breeze.stats.DescriptiveStats.percentile(areas, 0.005)
+  println("perc value = " + min)
+
+  val ratios = areas.map(s => (s / min).ceil.toInt)
+  
+  if(ratios.max > 100000)
+	  throw new Exception("Mesh traingulation is unregular. Differences in triangle areas are too big.")
+
+  val sum = ratios.sum
+  scala.util.Random.setSeed(seed)
+
+  val replicatedCells = new Array[Int](ratios.sum)
+  var offset = 0
+  ratios.zipWithIndex.foreach(pair => {
+    val cellID = pair._2
+    val mult = pair._1
+    for (i <- 0 until mult) {
+      replicatedCells(offset) = cellID
+      offset = offset + 1
+    }
+  })
+
+  val replicatedCellsSize = replicatedCells.size
+  
+  
+  val samplePoints = for (i <- 0 until numberOfPoints) yield {
+    val drawnIndex = scala.util.Random.nextInt(replicatedCellsSize)
+    val cellidx = replicatedCells(drawnIndex)
+    mesh.samplePointInTriangleCell(mesh.cells(cellidx))
+  }
+  assert(samplePoints.size == numberOfPoints)
+
+  def sample = {
+    samplePoints.map(pt => (pt, p))
+  }
+}
+
+case class FixedPointsMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
+
+  val volumeOfSampleRegion = mesh.area
+  val p = 1.0 / mesh.area
+
+  scala.util.Random.setSeed(seed)
+  val meshPoints = mesh.points.force
+  val samplePoints = for (i <- 0 until numberOfPoints) yield {
+    val idx = scala.util.Random.nextInt(mesh.numberOfPoints)
+    meshPoints(idx)
+  }
+  assert(samplePoints.size == numberOfPoints)
+
+  def sample = {
+    samplePoints.map(pt => (pt, p))
+  }
+}
 
 
 //}
