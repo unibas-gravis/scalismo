@@ -71,7 +71,6 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val translation = TranslationSpace2D()(DenseVector[Float](10, 0))
       val translatedImg = continuousImage.compose(translation)
       val resampledImage = Resample.sample[Short](translatedImg, discreteImage.domain, 0)
-      ImageIO.writeImage(resampledImage, new File("/tmp/resampled.h5"))
 
     }
 
