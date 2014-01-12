@@ -105,7 +105,7 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
 
 case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
   val dimTraits3D = implicitly[DimTraits[ThreeD]]
-   
+
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
   def mu(x: Point[ThreeD]): Vector[ThreeD] = {
@@ -141,13 +141,14 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
 
 object Kernel {
 
+
   def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
     val d = k.outputDim
 
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
-    for { (xi, i) <- xiWithIndex; (xj, j) <- xjWithIndex } {
+    for { (xi, i) <- xiWithIndex; (xj, j) <- xjWithIndex.drop(i) } {
       val kxixj = k(xi, xj);
       var di = 0;
       while (di < d) {
@@ -162,7 +163,7 @@ object Kernel {
     }
     K
   }
-
+  
   /**
    * for every domain point x in the list, we compute the kernel vector
    * kx = (k(x, x1), ... k(x, xm))
@@ -217,12 +218,11 @@ object Kernel {
 
     val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled / volumeOfSampleRegion) * pinv(diag(lambdaMat(0 until numParams)))
 
-    def computePhis(x : Point[D]) : DenseMatrix[Double] = computeKernelVectorFor(x, ptsForNystrom, k) * W
+    def computePhis(x: Point[D]): DenseMatrix[Double] = computeKernelVectorFor(x, ptsForNystrom, k) * W
     val computePhisMemoized = Memoize(computePhis, 1000)
-    
-    
+
     def phi(i: Int)(x: Point[D]) = {
-       val value = computePhisMemoized(x)
+      val value = computePhisMemoized(x)
       // extract the right entry for the i-th phi function
       createVector(value(::, i).toArray.map(_.toFloat))
 
