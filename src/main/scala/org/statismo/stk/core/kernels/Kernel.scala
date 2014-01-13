@@ -13,6 +13,7 @@ import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.utils.Memoize
 
 abstract class PDKernel[D <: Dim] { self =>
   def apply(x: Point[D], y: Point[D]): Double
@@ -102,14 +103,16 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
   }
 }
 
-case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint : Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
+case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
   val dimTraits3D = implicitly[DimTraits[ThreeD]]
+   
+  val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
   def mu(x: Point[ThreeD]): Vector[ThreeD] = {
     var meanDisplacement = dimTraits3D.zeroVector
     var i = 0;
     while (i < ts.size) {
-      val t = ts(i)
+      val t = ts_memoized(i)
       meanDisplacement = meanDisplacement + (t(x) - x)
       i += 1
     }
@@ -119,20 +122,13 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
   @volatile
   var cache = ImmutableLRU[Point[ThreeD], Vector[ThreeD]](cacheSizeHint)
 
-  def mu_memoized(x: Point[ThreeD]): Vector[ThreeD] = {
-    val (maybeMu, _) = cache.get(x)
-    maybeMu.getOrElse {
-      val newValue: Vector[ThreeD] = mu(x)
-      cache = (cache + (x, newValue))._2 // ignore evicted key
-      newValue
-    }
-  }
+  val mu_memoized = Memoize(mu, cacheSizeHint)
 
   def apply(x: Point[ThreeD], y: Point[ThreeD]): Matrix3x3 = {
     var ms = Matrix3x3.zeros
     var i = 0;
     while (i < ts.size) {
-      val t = ts(i)
+      val t = ts_memoized(i)
       val ux = t(x) - x
       val uy = t(y) - y
       ms = ms + (ux - mu_memoized(x)).outer(uy - mu_memoized(y))
@@ -221,20 +217,13 @@ object Kernel {
 
     val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled / volumeOfSampleRegion) * pinv(diag(lambdaMat(0 until numParams)))
 
-    @volatile
-    var cache = ImmutableLRU[Point[D], DenseMatrix[Double]](1000)
+    def computePhis(x : Point[D]) : DenseMatrix[Double] = computeKernelVectorFor(x, ptsForNystrom, k) * W
+    val computePhisMemoized = Memoize(computePhis, 1000)
+    
+    
     def phi(i: Int)(x: Point[D]) = {
-      // check the cache. if value is not there exit
-      // TODO make it nicer using scalaz Memo class
-      // TODO make cache size configurable
-      val (maybeKx, _) = cache.get(x)
-      val value = maybeKx.getOrElse {
-        val newValue: DenseMatrix[Double] = (computeKernelVectorFor(x, ptsForNystrom, k) * W)
-        cache = (cache + (x, newValue))._2 // ignore evicted key
-        newValue
-      }
-
-      // create a vector or the right type
+       val value = computePhisMemoized(x)
+      // extract the right entry for the i-th phi function
       createVector(value(::, i).toArray.map(_.toFloat))
 
     }
