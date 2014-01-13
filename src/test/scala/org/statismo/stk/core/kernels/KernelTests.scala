@@ -35,7 +35,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
 
   describe("a Kernel") {
-    ignore("yields correct multiple when  multiplied by a scalar") {
+    it("yields correct multiple when  multiplied by a scalar") {
       val gk = GaussianKernel1D(3.5)
       val gkMult = gk * 100
       val pt1 = 0.1
@@ -43,7 +43,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       gk(pt1, pt2) * 100.0 should be(gkMult(pt1, pt2))
     }
 
-    ignore("yields correct result when two kernels are added") {
+    it("yields correct result when two kernels are added") {
       val gk = GaussianKernel1D(3.5)
       val gk2 = gk + gk
       val pt1 = 0.1
@@ -54,12 +54,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
   }
   describe("A scalar valued Gaussian kernel") {
-    ignore("evaluated with twice the same argument yields 1") {
+    it("evaluated with twice the same argument yields 1") {
       val gk = GaussianKernel1D(3.5)
       gk(0.1, 0.1) should be(1.0 plusOrMinus 1e-8)
     }
 
-    ignore("given two arguments far apart yields almost 0") {
+    it("given two arguments far apart yields almost 0") {
       val gk = GaussianKernel1D(1.0)
       gk(0.1, 100) should be(0.0 plusOrMinus 1e-8)
     }
@@ -84,11 +84,13 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
           def takeDerivative(x: Point[ThreeD]) = ???
         }
       }
-      val sampleCovKernel = SampleCovarianceKernel3D(sampleTransformations.toIndexedSeq)
 
-      val testPtSampler = UniformDistributionRandomSampler3D(domain, 20)
+
+      val testPtSampler = UniformDistributionRandomSampler3D(domain, 100)
       val pts = testPtSampler.sample.map(_._1)
-
+      
+      val sampleCovKernel = SampleCovarianceKernel3D(sampleTransformations.toIndexedSeq, pts.size)
+      
       for (x <- pts.par) {
         for (d <- 0 until 3) {
           sampleCovKernel.mu(x)(d) should be(mu(x)(d) plusOrMinus (0.2f))
