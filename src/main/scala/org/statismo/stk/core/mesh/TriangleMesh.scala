@@ -22,6 +22,11 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
 
   val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
 
+  def isDefinedAt(pt : Point[ThreeD]) = {
+    val (closestPt, _) = findClosestPoint(pt)
+    closestPt == pt
+  }
+  
   def findClosestPoint(pt: Point[ThreeD]): (Point[ThreeD], Int) = {
     val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
     nearestPtsAndIndices(0)
