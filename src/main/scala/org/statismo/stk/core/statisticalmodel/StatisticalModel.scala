@@ -11,15 +11,6 @@ import org.statismo.stk.core.geometry._
  */
 class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProcess[ThreeD]) {
 
-  private val meshBB = mesh.boundingBox
-  private val gpDomain = gp.domain
-  require(meshBB.origin(0) >= gpDomain.origin(0)
-    && meshBB.origin(1) >= gpDomain.origin(1)
-    && meshBB.origin(2) >= gpDomain.origin(2)
-    && meshBB.extent(0) <= gpDomain.extent(0)
-    && meshBB.extent(1) <= gpDomain.extent(1)
-    && meshBB.extent(2) <= gpDomain.extent(2))
-
   def posterior(trainingData: IndexedSeq[(Point[ThreeD], Vector[ThreeD])], sigma2: Double, meanOnly: Boolean = false): StatisticalMeshModel = {
     val posteriorGP = GaussianProcess.regression(gp, trainingData, sigma2, meanOnly)
     new StatisticalMeshModel(mesh, posteriorGP)
