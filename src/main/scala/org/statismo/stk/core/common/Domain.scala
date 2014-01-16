@@ -6,7 +6,7 @@ import breeze.linalg.DenseVector
 
 
 
-sealed trait Domain[D <: Dim] { self =>
+trait Domain[D <: Dim] { self =>
   def isDefinedAt(pt : Point[D]) : Boolean
   def intersection(that : Domain[D]) = new ImplicitDomain[D] {
     override val chi = (pt : Point[D]) =>  self.isDefinedAt(pt) && that.isDefinedAt(pt)
