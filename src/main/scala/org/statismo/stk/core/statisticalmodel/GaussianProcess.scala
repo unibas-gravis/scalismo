@@ -308,6 +308,10 @@ object GaussianProcess {
       val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
       nearestPtsAndIndices(0)
     }
+    def findClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)] = {
+      val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n))
+      nearestPtsAndIndices
+    }
 
     val n = transformations.size
     val p = samplePts.size
@@ -340,15 +344,24 @@ object GaussianProcess {
     // to compensate for the numerical approximation using the sampled poitns
     val normFactor = sampler.volumeOfSampleRegion / sampler.numberOfPoints
 
+    def interpolateAtPoint(x: Point[D], dataVec: DenseVector[Double]): Vector[D] = {
+      val nNbrPts = Math.pow(2, dim).toInt
+      val ptAndIds = findClosestPoints(x, nNbrPts)
+       
+      var v = dimTraits.zeroVector
+      var sumW = 0.0
+      for ((pt, id) <- ptAndIds) {
+        val w = 1.0 / math.max((pt - x).norm, 1e-5)
+        v += dimTraits.createVector(dataVec(id * dim until (id + 1) * dim).map(_.toFloat).data) * w
+        sumW += w
+      }
+      v * (1.0 / sumW)
+    }
     def mu(x: Point[D]): Vector[D] = {
-      val (pt, id) = findClosestPoint(x)
-      val m = meanVec(id * 3 until (id + 1) * 3).copy
-      dimTraits.createVector(m.data.map(_.toFloat))
+      interpolateAtPoint(x, meanVec)
     }
     def phi(i: Int)(x: Point[D]): Vector[D] = {
-      val (pt, id) = findClosestPoint(x)
-      val v = U(id * 3 until (id + 1) * 3, i).copy
-      dimTraits.createVector(v.data.map(_.toFloat)) * Math.sqrt(1.0 / normFactor)
+      interpolateAtPoint(x, U(::, i)) * Math.sqrt(1.0 / normFactor)
     }
 
     val lambdas = d2.toArray.toIndexedSeq.map(l => (l * normFactor).toFloat)

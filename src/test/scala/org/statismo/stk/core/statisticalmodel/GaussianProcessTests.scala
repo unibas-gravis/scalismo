@@ -20,12 +20,13 @@ import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.io.StatismoIO
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.utils.Visualization.VTKViewer
+import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   describe("A Gaussian process regression") {
-    ignore("keeps the landmark points fixed for a 1D case") {
+    it("keeps the landmark points fixed for a 1D case") {
       val domain = BoxedDomain1D(-5.0, 5)
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(5))
       val config = LowRankGaussianProcessConfiguration[OneD](domain, UniformSampler1D(domain, 500), _ => Vector1D(0f), kernel, 100)
@@ -40,7 +41,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
   }
 
-  ignore("keeps the landmark points fixed for a 2D case") {
+  it("keeps the landmark points fixed for a 2D case") {
     val domain = BoxedDomain2D((-5.0, -5.0), (5.0, 5.0))
     val config = LowRankGaussianProcessConfiguration[TwoD](domain, UniformSampler2D(domain, 400), _ => Vector2D(0.0, 0.0), UncorrelatedKernel2x2(GaussianKernel2D(5)), 100)
     val gp = GaussianProcess.createLowRankGaussianProcess2D(config)
@@ -54,7 +55,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
   }
 
-  ignore("keeps the landmark points fixed for a 3D case") {
+  it("keeps the landmark points fixed for a 3D case") {
     val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
     val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 8 * 8 * 8), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
     val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
@@ -81,7 +82,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    ignore("yields the same covariance as given by the kernel") {
+    it("yields the same covariance as given by the kernel") {
       val f = Fixture
       val fewPointsSampler = UniformSampler3D(f.domain, 2 * 2 * 2)
       val pts = fewPointsSampler.sample.map(_._1)
@@ -94,7 +95,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    ignore("yields the same covariance as given by the kernel for a real matrix valued kernel (with nondiagonal block structure)") {
+    it("yields the same covariance as given by the kernel for a real matrix valued kernel (with nondiagonal block structure)") {
 
       val covKernel = new MatrixValuedPDKernel[ThreeD, ThreeD] {
         val f0 = (pt: Point[ThreeD]) => pt.toBreezeVector
@@ -142,7 +143,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val specializedGp = gp.specializeForPoints(specializedPoints)
     }
 
-    ignore("yields the same deformations at the specialized points") {
+    it("yields the same deformations at the specialized points") {
       val f = Fixture
 
       val coeffs = DenseVector.zeros[Float](f.gp.eigenPairs.size)
@@ -157,7 +158,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    ignore("yields the same result for gp regression as a normal gp") {
+    it("yields the same result for gp regression as a normal gp") {
       val f = Fixture
 
       val trainingData = IndexedSeq((Point3D(-3.0, -3.0, -1.0), Vector3D(1.0, 1.0, 2.0)), (Point3D(-1.0, 3.0, 0.0), Vector3D(0.0, -1.0, 0.0)))
@@ -178,7 +179,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    ignore("yields the same covariance function as a normal gp") {
+    it("yields the same covariance function as a normal gp") {
       val f = Fixture
 
       val specializedCov = f.specializedGp.cov
@@ -220,7 +221,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
       val (lambdas1, _) = gp1.eigenPairs.unzip
       val (lambdas2, _) = gp2.eigenPairs.unzip
-      for ((l1, l2) <- lambdas1 zip lambdas2 if l1 > 1e-5 && l2 > 1e-5)  {
+      for ((l1, l2) <- lambdas1 zip lambdas2 if l1 > 1e-5 && l2 > 1e-5) {
         l1 should be(l2 plusOrMinus (l1 * 0.05))
       }
     }
