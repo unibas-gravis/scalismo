@@ -96,7 +96,7 @@ object LandmarkRegistration {
     val (uMat, dMat, vTMat) = svd(Sigma_xy)
 
     val S = DenseMatrix.eye[Double](dimensionality)
-    if (breeze.linalg.det(Sigma_xy) < 0) S(-1, -1) = -1
+    if (breeze.linalg.det(Sigma_xy) < 0) S(dimensionality-1, dimensionality-1) = -1
     val R = uMat * S * vTMat
     val t = mu_y - R * mu_x
 
