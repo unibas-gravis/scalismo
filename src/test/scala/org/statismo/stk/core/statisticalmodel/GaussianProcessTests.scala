@@ -18,6 +18,9 @@ import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.io.StatismoIO
+import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.utils.Visualization.VTKViewer
+import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
@@ -191,4 +194,36 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
   }
 
+  describe("a pca model, estimates the first eigenvalue from the samples") {
+    it("estimates the same variance for the first eigenmode independent of the discretization") {
+      org.statismo.stk.core.initialize()
+
+      // we create artifical samples from an existing model
+      val path = getClass().getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+
+      val samples = for (i <- 0 until 10) yield model.sample
+      val transforms = for (s <- samples) yield new Transformation[ThreeD] {
+        val samplePts = s.points.force
+        override def apply(x: Point[ThreeD]): Point[ThreeD] = {
+          val (_, ptId) = model.mesh.findClosestPoint(x)
+          samplePts(ptId)
+        }
+        override def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = ???
+      }
+
+      // model building
+      val sampler1 = FixedPointsUniformMeshSampler3D(model.mesh, 50000, 42)
+      val gp1 = GaussianProcess.createLowRankGPFromTransformations(model.mesh, transforms, sampler1)
+
+      val sampler2 = FixedPointsUniformMeshSampler3D(model.mesh, 100000, 42)
+      val gp2 = GaussianProcess.createLowRankGPFromTransformations(model.mesh, transforms, sampler2)
+
+      val (lambdas1, _) = gp1.eigenPairs.unzip
+      val (lambdas2, _) = gp2.eigenPairs.unzip
+      for ((l1, l2) <- lambdas1 zip lambdas2 if l1 > 1e-5 && l2 > 1e-5) {
+        l1 should be(l2 plusOrMinus (l1 * 0.05))
+      }
+    }
+  }
 }
