@@ -9,7 +9,7 @@ trait Cell {
   def pointIds : IndexedSeq[Int]
 }
 
-trait DiscreteDomain[D <: Dim] {
+trait DiscreteDomain[D <: Dim] extends Domain[D]{
   def dimensionality: Int
   def points: SeqView[Point[D],Seq[_]]
   // def cells : IndexedSeq[Cell] // TODO add it later here

@@ -21,11 +21,34 @@ import java.io.DataOutputStream
 import java.io.FileOutputStream
 import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
 
-
 object StatismoIO {
 
   def readStatismoMeshModel(file: File): Try[StatisticalMeshModel] = {
     val filename = file.getAbsolutePath()
+
+    def extractPcaBasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]) : DenseMatrix[Float] = {
+
+      val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l).toFloat)
+      val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) (1.0f / l) else 0f)
+
+      val UTU = pcaBasisMatrix(::, 0 until 1).t * pcaBasisMatrix(::, 0 until 1) // take only first row of to be faster
+      if (Math.abs(UTU(0, 0) - pcaVarianceVector(0)) < pcaVarianceVector(0) * 1e-3) {
+        // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix, 
+        // i.e. pcaBasis = U * sqrt(lmbda), where U is a matrix of eigenvectors and lmbda the corresponding eigenvalues. 
+        // We recover U from it.
+        
+        // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
+        // (diag returns densematrix, so the direct computation would be very slow)
+        val U = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
+        for (i <- 0 until pcaBasisMatrix.cols) {
+          U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+        }
+        U
+      } else {
+        pcaBasisMatrix // this is already the right matrix - nothing to do here
+      }
+
+    }
 
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
@@ -56,18 +79,8 @@ object StatismoIO {
       def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
-      // statismo stores the pcaBasisMatrix: each column corresponds to phi_i * sqrt(lambda_i)
-      // we recover phi_i from it
-      val lambdaSqrtInv = pcaVarianceVector.map(l => if (l > 1e-8) (1.0 / math.sqrt(l)).toFloat else 0f)
-
-      // efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
-      // (diag returns densematrix, so the direct computation would be very slow)
-      val pcaBasisNormalized = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
-      for (i <- 0 until pcaBasisMatrix.cols) {
-        pcaBasisNormalized(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
-      }
+      val pcaBasisNormalized = extractPcaBasisMatrix(pcaBasisMatrix, pcaVarianceVector)
       StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisNormalized)
-
     }
 
     modelOrFailure
@@ -83,7 +96,7 @@ object StatismoIO {
     for {
       (point, idx) <- model.mesh.points.toSeq.par.zipWithIndex
       ((lmda, phi), j) <- model.gp.eigenPairs.zipWithIndex
-    } pcaBasis(idx * model.gp.outputDim until (idx + 1) * model.gp.outputDim, j) := (phi(point) * Math.sqrt(lmda)).toBreezeVector
+    } pcaBasis(idx * model.gp.outputDim until (idx + 1) * model.gp.outputDim, j) := (phi(point)).toBreezeVector
 
     val maybeError = for {
       h5file <- HDF5Utils.createFile(file)
@@ -158,24 +171,24 @@ object StatismoIO {
       triangleMesh <- MeshIO.readMesh(vtkFile)
     } yield triangleMesh
   }
-  
+
   private def writeTmpFile(data: Array[Byte]): Try[File] = {
     val tmpfile = File.createTempFile("temp", ".vtk")
     tmpfile.deleteOnExit()
 
-    Try { 
+    Try {
       val stream = new DataOutputStream(new FileOutputStream(tmpfile))
       stream.write(data)
       stream.close()
-    } map ( _ => tmpfile)
+    } map (_ => tmpfile)
   }
-  
-  def main(args : Array[String]) : Unit = { 
+
+  def main(args: Array[String]): Unit = {
     org.statismo.stk.core.initialize
-    readStatismoMeshModel(new File("c:/Users/Luethi/Downloads/ssmModel2.h5")) match { 
-      case Success(model) =>  VTKStatmodelViewer(model).startup(Array())
+    readStatismoMeshModel(new File("c:/Users/Luethi/Downloads/ssmModel2.h5")) match {
+      case Success(model) => VTKStatmodelViewer(model).startup(Array())
       case Failure(f) => f.printStackTrace()
     }
   }
-  
+
 }
