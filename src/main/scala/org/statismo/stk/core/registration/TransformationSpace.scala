@@ -46,7 +46,7 @@ class ProductTransformationSpace[D <: Dim, OuterType <: TransformationSpace[D], 
   def parametersDimensionality = outer.parametersDimensionality + inner.parametersDimensionality
   def identityTransformParameters = DenseVector.vertcat(outer.identityTransformParameters, inner.identityTransformParameters)
 
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[D] = {
 
     new Transformation[D] {
       def apply(x: Point[D]) = {
@@ -104,7 +104,7 @@ case class TranslationSpace1D() extends TransformationSpace[OneD] {
   
   override def identityTransformParameters = DenseVector(0.0f)
   
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[OneD] = {
     new Transformation[OneD] {
       def apply(pt: Point[OneD]) : Point[OneD] = Point1D(p(0).toFloat + pt(0))
       def takeDerivative(x: Point[OneD]) = {
@@ -112,12 +112,12 @@ case class TranslationSpace1D() extends TransformationSpace[OneD] {
       }
     }
   }
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     Some(TranslationSpace1D()(-p))
   }
 
-  def parametersDimensionality: Int = 1
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[OneD] =>
+  override def parametersDimensionality: Int = 1
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[OneD] =>
     DenseMatrix.eye[Float](1)
   }
 }
@@ -128,7 +128,7 @@ case class TranslationSpace2D() extends TransformationSpace[TwoD] {
   def parametersDimensionality: Int = 2
   override def identityTransformParameters = DenseVector(0.0f, 0.0f)
   
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[TwoD]= {
     new Transformation[TwoD] {
       def apply(pt: Point[TwoD]) : Point[TwoD] = Point2D(p(0).toFloat + pt(0), p(1).toFloat + pt(1))
       def takeDerivative(x: Point[TwoD]) = {
@@ -136,11 +136,11 @@ case class TranslationSpace2D() extends TransformationSpace[TwoD] {
       }
     }
   }
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     Some(TranslationSpace2D()(-p))
   }
 
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[TwoD] =>
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[TwoD] =>
     DenseMatrix.eye[Float](2)
   }
 }
@@ -150,7 +150,7 @@ case class TranslationSpace3D() extends TransformationSpace[ThreeD] {
   def parametersDimensionality: Int = 3
   override def identityTransformParameters = DenseVector(0f, 0f, 0f)
   
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[ThreeD]= {
     new Transformation[ThreeD] {
       def apply(pt: Point[ThreeD]) : Point[ThreeD] = Point3D(p(0).toFloat + pt(0), p(1).toFloat + pt(1), p(2).toFloat + pt(2))
       def takeDerivative(x: Point[ThreeD]) = {
@@ -158,11 +158,11 @@ case class TranslationSpace3D() extends TransformationSpace[ThreeD] {
       }
     }
   }
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     Some(TranslationSpace3D()(-p))
   }
 
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[ThreeD] =>
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[ThreeD] =>
     DenseMatrix.eye[Float](3)
   }
 }
@@ -176,7 +176,7 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
   def rotationParametersToParameterVector(phi: Double, theta: Double, psi: Double): ParameterVector = {
     DenseVector(phi.toFloat, theta.toFloat, psi.toFloat)
   }
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[ThreeD]= {
     require(p.length == 3) 
     //
     // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
@@ -211,11 +211,11 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
     }
   }
 
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     Some(RotationSpace3D(centre)(-p))
   }
 
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[ThreeD] =>
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[ThreeD] =>
  
     val cospsi = Math.cos(p(2))
     val sinpsi = Math.sin(p(2)) 
@@ -267,7 +267,7 @@ override def identityTransformParameters = DenseVector(0f)
   def rotationParametersToParameterVector(phi: Double): ParameterVector = {
     DenseVector(phi.toFloat)
   }
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[TwoD]= {
     require(p.length == 1)
 
     val rotMatrix = Matrix2x2(
@@ -289,11 +289,11 @@ override def identityTransformParameters = DenseVector(0f)
     }
   }
 
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     Some(RotationSpace2D(centre)(-p))
   }
 
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[TwoD] =>
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[TwoD] =>
     val sa = math.sin(p(0))
     val ca = math.cos(p(0))
     val cx = centre(0)
@@ -310,7 +310,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
 
   def parametersDimensionality: Int = 1
     override def identityTransformParameters = DenseVector(1f)
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[ThreeD] = {
     require(p.length == 1)
 
     new Transformation[ThreeD] {
@@ -325,7 +325,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
     }
   }
 
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     if (p(0) == 0) {
       throw new Exception("Inverse transfrom of scaling by 0 not allowed !!")
       None
@@ -333,7 +333,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
       Some(ScalingSpace3D()(DenseVector(1 / p(0))))
   }
 
-  def takeDerivativeWRTParameters(p: ParameterVector) = {
+  override def takeDerivativeWRTParameters(p: ParameterVector) = {
     x: Point[ThreeD] => DenseMatrix((x(0)), (x(1)), (x(2)))
   }
 }
@@ -342,7 +342,7 @@ case class ScalingSpace2D() extends TransformationSpace[TwoD] {
 
   def parametersDimensionality: Int = 1
     override def identityTransformParameters = DenseVector(1f)
-  def apply(p: ParameterVector) = {
+  override def apply(p: ParameterVector) : Transformation[TwoD] = {
     require(p.length == 1)
 
     new Transformation[TwoD] {
@@ -357,7 +357,7 @@ case class ScalingSpace2D() extends TransformationSpace[TwoD] {
     }
   }
 
-  def inverseTransform(p: ParameterVector) = {
+  override def inverseTransform(p: ParameterVector) = {
     if (p(0) == 0) {
       throw new Exception("Inverse transfrom of scaling by 0 not allowed !!")
       None
@@ -365,7 +365,7 @@ case class ScalingSpace2D() extends TransformationSpace[TwoD] {
       Some(ScalingSpace2D()(DenseVector(1 / p(0))))
   }
 
-  def takeDerivativeWRTParameters(p: ParameterVector) = {
+  override def takeDerivativeWRTParameters(p: ParameterVector) = {
     x: Point[TwoD] => DenseMatrix((x(0)), (x(1)))
   }
 }
