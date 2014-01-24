@@ -135,7 +135,6 @@ case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoint
   val volumeOfSampleRegion = mesh.area
   val areas = mesh.cells.map(mesh.computeTriangleArea)
   val min = breeze.stats.DescriptiveStats.percentile(areas, 0.005)
-  println("perc value = " + min)
 
   val ratios = areas.map(s => (s / min).ceil.toInt)
   
