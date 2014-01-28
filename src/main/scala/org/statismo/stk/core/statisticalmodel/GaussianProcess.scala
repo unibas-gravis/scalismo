@@ -347,7 +347,7 @@ object GaussianProcess {
     def interpolateAtPoint(x: Point[D], dataVec: DenseVector[Double]): Vector[D] = {
       val nNbrPts = Math.pow(2, dim).toInt
       val ptAndIds = findClosestPoints(x, nNbrPts)
-       
+
       var v = dimTraits.zeroVector
       var sumW = 0.0
       for ((pt, id) <- ptAndIds) {
@@ -374,19 +374,30 @@ object GaussianProcess {
   // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
   // TODO maybe the implementations can be joined.
   def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+    val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2) }
+    
     gp match {
-      case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, sigma2, meanOnly)
-      case gp => regressionLowRankGP(gp, trainingData, sigma2, meanOnly)
+      case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingDataWithNoise, meanOnly)
+      case gp => regressionLowRankGP(gp, trainingDataWithNoise, meanOnly)
     }
 
   }
 
-  private def regressionLowRankGP[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean): LowRankGaussianProcess[D] = {
+  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+    gp match {
+      case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, meanOnly)
+      case gp => regressionLowRankGP(gp, trainingData, meanOnly)
+    }
+
+  }
+
+  private def regressionLowRankGP[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
 
     val dimTraits = implicitly[DimTraits[D]]
+    val dim = dimTraits.dimensionality
     def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
-    val (xs, ys) = trainingData.unzip
+    val (xs, ys, sigma2s) = trainingData.unzip3
 
     val yVec = flatten(ys)
     val meanValues = xs.map(gp.mean)
@@ -401,9 +412,21 @@ object GaussianProcess {
       Q(i * d until i * d + d, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
     }
 
-    val M = Q.t * Q + DenseMatrix.eye[Double](phis.size) * sigma2
+    // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
+    // As there is only one sigma for each point (but the point has dim components) we need
+    // to correct the index for sigma
+    val QtL = Q.t.copy
+    val sigma2sInv = sigma2s.map { sigma2 => 
+       val divisor = math.max(1e-8, sigma2)
+       1.0 / divisor
+    }
+    for (i <- 0 until QtL.cols) {
+      QtL(::, i) *= sigma2sInv(i / dim)
+    }
+
+    val M = QtL * Q + DenseMatrix.eye[Double](phis.size)
     val Minv = breeze.linalg.pinv(M)
-    val mean_coeffs = (Minv * Q.t).map(_.toFloat) * (yVec - mVec)
+    val mean_coeffs = (Minv * QtL).map(_.toFloat) * (yVec - mVec)
 
     val mean_p = gp.instance(mean_coeffs)
 
@@ -413,7 +436,7 @@ object GaussianProcess {
 
     } else {
       val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * Minv * D * sigma2
+      val Sigma = D * Minv * D
       val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
       val innerU = innerUDbl.map(_.toFloat)
       @volatile
@@ -443,6 +466,7 @@ object GaussianProcess {
       val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
       new LowRankGaussianProcess[D](gp.domain, mean_p, lambdas_p.zip(phis_p))
     }
+
   }
 
   /**
@@ -450,12 +474,14 @@ object GaussianProcess {
    * This implementation explicitly returns a SpecializedLowRankGaussainProcess
    * TODO the implementation is almost the same as for the standard regression. Maybe they couuld be merged
    */
-  private def regressionSpecializedLowRankGP[D <: Dim: DimTraits](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): SpecializedLowRankGaussianProcess[D] = {
+  private def regressionSpecializedLowRankGP[D <: Dim: DimTraits](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): SpecializedLowRankGaussianProcess[D] = {
 
     val dimTraits = implicitly[DimTraits[D]]
+    val dim = dimTraits.dimensionality
+
     def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
-    val (xs, ys) = trainingData.unzip
+    val (xs, ys, sigma2s) = trainingData.unzip3
 
     val yVec = flatten(ys)
     val meanValues = xs.map(gp.mean)
@@ -470,9 +496,23 @@ object GaussianProcess {
       Q(i * d until i * d + d, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
     }
 
-    val M = Q.t * Q + DenseMatrix.eye[Double](phis.size) * sigma2
+    // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
+    // As there is only one sigma for each point (but the point has dim components) we need
+    // to correct the index for sigma
+    val QtL = Q.t.copy
+    val sigma2sInv = sigma2s.map { sigma2 => 
+       val divisor = math.max(1e-8, sigma2)
+       1.0 / divisor
+    }
+    for (i <- 0 until QtL.cols) {
+      QtL(::, i) *= sigma2sInv(i / dim)
+    }
+
+
+    val M = QtL * Q + DenseMatrix.eye[Double](phis.size)
+
     val Minv = breeze.linalg.pinv(M)
-    val mean_coeffs = (Minv * Q.t).map(_.toFloat) * (yVec - mVec)
+    val mean_coeffs = (Minv * QtL).map(_.toFloat) * (yVec - mVec)
 
     gp.instanceAtPoints(mean_coeffs)
 
@@ -492,7 +532,7 @@ object GaussianProcess {
         DenseMatrix.zeros[Float](mean_pVector.size, 0))
     } else {
       val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * Minv * D * sigma2
+      val Sigma = D * Minv * D
       val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
       val innerU = innerUDbl.map(_.toFloat)
       @volatile
