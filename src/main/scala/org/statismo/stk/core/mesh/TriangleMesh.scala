@@ -12,9 +12,14 @@ import org.statismo.stk.core.common.PointData
 import org.statismo.stk.core.common.PointData
 import scala.reflect.ClassTag
 import org.statismo.stk.core.common.ScalarValue
+import org.statismo.stk.core.geometry.Vector3D
+import org.statismo.stk.core.geometry.DimTraits
+import scala.collection.mutable.HashMap
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = Vector(ptId1, ptId2, ptId3)
+
+  def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
 case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell]) extends DiscreteDomain[ThreeD] {
@@ -23,7 +28,20 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
   def numberOfPoints = meshPoints.size
   def points = meshPoints.view
 
-  val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
+  def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
+
+  // a map that has for every point the neighboring cell ids
+  private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = HashMap()
+
+  private[this] def updateCellMapForPtId(ptId: Int, cell : TriangleCell): Unit = {
+    val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
+    cellMap.update(ptId, cellsForKey :+ cell)
+  }
+  for (cell <- cells) {
+    cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
+  }
+
+  private[this] val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
 
   def isDefinedAt(pt: Point[ThreeD]) = {
     val (closestPt, _) = findClosestPoint(pt)
@@ -50,6 +68,24 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
   }
 
   def warp(transform: Function1[Point[ThreeD], Point[ThreeD]]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells)
+
+  def cellNeighbors(id: Int): Seq[TriangleCell] = cellMap(id)
+
+  def computeCellNormal(cell: TriangleCell): Vector3D = {
+    val pt1 = meshPoints(cell.ptId1)
+    val pt2 = meshPoints(cell.ptId2)
+    val pt3 = meshPoints(cell.ptId3)
+
+    val u = pt2 - pt1
+    val v = pt3 - pt1
+    u.asInstanceOf[Vector3D].cross(v.asInstanceOf[Vector3D])
+  }
+
+  def normalAtPoint(pt: Point[ThreeD]): Vector3D = {
+    val closestMeshPtId = findClosestPoint(pt)._2
+    val neigborCells = cellNeighbors(closestMeshPtId)
+    neigborCells.foldLeft(Vector3D(0, 0, 0))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
+  }
 
   val area = cells.map(triangle => computeTriangleArea(triangle)).sum
 
@@ -81,12 +117,12 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
   }
 }
 
-case class ScalarMeshData[S : ScalarValue : ClassTag](val mesh : TriangleMesh, val values : Array[S]) extends PointData[ThreeD, S] {
+case class ScalarMeshData[S: ScalarValue: ClassTag](val mesh: TriangleMesh, val values: Array[S]) extends PointData[ThreeD, S] {
   require(mesh.numberOfPoints == values.size)
   val valueDimensionality = 1
   override val domain = mesh
-   
-  override def map[S2 : ScalarValue : ClassTag](f : S => S2) : PointData[ThreeD, S2]  = {
+
+  override def map[S2: ScalarValue: ClassTag](f: S => S2): PointData[ThreeD, S2] = {
     ScalarMeshData(mesh, values.map(f))
   }
 }
