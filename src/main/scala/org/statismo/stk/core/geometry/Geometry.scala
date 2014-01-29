@@ -73,7 +73,7 @@ trait PointLike[D <: Dim, PointRepr <: Point[D], VectorRepr <: Vector[D]] { self
   }
 
   override def toVector: VectorRepr = createVector(self.data)
-  
+
 }
 
 // Concrete instances for 1D, 2D and 3D
@@ -133,7 +133,6 @@ abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Float] { self: 
 
   def outer(that: Vector[D]): MatrixNxN[D]
   def dot(that: Vector[D]): Float
-
   def toPoint: Point[D]
 }
 
@@ -177,7 +176,6 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
     self.data)
 
   def dot(that: Vector[D]): Float = {
-    require(that.dimensionality == dimensionality)
     val d = dimensionality
 
     var dotprod = 0f
@@ -242,6 +240,10 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[ThreeD] with Ve
   def createPoint(data: Array[Float]) = Point3D(data(0), data(1), data(2))
   def createVector(data: Array[Float]) = Vector3D(data(0), data(1), data(2))
 
+  def cross(that: Vector3D): Vector3D = {
+    Vector3D(y * that.z - z * that.y, z * that.x - x * that.z, x * that.y  - y * that.x)
+  }
+  
   override def apply(i: Int) = {
     if (i == 0) x else if (i == 1) y else if (i == 2) z else throw new ArrayIndexOutOfBoundsException("index $i > 2")
   }
