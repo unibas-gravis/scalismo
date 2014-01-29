@@ -39,6 +39,23 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         (posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 1e-1))
       }
     }
+
+    it("yields a larger posterior variance for points that are less strongly constrained") {
+      val domain = BoxedDomain1D(-5.0, 5)
+      val kernel = UncorrelatedKernel1x1(GaussianKernel1D(1.0))
+      val config = LowRankGaussianProcessConfiguration[OneD](domain, UniformSampler1D(domain, 500), _ => Vector1D(0f), kernel, 100)
+      val gp = GaussianProcess.createLowRankGaussianProcess1D(config)
+
+      val pt1 = -3.0
+      val val1 = 1.0
+      val pt2 = 1.0
+      val val2 = -1.0
+      val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0)).map(t => (Point1D(t._1), Vector1D(t._2), t._3))
+      val posteriorGP = GaussianProcess.regression(gp, trainingData)
+
+      
+      posteriorGP.cov(pt1, pt1)(0, 0) should be < posteriorGP.cov(pt2, pt2)(0, 0)      
+    }
   }
 
   it("keeps the landmark points fixed for a 2D case") {
