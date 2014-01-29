@@ -13,17 +13,23 @@ import org.statismo.stk.core.registration.ProductTransformationSpace
 import org.statismo.stk.core.registration.ScalingSpace3D
 import org.statismo.stk.core.registration.ScalingSpace3D
 import org.statismo.stk.core.registration.RotationSpace3D
+import org.statismo.stk.core.image.Resample
+import org.statismo.stk.core.utils.Visualization
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.io.ImageIO
+import org.statismo.stk.core.image.DiscreteImageDomain3D
+import org.statismo.stk.core.image.DiscreteImageDomain3D
 
 class MeshTests extends FunSpec with ShouldMatchers {
-  
-    implicit def doubleToFloat(d : Double) = d.toFloat
-  
+
+  implicit def doubleToFloat(d: Double) = d.toFloat
+
   org.statismo.stk.core.initialize()
 
   describe("a mesh") {
     val path = getClass().getResource("/facemesh.h5").getPath
-      val facemesh = MeshIO.readHDF5(new File(path)).get
-      
+    val facemesh = MeshIO.readHDF5(new File(path)).get
+
     it("finds the right closest points for all the points that define the mesh") {
 
       for ((pt, id) <- facemesh.points.zipWithIndex) {
@@ -44,24 +50,34 @@ class MeshTests extends FunSpec with ShouldMatchers {
 
     }
     it("computes its area correctly for a triangle") {
-      val pts : IndexedSeq[Point3D]= IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
+      val pts: IndexedSeq[Point3D] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val mesh = TriangleMesh(pts, cells)
-      
+
       val R = RotationSpace3D((0.0, 0.0, 0.0))(DenseVector(0.3, 0.4, 0.1))
       val s = ScalingSpace3D()(DenseVector(2.0))
       val transformedMesh = mesh.warp(R).warp(s)
       mesh.area should be(0.5 plusOrMinus 1e-8)
       transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 
     }
-    
+
     it("can be clipped") {
-      def ptIdSmallerThan100(pt : Point[ThreeD]) = facemesh.findClosestPoint(pt)._2 < 100
+      def ptIdSmallerThan100(pt: Point[ThreeD]) = facemesh.findClosestPoint(pt)._2 < 100
       val clippedMesh = Mesh.clipMesh(facemesh, ptIdSmallerThan100 _)
-      
+
       clippedMesh.numberOfPoints should be(facemesh.numberOfPoints - 100)
-      
+
     }
+
+    it("computes the right binary image for the unit sphere") {
+      val path = getClass().getResource("/facemesh.h5").getPath
+      val spheremesh = MeshIO.readMesh(new File(path)).get
+      val binaryImg = Mesh.meshToBinaryImage(spheremesh)
+      binaryImg(Point3D(0,0,0)) should be(1)
+      binaryImg(Point3D(2,0,0)) should be(0)
+               
+    }
+
   }
-    
+
 }
