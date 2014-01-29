@@ -7,7 +7,6 @@ import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
 import org.statismo.stk.core.image._
-import org.statismo.stk.core.image.Image._
 import org.statismo.stk.core.io.ImageIO
 import breeze.linalg.DenseVector
 

@@ -1,7 +1,6 @@
 package org.statismo.stk.core
 package utils
 
-import image.ScalarPixel
 import breeze.plot._
 import breeze.linalg._
 import vtk._
@@ -50,6 +49,7 @@ import scala.swing.BorderPanel
 import javax.swing.border.EmptyBorder
 import javax.swing.border.BevelBorder
 import java.io.File
+import org.statismo.stk.core.common.ScalarValue
 object Visualization {
 
   class VTKViewer private() extends SimpleSwingApplication {
@@ -109,7 +109,7 @@ object Visualization {
       actor
     }
 
-    def addImage[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) = {
+    def addImage[Pixel: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) = {
       onEDT {
 
         val sp = ImageConversion.image3DTovtkStructuredPoints(img)
@@ -552,24 +552,24 @@ object Visualization {
     }
   }
 
-  def show[D <: Dim, Pixel: ScalarPixel](img: DiscreteScalarImage1D[Pixel]): Unit = {
-    val pixelConv = implicitly[ScalarPixel[Pixel]]
+  def show[D <: Dim, Pixel: ScalarValue](img: DiscreteScalarImage1D[Pixel]): Unit = {
+    val pixelConv = implicitly[ScalarValue[Pixel]]
     val xs = img.domain.points.map(_(0).toDouble)
 
     val f = Figure()
     val p = f.subplot(0)
 
-    p += plot(xs, img.pixelValues.map(pixelConv.toDouble(_)), '+')
+    p += plot(xs, img.values.map(pixelConv.toDouble(_)), '+')
 
   }
 
-  def show[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage2D[Pixel]) {
+  def show[Pixel: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage2D[Pixel]) {
     val imgVTK = ImageConversion.image2DTovtkStructuredPoints(img)
     VTKImageViewer2D(imgVTK).main(Array(""))
     imgVTK.Delete()
   }
 
-  def show[Pixel: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) {
+  def show[Pixel: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]) {
     val imgVTK = ImageConversion.image3DTovtkStructuredPoints(img)
     VTKImageViewer3D(imgVTK).main(Array(""))
     imgVTK.Delete()
