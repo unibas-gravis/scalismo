@@ -1,6 +1,5 @@
 package org.statismo.stk.core.io
 
-import org.statismo.stk.core.image.Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.image.Interpolation._

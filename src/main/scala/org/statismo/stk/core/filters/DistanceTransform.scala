@@ -1,7 +1,6 @@
 package org.statismo.stk.core.filters
 
 import org.statismo.stk.core.image.DiscreteImage2D
-import org.statismo.stk.core.image.ScalarPixel
 import org.statismo.stk.core.image.DiscreteScalarImage2D
 import org.statismo.stk.core.image.DiscreteScalarImage1D
 import breeze.linalg.DenseMatrix
@@ -14,14 +13,16 @@ import scala.reflect.ClassTag
 import scala.util.Success
 import scala.util.Failure
 import vtk.vtkImageCast
+import org.statismo.stk.core.common.ScalarValue
+
 
 object DistanceTransform {
 
   /**
    * Computes the distance transform of a (discrete)  binary image
    */
-  def euclideanDistanceTransform[Scalar: ScalarPixel: ClassTag: TypeTag](img: DiscreteScalarImage3D[Scalar]): DiscreteScalarImage3D[Float] = {
-    val scalarConv = implicitly[ScalarPixel[Scalar]]
+  def euclideanDistanceTransform[Scalar: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage3D[Scalar]): DiscreteScalarImage3D[Float] = {
+    val scalarConv = implicitly[ScalarValue[Scalar]]
 
     def doDistanceTransformVTK(img : DiscreteScalarImage3D[Scalar]) = {
       val imgvtk = ImageConversion.image3DTovtkStructuredPoints(img)
@@ -55,27 +56,27 @@ object DistanceTransform {
     val invImg = img.map[Scalar](v => if (v == 0) scalarConv.fromShort(1) else scalarConv.fromShort(0))
     val dt2 = doDistanceTransformVTK(invImg)
     
-    val newPixelValues = dt1.pixelValues.view.zip(dt2.pixelValues.view).map{case (p1, p2) => p1 + p2}.toArray
+    val newPixelValues = dt1.values.view.zip(dt2.values.view).map{case (p1, p2) => p1 + p2}.toArray
     DiscreteScalarImage3D(dt1.domain, newPixelValues)
   }
 
   /**
    * Computes the distance transform of a (discrete)  binary image
    */
-  def euclideanDistanceTransform2D[Scalar: ScalarPixel : ClassTag](img: DiscreteScalarImage2D[Scalar]): DiscreteScalarImage2D[Scalar] = {
-    val scalarConv = implicitly[ScalarPixel[Scalar]]
+  def euclideanDistanceTransform2D[Scalar: ScalarValue : ClassTag](img: DiscreteScalarImage2D[Scalar]): DiscreteScalarImage2D[Scalar] = {
+    val scalarConv = implicitly[ScalarValue[Scalar]]
 
-    val zeroInftyPixelValues = for (pv <- img.pixelValues) yield if (scalarConv.toDouble(pv) == 0.0) 0.0 else Double.MaxValue
+    val zeroInftyPixelValues = for (pv <- img.values) yield if (scalarConv.toDouble(pv) == 0.0) 0.0 else Double.MaxValue
 
     val squaredDistanceValues = FelzenszwalbHuttenlocherDT2(zeroInftyPixelValues, (img.domain.size(0), img.domain.size(1)))
     val newPixelValues = squaredDistanceValues.map(f => scalarConv.fromDouble(math.sqrt(f))).toArray
     DiscreteScalarImage2D(img.domain, newPixelValues)
   }
 
-  def euclideanDistanceTransform1D[Scalar: ScalarPixel : ClassTag](img: DiscreteScalarImage1D[Scalar]): DiscreteScalarImage1D[Scalar] = {
+  def euclideanDistanceTransform1D[Scalar: ScalarValue : ClassTag](img: DiscreteScalarImage1D[Scalar]): DiscreteScalarImage1D[Scalar] = {
 
-    val scalarConv = implicitly[ScalarPixel[Scalar]]
-    val zeroInftyPixelValues = for (pv <- img.pixelValues) yield if (scalarConv.toDouble(pv) == 0.0) 0.0 else Double.MaxValue
+    val scalarConv = implicitly[ScalarValue[Scalar]]
+    val zeroInftyPixelValues = for (pv <- img.values) yield if (scalarConv.toDouble(pv) == 0.0) 0.0 else Double.MaxValue
     val squaredDistanceValues = FelzenszwalbHuttenlocherDT1(zeroInftyPixelValues)
 
     val newPixelValues = squaredDistanceValues.map(f => scalarConv.fromDouble(math.sqrt(f)))

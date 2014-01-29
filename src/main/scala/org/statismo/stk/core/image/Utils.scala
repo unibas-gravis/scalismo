@@ -3,11 +3,6 @@ package image
 
 import breeze.plot._
 import breeze.linalg._
-import Image._
-//import ij._
-//import ij.process.FloatProcessor
-//import ij.ImageStack
-//import ij.WindowManager
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.common.BoxedDomain2D

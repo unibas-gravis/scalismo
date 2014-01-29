@@ -1,7 +1,6 @@
 package org.statismo.stk.core.image
 
 import scala.language.implicitConversions
-import Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.image.Interpolation._
@@ -229,7 +228,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImage = Interpolation.interpolate(discreteImage, 1)
 
         for ((p, i) <- discreteImage.domain.points.zipWithIndex.filter(p => p._2 % 100 == 0))
-          discreteImage.pixelValues(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
+          discreteImage.values(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
 
       }
 

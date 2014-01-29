@@ -1,6 +1,5 @@
 package org.statismo.stk.core.image
 
-import Image._
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import Interpolation._
@@ -26,9 +25,9 @@ class ResampleTest extends FunSpec with ShouldMatchers {
 
     it("yields the original discrete image") {
       val resampledImage = Resample.sample[Short](continuousImage, discreteImage.domain, 0)
-      discreteImage.pixelValues.size should equal(resampledImage.pixelValues.size)
-      for (i <- 0 until discreteImage.pixelValues.size) {
-        discreteImage.pixelValues(i) should be(resampledImage.pixelValues(i))
+      discreteImage.values.size should equal(resampledImage.values.size)
+      for (i <- 0 until discreteImage.values.size) {
+        discreteImage.values(i) should be(resampledImage.values(i))
       }
 
     }
@@ -42,8 +41,8 @@ class ResampleTest extends FunSpec with ShouldMatchers {
 
     it("yields the original discrete image") {
       val resampledImage = Resample.sample[Short](continuousImage, discreteImage.domain, 0)
-      for (i <- 0 until discreteImage.pixelValues.size by 100) {
-        discreteImage.pixelValues(i) should be(resampledImage.pixelValues(i))
+      for (i <- 0 until discreteImage.values.size by 100) {
+        discreteImage.values(i) should be(resampledImage.values(i))
       }
     }
 

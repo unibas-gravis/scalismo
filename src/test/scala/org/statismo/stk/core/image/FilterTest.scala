@@ -6,7 +6,7 @@ import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.numerics.IntegratorConfiguration
 import org.statismo.stk.core.numerics.{UniformSampler1D, UniformSampler2D, UniformSampler3D }
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.image.Image._
+
 
 
 class FilterTest extends FunSpec with ShouldMatchers {

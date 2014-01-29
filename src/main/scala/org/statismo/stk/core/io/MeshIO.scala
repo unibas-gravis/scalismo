@@ -13,6 +13,11 @@ import vtk.vtkPolyDataReader
 import org.statismo.stk.core.utils.MeshConversion
 import vtk.vtkPolyDataWriter
 import scala.util.Success
+import org.statismo.stk.core.mesh.ScalarMeshData
+import reflect.runtime.universe.{ TypeTag, typeOf }
+import scala.reflect.ClassTag
+import vtk.vtkPolyData
+import org.statismo.stk.core.common.ScalarValue
 
 object MeshIO {
 
@@ -39,6 +44,16 @@ object MeshIO {
     }
   }
 
+  def writeMeshData[Scalar: ScalarValue: TypeTag: ClassTag](meshData: ScalarMeshData[Scalar], file: File): Try[Unit] = {
+    val filename = file.getAbsolutePath()
+    filename match {
+      case f if f.endsWith(".vtk") => writeVTK(meshData, file)
+      case _ => {
+        Failure(new IOException("Unknown file type received" + filename))
+      }
+    }
+  }
+
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
 
     val domainPoints: IndexedSeq[Point[ThreeD]] = surface.points.toIndexedSeq
@@ -48,30 +63,38 @@ object MeshIO {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeNDArray("/Surface/0/Vertices", pointSeqToNDArray(domainPoints))
       _ <- h5file.writeNDArray("/Surface/0/Cells", cellSeqToNDArray(cells))
-      _ <- Try{h5file.close()}
+      _ <- Try { h5file.close() }
     } yield { () }
-    
+
     maybeError
   }
 
-  def writeVTK(surface: TriangleMesh, file : File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
-   
-   val writer = new vtkPolyDataWriter()
-      writer.SetFileName(file.getAbsolutePath())
-      writer.SetInputData(vtkPd)
-      writer.SetFileTypeToBinary()
-      writer.Update()
-      val succOrFailure = if (writer.GetErrorCode() != 0) {
-        Failure(new IOException("could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
-      } else {
-        Success(())
-      }    
+  private def writeVTKPd(vtkPd: vtkPolyData, file: File): Try[Unit] = {
+    val writer = new vtkPolyDataWriter()
+    writer.SetFileName(file.getAbsolutePath())
+    writer.SetInputData(vtkPd)
+    writer.SetFileTypeToBinary()
+    writer.Update()
+    val succOrFailure = if (writer.GetErrorCode() != 0) {
+      Failure(new IOException("could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+    } else {
+      Success(())
+    }
     vtkPd.Delete
     writer.Delete()
     succOrFailure
   }
-  
+
+  def writeVTK[S: ScalarValue: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
+    writeVTKPd(vtkPd, file)
+  }
+
+  def writeVTK(surface: TriangleMesh, file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
+    writeVTKPd(vtkPd, file)
+  }
+
   def readVTK(file: File): Try[TriangleMesh] = {
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath())
@@ -93,12 +116,11 @@ object MeshIO {
     val filename = file.getAbsolutePath()
 
     val maybeSurface = for {
-      h5file <- HDF5Utils.openFileForReading(file)      
+      h5file <- HDF5Utils.openFileForReading(file)
       vertArray <- h5file.readNDArray[Double]("/Surface/0/Vertices")
-      cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")      
-      _ <- Try{h5file.close()}
+      cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")
+      _ <- Try { h5file.close() }
     } yield TriangleMesh(NDArrayToPointSeq(vertArray), NDArrayToCellSeq(cellArray))
-
 
     maybeSurface
   }
@@ -118,4 +140,8 @@ object MeshIO {
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(Vector(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)
+
 }
+
+
+
