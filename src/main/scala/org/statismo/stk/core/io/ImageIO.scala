@@ -1,8 +1,6 @@
 package org.statismo.stk.core
 package io
 
-import image.ScalarPixel
-import image.Image._
 import scala.util.Try
 import scala.util.Failure
 import image.DiscreteScalarImage2D
@@ -25,6 +23,7 @@ import vtk.vtkImageWriter
 import vtk.vtkImageData
 import vtk.vtkStructuredPointsWriter
 import vtk.vtkStructuredPoints
+import org.statismo.stk.core.common.ScalarValue
 
 object ImageIO {
 
@@ -42,7 +41,7 @@ object ImageIO {
     }
   }
 
-  def read1DScalarImage[Scalar: ScalarPixel: TypeTag](f: File): Try[DiscreteScalarImage1D[Scalar]] = {
+  def read1DScalarImage[Scalar: ScalarValue: TypeTag](f: File): Try[DiscreteScalarImage1D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -66,7 +65,7 @@ object ImageIO {
     }
   }
 
-  def read3DScalarImage[Scalar: ScalarPixel: TypeTag](f: File): Try[DiscreteScalarImage3D[Scalar]] = {
+  def read3DScalarImage[Scalar: ScalarValue: TypeTag](f: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -108,7 +107,7 @@ object ImageIO {
     }
   }
 
-  def read2DScalarImage[Scalar: ScalarPixel: TypeTag](f: File): Try[DiscreteScalarImage2D[Scalar]] = {
+  def read2DScalarImage[Scalar: ScalarValue: TypeTag](f: File): Try[DiscreteScalarImage2D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -178,7 +177,7 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[Scalar: ScalarPixel : TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue : TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -188,18 +187,7 @@ object ImageIO {
     }
   }
 
-  def writeImage[Scalar: ScalarPixel: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
-    val filename = file.getAbsolutePath()
-    filename match {
-      case f if f.endsWith(".h5") => writeHDF5(img, file)
-      case f if f.endsWith(".vtk") => writeVTK(img, file)
-      case _ => {
-        Failure(new IOException("Unknown file type received" + filename))
-      }
-    }
-  }
-
-  def writeImage[Scalar: ScalarPixel : TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -210,13 +198,24 @@ object ImageIO {
     }
   }
 
-  private def writeVTK[Scalar: ScalarPixel: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue : TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+    val filename = file.getAbsolutePath()
+    filename match {
+      case f if f.endsWith(".h5") => writeHDF5(img, file)
+      case f if f.endsWith(".vtk") => writeVTK(img, file)
+      case _ => {
+        Failure(new IOException("Unknown file type received" + filename))
+      }
+    }
+  }
+
+  private def writeVTK[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
 
     val imgVtk = ImageConversion.image2DTovtkStructuredPoints(img)
     writeVTKInternal(imgVtk, file)
   }
 
-  private def writeVTK[Scalar: ScalarPixel: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+  private def writeVTK[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
     val imgVtk = ImageConversion.image3DTovtkStructuredPoints(img)
     writeVTKInternal(imgVtk, file)
   }
@@ -251,8 +250,8 @@ object ImageIO {
     // which we follow)
     var voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
 
-    if (img.pixelDimensionality > 1)
-      voxelArrayDim = voxelArrayDim ++ Vector[Long](img.pixelDimensionality)
+    if (img.valueDimensionality > 1)
+      voxelArrayDim = voxelArrayDim ++ Vector[Long](img.valueDimensionality)
 
     // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](
@@ -265,7 +264,7 @@ object ImageIO {
       _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.data.map(_.toLong))
       _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.data.map(_.toDouble))
       _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.data.map(_.toDouble))
-      _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.pixelValues.toArray))
+      _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.values.toArray))
       _ <- h5file.createGroup("/ITKImage/0/MetaData")
       _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever
       _ <- h5file.writeString("/HDFVersion", HDF5Utils.hdf5Version)

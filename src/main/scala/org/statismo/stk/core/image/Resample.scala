@@ -1,39 +1,39 @@
 package org.statismo.stk.core
 package image
-import Image._
 import org.statismo.stk.core.geometry._
 import scala.reflect.ClassTag
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import org.statismo.stk.core.common.ScalarValue
 
 object Resample {
 
 
-  def sample[@specialized(Short, Float, Double) Pixel: ScalarPixel: ClassTag](img: ContinuousScalarImage3D, domain: DiscreteImageDomain3D, outsideValue: Double): DiscreteScalarImage3D[Pixel] = {    
-    val scalarPixel = implicitly[ScalarPixel[Pixel]]
+  def sample[@specialized(Short, Float, Double) Pixel: ScalarValue: ClassTag](img: ContinuousScalarImage3D, domain: DiscreteImageDomain3D, outsideValue: Double): DiscreteScalarImage3D[Pixel] = {    
+    val ScalarValue = implicitly[ScalarValue[Pixel]]
     val sampledValues = domain.points.par.map((pt: Point[ThreeD]) => {
-      if (img.isDefinedAt(pt)) scalarPixel.fromDouble(img(pt))
-      else scalarPixel.fromDouble(outsideValue)
+      if (img.isDefinedAt(pt)) ScalarValue.fromDouble(img(pt))
+      else ScalarValue.fromDouble(outsideValue)
     })
 
     DiscreteScalarImage3D(domain, sampledValues.toArray)
   }
 
-  def sample[@specialized(Short, Float, Double) Pixel: ScalarPixel: ClassTag](img: ContinuousScalarImage2D, domain: DiscreteImageDomain2D, outsideValue: Double): DiscreteScalarImage2D[Pixel] = {
-    val scalarPixel = implicitly[ScalarPixel[Pixel]]
+  def sample[@specialized(Short, Float, Double) Pixel: ScalarValue: ClassTag](img: ContinuousScalarImage2D, domain: DiscreteImageDomain2D, outsideValue: Double): DiscreteScalarImage2D[Pixel] = {
+    val ScalarValue = implicitly[ScalarValue[Pixel]]
     val sampledValues = domain.points.par.map((pt: Point[TwoD]) => {
-      if (img.isDefinedAt(pt)) scalarPixel.fromDouble(img(pt))
-      else scalarPixel.fromDouble(outsideValue)
+      if (img.isDefinedAt(pt)) ScalarValue.fromDouble(img(pt))
+      else ScalarValue.fromDouble(outsideValue)
     })
 
     DiscreteScalarImage2D(domain, sampledValues.toArray)
   }
 
-  def sample[@specialized(Short, Float, Double) Pixel: ScalarPixel: ClassTag](img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Double): DiscreteScalarImage1D[Pixel] = {
-    val scalarPixel = implicitly[ScalarPixel[Pixel]]
+  def sample[@specialized(Short, Float, Double) Pixel: ScalarValue: ClassTag](img: ContinuousScalarImage1D, domain: DiscreteImageDomain1D, outsideValue: Double): DiscreteScalarImage1D[Pixel] = {
+    val ScalarValue = implicitly[ScalarValue[Pixel]]
     val sampledValues = domain.points.map((pt: Point[OneD]) => {
-      if (img.isDefinedAt(pt)) scalarPixel.fromDouble(img(pt))
-      else scalarPixel.fromDouble(outsideValue)
+      if (img.isDefinedAt(pt)) ScalarValue.fromDouble(img(pt))
+      else ScalarValue.fromDouble(outsideValue)
     })
     DiscreteScalarImage1D(domain, sampledValues.toArray)
   }

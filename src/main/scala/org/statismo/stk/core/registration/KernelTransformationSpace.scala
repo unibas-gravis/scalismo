@@ -9,7 +9,6 @@ import org.statismo.stk.core.image.DiscreteImageDomain1D
 import breeze.plot._
 import org.statismo.stk.core.image.DiscreteImageDomain1D
 import org.statismo.stk.core.image.DiscreteImageDomain2D
-import org.statismo.stk.core.image.Image._
 import org.statismo.stk.core.image.DiscreteScalarImage1D
 import org.statismo.stk.core.image.Interpolation
 import org.statismo.stk.core.image.Utils

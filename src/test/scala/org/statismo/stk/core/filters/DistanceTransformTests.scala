@@ -3,7 +3,6 @@ package org.statismo.stk.core.filters
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.image.Image._
 import org.statismo.stk.core.image.DiscreteScalarImage1D
 import org.statismo.stk.core.image.DiscreteImageDomain1D
 import org.statismo.stk.core.image.DiscreteImageDomain2D
@@ -21,7 +20,7 @@ class DistanceTransformTests extends FunSpec with ShouldMatchers {
       val img1D = DiscreteScalarImage1D(dom1D, Array(1.0, 1.0, 0.0, 1.0, 1.0))
       
       val dm =  DistanceTransform.euclideanDistanceTransform1D(img1D)
-      dm.pixelValues should equal(Array(2.0, 1.0, 0.0, 1.0, 2.0))     
+      dm.values should equal(Array(2.0, 1.0, 0.0, 1.0, 2.0))     
     }
   }
 
