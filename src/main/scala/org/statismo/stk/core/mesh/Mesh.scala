@@ -28,6 +28,17 @@ object Mesh {
     }
     ContinuousScalarImage3D(RealSpace3D, (pt: Point[ThreeD]) => dist(pt), Some((pt: Point[ThreeD]) => grad(pt)))
   }
+  
+  def meshToBinaryImage(mesh : TriangleMesh): ContinuousScalarImage3D = { 
+    def inside(pt : Point[ThreeD]) : Short= {
+      val closestMeshPt = mesh.findClosestPoint(pt)._1
+      val dotprod = mesh.normalAtPoint(closestMeshPt) dot (closestMeshPt - pt)
+      if (dotprod > 0.0) 1 else 0 
+    }
+    
+    ContinuousScalarImage3D(RealSpace3D, (pt: Point[ThreeD]) => inside(pt), None)
+  }
+  
 
   /**
    * Clip all the points in a mesh that satisfy the given predicate 
