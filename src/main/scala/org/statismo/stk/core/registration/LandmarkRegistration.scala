@@ -1,33 +1,37 @@
 package org.statismo.stk.core
 package registration
 
-
 import registration.TransformationSpace.{ ParameterVector }
 import breeze.linalg.{ svd, DenseVector, DenseMatrix, mean, variance, Axis }
 import org.statismo.stk.core.geometry._
+import breeze.linalg.diag
+import breeze.linalg._
 
 object LandmarkRegistration {
 
-  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], center: Point[ThreeD] = Point3D(0f, 0f, 0f)): RegistrationResult[ThreeD] = {
-    val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
+  private val origin2D = Point2D(0f, 0f)
+  private val origin3D = Point3D(0f, 0f, 0f)
+  
+  private def rigidSimilarity3DCommon(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], similarityFlag: Boolean = false) = {
+    val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
     // assert(center.size == 2)
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
- 
-    // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix 
+
+    // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix
     // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
 
     val rotparams =
-      if ( Math.abs(Math.abs(rotMat(2, 0))-1) > 0.0001 ) { 
+      if (Math.abs(Math.abs(rotMat(2, 0)) - 1) > 0.0001) {
         val theta1 = Math.asin(-rotMat(2, 0))
 
         val psi1 = Math.atan2(rotMat(2, 1) / Math.cos(theta1), rotMat(2, 2) / Math.cos(theta1))
-      
+
         val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta1))
-    
+
         DenseVector(phi1, theta1, psi1)
       } else {
-    	/* Gimbal lock, we simply set phi to be 0 */  	
+        /* Gimbal lock, we simply set phi to be 0 */
         val phi = 0.0
         if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
           val theta = Math.PI / 2.0
@@ -40,31 +44,51 @@ object LandmarkRegistration {
         }
       }
 
+    (t, rotparams, s)
+  }
+
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])]): RegistrationResult[ThreeD] = {
+    val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
-    val rigidSpace = RigidTransformationSpace3D(center)
+    val rigidSpace = RigidTransformationSpace3D(origin3D)
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], center: Point[TwoD] = Point2D(0f, 0f)): RegistrationResult[TwoD] = {
-    val (t, rotMat) = computeRigidNDTransformParams(landmarks, center)
-    // assert(center.size == 2)
+  def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])]): RegistrationResult[ThreeD] = {
+    val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, true)
+    val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams).map(_.toFloat), DenseVector(s.toFloat))
+    val similritySpace = RigidTransformationSpace3D(origin3D).product(ScalingSpace3D())
+    RegistrationResult(similritySpace(optimalParameters), optimalParameters)
+  }
+
+  private def rigidSimilarity2DCommon(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], similarityFlag: Boolean = false) = {
+    val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
     assert(t.size == 2)
     assert(rotMat.rows == 2 && rotMat.cols == 2)
-
     // we can compute the angle from the form of the rotation matrix
-    // the acos cannot distinguish between angles in the interval [0,pi] and [-pi, 0]. We double 
-    // check with the sin in the rotation matrix and correct the sign accordingly    
+    // the acos cannot distinguish between angles in the interval [0,pi] and [-pi, 0]. We double
+    // check with the sin in the rotation matrix and correct the sign accordingly
     val phiUpToSign = math.acos(rotMat(0, 0))
     val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign else phiUpToSign
 
-    // val centerCV = CoordVector2D(0f, 0f)
-    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat)
+    (t, phi, s)
+  }
 
-    val rigidSpace = RigidTransformationSpace2D(center)
+  def similarity2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])]): RegistrationResult[TwoD] = {
+    val (t, phi, s) = rigidSimilarity2DCommon(landmarks, true)
+    val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat), DenseVector(s.toFloat))
+    val similartiySpace = RigidTransformationSpace2D(origin2D).product(ScalingSpace2D())
+    RegistrationResult(similartiySpace(optimalParameters), optimalParameters)
+  }
+
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])]): RegistrationResult[TwoD] = {
+    val (t, phi, s) = rigidSimilarity2DCommon(landmarks)
+    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat)
+    val rigidSpace = RigidTransformationSpace2D(origin2D)
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  private def computeRigidNDTransformParams[D <: Dim](landmarks: IndexedSeq[(Point[D], Point[D])], center: Point[D]): (DenseVector[Double], DenseMatrix[Double]) = {
+  private def computeRigidNDTransformParams[D <: Dim](landmarks: IndexedSeq[(Point[D], Point[D])], similarityFlag: Boolean = false): (DenseVector[Double], DenseMatrix[Double], Double) = {
 
     //  see Umeyama: Least squares estimation of transformation parameters between two point patterns
 
@@ -80,27 +104,36 @@ object LandmarkRegistration {
     val Y = DenseMatrix.zeros[Double](n, dimensionality)
 
     for (((x, y), i) <- landmarks.zipWithIndex) {
-      // create a matrix with the point coordinates. The roation in the method by Umeyama is computed
-      // with respect to the center of rotation 0 (origin). To allow for a non-zero center, we translate
-      // both point clouds by the center before applying his method.
-      X(i, ::) := DenseVector(x.data.map(_.toDouble)) - DenseVector(center.data.map(_.toDouble))
-      Y(i, ::) := DenseVector(y.data.map(_.toDouble)) - DenseVector(center.data.map(_.toDouble))
+      X(i, ::) := DenseVector(x.data.map(_.toDouble))
+      Y(i, ::) := DenseVector(y.data.map(_.toDouble))
     }
 
     val mu_x = mean(X.t, Axis._1)
-    val sigma2_x = variance(X.t, Axis._1)
+    val sigma2_x = (0 until n).map(i => (X(i, ::).toDenseVector - mu_x) dot (X(i, ::).toDenseVector - mu_x)).reduce(_ + _) / n
+
     val mu_y = mean(Y.t, Axis._1)
-    val sigma2_y = variance(Y.t, Axis._1)
     val Sigma_xy = (Y.t - (mu_y * DenseVector.ones[Double](n).t)) * (X.t - mu_x * DenseVector.ones[Double](n).t).t
 
     val (uMat, dMat, vTMat) = svd(Sigma_xy)
 
     val S = DenseMatrix.eye[Double](dimensionality)
-    if (breeze.linalg.det(Sigma_xy) < 0) S(dimensionality-1, dimensionality-1) = -1
+    if (breeze.linalg.det(Sigma_xy) < 0) {
+      println("*** detSigmaxy <0 Flipping last value of S***")
+      S(dimensionality - 1, dimensionality - 1) = -1
+    }
     val R = uMat * S * vTMat
-    val t = mu_y - R * mu_x
 
-    return (t, R)
+    val trDS = diag(S) dot dMat
+
+    /**
+     * In the computation of the scaling factor, we added a division by the number of points (not indicated
+     * in the paper), as the paper version did not seem to give the right result (or we did an error above for which we compensate here  :)
+     */
+    val c = (1 / (n * sigma2_x)) * trDS
+
+    val t = if (similarityFlag) mu_y - (R * mu_x) * c else mu_y - R * mu_x
+
+    return (t, R, c)
   }
 
 }
