@@ -233,8 +233,7 @@ object HDF5Utils {
 
   def hdf5Version = "to be defined"
 
-  def openFile(file: File, mode: FileAccessMode): Try[HDF5File] = {
-
+  def openFile(file: File, mode: FileAccessMode): Try[HDF5File] = Try {
     val filename = file.getAbsolutePath()
     val h5fileAccessMode = mode match {
       case READ => FileFormat.READ
@@ -245,10 +244,10 @@ object HDF5Utils {
     val fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
     val h5file = fileFormat.createInstance(filename, h5fileAccessMode);
 
-    if (h5file.open() == -1)
-      Failure(new Throwable("could not open file " + file.getAbsolutePath()))
-    else Success(new HDF5File(h5file))
-
+    if (h5file.open() == -1) {
+      throw new IOException("could not open file " + file.getAbsolutePath())
+    }
+    new HDF5File(h5file)
   }
 
   def openFileForReading(file: File): Try[HDF5File] = openFile(file, READ)
