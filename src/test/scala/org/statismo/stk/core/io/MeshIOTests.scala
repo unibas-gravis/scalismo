@@ -13,7 +13,7 @@ import org.statismo.stk.core.geometry.implicits._
 import org.statismo.stk.core.mesh.ScalarMeshData
 import org.statismo.stk.core.common.ScalarValue._
 
-class MeshOTests extends FunSpec with ShouldMatchers {
+class MeshIOTests extends FunSpec with ShouldMatchers {
 
   org.statismo.stk.core.initialize
   
@@ -25,6 +25,12 @@ class MeshOTests extends FunSpec with ShouldMatchers {
       val scalars = (0 until facemesh.numberOfPoints).map(id => id).toArray
       val md = ScalarMeshData(facemesh, scalars)
       println(MeshIO.writeMeshData(md, new File("d:\\temp\\x.vtk")))
+    }
+    
+    it("returns a Failure object instead of throwing an exception for nonexistent files") {
+      val path = "/NONEXISTENT-b1cfa24000992425413ff27a52c07705ba507062a71efd7f924178972545bf7353d6ed78aea47a1.h5"
+      val failed = MeshIO.readHDF5(new File(path))
+      failed.isFailure should be(true)
     }
   }
 
