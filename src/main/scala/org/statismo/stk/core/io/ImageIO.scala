@@ -24,6 +24,17 @@ import vtk.vtkImageData
 import vtk.vtkStructuredPointsWriter
 import vtk.vtkStructuredPoints
 import org.statismo.stk.core.common.ScalarValue
+import org.statismo.stk.core.image.DiscreteScalarImage3D
+import niftijio.NiftiVolume
+import breeze.linalg.DenseMatrix
+import breeze.linalg.DenseVector
+import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.image.Interpolation
+import org.statismo.stk.core.image.Resample
+
+/**
+ * WARNING! WE ARE USING RAS COORDINATE SYSTEM
+ */
 
 object ImageIO {
 
@@ -65,7 +76,7 @@ object ImageIO {
     }
   }
 
-  def read3DScalarImage[Scalar: ScalarValue: TypeTag](f: File): Try[DiscreteScalarImage3D[Scalar]] = {
+  def read3DScalarImage[Scalar: ScalarValue: TypeTag: ClassTag](f: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
     f match {
       case f if f.getAbsolutePath().endsWith(".h5") => {
@@ -102,6 +113,9 @@ object ImageIO {
         reader.Delete()
         sp.Delete()
         img
+      }
+      case f if (f.getAbsolutePath().endsWith(".nii") || f.getAbsolutePath().endsWith(".nia")) => {
+        readNifti[Scalar](f)
       }
       case _ => Failure(new Exception("Unknown file type received" + f.getAbsolutePath()))
     }
@@ -149,6 +163,93 @@ object ImageIO {
     }
   }
 
+  private def readNifti[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
+
+    val scalarConv = implicitly[ScalarValue[Scalar]]
+    val volume = NiftiVolume.read(file.getAbsolutePath());
+
+    val nx = volume.header.dim(1);
+    val ny = volume.header.dim(2);
+    val nz = volume.header.dim(3);
+    var dim = volume.header.dim(4);
+
+    if (dim == 0)
+      dim = 1
+
+    for {
+      (transVoxelToWorld, transWorldToVoxel) <- computeNiftiWorldToVoxelTransforms(volume)
+    } yield {
+
+      // the 8 corners of the box
+      val c1 = transVoxelToWorld(Point3D(0, 0, 0))
+      val c2 = transVoxelToWorld(Point3D(0, 0, nz - 1))
+      val c3 = transVoxelToWorld(Point3D(0, ny - 1, 0))
+      val c4 = transVoxelToWorld(Point3D(0, ny - 1, nz - 1))
+      val c5 = transVoxelToWorld(Point3D(nx - 1, 0, 0))
+      val c6 = transVoxelToWorld(Point3D(nx - 1, 0, nz - 1))
+      val c7 = transVoxelToWorld(Point3D(nx - 1, ny - 1, 0))
+      val c8 = transVoxelToWorld(Point3D(nx - 1, ny - 1, nz - 1))
+
+      val voxelDataVTK = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield volume.data(i)(j)(k)(d);
+
+      // we create an image from the raw voxel data, which we can then transform using our transformation machinery to its world coordinates.
+      val unitDomain = DiscreteImageDomain3D(Point3D(0, 0, 0), Vector3D(1, 1, 1), Index3D(nx, ny, nz))
+      val img = DiscreteScalarImage3D[Scalar](unitDomain, voxelDataVTK.map(v => scalarConv.fromDouble(v)).toArray)
+
+      val corners = IndexedSeq(c1, c2, c3, c4, c5, c6, c7, c8)
+
+      val newOrigin = Point3D(corners.map(c => c(0)).min.toFloat, corners.map(c => c(1)).min.toFloat, corners.map(c => c(2)).min.toFloat)
+      val newExtent = Point3D(corners.map(c => c(0)).max.toFloat, corners.map(c => c(1)).max.toFloat, corners.map(c => c(2)).max.toFloat)
+
+      val cimg = Interpolation.interpolate(img, 3)
+      val newSpacing = Vector3D((newExtent - newOrigin)(0) / nx, (newExtent - newOrigin)(1) / ny, (newExtent - newOrigin)(2) / nz)
+      val newDomain = DiscreteImageDomain3D(newOrigin, newSpacing, Index3D(nx, ny, nz))
+      Resample.sample[Scalar](cimg.compose(transWorldToVoxel), newDomain, 0f)
+    }
+
+  }
+
+  /**
+   * returns transformations from voxel to World coordinates and its inverse
+   */
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[ThreeD], Transformation[ThreeD])] = {
+
+    val nx = volume.header.dim(1);
+    val ny = volume.header.dim(2);
+    val nz = volume.header.dim(3);
+    var dim = volume.header.dim(4);
+
+    if (dim == 0)
+      dim = 1
+
+    // check this page http://brainder.org/2012/09/23/the-nifti-file-format/
+    // for details about the nifty format
+    if (volume.header.sform_code == 0) return Failure(new IOException("currently we can only read nifty format with sform_code > 0"))
+
+    val affineTransMatrix = DenseMatrix.create(4, 4, volume.header.sform_to_mat44().flatten).t
+
+    val t: Transformation[ThreeD] = new Transformation[ThreeD] {
+      def apply(x: Point[ThreeD]) = {
+        val xh = DenseVector(x(0), x(1), x(2), 1.0)
+        val t = affineTransMatrix * xh
+        Point3D(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+      }
+      override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
+    }
+
+    val affineTransMatrixInv = breeze.linalg.inv(affineTransMatrix)
+    val tinv: Transformation[ThreeD] = new Transformation[ThreeD] {
+      def apply(x: Point[ThreeD]) = {
+        val xh = DenseVector(x(0), x(1), x(2), 1.0)
+        val t = affineTransMatrixInv * xh
+        Point3D(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+      }
+      override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
+    }
+
+    Success(t, tinv)
+  }
+
   /**
    *  read image data in ITK's hdf5 format
    *  @tparam Scalar The type of the Scalar elements in the image
@@ -177,7 +278,7 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[Scalar: ScalarValue : TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -198,7 +299,7 @@ object ImageIO {
     }
   }
 
-  def writeImage[Scalar: ScalarValue : TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath()
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)

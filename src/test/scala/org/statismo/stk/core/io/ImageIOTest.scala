@@ -9,6 +9,7 @@ import org.statismo.stk.core.geometry.implicits._
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
+import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
 
@@ -77,6 +78,24 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
       f.delete()
     }
 
+    it("can be read as nifty, written as vtk and read again") {
+      val pathNii = getClass().getResource("/3dimage.nii").getPath()
+
+      val tmpfile = File.createTempFile("niftitmp", ".vtk")
+      tmpfile.deleteOnExit()      
+      
+      val discreteImageNii = ImageIO.read3DScalarImage[Short](new File(pathNii)).get
+
+      ImageIO.writeImage(discreteImageNii, tmpfile)
+      val imgReread = ImageIO.read3DScalarImage[Short](tmpfile).get
+      
+
+      discreteImageNii.domain.origin should equal(imgReread.domain.origin)
+      (discreteImageNii.domain.spacing - imgReread.domain.spacing).norm should be(0.0 plusOrMinus 1e-5)
+      discreteImageNii.domain.size should equal(imgReread.domain.size)      
+      discreteImageNii.values should equal(imgReread.values)
+
+    }
   }
 
 }
