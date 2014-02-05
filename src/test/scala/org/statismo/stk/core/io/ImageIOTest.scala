@@ -71,31 +71,52 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
       val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
       //   Utils.show3D[Short](discreteImage)
 
-      val f = new File("/tmp/dummy.h5")
+      val f = File.createTempFile("dummy", ".h5")
+      f.deleteOnExit()
       val t = ImageIO.writeImage(discreteImage, f)
 
       assert(t.isSuccess == true)
       f.delete()
     }
 
-    it("can be read as nifty, written as vtk and read again") {
-      val pathNii = getClass().getResource("/3dimage.nii").getPath()
+    ignore("can be read as nifty, written as vtk and read again") {
+      val pathNii = getClass().getResource("/3dimage.h5").getPath()
 
       val tmpfile = File.createTempFile("niftitmp", ".vtk")
-      tmpfile.deleteOnExit()      
-      
+      tmpfile.deleteOnExit()
+
       val discreteImageNii = ImageIO.read3DScalarImage[Short](new File(pathNii)).get
 
       ImageIO.writeImage(discreteImageNii, tmpfile)
       val imgReread = ImageIO.read3DScalarImage[Short](tmpfile).get
-      
 
       discreteImageNii.domain.origin should equal(imgReread.domain.origin)
       (discreteImageNii.domain.spacing - imgReread.domain.spacing).norm should be(0.0 plusOrMinus 1e-5)
-      discreteImageNii.domain.size should equal(imgReread.domain.size)      
+      discreteImageNii.domain.size should equal(imgReread.domain.size)
       discreteImageNii.values should equal(imgReread.values)
 
     }
+
+    it("can write nifti and read it again") {
+
+      val pathH5 = getClass().getResource("/3dimage.nii").getPath()
+      val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+
+//      val tmpfile = File.createTempFile("dummy", ".nii")
+//      tmpfile.deleteOnExit()
+
+      val tmpfile = new File("d:\\temp\\tempfile.nii")
+      ImageIO.writeImage(origImg, tmpfile)
+      val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
+      origImg.domain.origin should equal(rereadImg.domain.origin)
+      (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 plusOrMinus 1e-2)
+      origImg.domain.size should equal(rereadImg.domain.size)
+      for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
+        origImg.values(i) should equal(rereadImg.values(i))
+      }
+
+    }
+
   }
 
 }
