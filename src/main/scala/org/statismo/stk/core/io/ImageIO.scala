@@ -168,29 +168,29 @@ object ImageIO {
   private def readNifti[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
     val scalarConv = implicitly[ScalarValue[Scalar]]
-    val volume = NiftiVolume.read(file.getAbsolutePath());
-
-    val nx = volume.header.dim(1);
-    val ny = volume.header.dim(2);
-    val nz = volume.header.dim(3);
-    var dim = volume.header.dim(4);
-
-    if (dim == 0)
-      dim = 1
 
     for {
+      volume <- Try { NiftiVolume.read(file.getAbsolutePath()) }
       (transVoxelToWorld, transWorldToVoxel) <- computeNiftiWorldToVoxelTransforms(volume)
+
     } yield {
+      val nx = volume.header.dim(1);
+      val ny = volume.header.dim(2);
+      val nz = volume.header.dim(3);
+      var dim = volume.header.dim(4);
+
+      if (dim == 0)
+        dim = 1
 
       // the 8 corners of the box
       val c1 = transVoxelToWorld(Point3D(0, 0, 0))
-      val c2 = transVoxelToWorld(Point3D(0, 0, nz - 1))
-      val c3 = transVoxelToWorld(Point3D(0, ny - 1, 0))
-      val c4 = transVoxelToWorld(Point3D(0, ny - 1, nz - 1))
-      val c5 = transVoxelToWorld(Point3D(nx - 1, 0, 0))
-      val c6 = transVoxelToWorld(Point3D(nx - 1, 0, nz - 1))
-      val c7 = transVoxelToWorld(Point3D(nx - 1, ny - 1, 0))
-      val c8 = transVoxelToWorld(Point3D(nx - 1, ny - 1, nz - 1))
+      val c2 = transVoxelToWorld(Point3D(0, 0, nz))
+      val c3 = transVoxelToWorld(Point3D(0, ny, 0))
+      val c4 = transVoxelToWorld(Point3D(0, ny, nz))
+      val c5 = transVoxelToWorld(Point3D(nx, 0, 0))
+      val c6 = transVoxelToWorld(Point3D(nx, 0, nz))
+      val c7 = transVoxelToWorld(Point3D(nx, ny, 0))
+      val c8 = transVoxelToWorld(Point3D(nx, ny, nz))
 
       val voxelDataVTK = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield volume.data(i)(j)(k)(d);
 
@@ -204,7 +204,9 @@ object ImageIO {
       val newExtent = Point3D(corners.map(c => c(0)).max.toFloat, corners.map(c => c(1)).max.toFloat, corners.map(c => c(2)).max.toFloat)
 
       val cimg = Interpolation.interpolate(img, 0)
-      val newSpacing = Vector3D((newExtent - newOrigin)(0) / nx, (newExtent - newOrigin)(1) / ny, (newExtent - newOrigin)(2) / nz)
+      //val newSpacing = Vector3D((newExtent - newOrigin)(0) / nx, (newExtent - newOrigin)(1) / ny, (newExtent - newOrigin)(2) / nz)
+      val newSpacing = Vector3D(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
+
       val newDomain = DiscreteImageDomain3D(newOrigin, newSpacing, Index3D(nx, ny, nz))
       Resample.sample[Scalar](cimg.compose(transWorldToVoxel), newDomain, 0f)
     }
@@ -315,7 +317,7 @@ object ImageIO {
 
   private[this] def writeNifti[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
     val scalarConv = implicitly[ScalarValue[Scalar]]
-    
+
     val domain = img.domain
     val size = domain.size
     val dim = 1;
@@ -336,13 +338,13 @@ object ImageIO {
       }
 
       // the header
-    //  val header = new NiftiHeader()
+      //  val header = new NiftiHeader()
       volume.header.setDatatype(niftyDataTypeFromScalar[Scalar])
       volume.header.qform_code = 0
       volume.header.sform_code = 2 // TODO check me that this is right
-      volume.header.srow_x(0) = domain.spacing(0); volume.header.srow_x(1) =  0f; volume.header.srow_x(2)= 0f; volume.header.srow_x(3) = domain.origin(0)
-      volume.header.srow_y(0) = 0f; volume.header.srow_y(1) =  domain.spacing(1); volume.header.srow_y(2)= 0f; volume.header.srow_y(3) = domain.origin(1)
-      volume.header.srow_z(0) = 0f; volume.header.srow_z(1) = 0f; volume.header.srow_z(2)=  domain.spacing(2);; volume.header.srow_z(3) = domain.origin(2)
+      volume.header.srow_x(0) = domain.spacing(0); volume.header.srow_x(1) = 0f; volume.header.srow_x(2) = 0f; volume.header.srow_x(3) = domain.origin(0)
+      volume.header.srow_y(0) = 0f; volume.header.srow_y(1) = domain.spacing(1); volume.header.srow_y(2) = 0f; volume.header.srow_y(3) = domain.origin(1)
+      volume.header.srow_z(0) = 0f; volume.header.srow_z(1) = 0f; volume.header.srow_z(2) = domain.spacing(2); ; volume.header.srow_z(3) = domain.origin(2)
       volume.header.pixdim(1) = domain.spacing(0)
       volume.header.pixdim(2) = domain.spacing(1)
       volume.header.pixdim(3) = domain.spacing(2)
