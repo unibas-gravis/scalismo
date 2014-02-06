@@ -9,6 +9,7 @@ import org.statismo.stk.core.geometry.implicits._
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
+import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
 
@@ -70,11 +71,32 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
       val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
       //   Utils.show3D[Short](discreteImage)
 
-      val f = new File("/tmp/dummy.h5")
+      val f = File.createTempFile("dummy", ".h5")
+      f.deleteOnExit()
       val t = ImageIO.writeImage(discreteImage, f)
 
       assert(t.isSuccess == true)
       f.delete()
+    }
+
+ 
+    it("can write nifti and read it again") {
+
+      val pathH5 = getClass().getResource("/3dimage.nii").getPath()
+      val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+
+      val tmpfile = File.createTempFile("dummy", ".nii")
+      tmpfile.deleteOnExit()
+
+      ImageIO.writeImage(origImg, tmpfile)
+      val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
+      origImg.domain.origin should equal(rereadImg.domain.origin)
+      (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 plusOrMinus 1e-2)
+      origImg.domain.size should equal(rereadImg.domain.size)
+      for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
+        origImg.values(i) should equal(rereadImg.values(i))
+      }
+
     }
 
   }
