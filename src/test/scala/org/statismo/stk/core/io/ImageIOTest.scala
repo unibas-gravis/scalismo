@@ -79,33 +79,15 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
       f.delete()
     }
 
-    ignore("can be read as nifty, written as vtk and read again") {
-      val pathNii = getClass().getResource("/3dimage.h5").getPath()
-
-      val tmpfile = File.createTempFile("niftitmp", ".vtk")
-      tmpfile.deleteOnExit()
-
-      val discreteImageNii = ImageIO.read3DScalarImage[Short](new File(pathNii)).get
-
-      ImageIO.writeImage(discreteImageNii, tmpfile)
-      val imgReread = ImageIO.read3DScalarImage[Short](tmpfile).get
-
-      discreteImageNii.domain.origin should equal(imgReread.domain.origin)
-      (discreteImageNii.domain.spacing - imgReread.domain.spacing).norm should be(0.0 plusOrMinus 1e-5)
-      discreteImageNii.domain.size should equal(imgReread.domain.size)
-      discreteImageNii.values should equal(imgReread.values)
-
-    }
-
+ 
     it("can write nifti and read it again") {
 
       val pathH5 = getClass().getResource("/3dimage.nii").getPath()
       val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
 
-//      val tmpfile = File.createTempFile("dummy", ".nii")
-//      tmpfile.deleteOnExit()
+      val tmpfile = File.createTempFile("dummy", ".nii")
+      tmpfile.deleteOnExit()
 
-      val tmpfile = new File("d:\\temp\\tempfile.nii")
       ImageIO.writeImage(origImg, tmpfile)
       val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
       origImg.domain.origin should equal(rereadImg.domain.origin)
