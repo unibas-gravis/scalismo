@@ -17,6 +17,14 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
   }
 
   /**
+   * return the mean mesh represented by this gp
+   */
+  def mean : TriangleMesh = {
+    val zeroVec = DenseVector.zeros[Float](gp.rank) 
+    instance(zeroVec)
+  }
+  
+  /**
    *  draw a random sample
    */
   def sample: TriangleMesh = {
