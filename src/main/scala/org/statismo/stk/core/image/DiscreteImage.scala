@@ -12,8 +12,9 @@ import scala.util.Random
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.PointData
 import org.statismo.stk.core.common.ScalarValue
+import org.statismo.stk.core.common.ScalarPointData
 
-abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PointData[D, Pixel] {
+abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends ScalarPointData[D, Pixel] {
   def domain: DiscreteImageDomain[D]
 
 
