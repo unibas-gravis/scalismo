@@ -15,6 +15,7 @@ import org.statismo.stk.core.common.ScalarValue
 import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.geometry.DimTraits
 import scala.collection.mutable.HashMap
+import org.statismo.stk.core.common.ScalarPointData
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = Vector(ptId1, ptId2, ptId3)
@@ -89,7 +90,8 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
   def normalAtPoint(pt: Point[ThreeD]): Vector3D = {
     val closestMeshPtId = findClosestPoint(pt)._2
     val neigborCells = cellNeighbors(closestMeshPtId)
-    neigborCells.foldLeft(Vector3D(0, 0, 0))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
+    val normalUnnormalized = neigborCells.foldLeft(Vector3D(0, 0, 0))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
+    normalUnnormalized * (1.0 / normalUnnormalized.norm)
   }
 
   lazy val area = cells.map(triangle => computeTriangleArea(triangle)).sum
@@ -127,12 +129,12 @@ object TriangleMesh {
 
 }
 
-case class ScalarMeshData[S: ScalarValue: ClassTag](val mesh: TriangleMesh, val values: Array[S]) extends PointData[ThreeD, S] {
+case class ScalarMeshData[S: ScalarValue: ClassTag](val mesh: TriangleMesh, val values: Array[S]) extends ScalarPointData[ThreeD, S] {
   require(mesh.numberOfPoints == values.size)
   val valueDimensionality = 1
   override val domain = mesh
 
-  override def map[S2: ScalarValue: ClassTag](f: S => S2): PointData[ThreeD, S2] = {
+  override def map[S2: ScalarValue: ClassTag](f: S => S2): ScalarPointData[ThreeD, S2] = {
     ScalarMeshData(mesh, values.map(f))
   }
 }
