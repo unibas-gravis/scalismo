@@ -38,24 +38,55 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit
-          
+
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
         _ <- writeStatismoMeshModel(model, dummyFile)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
-    	  val coeffs = DenseVector.ones[Float](model.gp.rank)
-    	  val def1 = model.gp.instance(coeffs)
-    	  val def2 = readModel.gp.instance(coeffs)
-    	  
-    	  model.mesh.points.zip(readModel.mesh.points).map {
-    	    pair => {
-    	      def1(pair._1)(0) should be (def2(pair._2)(0) plusOrMinus 0.01f) 
-    	      def1(pair._1)(1) should be (def2(pair._2)(1) plusOrMinus 0.01f) 
-    	      def1(pair._1)(2) should be (def2(pair._2)(2) plusOrMinus 0.01f) 
-    	    }
-    	  }    	  
-      }      
+        val coeffs = DenseVector.ones[Float](model.gp.rank)
+        val def1 = model.gp.instance(coeffs)
+        val def2 = readModel.gp.instance(coeffs)
+
+        model.mesh.points.zip(readModel.mesh.points).map {
+          pair =>
+            {
+              def1(pair._1)(0) should be(def2(pair._2)(0) plusOrMinus 0.01f)
+              def1(pair._1)(1) should be(def2(pair._2)(1) plusOrMinus 0.01f)
+              def1(pair._1)(2) should be(def2(pair._2)(2) plusOrMinus 0.01f)
+            }
+        }
+      }
+      t.get
+
+    }
+
+    it("can be written in version 0.81 and read again") {
+      import StatismoIO.StatismoVersion.v081
+      
+      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+      val dummyFile = File.createTempFile("dummy", "h5")
+      dummyFile.deleteOnExit
+
+      val t = for {
+        model <- StatismoIO.readStatismoMeshModel(statismoFile)
+
+        _ <- writeStatismoMeshModel(model, dummyFile, v081)
+        readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
+      } yield {
+        val coeffs = DenseVector.ones[Float](model.gp.rank)
+        val def1 = model.gp.instance(coeffs)
+        val def2 = readModel.gp.instance(coeffs)
+
+        model.mesh.points.zip(readModel.mesh.points).map {
+          pair =>
+            {
+              def1(pair._1)(0) should be(def2(pair._2)(0) plusOrMinus 0.01f)
+              def1(pair._1)(1) should be(def2(pair._2)(1) plusOrMinus 0.01f)
+              def1(pair._1)(2) should be(def2(pair._2)(2) plusOrMinus 0.01f)
+            }
+        }
+      }
       t.get
 
     }

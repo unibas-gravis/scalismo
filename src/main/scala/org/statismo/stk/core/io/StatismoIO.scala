@@ -26,7 +26,7 @@ object StatismoIO {
   def readStatismoMeshModel(file: File): Try[StatisticalMeshModel] = {
     val filename = file.getAbsolutePath()
 
-    def extractPcaBasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]) : DenseMatrix[Float] = {
+    def extractPcaBasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
 
       val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l).toFloat)
       val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) (1.0f / l) else 0f)
@@ -36,7 +36,7 @@ object StatismoIO {
         // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix, 
         // i.e. pcaBasis = U * sqrt(lmbda), where U is a matrix of eigenvectors and lmbda the corresponding eigenvalues. 
         // We recover U from it.
-        
+
         // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
         // (diag returns densematrix, so the direct computation would be very slow)
         val U = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
@@ -86,24 +86,40 @@ object StatismoIO {
     modelOrFailure
   }
 
-  def writeStatismoMeshModel(model: StatisticalMeshModel, file: File): Try[Unit] = {
+  object StatismoVersion extends Enumeration {
+    type StatismoVersion = Value
+    val v081, v090 = Value
+  }
+
+  import StatismoVersion._
+  def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
     val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
     val discretizedMean = model.mesh.points.map(p => p + model.gp.mean(p)).toIndexedSeq.flatten(_.data)
+    val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
     val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDim, model.gp.rank)
     for {
       (point, idx) <- model.mesh.points.toSeq.par.zipWithIndex
       ((lmda, phi), j) <- model.gp.eigenPairs.zipWithIndex
-    } pcaBasis(idx * model.gp.outputDim until (idx + 1) * model.gp.outputDim, j) := (phi(point)).toBreezeVector
+    } {
+      pcaBasis(idx * model.gp.outputDim until (idx + 1) * model.gp.outputDim, j) := (phi(point)).toBreezeVector
+    }
+
+    if (statismoVersion == v081) {
+      // statismo 081 has the variance included in the pcaBasis
+      for (i <- 0 until pcaVariance.length) {
+        pcaBasis(::, i) *= math.sqrt(pcaVariance(i)).toFloat
+      }
+    }
 
     val maybeError = for {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeArray("/model/mean", discretizedMean.toArray)
       _ <- h5file.writeArray("/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray("/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols), pcaBasis.t.flatten(false).toArray))
-      _ <- h5file.writeArray("/model/pcaVariance", model.gp.eigenPairs.map(p => p._1).toArray)
+      _ <- h5file.writeArray("/model/pcaVariance", pcaVariance.toArray)
       _ <- h5file.writeString("/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup("/representer")
 
