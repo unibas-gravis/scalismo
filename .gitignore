@@ -9,3 +9,7 @@ lib/libvtk*
 \#*\#
 /target
 /bin
+.settings
+/project/target
+/project/project
+
