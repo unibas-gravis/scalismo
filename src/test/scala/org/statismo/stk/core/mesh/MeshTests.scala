@@ -70,7 +70,7 @@ class MeshTests extends FunSpec with ShouldMatchers {
     }
 
     it("computes the right binary image for the unit sphere") {
-      val path = getClass().getResource("/facemesh.h5").getPath
+      val path = getClass().getResource("/unit-sphere.vtk").getPath
       val spheremesh = MeshIO.readMesh(new File(path)).get
       val binaryImg = Mesh.meshToBinaryImage(spheremesh)
       binaryImg(Point3D(0,0,0)) should be(1)
