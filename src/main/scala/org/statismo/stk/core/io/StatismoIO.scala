@@ -20,6 +20,10 @@ import java.util.List
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
+import ncsa.hdf.`object`.h5.H5Group
+import org.statismo.stk.core.mesh.TriangleMesh
+import java.io.DataInputStream
+import java.io.FileInputStream
 
 object StatismoIO {
 
@@ -94,9 +98,6 @@ object StatismoIO {
   import StatismoVersion._
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
-    val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
-    val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
-    val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
     val discretizedMean = model.mesh.points.map(p => p + model.gp.mean(p)).toIndexedSeq.flatten(_.data)
     val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
     val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDim, model.gp.rank)
@@ -122,20 +123,68 @@ object StatismoIO {
       _ <- h5file.writeArray("/model/pcaVariance", pcaVariance.toArray)
       _ <- h5file.writeString("/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup("/representer")
+      _ <- if (statismoVersion == v090) {
+        writeRepresenterStatismov090(h5file, group, model)
+      } else {
+        writeRepresenterStatismov081(h5file, group, model)
+      }
+      _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
+      _ <- h5file.writeString("/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
+      _ <- h5file.createGroup("/modelinfo/modelBuilder-0/parameters")
+      _ <- h5file.createGroup("/modelinfo/modelBuilder-0/dataInfo")      
+      _ <- Try { h5file.close() }
 
+    } yield ()
+
+    maybeError
+  }
+
+  private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel): Try[Unit] = {
+
+    val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
+    val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
+    val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
+
+    for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
       _ <- h5file.writeStringAttribute(group.getFullName, "version", "0.1")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
       _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
       _ <- h5file.writeNDArray[Float]("/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
-      _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
-      _ <- h5file.writeString("/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
-      _ <- Try { h5file.close() }
+    } yield Success(())
+  }
 
-    } yield ()
 
-    maybeError
+  private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel): Try[Unit] = {
+
+    // we simply store the reference into a vtk file and store the file (the binary data) into the representer
+    
+    def refAsByteArray(ref: TriangleMesh) : Try[Array[Byte]] = {
+      val tmpfile = File.createTempFile("temp", ".vtk")
+      tmpfile.deleteOnExit()
+      for {
+        _ <- MeshIO.writeMesh(ref, tmpfile)
+        ba <- readFileAsByteArray(tmpfile)
+      } yield ba
+    }
+
+    def readFileAsByteArray(f: File): Try[Array[Byte]] = {
+      Try {
+        val fileData = new Array[Byte](f.length().toInt)
+        val dis = new DataInputStream(new FileInputStream(f));
+        dis.readFully(fileData);
+        dis.close();
+        fileData
+      }
+    }
+
+    for {
+      _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkMeshRepresenter")
+      ba <- refAsByteArray(model.mesh)
+      _ <- h5file.writeNDArray[Byte]("/representer/reference", NDArray(Vector(ba.length, 1), ba))
+    } yield Success(())
+
   }
 
   private def ndArrayToMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit, dummy2: DummyImplicit) = {
@@ -199,12 +248,10 @@ object StatismoIO {
     } map (_ => tmpfile)
   }
 
-  def main(args: Array[String]): Unit = {
-    org.statismo.stk.core.initialize
-    readStatismoMeshModel(new File("c:/Users/Luethi/Downloads/ssmModel2.h5")) match {
-      case Success(model) => VTKStatmodelViewer(model).startup(Array())
-      case Failure(f) => f.printStackTrace()
-    }
-  }
+//  def main(args: Array[String]): Unit = {
+//    org.statismo.stk.core.initialize
+//    val model = readStatismoMeshModel(new File("/home/luethi//tmp/bladder/bladder-model-augmented.h5")).get
+//    println(StatismoIO.writeStatismoMeshModel(model, new File("/tmp/x.h5"), StatismoVersion.v081))
+//  }
 
 }
