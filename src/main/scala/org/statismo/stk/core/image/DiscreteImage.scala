@@ -19,7 +19,7 @@ abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends
 
   def apply(idx: Index[D]): Pixel = values(domain.indexToLinearIndex(idx))
   def isDefinedAt(idx: Index[D]): Boolean = {
-    (0 until domain.dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) <= domain.size(d))
+    (0 until domain.dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
   }
 
 }
