@@ -1,5 +1,4 @@
-package org.statismo.stk.core
-package io
+package org.statismo.stk.core.io
 
 import java.io.File
 import scala.util.Try
@@ -8,10 +7,9 @@ import breeze.linalg.DenseMatrix
 import scala.util.Failure
 import scala.util.Success
 import scala.reflect.ClassTag
-import reflect.runtime.universe.{ TypeTag, typeOf }
+import reflect.runtime.universe.{TypeTag, typeOf}
 import org.statismo.stk.core.mesh.TriangleCell
 import org.statismo.stk.core.mesh.TriangleMesh
-import statisticalmodel.StatisticalMeshModel
 import org.statismo.stk.core.geometry._
 import java.util.Calendar
 import ncsa.hdf.`object`._
@@ -24,34 +22,28 @@ import ncsa.hdf.`object`.h5.H5Group
 import org.statismo.stk.core.mesh.TriangleMesh
 import java.io.DataInputStream
 import java.io.FileInputStream
+import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 
 object StatismoIO {
 
   def readStatismoMeshModel(file: File): Try[StatisticalMeshModel] = {
     val filename = file.getAbsolutePath()
 
-    def extractPcaBasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
+    def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
+      // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
+      // i.e. pcaBasis = U * sqrt(lmbda), where U is a matrix of eigenvectors and lmbda the corresponding eigenvalues.
+      // We recover U from it.
 
       val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l).toFloat)
       val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) (1.0f / l) else 0f)
 
-      val UTU = pcaBasisMatrix(::, 0 until 1).t * pcaBasisMatrix(::, 0 until 1) // take only first row of to be faster
-      if (Math.abs(UTU(0, 0) - pcaVarianceVector(0)) < pcaVarianceVector(0) * 1e-3) {
-        // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix, 
-        // i.e. pcaBasis = U * sqrt(lmbda), where U is a matrix of eigenvectors and lmbda the corresponding eigenvalues. 
-        // We recover U from it.
-
-        // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
-        // (diag returns densematrix, so the direct computation would be very slow)
-        val U = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
-        for (i <- 0 until pcaBasisMatrix.cols) {
-          U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
-        }
-        U
-      } else {
-        pcaBasisMatrix // this is already the right matrix - nothing to do here
+      // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
+      // (diag returns densematrix, so the direct computation would be very slow)
+      val U = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
+      for (i <- 0 until pcaBasisMatrix.cols) {
+        U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
       }
-
+      U
     }
 
     val modelOrFailure = for {
@@ -59,9 +51,18 @@ object StatismoIO {
       meanArray <- h5file.readNDArray[Float]("/model/mean")
       meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
-      pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
+      majorVersion <- if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion") else Success(0)
+      minorVersion <- if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion") else Success(0)
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
       pcaVarianceVector = DenseVector(pcaVarianceArray.data)
+      pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
+      pcaBasis <- (majorVersion, minorVersion) match {
+        case (1, _) => Success(pcaBasisMatrix)
+        case (0, 9) => Success(pcaBasisMatrix)
+        case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case (0, 0) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
+      }
 
       // read mesh according to type given in representer
       mesh <- h5file.readStringAttribute("/representer/", "name") match {
@@ -76,15 +77,17 @@ object StatismoIO {
         }
         case Failure(t) => Failure(t)
       }
-      _ <- Try { h5file.close() }
+      _ <- Try {
+        h5file.close()
+      }
     } yield {
       // statismo stores the mean as the point position and not as a displaceme
       // ref. we compensate for this
       def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
-      val pcaBasisNormalized = extractPcaBasisMatrix(pcaBasisMatrix, pcaVarianceVector)
-      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasisNormalized)
+
+      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
     }
 
     modelOrFailure
@@ -96,6 +99,7 @@ object StatismoIO {
   }
 
   import StatismoVersion._
+
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val discretizedMean = model.mesh.points.map(p => p + model.gp.mean(p)).toIndexedSeq.flatten(_.data)
@@ -124,15 +128,30 @@ object StatismoIO {
       _ <- h5file.writeString("/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup("/representer")
       _ <- if (statismoVersion == v090) {
-        writeRepresenterStatismov090(h5file, group, model)
-      } else {
-        writeRepresenterStatismov081(h5file, group, model)
+        for {
+          _ <- writeRepresenterStatismov090(h5file, group, model)
+          _ <- h5file.writeInt("/version/majorVersion", 0)
+          _ <- h5file.writeInt("/version/minorVersion", 9)
+
+        } yield Success(())
       }
-      _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
-      _ <- h5file.writeString("/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
-      _ <- h5file.createGroup("/modelinfo/modelBuilder-0/parameters")
-      _ <- h5file.createGroup("/modelinfo/modelBuilder-0/dataInfo")      
-      _ <- Try { h5file.close() }
+        else
+        {
+          for {
+          _ <- writeRepresenterStatismov081(h5file, group, model)
+          _ <- h5file.writeInt("/version/majorVersion", 0)
+          _ <- h5file.writeInt("/version/minorVersion", 8)
+          }
+            yield (Success(()))
+        }
+        _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
+        _ <- h5file.writeString("/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
+        _ <- h5file.createGroup("/modelinfo/modelBuilder-0/parameters")
+        _ <- h5file.createGroup("/modelinfo/modelBuilder-0/dataInfo")
+        _ <- Try {
+          h5file.close()
+        }
+
 
     } yield ()
 
@@ -147,7 +166,8 @@ object StatismoIO {
 
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
-      _ <- h5file.writeStringAttribute(group.getFullName, "version", "0.1")
+      _ <- h5file.writeStringAttribute(group.getFullName, "version/majorVersion", "0")
+      _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
       _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
@@ -159,8 +179,8 @@ object StatismoIO {
   private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel): Try[Unit] = {
 
     // we simply store the reference into a vtk file and store the file (the binary data) into the representer
-    
-    def refAsByteArray(ref: TriangleMesh) : Try[Array[Byte]] = {
+
+    def refAsByteArray(ref: TriangleMesh): Try[Array[Byte]] = {
       val tmpfile = File.createTempFile("temp", ".vtk")
       tmpfile.deleteOnExit()
       for {
@@ -248,9 +268,10 @@ object StatismoIO {
     } map (_ => tmpfile)
   }
 
+
 //  def main(args: Array[String]): Unit = {
 //    org.statismo.stk.core.initialize
-//    val model = readStatismoMeshModel(new File("/home/luethi//tmp/bladder/bladder-model-augmented.h5")).get
+//    val model = readStatismoMeshModel(new File("/tmp/skull-gaussian-50-0.h5")).get
 //    println(StatismoIO.writeStatismoMeshModel(model, new File("/tmp/x.h5"), StatismoVersion.v081))
 //  }
 
