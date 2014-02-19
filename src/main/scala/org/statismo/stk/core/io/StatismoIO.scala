@@ -29,7 +29,7 @@ object StatismoIO {
   def readStatismoMeshModel(file: File): Try[StatisticalMeshModel] = {
     val filename = file.getAbsolutePath()
 
-    def extractPcaBasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
+    def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
       // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
       // i.e. pcaBasis = U * sqrt(lmbda), where U is a matrix of eigenvectors and lmbda the corresponding eigenvalues.
       // We recover U from it.
@@ -51,16 +51,16 @@ object StatismoIO {
       meanArray <- h5file.readNDArray[Float]("/model/mean")
       meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
-      majorVersion = h5file.readInt("/version/majorVersion").toOption.getOrElse(0)
-      minorVersion = h5file.readInt("/version/minorVersion").toOption.getOrElse(0)
+      majorVersion <- if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion") else Success(0)
+      minorVersion <- if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion") else Success(0)
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
       pcaVarianceVector = DenseVector(pcaVarianceArray.data)
       pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
       pcaBasis <- (majorVersion, minorVersion) match {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
-        case (0, 8) => Success(extractPcaBasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
-        case (0, 0) => Success(extractPcaBasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case (0, 0) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
         case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
       }
 
