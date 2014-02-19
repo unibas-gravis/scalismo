@@ -30,6 +30,8 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
+
+
   def readStringAttribute(path: String, attrName: String): Try[String] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
@@ -48,6 +50,9 @@ class HDF5File(h5file: FileFormat) {
       }
     }
   }
+
+
+
 
   def writeIntAttribute(path: String, attrName: String, attrValue: Int) = {
     Try {
@@ -159,6 +164,35 @@ class HDF5File(h5file: FileFormat) {
       Success(Unit)
     }
   }
+
+  def readInt(path: String): Try[Int] = {
+
+    h5file.get(path) match {
+      case s: H5ScalarDS => {
+        Try{s.read().asInstanceOf[Array[Int]](0)}
+      }
+      case _ => {
+        Failure(new Exception("Expected H5ScalarDS when reading Int " + path))
+      }
+    }
+  }
+
+
+  def writeInt(path : String, value : Int) : Try[Unit] = {
+    val (groupname, datasetname) = splitpath(path)
+    val groupOrFailure = createGroup(groupname)
+
+    groupOrFailure.map { group =>
+
+      val fileFormat: FileFormat = group.getFileFormat()
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE);
+      Try{h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
+
+    }
+
+  }
+
+
 
   private def createGroup(parent: Group, relativePath: String): Try[Group] = {
 
