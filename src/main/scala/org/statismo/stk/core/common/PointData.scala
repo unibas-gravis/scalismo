@@ -2,7 +2,7 @@ package org.statismo.stk.core.common
 
 import org.statismo.stk.core.geometry.Dim
 import scala.reflect.ClassTag
-import org.statismo.stk.core.common.ScalarValue
+
 
 trait PointData[D <: Dim, @specialized(Float, Short) Pixel] extends PartialFunction[Int, Pixel] {
   def domain: DiscreteDomain[D]
