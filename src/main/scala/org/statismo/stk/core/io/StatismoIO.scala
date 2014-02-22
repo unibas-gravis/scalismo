@@ -51,8 +51,12 @@ object StatismoIO {
       meanArray <- h5file.readNDArray[Float]("/model/mean")
       meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
-      majorVersion <- if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion") else Success(0)
-      minorVersion <- if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion") else Success(0)
+      majorVersion <-
+        if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion")
+        else Failure(new Throwable(s"no entry /version/majorVersion provided in statismo file." ))
+      minorVersion <-
+        if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion")
+        else Failure(new Throwable(s"no entry /version/minorVersion provided in statismo file." ))
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
       pcaVarianceVector = DenseVector(pcaVarianceArray.data)
       pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
@@ -60,7 +64,6 @@ object StatismoIO {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
         case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
-        case (0, 0) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
         case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
       }
 
