@@ -44,7 +44,7 @@ object Resolvers {
   val twitter = "twitter" at "http://maven.twttr.com/"
   val statismoSnapshot = "statismo" at "http://statismo.cs.unibas.ch/repository"
 
-  val stkResolvers = Seq(sonatypeSnapshots, sonatypeRelease, imagej, twitter, statismoSnapshot)
+  val stkResolvers = Seq(statismoSnapshot, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
 }
 
 object Dependencies {
