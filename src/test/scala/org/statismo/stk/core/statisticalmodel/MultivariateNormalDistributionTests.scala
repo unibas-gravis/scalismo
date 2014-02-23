@@ -18,10 +18,25 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
   }
 
 
-  describe("A 3D Multivariate normal") { 
-    it("yields the right result when estimated from data") {
-      // TODO
+  describe("A 3D Multivariate normal") {
+    val mu = DenseVector(2f, 1.0f, 3f)
+    val X = DenseMatrix.rand(3, 3).map(_.toFloat)
+    val cov = X.t * X
+
+    val mvn = new MultivariateNormalDistribution(mu, cov)
+
+    it("yields the right mean and covariance matrix when we sample from the data") {
+      val samples = for (i <- 0 until 1000) yield mvn.drawSample
+      val estimatedMVN = MultivariateNormalDistribution.estimateFromData(samples)
+      for (i <- 0 until mu.length) {
+        mu(i) should be(estimatedMVN.mean(i) plusOrMinus 0.1f)
+      }
+      for (i <- 0 until cov.rows; j <- 0 until cov.cols) {
+        cov(i,j) should be(estimatedMVN.cov(i,j) plusOrMinus 0.1f)
+      }
     }
+
+
   }
 
   describe("The mahalanobis distance") {
