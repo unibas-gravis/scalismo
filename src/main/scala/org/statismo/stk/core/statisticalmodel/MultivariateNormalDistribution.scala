@@ -14,7 +14,7 @@ class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: Dens
 
   val covInv = LinearAlgebra.pinv(cov)
   private val covInvFloat = covInv.map(_.toFloat)
-
+  val L = breeze.linalg.cholesky(cov.map(_.toDouble) + DenseMatrix.eye[Double](dim) * 1e-6) // lower diagonal matrix
   val covDet = LinearAlgebra.det(cov)
 
   def pdf(x: DenseVector[Float]) = {
@@ -39,6 +39,13 @@ class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: Dens
   def mahalanobisDistance(x: DenseVector[Float]): Double = {
     val x0 = (x - mean)
     math.sqrt(x0 dot (covInvFloat * x0))
+  }
+
+  def drawSample : DenseVector[Float] = {
+
+    val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
+    val u = DenseVector[Double](normalSamples.toArray)
+    mean + (L * u).map(_.toFloat) // a random sample
   }
 
 }
