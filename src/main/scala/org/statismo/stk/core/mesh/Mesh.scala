@@ -9,6 +9,8 @@ import scala.collection.immutable.SortedSet
 import scala.collection.immutable.HashSet
 import scala.collection.immutable.HashSet.HashSet1
 import scala.collection.immutable.HashSet.HashSet1
+import scala.collection.mutable.HashMap
+import org.statismo.stk.core.geometry.Point3D
 
 object Mesh {
 
@@ -28,54 +30,35 @@ object Mesh {
     }
     ContinuousScalarImage3D(RealSpace3D, (pt: Point[ThreeD]) => dist(pt), Some((pt: Point[ThreeD]) => grad(pt)))
   }
-  
-  def meshToBinaryImage(mesh : TriangleMesh): ContinuousScalarImage3D = { 
-    def inside(pt : Point[ThreeD]) : Short= {
+
+  def meshToBinaryImage(mesh: TriangleMesh): ContinuousScalarImage3D = {
+    def inside(pt: Point[ThreeD]): Short = {
       val closestMeshPt = mesh.findClosestPoint(pt)._1
       val dotprod = mesh.normalAtPoint(closestMeshPt) dot (closestMeshPt - pt)
-      if (dotprod > 0.0) 1 else 0 
+      if (dotprod > 0.0) 1 else 0
     }
-    
+
     ContinuousScalarImage3D(RealSpace3D, (pt: Point[ThreeD]) => inside(pt), None)
   }
-  
 
   /**
-   * Clip all the points in a mesh that satisfy the given predicate 
+   * Clip all the points in a mesh that satisfy the given predicate
    */
-  def clipMesh(mesh: TriangleMesh, clipPointPredicate: Point[ThreeD] => Boolean): TriangleMesh = {
 
-    val ptsWithId = mesh.points.zipWithIndex
-    val ptsWithIdMap = ptsWithId.toMap
-    val (ptsWithIndexToClip, ptsWithIndexToKeep) = ptsWithId.partition { case (pt, id) => clipPointPredicate(pt) }
+  def clipMesh(mesh: TriangleMesh, clipPointPredicate: Point[ThreeD] => Boolean) : TriangleMesh = {
 
-    val ptIdsToClip = ptsWithIndexToClip.map(_._2).toSet
-    val ptsToKeep = ptsWithIndexToKeep.map(_._1)
-    val ptsWithNewIndexToKeep = ptsToKeep.zipWithIndex
+    val remainingPointTriplet = for {
+      cell <- mesh.cells
+      val points = cell.pointIds.map(mesh.points)
+      val validCell = points.map(p => !clipPointPredicate(p)).reduce(_ && _)
+      if (validCell)
+    } yield { points.toIndexedSeq }
 
-    // compute a map that holds for every point a tuple the tuple (oldPtId, newPtId). This is later used
-    // to correct the cellIds after clipping
-    val ptIdMapping = {
-      for ((pt, newPtId) <- ptsWithNewIndexToKeep) yield {
-        val oldPtId = ptsWithIdMap.get(pt).get
-        (pt, (oldPtId, newPtId))
-      }
-    }.toMap
- 
-    def newPtIdForOldPtId(ptId: Int): Int = {
-      val pt = ptsWithId(ptId)._1
-      val (oldPtId, newPtId) = ptIdMapping(pt)
-      newPtId
-    }
-   
-    // get all the cells that should be clipped
-    val (cellsToClip, cellsToKeep) = mesh.cells.partition(cell => ptIdsToClip.contains(cell.ptId1) || ptIdsToClip.contains(cell.ptId2) || ptIdsToClip.contains(cell.ptId3))
+    val points = remainingPointTriplet.flatten.distinct
+    val pt2Id = points.zipWithIndex.toMap
+    val cells = remainingPointTriplet.map { case vec => TriangleCell(pt2Id(vec(0)), pt2Id(vec(1)), pt2Id(vec(2))) }
 
-    // rewrite point ids in cells
-    val newCellsToKeep = for (cell <- cellsToKeep.par) yield {
-      new TriangleCell(newPtIdForOldPtId(cell.ptId1), newPtIdForOldPtId(cell.ptId2), newPtIdForOldPtId(cell.ptId3))
-    }
-    TriangleMesh(ptsWithIndexToKeep.map { case (pt, ptId) => pt }.toIndexedSeq, newCellsToKeep.toIndexedSeq)
+    TriangleMesh(points, cells)
   }
 
 }
