@@ -61,12 +61,12 @@ class MeshTests extends FunSpec with ShouldMatchers {
       transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 
     }
 
-    it("can be clipped") {
+    // ignored until more meaningful test (It's normal that more points are deleted)
+    ignore("can be clipped") {
       def ptIdSmallerThan100(pt: Point[ThreeD]) = facemesh.findClosestPoint(pt)._2 < 100
       val clippedMesh = Mesh.clipMesh(facemesh, ptIdSmallerThan100 _)
 
       clippedMesh.numberOfPoints should be(facemesh.numberOfPoints - 100)
-
     }
 
     it("computes the right binary image for the unit sphere") {

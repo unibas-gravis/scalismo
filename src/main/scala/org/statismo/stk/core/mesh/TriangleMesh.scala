@@ -40,6 +40,9 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
   for (cell <- cells) {
     cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
   }
+  
+  //verify that there all points belong to a cell
+  require(cellMap.keys.size == meshPoints.size, {println("Provided mesh data contains points not belonging to any cell !")}) 
 
   private[this] val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
 
