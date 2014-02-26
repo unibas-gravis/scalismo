@@ -48,11 +48,36 @@ object StatismoIO {
 
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
+
+      representerName <- h5file.readStringAttribute("/representer/", "name")
+      // read mesh according to type given in representer
+      mesh <- representerName match {
+        case "vtkPolyDataRepresenter" => readVTKMeshFromRepresenterGroup(h5file)
+        case "itkMeshRepresenter" => readVTKMeshFromRepresenterGroup(h5file)
+        case _ => {
+          h5file.readStringAttribute("/representer/", "datasetType") match {
+            case Success("POLYGON_MESH") => readStandardMeshFromRepresenterGroup(h5file)
+            case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
+            case Failure(t) => Failure(t)
+          }
+        }
+      }
+
       meanArray <- h5file.readNDArray[Float]("/model/mean")
       meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
-      majorVersion <- if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion") else Success(0)
-      minorVersion <- if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion") else Success(0)
+      majorVersion <-
+        if (h5file.exists("/version/majorVersion") ) h5file.readInt("/version/majorVersion")
+        else {
+          if (representerName == "vtkPolyDataRepresenter" || representerName == "itkMeshRepresenter") Success(0)
+          else Failure(new Throwable(s"no entry /version/majorVersion provided in statismo file." ))
+        }
+      minorVersion <-
+        if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion")
+        else {
+          if (representerName == "vtkPolyDataRepresenter" || representerName == "itkMeshRepresenter") Success(8)
+          else Failure(new Throwable(s"no entry /version/minorVersion provided in statismo file." ))
+        }
       pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
       pcaVarianceVector = DenseVector(pcaVarianceArray.data)
       pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
@@ -60,23 +85,9 @@ object StatismoIO {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
         case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
-        case (0, 0) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
         case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
       }
 
-      // read mesh according to type given in representer
-      mesh <- h5file.readStringAttribute("/representer/", "name") match {
-        case Success("vtkPolyDataRepresenter") => readVTKMeshFromRepresenterGroup(h5file)
-        case Success("itkMeshRepresenter") => readVTKMeshFromRepresenterGroup(h5file)
-        case Success(_) => {
-          h5file.readStringAttribute("/representer/", "datasetType") match {
-            case Success("POLYGON_MESH") => readStandardMeshFromRepresenterGroup(h5file)
-            case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
-            case Failure(t) => Failure(t)
-          }
-        }
-        case Failure(t) => Failure(t)
-      }
       _ <- Try {
         h5file.close()
       }
