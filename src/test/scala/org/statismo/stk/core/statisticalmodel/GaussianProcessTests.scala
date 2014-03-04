@@ -38,6 +38,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       for ((x, y) <- trainingData) {
         (posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 1e-1))
       }
+
     }
 
     it("yields a larger posterior variance for points that are less strongly constrained") {
@@ -53,40 +54,43 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0)).map(t => (Point1D(t._1), Vector1D(t._2), t._3))
       val posteriorGP = GaussianProcess.regression(gp, trainingData)
 
-      
-      posteriorGP.cov(pt1, pt1)(0, 0) should be < posteriorGP.cov(pt2, pt2)(0, 0)      
+
+      posteriorGP.cov(pt1, pt1)(0, 0) should be < posteriorGP.cov(pt2, pt2)(0, 0)
+    }
+
+
+    it("keeps the landmark points fixed for a 2D case") {
+      val domain = BoxedDomain2D((-5.0, -5.0), (5.0, 5.0))
+      val config = LowRankGaussianProcessConfiguration[TwoD](domain, UniformSampler2D(domain, 400), _ => Vector2D(0.0, 0.0), UncorrelatedKernel2x2(GaussianKernel2D(5)), 100)
+      val gp = GaussianProcess.createLowRankGaussianProcess2D(config)
+
+      val trainingData = IndexedSeq((Point2D(-3.0, -3.0), Vector2D(1.0, 1.0)), (Point2D(-1.0, 3.0), Vector2D(0.0, -1.0)))
+      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
+
+      for ((x, y) <- trainingData) {
+        (posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001))
+        (posteriorGP.mean(x)(1) should be(y(1) plusOrMinus 0.0001))
+      }
+    }
+
+    it("keeps the landmark points fixed for a 3D case") {
+      val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 8 * 8 * 8), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
+      val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
+
+      val trainingData = IndexedSeq((Point3D(-3.0, -3.0, -1.0), Vector3D(1.0, 1.0, 2.0)), (Point3D(-1.0, 3.0, 0.0), Vector3D(0.0, -1.0, 0.0)))
+      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
+
+      for ((x, y) <- trainingData) {
+        (posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001))
+        (posteriorGP.mean(x)(1) should be(y(1) plusOrMinus 0.0001))
+        (posteriorGP.mean(x)(2) should be(y(2) plusOrMinus 0.0001))
+      }
+
     }
   }
 
-  it("keeps the landmark points fixed for a 2D case") {
-    val domain = BoxedDomain2D((-5.0, -5.0), (5.0, 5.0))
-    val config = LowRankGaussianProcessConfiguration[TwoD](domain, UniformSampler2D(domain, 400), _ => Vector2D(0.0, 0.0), UncorrelatedKernel2x2(GaussianKernel2D(5)), 100)
-    val gp = GaussianProcess.createLowRankGaussianProcess2D(config)
 
-    val trainingData = IndexedSeq((Point2D(-3.0, -3.0), Vector2D(1.0, 1.0)), (Point2D(-1.0, 3.0), Vector2D(0.0, -1.0)))
-    val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
-
-    for ((x, y) <- trainingData) {
-      (posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001))
-      (posteriorGP.mean(x)(1) should be(y(1) plusOrMinus 0.0001))
-    }
-  }
-
-  it("keeps the landmark points fixed for a 3D case") {
-    val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-    val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 8 * 8 * 8), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
-    val gp = GaussianProcess.createLowRankGaussianProcess3D(config)
-
-    val trainingData = IndexedSeq((Point3D(-3.0, -3.0, -1.0), Vector3D(1.0, 1.0, 2.0)), (Point3D(-1.0, 3.0, 0.0), Vector3D(0.0, -1.0, 0.0)))
-    val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
-
-    for ((x, y) <- trainingData) {
-      (posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001))
-      (posteriorGP.mean(x)(1) should be(y(1) plusOrMinus 0.0001))
-      (posteriorGP.mean(x)(2) should be(y(2) plusOrMinus 0.0001))
-    }
-
-  }
 
   describe("a lowRankGaussian process") {
     object Fixture {
@@ -99,6 +103,38 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
 
+    it("a sample created with the coefficients yields the right coefficients") {
+      val gp = Fixture.gp
+      val coeffs = DenseVector.rand[Double](gp.rank).map(_.toFloat)
+      val randInst = gp.instance(coeffs)
+      val pts = Fixture.sampler.sample.map(_._1)
+      val td = pts.map(pt => (pt, randInst(pt)))
+      val computedCoeffs = gp.coefficients(td, 1e-8)
+      computedCoeffs.size should equal(coeffs.size)
+
+      for (i <- 0 until coeffs.size) {
+        computedCoeffs(i) should be(coeffs(i) plusOrMinus(1e-2))
+      }
+    }
+
+    it("yields the same object when a sample from the model is projected") {
+      val gp = Fixture.gp
+      val sample = gp.sample
+
+      val pts = Fixture.sampler.sample.map(_._1)
+      val td = pts.map(pt => (pt, sample(pt)))
+
+      val projection = gp.project(td)
+      for (pt <- pts) {
+        val sampleDf = sample(pt)
+        val projectedDf = projection(pt)
+        for (i <- 0 until gp.outputDim) {
+          sampleDf(i) should be(projectedDf(i) plusOrMinus(1e-2))
+        }
+      }
+    }
+
+
     it("yields the same covariance as given by the kernel") {
       val f = Fixture
       val fewPointsSampler = UniformSampler3D(f.domain, 2 * 2 * 2)
@@ -107,7 +143,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         val covGP = f.gp.cov(pt1, pt2)
         val covKernel = f.kernel(pt1, pt2)
         for (i <- 0 until 3; j <- 0 until 3) {
-          covGP(i, j) should be(covKernel(i, j) plusOrMinus 1e-2)
+          covGP(i, j) should be(covKernel(i, j) plusOrMinus 1e-2f)
         }
       }
     }
@@ -222,10 +258,12 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val samples = for (i <- 0 until 10) yield model.sample
       val transforms = for (s <- samples) yield new Transformation[ThreeD] {
         val samplePts = s.points.force
+
         override def apply(x: Point[ThreeD]): Point[ThreeD] = {
           val (_, ptId) = model.mesh.findClosestPoint(x)
           samplePts(ptId)
         }
+
         override def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = ???
       }
 
