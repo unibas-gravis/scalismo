@@ -29,6 +29,7 @@ import org.statismo.stk.core.numerics.Sampler
 import breeze.linalg.Axis
 import org.statismo.stk.core.mesh.kdtree.KDTree
 import org.statismo.stk.core.mesh.kdtree.KDTreeMap
+import org.statismo.stk.core.geometry.Point
 
 trait GaussianProcess[D <: Dim] {
   val domain: Domain[D]
@@ -106,6 +107,32 @@ class LowRankGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
    */
   def marginal(pt: Point[D]): MVNormalForPoint[D] = {
     MVNormalForPoint(pt, mean(pt), cov(pt, pt))
+  }
+
+
+  def project(trainingData : IndexedSeq[(Point[D], Vector[D])], sigma2 : Double = 1e-6) : (Point[D] => Vector[D])  = {
+    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
+    project(newtd)
+  }
+
+  def project(trainingData : IndexedSeq[(Point[D], Vector[D], Double)]) : Point[D] => Vector[D] = {
+    val c = coefficients(trainingData)
+    instance(c)
+  }
+
+  /**
+   * Compute the coefficients alpha, that represent the given trainingData u best under this gp (in the least squares sense)
+   * e.g. \sum_i alpha_i \lambda_i \phi_i(x) = u(x)
+   */
+  def coefficients(trainingData : IndexedSeq[(Point[D], Vector[D], Double)]) : DenseVector[Float] = {
+    val (minv, qtL, yVec, mVec) = GaussianProcess.genericRegressionComputations(this, trainingData)
+    val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
+    mean_coeffs
+  }
+
+  def coefficients(trainingData : IndexedSeq[(Point[D], Vector[D])], sigma2 : Double) : DenseVector[Float] = {
+    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
+    coefficients(newtd)
   }
 }
 
@@ -270,6 +297,7 @@ class LowRankGaussianProcess3D(
 
 object GaussianProcess {
 
+
   def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.mean, eigenPairs)
@@ -392,41 +420,12 @@ object GaussianProcess {
   }
 
   private def regressionLowRankGP[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
-
-    val dimTraits = implicitly[DimTraits[D]]
-    val dim = dimTraits.dimensionality
-    def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
-
-    val (xs, ys, sigma2s) = trainingData.unzip3
-
-    val yVec = flatten(ys)
-    val meanValues = xs.map(gp.mean)
-    val mVec = flatten(meanValues)
-
-    val d = gp.outputDim
     val (lambdas, phis) = gp.eigenPairs.unzip
+    val dimTraits = implicitly[DimTraits[D]]
+    val outputDim = dimTraits.dimensionality
 
-    // TODO that the dimensionality is okay
-    val Q = DenseMatrix.zeros[Double](trainingData.size * d, phis.size)
-    for ((x_i, i) <- xs.zipWithIndex; (phi_j, j) <- phis.zipWithIndex) {
-      Q(i * d until i * d + d, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
-    }
-
-    // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
-    // As there is only one sigma for each point (but the point has dim components) we need
-    // to correct the index for sigma
-    val QtL = Q.t.copy
-    val sigma2sInv = sigma2s.map { sigma2 => 
-       val divisor = math.max(1e-8, sigma2)
-       1.0 / divisor
-    }
-    for (i <- 0 until QtL.cols) {
-      QtL(::, i) *= sigma2sInv(i / dim)
-    }
-
-    val M = QtL * Q + DenseMatrix.eye[Double](phis.size)
-    val Minv = breeze.linalg.pinv(M)
-    val mean_coeffs = (Minv * QtL).map(_.toFloat) * (yVec - mVec)
+    val (minv, qtL, yVec, mVec) = GaussianProcess.genericRegressionComputations(gp, trainingData)
+    val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
 
     val mean_p = gp.instance(mean_coeffs)
 
@@ -436,7 +435,7 @@ object GaussianProcess {
 
     } else {
       val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * Minv * D
+      val Sigma = D * minv * D
       val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
       val innerU = innerUDbl.map(_.toFloat)
       @volatile
@@ -446,11 +445,11 @@ object GaussianProcess {
         val (maybePhisAtX, newPhisAtXCache) = phisAtXCache.get(x)
         val phisAtX = maybePhisAtX.getOrElse {
           val newPhisAtX = {
-            val innerPhisAtx = DenseMatrix.zeros[Float](d, gp.rank)
+            val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
             var j = 0;
             while (j < phis.size) {
               val phi_j = phis(j)
-              innerPhisAtx(0 until d, j) := phi_j(x).toBreezeVector
+              innerPhisAtx(0 until outputDim, j) := phi_j(x).toBreezeVector
               j += 1
             }
             innerPhisAtx
@@ -462,12 +461,52 @@ object GaussianProcess {
         dimTraits.createVector(vec.data)
       }
 
-      val phis_p = for (i <- 0 until phis.size) yield (x => phip(i)(x))
+      val phis_p = for (i <- 0 until phis.size) yield ((x : Point[D]) => phip(i)(x))
       val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
       new LowRankGaussianProcess[D](gp.domain, mean_p, lambdas_p.zip(phis_p))
     }
-
   }
+
+
+  protected[statisticalmodel] def genericRegressionComputations[D <: Dim : DimTraits](gp : LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)])
+    : (DenseMatrix[Double], DenseMatrix[Double], DenseVector[Float], DenseVector[Float]) =
+    {
+
+      val dimTraits = implicitly[DimTraits[D]]
+      val dim = dimTraits.dimensionality
+      def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
+
+      val (xs, ys, sigma2s) = trainingData.unzip3
+
+      val yVec = flatten(ys)
+      val meanValues = xs.map(gp.mean)
+      val mVec = flatten(meanValues)
+
+      val d = gp.outputDim
+      val (lambdas, phis) = gp.eigenPairs.unzip
+
+      val Q = DenseMatrix.zeros[Double](trainingData.size * d, phis.size)
+      for ((x_i, i) <- xs.zipWithIndex; (phi_j, j) <- phis.zipWithIndex) {
+        Q(i * d until i * d + d, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
+      }
+
+      // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
+      // As there is only one sigma for each point (but the point has dim components) we need
+      // to correct the index for sigma
+      val QtL = Q.t.copy
+      val sigma2sInv = sigma2s.map { sigma2 =>
+        val divisor = math.max(1e-8, sigma2)
+        1.0 / divisor
+      }
+      for (i <- 0 until QtL.cols) {
+        QtL(::, i) *= sigma2sInv(i / dim)
+      }
+
+      val M = QtL * Q + DenseMatrix.eye[Double](phis.size)
+      val Minv = breeze.linalg.pinv(M)
+      (Minv, QtL, yVec, mVec)
+    }
+
 
   /**
    * Gausssian process regression for a specialzed GP.
@@ -478,41 +517,14 @@ object GaussianProcess {
 
     val dimTraits = implicitly[DimTraits[D]]
     val dim = dimTraits.dimensionality
-
-    def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
-
     val (xs, ys, sigma2s) = trainingData.unzip3
+    //def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
-    val yVec = flatten(ys)
-    val meanValues = xs.map(gp.mean)
-    val mVec = flatten(meanValues)
-
-    val d = gp.outputDim
     val (lambdas, phis) = gp.eigenPairs.unzip
 
-    // TODO that the dimensionality is okay
-    val Q = DenseMatrix.zeros[Double](trainingData.size * d, phis.size)
-    for ((x_i, i) <- xs.zipWithIndex; (phi_j, j) <- phis.zipWithIndex) {
-      Q(i * d until i * d + d, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
-    }
+    val (minv, qtL, yVec, mVec) = GaussianProcess.genericRegressionComputations(gp, trainingData)
 
-    // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
-    // As there is only one sigma for each point (but the point has dim components) we need
-    // to correct the index for sigma
-    val QtL = Q.t.copy
-    val sigma2sInv = sigma2s.map { sigma2 => 
-       val divisor = math.max(1e-8, sigma2)
-       1.0 / divisor
-    }
-    for (i <- 0 until QtL.cols) {
-      QtL(::, i) *= sigma2sInv(i / dim)
-    }
-
-
-    val M = QtL * Q + DenseMatrix.eye[Double](phis.size)
-
-    val Minv = breeze.linalg.pinv(M)
-    val mean_coeffs = (Minv * QtL).map(_.toFloat) * (yVec - mVec)
+    val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
 
     gp.instanceAtPoints(mean_coeffs)
 
@@ -532,7 +544,7 @@ object GaussianProcess {
         DenseMatrix.zeros[Float](mean_pVector.size, 0))
     } else {
       val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * Minv * D
+      val Sigma = D * minv * D
       val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
       val innerU = innerUDbl.map(_.toFloat)
       @volatile
@@ -542,11 +554,11 @@ object GaussianProcess {
         val (maybePhisAtX, newPhisAtXCache) = phisAtXCache.get(x)
         val phisAtX = maybePhisAtX.getOrElse {
           val newPhisAtX = {
-            val innerPhisAtx = DenseMatrix.zeros[Float](d, gp.rank)
+            val innerPhisAtx = DenseMatrix.zeros[Float](dim, gp.rank)
             var j = 0;
             while (j < phis.size) {
               val phi_j = phis(j)
-              innerPhisAtx(0 until d, j) := phi_j(x).toBreezeVector
+              innerPhisAtx(0 until dim, j) := phi_j(x).toBreezeVector
               j += 1
             }
             innerPhisAtx
@@ -558,7 +570,7 @@ object GaussianProcess {
         dimTraits.createVector(vec.data)
       }
 
-      val phis_p = for (i <- 0 until phis.size) yield (x => phip(i)(x))
+      val phis_p = for (i <- 0 until phis.size) yield ((x : Point[D])=> phip(i)(x))
       val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
       val unspecializedGP = new LowRankGaussianProcess[D](gp.domain, mean_p, lambdas_p.zip(phis_p))
 
