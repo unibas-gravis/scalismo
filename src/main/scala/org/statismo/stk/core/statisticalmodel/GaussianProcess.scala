@@ -35,6 +35,7 @@ trait GaussianProcess[D <: Dim] {
   val domain: Domain[D]
   val mean: Point[D] => Vector[D]
   val cov: MatrixValuedPDKernel[D, D]
+
 }
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
@@ -252,6 +253,7 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
 
     dimTraits.createMatrixNxN(covValue.data)
   }
+
 }
 
 object SpecializedLowRankGaussianProcess {
@@ -296,7 +298,6 @@ class LowRankGaussianProcess3D(
   extends LowRankGaussianProcess[ThreeD](domain, mean, eigenPairs) {}
 
 object GaussianProcess {
-
 
   def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
@@ -411,7 +412,7 @@ object GaussianProcess {
 
   }
 
-  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData : IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     gp match {
       case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, meanOnly)
       case gp => regressionLowRankGP(gp, trainingData, meanOnly)
