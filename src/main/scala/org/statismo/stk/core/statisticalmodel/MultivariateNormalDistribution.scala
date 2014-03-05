@@ -11,11 +11,25 @@ class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: Dens
   require(mean.size == cov.rows)
 
   val dim = mean.size
+  private val covDouble = cov.map(_.toDouble)
 
-  val covInv = LinearAlgebra.pinv(cov)
-  private val covInvFloat = covInv.map(_.toFloat)
-  val L = breeze.linalg.cholesky(cov.map(_.toDouble) + DenseMatrix.eye[Double](dim) * 1e-6) // lower diagonal matrix
-  val covDet = LinearAlgebra.det(cov)
+
+  //private val covInvFloat = covInv.map(_.toFloat)
+  private val (uMat, sigma2s, utMat) = breeze.linalg.svd(covDouble)
+  val covDet = LinearAlgebra.det(covDouble)
+  val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
+  val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
+  private val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
+
+  /**
+   * Returns a seq with the principal components and associated variance
+   * @return
+   */
+  def principalComponents : Seq[(DenseVector[Float], Double)] = {
+    for (i <- 0 until uMat.cols) yield {
+      (uMat(::, i).toDenseVector.map(_.toFloat), sigma2s(i))
+    }
+  }
 
   def pdf(x: DenseVector[Float]) = {
     if (x.size != dim) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $dim)")
@@ -37,15 +51,17 @@ class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: Dens
   }
 
   def mahalanobisDistance(x: DenseVector[Float]): Double = {
-    val x0 = (x - mean)
-    math.sqrt(x0 dot (covInvFloat * x0))
+    val x0 = (x - mean).map(_.toDouble)
+    math.sqrt(x0 dot (covInv * x0))
   }
 
   def drawSample : DenseVector[Float] = {
 
     val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
-    mean + (L * u).map(_.toFloat) // a random sample
+    //mean + (L * u).map(_.toFloat) // a random sample
+
+    mean + (uMat * (sigmaMat * u)).map(_.toFloat)
   }
 
 }
