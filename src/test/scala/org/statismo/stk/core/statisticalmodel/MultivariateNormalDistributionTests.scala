@@ -36,6 +36,20 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       }
     }
 
+    it("can reconstruct its covariance matrix from the principal components") {
+      val (pcVecs, sigma2s) = mvn.principalComponents.unzip
+      val uMat = DenseMatrix.zeros[Float](mvn.dim, mvn.dim)
+      val sigma2Vec = DenseVector.zeros[Float](mvn.dim)
+      for (i <- 0 until mvn.dim) {
+        uMat(::, i) := pcVecs(i)
+        sigma2Vec(i) = sigma2s(i).toFloat
+      }
+      val covRec = uMat * breeze.linalg.diag(sigma2Vec) * uMat.t
+      for (i <- 0 until mvn.dim; j <- 0 until mvn.dim) {
+        covRec(i,j) should be (mvn.cov(i,j) plusOrMinus 1e-5f)
+      }
+    }
+
 
   }
 
