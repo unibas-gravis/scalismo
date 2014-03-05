@@ -1,15 +1,14 @@
 package org.statismo.stk.core.statisticalmodel
 
 import org.statismo.stk.core.geometry.ThreeD
-import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.mesh.{ScalarMeshData, TriangleMesh}
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.geometry.{ Point, Vector }
+import org.statismo.stk.core.geometry.{Point, Vector}
 import org.statismo.stk.core.image.{ContinuousScalarImage, ContinuousScalarImage3D, Interpolation}
 import org.statismo.stk.core.io.ImageIO
 import java.io.File
 import org.statismo.stk.core.io.MeshIO
 import org.statismo.stk.core.common.PointData
-
 
 
 case class MVNormalPointData(val mesh: TriangleMesh, val values: Array[MultivariateNormalDistribution]) extends PointData[ThreeD, MultivariateNormalDistribution] {
@@ -21,7 +20,7 @@ case class MVNormalPointData(val mesh: TriangleMesh, val values: Array[Multivari
 
 class ActiveShapeModel(mesh: TriangleMesh, gp: LowRankGaussianProcess[ThreeD],
                        val intensityDistributions: PointData[ThreeD, MultivariateNormalDistribution],
-                       val featureExtractor : ActiveShapeModel.FeatureExtractor)
+                       val featureExtractor: ActiveShapeModel.FeatureExtractor)
   extends StatisticalMeshModel(mesh, gp) {
 
   require(intensityDistributions.domain == mesh)
@@ -32,6 +31,8 @@ class ActiveShapeModel(mesh: TriangleMesh, gp: LowRankGaussianProcess[ThreeD],
 
     distAtPoint.mahalanobisDistance(featureVec)
   }
+
+
 }
 
 object ActiveShapeModel {
@@ -41,12 +42,10 @@ object ActiveShapeModel {
   type SearchPointSampler = (ActiveShapeModel, TriangleMesh, Int) => Seq[Point[ThreeD]]
 
 
-
-
   /**
    * Train an active shape model using an existing pca model
    */
-  def trainModel(model: StatisticalMeshModel, trainingData: TrainingData, featureExtractor : FeatureExtractor): ActiveShapeModel = {
+  def trainModel(model: StatisticalMeshModel, trainingData: TrainingData, featureExtractor: FeatureExtractor): ActiveShapeModel = {
 
 
     // sanity check of the data
@@ -70,16 +69,15 @@ object ActiveShapeModel {
   }
 
 
-
   /**
    * TODO create an iterator from it
    */
-  def fitModel(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, numIterations: Int, ptGenerator : SearchPointSampler): Seq[TriangleMesh] = {
+  def fitModel(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, numIterations: Int, ptGenerator: SearchPointSampler): Seq[TriangleMesh] = {
 
     fitIteration(model, targetImage, Seq(model.mean), 0, numIterations, ptGenerator)
   }
 
-  private[this] def fitIteration(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, fittingResults: Seq[TriangleMesh], currIt: Int, numIterations: Int, ptGenerator : SearchPointSampler): Seq[TriangleMesh] = {
+  private[this] def fitIteration(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, fittingResults: Seq[TriangleMesh], currIt: Int, numIterations: Int, ptGenerator: SearchPointSampler): Seq[TriangleMesh] = {
 
     println(s"in iteration $currIt")
 
@@ -90,17 +88,27 @@ object ActiveShapeModel {
 
     val (refInd, targetPoints) = findBestCorrespondingPoints(model, startingShape, targetImage, ptGenerator).unzip
 
-    // compute the posterior
+    // project mesh into the model
     val gpRegressionTrainingData = (0 until refInd.size) map (i => (referencePoints(i), targetPoints(i) - referencePoints(i)))
-    val newFit = model.posterior(gpRegressionTrainingData, sigma2=0.00000001, meanOnly = true).mean
-
+    val coeffs = model.gp.coefficients(gpRegressionTrainingData, sigma2 = 1e-6)
+    val uncorrectedMesh = model.instance(coeffs)
+    MeshIO.writeMesh(uncorrectedMesh, new File(s"/tmp/meshes/asmsuggestion-$currIt.vtk"))
+    val correctedCoeffs = coeffs.map {
+      c => c match {
+        case c if c > 3 => 3f
+        case c if c >= -3 && c <= 3 => c
+        case _ => -3f
+      }
+    }
+    val newFit = model.instance(correctedCoeffs)
+    MeshIO.writeMesh(newFit, new File(s"/tmp/meshes/asmcorrected-$currIt.vtk"))
     fitIteration(model, targetImage, fittingResults :+ newFit, currIt + 1, numIterations, ptGenerator)
   }
 
   /**
-    * get for each point in the model the one that fits best the description. Start the search from the current fitting result (curFit)
+   * get for each point in the model the one that fits best the description. Start the search from the current fitting result (curFit)
    */
-  private[this] def findBestCorrespondingPoints(model: ActiveShapeModel, curFit: TriangleMesh, targetImage: ContinuousScalarImage3D, ptGenerator : SearchPointSampler): IndexedSeq[(Int, Point[ThreeD])] = {
+  private[this] def findBestCorrespondingPoints(model: ActiveShapeModel, curFit: TriangleMesh, targetImage: ContinuousScalarImage3D, ptGenerator: SearchPointSampler): IndexedSeq[(Int, Point[ThreeD])] = {
     val refPts = model.mesh.points.toIndexedSeq
     val matchingPts = for ((pt, id) <- refPts.par.zipWithIndex) yield {
       (id, findBestMatchingPointAtPoint(model, curFit, id, targetImage, ptGenerator))
@@ -111,7 +119,7 @@ object ActiveShapeModel {
   /**
    * find the point in the target that is the best match at the given point
    */
-  private[this] def findBestMatchingPointAtPoint(model: ActiveShapeModel, curFit: TriangleMesh, ptId: Int, targetImage: ContinuousScalarImage3D, ptGenerator : SearchPointSampler): Point[ThreeD] = {
+  private[this] def findBestMatchingPointAtPoint(model: ActiveShapeModel, curFit: TriangleMesh, ptId: Int, targetImage: ContinuousScalarImage3D, ptGenerator: SearchPointSampler): Point[ThreeD] = {
     val refPt = model.mesh.points(ptId)
     val curPt = curFit.points(ptId)
     val samplePts = ptGenerator(model, curFit, ptId)
@@ -121,20 +129,12 @@ object ActiveShapeModel {
       val dist = model.featureDistance(ptId, featureVector)
       (imgPt, dist)
     }
+    val (minPt, _) = ptsWithDists.minBy {
+      case (pt, dist) => dist
+    }
 
-    val (minPt, minDist) = ptsWithDists.minBy{case (pt, dist) => dist}
-
-//    println(model.gp.marginal(refPt).mahalanobisDistance((minPt - refPt).toBreezeVector))
-    if (model.gp.marginal(refPt).mahalanobisDistance((minPt - refPt).toBreezeVector) > 5) curPt else minPt
-
-//    // return the current point if the mahalanobis distance of the feature is too large
-//    //if (minDist < 5) minPt else curFit.points(ptId)
-//
-//    minPt
+    minPt
   }
-
-
-
 
 
 }
