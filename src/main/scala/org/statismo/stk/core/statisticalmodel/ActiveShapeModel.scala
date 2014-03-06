@@ -74,12 +74,17 @@ object ActiveShapeModel {
    */
   def fitModel(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, numIterations: Int, ptGenerator: SearchPointSampler): Seq[TriangleMesh] = {
 
-    fitIteration(model, targetImage, Seq(model.mean), 0, numIterations, ptGenerator)
+    fitModel(model, targetImage, numIterations, ptGenerator, model.mean)
   }
+
+  def fitModel(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, numIterations: Int, ptGenerator: SearchPointSampler, startingMesh : TriangleMesh): Seq[TriangleMesh] = {
+
+    fitIteration(model, targetImage, Seq(startingMesh), 0, numIterations, ptGenerator)
+  }
+
 
   private[this] def fitIteration(model: ActiveShapeModel, targetImage: ContinuousScalarImage3D, fittingResults: Seq[TriangleMesh], currIt: Int, numIterations: Int, ptGenerator: SearchPointSampler): Seq[TriangleMesh] = {
 
-    println(s"in iteration $currIt")
 
     if (currIt >= numIterations) return fittingResults
 
@@ -93,7 +98,6 @@ object ActiveShapeModel {
     val gpRegressionTrainingData = refPtIdsWithTargetPt.map { case(refId, targetPt)  => (referencePoints(refId), targetPt - referencePoints(refId)) }
     val coeffs = model.gp.coefficients(gpRegressionTrainingData, sigma2 = 1e-6)
     val uncorrectedMesh = model.instance(coeffs)
-    MeshIO.writeMesh(uncorrectedMesh, new File(s"/tmp/meshes/asmsuggestion-$currIt.vtk"))
     val correctedCoeffs = coeffs.map {
       c => c match {
         case c if c > 3 => 3f
@@ -102,7 +106,7 @@ object ActiveShapeModel {
       }
     }
     val newFit = model.instance(correctedCoeffs)
-    MeshIO.writeMesh(newFit, new File(s"/tmp/meshes/asmcorrected-$currIt.vtk"))
+
     fitIteration(model, targetImage, fittingResults :+ newFit, currIt + 1, numIterations, ptGenerator)
   }
 
