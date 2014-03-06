@@ -86,10 +86,11 @@ object ActiveShapeModel {
     val referencePoints = model.mesh.points.toIndexedSeq
     val startingShape = fittingResults.last
 
-    val (refInd, targetPoints) = findBestCorrespondingPoints(model, startingShape, targetImage, ptGenerator).unzip
+
+    val refPtIdsWithTargetPt = findBestCorrespondingPoints(model, startingShape, targetImage, ptGenerator)
 
     // project mesh into the model
-    val gpRegressionTrainingData = (0 until refInd.size) map (i => (referencePoints(i), targetPoints(i) - referencePoints(i)))
+    val gpRegressionTrainingData = refPtIdsWithTargetPt.map { case(refId, targetPt)  => (referencePoints(refId), targetPt - referencePoints(refId)) }
     val coeffs = model.gp.coefficients(gpRegressionTrainingData, sigma2 = 1e-6)
     val uncorrectedMesh = model.instance(coeffs)
     MeshIO.writeMesh(uncorrectedMesh, new File(s"/tmp/meshes/asmsuggestion-$currIt.vtk"))
@@ -113,13 +114,15 @@ object ActiveShapeModel {
     val matchingPts = for ((pt, id) <- refPts.par.zipWithIndex) yield {
       (id, findBestMatchingPointAtPoint(model, curFit, id, targetImage, ptGenerator))
     }
-    matchingPts.toIndexedSeq
+    val matchingPtsWithinDist = for ((id, optPt) <- matchingPts if optPt.isDefined) yield (id, optPt.get)
+    matchingPtsWithinDist.toIndexedSeq
   }
 
   /**
    * find the point in the target that is the best match at the given point
+   * Retuns Some(Point) if its feature vector is close to a trained feature in terms of the mahalobis distance, otherwise None
    */
-  private[this] def findBestMatchingPointAtPoint(model: ActiveShapeModel, curFit: TriangleMesh, ptId: Int, targetImage: ContinuousScalarImage3D, ptGenerator: SearchPointSampler): Point[ThreeD] = {
+  private[this] def findBestMatchingPointAtPoint(model: ActiveShapeModel, curFit: TriangleMesh, ptId: Int, targetImage: ContinuousScalarImage3D, ptGenerator: SearchPointSampler): Option[Point[ThreeD]] = {
     val refPt = model.mesh.points(ptId)
     val curPt = curFit.points(ptId)
     val samplePts = ptGenerator(model, curFit, ptId)
@@ -129,11 +132,12 @@ object ActiveShapeModel {
       val dist = model.featureDistance(ptId, featureVector)
       (imgPt, dist)
     }
-    val (minPt, _) = ptsWithDists.minBy {
+    val (minPt, minIntensityDist) = ptsWithDists.minBy {
       case (pt, dist) => dist
     }
 
-    minPt
+    val shapeDistForPt = model.gp.marginal(refPt).mahalanobisDistance((minPt - refPt).toBreezeVector)
+    if (minIntensityDist < 5 && shapeDistForPt < 5) Some(minPt) else None
   }
 
 
