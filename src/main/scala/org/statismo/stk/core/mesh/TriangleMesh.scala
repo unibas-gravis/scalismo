@@ -1,21 +1,13 @@
 package org.statismo.stk.core
 package mesh
 
-import common.DiscreteDomain
-import org.statismo.stk.core.common.BoxedDomain
-import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{ Point, ThreeD, Point3D }
-import org.statismo.stk.core.mesh.kdtree.KDTreeMap
-import org.statismo.stk.core.common.Cell
-import org.statismo.stk.core.common.PointData
-import org.statismo.stk.core.common.PointData
+import org.statismo.stk.core.common._
+import org.statismo.stk.core.geometry.{ Point, ThreeD}
 import scala.reflect.ClassTag
-import org.statismo.stk.core.common.ScalarValue
-import org.statismo.stk.core.geometry.Vector3D
-import org.statismo.stk.core.geometry.DimTraits
 import scala.collection.mutable.HashMap
-import org.statismo.stk.core.common.ScalarPointData
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.geometry.Point3D
+import org.statismo.stk.core.geometry.Vector3D
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = Vector(ptId1, ptId2, ptId3)
@@ -23,11 +15,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
-case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell]) extends DiscreteDomain[ThreeD] {
-
-  def dimensionality = 3
-  def numberOfPoints = meshPoints.size
-  def points = meshPoints.view
+case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell]) extends UnstructuredPointsDomain[ThreeD](meshPoints) {
 
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
 
@@ -40,22 +28,6 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
   }
   for (cell <- cells) {
     cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
-  }
-
-  private[this] val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
-
-  def isDefinedAt(pt: Point[ThreeD]) = {
-    val (closestPt, _) = findClosestPoint(pt)
-    closestPt == pt
-  }
-
-  def findClosestPoint(pt: Point[ThreeD]): (Point[ThreeD], Int) = {
-    val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
-    nearestPtsAndIndices(0)
-  }
-
-  def findNClosestPoints(pt: Point[ThreeD], n: Int): Seq[(Point[ThreeD], Int)] = {
-    kdTreeMap.findNearest(pt, n)
   }
 
   def boundingBox: BoxedDomain3D = {
