@@ -1,11 +1,13 @@
 package org.statismo.stk.core
 package mesh
 
-import common.DiscreteDomain
-import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common._
+import org.statismo.stk.core.geometry.{ Point, ThreeD}
+import scala.reflect.ClassTag
+import scala.collection.mutable.HashMap
 import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{ Point, ThreeD, Point3D }
+import org.statismo.stk.core.geometry.Point3D
+import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.mesh.kdtree.KDTreeMap
 import org.statismo.stk.core.common.Cell
 import org.statismo.stk.core.common.PointData
@@ -15,7 +17,7 @@ import org.statismo.stk.core.common.ScalarValue
 import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.geometry.DimTraits
 import scala.collection.mutable.HashMap
-import org.statismo.stk.core.common.ScalarPointData
+
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = Vector(ptId1, ptId2, ptId3)
@@ -23,21 +25,20 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
-case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell],
-  cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends DiscreteDomain[ThreeD] {
 
-  def dimensionality = 3
-  def numberOfPoints = meshPoints.size
-  def points = meshPoints.view
 
-  def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
+
+case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomain[ThreeD](meshPoints) {
+
+  // a map that has for every point the neighboring cell ids
+  private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(HashMap())
+
+
   private[this] def updateCellMapForPtId(ptId: Int, cell: TriangleCell): Unit = {
     val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
     cellMap.update(ptId, cellsForKey :+ cell)
   }
 
-  // a map that has for every point the neighboring cell ids
-  private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(HashMap())
 
   if (!cellMapOpt.isDefined)
     for (cell <- cells) {
@@ -47,20 +48,15 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
   //verify that there all points belong to a cell
   require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
 
+
   private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
 
-  def isDefinedAt(pt: Point[ThreeD]) = {
-    val (closestPt, _) = findClosestPoint(pt)
-    closestPt == pt
-  }
 
-  def findClosestPoint(pt: Point[ThreeD]): (Point[ThreeD], Int) = {
-    val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
-    nearestPtsAndIndices(0)
-  }
 
-  def findNClosestPoints(pt: Point[ThreeD], n: Int): Seq[(Point[ThreeD], Int)] = {
-    kdTreeMap.findNearest(pt, n)
+  def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
+
+  for (cell <- cells) {
+    cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
   }
 
   def boundingBox: BoxedDomain3D = {
@@ -106,7 +102,7 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
     val c = (C - A).norm
     val s = (a + b + c) / 2
     val areaSquared = s * (s - a) * (s - b) * (s - c)
-    // it can happen that the area is negative, due to a degenerate triangle. 
+    // it can happen that the area is negative, due to a degenerate triangle.
     if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
   }
 
@@ -124,10 +120,12 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
   }
 }
 
+
 object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[ThreeD]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 
 }
+
 
 case class ScalarMeshData[S: ScalarValue: ClassTag](val mesh: TriangleMesh, val values: Array[S]) extends ScalarPointData[ThreeD, S] {
   require(mesh.numberOfPoints == values.size)

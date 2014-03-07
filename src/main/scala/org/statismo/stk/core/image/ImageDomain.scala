@@ -27,7 +27,7 @@ abstract class DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with Boxe
 
   def directions: Array[Double]
 
-  def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
+  override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
 
   def indexToLinearIndex(idx: Index[D]): Int
   def linearIndexToIndex(linearIdx: Int): Index[D]
@@ -39,7 +39,9 @@ abstract class DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with Boxe
 }
 
 case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[OneD], val size: Index[OneD]) extends DiscreteImageDomain[OneD]  {
-  val dimensionality = 1
+
+  val dimTraits = geometry.oneD
+
   def points = for (i <- (0 until size(0)).view) yield Point1D(origin(0) + spacing(0) * i) // TODO replace with operator version
 
   val extent : Point1D = Point1D(origin(0) + spacing(0) * size(0))
@@ -57,7 +59,9 @@ case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[On
 }
 
 case class DiscreteImageDomain2D(val origin: Point[TwoD], val spacing: Vector[TwoD], val size: Index[TwoD]) extends DiscreteImageDomain[TwoD] {
-  val dimensionality = 2
+
+  val dimTraits = geometry.twoD
+
   def points = for (j <- (0 until size(1)).view; i <- (0 until size(0)).view)
     yield Point2D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j)
 
@@ -77,8 +81,9 @@ case class DiscreteImageDomain2D(val origin: Point[TwoD], val spacing: Vector[Tw
 }
 
 case class DiscreteImageDomain3D(val origin: Point[ThreeD], val spacing: Vector[ThreeD], val size: Index[ThreeD]) extends DiscreteImageDomain[ThreeD] {
-  val dimensionality = 3
-  
+
+  val dimTraits = geometry.threeD
+
   def points = for (k <- (0 until size(2)).view; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
     yield Point3D(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j, origin(2) + spacing(2) * k)
 
