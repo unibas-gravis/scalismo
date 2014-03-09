@@ -15,7 +15,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
-case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell]) extends UnstructuredPointsDomain[ThreeD](meshPoints) {
+case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell]) extends UnstructuredPointsDomainBase[ThreeD](meshPoints) {
 
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
 

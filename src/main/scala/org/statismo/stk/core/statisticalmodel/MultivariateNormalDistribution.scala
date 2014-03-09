@@ -21,6 +21,20 @@ class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: Dens
   val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
   private val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
 
+
+
+
+  override def hashCode = mean.hashCode + cov.hashCode()
+  override def equals(other: Any): Boolean = other match {
+    case that: MultivariateNormalDistribution => {
+      that.canEqual(this) && this.mean == that.mean && this.cov == that.cov
+    }
+    case _ => false
+  }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[MultivariateNormalDistribution]
+
+
   /**
    * Returns a seq with the principal components and associated variance
    * @return
