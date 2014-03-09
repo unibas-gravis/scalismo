@@ -9,6 +9,8 @@ import scala.util.Success
 import scala.collection.JavaConversions._
 import java.io.IOException
 
+
+
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.reduce(_ * _) == data.length)
 }
@@ -149,6 +151,18 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
+
+  def getGroup(groupName : String) : Try[Group] = {
+    if (exists(groupName))
+      h5file.get(groupName) match {
+        case g : Group => Success(g)
+        case _ => Failure(new Throwable(s"object $groupName is not a group"))
+      }
+    else {
+       Failure(new Throwable(s"group with name $groupName does not exist"))
+      }
+    }
+
   def writeArray[T](path: String, data: Array[T]): Try[Unit] = {
     writeNDArray[T](path, NDArray(Vector[Long](data.length), data))
   }
@@ -255,7 +269,7 @@ class HDF5File(h5file: FileFormat) {
 }
 
 // make it a proper class and wrapper around the object
-object HDF5Utils {
+object  HDF5Utils {
 
   // map untyped FileAccessModel of HDF5 (which is just a string)
   // to typed values
@@ -289,3 +303,19 @@ object HDF5Utils {
   def createFile(file: File): Try[HDF5File] = openFile(file, CREATE)
 
 }
+
+
+/**
+  Typeclasses for reading, writing to hdf5 file
+  */
+
+trait HDF5ReadWrite[A] extends HDF5Read[A] with HDF5Write[A]
+
+trait HDF5Read[A] {
+  def read(group : Group) : Try[A]
+}
+
+trait HDF5Write[A] {
+  def write(value : A, group : Group) : Try[Unit]
+}
+
