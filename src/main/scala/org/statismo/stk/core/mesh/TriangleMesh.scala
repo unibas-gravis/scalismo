@@ -26,8 +26,6 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 }
 
 
-
-
 case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomain[ThreeD](meshPoints) {
 
   // a map that has for every point the neighboring cell ids

@@ -30,7 +30,7 @@ trait DiscreteDomain[D <: Dim] extends Domain[D]{
 }
 
 
-class UnstructuredPointsDomain[D <: Dim : DimTraits](_points : IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
+abstract class UnstructuredPointsDomainBase[D <: Dim : DimTraits](_points : IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
 
   override val dimTraits =  implicitly[DimTraits[D]]
   private[this] val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
@@ -53,3 +53,4 @@ class UnstructuredPointsDomain[D <: Dim : DimTraits](_points : IndexedSeq[Point[
   }
 
 }
+case class UnstructuredPointsDomain[D <: Dim : DimTraits](_points : IndexedSeq[Point[D]]) extends UnstructuredPointsDomainBase[D](_points)
