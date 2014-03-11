@@ -22,7 +22,7 @@ object ActiveShapeModelIO {
       h5file <- HDF5Utils.openFileForWriting(fn)
       asmGroup <- h5file.createGroup("/ASMModel")
       _ <- writeIntensityDistributions(h5file, asmGroup, asm.intensityDistributions)
-      _ <- featureExtractorWriter.write(asm.featureExtractor, asmGroup)
+      _ <- featureExtractorWriter.write(asm.featureExtractor, h5file, asmGroup)
     } yield Success(())
   }
 
@@ -36,7 +36,7 @@ object ActiveShapeModelIO {
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup("/ASMModel")
       intensityDistributions <- readIntensityDistributions(h5file, asmGroup)
-      featureExtractor <- featureExtractorReader.read(asmGroup)
+      featureExtractor <- featureExtractorReader.read(h5file, asmGroup)
     } yield new ActiveShapeModel(shapeModel, intensityDistributions, featureExtractor)
   }
 
