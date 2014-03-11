@@ -57,7 +57,7 @@ object Dependencies {
   val scalaSwing = "org.scala-lang" % "scala-swing" % buildScalaVersion
   val twitterUtilCollection = "com.twitter" % "util-collection" % "5.3.10"
   val twitterUtilEval = "com.twitter" %% "util-eval" % "6.2.4"
-  val statismoNativelibs = "org.statismo" %% "nativelibs" % "0.2.0-SNAPSHOT"
+  val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.0.0"
 }
 
 object STKBuild extends Build {
