@@ -9,6 +9,9 @@ import org.statismo.stk.core.common.{DiscreteDomain, PointData}
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
 import org.statismo.stk.core.common.UnstructuredPointsDomain
+import org.statismo.stk.core.io.{HDF5File, HDF5ReadWrite}
+import ncsa.hdf.`object`.Group
+import scala.util.Try
 
 
 case class ASMProfileDistributions(val domain: UnstructuredPointsDomain[ThreeD], val values: Array[MultivariateNormalDistribution]) extends PointData[ThreeD, MultivariateNormalDistribution] {
@@ -55,10 +58,81 @@ object ActiveShapeModel {
   type SearchPointSampler = (ActiveShapeModel[_], TriangleMesh, Int) => Seq[Point[ThreeD]]
 
 
+  /** The classical feature extractor for active shape modesl */
+  case class NormalDirectionFeatureExtractor(val numPointsForProfile : Int, val profileSpacing : Double) extends ActiveShapeModel.FeatureExtractor {
+
+    def apply(img : ContinuousScalarImage[ThreeD], mesh : TriangleMesh, pt : Point[ThreeD]) : DenseVector[Float] = {
+      val normal: Vector[ThreeD] = mesh.normalAtPoint(pt)
+      val unitNormal = normal * (1.0 / normal.norm)
+      require(math.abs(unitNormal.norm - 1.0) < 1e-5)
+
+      val gradImg = img.differentiate.get // TODO error handling
+
+      val samples = for (i <- (-1 * numPointsForProfile / 2) until (numPointsForProfile / 2)) yield {
+        val samplePt = pt + unitNormal * i * profileSpacing
+        if (gradImg.isDefinedAt(samplePt) == true) {
+          gradImg(samplePt) dot unitNormal
+          //img(samplePt)
+        } else
+          999f // background value
+      }
+
+      val s = samples.map(math.abs).sum
+      val featureVec = if (s == 0) samples else samples.map(d => d / s)
+      DenseVector(featureVec.toArray)
+
+    }
+  }
+
+  object NormalDirectionFeatureExtractor {
+    implicit val featureExtractorHDF5Serializer = new HDF5ReadWrite[NormalDirectionFeatureExtractor] {
+
+      override def write(fe : NormalDirectionFeatureExtractor, h5file : HDF5File, group : Group) : Try[Unit] = {
+        val groupName = group.getFullName()  + "/"  + "NormalDirectionFeatureExtractor"
+        for {
+          _ <- h5file.writeInt(s"$groupName/numPointsForProfile", fe.numPointsForProfile)
+          _ <- h5file.writeFloat(s"$groupName/profileSpacing", fe.profileSpacing.toFloat)
+        }
+        yield ()
+      }
+      override def read(h5file : HDF5File, group : Group) : Try[NormalDirectionFeatureExtractor] = {
+        val groupName = group.getFullName()  + "/"  + "NormalDirectionFeatureExtractor"
+        for {
+          numPointsForProfile <- h5file.readInt(s"$groupName/numPointsForProfile")
+          profileSpacing <- h5file.readFloat(s"$groupName/profileSpacing")
+        }
+        yield (new NormalDirectionFeatureExtractor(numPointsForProfile, profileSpacing))
+      }
+    }
+  }
+
+
+  case class NormalDirectionSearchStrategy(numberOfPoints : Int, searchDistance : Double)  extends SearchPointSampler     {
+      def apply(model : ActiveShapeModel[_], curFit : TriangleMesh, ptId : Int) : Seq[Point[ThreeD]] = {
+
+
+      val curFitPt = curFit.points(ptId)
+      val interval = searchDistance * 2 / numberOfPoints
+
+      val normalUnnormalized = curFit.normalAtPoint(curFitPt)
+      val normal = normalUnnormalized * (1.0 / normalUnnormalized.norm)
+      def samplePtsAlongNormal: Seq[Point[ThreeD]] = {
+        //val interval = distToSearch * 2 / numPts.toFloat
+        for (i <- - numberOfPoints / 2 until numberOfPoints / 2) yield {
+          curFitPt + normal * i * interval
+        }
+      }
+
+      samplePtsAlongNormal
+    }
+  }
+
+
+
   /**
    * Train an active shape model using an existing pca model
    */
-  def trainModel(model: StatisticalMeshModel, trainingData: TrainingData, featureExtractor: FeatureExtractor, config: ASMTrainingConfig): ActiveShapeModel[FeatureExtractor] = {
+  def trainModel[FE <: FeatureExtractor](model: StatisticalMeshModel, trainingData: TrainingData, featureExtractor: FE, config: ASMTrainingConfig): ActiveShapeModel[FE] = {
 
     val sampler = FixedPointsUniformMeshSampler3D(model.mesh, config.numberOfSamplingPoints, config.randomSeed)
     val profilePts = sampler.samplePoints
