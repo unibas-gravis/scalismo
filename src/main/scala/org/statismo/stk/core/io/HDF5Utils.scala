@@ -206,6 +206,31 @@ class HDF5File(h5file: FileFormat) {
 
   }
 
+  def readFloat(path: String): Try[Float] = {
+
+    h5file.get(path) match {
+      case s: H5ScalarDS => {
+        Try{s.read().asInstanceOf[Array[Float]](0)}
+      }
+      case _ => {
+        Failure(new Exception("Expected H5ScalarDS when reading Float " + path))
+      }
+    }
+  }
+
+
+  def writeFloat(path : String, value : Float) : Try[Unit] = {
+    val (groupname, datasetname) = splitpath(path)
+    val groupOrFailure = createGroup(groupname)
+
+    groupOrFailure.map { group =>
+
+      val fileFormat: FileFormat = group.getFileFormat()
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE);
+      Try{h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
+    }
+
+  }
 
 
   private def createGroup(parent: Group, relativePath: String): Try[Group] = {
@@ -312,10 +337,10 @@ object  HDF5Utils {
 trait HDF5ReadWrite[A] extends HDF5Read[A] with HDF5Write[A]
 
 trait HDF5Read[A] {
-  def read(group : Group) : Try[A]
+  def read(h5file : HDF5File, group : Group) : Try[A]
 }
 
 trait HDF5Write[A] {
-  def write(value : A, group : Group) : Try[Unit]
+  def write(value : A, h5file : HDF5File,  group : Group) : Try[Unit]
 }
 

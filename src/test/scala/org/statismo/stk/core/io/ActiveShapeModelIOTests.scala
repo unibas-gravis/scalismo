@@ -12,6 +12,7 @@ import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
 import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.mesh.TriangleMesh
 import ncsa.hdf.`object`.Group
+import org.statismo.stk.core.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
 
 /**
  * Created by Luethi on 09.03.14.
@@ -27,24 +28,8 @@ class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
   }
 
 
-  class FeatureExtractor() extends ActiveShapeModel.FeatureExtractor {
-    def apply(img : ContinuousScalarImage[ThreeD], t : TriangleMesh, p : Point[ThreeD]) : DenseVector[Float] = {
-      DenseVector.zeros[Float](1)
-    }
-  }
 
-  implicit val featureExtractorHDF5Serializer = new HDF5ReadWrite[FeatureExtractor] {
-
-    override def write(value : FeatureExtractor, group : Group) : Try[Unit] = {
-      Success(())
-    }
-    override def read(group : Group) : Try[FeatureExtractor] = {
-      Success(new FeatureExtractor())
-    }
-  }
-
-
-  private def createASM : ActiveShapeModel[FeatureExtractor] = {
+  private def createASM : ActiveShapeModel[NormalDirectionFeatureExtractor] = {
     val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
@@ -53,7 +38,7 @@ class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
     val dists = for (i <- 0 until ptDomain.numberOfPoints) yield
       (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat , DenseMatrix.eye[Float](3) * i.toFloat))
     val profileDists = ASMProfileDistributions(ptDomain, dists.toArray)
-    new ActiveShapeModel(shapeModel,  profileDists, new FeatureExtractor())
+    new ActiveShapeModel(shapeModel,  profileDists, new NormalDirectionFeatureExtractor(5, 10))
   }
 
   describe("An active shape model") {
@@ -61,7 +46,7 @@ class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
     it("can be written to disk and read again") {
       val originalASM = createASM
 
-      val h5file = new File("d:\\temp\\x.h5")//createTmpH5File()
+      val h5file = createTmpH5File()
 
       val statusWrite = for {
         _ <- ActiveShapeModelIO.writeASM(originalASM, h5file)
@@ -71,7 +56,7 @@ class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
 
       // read it again
       val newAsmOrError = for {
-        asm <- ActiveShapeModelIO.readASM(h5file)
+        asm <- ActiveShapeModelIO.readASM[NormalDirectionFeatureExtractor](h5file)
       } yield asm
 
       val newASM = newAsmOrError.get
