@@ -30,7 +30,16 @@ object MeshIO {
         Failure(new IOException("Unknown file type received" + filename))
       }
     }
+  }
 
+  def readAndCorrectMesh(file: File): Try[TriangleMesh] = {
+    val filename = file.getAbsolutePath()
+    filename match {
+      case f if f.endsWith(".vtk") => readVTK(file, true)
+      case _ => {
+        Failure(new IOException("Unknown file type received" + filename))
+      }
+    }
   }
 
   def writeMesh(mesh: TriangleMesh, file: File): Try[Unit] = {
@@ -95,7 +104,7 @@ object MeshIO {
     writeVTKPd(vtkPd, file)
   }
 
-  def readVTK(file: File): Try[TriangleMesh] = {
+  private def readVTK(file: File, correctFlag: Boolean = false): Try[TriangleMesh] = {
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath())
     vtkReader.Update()
@@ -105,7 +114,9 @@ object MeshIO {
     }
 
     val vtkPd = vtkReader.GetOutput()
-    val mesh = MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+    val mesh = if (correctFlag) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
+    else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+
     vtkReader.Delete()
     vtkPd.Delete()
     mesh
