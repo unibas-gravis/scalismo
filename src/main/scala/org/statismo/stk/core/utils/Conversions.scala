@@ -40,6 +40,8 @@ import vtk.vtkImageData
 import org.statismo.stk.core.mesh.ScalarMeshData
 import org.statismo.stk.core.common.ScalarValue
 
+import vtk.vtkTriangleFilter
+
 object VTKHelpers {
   val VTK_CHAR = 2
   val VTK_SIGNED_CHAR = 15
@@ -138,37 +140,64 @@ object VTKHelpers {
 
 object MeshConversion {
 
-  def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
-    val pointsArrayVtk = pd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
+  private def vtkPolyDataToTriangleMeshCommon(pd: vtkPolyData, correctFlag: Boolean = false) = {
+  
+    val newPd = if (correctFlag) {
+      val triangleFilter = new vtkTriangleFilter
+      triangleFilter.SetInputData(pd)
+      triangleFilter.Update()
+      triangleFilter.GetOutput()
+    } else pd
+
+    val polys = newPd.GetPolys()
+    val numPolys = polys.GetNumberOfCells()
+    
+    val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
     val pointsArray = pointsArrayVtk.GetJavaArray()
     val points = pointsArray.grouped(3).map(p => Point3D(p(0), p(1), p(2)))
 
-    val polys = pd.GetPolys()
-
-    val numPolys = polys.GetNumberOfCells()
-
-    val cellsOrFailure = Try {
+    Try {
       val idList = new vtkIdList()
       val cells = for (i <- 0 until numPolys) yield {
-        pd.GetCellPoints(i, idList)
+        newPd.GetCellPoints(i, idList)
         if (idList.GetNumberOfIds() != 3) {
-          throw new Exception("currently only triangle meshes can be read")
+          throw new Exception("Not a triangle mesh")
         }
+
         TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
       }
       idList.Delete()
-      cells
+      (points, cells)
     }
-    // TODO currently all data arrays are ignored
-    cellsOrFailure.map { cells =>
-      TriangleMesh(points.toIndexedSeq, cells)
+  }
+
+  def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
+    // TODO currently all data arrays are ignored    
+    val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd)
+    cellsPointsOrFailure.map {
+      case (points, cells) =>
+        TriangleMesh(points.toIndexedSeq, cells)
+    }
+  }
+
+  def vtkPolyDataToCorrectedTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
+
+    val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd, true)
+    cellsPointsOrFailure.map {
+      case (points, cells) =>
+        val cellPointIds = cells.flatMap(_.pointIds).distinct
+        val oldId2newId = cellPointIds.zipWithIndex.toMap
+        val newCells = cells.map(c => TriangleCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3)))
+        val oldPoints = points.toIndexedSeq
+        val newPoints = cellPointIds.map(oldPoints)
+        TriangleMesh(newPoints, newCells)
     }
   }
 
   def meshToVTKPolyData(mesh: TriangleMesh, template: Option[vtkPolyData] = None): vtkPolyData = {
 
     val pd = new vtkPolyData()
-    
+
     template match {
       case Some(template) => {
         // copy triangles from template if given; actual points are set unconditionally in code below.
@@ -205,13 +234,12 @@ object MeshConversion {
     pd
   }
 
-  
-   def meshDataToVtkPolyData[S : ScalarValue : ClassTag : TypeTag](meshData : ScalarMeshData[S]): vtkPolyData = {
-     val pd = meshToVTKPolyData(meshData.mesh)
-     val scalarData = VTKHelpers.createVtkDataArray(meshData.values, meshData.valueDimensionality) // TODO make this more general
-     pd.GetPointData().SetScalars(scalarData)
-     pd
-   }
+  def meshDataToVtkPolyData[S: ScalarValue: ClassTag: TypeTag](meshData: ScalarMeshData[S]): vtkPolyData = {
+    val pd = meshToVTKPolyData(meshData.mesh)
+    val scalarData = VTKHelpers.createVtkDataArray(meshData.values, meshData.valueDimensionality) // TODO make this more general
+    pd.GetPointData().SetScalars(scalarData)
+    pd
+  }
 
 }
 
