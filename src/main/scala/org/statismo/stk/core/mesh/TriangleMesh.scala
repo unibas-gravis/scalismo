@@ -42,9 +42,9 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
   }
   
   //verify that there all points belong to a cell
-  require(cellMap.keys.size == meshPoints.size, {println("Provided mesh data contains points not belonging to any cell !")}) 
+  require(cellMap.size == meshPoints.size, {println("Provided mesh data contains points not belonging to any cell !")}) 
 
-  private[this] val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
+  private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
 
   def isDefinedAt(pt: Point[ThreeD]) = {
     val (closestPt, _) = findClosestPoint(pt)
@@ -90,7 +90,7 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     neigborCells.foldLeft(Vector3D(0, 0, 0))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
   }
 
-  val area = cells.map(triangle => computeTriangleArea(triangle)).sum
+  lazy val area = cells.map(triangle => computeTriangleArea(triangle)).sum
 
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
