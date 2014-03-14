@@ -8,7 +8,6 @@ import scala.collection.mutable.HashMap
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.geometry.Point3D
 import org.statismo.stk.core.geometry.Vector3D
-import org.statismo.stk.core.mesh.kdtree.KDTreeMap
 import org.statismo.stk.core.common.Cell
 import org.statismo.stk.core.common.PointData
 import org.statismo.stk.core.common.PointData
@@ -26,7 +25,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 }
 
 
-case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomain[ThreeD](meshPoints) {
+case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomainBase[ThreeD](meshPoints) {
 
   // a map that has for every point the neighboring cell ids
   private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(HashMap())
@@ -47,15 +46,7 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
   require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
 
 
-  private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
-
-
-
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
-
-  for (cell <- cells) {
-    cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
-  }
 
   def boundingBox: BoxedDomain3D = {
     val minx = points.map(_(0)).min
