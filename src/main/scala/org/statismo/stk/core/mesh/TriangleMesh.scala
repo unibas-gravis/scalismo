@@ -22,29 +22,31 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
-case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell]) extends DiscreteDomain[ThreeD] {
+case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell],
+  cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends DiscreteDomain[ThreeD] {
 
   def dimensionality = 3
   def numberOfPoints = meshPoints.size
   def points = meshPoints.view
 
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
-
-  // a map that has for every point the neighboring cell ids
-  private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = HashMap()
-
-  private[this] def updateCellMapForPtId(ptId: Int, cell : TriangleCell): Unit = {
+  private[this] def updateCellMapForPtId(ptId: Int, cell: TriangleCell): Unit = {
     val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
     cellMap.update(ptId, cellsForKey :+ cell)
   }
-  for (cell <- cells) {
-    cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
-  }
-  
-  //verify that there all points belong to a cell
-  require(cellMap.keys.size == meshPoints.size, {println("Provided mesh data contains points not belonging to any cell !")}) 
 
-  private[this] val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
+  // a map that has for every point the neighboring cell ids
+  private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(HashMap())
+
+  if (!cellMapOpt.isDefined)
+    for (cell <- cells) {
+      cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
+    }
+
+  //verify that there all points belong to a cell
+  require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
+
+  private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
 
   def isDefinedAt(pt: Point[ThreeD]) = {
     val (closestPt, _) = findClosestPoint(pt)
@@ -70,7 +72,7 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     BoxedDomain3D(Point3D(minx, miny, minz), Point3D(maxx, maxy, maxz))
   }
 
-  def warp(transform: Function1[Point[ThreeD], Point[ThreeD]]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells)
+  def warp(transform: Function1[Point[ThreeD], Point[ThreeD]]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
   def cellNeighbors(id: Int): Seq[TriangleCell] = cellMap(id)
 
@@ -90,7 +92,7 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     neigborCells.foldLeft(Vector3D(0, 0, 0))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
   }
 
-  val area = cells.map(triangle => computeTriangleArea(triangle)).sum
+  lazy val area = cells.map(triangle => computeTriangleArea(triangle)).sum
 
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
@@ -118,6 +120,11 @@ case class TriangleMesh(meshPoints: IndexedSeq[Point[ThreeD]], val cells: Indexe
     val s = A * u + B * v + C * (1 - (u + v))
     Point3D(s(0), s(1), s(2))
   }
+}
+
+object TriangleMesh {
+  def apply(meshPoints: IndexedSeq[Point[ThreeD]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
+
 }
 
 case class ScalarMeshData[S: ScalarValue: ClassTag](val mesh: TriangleMesh, val values: Array[S]) extends PointData[ThreeD, S] {
