@@ -9,15 +9,19 @@ import mesh.TriangleMesh
 import org.statismo.stk.core.geometry._
 import scala.util.Failure
 import java.io.IOException
-import vtk.vtkPolyDataReader
+import vtk._
 import org.statismo.stk.core.utils.MeshConversion
-import vtk.vtkPolyDataWriter
 import scala.util.Success
 import org.statismo.stk.core.mesh.ScalarMeshData
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.reflect.ClassTag
-import vtk.vtkPolyData
 import org.statismo.stk.core.common.ScalarValue
+import org.apache.commons.io.FilenameUtils
+import scala.util.Failure
+import org.statismo.stk.core.mesh.ScalarMeshData
+import org.statismo.stk.core.geometry.Point3D
+import scala.util.Success
+import org.statismo.stk.core.mesh.TriangleCell
 
 object MeshIO {
 
@@ -26,6 +30,7 @@ object MeshIO {
     filename match {
       case f if f.endsWith(".h5") => readHDF5(file)
       case f if f.endsWith(".vtk") => readVTK(file)
+      case f if f.endsWith(".stl") => readSTL(file)
       case _ => {
         Failure(new IOException("Unknown file type received" + filename))
       }
@@ -47,6 +52,7 @@ object MeshIO {
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(mesh, file)
       case f if f.endsWith(".vtk") => writeVTK(mesh, file)
+      case f if f.endsWith(".stl") => writeSTL(mesh, file)
       case _ => {
         Failure(new IOException("Unknown file type received" + filename))
       }
@@ -78,8 +84,26 @@ object MeshIO {
     maybeError
   }
 
-  private def writeVTKPd(vtkPd: vtkPolyData, file: File): Try[Unit] = {
-    val writer = new vtkPolyDataWriter()
+
+  def writeVTK[S: ScalarValue: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
+    writeVTKPdasVTK(vtkPd, file)
+  }
+
+  def writeVTK(surface: TriangleMesh, file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
+    writeVTKPdasVTK(vtkPd, file)
+  }
+
+  def writeSTL(surface: TriangleMesh, file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
+    writeVTKPdAsSTL(vtkPd, file)
+  }
+
+
+
+  private def writeVTKPdasVTK(vtkPd: vtkPolyData, file: File): Try[Unit] = {
+    val writer =  new vtkPolyDataWriter()
     writer.SetFileName(file.getAbsolutePath())
     writer.SetInputData(vtkPd)
     writer.SetFileTypeToBinary()
@@ -94,17 +118,26 @@ object MeshIO {
     succOrFailure
   }
 
-  def writeVTK[S: ScalarValue: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
-    writeVTKPd(vtkPd, file)
+
+
+  private def writeVTKPdAsSTL(vtkPd: vtkPolyData, file: File): Try[Unit] = {
+    val writer =  new vtkSTLWriter()
+    writer.SetFileName(file.getAbsolutePath())
+    writer.SetInputData(vtkPd)
+    writer.SetFileTypeToBinary()
+    writer.Update()
+    val succOrFailure = if (writer.GetErrorCode() != 0) {
+      Failure(new IOException("could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+    } else {
+      Success(())
+    }
+    vtkPd.Delete
+    writer.Delete()
+    succOrFailure
   }
 
-  def writeVTK(surface: TriangleMesh, file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
-    writeVTKPd(vtkPd, file)
-  }
 
-  private def readVTK(file: File, correctFlag: Boolean = false): Try[TriangleMesh] = {
+  private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath())
     vtkReader.Update()
@@ -114,13 +147,35 @@ object MeshIO {
     }
 
     val vtkPd = vtkReader.GetOutput()
-    val mesh = if (correctFlag) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
+    val mesh = if (correctMesh) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
     else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
 
     vtkReader.Delete()
     vtkPd.Delete()
     mesh
   }
+
+
+
+  private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
+    val stlReader = new vtkSTLReader()
+    stlReader.SetFileName(file.getAbsolutePath())
+    stlReader.Update()
+    val errCode = stlReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read stl mesh (received error code $errCode"))
+    }
+
+    val vtkPd = stlReader.GetOutput()
+    val mesh = if (correctMesh) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
+    else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+
+    stlReader.Delete()
+    vtkPd.Delete()
+    mesh
+  }
+
+
 
   def readHDF5(file: File): Try[TriangleMesh] = {
 
