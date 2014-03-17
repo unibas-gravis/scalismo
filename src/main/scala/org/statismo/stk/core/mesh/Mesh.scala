@@ -47,18 +47,20 @@ object Mesh {
 
   def clipMesh(mesh: TriangleMesh, clipPointPredicate: Point[ThreeD] => Boolean) : TriangleMesh = {
 
+    // predicate tested at the beginning, once.
+    val remainingPoints =  mesh.points.par.filter{ !clipPointPredicate(_)}.zipWithIndex.toMap
     val remainingPointTriplet = for {
-      cell <- mesh.cells
+      cell <- mesh.cells.par
       val points = cell.pointIds.map(mesh.points)
-      val validCell = points.map(p => !clipPointPredicate(p)).reduce(_ && _)
+      val validCell = points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _)
       if (validCell)
-    } yield { points.toIndexedSeq }
+    } yield { points }
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
     val cells = remainingPointTriplet.map { case vec => TriangleCell(pt2Id(vec(0)), pt2Id(vec(1)), pt2Id(vec(2))) }
 
-    TriangleMesh(points, cells)
+    TriangleMesh(points.toIndexedSeq, cells.toIndexedSeq)
   }
 
 }
