@@ -33,6 +33,7 @@ trait DiscreteDomain[D <: Dim] extends Domain[D]{
 abstract class UnstructuredPointsDomainBase[D <: Dim : DimTraits](_points : IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
 
   override val dimTraits =  implicitly[DimTraits[D]]
+
   private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
   override def points = _points.view
 
