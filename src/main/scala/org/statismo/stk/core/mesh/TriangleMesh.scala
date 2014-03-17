@@ -12,10 +12,10 @@ import org.statismo.stk.core.common.Cell
 import org.statismo.stk.core.common.PointData
 import org.statismo.stk.core.common.PointData
 import scala.reflect.ClassTag
-import org.statismo.stk.core.common.ScalarValue
-import org.statismo.stk.core.geometry.Vector3D
-import org.statismo.stk.core.geometry.DimTraits
 import scala.collection.mutable.HashMap
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.geometry.Point3D
+import org.statismo.stk.core.geometry.Vector3D
 
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
@@ -23,6 +23,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
+
 
 
 case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomainBase[ThreeD](meshPoints) {
