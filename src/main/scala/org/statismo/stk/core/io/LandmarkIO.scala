@@ -14,9 +14,9 @@ object LandmarkIO {
    * label, x, y, z
    */
   private def readLandmarks(f: File): Try[IndexedSeq[(String, Float, Float, Float)]] = {
-    val src = Source.fromFile(f)
-    val iter = src.getLines()
     Try {
+      val src = Source.fromFile(f)
+      val iter = src.getLines()
       val landmarks = for (line <- src.getLines if line.isEmpty() == false && line(0) != '#') yield {
         val elements = line.split(',')
         val (xStr, yStr, zStr) = (elements(1), elements(2), elements(3))
@@ -32,32 +32,32 @@ object LandmarkIO {
     }
   }
 
-  def readLandmarks2D(f: File): Try[IndexedSeq[(String,Point2D)]] = {
+  def readLandmarks2D(f: File): Try[IndexedSeq[(String, Point2D)]] = {
     for (landmarks <- readLandmarks(f)) yield {
-      for (landmark <- landmarks) yield (landmark._1,Point2D(landmark._2, landmark._3))
+      for (landmark <- landmarks) yield (landmark._1, Point2D(landmark._2, landmark._3))
     }
   }
 
-  def readLandmarks3D(f: File): Try[IndexedSeq[(String,Point3D)]] = {
+  def readLandmarks3D(f: File): Try[IndexedSeq[(String, Point3D)]] = {
     for (landmarks <- readLandmarks(f)) yield {
-      for (landmark <- landmarks) yield (landmark._1,Point3D(landmark._2, landmark._3, landmark._4))
+      for (landmark <- landmarks) yield (landmark._1, Point3D(landmark._2, landmark._3, landmark._4))
     }
   }
 
-  def writeLandmarks[D <: Dim](f : File, landmarks : IndexedSeq[(String,Point[D])]) : Try[Unit] = { 
-    Try { 
-    	val out = new java.io.FileWriter(f)
-    	for (landmark<- landmarks) {
-    	  val line = landmark._2.dimensionality match { 
-    	    case 1 =>  landmark._1.trim +"," + landmark._2(0) +",0,0"
-    	    case 2 => landmark._1.trim +"," + landmark._2(0) +"," +landmark._2(1) + ",0"
-    	    case 3 =>  landmark._1.trim +"," + landmark._2(0) +"," +landmark._2(1) + "," + landmark._2(2)
-    	    case _ => Failure(new Exception("Landmarks with dimensionality "+landmark._2.dimensionality +"not supported"))
-    	  }
-    	  out.write(line +"\n")
-    	}
-    	out.close()
+  def writeLandmarks[D <: Dim](f: File, landmarks: IndexedSeq[(String, Point[D])]): Try[Unit] = {
+    Try {
+      val out = new java.io.FileWriter(f)
+      for (landmark <- landmarks) {
+        val line = landmark._2.dimensionality match {
+          case 1 => landmark._1.trim + "," + landmark._2(0) + ",0,0"
+          case 2 => landmark._1.trim + "," + landmark._2(0) + "," + landmark._2(1) + ",0"
+          case 3 => landmark._1.trim + "," + landmark._2(0) + "," + landmark._2(1) + "," + landmark._2(2)
+          case _ => Failure(new Exception("Landmarks with dimensionality " + landmark._2.dimensionality + "not supported"))
+        }
+        out.write(line + "\n")
+      }
+      out.close()
     }
   }
-  
+
 }
