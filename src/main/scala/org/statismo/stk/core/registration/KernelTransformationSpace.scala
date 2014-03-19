@@ -32,6 +32,9 @@ case class KernelTransformationSpaceConfiguration[D <: Dim](
 case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceConfiguration[OneD]) extends TransformationSpace[OneD] {
 
   val gp = configuration.gp
+
+  override type ConcreteTransformation = KernelTransformation1D
+
   def parametersDimensionality = gp.eigenPairs.size
   def inverseTransform(p: ParameterVector) = None
 
@@ -49,11 +52,7 @@ case class KernelTransformationSpace1D(configuration: KernelTransformationSpaceC
     def takeDerivative(x: Point[OneD]) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
-  def apply(p: ParameterVector) =
-    if (configuration.withValueCaching)
-      new KernelTransformation1D(p) with ValueCaching[OneD]
-    else
-      KernelTransformation1D(p)
+  override def transformForParameters(p: ParameterVector) = new KernelTransformation1D(p)
 
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[OneD] =>
     gp.jacobian(p)(x)
@@ -70,6 +69,8 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 
   def inverseTransform(p: ParameterVector) = None
 
+  override type ConcreteTransformation = KernelTransformation2D
+
   // the actual kernel transform
   case class KernelTransformation2D(alpha: ParameterVector) extends Transformation[TwoD] {
 
@@ -82,10 +83,7 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
     def takeDerivative(x: Point[TwoD]) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
-  def apply(p: ParameterVector) = if (configuration.withValueCaching)
-    new KernelTransformation2D(p) with ValueCaching[TwoD]
-  else
-    KernelTransformation2D(p)
+  override def transformForParameters(p: ParameterVector) = new KernelTransformation2D(p)
 
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[TwoD] =>
     gp.jacobian(p)(x)
@@ -94,6 +92,8 @@ case class KernelTransformationSpace2D(configuration: KernelTransformationSpaceC
 }
 
 case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceConfiguration[ThreeD]) extends TransformationSpace[ThreeD] {
+
+  override type ConcreteTransformation  = KernelTransformation3D
 
   def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
   val gp = configuration.gp
@@ -114,11 +114,7 @@ case class KernelTransformationSpace3D(configuration: KernelTransformationSpaceC
     def takeDerivative(x: Point[ThreeD]) = { throw new NotImplementedError("take derivative of kernel") }
   }
 
-  def apply(p: ParameterVector) = if (configuration.withValueCaching)
-    new KernelTransformation3D(p) with ValueCaching[ThreeD]
-  else
-    KernelTransformation3D(p)
-
+  def transformForParameters(p: ParameterVector) = new KernelTransformation3D(p)
   def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[ThreeD] =>
     gp.jacobian(p)(x)
   }
