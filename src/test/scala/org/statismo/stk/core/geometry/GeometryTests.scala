@@ -167,6 +167,24 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       Matrix3x3.zeros * v should equal(Vector3D(0, 0, 0))
       Matrix3x3.ones * v should equal(Vector3D(6, 6, 6))
     }
+
+    it("yields itself when transposed twise") {
+      val m = Matrix3x3((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val mtt = m.t.t
+      for (i <- 0 until 3; j <- 0 until 3) {
+        mtt(i,j) should equal (m(i,j))
+      }
+    }
+
+    it("yields transform when inverted and multiplied with itself") {
+      val m = Matrix3x3((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val mInvertible = m.t * m // m^T *m is always invertible
+      val almostEye = mInvertible * MatrixNxN.inv(mInvertible)
+      val eye = Matrix3x3.eye
+      for (i <- 0 until 3; j <- 0 until 3)  {
+        almostEye(i,j) should be(eye(i,j) plusOrMinus 1e-5f)
+      }
+    }
   }
 
 }
