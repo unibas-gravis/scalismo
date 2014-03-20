@@ -3,9 +3,13 @@ package registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
-import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.geometry.Point3D
+import org.statismo.stk.core.geometry.Vector3D
+import org.statismo.stk.core.geometry.Point2D
+import org.statismo.stk.core.geometry.Vector2D
+import org.statismo.stk.core.geometry.Vector1D
 
 
 trait ValueCaching[D <: Dim] extends (Point[D] => Point[D]) {
@@ -92,7 +96,6 @@ class ProductTransformationSpace[D <: Dim, OT <: Transformation[D], IT <: Transf
   }
 
 }
-
 
 class ProductTransformation[D <: Dim](outerTransform: Transformation[D], innerTransform: Transformation[D]) extends Transformation[D] {
   override def apply(x: Point[D]) = {
@@ -377,36 +380,56 @@ class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInv
 case class RigidTransformationSpace3D(center: Point[ThreeD] = Point3D(0, 0, 0))
   extends ProductTransformationSpace[ThreeD, TranslationTransform3D, RotationTransform3D](TranslationSpace3D(), RotationSpace3D(center)) {
 
-
   override def transformForParameters(p: ParameterVector): RigidTransformation3D = {
     val (outerParams, innerParams) = splitProductParameterVector(p)
-    new RigidTransformation3D(TranslationSpace3D().transformForParameters(outerParams), RotationSpace3D(center).transformForParameters(innerParams))
+    new RigidTransformation3DRotThenTrans(TranslationSpace3D().transformForParameters(outerParams), RotationSpace3D(center).transformForParameters(innerParams))
   }
 
 }
 
-class RigidTransformation3D(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D)
-  extends ProductTransformation(translationTransform, rotationTransform) with CanInvert[ThreeD] {
+// there are different possibilities to define rigid transformations. Either we first do a translation and then a rotation,
+// or vice versa. We support both (and the inverse is always the other case).
+trait RigidTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D]
+trait RigidTransformation3D extends RigidTransformation[ThreeD]
+trait RigidTransformation2D extends RigidTransformation[TwoD]
 
-
-  // TODO the type of the inverse is not as tight as  it could be
-  def inverse = new ProductTransformation(rotationTransform.inverse, translationTransform.inverse)
+object RigidTransformation {
+  def apply(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D) : RigidTransformation[ThreeD] = new RigidTransformation3DRotThenTrans(translationTransform, rotationTransform)
+  def apply(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D) : RigidTransformation[ThreeD] = new RigidTransformation3DTransThenRot(rotationTransform, translationTransform)
+  def apply(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D) : RigidTransformation[TwoD] = new RigidTransformation2DRotThenTrans(translationTransform, rotationTransform)
+  def apply(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D) : RigidTransformation[TwoD] = new RigidTransformation2DTransThenRot(rotationTransform, translationTransform)
 }
+
+private class RigidTransformation3DRotThenTrans(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D)
+  extends ProductTransformation[ThreeD](translationTransform, rotationTransform) with RigidTransformation3D {
+
+  def inverse : RigidTransformation[ThreeD] = new RigidTransformation3DTransThenRot(rotationTransform.inverse, translationTransform.inverse)
+}
+
+private class RigidTransformation3DTransThenRot(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D)
+  extends ProductTransformation[ThreeD](translationTransform, rotationTransform) with RigidTransformation3D {
+  def inverse : RigidTransformation[ThreeD]= new RigidTransformation3DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
+}
+
 
 case class RigidTransformationSpace2D(center: Point[TwoD] = Point2D(0, 0))
   extends ProductTransformationSpace[TwoD, TranslationTransform2D, RotationTransform2D](TranslationSpace2D(), RotationSpace2D(center)) {
 
 
-  override def transformForParameters(p: ParameterVector): RigidTransformation2D = {
+  override def transformForParameters(p: ParameterVector): RigidTransformation[TwoD] = {
     val (outerParams, innerParams) = splitProductParameterVector(p)
-    new RigidTransformation2D(TranslationSpace2D().transformForParameters(outerParams), RotationSpace2D(center).transformForParameters(innerParams))
+    new RigidTransformation2DRotThenTrans(TranslationSpace2D().transformForParameters(outerParams), RotationSpace2D(center).transformForParameters(innerParams))
   }
-
 }
 
-class RigidTransformation2D(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D)
-  extends ProductTransformation(translationTransform, rotationTransform) with CanInvert[TwoD] {
 
-  // TODO the type of the inverse is not as tight as  it could be
-  def inverse = new ProductTransformation(rotationTransform.inverse, translationTransform.inverse)
+private class RigidTransformation2DRotThenTrans(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D)
+  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation[TwoD] {
+
+  def inverse : RigidTransformation[TwoD] = new RigidTransformation2DTransThenRot(rotationTransform.inverse, translationTransform.inverse)
+}
+
+private class RigidTransformation2DTransThenRot(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D)
+  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation[TwoD] {
+  def inverse : RigidTransformation[TwoD]= new RigidTransformation2DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
 }
