@@ -5,6 +5,7 @@ import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.registration.{RigidTransformation3D, Transformation, RigidTransformationSpace3D}
 
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh
@@ -104,5 +105,37 @@ object StatisticalMeshModel {
     // the most common use case is, that we evaluate the process as the mehs points. Hence we specialize on them
     val specializedGP = new SpecializedLowRankGaussianProcess(gp, mesh.points.toIndexedSeq, meanVec, lambdas, phiMat)
     new StatisticalMeshModel(mesh, specializedGP)
+  }
+
+
+  /**
+   * create a statisticalMeshModel which is transformed by the given rigid transform
+   * TODO - Part of this functionality should be moved into the GP. But for this we would have to define
+   * a proper domain-warp concept!
+   */
+  def transform(model : StatisticalMeshModel, rigidTransform : RigidTransformation3D) : StatisticalMeshModel = {
+    val invTransform = rigidTransform.inverse
+    val gp = model.gp
+    val (lambdas, phis) = gp.eigenPairs.unzip
+    val newRef = model.mesh.warp(rigidTransform)
+
+
+    def newMean(pt : Point[ThreeD]) : Vector[ThreeD] = {
+      val ptOrigGp = invTransform(pt)
+      rigidTransform(ptOrigGp + gp.mean(ptOrigGp)) - rigidTransform(ptOrigGp)
+    }
+
+    val newPhis = phis.map(phi => {
+      def newPhi(pt: Point[ThreeD]): Vector[ThreeD] = {
+        val ptOrigGp = invTransform(pt)
+        rigidTransform(ptOrigGp + phi(ptOrigGp)) - rigidTransform(ptOrigGp)
+      }
+      newPhi _
+    })
+
+    val newEigenpairs = lambdas.zip(newPhis)
+    val newGp = new LowRankGaussianProcess3D(newRef, newMean, newEigenpairs)
+
+    new StatisticalMeshModel(newRef, newGp)
   }
 }
