@@ -393,11 +393,9 @@ trait RigidTransformation[D <: Dim] extends ProductTransformation[D] with CanInv
 trait RigidTransformation3D extends RigidTransformation[ThreeD]
 trait RigidTransformation2D extends RigidTransformation[TwoD]
 
-object RigidTransformation {
-  def apply(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D) : RigidTransformation[ThreeD] = new RigidTransformation3DRotThenTrans(translationTransform, rotationTransform)
-  def apply(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D) : RigidTransformation[ThreeD] = new RigidTransformation3DTransThenRot(rotationTransform, translationTransform)
-  def apply(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D) : RigidTransformation[TwoD] = new RigidTransformation2DRotThenTrans(translationTransform, rotationTransform)
-  def apply(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D) : RigidTransformation[TwoD] = new RigidTransformation2DTransThenRot(rotationTransform, translationTransform)
+object RigidTransformation3D {
+  def apply(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D) : RigidTransformation3D = new RigidTransformation3DRotThenTrans(translationTransform, rotationTransform)
+  def apply(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D) : RigidTransformation3D = new RigidTransformation3DTransThenRot(rotationTransform, translationTransform)
 }
 
 private class RigidTransformation3DRotThenTrans(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D)
@@ -412,6 +410,11 @@ private class RigidTransformation3DTransThenRot(rotationTransform: RotationTrans
 }
 
 
+object RigidTransformations2D {
+  def apply(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D) : RigidTransformation2D = new RigidTransformation2DRotThenTrans(translationTransform, rotationTransform)
+  def apply(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D) : RigidTransformation2D = new RigidTransformation2DTransThenRot(rotationTransform, translationTransform)
+}
+
 case class RigidTransformationSpace2D(center: Point[TwoD] = Point2D(0, 0))
   extends ProductTransformationSpace[TwoD, TranslationTransform2D, RotationTransform2D](TranslationSpace2D(), RotationSpace2D(center)) {
 
@@ -424,12 +427,12 @@ case class RigidTransformationSpace2D(center: Point[TwoD] = Point2D(0, 0))
 
 
 private class RigidTransformation2DRotThenTrans(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D)
-  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation[TwoD] {
+  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation2D {
 
   def inverse : RigidTransformation[TwoD] = new RigidTransformation2DTransThenRot(rotationTransform.inverse, translationTransform.inverse)
 }
 
 private class RigidTransformation2DTransThenRot(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D)
-  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation[TwoD] {
+  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation2D {
   def inverse : RigidTransformation[TwoD]= new RigidTransformation2DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
 }
