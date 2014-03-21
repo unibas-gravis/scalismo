@@ -12,4 +12,5 @@ lib/libvtk*
 .settings
 /project/target
 /project/project
-
+/.idea/
+/*.iml
