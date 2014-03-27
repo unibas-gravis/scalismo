@@ -26,18 +26,20 @@ trait TransformationSpaceConfiguration {
 }
 
 
-trait Transformation[D <: Dim] extends (Point[D] => Point[D]) {
-  def takeDerivative(x: Point[D]): MatrixNxN[D]
-}
+trait Transformation[D <: Dim] extends (Point[D] => Point[D]) {}
 
 trait CanInvert[D <: Dim] {
   self: Transformation[D] =>
   def inverse: Transformation[D]
 }
 
+trait CanDifferentiate[D <: Dim] {
+  self: Transformation[D]   =>
+  def takeDerivative(x: Point[D]): MatrixNxN[D]
+}
 
 trait TransformationSpace[D <: Dim] {
-  self: TransformationSpace[D] =>
+
 
   type T <: Transformation[D]
 
@@ -51,10 +53,6 @@ trait TransformationSpace[D <: Dim] {
 
   def apply(p: ParameterVector): T = transformForParameters(p)
 
-  def product(that: TransformationSpace[D]): TransformationSpace[D] = {
-    new ProductTransformationSpace(self, that)
-  }
-
   def identityTransformParameters: DenseVector[Float]
 }
 
@@ -63,9 +61,18 @@ object TransformationSpace {
 
 }
 
+trait DifferentiableTransforms[D <: Dim]   { self : TransformationSpace[D] =>
+  override type T <: Transformation[D] with CanDifferentiate[D]
 
-class ProductTransformationSpace[D <: Dim, OT <: Transformation[D], IT <: Transformation[D]]
-(outer: TransformationSpace[D], inner: TransformationSpace[D]) extends TransformationSpace[D] {
+  def product(that: TransformationSpace[D] with DifferentiableTransforms[D]) = {
+    new ProductTransformationSpace(this, that)
+  }
+
+}
+
+
+class ProductTransformationSpace[D <: Dim, OT <: Transformation[D] with CanDifferentiate[D], IT <: Transformation[D] with CanDifferentiate[D]]
+(outer: TransformationSpace[D] with DifferentiableTransforms[D], inner: TransformationSpace[D] with DifferentiableTransforms[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = ProductTransformation[D]
 
@@ -85,7 +92,7 @@ class ProductTransformationSpace[D <: Dim, OT <: Transformation[D], IT <: Transf
     (x: Point[D]) => {
       DenseMatrix.horzcat(
         outer.takeDerivativeWRTParameters(split._1)(x),
-        outer(split._1).takeDerivative(inner(split._2)(x)).toBreezeMatrix * inner.takeDerivativeWRTParameters(split._2)(x))
+        outer.transformForParameters(split._1).takeDerivative(inner(split._2)(x)).toBreezeMatrix * inner.takeDerivativeWRTParameters(split._2)(x))
     }
   }
 
@@ -97,7 +104,8 @@ class ProductTransformationSpace[D <: Dim, OT <: Transformation[D], IT <: Transf
 
 }
 
-class ProductTransformation[D <: Dim](outerTransform: Transformation[D], innerTransform: Transformation[D]) extends Transformation[D] {
+
+class ProductTransformation[D <: Dim](outerTransform: Transformation[D] with CanDifferentiate[D], innerTransform: Transformation[D] with CanDifferentiate[D]) extends Transformation[D] with CanDifferentiate[D] {
   override def apply(x: Point[D]) = {
     (outerTransform compose innerTransform)(x)
   }
@@ -108,7 +116,7 @@ class ProductTransformation[D <: Dim](outerTransform: Transformation[D], innerTr
 
 }
 
-case class TranslationSpace1D() extends TransformationSpace[OneD] {
+case class TranslationSpace1D() extends TransformationSpace[OneD] with DifferentiableTransforms[OneD] {
 
   override type T = TranslationTransform1D
 
@@ -120,7 +128,7 @@ case class TranslationSpace1D() extends TransformationSpace[OneD] {
   override def takeDerivativeWRTParameters(p: ParameterVector) = {x: Point[OneD] =>    DenseMatrix.eye[Float](1)}
 }
 
-case class TranslationTransform1D(t: Vector[OneD]) extends Transformation[OneD] with CanInvert[OneD] {
+case class TranslationTransform1D(t: Vector[OneD]) extends Transformation[OneD] with CanInvert[OneD] with CanDifferentiate[OneD]{
   def apply(pt: Point[OneD]): Point[OneD] = pt + t
 
   override def takeDerivative(x: Point[OneD]): Matrix1x1 =  Matrix1x1.eye
@@ -128,7 +136,7 @@ case class TranslationTransform1D(t: Vector[OneD]) extends Transformation[OneD] 
 }
 
 
-case class TranslationSpace2D() extends TransformationSpace[TwoD] {
+case class TranslationSpace2D() extends TransformationSpace[TwoD] with DifferentiableTransforms[TwoD] {
 
   override type T = TranslationTransform2D
 
@@ -138,13 +146,13 @@ case class TranslationSpace2D() extends TransformationSpace[TwoD] {
   override def takeDerivativeWRTParameters(p: ParameterVector) = {x: Point[TwoD] =>  DenseMatrix.eye[Float](2)}
 }
 
-case class TranslationTransform2D(t: Vector[TwoD]) extends Transformation[TwoD] with CanInvert[TwoD] {
+case class TranslationTransform2D(t: Vector[TwoD]) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(pt: Point[TwoD]) = pt + t
   override def takeDerivative(x: Point[TwoD]): Matrix2x2 =  Matrix2x2.eye
   override def inverse =  TranslationTransform2D(t * (-1f))
 }
 
-case class TranslationSpace3D() extends TransformationSpace[ThreeD] {
+case class TranslationSpace3D() extends TransformationSpace[ThreeD] with DifferentiableTransforms[ThreeD] {
 
   override type T = TranslationTransform3D
 
@@ -154,14 +162,14 @@ case class TranslationSpace3D() extends TransformationSpace[ThreeD] {
   override def takeDerivativeWRTParameters(p: ParameterVector) = {x: Point[ThreeD] =>    DenseMatrix.eye[Float](3)}
 }
 
-case class TranslationTransform3D(t: Vector[ThreeD]) extends Transformation[ThreeD] with CanInvert[ThreeD] {
+case class TranslationTransform3D(t: Vector[ThreeD]) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(pt: Point[ThreeD]) = pt + t
   override def takeDerivative(x: Point[ThreeD]) =  Matrix3x3.eye
   override def inverse =  TranslationTransform3D(t * (-1f))
 }
 
 
-case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpace[ThreeD] {
+case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpace[ThreeD] with DifferentiableTransforms[ThreeD] {
 
   override type T = RotationTransform3D
 
@@ -243,7 +251,7 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
 }
 
 
-class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre : Point[ThreeD] = Point3D(0,0,0)) extends Transformation[ThreeD] with CanInvert[ThreeD] {
+class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre : Point[ThreeD] = Point3D(0,0,0)) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(pt: Point[ThreeD]): Point[ThreeD] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
@@ -260,7 +268,7 @@ class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre : Point[ThreeD] =
 }
 
 
-case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[TwoD] {
+case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[TwoD] with DifferentiableTransforms[TwoD] {
 
   override type T = RotationTransform2D
 
@@ -299,7 +307,7 @@ case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[
 }
 
 
-class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre : Point[TwoD] = Point2D(0,0)) extends Transformation[TwoD] with CanInvert[TwoD] {
+class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre : Point[TwoD] = Point2D(0,0)) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(pt: Point[TwoD]): Point[TwoD] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
@@ -317,7 +325,7 @@ class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre : Point[TwoD] = Poi
 }
 
 
-case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
+case class ScalingSpace3D() extends TransformationSpace[ThreeD] with DifferentiableTransforms[ThreeD] {
 
   override type T = ScalingTransformation3D
 
@@ -336,7 +344,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] {
 }
 
 
-class ScalingTransformation3D(s: Float) extends Transformation[ThreeD] with CanInvert[ThreeD] {
+class ScalingTransformation3D(s: Float) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD]{
   def apply(x: Point[ThreeD]): Point[ThreeD] = Point3D(x(0) * s, x(1) * s, x(2) * s)
 
   def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = Matrix3x3.eye * s
@@ -347,7 +355,7 @@ class ScalingTransformation3D(s: Float) extends Transformation[ThreeD] with CanI
 }
 
 
-case class ScalingSpace2D() extends TransformationSpace[TwoD] {
+case class ScalingSpace2D() extends TransformationSpace[TwoD] with DifferentiableTransforms[TwoD] {
 
   override type T = ScalingTransformation2D
 
@@ -366,7 +374,7 @@ case class ScalingSpace2D() extends TransformationSpace[TwoD] {
 }
 
 
-class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInvert[TwoD] {
+class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(x: Point[TwoD]): Point[TwoD] = Point2D(x(0) * s, x(1) * s)
 
   def takeDerivative(x: Point[TwoD]): MatrixNxN[TwoD] = Matrix2x2.eye * s
