@@ -85,7 +85,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val trans = RigidTransformationSpace3D(center)(parameterVector)
+      val trans = RigidTransformationSpace3D().transformForParameters(parameterVector)
 
       val rotated = mesh warp trans
       //Utils.showVTK(Utils.meshToVTKMesh(rotatedTrans))
@@ -146,7 +146,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2f)
-      val trans = RigidTransformationSpace3D(center).product(ScalingSpace3D())(parameterVector)
+      val trans = RigidTransformationSpace3D().product(ScalingSpace3D()).transformForParameters(parameterVector)
 
       val translatedRotatedScaled = mesh warp trans
     

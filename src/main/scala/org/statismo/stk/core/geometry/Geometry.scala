@@ -304,6 +304,7 @@ abstract class MatrixNxN[D <: Dim: DimTraits] {
   def *(d: Double): MatrixNxN[D] = this * d.toFloat
   def +(that: MatrixNxN[D]): MatrixNxN[D]
   def -(that: MatrixNxN[D]): MatrixNxN[D]
+  def t : MatrixNxN[D]
 
   override def hashCode = data.deep.hashCode
   override def equals(other: Any): Boolean = other match {
@@ -421,6 +422,10 @@ trait MatrixNxNLike[D <: Dim, MatrixRepr <: MatrixNxN[D], VectorRepr <: Vector[D
     createMatrix(newData)
   }
 
+  override def t : MatrixRepr = {
+    createMatrix(this.toBreezeMatrix.t.data)
+  }
+
 }
 
 case class Matrix1x1(val data: Array[Float]) extends MatrixNxNLike[OneD, Matrix1x1, Vector1D] {
@@ -437,14 +442,15 @@ case class Matrix3x3(val data: Array[Float]) extends MatrixNxNLike[ThreeD, Matri
 }
 
 object Matrix1x1 {
-  def eye = Matrix1x1(Array(1))
-  def zeros = Matrix1x1(Array(0))
-  def ones = Matrix1x1(Array(1))
+  def eye = Matrix1x1((1))
+  def zeros = Matrix1x1((0))
+  def ones = Matrix1x1((1))
+  def apply(f : Float) = new Matrix1x1(Array(f))
 }
 object Matrix2x2 {
-  def eye = Matrix2x2(Array(1, 0, 0, 1))
-  def zeros = Matrix2x2(Array(0, 0, 0, 0))
-  def ones = Matrix2x2(Array(1, 1, 1, 1))
+  def eye = Matrix2x2((1, 0), (0, 1))
+  def zeros = Matrix2x2((0, 0), (0, 0))
+  def ones = Matrix2x2((1, 1), (1, 1))
   def apply(row1: Tuple2[Float, Float], row2: Tuple2[Float, Float]) = {
     new Matrix2x2(Array(row1._1, row2._1, row1._2, row2._2))
   }
@@ -452,12 +458,12 @@ object Matrix2x2 {
 }
 object Matrix3x3 {
   type TupleF = Tuple3[Float, Float, Float]
-  def eye = Matrix3x3(Array(1, 0, 0, 0, 1, 0, 0, 0, 1))
-  def zeros = Matrix3x3(Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
-  def ones = Matrix3x3(Array(1, 1, 1, 1, 1, 1, 1, 1, 1))
   def apply(row1: TupleF, row2: TupleF, row3: TupleF) = {
     new Matrix3x3(Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
+  def eye = Matrix3x3((1, 0, 0), (0, 1, 0), (0, 0, 1))
+  def zeros = Matrix3x3((0, 0, 0), (0, 0, 0), (0, 0, 0))
+  def ones = Matrix3x3((1, 1, 1), (1, 1, 1), (1, 1, 1))
 }
 
 object MatrixNxN {
@@ -469,6 +475,13 @@ object MatrixNxN {
     val dimTraits = implicitly[DimTraits[D]]
     val data = Array.fill[Float](dimTraits.dimensionality * dimTraits.dimensionality)(elem)
     dimTraits.createMatrixNxN(data)
+  }
+
+  def inv[D <: Dim : DimTraits](m : MatrixNxN[D]) : MatrixNxN[D] = {
+    val dimTraits = implicitly[DimTraits[D]]
+    val bm = m.toBreezeMatrix
+    val bmInv = breeze.linalg.inv(bm)
+    dimTraits.createMatrixNxN(bmInv.data.map(_.toFloat))
   }
 
 }

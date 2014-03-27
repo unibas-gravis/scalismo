@@ -264,7 +264,6 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
           samplePts(ptId)
         }
 
-        override def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = ???
       }
 
       // model building

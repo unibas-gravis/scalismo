@@ -10,7 +10,7 @@ import numerics.Integrator
 import breeze.linalg.DenseMatrix
 import scala.reflect.ClassTag
 import scala.util.Random
-import registration.Transformation
+import org.statismo.stk.core.registration.{CanDifferentiate, Transformation}
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.Domain
@@ -84,7 +84,7 @@ abstract class ContinuousScalarImage[D <: Dim] extends ContinuousImage[D, Float]
 
   def square: CI
 
-  def compose(t: Transformation[D]): CI  
+  def compose(t: Transformation[D] with CanDifferentiate[D]): CI
 
 }
 
@@ -129,7 +129,7 @@ trait ContinuousScalarImageLike[D <: Dim, Repr <: ContinuousScalarImage[D]] { se
     newConcreteImageRepr(newDomain, f, df)
   }
 
-  def compose(t: Transformation[D]): Repr = {
+  def compose(t: Transformation[D] with CanDifferentiate[D]): Repr = {
     def f(x: Point[D]) = self.f(t(x))
     val df = for (selfdf <- self.df) yield ((x: Point[D]) => t.takeDerivative(x) * selfdf(t(x)))
     val newDomain = new ImplicitDomain[D] {
