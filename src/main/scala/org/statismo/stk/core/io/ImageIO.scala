@@ -28,7 +28,7 @@ import org.statismo.stk.core.image.DiscreteScalarImage3D
 import niftijio.NiftiVolume
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.registration.{CanDifferentiate, RigidTransformation3D, Transformation}
 import org.statismo.stk.core.image.Interpolation
 import org.statismo.stk.core.image.Resample
 import org.statismo.stk.core.image.DiscreteScalarImage3D
@@ -216,7 +216,7 @@ object ImageIO {
   /**
    * returns transformations from voxel to World coordinates and its inverse
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[ThreeD], Transformation[ThreeD])] = {
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[ThreeD] with CanDifferentiate[ThreeD], Transformation[ThreeD] with CanDifferentiate[ThreeD])] = {
 
     val nx = volume.header.dim(1);
     val ny = volume.header.dim(2);
@@ -232,7 +232,7 @@ object ImageIO {
 
     val affineTransMatrix = DenseMatrix.create(4, 4, volume.header.sform_to_mat44().flatten).t
 
-    val t: Transformation[ThreeD] = new Transformation[ThreeD] {
+    val t: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
       def apply(x: Point[ThreeD]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t = affineTransMatrix * xh
@@ -242,7 +242,7 @@ object ImageIO {
     }
 
     val affineTransMatrixInv = breeze.linalg.inv(affineTransMatrix)
-    val tinv: Transformation[ThreeD] = new Transformation[ThreeD] {
+    val tinv: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
       def apply(x: Point[ThreeD]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t = affineTransMatrixInv * xh

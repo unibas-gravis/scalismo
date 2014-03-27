@@ -50,14 +50,14 @@ object LandmarkRegistration {
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])]): RegistrationResult[ThreeD] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
-    val rigidSpace = RigidTransformationSpace3D(origin3D)
+    val rigidSpace = RigidTransformationSpace3D()
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
   def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])]): RegistrationResult[ThreeD] = {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams).map(_.toFloat), DenseVector(s.toFloat))
-    val similritySpace = RigidTransformationSpace3D(origin3D).product(ScalingSpace3D())
+    val similritySpace = RigidTransformationSpace3D().product(ScalingSpace3D())
     RegistrationResult(similritySpace(optimalParameters), optimalParameters)
   }
 
