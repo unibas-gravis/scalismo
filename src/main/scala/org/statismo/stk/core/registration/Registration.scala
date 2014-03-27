@@ -38,7 +38,7 @@ case class RegistrationConfiguration[D <: Dim](
   val optimizer: Optimizer,
   val integrator: Integrator[D],
   val metric: ImageMetric[D],
-  val transformationSpace: TransformationSpace[D],
+  val transformationSpace: TransformationSpace[D] with DifferentiableTransforms[D],
   val regularizer: Regularizer,
   val regularizationWeight: Double,
   initialParametersOrNone: Option[DenseVector[Float]] = None) {
