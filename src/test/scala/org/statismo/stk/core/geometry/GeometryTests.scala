@@ -176,7 +176,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       }
     }
 
-    it("yields transform when inverted and multiplied with itself") {
+    it("yields the identity transform when inverted and multiplied with itself") {
       val m = Matrix3x3((3, 4, 1), (3, 7, 2), (7, 9, 11))
       val mInvertible = m.t * m // m^T *m is always invertible
       val almostEye = mInvertible * MatrixNxN.inv(mInvertible)
