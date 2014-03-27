@@ -95,7 +95,7 @@ object MultivariateNormalDistribution {
 
     val zeroMatrix = DenseMatrix.zeros[Float](sampleDim, sampleDim)    
     def outer(v1: DenseVector[Float], v2: DenseVector[Float]) = v1.toDenseMatrix.t * v2.toDenseMatrix
-    
+
     val cov = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1f / (numSamples - 1))
     new MultivariateNormalDistribution(mean, cov)
   }
