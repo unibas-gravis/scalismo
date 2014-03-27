@@ -31,7 +31,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         (x: Point[ThreeD]) => Vector3D(0.0, 0.0, 0.0),
         cov,
         20)
-      val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
+      val gp =LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
       val specializedGP = gp.specializeForPoints(mesh.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
 
