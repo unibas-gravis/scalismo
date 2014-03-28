@@ -2,34 +2,15 @@ package org.statismo.stk.core.kernels
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.geometry.Point1D
 import org.statismo.stk.core.geometry.implicits._
-import org.statismo.stk.core.io.StatismoIO
-import java.io.File
-import org.statismo.stk.core.registration.KernelTransformationSpaceConfiguration
-import org.statismo.stk.core.registration.KernelTransformationSpace3D
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.geometry.{ Point, ThreeD, MatrixNxN }
-import scala.util.Random
-import breeze.stats.distributions.RandBasis
-import org.statismo.stk.core.statisticalmodel.SpecializedLowRankGaussianProcess
-import org.statismo.stk.core.statisticalmodel.GaussianProcess
-import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcessConfiguration
-import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcessConfiguration
-import org.statismo.stk.core.mesh.TriangleMesh
-import org.statismo.stk.core.numerics.Sampler
-import scala.compat.Platform
-import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcessConfiguration
-import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess3D
-import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcessConfiguration
+import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, DiscreteGaussianProcess, LowRankGaussianProcessConfiguration}
 import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.geometry.Point3D
 import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
-import org.statismo.stk.core.io.MeshIO
-import org.statismo.stk.core.utils.Visualization._
-import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 
 class KernelTransformationTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
@@ -75,7 +56,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
       val mu = (pt: Point[ThreeD]) => Vector3D(1, 10, -5)
       val gpConf = LowRankGaussianProcessConfiguration(domain, nystromSampler, mu, k, 500)
-      val gp = GaussianProcess.createLowRankGaussianProcess3D(gpConf)
+      val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConf)
 
       val sampleTransformations = for (i <- (0 until 600).par) yield {
         val sample = gp.sample
