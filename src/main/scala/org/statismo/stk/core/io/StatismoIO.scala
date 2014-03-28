@@ -115,12 +115,12 @@ object StatismoIO {
 
     val discretizedMean = model.mesh.points.map(p => p + model.gp.mean(p)).toIndexedSeq.flatten(_.data)
     val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
-    val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDim, model.gp.rank)
+    val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDimensionality, model.gp.rank)
     for {
       (point, idx) <- model.mesh.points.toSeq.par.zipWithIndex
       ((lmda, phi), j) <- model.gp.eigenPairs.zipWithIndex
     } {
-      pcaBasis(idx * model.gp.outputDim until (idx + 1) * model.gp.outputDim, j) := (phi(point)).toBreezeVector
+      pcaBasis(idx * model.gp.outputDimensionality until (idx + 1) * model.gp.outputDimensionality, j) := (phi(point)).toBreezeVector
     }
 
     if (statismoVersion == v081) {

@@ -53,7 +53,7 @@ object Registration {
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] =
     {
-      val regularizer = RKHSNormRegularizer
+      val regularizer = configuration.regularizer
 
       val transformationSpace = configuration.transformationSpace
 

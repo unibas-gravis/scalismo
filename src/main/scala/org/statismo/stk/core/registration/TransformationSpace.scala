@@ -12,18 +12,6 @@ import org.statismo.stk.core.geometry.Vector2D
 import org.statismo.stk.core.geometry.Vector1D
 
 
-trait ValueCaching[D <: Dim] extends (Point[D] => Point[D]) {
-
-  val cache = scala.collection.mutable.HashMap.empty[Point[D], Point[D]]
-
-  abstract override def apply(p: Point[D]): Point[D] = {
-    cache.getOrElseUpdate(p, super.apply(p))
-  }
-}
-
-trait TransformationSpaceConfiguration {
-  val withValueCaching: Boolean
-}
 
 
 trait Transformation[D <: Dim] extends (Point[D] => Point[D]) {}

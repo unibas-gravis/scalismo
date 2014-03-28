@@ -8,6 +8,7 @@ import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.stats.distributions.RandBasis
+import org.statismo.stk.core.statisticalmodel.GaussianProcess
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim, +Pt <: Point[D]] {
@@ -34,7 +35,7 @@ case class UniformSampler1D(val domain: BoxedDomain1D, val numberOfPoints: Int) 
 
 }
 
-case class UniformSampler2D(val domain: BoxedDomain2D, val numberOfPoints: Int) extends Sampler[TwoD, Point2D] {
+case class UniformSampler2D(val domain: BoxedDomain[TwoD], val numberOfPoints: Int) extends Sampler[TwoD, Point2D] {
 
   val p = 1.0 / domain.volume
   def volumeOfSampleRegion = domain.volume
@@ -128,6 +129,30 @@ case class RandomMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
   }
+}
+
+case class PointsWithLikelyCorrespondenceSampler(gp : GaussianProcess[ThreeD], refmesh: TriangleMesh, targetMesh : TriangleMesh, maxMd : Double) extends Sampler[ThreeD, Point[ThreeD]] {
+
+//  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
+  val meanPts = refmesh.points.map {x: Point[ThreeD] => x + gp.mean(x)}
+  val ptsWithDist = refmesh.points.zipWithIndex.par
+    .map {case (refPt, refPtId)  => {
+    val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts(refPtId))
+    (refPt, gp.marginal(refPt).mahalanobisDistance((closestTgtPt - refPt).toBreezeVector))
+  }
+
+  }
+
+  val pts = ptsWithDist
+    .filter{ case (refPt, dist) => dist <  maxMd }
+    .map{case (refPt, dist)=> (refPt, 1.0)}
+    .map{case (refPt, dist)=> (refPt, 1.0)}
+    .toIndexedSeq
+
+  override val volumeOfSampleRegion = 1.0
+  override val numberOfPoints = pts.size
+  override def sample = { println(s"Sampled: $numberOfPoints"); pts }
+
 }
 
 case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
