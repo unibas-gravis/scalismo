@@ -90,8 +90,8 @@ object DistanceTransform {
     // transform rows 
     for (i <- (0 until newPixelMat.rows).par) {
       val row = newPixelMat(i, ::)
-      val trow = FelzenszwalbHuttenlocherDT1(row.toDenseVector.toArray)
-      newPixelMat(i, ::) := DenseVector(trow.toArray)
+      val trow = FelzenszwalbHuttenlocherDT1(row.t.toDenseVector.toArray)
+      newPixelMat(i, ::) := DenseVector(trow.toArray).t
     }
 
     // transform cols 
