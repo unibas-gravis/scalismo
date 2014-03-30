@@ -1,7 +1,6 @@
 package org.statismo.stk.core
 package utils
 
-import breeze.plot._
 import breeze.linalg._
 import vtk._
 import scala.swing.SimpleSwingApplication
@@ -552,16 +551,16 @@ object Visualization {
     }
   }
 
-  def show[D <: Dim, Pixel: ScalarValue](img: DiscreteScalarImage1D[Pixel]): Unit = {
-    val pixelConv = implicitly[ScalarValue[Pixel]]
-    val xs = img.domain.points.map(_(0).toDouble)
-
-    val f = Figure()
-    val p = f.subplot(0)
-
-    p += plot(xs, img.values.map(pixelConv.toDouble(_)), '+')
-
-  }
+//  def show[D <: Dim, Pixel: ScalarValue](img: DiscreteScalarImage1D[Pixel]): Unit = {
+//    val pixelConv = implicitly[ScalarValue[Pixel]]
+//    val xs = img.domain.points.map(_(0).toDouble)
+//
+//    val f = Figure()
+//    val p = f.subplot(0)
+//
+//    p += plot(xs, img.values.map(pixelConv.toDouble(_)), '+')
+//
+//  }
 
   def show[Pixel: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage2D[Pixel]) {
     val imgVTK = ImageConversion.image2DTovtkStructuredPoints(img)
@@ -576,17 +575,17 @@ object Visualization {
 
   }
 
-  def show(img: ContinuousScalarImage1D, domain: BoxedDomain1D, outsideValue: Double): Unit = {
-
-    val xs = linspace(domain.origin(0), domain.extent(0), 512)
-    val f = Figure()
-    val p = f.subplot(0)
-
-    val liftedImg = (x: Double) => img.liftPixelValue(Point1D(x.toFloat)).getOrElse(outsideValue.toFloat).toDouble
-    p += plot(xs, xs.map(x => liftedImg(x)))
-    f.refresh
-    f.visible = true
-  }
+//  def show(img: ContinuousScalarImage1D, domain: BoxedDomain1D, outsideValue: Double): Unit = {
+//
+//    val xs = linspace(domain.origin(0), domain.extent(0), 512)
+//    val f = Figure()
+//    val p = f.subplot(0)
+//
+//    val liftedImg = (x: Double) => img.liftPixelValue(Point1D(x.toFloat)).getOrElse(outsideValue.toFloat).toDouble
+//    p += plot(xs, xs.map(x => liftedImg(x)))
+//    f.refresh
+//    f.visible = true
+//  }
 
   def show(img: ContinuousScalarImage2D, domain: BoxedDomain2D, outsideValue: Double): Unit = {
     val spacing = (domain.extent - domain.origin) * (1.0 / 512.0).toFloat

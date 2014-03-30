@@ -1,7 +1,6 @@
 package org.statismo.stk.core.image
 
 import scala.language.implicitConversions
-import breeze.plot._
 import breeze.linalg._
 import scala.util._
 import java.io.IOException

@@ -9,6 +9,7 @@ import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.stats.distributions.RandBasis
 import org.statismo.stk.core.statisticalmodel.GaussianProcess
+import org.apache.commons.math3.random.MersenneTwister
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim, +Pt <: Point[D]] {
@@ -124,8 +125,9 @@ case class RandomMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed
   val volumeOfSampleRegion = mesh.area
   def sample = {
     val points = mesh.points.force
-    val m = new breeze.stats.random.MersenneTwister(seed = seed)
-    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.numberOfPoints)(new RandBasis(m))
+    val mt = new MersenneTwister()
+    mt.setSeed(seed)
+    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.numberOfPoints)(new RandBasis(mt))
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
   }

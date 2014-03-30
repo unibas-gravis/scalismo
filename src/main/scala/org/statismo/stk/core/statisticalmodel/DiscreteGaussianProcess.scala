@@ -132,7 +132,7 @@ object DiscreteGaussianProcess {
     new DiscreteGaussianProcess[ThreeD](configuration.domain, mean, configuration.points, landmarkCov)
   }
 
-
+  // TODO this is pretty much the same code as the landmark kernel! refactor?
   private def createLandmarkMean[D <: Dim: DimTraits](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
 
     val dimTraits = implicitly[DimTraits[D]]
@@ -149,7 +149,7 @@ object DiscreteGaussianProcess {
 
     val noise = breeze.linalg.diag(DenseVector(sigma2s.map(x => List.fill(dim)(x)).flatten.toArray))
 
-    val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,kernel) + noise.map(_.toFloat))
+    val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,kernel).map(_.toDouble) + noise)
 
     def f(x: Point[D]) : Vector[D] = {
       val kstar = Kernel.computeKernelVectorFor[D](x,xs,kernel)

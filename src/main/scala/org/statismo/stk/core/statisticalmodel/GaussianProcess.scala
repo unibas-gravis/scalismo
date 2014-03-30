@@ -211,7 +211,10 @@ object GaussianProcess {
       // but in parallel
       val eigenMatrix_p = DenseMatrix.zeros[Float](gp.eigenMatrix.rows, innerU.cols)
       for (rowInd <- (0 until gp.eigenMatrix.rows).par) {
-        eigenMatrix_p(rowInd, ::) := gp.eigenMatrix(rowInd, ::) * innerU
+
+        // TODO maybe this strange transposing can be alleviated? It seems breeze does not support
+        // row-vector matrix multiplication
+        eigenMatrix_p(rowInd, ::) := (innerU.t * gp.eigenMatrix(rowInd, ::).t).t
       }
 
       new SpecializedLowRankGaussianProcess(unspecializedGP, gp.points, mean_pVector, lambdas_p, eigenMatrix_p)

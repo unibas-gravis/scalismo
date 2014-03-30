@@ -43,16 +43,15 @@ object Resolvers {
   val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   val twitter = "twitter" at "http://maven.twttr.com/"
   val statismoSnapshot = "statismo" at "http://statismo.cs.unibas.ch/repository"
-
   val stkResolvers = Seq(statismoSnapshot, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
 }
 
 object Dependencies {
   import BuildSettings.buildScalaVersion
-
+  val commonsio = "org.apache.commons" % "commons-io" % "1.3.2"
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze-math" % "0.4"
-  val breezeViz = "org.scalanlp" %% "breeze-viz" % "0.4"
+  val breezeMath = "org.scalanlp" % "breeze_2.10" % "0.7"
+  val breezeNative = "org.scalanlp" % "breeze-natives_2.10" % "0.7"
   val scalaReflect = "org.scala-lang" % "scala-reflect" % buildScalaVersion
   val scalaSwing = "org.scala-lang" % "scala-swing" % buildScalaVersion
   val twitterUtilCollection = "com.twitter" % "util-collection" % "5.3.10"
@@ -69,10 +68,11 @@ object STKBuild extends Build {
   val commonDeps = Seq(
     scalatest,
     breezeMath,
-    breezeViz,
+    breezeNative,
     scalaReflect,
     scalaSwing,
-    statismoNativelibs)
+    statismoNativelibs,
+    commonsio)
 
   lazy val cdap2 = Project(
     "stkcore",

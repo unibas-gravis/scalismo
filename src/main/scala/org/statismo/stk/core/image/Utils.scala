@@ -1,21 +1,6 @@
 package org.statismo.stk.core
 package image
 
-import breeze.plot._
-import breeze.linalg._
-import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.common.BoxedDomain
-import org.statismo.stk.core.common.BoxedDomain2D
-import org.statismo.stk.core.numerics.Integrator
-import org.statismo.stk.core.common.BoxedDomain1D
-import org.statismo.stk.core.io.ImageIO
-import org.statismo.stk.core.io.MeshIO
-import java.awt.BorderLayout
-import javax.swing.JPanel
-import swing._
-import org.statismo.stk.core.mesh.TriangleMesh
-import org.statismo.stk.core.mesh.TriangleMesh
-import org.statismo.stk.core.geometry._
 
 object Utils {
 
