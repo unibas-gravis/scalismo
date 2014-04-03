@@ -17,6 +17,9 @@ import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.common.ImplicitDomain
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.CanDifferentiate
+import org.statismo.stk.core.numerics.IntegratorConfiguration
+import org.statismo.stk.core.numerics.UniformSampler2D
+import org.statismo.stk.core.common.BoxedDomain2D
 
 /**
  * The generic interface for continuous images
@@ -194,7 +197,7 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
 
   override val pixelDimensionality = 1
 
-  def convolve(filter: Filter[TwoD], integrator: Integrator[TwoD]): ContinuousScalarImage2D = {
+  def convolve(filter: Filter[TwoD]): ContinuousScalarImage2D = {
 
     def f(x: Point[TwoD]) = {
 
@@ -202,6 +205,9 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
         val p = Point2D(x(0) - t(0), x(1) - t(1))
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
+
+      val support = BoxedDomain2D(x + Vector2D(-2, -2), x + Vector2D(2, 2))
+      val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(support, 500)))
 
       val intermediateContinuousImage = ContinuousScalarImage2D(this.domain, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -220,6 +226,10 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
             else Vector2D(0, 0)
 
           }
+
+          val support = BoxedDomain2D(x + Vector2D(-2, -2), x + Vector2D(2, 2))
+          val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(support, 500)))
+
           val intermediateContinuousImage = ContinuousVectorImage2D(this.domain, 2, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
         })
