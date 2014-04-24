@@ -17,6 +17,13 @@ import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.common.ImplicitDomain
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.CanDifferentiate
+import org.statismo.stk.core.numerics.IntegratorConfiguration
+import org.statismo.stk.core.numerics.UniformSampler2D
+import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.numerics.UniformSampler1D
+import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.numerics.UniformSampler3D
+import org.statismo.stk.core.common.BoxedDomain3D
 
 /**
  * The generic interface for continuous images
@@ -151,14 +158,17 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
   override val pixelDimensionality = 1
   def newConcreteImageRepr(domain: Domain[OneD], f: Point[OneD] => Float, df: Option[Point[OneD] => Vector[OneD]]): ContinuousScalarImage1D = ContinuousScalarImage1D(domain, f, df)
 
-  def convolve(filter: Filter[OneD], integrator: Integrator[OneD]): ContinuousScalarImage1D = {
+  def convolve(filter: Filter[OneD],  numberOfPoints:Int): ContinuousScalarImage1D = {
     def convolvedImgFun(x: Point[OneD]) = {
 
-      // f(x) = Int (Img(x-t)*G(t) dt
       def intermediateF(t: Point[OneD]): Float = {
         val p = Point1D(x(0) - t(0))
+    
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
+
+      val support = filter.support
+      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain1D], numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage1D(this.domain, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -176,6 +186,10 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
             else Vector1D(0)
 
           }
+
+          val support = filter.support
+          val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain1D], 9)))
+
           val intermediateContinuousImage = ContinuousVectorImage1D(this.domain, pixelDimensionality, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
         })
@@ -194,7 +208,7 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
 
   override val pixelDimensionality = 1
 
-  def convolve(filter: Filter[TwoD], integrator: Integrator[TwoD]): ContinuousScalarImage2D = {
+  def convolve(filter: Filter[TwoD], numberOfPoints:Int): ContinuousScalarImage2D = {
 
     def f(x: Point[TwoD]) = {
 
@@ -202,6 +216,9 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
         val p = Point2D(x(0) - t(0), x(1) - t(1))
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
+
+      val support = filter.support
+      val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(support, numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage2D(this.domain, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -220,6 +237,10 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
             else Vector2D(0, 0)
 
           }
+
+          val support = filter.support
+          val integrator = Integrator[TwoD](IntegratorConfiguration(UniformSampler2D(support, numberOfPoints)))
+
           val intermediateContinuousImage = ContinuousVectorImage2D(this.domain, 2, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
         })
@@ -239,7 +260,7 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
 
   override val pixelDimensionality = 1
 
-  def convolve(filter: Filter[ThreeD], integrator: Integrator[ThreeD]): ContinuousScalarImage3D = {
+  def convolve(filter: Filter[ThreeD], numberOfPoints : Int): ContinuousScalarImage3D = {
 
     def f(x: Point[ThreeD]) = {
 
@@ -247,6 +268,10 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
         val p = Point3D(x(0) - t(0), x(1) - t(1), x(2) - t(2))
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
+
+      val support = filter.support
+
+      val integrator = Integrator[ThreeD](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain3D], numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage3D(this.domain, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -265,6 +290,9 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
             else Vector3D(0, 0, 0)
 
           }
+          val support = filter.support
+          val integrator = Integrator[ThreeD](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain3D], numberOfPoints)))
+
           val intermediateContinuousImage = ContinuousVectorImage3D(this.domain, 3, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
         })
