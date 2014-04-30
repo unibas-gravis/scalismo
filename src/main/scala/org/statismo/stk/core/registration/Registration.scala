@@ -80,7 +80,7 @@ object Registration {
           // compute the derivative of the cost function
           val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
           
-          val metricDerivative = configuration.metric.takeDerivativeWRTToMovingImageAndTransform(movingImage, fixedImage, transformation)
+          val metricDerivative = configuration.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformation)
           // the first derivative (after applying the chain rule) at each point
           val parametricTransformGradient = (x: Point[D]) => metricDerivative(x).map { dM => dTransformSpaceDAlpha(x).t * dM }
           val gradient = integrationStrategy.integrateVector(parametricTransformGradient, params.size)
