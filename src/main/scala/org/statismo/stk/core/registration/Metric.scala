@@ -21,7 +21,7 @@ trait ImageMetric[D <: Dim] {
    * Implmentations of this method should return the full derivations
    * i.e: (d/dMovingImage M(fixed,moving)(x)) * (d/dx(movingImage(transform(x))))
    */
-  def takeDerivativeWRTToMovingImageAndTransform(fixedImage: Repr, movingImage: Repr, transform: Transformation[D]): Point[D] => Option[DenseVector[Float]]
+  def takeDerivativeWRTToTransform(movingImage: Repr, fixedImage: Repr, transform: Transformation[D]): Point[D] => Option[DenseVector[Float]]
 
 }
 
@@ -30,16 +30,16 @@ trait ImageMetric[D <: Dim] {
 abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extends ImageMetric[D] {
   // val configuration : MetricConfiguration
 
-  def apply(movingImage: ContinuousScalarImage[D], fixedImage: ContinuousScalarImage[D], transform: Transformation[D]) = {
-    val warpedImage = movingImage.compose(transform)
-    integrator.integrateScalar((warpedImage - fixedImage).square) / integrator.sampler.volumeOfSampleRegion
+  def apply(fixedImage: ContinuousScalarImage[D], movingImage: ContinuousScalarImage[D], transform: Transformation[D]) = {
+    val warpedImage = fixedImage.compose(transform)
+    integrator.integrateScalar((warpedImage - movingImage).square) / integrator.sampler.volumeOfSampleRegion
   }
 
-  def takeDerivativeWRTToMovingImageAndTransform(movingImage: ContinuousScalarImage[D], fixedImage: ContinuousScalarImage[D], transform: Transformation[D]) = {
-    val movingGradientImage = movingImage.differentiate.get
-   val warpedImage = movingImage.compose(transform)
+  def takeDerivativeWRTToTransform(fixedImage: ContinuousScalarImage[D], movingImage: ContinuousScalarImage[D], transform: Transformation[D]) = {
+    val movingGradientImage = fixedImage.differentiate.get
+   val warpedImage = fixedImage.compose(transform)
     //movingGradientImage(transform(x)).toBreezeVector
-    val dDMovingImage = (warpedImage - fixedImage) * (2f / integrator.sampler.volumeOfSampleRegion)
+    val dDMovingImage = (warpedImage - movingImage) * (2f / integrator.sampler.volumeOfSampleRegion)
 
  
     val fullMetricGradient = (x: Point[D]) => {
