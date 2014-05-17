@@ -58,7 +58,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val gpConf = LowRankGaussianProcessConfiguration(domain, nystromSampler, mu, k, 500)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConf)
 
-      val sampleTransformations = for (i <- (0 until 600).par) yield {
+      val sampleTransformations = for (i <- (0 until 1000).par) yield {
         val sample = gp.sample
         new Transformation[ThreeD] {
           def apply(x: Point[ThreeD]) = x + sample(x)
