@@ -87,17 +87,23 @@ object MeshIO {
 
   def writeVTK[S: ScalarValue: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
-    writeVTKPdasVTK(vtkPd, file)
+    val err = writeVTKPdasVTK(vtkPd, file)
+    vtkPd.Delete()
+    err
   }
 
   def writeVTK(surface: TriangleMesh, file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshToVTKPolyData(surface)
-    writeVTKPdasVTK(vtkPd, file)
+    val err = writeVTKPdasVTK(vtkPd, file)
+    vtkPd.Delete()
+    err
   }
 
   def writeSTL(surface: TriangleMesh, file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshToVTKPolyData(surface)
-    writeVTKPdAsSTL(vtkPd, file)
+    val err = writeVTKPdAsSTL(vtkPd, file)
+    vtkPd.Delete()
+    err
   }
 
 
@@ -113,7 +119,6 @@ object MeshIO {
     } else {
       Success(())
     }
-    vtkPd.Delete
     writer.Delete()
     succOrFailure
   }
@@ -131,7 +136,6 @@ object MeshIO {
     } else {
       Success(())
     }
-    vtkPd.Delete
     writer.Delete()
     succOrFailure
   }
