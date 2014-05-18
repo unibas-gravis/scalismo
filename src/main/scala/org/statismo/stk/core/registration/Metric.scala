@@ -11,34 +11,49 @@ import org.statismo.stk.core.image.DiscreteImageDomain
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.common.BoxedDomain
 
-trait MetricConfiguration 
-
+trait MetricConfiguration
 
 trait ImageMetric[D <: Dim] {
-  type Repr  = ContinuousScalarImage[D]
-  def apply(img1: Repr, img2: Repr) : Double
+  type Repr = ContinuousScalarImage[D]
+  def apply(img1: Repr, img2: Repr, transform: Transformation[D]): Double
 
-  def takeDerivativeWRTToMovingImage(fixedImage: Repr, movingImage: Repr): ContinuousScalarImage[D]
+  /**
+   * Implmentations of this method should return the full derivations
+   * i.e: (d/dMovingImage M(fixed,moving)(x)) * (d/dx(movingImage(transform(x))))
+   */
+  def takeDerivativeWRTToTransform(movingImage: Repr, fixedImage: Repr, transform: Transformation[D]): Point[D] => Option[DenseVector[Float]]
+
 }
-
-
 
 //case class MeanSquaresMetricConfiguration extends MetricConfiguration 
 
-abstract class MeanSquaresMetric[D <: Dim](val integrator : Integrator[D]) extends ImageMetric[D] {
- // val configuration : MetricConfiguration
-  type CImg = ContinuousScalarImage[D]
-  
-  def apply(img1: CImg,  img2: CImg) = {
-   integrator.integrateScalar((img1 - img2).square) / integrator.sampler.volumeOfSampleRegion
+abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extends ImageMetric[D] {
+  // val configuration : MetricConfiguration
+
+  def apply(fixedImage: ContinuousScalarImage[D], movingImage: ContinuousScalarImage[D], transform: Transformation[D]) = {
+    val warpedImage = fixedImage.compose(transform)
+    integrator.integrateScalar((warpedImage - movingImage).square) / integrator.sampler.volumeOfSampleRegion
   }
-  def takeDerivativeWRTToMovingImage(img1: CImg,  img2: CImg) = {
-    (img1 - img2) * (2f  / integrator.sampler.volumeOfSampleRegion)
+
+  def takeDerivativeWRTToTransform(fixedImage: ContinuousScalarImage[D], movingImage: ContinuousScalarImage[D], transform: Transformation[D]) = {
+    val movingGradientImage = fixedImage.differentiate.get
+   val warpedImage = fixedImage.compose(transform)
+    //movingGradientImage(transform(x)).toBreezeVector
+    val dDMovingImage = (warpedImage - movingImage) * (2f / integrator.sampler.volumeOfSampleRegion)
+
+ 
+    val fullMetricGradient = (x: Point[D]) => {
+      val domain = warpedImage.domain.intersection(dDMovingImage.domain)
+      if (domain.isDefinedAt(x))
+        Some(movingGradientImage(transform(x)).toBreezeVector * dDMovingImage(x))
+      else None
+    }
+
+    fullMetricGradient
   }
-  
 }
 
-case class MeanSquaresMetric1D(override val integrator: Integrator[OneD]) extends  MeanSquaresMetric[OneD](integrator)
+case class MeanSquaresMetric1D(override val integrator: Integrator[OneD]) extends MeanSquaresMetric[OneD](integrator)
 case class MeanSquaresMetric2D(override val integrator: Integrator[TwoD]) extends MeanSquaresMetric[TwoD](integrator)
 case class MeanSquaresMetric3D(override val integrator: Integrator[ThreeD]) extends MeanSquaresMetric[ThreeD](integrator)
 

@@ -47,8 +47,8 @@ case class RegistrationConfiguration[D <: Dim](
 
 object Registration {
 
-  case class RegistrationState[D <: Dim](registrationResult : RegistrationResult[D], optimizerState : Optimizer#State)
-  
+  case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
+
   def iterations[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] =
@@ -60,9 +60,8 @@ object Registration {
       val costFunction = new CostFunction {
         def onlyValue(params: ParameterVector): Double = {
           val transformation = transformationSpace(params)
-          val warpedImage = movingImage.compose(transformation)
-
-          configuration.metric(warpedImage, fixedImage) + configuration.regularizationWeight * regularizer(params)
+          
+          configuration.metric(movingImage, fixedImage, transformation) + configuration.regularizationWeight * regularizer(params)
 
         }
         def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
@@ -70,35 +69,21 @@ object Registration {
           // create a new sampler, that simply caches the points and returns the same points in every call
           // this means, we are always using the same samples for computing the integral over the values
           // and the gradient
-
           val sampleStrategy = new SampleOnceSampler(configuration.integrator.sampler)
           val integrationStrategy = Integrator[D](IntegratorConfiguration(sampleStrategy))
 
           // compute the value of the cost function
           val transformation = transformationSpace(params)
-          val warpedImage = movingImage.compose(transformation)
-
-          val errorVal = configuration.metric(warpedImage, fixedImage)
+          val errorVal = configuration.metric(movingImage, fixedImage, transformation)         
           val value = errorVal + configuration.regularizationWeight * regularizer(params)
 
           // compute the derivative of the cost function
-
-          val dMetricDalpha = configuration.metric.takeDerivativeWRTToMovingImage(warpedImage, fixedImage)
           val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
-          //TODO add reg val dRegularizationParam : DenseVector[Float] = regularization.differentiate              
-
-          val movingGradientImage = movingImage.differentiate.get // TODO do proper error handling when image is not differentiable  
-
+          
+          val metricDerivative = configuration.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformation)
           // the first derivative (after applying the chain rule) at each point
-          val parametricTransformGradient = (x: Point[D]) => {
-            val domain = warpedImage.domain.intersection(dMetricDalpha.domain)
-            if (domain.isDefinedAt(x))
-              Some(dTransformSpaceDAlpha(x).t * movingGradientImage(transformation(x)).toBreezeVector * dMetricDalpha(x))
-            else None
-          }
-
+          val parametricTransformGradient = (x: Point[D]) => metricDerivative(x).map { dM => dTransformSpaceDAlpha(x).t * dM }
           val gradient = integrationStrategy.integrateVector(parametricTransformGradient, params.size)
-
           val dR = regularizer.takeDerivative(params)
 
           (value.toFloat, gradient + dR * configuration.regularizationWeight.toFloat)
@@ -119,8 +104,8 @@ object Registration {
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): RegistrationResult[D] =
     {
-        val regStates = iterations(configuration)(fixedImage, movingImage)
-        regStates.toSeq.last.registrationResult      
+      val regStates = iterations(configuration)(fixedImage, movingImage)
+      regStates.toSeq.last.registrationResult
     }
 
 }
