@@ -2,7 +2,7 @@ package org.statismo.stk.core.statisticalmodel
 
 
 import scala.language.implicitConversions
-import org.statismo.stk.core.io.MeshIO
+import org.statismo.stk.core.io.{StatismoIO, MeshIO}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.implicits._
@@ -11,6 +11,7 @@ import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.numerics.UniformSampler3D
+import org.statismo.stk.core.registration.RigidTransformationSpace3D
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
@@ -64,6 +65,15 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         }
 
       }
+
+    }
+
+    it ("yields the same mean and deformations when transformed with a rigid transformation") {
+      org.statismo.stk.core.initialize()
+      val path = getClass().getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val rigidTransform = RigidTransformationSpace3D()
+
 
     }
   }
