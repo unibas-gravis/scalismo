@@ -44,7 +44,7 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
     }
 
   //verify that there all points belong to a cell
-  require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
+  //require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
 
 
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
