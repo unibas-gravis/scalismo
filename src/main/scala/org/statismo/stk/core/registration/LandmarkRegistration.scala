@@ -2,7 +2,8 @@ package org.statismo.stk.core
 package registration
 
 import registration.TransformationSpace.{ ParameterVector }
-import breeze.linalg.{ svd, DenseVector, DenseMatrix, mean, variance, Axis }
+import breeze.linalg.{ svd, DenseVector, DenseMatrix, Axis }
+import breeze.stats.{mean, variance}
 import org.statismo.stk.core.geometry._
 import breeze.linalg.diag
 import breeze.linalg._
@@ -104,12 +105,12 @@ object LandmarkRegistration {
     val Y = DenseMatrix.zeros[Double](n, dimensionality)
 
     for (((x, y), i) <- landmarks.zipWithIndex) {
-      X(i, ::) := DenseVector(x.data.map(_.toDouble))
-      Y(i, ::) := DenseVector(y.data.map(_.toDouble))
+      X(i, ::) := DenseVector(x.data.map(_.toDouble)).t
+      Y(i, ::) := DenseVector(y.data.map(_.toDouble)).t
     }
 
     val mu_x = mean(X.t, Axis._1)
-    val sigma2_x = (0 until n).map(i => (X(i, ::).toDenseVector - mu_x) dot (X(i, ::).toDenseVector - mu_x)).reduce(_ + _) / n
+    val sigma2_x = (0 until n).map(i => (X(i, ::).t - mu_x) dot (X(i, ::).t - mu_x)).reduce(_ + _) / n
 
     val mu_y = mean(Y.t, Axis._1)
     val Sigma_xy = (Y.t - (mu_y * DenseVector.ones[Double](n).t)) * (X.t - mu_x * DenseVector.ones[Double](n).t).t

@@ -2,11 +2,9 @@ package org.statismo.stk.core.geometry
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import implicits._
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
 import scala.language.implicitConversions
-import breeze.linalg.LinearAlgebra
 
 class GeometryTests extends FunSpec with ShouldMatchers {
 

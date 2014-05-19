@@ -11,8 +11,6 @@ import geometry._
 import geometry.implicits._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
-import breeze.plot.Figure
-import breeze.plot._
 import org.statismo.stk.core.io.ImageIO
 import org.statismo.stk.core.image.Interpolation
 import org.statismo.stk.core.image.{ DiscreteImageDomain1D, ContinuousScalarImage3D, DiscreteImageDomain3D }

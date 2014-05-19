@@ -4,11 +4,7 @@ import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.image.Interpolation._
-import org.scalatest.Ignore
-import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.implicits._
-import breeze.plot.Figure
-import breeze.plot._
 import org.scalatest.PrivateMethodTester
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.io.ImageIO

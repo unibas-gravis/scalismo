@@ -6,10 +6,10 @@ import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.mesh.kdtree.KDTreeMap
-import breeze.linalg.{Axis, DenseVector, DenseMatrix}
+import breeze.linalg.{*, Axis, DenseVector, DenseMatrix}
 import scala.Some
 import breeze.stats.distributions.Gaussian
-
+import breeze.stats.mean
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
                                                           val domain: Domain[D],
@@ -148,22 +148,7 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
   def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
     require(eigenPairs.size == alpha.size)
 
-    // the following code corrresponds to the breeze code:
-    //eigenMatrix * (stddev :* alpha) + meanVector
-    // but is much more efficient (and parallel)
-
-    val q = stddev :* alpha
-    val instance = DenseVector.zeros[Float](meanVector.size)
-    for (i <- (0 until instance.size).par) {
-      var j = 0;
-      while (j < alpha.size) {
-        instance(i) += eigenMatrix(i, j) * q(j)
-        j += 1
-      }
-      instance(i) += meanVector(i)
-    }
-    instance
-
+    eigenMatrix * (stddev :* alpha) + meanVector
   }
 
   def sampleAtPoints: IndexedSeq[(Point[D], Vector[D])] = {
@@ -322,16 +307,16 @@ object LowRankGaussianProcess {
     val X = DenseMatrix.zeros[Float](n, p * dim)
     for ((t, i) <- transformations.zipWithIndex.par; (x, j) <- samplePts.zipWithIndex) {
       val ux = t(x) - x
-      X(i, j * dim until (j + 1) * dim) := ux.toBreezeVector
+      X(i, j * dim until (j + 1) * dim) := ux.toBreezeVector.t
     }
 
     def demean(X: DenseMatrix[Float]): (DenseMatrix[Double], DenseVector[Double]) = {
       val X0 = X.map(_.toDouble) // will be the demeaned result matrix
-      val m = breeze.linalg.mean(X0, Axis._0)
+      val m : DenseVector[Double] = mean(X0(::, *)).toDenseVector
       for (i <- 0 until X0.rows) {
-        X0(i, ::) := X0(i, ::) - m
+        X0(i, ::) := X0(i, ::) - m.t
       }
-      (X0, m.toDenseVector)
+      (X0, m)
     }
 
     val (x0, meanVec) = demean(X)

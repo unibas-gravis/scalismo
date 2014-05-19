@@ -1,15 +1,9 @@
 package org.statismo.stk.core
 package kernels
 
-import breeze.linalg.{ pinv, diag, DenseMatrix }
-import org.statismo.stk.core.image.DiscreteImageDomain1D
-import breeze.linalg.DenseVector
+import breeze.linalg.{DenseVector, pinv, diag, DenseMatrix}
 import org.statismo.stk.core.numerics.RandomSVD
-import org.statismo.stk.core.image.DiscreteImageDomain
-import breeze.plot.Figure
 import org.statismo.stk.core.numerics.Sampler
-import org.statismo.stk.core.common.DiscreteDomain
-import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.registration.Transformation
@@ -77,6 +71,8 @@ case class UncorrelatedKernel3x3(k: PDKernel[ThreeD]) extends MatrixValuedPDKern
   def apply(x: Point[ThreeD], y: Point[ThreeD]) = I * (k(x, y)) // k is scalar valued
 }
 
+// TODO maybe this should be called posterior or conditional kernel
+// TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
 case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
   
 
@@ -87,14 +83,14 @@ case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], tra
 
   val (xs, ys, sigma2s) = trainingData.unzip3
 
-  val noise = breeze.linalg.diag(DenseVector(sigma2s.map(x => List.fill(dim)(x)).flatten.toArray))
+  val noise : DenseMatrix[Double] = breeze.linalg.diag(DenseVector(sigma2s.map(sigma => List.fill(dim)(sigma)).flatten.toArray))
 
-  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k) + noise.map(_.toFloat))
+  val K_inv : DenseMatrix[Double] = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k).map(_.toDouble) + noise)
 
   def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - dimTraits.createMatrixNxN( ((xstar(x) * K_inv) * xstar(y).t).data.map(_.toFloat) )
+    k(x,y) - dimTraits.createMatrixNxN( ((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat) )
 
   }
                             
@@ -106,6 +102,7 @@ case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], tra
 
 }
 
+// TODO this duplicate should not be there
 case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
 
@@ -118,7 +115,7 @@ case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimTraits](k: MatrixValued
 
   val noise = breeze.linalg.diag(DenseVector(sigma2s.map(x => List.fill(dim)(x)).flatten.toArray))
 
-  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k) + noise.map(_.toFloat))
+  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k).map(_.toDouble) + noise)
 
   def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
 

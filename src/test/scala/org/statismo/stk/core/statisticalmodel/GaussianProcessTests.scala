@@ -75,7 +75,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
     it("keeps the landmark points fixed for a 3D case") {
       val domain = BoxedDomain3D((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 8 * 8 * 8), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
+      val config = LowRankGaussianProcessConfiguration[ThreeD](domain, UniformSampler3D(domain, 6 * 6 * 6), _ => Vector3D(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 50)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(config)
 
       val trainingData = IndexedSeq((Point3D(-3.0, -3.0, -1.0), Vector3D(1.0, 1.0, 2.0)), (Point3D(-1.0, 3.0, 0.0), Vector3D(0.0, -1.0, 0.0)))
