@@ -1,8 +1,6 @@
 package org.statismo.stk.core.statisticalmodel
 
-import breeze.linalg.DenseVector
-import breeze.linalg.DenseMatrix
-import breeze.linalg.LinearAlgebra
+import breeze.linalg.{det, DenseVector, DenseMatrix}
 import org.statismo.stk.core.geometry._
 
 class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: DenseMatrix[Float]) {
@@ -16,7 +14,7 @@ class MultivariateNormalDistribution(val mean: DenseVector[Float], val cov: Dens
 
   //private val covInvFloat = covInv.map(_.toFloat)
   private val (uMat, sigma2s, utMat) = breeze.linalg.svd(covDouble)
-  val covDet = LinearAlgebra.det(covDouble)
+  val covDet = det(covDouble)
   val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
   val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
   private val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t

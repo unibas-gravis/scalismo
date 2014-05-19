@@ -16,7 +16,6 @@ import org.statismo.stk.core.mesh.ScalarMeshData
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.reflect.ClassTag
 import org.statismo.stk.core.common.ScalarValue
-import org.apache.commons.io.FilenameUtils
 import scala.util.Failure
 import org.statismo.stk.core.mesh.ScalarMeshData
 import org.statismo.stk.core.geometry.Point3D
