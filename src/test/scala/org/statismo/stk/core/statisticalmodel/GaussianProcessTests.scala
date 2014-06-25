@@ -19,8 +19,6 @@ import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.io.StatismoIO
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.utils.Visualization.VTKViewer
-import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat

@@ -34,7 +34,6 @@ import org.statismo.stk.core.numerics.GradientDescentOptimizer
 import org.statismo.stk.core.numerics.GradientDescentConfiguration
 import org.statismo.stk.core.numerics.GradientDescentOptimizer
 import org.statismo.stk.core.numerics.GradientDescentConfiguration
-import org.statismo.stk.core.utils.Visualization._
 
 class RegistrationTest extends FunSpec with ShouldMatchers {
 

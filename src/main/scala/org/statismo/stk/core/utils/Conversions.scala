@@ -196,32 +196,26 @@ object MeshConversion {
 
   def meshToVTKPolyData(mesh: TriangleMesh, template: Option[vtkPolyData] = None): vtkPolyData = {
 
-    val pd = new vtkPolyData()
+    val pd = new vtkPolyData
 
     template match {
-      case Some(template) => {
+      case Some(tpl) =>
         // copy triangles from template if given; actual points are set unconditionally in code below.
-        pd.ShallowCopy(template)
-      }
-      case None => {
-        val triangleDataArray = mesh.cells.toArray.map(_.pointIds).flatten
-        val cellDataArrayVTK = VTKHelpers.createVtkDataArray(triangleDataArray, 3)
-        val polysVTK = new vtkCellArray
-
+        pd.ShallowCopy(tpl)
+      case None =>
         val triangles = new vtkCellArray
         triangles.SetNumberOfCells(mesh.cells.size)
         triangles.Initialize()
         for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
           val triangle = new vtkTriangle()
 
-          triangle.GetPointIds().SetId(0, cell.ptId1);
-          triangle.GetPointIds().SetId(1, cell.ptId2);
-          triangle.GetPointIds().SetId(2, cell.ptId3);
-          triangles.InsertNextCell(triangle);
+          triangle.GetPointIds().SetId(0, cell.ptId1)
+          triangle.GetPointIds().SetId(1, cell.ptId2)
+          triangle.GetPointIds().SetId(2, cell.ptId3)
+          triangles.InsertNextCell(triangle)
         }
         triangles.Squeeze()
         pd.SetPolys(triangles)
-      }
     }
 
     // set points
