@@ -14,7 +14,6 @@ import org.statismo.stk.core.registration.ScalingSpace3D
 import org.statismo.stk.core.registration.ScalingSpace3D
 import org.statismo.stk.core.registration.RotationSpace3D
 import org.statismo.stk.core.image.Resample
-import org.statismo.stk.core.utils.Visualization
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.io.ImageIO
 import org.statismo.stk.core.image.DiscreteImageDomain3D
