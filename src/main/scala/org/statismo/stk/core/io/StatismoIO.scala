@@ -17,7 +17,6 @@ import ncsa.hdf.`object`.h5._
 import java.util.List
 import java.io.DataOutputStream
 import java.io.FileOutputStream
-import org.statismo.stk.core.utils.Visualization.VTKStatmodelViewer
 import ncsa.hdf.`object`.h5.H5Group
 import org.statismo.stk.core.mesh.TriangleMesh
 import java.io.DataInputStream
