@@ -4,7 +4,7 @@ import org.statismo.support.nativelibs._
 
 package object core {
 
-  var initialized = false
+  private var initialized = false
 
   def initialize(): Unit = {
     if (initialized == false) {
