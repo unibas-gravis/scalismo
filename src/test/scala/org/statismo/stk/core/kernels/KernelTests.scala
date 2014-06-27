@@ -49,16 +49,16 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxedDomain3D(Point3D(-5, 1, 3), Point3D(200, 180, 50))
+      val domain = BoxedDomain3D(Point3D(-5, 1, 3), Point3D(100, 80, 50))
 
-      val nystromSampler = UniformSampler3D(domain, 7 * 7 * 7)
+      val nystromSampler = UniformSampler3D(domain, 8 * 8 * 8)
 
       val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
       val mu = (pt: Point[ThreeD]) => Vector3D(1, 10, -5)
       val gpConf = LowRankGaussianProcessConfiguration(domain, nystromSampler, mu, k, 500)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConf)
 
-      val sampleTransformations = for (i <- (0 until 1000).par) yield {
+      val sampleTransformations = for (i <- (0 until 3000).par) yield {
         val sample = gp.sample
         new Transformation[ThreeD] {
           def apply(x: Point[ThreeD]) = x + sample(x)
@@ -67,9 +67,10 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
 
 
-      val testPtSampler = UniformDistributionRandomSampler3D(domain, 50)
+      val testPtSampler = UniformDistributionRandomSampler3D(domain, 1)
       val pts = testPtSampler.sample.map(_._1)
-      
+
+
       val sampleCovKernel = SampleCovarianceKernel3D(sampleTransformations.toIndexedSeq, pts.size)
       
       for (x <- pts.par) {
