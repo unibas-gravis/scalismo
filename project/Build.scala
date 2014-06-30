@@ -43,7 +43,7 @@ object Resolvers {
   private val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   private val twitter = "twitter" at "http://maven.twttr.com/"
   private val statismoPublic = "statismo" at "http://statismo.cs.unibas.ch/repository/public"
-  val stkResolvers = Seq(statismoSnapshot, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
+  val stkResolvers = Seq(statismoPublic, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
 }
 
 object Dependencies {
