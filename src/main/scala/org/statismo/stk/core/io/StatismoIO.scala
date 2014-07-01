@@ -1,6 +1,9 @@
 package org.statismo.stk.core.io
 
 import java.io.File
+import org.statismo.stk.core.io.StatismoIO.StatismoModelType.StatismoModelType
+
+import scala.util
 import scala.util.Try
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
@@ -24,8 +27,62 @@ import java.io.FileInputStream
 import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 
 object StatismoIO {
+  object StatismoModelType extends Enumeration {
+    type StatismoModelType = Value
+    val  Polygon_Mesh, Unknown = Value
 
-  def readStatismoMeshModel(file: File): Try[StatisticalMeshModel] = {
+    def fromString(s : String) : Value = {
+      s match {
+        case "POLYGON_MESH_MODEL" => Polygon_Mesh
+        case _ => Unknown
+      }
+    }
+  }
+
+  type ModelCatalog = Seq[CatalogEntry]
+
+  case class CatalogEntry(val name : String, val modelType : StatismoModelType, val modelPath : String)
+
+
+  /**
+   * List all models that are stored in the given hdf5 file.
+   */
+  def readModelCatalog(file : File) : Try[ModelCatalog] = {
+    import scala.collection.JavaConverters._
+    val filename = file.getAbsoluteFile
+
+    def flatten[A](xs: Seq[Try[A]]) : Try[Seq[A]] = Try(xs.map(_.get))
+
+    for {
+      h5file <- HDF5Utils.openFileForReading(file)
+      catalogGroup <- h5file.getGroup("/catalog")
+      modelEntries = for (entryGroupObj <- catalogGroup.getMemberList().asScala.toSeq if (entryGroupObj.isInstanceOf[Group])) yield {
+        val entryGroup = entryGroupObj.asInstanceOf[Group]
+        readCatalogEntry(h5file, entryGroup)
+      }
+      modelCatalog <- flatten(modelEntries)
+    } yield {
+      modelCatalog
+    }
+  }
+
+  private def readCatalogEntry(h5file : HDF5File, entryGroup : Group) : Try[CatalogEntry] = {
+    val name = entryGroup.getName()
+    for {
+      location <- h5file.readString(entryGroup.getFullName() + "/modelPath")
+      modelType <- h5file.readString(entryGroup.getFullName() + "/modelType")
+    } yield {
+      CatalogEntry(name, StatismoModelType.fromString(modelType), location)
+    }
+  }
+
+  /**
+   * Reads a statistical mesh model from a statismo file
+   * @param file The statismo file
+   * @param modelPath a path in the hdf5 file where the model is stored
+   * @return
+   */
+  def readStatismoMeshModel(file: File, modelPath : String = "/"): Try[StatisticalMeshModel] = {
     val filename = file.getAbsolutePath()
 
     def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
@@ -48,23 +105,23 @@ object StatismoIO {
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
 
-      representerName <- h5file.readStringAttribute("/representer/", "name")
+      representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
       // read mesh according to type given in representer
       mesh <- representerName match {
-        case "vtkPolyDataRepresenter" => readVTKMeshFromRepresenterGroup(h5file)
-        case "itkMeshRepresenter" => readVTKMeshFromRepresenterGroup(h5file)
+        case "vtkPolyDataRepresenter" => readVTKMeshFromRepresenterGroup(h5file, modelPath)
+        case "itkMeshRepresenter" => readVTKMeshFromRepresenterGroup(h5file, modelPath)
         case _ => {
-          h5file.readStringAttribute("/representer/", "datasetType") match {
-            case Success("POLYGON_MESH") => readStandardMeshFromRepresenterGroup(h5file)
+          h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
+            case Success("POLYGON_MESH") => readStandardMeshFromRepresenterGroup(h5file, modelPath)
             case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
             case Failure(t) => Failure(t)
           }
         }
       }
 
-      meanArray <- h5file.readNDArray[Float]("/model/mean")
+      meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
       meanVector = DenseVector(meanArray.data)
-      pcaBasisArray <- h5file.readNDArray[Float]("/model/pcaBasis")
+      pcaBasisArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaBasis")
       majorVersion <-
         if (h5file.exists("/version/majorVersion") ) h5file.readInt("/version/majorVersion")
         else {
@@ -77,7 +134,7 @@ object StatismoIO {
           if (representerName == "vtkPolyDataRepresenter" || representerName == "itkMeshRepresenter") Success(8)
           else Failure(new Throwable(s"no entry /version/minorVersion provided in statismo file." ))
         }
-      pcaVarianceArray <- h5file.readNDArray[Float]("/model/pcaVariance")
+      pcaVarianceArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaVariance")
       pcaVarianceVector = DenseVector(pcaVarianceArray.data)
       pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
       pcaBasis <- (majorVersion, minorVersion) match {
@@ -110,7 +167,7 @@ object StatismoIO {
 
   import StatismoVersion._
 
-  def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, statismoVersion: StatismoVersion = v090): Try[Unit] = {
+  def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath : String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val discretizedMean = model.mesh.points.map(p => p + model.gp.mean(p)).toIndexedSeq.flatten(_.data)
     val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
@@ -131,15 +188,15 @@ object StatismoIO {
 
     val maybeError = for {
       h5file <- HDF5Utils.createFile(file)
-      _ <- h5file.writeArray("/model/mean", discretizedMean.toArray)
-      _ <- h5file.writeArray("/model/noiseVariance", Array(0f))
-      _ <- h5file.writeNDArray("/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols), pcaBasis.t.flatten(false).toArray))
-      _ <- h5file.writeArray("/model/pcaVariance", pcaVariance.toArray)
-      _ <- h5file.writeString("/modelinfo/build-time", Calendar.getInstance.getTime.toString)
-      group <- h5file.createGroup("/representer")
+      _ <- h5file.writeArray(s"$modelPath/model/mean", discretizedMean.toArray)
+      _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
+      _ <- h5file.writeNDArray(s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols), pcaBasis.t.flatten(false).toArray))
+      _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", pcaVariance.toArray)
+      _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
+      group <- h5file.createGroup(s"$modelPath/representer")
       _ <- if (statismoVersion == v090) {
         for {
-          _ <- writeRepresenterStatismov090(h5file, group, model)
+          _ <- writeRepresenterStatismov090(h5file, group, model, modelPath)
           _ <- h5file.writeInt("/version/majorVersion", 0)
           _ <- h5file.writeInt("/version/minorVersion", 9)
 
@@ -148,16 +205,16 @@ object StatismoIO {
         else
         {
           for {
-          _ <- writeRepresenterStatismov081(h5file, group, model)
+          _ <- writeRepresenterStatismov081(h5file, group, model, modelPath)
           _ <- h5file.writeInt("/version/majorVersion", 0)
           _ <- h5file.writeInt("/version/minorVersion", 8)
           }
             yield (Success(()))
         }
-        _ <- h5file.writeString("/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
-        _ <- h5file.writeString("/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
-        _ <- h5file.createGroup("/modelinfo/modelBuilder-0/parameters")
-        _ <- h5file.createGroup("/modelinfo/modelBuilder-0/dataInfo")
+        _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
+        _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
+        _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/parameters")
+        _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/dataInfo")
         _ <- Try {
           h5file.close()
         }
@@ -168,7 +225,7 @@ object StatismoIO {
     maybeError
   }
 
-  private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel): Try[Unit] = {
+  private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
     val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
     val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
@@ -180,13 +237,13 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
-      _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float]("/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
     } yield Success(())
   }
 
 
-  private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel): Try[Unit] = {
+  private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath : String): Try[Unit] = {
 
     // we simply store the reference into a vtk file and store the file (the binary data) into the representer
 
@@ -212,7 +269,7 @@ object StatismoIO {
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkMeshRepresenter")
       ba <- refAsByteArray(model.mesh)
-      _ <- h5file.writeNDArray[Byte]("/representer/reference", NDArray(Vector(ba.length, 1), ba))
+      _ <- h5file.writeNDArray[Byte](s"$modelPath/representer/reference", NDArray(Vector(ba.length, 1), ba))
     } yield Success(())
 
   }
@@ -236,32 +293,32 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
-  private def readStandardMeshFromRepresenterGroup(h5file: HDF5File): Try[TriangleMesh] = {
+  private def readStandardMeshFromRepresenterGroup(h5file: HDF5File, modelPath : String): Try[TriangleMesh] = {
     for {
-      vertArray <- h5file.readNDArray[Float]("/representer/points").flatMap(vertArray =>
+      vertArray <- h5file.readNDArray[Float](s"$modelPath/representer/points").flatMap(vertArray =>
         if (vertArray.dims(0) != 3)
           Failure(new Exception("the representer points are not 3D points"))
         else
           Success(vertArray))
       vertMat = ndArrayToMatrix(vertArray)
       points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
-      cellArray <- h5file.readNDArray[Int]("/representer/cells").flatMap(cellArray =>
+      cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells").flatMap(cellArray =>
         if (cellArray.dims(0) != 3)
           Failure(new Exception("the representer cells are not triangles"))
         else
           Success(cellArray))
       cellMat = ndArrayToMatrix(cellArray)
       cells = for (i <- 0 until cellMat.cols) yield (TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i)))
-      cellArray <- h5file.readNDArray[Int]("/representer/cells")
+      cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells")
     } yield TriangleMesh(points, cells)
   }
 
   /*
    * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
    */
-  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File): Try[TriangleMesh] = {
+  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File, modelPath : String): Try[TriangleMesh] = {
     for {
-      rawdata <- h5file.readNDArray[Byte]("/representer/reference")
+      rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)
       triangleMesh <- MeshIO.readMesh(vtkFile)
     } yield triangleMesh
