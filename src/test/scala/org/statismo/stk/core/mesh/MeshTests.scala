@@ -3,7 +3,6 @@ package org.statismo.stk.core.mesh
 import scala.language.implicitConversions
 import org.statismo.stk.core.io.MeshIO
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers

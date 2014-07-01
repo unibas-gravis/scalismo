@@ -2,12 +2,8 @@ package org.statismo.stk.core.registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.image.DiscreteImageDomain1D
 import org.statismo.stk.core.image.ContinuousScalarImage1D
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
-import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.Metric._
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.numerics.IntegratorConfiguration
 import org.statismo.stk.core.numerics.UniformSampler1D

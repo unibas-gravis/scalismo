@@ -2,7 +2,6 @@ package org.statismo.stk.core.kernels
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.geometry.implicits._
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.geometry.{ Point, ThreeD, MatrixNxN }
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, DiscreteGaussianProcess, LowRankGaussianProcessConfiguration}

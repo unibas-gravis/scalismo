@@ -11,7 +11,6 @@ import org.statismo.stk.core.io.ImageIO
 import breeze.linalg.DenseVector
 
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
 
 import org.statismo.stk.core.image.Utils
 import org.statismo.stk.core.io.MeshIO

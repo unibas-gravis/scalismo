@@ -180,8 +180,8 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
-      _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float]("/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
+      _ <- h5file.writeNDArray[Int]("/representer/cells", NDArray(IndexedSeq(3, model.mesh.cells.size), cellArray.toArray))
+      _ <- h5file.writeNDArray[Float]("/representer/points", NDArray(IndexedSeq(3, model.mesh.points.size), pointArray.toArray))
     } yield Success(())
   }
 
@@ -212,7 +212,7 @@ object StatismoIO {
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkMeshRepresenter")
       ba <- refAsByteArray(model.mesh)
-      _ <- h5file.writeNDArray[Byte]("/representer/reference", NDArray(Vector(ba.length, 1), ba))
+      _ <- h5file.writeNDArray[Byte]("/representer/reference", NDArray(IndexedSeq(ba.length, 1), ba))
     } yield Success(())
 
   }
