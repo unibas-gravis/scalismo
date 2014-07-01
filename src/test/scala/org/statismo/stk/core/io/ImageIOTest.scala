@@ -5,7 +5,10 @@ import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.image.Interpolation._
 import org.statismo.stk.core.image._
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.geometry.Point._
+import org.statismo.stk.core.geometry.Vector._
+import org.statismo.stk.core.geometry.Index._
+
 import java.io.File
 import scala.util.Success
 import scala.util.Failure

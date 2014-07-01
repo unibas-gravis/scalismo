@@ -8,7 +8,6 @@ import java.io.File
 import java.io.IOException
 import org.statismo.stk.core.image.DiscreteImageDomain2D
 import geometry._
-import geometry.implicits._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.io.ImageIO

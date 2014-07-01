@@ -5,16 +5,8 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
-import org.statismo.stk.core.image.Utils
 import org.statismo.stk.core.image._
-import breeze.linalg.DenseVector
-import org.statismo.stk.core.io.ImageIO
-import java.io.File
 import org.statismo.stk.core.numerics._
-import breeze.stats.distributions.Uniform
-import org.statismo.stk.core.image.ContinuousScalarImage2D
-import breeze.stats.distributions.Uniform
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcessConfiguration}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.common._

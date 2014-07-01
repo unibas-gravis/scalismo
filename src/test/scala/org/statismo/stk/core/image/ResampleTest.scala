@@ -8,7 +8,10 @@ import org.statismo.stk.core.io.ImageIO
 import java.io.File
 import org.statismo.stk.core.registration.RotationSpace2D
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.geometry.Point._
+import org.statismo.stk.core.geometry.Vector._
+import org.statismo.stk.core.geometry.Index._
+
 import breeze.linalg.DenseVector
 
 class ResampleTest extends FunSpec with ShouldMatchers {

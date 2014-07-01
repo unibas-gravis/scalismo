@@ -4,7 +4,10 @@ import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.image.Interpolation._
-import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.geometry.Point._
+import org.statismo.stk.core.geometry.Vector._
+import org.statismo.stk.core.geometry.Index._
+
 import org.scalatest.PrivateMethodTester
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.io.ImageIO

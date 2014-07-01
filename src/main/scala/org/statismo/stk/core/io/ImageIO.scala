@@ -407,11 +407,11 @@ object ImageIO {
     var voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
 
     if (img.valueDimensionality > 1)
-      voxelArrayDim = voxelArrayDim ++ Vector[Long](img.valueDimensionality)
+      voxelArrayDim = voxelArrayDim ++ IndexedSeq[Long](img.valueDimensionality)
 
     // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](
-      Vector[Long](img.domain.dimensionality, img.domain.dimensionality),
+      IndexedSeq[Long](img.domain.dimensionality, img.domain.dimensionality),
       img.domain.directions)
 
     val maybeError: Try[Unit] = for {

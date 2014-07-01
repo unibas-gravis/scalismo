@@ -5,7 +5,6 @@ import scala.language.implicitConversions
 import org.statismo.stk.core.io.{StatismoIO, MeshIO}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
 import org.scalatest.FunSpec

@@ -9,7 +9,10 @@ import scala.util.Failure
 import scala.util.Success
 import org.scalatest.exceptions.TestFailedException
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.geometry.Point._
+import org.statismo.stk.core.geometry.Vector._
+import org.statismo.stk.core.geometry.Index._
+
 
 class LandmarkIOTest extends FunSpec with ShouldMatchers {
   

@@ -3,7 +3,9 @@ package org.statismo.stk.core.image
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
+import org.statismo.stk.core.geometry.Point._
+import org.statismo.stk.core.geometry.Vector._
+import org.statismo.stk.core.geometry.Index._
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.registration.TranslationSpace1D
 import org.statismo.stk.core.registration.TranslationSpace2D
