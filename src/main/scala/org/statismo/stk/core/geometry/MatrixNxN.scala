@@ -12,8 +12,8 @@ import breeze.linalg.DenseMatrix
 /**
  * Simple matrix class. The data is stored in column major ordering
  */
-abstract class MatrixNxN[D <: Dim: ToInt : DimTraits] {
-  val dimensionality: Int = implicitly[ToInt[D]].toInt
+abstract class MatrixNxN[D <: Dim: DimOps] {
+  val dimensionality: Int = implicitly[DimOps[D]].toInt
   def data: Array[Float]
   def apply(i: Int, j: Int): Float = {
     val d = dimensionality
@@ -165,62 +165,47 @@ private case class Matrix3x3(val data: Array[Float]) extends MatrixNxNLike[Three
   override def createVector(data: Array[Float]) = Vector3D(data(0), data(1), data(2))
 }
 
-//object Matrix1x1 {
-//  def eye = Matrix1x1((1))
-//  def zeros = Matrix1x1((0))
-//  def ones = Matrix1x1((1))
-//
-//}
-//object Matrix2x2 {
-//  def eye = Matrix2x2((1, 0), (0, 1))
-//  def zeros = Matrix2x2((0, 0), (0, 0))
-//  def ones = Matrix2x2((1, 1), (1, 1))
-//
-//}
-//object Matrix3x3 {
-//  def eye = Matrix3x3((1, 0, 0), (0, 1, 0), (0, 0, 1))
-//  def zeros = Matrix3x3((0, 0, 0), (0, 0, 0), (0, 0, 0))
-//  def ones = Matrix3x3((1, 1, 1), (1, 1, 1), (1, 1, 1))
-//}
+
+trait MatrixFactory[D <: Dim] {
+  def create(d : Array[Float]) : MatrixNxN[D]
+  def eye : MatrixNxN[D]
+}
+
+
+private[geometry] object matrixFactory1D extends MatrixFactory[OneD] {
+  override def create(d: Array[Float]) : MatrixNxN[OneD] = {
+    if (d.size != 1) {
+      throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
+    }
+    Matrix1x1(d)
+  }
+  override def eye : MatrixNxN[OneD] = Matrix1x1(Array(1f))
+}
+
+
+private[geometry] object matrixFactory2D extends MatrixFactory[TwoD] {
+  override def create(d: Array[Float]) : MatrixNxN[TwoD] = {
+    if (d.size != 4) {
+      throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
+    }
+    Matrix2x2(d)
+  }
+  override def eye : MatrixNxN[TwoD]= Matrix2x2(Array(1f, 0f, 0f, 1f))
+}
+
+private[geometry] object matrixFactory3D extends MatrixFactory[ThreeD] {
+  override def create(d: Array[Float]) : MatrixNxN[ThreeD] = {
+    if (d.size != 9) {
+      throw new Exception(s"Require array of size 9 to create a Matrix3x3 (got ${d.size}")
+    }
+    Matrix3x3(d)
+  }
+  override def eye : MatrixNxN[ThreeD] = Matrix3x3(Array(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
+}
+
+
 
 object MatrixNxN {
-
-  trait MatrixFactory[D <: Dim] {
-    def create(d : Array[Float]) : MatrixNxN[D]
-    def eye : MatrixNxN[D]
-  }
-
-
-  implicit object matrixFactory1D extends MatrixFactory[OneD] {
-    override def create(d: Array[Float]) : MatrixNxN[OneD] = {
-      if (d.size != 1) {
-        throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
-      }
-      Matrix1x1(d)
-    }
-    override def eye : MatrixNxN[OneD] = Matrix1x1(Array(1f))
-  }
-
-
-  implicit object matrixFactory2D extends MatrixFactory[TwoD] {
-    override def create(d: Array[Float]) : MatrixNxN[TwoD] = {
-      if (d.size != 4) {
-        throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
-      }
-      Matrix2x2(d)
-    }
-    override def eye : MatrixNxN[TwoD]= Matrix2x2(Array(1f, 0f, 0f, 1f))
-  }
-
-  implicit object matrixFactory3D extends MatrixFactory[ThreeD] {
-    override def create(d: Array[Float]) : MatrixNxN[ThreeD] = {
-      if (d.size != 9) {
-        throw new Exception(s"Require array of size 9 to create a Matrix3x3 (got ${d.size}")
-      }
-      Matrix3x3(d)
-    }
-    override def eye : MatrixNxN[ThreeD] = Matrix3x3(Array(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
-  }
 
 
   def apply(f : Float) : MatrixNxN[OneD] = new Matrix1x1(Array(f))
@@ -233,22 +218,22 @@ object MatrixNxN {
     new Matrix3x3(Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
-  def apply[D <: Dim : MatrixFactory](d : Array[Float]) = implicitly[MatrixFactory[D]].create(d)
+  def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].matrixNxN.create(d)
 
-  def eye[D <: Dim : MatrixFactory : ToInt] : MatrixNxN[D] = implicitly[MatrixFactory[D]].eye
-  def zeros[D <: Dim: MatrixFactory : ToInt]: MatrixNxN[D] = MatrixNxN.fill[D](0)
-  def ones[D <: Dim: MatrixFactory : ToInt]: MatrixNxN[D] = MatrixNxN.fill[D](1)
+  def eye[D <: Dim :  DimOps] : MatrixNxN[D] = implicitly[DimOps[D]].matrixNxN.eye
+  def zeros[D <: Dim: DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](0)
+  def ones[D <: Dim:  DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](1)
 
-  def fill[D <: Dim: MatrixFactory : ToInt](elem: => Float): MatrixNxN[D] = {
-    val dim = implicitly[ToInt[D]].toInt
+  def fill[D <: Dim: DimOps](elem: => Float): MatrixNxN[D] = {
+    val dim = implicitly[DimOps[D]].toInt
     val data = Array.fill[Float](dim * dim)(elem)
-    implicitly[MatrixFactory[D]].create(data)
+    implicitly[DimOps[D]].matrixNxN.create(data)
   }
 
-  def inv[D <: Dim : MatrixFactory](m : MatrixNxN[D]) : MatrixNxN[D] = {
+  def inv[D <: Dim : DimOps](m : MatrixNxN[D]) : MatrixNxN[D] = {
     val bm = m.toBreezeMatrix
     val bmInv = breeze.linalg.inv(bm)
-    implicitly[MatrixFactory[D]].create(bmInv.data.map(_.toFloat))
+    implicitly[DimOps[D]].matrixNxN.create(bmInv.data.map(_.toFloat))
   }
 
 }

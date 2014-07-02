@@ -1,6 +1,5 @@
 package org.statismo.stk.core.geometry
 
-import org.statismo.stk.core.geometry.MatrixNxN.MatrixFactory
 
 /**
  * Created by luethi on 7/1/14.
@@ -9,7 +8,7 @@ import org.statismo.stk.core.geometry.MatrixNxN.MatrixFactory
  * Vector definitions
  *=======================================*/
 
-abstract class Vector[D <: Dim: MatrixFactory : ToInt] extends Coordinate[D, Float] { self: Vector[D] =>
+abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vector[D] =>
 
   def norm2: Double = {
     var norm2 = 0.0
@@ -88,7 +87,7 @@ abstract class Vector[D <: Dim: MatrixFactory : ToInt] extends Coordinate[D, Flo
       }
       i += 1
     }
-    implicitly[MatrixFactory[D]].create(data)
+    implicitly[DimOps[D]].matrixNxN.create(data)
   }
 
 
@@ -138,34 +137,33 @@ private case class Vector3D(x: Float, y: Float, z: Float) extends Vector[ThreeD]
   val data = Array(x, y, z)
 }
 
+trait VectorFactory[D <: Dim] { def create(d : Array[Float]) : Vector[D] }
+
+private[geometry] object vectorFactory1D extends VectorFactory[OneD] {
+  override def create(d: Array[Float]) : Vector[OneD] = {
+    if (d.size != 1)
+      throw new Exception(s"Require array of size 1 to create a Vector1D (got ${d.size}")
+    Vector1D(d(0))
+  }
+}
+
+private[geometry] object vectorFactory2D extends VectorFactory[TwoD] {
+  override def create(d: Array[Float]) : Vector[TwoD] = {
+    if (d.size != 2)
+      throw new Exception(s"Require array of size 2 to create a Vector2D (got ${d.size}")
+    Vector2D(d(0), d(1))
+  }
+}
+
+private[geometry] object vectorFactory3D extends VectorFactory[ThreeD] {
+  override def create(d: Array[Float]) : Vector[ThreeD] = {
+    if (d.size != 3)
+      throw new Exception(s"Require array of size 3 to create a Vector3D (got ${d.size}")
+    Vector3D(d(0), d(1), d(2))
+  }
+}
 
 object Vector {
-
-  trait VectorFactory[D <: Dim] { def create(d : Array[Float]) : Vector[D] }
-
-  implicit object vectorFactory1D extends VectorFactory[OneD] {
-    override def create(d: Array[Float]) : Vector[OneD] = {
-      if (d.size != 1)
-        throw new Exception(s"Require array of size 1 to create a Vector1D (got ${d.size}")
-      Vector1D(d(0))
-    }
-  }
-
-  implicit object vectorFactory2D extends VectorFactory[TwoD] {
-    override def create(d: Array[Float]) : Vector[TwoD] = {
-      if (d.size != 2)
-        throw new Exception(s"Require array of size 2 to create a Vector2D (got ${d.size}")
-      Vector2D(d(0), d(1))
-    }
-  }
-
-  implicit object vectorFactory3D extends VectorFactory[ThreeD] {
-    override def create(d: Array[Float]) : Vector[ThreeD] = {
-      if (d.size != 3)
-        throw new Exception(s"Require array of size 3 to create a Vector3D (got ${d.size}")
-      Vector3D(d(0), d(1), d(2))
-    }
-  }
 
 
   def crossproduct(u : Vector[ThreeD], v : Vector[ThreeD]) : Vector[ThreeD] = {
@@ -176,10 +174,10 @@ object Vector {
   def apply(x : Float, y : Float) : Vector[TwoD] = new Vector2D(x, y)
   def apply(x : Float, y : Float, z : Float) : Vector[ThreeD] = new Vector3D(x, y, z)
 
-  def apply[D <: Dim : VectorFactory](d : Array[Float]) = implicitly[VectorFactory[D]].create(d)
-  def zeros[D <: Dim : ToInt : VectorFactory] = {
-    val dim = implicitly[ToInt[D]].toInt
-    implicitly[VectorFactory[D]].create(Array.fill[Float](dim)(0f))
+  def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].vector.create(d)
+  def zeros[D <: Dim : DimOps] = {
+    val dim = implicitly[DimOps[D]].toInt
+    implicitly[DimOps[D]].vector.create(Array.fill[Float](dim)(0f))
   }
 
 

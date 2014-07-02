@@ -2,8 +2,6 @@ package org.statismo.stk.core
 package kernels
 
 import breeze.linalg.{DenseVector, pinv, diag, DenseMatrix}
-import org.statismo.stk.core.geometry.MatrixNxN.MatrixFactory
-import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.numerics.RandomSVD
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.common.ImmutableLRU
@@ -33,10 +31,10 @@ abstract class PDKernel[D <: Dim] { self =>
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim : ToInt, DO <: Dim: ToInt] { self =>
+abstract class MatrixValuedPDKernel[D <: Dim : DimOps, DO <: Dim: DimOps] { self =>
 
   def apply(x: Point[D], y: Point[D]): MatrixNxN[DO]
-  def outputDim = implicitly[ToInt[DO]].toInt
+  def outputDim = implicitly[DimOps[DO]].toInt
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
@@ -74,10 +72,10 @@ case class UncorrelatedKernel3x3(k: PDKernel[ThreeD]) extends MatrixValuedPDKern
 
 // TODO maybe this should be called posterior or conditional kernel
 // TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
-case class LandmarkKernel[D <: Dim: MatrixFactory : ToInt](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
   
 
-  val dim = implicitly[ToInt[D]].toInt
+  val dim = implicitly[DimOps[D]].toInt
   val N = trainingData.size*dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -103,10 +101,10 @@ case class LandmarkKernel[D <: Dim: MatrixFactory : ToInt](k: MatrixValuedPDKern
 }
 
 // TODO this duplicate should not be there
-case class LandmarkKernelNonRepeatingPoints[D <: Dim: MatrixFactory : ToInt](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
 
-  val dim = implicitly[ToInt[D]].toInt
+  val dim = implicitly[DimOps[D]].toInt
   val N = trainingData.size*dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -158,7 +156,6 @@ case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
 }
 
 case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
-  val dimTraits3D = implicitly[DimTraits[ThreeD]]
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
@@ -248,7 +245,7 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: VectorFactory](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
