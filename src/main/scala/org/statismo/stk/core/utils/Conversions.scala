@@ -7,9 +7,8 @@ import vtk.vtkTriangle
 import vtk.vtkPoints
 import org.statismo.stk.core.image.DiscreteScalarImage3D
 import org.statismo.stk.core.image.DiscreteScalarImage2D
-import org.statismo.stk.core.geometry.ThreeD
+import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.image.DiscreteScalarImage
-import org.statismo.stk.core.geometry.TwoD
 import vtk.vtkStructuredPoints
 import vtk.vtkInformation
 import reflect.runtime.universe.{ TypeTag, typeOf }
@@ -23,16 +22,10 @@ import vtk.vtkIntArray
 import vtk.vtkLongArray
 import vtk.vtkFloatArray
 import vtk.vtkDoubleArray
-import org.statismo.stk.core.geometry.Point3D
 import vtk.vtkIdList
 import org.statismo.stk.core.mesh.TriangleCell
 import scala.util.Success
 import scala.util.Failure
-import org.statismo.stk.core.geometry.Index3D
-import org.statismo.stk.core.geometry.Vector3D
-import org.statismo.stk.core.geometry.Vector2D
-import org.statismo.stk.core.geometry.Point2D
-import org.statismo.stk.core.geometry.Index2D
 import org.statismo.stk.core.image.DiscreteImageDomain2D
 import vtk.vtkDataArray
 import org.statismo.stk.core.image.DiscreteImageDomain3D
@@ -154,7 +147,7 @@ object MeshConversion {
     
     val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
     val pointsArray = pointsArrayVtk.GetJavaArray()
-    val points = pointsArray.grouped(3).map(p => Point3D(p(0), p(1), p(2)))
+    val points = pointsArray.grouped(3).map(p => Point(p(0), p(1), p(2)))
 
     Try {
       val idList = new vtkIdList()
@@ -283,9 +276,9 @@ object ImageConversion {
       return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
     }
 
-    val origin = Point3D(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
-    val spacing = Vector3D(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
-    val size = Index3D(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
+    val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
+    val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
+    val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
 
     val domain = DiscreteImageDomain3D(origin, spacing, size)
     val scalars = sp.GetPointData().GetScalars()
@@ -308,9 +301,9 @@ object ImageConversion {
       return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
     }
 
-    val origin = Point2D(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
-    val spacing = Vector2D(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
-    val size = Index2D(sp.GetDimensions()(0), sp.GetDimensions()(1))
+    val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
+    val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
+    val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1))
 
     val domain = DiscreteImageDomain2D(origin, spacing, size)
     val scalars = sp.GetPointData().GetScalars()

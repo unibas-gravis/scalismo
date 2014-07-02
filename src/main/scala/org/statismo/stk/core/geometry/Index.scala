@@ -7,9 +7,9 @@ package org.statismo.stk.core.geometry
  * Index definitions
  *=======================================*/
 
-abstract class Index[D <: Dim: DimTraits] extends Coordinate[D, Int] {}
+abstract class Index[D <: Dim: ToInt] extends Coordinate[D, Int] {}
 
-case class Index1D(i: Int) extends Index[OneD] {
+private case class Index1D(i: Int) extends Index[OneD] {
   val data = Array(i)
   override def apply(id: Int) = {
     if (id == 0) i else throw new ArrayIndexOutOfBoundsException("index $i > 0")
@@ -17,7 +17,7 @@ case class Index1D(i: Int) extends Index[OneD] {
 
 }
 
-case class Index2D(i: Int, j: Int) extends Index[TwoD] {
+private case class Index2D(i: Int, j: Int) extends Index[TwoD] {
   val data = Array(i, j)
 
   override def apply(id: Int) = {
@@ -26,7 +26,7 @@ case class Index2D(i: Int, j: Int) extends Index[TwoD] {
 
 }
 
-case class Index3D(i: Int, j: Int, k: Int) extends Index[ThreeD] {
+private case class Index3D(i: Int, j: Int, k: Int) extends Index[ThreeD] {
   val data = Array(i, j, k)
   override def apply(id: Int) = {
     if (id == 0) i else if (id == 1) j else if (id == 2) k else throw new ArrayIndexOutOfBoundsException("index $i > 2")
@@ -36,10 +36,14 @@ case class Index3D(i: Int, j: Int, k: Int) extends Index[ThreeD] {
 
 object Index {
 
+  def apply(i : Int) : Index[OneD] = Index1D(i)
+  def apply(i : Int, j : Int) : Index[TwoD] = Index2D(i, j)
+  def apply(i : Int, j : Int, k : Int) : Index[ThreeD] = Index3D(i, j, k)
+
   implicit def index1DToDouble(v: Index[OneD]) = v(0)
-  implicit def intToindex1De(i: Int) = Index1D(i)
-  implicit def tupleOfDoubleToindex2D(t: (Int, Int)) = Index2D(t._1, t._2)
-  implicit def tupleOfDoubleToindex3D(t: (Int, Int, Int)) = Index3D(t._1, t._2, t._3)
+  implicit def intToindex1De(i: Int) : Index[OneD] = Index1D(i)
+  implicit def tupleOfDoubleToindex2D(t: (Int, Int)) : Index[TwoD] = Index2D(t._1, t._2)
+  implicit def tupleOfDoubleToindex3D(t: (Int, Int, Int)) : Index[ThreeD] = Index3D(t._1, t._2, t._3)
 }
 
 

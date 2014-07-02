@@ -4,6 +4,7 @@ package org.statismo.stk.core.registration
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
+import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.image.ContinuousVectorImage
 import org.statismo.stk.core.numerics.GradientDescentOptimizer
@@ -49,7 +50,7 @@ object Registration {
 
   case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
 
-  def iterations[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
+  def iterations[D <: Dim: ToInt : VectorFactory](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] =
     {
@@ -100,7 +101,7 @@ object Registration {
       }
     }
 
-  def registration[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
+  def registration[D <: Dim: ToInt : VectorFactory](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): RegistrationResult[D] =
     {

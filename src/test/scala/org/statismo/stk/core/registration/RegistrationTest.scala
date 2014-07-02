@@ -41,9 +41,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
-      val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))
+      val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))
 
-      val c = Point2D(1.0, 4 / 3.0)
+      val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotationParams = DenseVector[Float](-angle)
         val transParams = DenseVector[Float](1f, 1.5f)
@@ -102,9 +102,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   
   describe("A 2D similarity landmark based registration") {
     it("can transform the points appropriately") {
-      val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))
+      val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))
 
-      val c = Point2D(1.0, 4 / 3.0)
+      val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotationParams = DenseVector[Float](-angle)
         val transParams = DenseVector[Float](1f, 1.5f)

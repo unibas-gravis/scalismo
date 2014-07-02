@@ -28,7 +28,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
         region,
         UniformSampler3D(region, 7 * 7 * 7),
-        (x: Point[ThreeD]) => Vector3D(0.0, 0.0, 0.0),
+        (x: Point[ThreeD]) => Vector(0.0, 0.0, 0.0),
         cov,
         20)
       val gp =LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)

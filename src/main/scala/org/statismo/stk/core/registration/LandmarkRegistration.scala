@@ -10,8 +10,8 @@ import breeze.linalg._
 
 object LandmarkRegistration {
 
-  private val origin2D = Point2D(0f, 0f)
-  private val origin3D = Point3D(0f, 0f, 0f)
+  private val origin2D = Point(0f, 0f)
+  private val origin3D = Point(0f, 0f, 0f)
   
   private def rigidSimilarity3DCommon(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], similarityFlag: Boolean = false) = {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)

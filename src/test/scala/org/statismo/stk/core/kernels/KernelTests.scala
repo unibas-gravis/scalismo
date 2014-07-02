@@ -3,11 +3,9 @@ package org.statismo.stk.core.kernels
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{ Point, ThreeD, MatrixNxN }
+import org.statismo.stk.core.geometry.{ Point, ThreeD, MatrixNxN, Vector }
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, DiscreteGaussianProcess, LowRankGaussianProcessConfiguration}
-import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.geometry.Point3D
 import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
 
@@ -48,12 +46,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxedDomain3D(Point3D(-5, 1, 3), Point3D(100, 80, 50))
+      val domain = BoxedDomain3D(Point(-5, 1, 3), Point(100, 80, 50))
 
       val nystromSampler = UniformSampler3D(domain, 8 * 8 * 8)
 
       val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
-      val mu = (pt: Point[ThreeD]) => Vector3D(1, 10, -5)
+      val mu = (pt: Point[ThreeD]) => Vector(1, 10, -5)
       val gpConf = LowRankGaussianProcessConfiguration(domain, nystromSampler, mu, k, 500)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConf)
 

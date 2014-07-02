@@ -111,7 +111,7 @@ case class TranslationSpace1D() extends TransformationSpace[OneD] with Different
   def parametersDimensionality: Int = 1
   override def identityTransformParameters = DenseVector(0.0f)
 
-  override def transformForParameters(p: ParameterVector): TranslationTransform1D = new TranslationTransform1D(Vector1D(p(0)))
+  override def transformForParameters(p: ParameterVector): TranslationTransform1D = new TranslationTransform1D(Vector(p(0)))
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = {x: Point[OneD] =>    DenseMatrix.eye[Float](1)}
 }
@@ -119,7 +119,7 @@ case class TranslationSpace1D() extends TransformationSpace[OneD] with Different
 case class TranslationTransform1D(t: Vector[OneD]) extends Transformation[OneD] with CanInvert[OneD] with CanDifferentiate[OneD]{
   def apply(pt: Point[OneD]): Point[OneD] = pt + t
 
-  override def takeDerivative(x: Point[OneD]): Matrix1x1 =  Matrix1x1.eye
+  override def takeDerivative(x: Point[OneD]): MatrixNxN[OneD] =  MatrixNxN.eye[OneD]
   override def inverse: TranslationTransform1D =  TranslationTransform1D(t * (-1f))
 }
 
@@ -130,13 +130,13 @@ case class TranslationSpace2D() extends TransformationSpace[TwoD] with Different
 
   def parametersDimensionality: Int = 2
   override def identityTransformParameters = DenseVector(0.0f, 0.0f)
-  override def transformForParameters(p: ParameterVector): TranslationTransform2D = new TranslationTransform2D(Vector2D(p(0), p(1)))
+  override def transformForParameters(p: ParameterVector): TranslationTransform2D = new TranslationTransform2D(Vector(p(0), p(1)))
   override def takeDerivativeWRTParameters(p: ParameterVector) = {x: Point[TwoD] =>  DenseMatrix.eye[Float](2)}
 }
 
 case class TranslationTransform2D(t: Vector[TwoD]) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(pt: Point[TwoD]) = pt + t
-  override def takeDerivative(x: Point[TwoD]): Matrix2x2 =  Matrix2x2.eye
+  override def takeDerivative(x: Point[TwoD]): MatrixNxN[TwoD] =  MatrixNxN.eye[TwoD]
   override def inverse =  TranslationTransform2D(t * (-1f))
 }
 
@@ -146,13 +146,13 @@ case class TranslationSpace3D() extends TransformationSpace[ThreeD] with Differe
 
   def parametersDimensionality: Int = 3
   override def identityTransformParameters = DenseVector(0.0f, 0.0f, 0.0f)
-  override def transformForParameters(p: ParameterVector) = new TranslationTransform3D(Vector3D(p(0), p(1), p(2)))
+  override def transformForParameters(p: ParameterVector) = new TranslationTransform3D(Vector(p(0), p(1), p(2)))
   override def takeDerivativeWRTParameters(p: ParameterVector) = {x: Point[ThreeD] =>    DenseMatrix.eye[Float](3)}
 }
 
 case class TranslationTransform3D(t: Vector[ThreeD]) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(pt: Point[ThreeD]) = pt + t
-  override def takeDerivative(x: Point[ThreeD]) =  Matrix3x3.eye
+  override def takeDerivative(x: Point[ThreeD]) =  MatrixNxN.eye[ThreeD]
   override def inverse =  TranslationTransform3D(t * (-1f))
 }
 
@@ -183,7 +183,7 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
     val cosphi = Math.cos(p(0)).toFloat
     val sinphi = Math.sin(p(0)).toFloat
 
-    val rotMatrix = Matrix3x3(
+    val rotMatrix = MatrixNxN(
       (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
       (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
       (-sinth, sinpsi * costh, cospsi * costh)
@@ -239,11 +239,11 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
 }
 
 
-class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre : Point[ThreeD] = Point3D(0,0,0)) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
+class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre : Point[ThreeD] = Point(0,0,0)) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(pt: Point[ThreeD]): Point[ThreeD] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector3D(rotCentered(0).toFloat, rotCentered(1).toFloat, rotCentered(2).toFloat)
+    centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat, rotCentered(2).toFloat)
   }
 
   def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = {
@@ -272,7 +272,7 @@ case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[
   override def transformForParameters(p: ParameterVector): RotationTransform2D = {
     require(p.length == 1)
 
-    val rotMatrix = Matrix2x2(
+    val rotMatrix = MatrixNxN(
       (math.cos(p(0)).toFloat, -math.sin(p(0)).toFloat),
       (math.sin(p(0)).toFloat, math.cos(p(0)).toFloat)
     )
@@ -295,11 +295,11 @@ case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[
 }
 
 
-class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre : Point[TwoD] = Point2D(0,0)) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
+class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre : Point[TwoD] = Point(0,0)) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(pt: Point[TwoD]): Point[TwoD] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector2D(rotCentered(0).toFloat, rotCentered(1).toFloat)
+    centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat)
 
   }
 
@@ -333,9 +333,9 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] with Differentia
 
 
 class ScalingTransformation3D(s: Float) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD]{
-  def apply(x: Point[ThreeD]): Point[ThreeD] = Point3D(x(0) * s, x(1) * s, x(2) * s)
+  def apply(x: Point[ThreeD]): Point[ThreeD] = Point(x(0) * s, x(1) * s, x(2) * s)
 
-  def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = Matrix3x3.eye * s
+  def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = MatrixNxN.eye[ThreeD] * s
 
   override def inverse: ScalingTransformation3D = {
     if (s == 0) new ScalingTransformation3D(0) else new ScalingTransformation3D(1.0f / s)
@@ -363,9 +363,9 @@ case class ScalingSpace2D() extends TransformationSpace[TwoD] with Differentiabl
 
 
 class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
-  def apply(x: Point[TwoD]): Point[TwoD] = Point2D(x(0) * s, x(1) * s)
+  def apply(x: Point[TwoD]): Point[TwoD] = Point(x(0) * s, x(1) * s)
 
-  def takeDerivative(x: Point[TwoD]): MatrixNxN[TwoD] = Matrix2x2.eye * s
+  def takeDerivative(x: Point[TwoD]): MatrixNxN[TwoD] = MatrixNxN.eye[TwoD] * s
 
   override def inverse: ScalingTransformation2D = {
     if (s == 0) new ScalingTransformation2D(0) else new ScalingTransformation2D(1.0f / s)
@@ -373,7 +373,7 @@ class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInv
 }
 
 
-case class RigidTransformationSpace3D(center: Point[ThreeD] = Point3D(0, 0, 0))
+case class RigidTransformationSpace3D(center: Point[ThreeD] = Point(0, 0, 0))
   extends ProductTransformationSpace[ThreeD, TranslationTransform3D, RotationTransform3D](TranslationSpace3D(), RotationSpace3D(center)) {
 
   override def transformForParameters(p: ParameterVector): RigidTransformation3D = {
@@ -411,7 +411,7 @@ object RigidTransformations2D {
   def apply(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D) : RigidTransformation2D = new RigidTransformation2DTransThenRot(rotationTransform, translationTransform)
 }
 
-case class RigidTransformationSpace2D(center: Point[TwoD] = Point2D(0, 0))
+case class RigidTransformationSpace2D(center: Point[TwoD] = Point(0, 0))
   extends ProductTransformationSpace[TwoD, TranslationTransform2D, RotationTransform2D](TranslationSpace2D(), RotationSpace2D(center)) {
 
 

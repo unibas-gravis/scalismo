@@ -1,5 +1,6 @@
 package org.statismo.stk.core.statisticalmodel
 
+import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.numerics.Sampler
@@ -13,16 +14,16 @@ import org.statismo.stk.core.kernels.LandmarkKernelNonRepeatingPoints
 case class DiscreteGaussianProcessConfiguration[D <: Dim] (
 
                                                             val domain: Domain[D],
-                                                            val sampler: Sampler[D, Point[D]],
+                                                            val sampler: Sampler[D],
                                                             val mean: Point[D] => Vector[D],
                                                             val points: IndexedSeq[Point[D]],
                                                             val cov: MatrixValuedPDKernel[D,D])
 
-case class DiscreteGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
+case class DiscreteGaussianProcess[D <: Dim: VectorFactory : ToInt](val domain: Domain[D],
                                                         val mean: Point[D] => Vector[D], val points: IndexedSeq[Point[D]], val cov: MatrixValuedPDKernel[D,D]) extends GaussianProcess[D] {
 
-  override protected val dimTraits = implicitly[DimTraits[D]]
-  def outputDim = dimTraits.dimensionality
+
+  def outputDim = cov.outputDim
   private def N = points.size
   override val rank = points.size*outputDim
 
@@ -30,13 +31,13 @@ case class DiscreteGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
 
     require(rank == alpha.size)
 
-    val coefficients = alpha.valuesIterator.grouped(outputDim).toIndexedSeq.map(x => dimTraits.createVector(x.toArray))
+    val coefficients = alpha.valuesIterator.grouped(outputDim).toIndexedSeq.map(x => Vector(x.toArray))
 
     // Reshape alpha 1x(NxD) Vector to NxD Vector
 
     def kalpha(x: Point[D]) : Vector[D] = {
 
-      val zeroVector = dimTraits.zeroVector
+      val zeroVector = Vector.zeros[D]
       (0 until points.size).map { i =>  cov(x,points(i)) * coefficients(i) }.fold(zeroVector)((a, b) => { a + b })
 
     }
@@ -133,10 +134,9 @@ object DiscreteGaussianProcess {
   }
 
   // TODO this is pretty much the same code as the landmark kernel! refactor?
-  private def createLandmarkMean[D <: Dim: DimTraits](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
+  private def createLandmarkMean[D <: Dim: VectorFactory](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
 
-    val dimTraits = implicitly[DimTraits[D]]
-    val dim = dimTraits.dimensionality
+    val dim = kernel.outputDim
     val N = trainingData.size*dim
     def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -153,7 +153,7 @@ object DiscreteGaussianProcess {
 
     def f(x: Point[D]) : Vector[D] = {
       val kstar = Kernel.computeKernelVectorFor[D](x,xs,kernel)
-      dimTraits.createVector(((kstar * K_inv).map(_.toFloat) * fVec).toArray)
+      Vector[D](((kstar * K_inv).map(_.toFloat) * fVec).toArray)
     }
 
     f

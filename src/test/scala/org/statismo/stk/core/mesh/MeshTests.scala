@@ -37,18 +37,18 @@ class MeshTests extends FunSpec with ShouldMatchers {
       }
     }
     it("finds the right closest point for a point that is not defined on the mesh") {
-      val pts = IndexedSeq(Point3D(0.0, 0.0, 0.0), Point3D(1.0, 1.0, 1.0), Point3D(1.0, 1.0, 5.0))
+      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val mesh = TriangleMesh(pts, cells)
 
-      val newPt = Point3D(1.1, 1.1, 4)
+      val newPt = Point(1.1, 1.1, 4)
       val (closestPt, closestPtId) = mesh.findClosestPoint(newPt)
       assert(closestPtId === 2)
       assert(closestPt === pts(2))
 
     }
     it("computes its area correctly for a triangle") {
-      val pts: IndexedSeq[Point3D] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
+      val pts: IndexedSeq[Point[ThreeD]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val mesh = TriangleMesh(pts, cells)
 
@@ -71,8 +71,8 @@ class MeshTests extends FunSpec with ShouldMatchers {
       val path = getClass().getResource("/unit-sphere.vtk").getPath
       val spheremesh = MeshIO.readMesh(new File(path)).get
       val binaryImg = Mesh.meshToBinaryImage(spheremesh)
-      binaryImg(Point3D(0,0,0)) should be(1)
-      binaryImg(Point3D(2,0,0)) should be(0)
+      binaryImg(Point(0,0,0)) should be(1)
+      binaryImg(Point(2,0,0)) should be(0)
                
     }
 

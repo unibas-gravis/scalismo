@@ -1,5 +1,7 @@
 package org.statismo.stk.core.statisticalmodel
 
+import org.statismo.stk.core.geometry.MatrixNxN.MatrixFactory
+import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.kernels.{MatrixValuedPDKernel, Kernel}
 import org.statismo.stk.core.common.Domain
@@ -13,22 +15,21 @@ import breeze.stats.mean
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
                                                           val domain: Domain[D],
-                                                          val sampler: Sampler[D, Point[D]],
+                                                          val sampler: Sampler[D],
                                                           val mean: Point[D] => Vector[D],
                                                           val cov: MatrixValuedPDKernel[D, D],
                                                           val numBasisFunctions: Int)
 
-class LowRankGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
+class LowRankGaussianProcess[D <: Dim: VectorFactory : MatrixFactory : ToInt](val domain: Domain[D],
                                                   val mean: Point[D] => Vector[D],
                                                   val eigenPairs: IndexedSeq[(Float, Point[D] => Vector[D])])
   extends GaussianProcess[D] {
-  val dimTraits = implicitly[DimTraits[D]]
 
   def rank = eigenPairs.size
 
   val cov: MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
     def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
-      val ptDim = dimTraits.dimensionality
+      val ptDim = implicitly[ToInt[D]].toInt
       val phis = eigenPairs.map(_._2)
 
       var outer = MatrixNxN.zeros[D]
@@ -109,7 +110,7 @@ class LowRankGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
   }
 }
 
-class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], val points: IndexedSeq[Point[D]], val meanVector: DenseVector[Float], val lambdas: IndexedSeq[Float], val eigenMatrix: DenseMatrix[Float])
+class SpecializedLowRankGaussianProcess[D <: Dim: VectorFactory : MatrixFactory : ToInt](gp: LowRankGaussianProcess[D], val points: IndexedSeq[Point[D]], val meanVector: DenseVector[Float], val lambdas: IndexedSeq[Float], val eigenMatrix: DenseMatrix[Float])
   extends LowRankGaussianProcess[D](gp.domain, gp.mean, gp.eigenPairs) {
 
   private val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
@@ -141,7 +142,7 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
   def instanceAtPoints(alpha: DenseVector[Float]): IndexedSeq[(Point[D], Vector[D])] = {
     require(eigenPairs.size == alpha.size)
     val instVal = instanceVector(alpha)
-    val ptVals = for (v <- instVal.toArray.grouped(outputDimensionality)) yield dimTraits.createVector(v)
+    val ptVals = for (v <- instVal.toArray.grouped(outputDimensionality)) yield Vector[D](v)
     points.zip(ptVals.toIndexedSeq)
   }
 
@@ -162,20 +163,19 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
         // we need the copy here, as otherwise vec.data will be the array of the
         // original vector (from which we extracted a slice)
         val vec = meanVector(ptId * outputDimensionality until (ptId + 1) * outputDimensionality).copy
-        dimTraits.createVector(vec.data)
+        Vector[D](vec.data)
       }
       case None => gp.mean(pt)
     }
   }
 
   private def phiAtPoint(i: Int)(pt: Point[D]): Vector[D] = {
-    val dimTraits = implicitly[DimTraits[D]]
     pointToIdxMap.get(pt) match {
       case Some(ptId) => {
         // we need the copy here, as otherwise vec.data will be the array of the
         // original vector (from which we extracted a slice)
         val df = eigenMatrix(ptId * gp.outputDimensionality until (ptId + 1) * gp.outputDimensionality, i).copy
-        dimTraits.createVector(df.data)
+        Vector[D](df.data)
       }
       case None => gpPhis(i)(pt)
     }
@@ -207,13 +207,13 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimTraits](gp: LowRankGaussian
       }
     }
 
-    dimTraits.createMatrixNxN(covValue.data)
+    MatrixNxN[D](covValue.data)
   }
 
 }
 
 object SpecializedLowRankGaussianProcess {
-  def apply[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]]) = {
+  def apply[D <: Dim: VectorFactory : MatrixFactory : ToInt](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]]) = {
 
     // precompute all the at the given points
     val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
@@ -283,9 +283,8 @@ object LowRankGaussianProcess {
    * @TODO It should be explicitly enforced (using the type system) that the sampler is uniform
    * @TODO At some point this should be replaced by a functional PCA
    */
-  def createLowRankGPFromTransformations[D <: Dim: DimTraits](domain: Domain[D], transformations: Seq[Transformation[D]], sampler: Sampler[D, Point[D]]): LowRankGaussianProcess[D] = {
-    val dimTraits = implicitly[DimTraits[D]]
-    val dim = dimTraits.dimensionality
+  def createLowRankGPFromTransformations[D <: Dim: VectorFactory : MatrixFactory : ToInt](domain: Domain[D], transformations: Seq[Transformation[D]], sampler: Sampler[D]): LowRankGaussianProcess[D] = {
+    val dim = implicitly[ToInt[D]].toInt
 
     val samplePts = sampler.sample.map(_._1)
 
@@ -335,11 +334,11 @@ object LowRankGaussianProcess {
       val nNbrPts = Math.pow(2, dim).toInt
       val ptAndIds = findClosestPoints(x, nNbrPts)
 
-      var v = dimTraits.zeroVector
+      var v = Vector.zeros[D]
       var sumW = 0.0
       for ((pt, id) <- ptAndIds) {
         val w = 1.0 / math.max((pt - x).norm, 1e-5)
-        v += dimTraits.createVector(dataVec(id * dim until (id + 1) * dim).map(_.toFloat).data) * w
+        v += Vector[D](dataVec(id * dim until (id + 1) * dim).map(_.toFloat).data) * w
         sumW += w
       }
       v * (1.0 / sumW)

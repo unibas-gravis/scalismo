@@ -2,6 +2,8 @@ package org.statismo.stk.core
 package kernels
 
 import breeze.linalg.{DenseVector, pinv, diag, DenseMatrix}
+import org.statismo.stk.core.geometry.MatrixNxN.MatrixFactory
+import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.numerics.RandomSVD
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.common.ImmutableLRU
@@ -31,11 +33,10 @@ abstract class PDKernel[D <: Dim] { self =>
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim, DO <: Dim: DimTraits] { self =>
-  val oDimTraits = implicitly[DimTraits[DO]]
+abstract class MatrixValuedPDKernel[D <: Dim : ToInt, DO <: Dim: ToInt] { self =>
 
   def apply(x: Point[D], y: Point[D]): MatrixNxN[DO]
-  def outputDim = oDimTraits.dimensionality
+  def outputDim = implicitly[ToInt[DO]].toInt
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
@@ -57,27 +58,26 @@ abstract class MatrixValuedPDKernel[D <: Dim, DO <: Dim: DimTraits] { self =>
 }
 
 case class UncorrelatedKernel1x1(k: PDKernel[OneD]) extends MatrixValuedPDKernel[OneD, OneD] {
-  val I = Matrix1x1.eye
+  val I = MatrixNxN.eye[OneD]
   def apply(x: Point[OneD], y: Point[OneD]) = I * (k(x, y)) // k is scalar valued
 }
 
 case class UncorrelatedKernel2x2(k: PDKernel[TwoD]) extends MatrixValuedPDKernel[TwoD, TwoD] {
-  val I = Matrix2x2.eye
+  val I = MatrixNxN.eye[TwoD]
   def apply(x: Point[TwoD], y: Point[TwoD]) = I * (k(x, y)) // k is scalar valued
 }
 
 case class UncorrelatedKernel3x3(k: PDKernel[ThreeD]) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
-  val I = Matrix3x3.eye
+  val I = MatrixNxN.eye[ThreeD]
   def apply(x: Point[ThreeD], y: Point[ThreeD]) = I * (k(x, y)) // k is scalar valued
 }
 
 // TODO maybe this should be called posterior or conditional kernel
 // TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
-case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernel[D <: Dim: MatrixFactory : ToInt](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
   
 
-  val dimTraits = implicitly[DimTraits[D]]
-  val dim = dimTraits.dimensionality
+  val dim = implicitly[ToInt[D]].toInt
   val N = trainingData.size*dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -90,7 +90,7 @@ case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], tra
   def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - dimTraits.createMatrixNxN( ((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat) )
+    k(x,y) - MatrixNxN[D]( ((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat) )
 
   }
                             
@@ -103,11 +103,10 @@ case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], tra
 }
 
 // TODO this duplicate should not be there
-case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernelNonRepeatingPoints[D <: Dim: MatrixFactory : ToInt](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
 
-  val dimTraits = implicitly[DimTraits[D]]
-  val dim = dimTraits.dimensionality
+  val dim = implicitly[ToInt[D]].toInt
   val N = trainingData.size*dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -122,7 +121,7 @@ case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimTraits](k: MatrixValued
   val memxstar = Memoize(xstar,memSize)
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - dimTraits.createMatrixNxN( ((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat) )
+    k(x,y) - MatrixNxN[D]( ((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat) )
 
   }
 
@@ -164,7 +163,7 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
   def mu(x: Point[ThreeD]): Vector[ThreeD] = {
-    var meanDisplacement = dimTraits3D.zeroVector
+    var meanDisplacement = Vector.zeros[ThreeD]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -179,8 +178,8 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  def apply(x: Point[ThreeD], y: Point[ThreeD]): Matrix3x3 = {
-    var ms = Matrix3x3.zeros
+  def apply(x: Point[ThreeD], y: Point[ThreeD]): MatrixNxN[ThreeD] = {
+    var ms = MatrixNxN.zeros[ThreeD]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -249,12 +248,10 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim: VectorFactory](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
-
-    val createVector = implicitly[DimTraits[D]].createVector _ // get the create vector function for the right dimension
 
     val volumeOfSampleRegion = sampler.volumeOfSampleRegion
 
@@ -278,7 +275,7 @@ object Kernel {
     def phi(i: Int)(x: Point[D]) = {
       val value = computePhisMemoized(x)
       // extract the right entry for the i-th phi function
-      createVector(value(::, i).toArray.map(_.toFloat))
+      Vector[D](value(::, i).toArray.map(_.toFloat))
 
     }
 

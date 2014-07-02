@@ -1,5 +1,7 @@
 package org.statismo.stk.core.geometry
 
+import org.statismo.stk.core.geometry.MatrixNxN.MatrixFactory
+
 /**
  * Created by luethi on 7/1/14.
  */
@@ -7,12 +9,8 @@ package org.statismo.stk.core.geometry
  * Vector definitions
  *=======================================*/
 
-abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Float] { self: Vector[D] =>
-  val dimTraits = implicitly[DimTraits[D]]
+abstract class Vector[D <: Dim: MatrixFactory : ToInt] extends Coordinate[D, Float] { self: Vector[D] =>
 
-  def +(that: Vector[D]): Vector[D]
-  def -(that: Vector[D]): Vector[D]
-  def *(s: Double): Vector[D]
   def norm2: Double = {
     var norm2 = 0.0
     var i = 0;
@@ -24,17 +22,11 @@ abstract class Vector[D <: Dim: DimTraits] extends Coordinate[D, Float] { self: 
   }
   def norm = math.sqrt(norm2)
 
-  def outer(that: Vector[D]): MatrixNxN[D]
-  def dot(that: Vector[D]): Float
-  def toPoint: Point[D]
-}
 
-trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { self: Vector[D] =>
+  def createPoint(data: Array[Float]): Point[D]
+  def createVector(data: Array[Float]): Vector[D]
 
-  def createPoint(data: Array[Float]): PointRepr
-  def createVector(data: Array[Float]): VectorRepr
-
-  override def +(that: Vector[D]): VectorRepr = {
+  def +(that: Vector[D]): Vector[D] = {
     var newData = new Array[Float](dimensionality)
     var i = 0
     while (i < dimensionality) {
@@ -44,7 +36,7 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
     createVector(newData)
   }
 
-  override def -(that: Vector[D]): VectorRepr = {
+  def -(that: Vector[D]): Vector[D] = {
     var newData = new Array[Float](dimensionality)
     var i = 0
     while (i < dimensionality) {
@@ -54,7 +46,7 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
     createVector(newData)
   }
 
-  override def *(s: Double): VectorRepr = {
+  def *(s: Double): Vector[D] = {
     var newData = new Array[Float](dimensionality)
     var i = 0
     var sFloat = s.toFloat
@@ -65,7 +57,7 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
     createVector(newData)
   }
 
-  def toPoint: PointRepr = createPoint(
+  def toPoint: Point[D] = createPoint(
     self.data)
 
   def dot(that: Vector[D]): Float = {
@@ -96,12 +88,14 @@ trait VectorLike[D <: Dim, VectorRepr <: Vector[D], PointRepr <: Point[D]] { sel
       }
       i += 1
     }
-    dimTraits.createMatrixNxN(data)
+    implicitly[MatrixFactory[D]].create(data)
   }
+
 
 }
 
-case class Vector1D(x: Float) extends Vector[OneD] with VectorLike[OneD, Vector1D, Point1D] {
+
+private case class Vector1D(x: Float) extends Vector[OneD]  {
   def createPoint(data: Array[Float]) = Point1D(data(0))
   def createVector(data: Array[Float]) = Vector1D(data(0))
 
@@ -112,7 +106,7 @@ case class Vector1D(x: Float) extends Vector[OneD] with VectorLike[OneD, Vector1
   val data = Array(x)
 }
 
-case class Vector2D(x: Float, y: Float) extends Vector[TwoD] with VectorLike[TwoD, Vector2D, Point2D] {
+private case class Vector2D(x: Float, y: Float) extends Vector[TwoD] {
   type TVector = Vector2D
   type TPoint = Point2D
 
@@ -126,7 +120,7 @@ case class Vector2D(x: Float, y: Float) extends Vector[TwoD] with VectorLike[Two
   val data = Array(x, y)
 }
 
-case class Vector3D(x: Float, y: Float, z: Float) extends Vector[ThreeD] with VectorLike[ThreeD, Vector3D, Point3D] {
+private case class Vector3D(x: Float, y: Float, z: Float) extends Vector[ThreeD]  {
   type TVector = Vector3D
   type TPoint = Point3D
 
@@ -146,10 +140,53 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[ThreeD] with Ve
 
 
 object Vector {
+
+  trait VectorFactory[D <: Dim] { def create(d : Array[Float]) : Vector[D] }
+
+  implicit object vectorFactory1D extends VectorFactory[OneD] {
+    override def create(d: Array[Float]) : Vector[OneD] = {
+      if (d.size != 1)
+        throw new Exception(s"Require array of size 1 to create a Vector1D (got ${d.size}")
+      Vector1D(d(0))
+    }
+  }
+
+  implicit object vectorFactory2D extends VectorFactory[TwoD] {
+    override def create(d: Array[Float]) : Vector[TwoD] = {
+      if (d.size != 2)
+        throw new Exception(s"Require array of size 2 to create a Vector2D (got ${d.size}")
+      Vector2D(d(0), d(1))
+    }
+  }
+
+  implicit object vectorFactory3D extends VectorFactory[ThreeD] {
+    override def create(d: Array[Float]) : Vector[ThreeD] = {
+      if (d.size != 3)
+        throw new Exception(s"Require array of size 3 to create a Vector3D (got ${d.size}")
+      Vector3D(d(0), d(1), d(2))
+    }
+  }
+
+
+  def crossproduct(u : Vector[ThreeD], v : Vector[ThreeD]) : Vector[ThreeD] = {
+      Vector3D(u(1) * v(2) - u(2) * v(1), u(2) * v(0) - u(0) * v(2), u(0) * v(1)  - u(1) * v(0))
+  }
+
+  def apply(x : Float) : Vector[OneD] = new Vector1D(x)
+  def apply(x : Float, y : Float) : Vector[TwoD] = new Vector2D(x, y)
+  def apply(x : Float, y : Float, z : Float) : Vector[ThreeD] = new Vector3D(x, y, z)
+
+  def apply[D <: Dim : VectorFactory](d : Array[Float]) = implicitly[VectorFactory[D]].create(d)
+  def zeros[D <: Dim : ToInt : VectorFactory] = {
+    val dim = implicitly[ToInt[D]].toInt
+    implicitly[VectorFactory[D]].create(Array.fill[Float](dim)(0f))
+  }
+
+
   implicit def vector1DToDouble(v: Vector[OneD]) = v(0)
-  implicit def doubleToVector1De(d: Double) = Vector1D(d.toFloat)
-  implicit def tupleOfDoubleToVector2D(t: (Double, Double)) = Vector2D(t._1.toFloat, t._2.toFloat)
-  implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)) = Vector3D(t._1.toFloat, t._2.toFloat, t._3.toFloat)
+  implicit def doubleToVector1De(d: Double) = Vector(d.toFloat)
+  implicit def tupleOfDoubleToVector2D(t: (Double, Double)) = Vector(t._1.toFloat, t._2.toFloat)
+  implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)) = Vector(t._1.toFloat, t._2.toFloat, t._3.toFloat)
 }
 
 

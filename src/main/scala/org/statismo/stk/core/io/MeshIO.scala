@@ -194,9 +194,9 @@ object MeshIO {
     maybeSurface
   }
 
-  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point3D] = {
+  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[ThreeD]] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
-    ndarray.data.grouped(3).map(grp => Point3D(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
+    ndarray.data.grouped(3).map(grp => Point(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
   }
 
   private def NDArrayToCellSeq(ndarray: NDArray[Int]): IndexedSeq[TriangleCell] = {

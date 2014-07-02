@@ -244,7 +244,7 @@ object StatismoIO {
         else
           Success(vertArray))
       vertMat = ndArrayToMatrix(vertArray)
-      points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
+      points = for (i <- 0 until vertMat.cols) yield Point(vertMat(0, i), vertMat(1, i), vertMat(2, i))
       cellArray <- h5file.readNDArray[Int]("/representer/cells").flatMap(cellArray =>
         if (cellArray.dims(0) != 3)
           Failure(new Exception("the representer cells are not triangles"))
