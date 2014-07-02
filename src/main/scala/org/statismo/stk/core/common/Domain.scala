@@ -1,7 +1,7 @@
 package org.statismo.stk.core
 package common
 
-import geometry.{Point, Vector, Dim, OneD, TwoD, ThreeD, DimTraits}
+import geometry.{Point, Vector, Dim, OneD, TwoD, ThreeD}
 import breeze.linalg.DenseVector
 
 

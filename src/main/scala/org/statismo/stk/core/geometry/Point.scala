@@ -8,7 +8,7 @@ package org.statismo.stk.core.geometry
 /**
   * An ND Point
   */
-abstract class Point[D <: Dim : DimTraits : ToInt] extends Coordinate[D, Float] { self: Coordinate[D, Float] =>
+abstract class Point[D <: Dim : DimOps] extends Coordinate[D, Float] { self: Coordinate[D, Float] =>
 
   def +(that: Vector[D]): Point[D]
   def -(that: Vector[D]): Point[D]
@@ -89,35 +89,34 @@ private case class Point3D(x: Float, y: Float, z: Float) extends Point[ThreeD] w
 
 }
 
+trait PointFactory[D <: Dim] { def create(d : Array[Float]) : Point[D] }
+
+private[geometry] object pointFactory1D extends PointFactory[OneD] {
+  override def create(d: Array[Float]) : Point[OneD] = {
+    if (d.size != 1)
+      throw new Exception(s"Require array of size 1 to create a Point1D (got ${d.size}")
+    Point1D(d(0))
+  }
+}
+
+private[geometry] object pointFactory2D extends PointFactory[TwoD] {
+  override def create(d: Array[Float]) : Point[TwoD] = {
+    if (d.size != 2)
+      throw new Exception(s"Require array of size 2 to create a Point2D (got ${d.size}")
+    Point2D(d(0), d(1))
+  }
+}
+
+private[geometry] object pointFactory3D extends PointFactory[ThreeD] {
+  override def create(d: Array[Float]) : Point[ThreeD] = {
+    if (d.size != 3)
+      throw new Exception(s"Require array of size 3 to create a Point3D (got ${d.size}")
+    Point3D(d(0), d(1), d(2))
+  }
+}
+
 
 object Point {
-  trait PointFactory[D <: Dim] { def create(d : Array[Float]) : Point[D] }
-
-  implicit object pointFactory1D extends PointFactory[OneD] {
-    override def create(d: Array[Float]) : Point[OneD] = {
-      if (d.size != 1)
-        throw new Exception(s"Require array of size 1 to create a Point1D (got ${d.size}")
-      Point1D(d(0))
-    }
-  }
-
-  implicit object pointFactory2D extends PointFactory[TwoD] {
-    override def create(d: Array[Float]) : Point[TwoD] = {
-      if (d.size != 2)
-        throw new Exception(s"Require array of size 2 to create a Point2D (got ${d.size}")
-      Point2D(d(0), d(1))
-    }
-  }
-
-  implicit object pointFactory3D extends PointFactory[ThreeD] {
-    override def create(d: Array[Float]) : Point[ThreeD] = {
-      if (d.size != 3)
-        throw new Exception(s"Require array of size 3 to create a Point3D (got ${d.size}")
-      Point3D(d(0), d(1), d(2))
-    }
-  }
-
-
 
   def apply(x : Float) : Point[OneD] = new Point1D(x)
   def apply(x : Float, y : Float) : Point[TwoD] = new Point2D(x, y)

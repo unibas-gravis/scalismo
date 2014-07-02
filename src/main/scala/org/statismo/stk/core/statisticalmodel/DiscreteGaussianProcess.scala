@@ -1,6 +1,5 @@
 package org.statismo.stk.core.statisticalmodel
 
-import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.numerics.Sampler
@@ -19,7 +18,7 @@ case class DiscreteGaussianProcessConfiguration[D <: Dim] (
                                                             val points: IndexedSeq[Point[D]],
                                                             val cov: MatrixValuedPDKernel[D,D])
 
-case class DiscreteGaussianProcess[D <: Dim: VectorFactory : ToInt](val domain: Domain[D],
+case class DiscreteGaussianProcess[D <: Dim: DimOps](val domain: Domain[D],
                                                         val mean: Point[D] => Vector[D], val points: IndexedSeq[Point[D]], val cov: MatrixValuedPDKernel[D,D]) extends GaussianProcess[D] {
 
 
@@ -134,7 +133,7 @@ object DiscreteGaussianProcess {
   }
 
   // TODO this is pretty much the same code as the landmark kernel! refactor?
-  private def createLandmarkMean[D <: Dim: VectorFactory](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
+  private def createLandmarkMean[D <: Dim: DimOps](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
 
     val dim = kernel.outputDim
     val N = trainingData.size*dim

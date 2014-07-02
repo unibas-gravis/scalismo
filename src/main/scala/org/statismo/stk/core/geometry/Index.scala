@@ -7,7 +7,7 @@ package org.statismo.stk.core.geometry
  * Index definitions
  *=======================================*/
 
-abstract class Index[D <: Dim: ToInt] extends Coordinate[D, Int] {}
+abstract class Index[D <: Dim : DimOps] extends Coordinate[D, Int] {}
 
 private case class Index1D(i: Int) extends Index[OneD] {
   val data = Array(i)
