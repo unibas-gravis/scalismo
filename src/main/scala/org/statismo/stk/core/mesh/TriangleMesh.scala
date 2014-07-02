@@ -14,12 +14,12 @@ import org.statismo.stk.core.common.PointData
 import scala.reflect.ClassTag
 import scala.collection.mutable.HashMap
 import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.geometry.Point3D
-import org.statismo.stk.core.geometry.Vector3D
+import org.statismo.stk.core.geometry.Point
+import org.statismo.stk.core.geometry.Vector
 
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
-  val pointIds = Vector(ptId1, ptId2, ptId3)
+  val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
 
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
@@ -56,27 +56,27 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
     val maxx = points.map(_(0)).max
     val maxy = points.map(_(1)).max
     val maxz = points.map(_(2)).max
-    BoxedDomain3D(Point3D(minx, miny, minz), Point3D(maxx, maxy, maxz))
+    BoxedDomain3D(Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
   def warp(transform: Function1[Point[ThreeD], Point[ThreeD]]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
   def cellNeighbors(id: Int): Seq[TriangleCell] = cellMap(id)
 
-  def computeCellNormal(cell: TriangleCell): Vector3D = {
+  def computeCellNormal(cell: TriangleCell): Vector[ThreeD] = {
     val pt1 = meshPoints(cell.ptId1)
     val pt2 = meshPoints(cell.ptId2)
     val pt3 = meshPoints(cell.ptId3)
 
     val u = pt2 - pt1
     val v = pt3 - pt1
-    u.asInstanceOf[Vector3D].cross(v.asInstanceOf[Vector3D])
+    Vector.crossproduct(u, v)
   }
 
-  def normalAtPoint(pt: Point[ThreeD]): Vector3D = {
+  def normalAtPoint(pt: Point[ThreeD]): Vector[ThreeD] = {
     val closestMeshPtId = findClosestPoint(pt)._2
     val neigborCells = cellNeighbors(closestMeshPtId)
-    val normalUnnormalized = neigborCells.foldLeft(Vector3D(0, 0, 0))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
+    val normalUnnormalized = neigborCells.foldLeft(Vector(0f, 0f, 0f))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
     normalUnnormalized * (1.0 / normalUnnormalized.norm)
   }
 
@@ -97,16 +97,16 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
   }
 
   def samplePointInTriangleCell(t: TriangleCell): Point[ThreeD] = {
-    val A = meshPoints(t.ptId1) - Point3D(0, 0, 0)
-    val B = meshPoints(t.ptId2) - Point3D(0, 0, 0)
-    val C = meshPoints(t.ptId3) - Point3D(0, 0, 0)
+    val A = meshPoints(t.ptId1) - Point(0, 0, 0f)
+    val B = meshPoints(t.ptId2) - Point(0, 0, 0f)
+    val C = meshPoints(t.ptId3) - Point(0f, 0f, 0f)
 
     val u = scala.util.Random.nextFloat()
     val d = scala.util.Random.nextFloat()
     val v = if (d + u <= 1) d else 1 - u
 
     val s = A * u + B * v + C * (1 - (u + v))
-    Point3D(s(0), s(1), s(2))
+    Point(s(0), s(1), s(2))
   }
 }
 

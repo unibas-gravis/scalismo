@@ -104,7 +104,9 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       for (i <- 0 until 20) {
 
     	val (lambda_i, phi_i) = eigPairs(i)
-        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some(Point1D => Vector1D(0.0)))
+
+
+        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some((_ : Point[OneD]) => Vector(0.0)))
 
         val v = integrator.integrateScalar(phiImg)
         v should be(1f plusOrMinus 0.1)

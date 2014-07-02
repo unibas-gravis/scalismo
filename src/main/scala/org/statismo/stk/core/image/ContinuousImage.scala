@@ -162,7 +162,7 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
     def convolvedImgFun(x: Point[OneD]) = {
 
       def intermediateF(t: Point[OneD]): Float = {
-        val p = Point1D(x(0) - t(0))
+        val p = Point(x(0) - t(0))
     
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
@@ -180,10 +180,10 @@ case class ContinuousScalarImage1D(val domain: Domain[OneD], val f: Point[OneD] 
         Some((x: Point[OneD]) => {
           val thisDF = this.df.get
           def intermediateDF(t: Point[OneD]): Vector[OneD] = {
-            val p = Point1D(x(0) - t(0))
+            val p = Point(x(0) - t(0))
             if (this.isDefinedAt(p))
               thisDF(p) * filter(t)
-            else Vector1D(0)
+            else Vector(0)
 
           }
 
@@ -213,7 +213,7 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
     def f(x: Point[TwoD]) = {
 
       def intermediateF(t: Point[TwoD]) = {
-        val p = Point2D(x(0) - t(0), x(1) - t(1))
+        val p = Point(x(0) - t(0), x(1) - t(1))
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
 
@@ -230,11 +230,11 @@ case class ContinuousScalarImage2D(domain: Domain[TwoD], val f: Point[TwoD] => F
         Some((x: Point[TwoD]) => {
           val thisDF = this.df.get
           def intermediateDF(t: Point[TwoD]) = {
-            val p = Point2D(x(0) - t(0), x(1) - t(1))
+            val p = Point(x(0) - t(0), x(1) - t(1))
 
             if (this.isDefinedAt(p))
               thisDF(p) * filter(t)
-            else Vector2D(0, 0)
+            else Vector(0, 0)
 
           }
 
@@ -265,7 +265,7 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
     def f(x: Point[ThreeD]) = {
 
       def intermediateF(t: Point[ThreeD]) = {
-        val p = Point3D(x(0) - t(0), x(1) - t(1), x(2) - t(2))
+        val p = Point(x(0) - t(0), x(1) - t(1), x(2) - t(2))
         this.liftPixelValue(p).getOrElse(0f) * filter(t)
       }
 
@@ -283,11 +283,11 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
         Some((x: Point[ThreeD]) => {
           val thisDF = this.df.get
           def intermediateDF(t: Point[ThreeD]) = {
-            val p = Point3D(x(0) - t(0), x(1) - t(1), x(2) - t(2))
+            val p = Point(x(0) - t(0), x(1) - t(1), x(2) - t(2))
 
             if (this.isDefinedAt(p))
               thisDF(p) * filter(t)
-            else Vector3D(0, 0, 0)
+            else Vector(0, 0, 0)
 
           }
           val support = filter.support
@@ -309,9 +309,9 @@ case class ContinuousScalarImage3D(domain: Domain[ThreeD], val f: Point[ThreeD] 
 // Vector Images
 /////////////////////////////////////////////
 
-case class ContinuousVectorImage1D(val domain: Domain[OneD], val pixelDimensionality: Int, val f: Point[OneD] => Vector[OneD], val df: Option[Point[OneD] => Matrix1x1]) extends ContinuousVectorImage[OneD] {}
+case class ContinuousVectorImage1D(val domain: Domain[OneD], val pixelDimensionality: Int, val f: Point[OneD] => Vector[OneD], val df: Option[Point[OneD] => MatrixNxN[OneD]]) extends ContinuousVectorImage[OneD] {}
 
-case class ContinuousVectorImage2D(val domain: Domain[TwoD], val pixelDimensionality: Int, val f: Point[TwoD] => Vector[TwoD], val df: Option[Point[TwoD] => Matrix2x2]) extends ContinuousVectorImage[TwoD] {}
+case class ContinuousVectorImage2D(val domain: Domain[TwoD], val pixelDimensionality: Int, val f: Point[TwoD] => Vector[TwoD], val df: Option[Point[TwoD] => MatrixNxN[TwoD]]) extends ContinuousVectorImage[TwoD] {}
 
-case class ContinuousVectorImage3D(val domain: Domain[ThreeD], val pixelDimensionality: Int, val f: Point[ThreeD] => Vector[ThreeD], val df: Option[Point[ThreeD] => Matrix3x3]) extends ContinuousVectorImage[ThreeD] {}
+case class ContinuousVectorImage3D(val domain: Domain[ThreeD], val pixelDimensionality: Int, val f: Point[ThreeD] => Vector[ThreeD], val df: Option[Point[ThreeD] => MatrixNxN[ThreeD]]) extends ContinuousVectorImage[ThreeD] {}
 

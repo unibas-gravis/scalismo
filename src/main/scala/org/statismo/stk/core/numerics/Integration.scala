@@ -1,5 +1,6 @@
 package org.statismo.stk.core.numerics
 
+import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.image._
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.geometry._
@@ -91,11 +92,9 @@ import org.statismo.stk.core.common.BoxedDomain2D
 //  def sampledPoints = points
 //}
 
-case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D, Point[D]])
+case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D])
 
-case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguration[D]) {
-
-  val dimtraits = implicitly[DimTraits[D]]
+case class Integrator[D <: Dim: ToInt : VectorFactory](configuration: IntegratorConfiguration[D]) {
 
   def sampler = configuration.sampler
 
@@ -118,7 +117,7 @@ case class Integrator[D <: Dim: DimTraits](configuration: IntegratorConfiguratio
   def integrateVector(f: Function1[Point[D], Option[Vector[D]]]): Vector[D] = {
     val samples = configuration.sampler.sample
 
-    val zeroVector = dimtraits.zeroVector
+    val zeroVector = Vector.zeros[D]
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1f / p.toFloat) }.foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1f / (sampler.numberOfPoints - 1).toFloat)
   }

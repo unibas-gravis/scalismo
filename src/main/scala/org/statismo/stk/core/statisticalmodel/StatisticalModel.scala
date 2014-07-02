@@ -88,14 +88,14 @@ object StatisticalMeshModel {
       }
     }
 
-    def mean(pt: Point[ThreeD]): Vector3D = {
+    def mean(pt: Point[ThreeD]): Vector[ThreeD] = {
       val (closestPt, closestPtId) = findClosestPointMemoized(pt)
-      Vector3D(meanVec(closestPtId * 3), meanVec(closestPtId * 3 + 1), meanVec(closestPtId * 3 + 2))
+      Vector(meanVec(closestPtId * 3), meanVec(closestPtId * 3 + 1), meanVec(closestPtId * 3 + 2))
     }
 
     def phi(i: Int)(pt: Point[ThreeD]): Vector[ThreeD] = {
       val (closestPt, closestPtId) = findClosestPointMemoized(pt)
-      Vector3D(phiMat(closestPtId * 3, i), phiMat(closestPtId * 3 + 1, i), phiMat(closestPtId * 3 + 2, i))
+      Vector(phiMat(closestPtId * 3, i), phiMat(closestPtId * 3 + 1, i), phiMat(closestPtId * 3 + 2, i))
     }
 
     val eigenPairs = (0 until numPCAComponents) map (i => (pcaVariance(i), phi(i)_))

@@ -20,7 +20,7 @@ case class GaussianFilter1D(stddev: Double) extends Filter[OneD] {
   }
 
   val extent = (3.0 * stddev).toFloat
-  def support = BoxedDomain1D(Point1D(-extent), Point1D(extent))
+  def support = BoxedDomain1D(Point(-extent), Point(extent))
 }
 
 case class GaussianFilter2D(stddev: Double) extends Filter[TwoD] {
@@ -30,7 +30,7 @@ case class GaussianFilter2D(stddev: Double) extends Filter[TwoD] {
   }
 
   val extent = (3.0 * stddev).toFloat
-  def support = BoxedDomain2D(Point2D(-extent, -extent), Point2D(extent, extent))
+  def support = BoxedDomain2D(Point(-extent, -extent), Point(extent, extent))
 }
 
 case class GaussianFilter3D(stddev: Double) extends Filter[ThreeD] {
@@ -44,7 +44,7 @@ case class GaussianFilter3D(stddev: Double) extends Filter[ThreeD] {
   }
 
   val extent = (3.0 * stddev).toFloat
-  def support = BoxedDomain3D(Point3D(-extent, -extent, -extent), Point3D(extent, extent, extent))
+  def support = BoxedDomain3D(Point(-extent, -extent, -extent), Point(extent, extent, extent))
 }
 
 case class BoxedFilter1D(width: Int) extends Filter[OneD] {
@@ -54,17 +54,17 @@ case class BoxedFilter1D(width: Int) extends Filter[OneD] {
     else if( p(0).abs == w) w
     else 0f
   }
-  def support = BoxedDomain1D(Point1D(-w), Point1D(w))
+  def support = BoxedDomain1D(Point(-w), Point(w))
 }
 
 case class BoxedFilter2D(width: Int) extends Filter[TwoD] {
   def apply(p: Point[TwoD]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2f
-  def support = BoxedDomain2D(Point2D(-w, -w), Point2D(w, w))
+  def support = BoxedDomain2D(Point(-w, -w), Point(w, w))
 }
 
 case class BoxedFilter3D(width: Int) extends Filter[ThreeD] {
   def apply(p: Point[ThreeD]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2f
-  def support = BoxedDomain3D(Point3D(-w, -w, -w), Point3D(w, w, w))
+  def support = BoxedDomain3D(Point(-w, -w, -w), Point(w, w, w))
 }

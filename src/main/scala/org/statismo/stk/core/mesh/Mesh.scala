@@ -1,16 +1,8 @@
 package org.statismo.stk.core.mesh
 
 import org.statismo.stk.core.image.ContinuousScalarImage3D
-import breeze.linalg.DenseVector
-import org.statismo.stk.core.geometry.{ Point, ThreeD }
+import org.statismo.stk.core.geometry.{ Point, ThreeD, Vector }
 import org.statismo.stk.core.common.RealSpace3D
-import org.statismo.stk.core.geometry.Vector3D
-import scala.collection.immutable.SortedSet
-import scala.collection.immutable.HashSet
-import scala.collection.immutable.HashSet.HashSet1
-import scala.collection.immutable.HashSet.HashSet1
-import scala.collection.mutable.HashMap
-import org.statismo.stk.core.geometry.Point3D
 
 object Mesh {
 
@@ -25,7 +17,7 @@ object Mesh {
     }
     def grad(pt: Point[ThreeD]) = {
       val (closestPt, _) = mesh.findClosestPoint(pt)
-      val grad = Vector3D(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
+      val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
     ContinuousScalarImage3D(RealSpace3D, (pt: Point[ThreeD]) => dist(pt), Some((pt: Point[ThreeD]) => grad(pt)))

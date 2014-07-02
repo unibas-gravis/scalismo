@@ -6,7 +6,7 @@ import scala.util.{Success, Try}
 import java.io.File
 import ncsa.hdf.`object`.Group
 import org.statismo.stk.core.common.UnstructuredPointsDomain
-import org.statismo.stk.core.geometry.Point3D
+import org.statismo.stk.core.geometry.{Point, Point3D}
 import breeze.linalg.{DenseMatrix, DenseVector}
 
 /**
@@ -47,7 +47,7 @@ object ActiveShapeModelIO {
     for {
       profileDim <- h5file.readInt(s"$groupName/profileDimension")
       profilePtsArray <- h5file.readArray[Float](s"$groupName/profilePoints")
-      pts = profilePtsArray.grouped(ptDim).map(data => Point3D(data(0), data(1), data(2))).toIndexedSeq
+      pts = profilePtsArray.grouped(ptDim).map(data => Point(data(0), data(1), data(2))).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/cov")
       (m,n) = (covArray.dims(0).toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n ).map(data => DenseMatrix.create(n, n, data))

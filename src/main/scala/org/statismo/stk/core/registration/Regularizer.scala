@@ -2,6 +2,7 @@ package org.statismo.stk.core.registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
+import org.statismo.stk.core.geometry.Vector.VectorFactory
 import org.statismo.stk.core.statisticalmodel.{DiscreteGaussianProcess, GaussianProcess}
 import org.statismo.stk.core.geometry.{Vector2D, Point}
 import org.statismo.stk.core.geometry._
@@ -17,8 +18,8 @@ object RKHSNormRegularizer extends Regularizer {
   def takeDerivative(alpha : ParameterVector) = alpha * 2f
 }
 
-case class DiscreteRKHSNormRegularizer[D <: Dim: DimTraits](val gp : DiscreteGaussianProcess[D]) extends Regularizer {
-  private val dimTraits = implicitly[DimTraits[D]]
+case class DiscreteRKHSNormRegularizer[D <: Dim: ToInt : VectorFactory](val gp : DiscreteGaussianProcess[D]) extends Regularizer {
+
   val points = gp.points
   val dim = gp.outputDimensionality
   val cov = gp.cov
@@ -28,7 +29,7 @@ case class DiscreteRKHSNormRegularizer[D <: Dim: DimTraits](val gp : DiscreteGau
   def apply(alpha: ParameterVector): Double = {
 
     // Create Vector2D from alphas DenseVector
-    val coeffs = for (i <- 0 until points.size ) yield dimTraits.createVector(alpha(i*dim until (i*dim)+dim).toArray)
+    val coeffs = for (i <- 0 until points.size ) yield Vector[D](alpha(i*dim until (i*dim)+dim).toArray)
 
     def sumJ(idx: Int) : Double =  {
 
@@ -52,7 +53,7 @@ case class DiscreteRKHSNormRegularizer[D <: Dim: DimTraits](val gp : DiscreteGau
 
   def takeDerivative(alpha: ParameterVector): DenseVector[Float] = {
 
-    val coeffs = for (i <- 0 until points.size ) yield dimTraits.createVector(alpha(i*dim until (i*dim)+dim).toArray)
+    val coeffs = for (i <- 0 until points.size ) yield Vector[D](alpha(i*dim until (i*dim)+dim).toArray)
 
     val dalpha = DenseVector.zeros[Float](alpha.length)
 
@@ -66,7 +67,7 @@ case class DiscreteRKHSNormRegularizer[D <: Dim: DimTraits](val gp : DiscreteGau
 
       var j = 0
 
-      val zeroVector = dimTraits.zeroVector
+      val zeroVector = Vector.zeros[D]
       val sum = (0 until points.size).par.map { j =>  covJ(i,j) }.fold(zeroVector)((a, b) => { a + b })
 
       dalpha(i*dim until (i*dim) + dim) := sum.toBreezeVector

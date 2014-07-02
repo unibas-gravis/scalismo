@@ -48,7 +48,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0, 6.0),
         (x: Point[OneD]) => Math.sin(x(0).toDouble).toFloat,
-        Some((x: Point[OneD]) => Vector1D(Math.cos(x(0).toDouble).toFloat)))
+        Some((x: Point[OneD]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(1f))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4f) === true)
@@ -62,7 +62,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0, 6.0),
         (x: Point[OneD]) => Math.sin(x(0).toDouble).toFloat,
-        Some((x: Point[OneD]) => Vector1D(Math.cos(x(0).toDouble).toFloat)))
+        Some((x: Point[OneD]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(-1f))
       
       val warpedImage = image.compose(translationTransform)
@@ -115,7 +115,7 @@ class DomainTest extends FunSpec with ShouldMatchers {
 
     it("can correclty map a linear index to an index and back") {
       val domain = DiscreteImageDomain2D((1.0, 2.0), (2.0, 1.0), (42, 49))
-      val idx: Index2D = (5, 7)
+      val idx = Index(5, 7)
       val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
       assert(recIdx === idx)
     }
@@ -129,7 +129,7 @@ class DomainTest extends FunSpec with ShouldMatchers {
 
     it("can correclty map a linear index to an index and back") {
       val domain = DiscreteImageDomain3D((0.0, 0.0, 0.0), (1.0, 2.0, 3.0), (42, 49, 65))
-      val idx: Index3D = (5, 3, 7)
+      val idx =  Index(5, 3, 7)
       val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
       assert(recIdx === idx)
     }

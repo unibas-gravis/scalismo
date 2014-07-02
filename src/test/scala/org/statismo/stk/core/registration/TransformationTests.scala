@@ -25,7 +25,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val ss = ScalingSpace2D()
     val params = DenseVector[Float](3.0)
     val scale = ss(params)
-    val pt = Point2D(2.0, 1.0)
+    val pt = Point(2.0, 1.0)
     val scaledPt = scale(pt)
     it("Scales a point correctly") {
       scaledPt(0) should be(6f plusOrMinus 0.0001)
@@ -40,12 +40,12 @@ class TransformationTests extends FunSpec with ShouldMatchers {
   }
 
   describe("A Rotation in 2D") {
-    val center = Point2D(2.0, 3.5)
+    val center = Point(2.0, 3.5)
     val rs = RotationSpace2D(center)
     val phi = scala.math.Pi / 2
     val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
     val rotate = rs(rotationParams)
-    val pt = Point2D(2.0, 2.0)
+    val pt = Point(2.0, 2.0)
     val rotatedPt = rotate(pt)
     it("Rotates a point correctly") {
       (rotatedPt(0)) should be(3.5f plusOrMinus 0.0001)
@@ -75,7 +75,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     describe("composed with a rotation") {
 
       val ts = TranslationSpace2D()
-      val center = Point2D(2.0, 3.5)
+      val center = Point(2.0, 3.5)
       val rs = RotationSpace2D(center)
 
       val productSpace = ts.product(rs)
@@ -91,7 +91,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val rotationParams = rs.rotationParametersToParameterVector(phi.toFloat)
       val rotate = rs(rotationParams)
 
-      val pt = Point2D(2.0, 2.0)
+      val pt = Point(2.0, 2.0)
       val rotatedPt = rotate(pt)
 
       val translatedRotatedPt = translate(rotatedPt)
@@ -122,7 +122,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain1D(-50.0, 1.0, 100)
-      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => Vector1D(2f * x)))
+      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => Vector(2f * x)))
 
       val translation = TranslationSpace1D()(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)

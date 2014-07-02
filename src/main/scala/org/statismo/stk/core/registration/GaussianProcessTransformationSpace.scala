@@ -34,7 +34,7 @@ case class GaussianProcessTransformation1D(gp : GaussianProcess[OneD], alpha: Pa
 
   def apply(x: Point[OneD]) : Point[OneD] = {
     val newPointAsVector = instance(x)
-    Point1D(x(0) + newPointAsVector(0))
+    Point(x(0) + newPointAsVector(0))
   }
   def takeDerivative(x: Point[OneD]) = { throw new NotImplementedError("take derivative of kernel") }
 }
@@ -65,7 +65,7 @@ case class GaussianProcessTransformation2D(gp : GaussianProcess[TwoD], alpha: Pa
 
   def apply(x: Point[TwoD]) : Point[TwoD] = {
     val newPointAsVector = instance(x)
-    Point2D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1))
+    Point(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1))
   }
   def takeDerivative(x: Point[TwoD]) = { throw new NotImplementedError("take derivative of kernel") }
 }
@@ -97,7 +97,7 @@ case class GaussianProcessTransformation3D(gp : GaussianProcess[ThreeD], alpha: 
 
   def apply(x: Point[ThreeD]) : Point[ThreeD] = {
     val newPointAsVector = instance(x)
-    Point3D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1), x(2) + newPointAsVector(2))
+    Point(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1), x(2) + newPointAsVector(2))
   }
   def takeDerivative(x: Point[ThreeD]) = { throw new NotImplementedError("take derivative of kernel") }
 }
