@@ -42,6 +42,7 @@ object StatismoIO {
   type ModelCatalog = Seq[CatalogEntry]
 
   case class CatalogEntry(val name : String, val modelType : StatismoModelType, val modelPath : String)
+  object NoCatalogPresentException extends Exception
 
 
   /**
@@ -55,7 +56,7 @@ object StatismoIO {
 
     for {
       h5file <- HDF5Utils.openFileForReading(file)
-      catalogGroup <- h5file.getGroup("/catalog")
+      catalogGroup <- if (h5file.exists("/catalog")) h5file.getGroup("/catalog") else Failure(NoCatalogPresentException)
       modelEntries = for (entryGroupObj <- catalogGroup.getMemberList().asScala.toSeq if (entryGroupObj.isInstanceOf[Group])) yield {
         val entryGroup = entryGroupObj.asInstanceOf[Group]
         readCatalogEntry(h5file, entryGroup)
