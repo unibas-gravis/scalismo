@@ -3,6 +3,8 @@ package org.statismo.stk.core.io
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
+import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
+
 import scala.util.Success
 import scala.util.Failure
 import org.statismo.stk.core.geometry._
@@ -16,23 +18,23 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
 
   describe("a Statismo Mesh Model") {
-    it("can be read") {
-      // TODO add a model to the resource directory and change path
-      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
-      val maybeModel = StatismoIO.readStatismoMeshModel(statismoFile)
-      maybeModel match {
-        case Success(model) => {
-          val refMesh = model.mesh
-          val meshPts = refMesh.points
-          // TODO fix this test
-        }
-        case Failure(e) => {
-          println(e)
-          e.printStackTrace()
-          maybeModel.isSuccess should be(true)
+
+    def assertModelEqual(model1 : StatisticalMeshModel, model2 : StatisticalMeshModel) : Unit = {
+      val coeffs = DenseVector.ones[Float](model1.gp.rank)
+      val def1 = model1.gp.instance(coeffs)
+      val def2 = model2.gp.instance(coeffs)
+
+      model1.mesh.points.zip(model2.mesh.points).map {
+        pair =>
+        {
+          def1(pair._1)(0) should be(def2(pair._2)(0) plusOrMinus 0.01f)
+          def1(pair._1)(1) should be(def2(pair._2)(1) plusOrMinus 0.01f)
+          def1(pair._1)(2) should be(def2(pair._2)(2) plusOrMinus 0.01f)
         }
       }
+
     }
+
 
     it("can be written and read again") {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
@@ -44,22 +46,31 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
         _ <- writeStatismoMeshModel(model, dummyFile)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
-        val coeffs = DenseVector.ones[Float](model.gp.rank)
-        val def1 = model.gp.instance(coeffs)
-        val def2 = readModel.gp.instance(coeffs)
-
-        model.mesh.points.zip(readModel.mesh.points).map {
-          pair =>
-            {
-              def1(pair._1)(0) should be(def2(pair._2)(0) plusOrMinus 0.01f)
-              def1(pair._1)(1) should be(def2(pair._2)(1) plusOrMinus 0.01f)
-              def1(pair._1)(2) should be(def2(pair._2)(2) plusOrMinus 0.01f)
-            }
-        }
+        assertModelEqual(model, readModel)
       }
       t.get
 
     }
+
+
+
+    it("can be written and read again in non-standard location") {
+      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+      val dummyFile = File.createTempFile("dummy", "h5")
+      dummyFile.deleteOnExit
+
+      val t = for {
+        model <- StatismoIO.readStatismoMeshModel(statismoFile)
+        _ <- writeStatismoMeshModel(model, dummyFile, "/someLocation")
+        readModel <- StatismoIO.readStatismoMeshModel(dummyFile, "/someLocation")
+      } yield {
+        assertModelEqual(model, readModel)
+      }
+      t.get
+
+    }
+
+
 
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
@@ -71,25 +82,24 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
 
-        _ <- writeStatismoMeshModel(model, dummyFile, v081)
+        _ <- writeStatismoMeshModel(model, dummyFile, statismoVersion = v081)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
-        val coeffs = DenseVector.ones[Float](model.gp.rank)
-        val def1 = model.gp.instance(coeffs)
-        val def2 = readModel.gp.instance(coeffs)
-
-        model.mesh.points.zip(readModel.mesh.points).map {
-          pair =>
-            {
-              def1(pair._1)(0) should be(def2(pair._2)(0) plusOrMinus 0.01f)
-              def1(pair._1)(1) should be(def2(pair._2)(1) plusOrMinus 0.01f)
-              def1(pair._1)(2) should be(def2(pair._2)(2) plusOrMinus 0.01f)
-            }
-        }
+        assertModelEqual(model, readModel)
       }
       t.get
 
     }
-
   }
+
+  it("can read a catalog") {
+    val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+    val catalog = StatismoIO.readModelCatalog(statismoFile).get
+    catalog.size should equal(1)
+    val firstEntry = catalog.head
+    firstEntry.name should equal("faceshapemodel")
+    firstEntry.modelType should equal(StatismoIO.StatismoModelType.Polygon_Mesh)
+    firstEntry.modelPath should equal("/")
+  }
+
 }
