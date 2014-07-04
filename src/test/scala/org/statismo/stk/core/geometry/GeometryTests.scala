@@ -11,9 +11,9 @@ class GeometryTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   val p = Point(0.1, 3.0, 1.1)
-  val pGeneric: Point[ThreeD] = p
+  val pGeneric: Point[_3D] = p
   val v = Vector(0.1, 3.0, 1.1)
-  val vGeneric: Vector[ThreeD] = v
+  val vGeneric: Vector[_3D] = v
 
   describe("A 3D Point") {
     it("equals a Point[ThreeD]") {
@@ -76,10 +76,10 @@ class GeometryTests extends FunSpec with ShouldMatchers {
   describe("a 3x3 matrix") {
 
     // storage is column major
-    val m = MatrixNxN[ThreeD](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
+    val m = MatrixNxN[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
 
     it("can be created using zeros") {
-      val m = MatrixNxN.zeros[ThreeD]
+      val m = MatrixNxN.zeros[_3D]
       for (i <- 0 until 3; j <- 0 until 3) {
         m(i, j) should be(0f)
       }
@@ -91,8 +91,8 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("should euqal another 3x3 matrix with the same values") {
-      val m = MatrixNxN[ThreeD](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
-      val m2 = MatrixNxN[ThreeD](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      val m = MatrixNxN[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      val m2 = MatrixNxN[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
       m should equal(m2)
     }
 
@@ -161,9 +161,9 @@ class GeometryTests extends FunSpec with ShouldMatchers {
 
     it("fullfills some simple identities with ones,zeros and ident") {
       val v = Vector(1, 2, 3)
-      MatrixNxN.eye[ThreeD] * v should equal(v)
-      MatrixNxN.zeros[ThreeD] * v should equal(Vector(0, 0, 0))
-      MatrixNxN.ones[ThreeD] * v should equal(Vector(6, 6, 6))
+      MatrixNxN.eye[_3D] * v should equal(v)
+      MatrixNxN.zeros[_3D] * v should equal(Vector(0, 0, 0))
+      MatrixNxN.ones[_3D] * v should equal(Vector(6, 6, 6))
     }
 
     it("yields itself when transposed twise") {
@@ -178,7 +178,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val m = MatrixNxN((3, 4, 1), (3, 7, 2), (7, 9, 11))
       val mInvertible = m.t * m // m^T *m is always invertible
       val almostEye = mInvertible * MatrixNxN.inv(mInvertible)
-      val eye = MatrixNxN.eye[ThreeD]
+      val eye = MatrixNxN.eye[_3D]
       for (i <- 0 until 3; j <- 0 until 3)  {
         almostEye(i,j) should be(eye(i,j) plusOrMinus 1e-5f)
       }

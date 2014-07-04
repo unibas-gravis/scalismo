@@ -26,19 +26,19 @@ object LandmarkIO {
     }
   }
 
-  def readLandmarks1D(f: File): Try[IndexedSeq[(String, Point[OneD])]] = {
+  def readLandmarks1D(f: File): Try[IndexedSeq[(String, Point[_1D])]] = {
     for (landmarks <- readLandmarks(f)) yield {
       for (landmark <- landmarks) yield (landmark._1, Point(landmark._2))
     }
   }
 
-  def readLandmarks2D(f: File): Try[IndexedSeq[(String, Point[TwoD])]] = {
+  def readLandmarks2D(f: File): Try[IndexedSeq[(String, Point[_2D])]] = {
     for (landmarks <- readLandmarks(f)) yield {
       for (landmark <- landmarks) yield (landmark._1, Point(landmark._2, landmark._3))
     }
   }
 
-  def readLandmarks3D(f: File): Try[IndexedSeq[(String, Point[ThreeD])]] = {
+  def readLandmarks3D(f: File): Try[IndexedSeq[(String, Point[_3D])]] = {
     for (landmarks <- readLandmarks(f)) yield {
       for (landmark <- landmarks) yield (landmark._1, Point(landmark._2, landmark._3, landmark._4))
     }

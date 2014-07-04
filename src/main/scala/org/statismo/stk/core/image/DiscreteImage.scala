@@ -30,18 +30,18 @@ abstract class DiscreteScalarImage[D <: Dim, Pixel] extends DiscreteImage[D, Pix
   def map[Pixel2: ScalarValue : ClassTag](f: Pixel => Pixel2): DiscreteScalarImage[D, Pixel2]
 }
 
-case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain1D, val values: Array[Pixel]) extends DiscreteScalarImage[OneD, Pixel] {
+case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain1D, val values: Array[Pixel]) extends DiscreteScalarImage[_1D, Pixel] {
   require(domain.numberOfPoints == values.size)
   def map[@specialized(Short, Float) A: ScalarValue : ClassTag](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.values.map(f))
 
 }
 
-case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain2D, val values: Array[Pixel]) extends DiscreteScalarImage[TwoD, Pixel] {
+case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain2D, val values: Array[Pixel]) extends DiscreteScalarImage[_2D, Pixel] {
   require(domain.numberOfPoints == values.size)
   def map[@specialized(Short, Float) A: ScalarValue: ClassTag](f: Pixel => A) = DiscreteScalarImage2D(this.domain, this.values.map(f))
 }
 
-case class DiscreteScalarImage3D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain3D, val values: Array[Pixel]) extends DiscreteScalarImage[ThreeD, Pixel] {
+case class DiscreteScalarImage3D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain3D, val values: Array[Pixel]) extends DiscreteScalarImage[_3D, Pixel] {
   require(domain.numberOfPoints == values.size)
   def map[@specialized(Short, Float) A: ScalarValue: ClassTag](f: Pixel => A) = DiscreteScalarImage3D(this.domain, this.values.map(f))
 }

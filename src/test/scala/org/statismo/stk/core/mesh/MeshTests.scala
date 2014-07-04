@@ -48,7 +48,7 @@ class MeshTests extends FunSpec with ShouldMatchers {
 
     }
     it("computes its area correctly for a triangle") {
-      val pts: IndexedSeq[Point[ThreeD]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
+      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val mesh = TriangleMesh(pts, cells)
 
@@ -61,7 +61,7 @@ class MeshTests extends FunSpec with ShouldMatchers {
 
     // ignored until more meaningful test (It's normal that more points are deleted)
     ignore("can be clipped") {
-      def ptIdSmallerThan100(pt: Point[ThreeD]) = facemesh.findClosestPoint(pt)._2 < 100
+      def ptIdSmallerThan100(pt: Point[_3D]) = facemesh.findClosestPoint(pt)._2 < 100
       val clippedMesh = Mesh.clipMesh(facemesh, ptIdSmallerThan100 _)
 
       clippedMesh.numberOfPoints should be(facemesh.numberOfPoints - 100)

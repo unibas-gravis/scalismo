@@ -75,61 +75,61 @@ case class DiscreteGaussianProcess[D <: Dim: DimOps](val domain: Domain[D],
 
 object DiscreteGaussianProcess {
 
-  def createDiscreteGaussianProcess1D(configuration: DiscreteGaussianProcessConfiguration[OneD]) = {
-    new DiscreteGaussianProcess[OneD](configuration.domain, configuration.mean, configuration.points, configuration.cov)
+  def createDiscreteGaussianProcess1D(configuration: DiscreteGaussianProcessConfiguration[_1D]) = {
+    new DiscreteGaussianProcess[_1D](configuration.domain, configuration.mean, configuration.points, configuration.cov)
   }
 
-  def createDiscreteGaussianProcess2D(configuration: DiscreteGaussianProcessConfiguration[TwoD]) = {
-    new DiscreteGaussianProcess[TwoD](configuration.domain, configuration.mean, configuration.points, configuration.cov)
+  def createDiscreteGaussianProcess2D(configuration: DiscreteGaussianProcessConfiguration[_2D]) = {
+    new DiscreteGaussianProcess[_2D](configuration.domain, configuration.mean, configuration.points, configuration.cov)
   }
 
-  def createDiscreteGaussianProcess3D(configuration: DiscreteGaussianProcessConfiguration[ThreeD]) = {
-    new DiscreteGaussianProcess[ThreeD](configuration.domain, configuration.mean, configuration.points, configuration.cov)
+  def createDiscreteGaussianProcess3D(configuration: DiscreteGaussianProcessConfiguration[_3D]) = {
+    new DiscreteGaussianProcess[_3D](configuration.domain, configuration.mean, configuration.points, configuration.cov)
   }
 
-  def createLandmarkDiscreteGaussianProcess1D(configuration: DiscreteGaussianProcessConfiguration[OneD], trainingData: IndexedSeq[(Point[OneD], Vector[OneD])], sigma2: Double) = {
+  def createLandmarkDiscreteGaussianProcess1D(configuration: DiscreteGaussianProcessConfiguration[_1D], trainingData: IndexedSeq[(Point[_1D], Vector[_1D])], sigma2: Double) = {
 
     val trainingDataWithNoise = trainingData.map {
       case (x, y) => (x, y, sigma2)
     }
     val nPoints = configuration.points.length
-    val mean: Point[OneD] => Vector[OneD] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
-    val landmarkCov: MatrixValuedPDKernel[OneD, OneD] = LandmarkKernel[OneD](configuration.cov, trainingDataWithNoise, nPoints * nPoints)
+    val mean: Point[_1D] => Vector[_1D] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
+    val landmarkCov: MatrixValuedPDKernel[_1D, _1D] = LandmarkKernel[_1D](configuration.cov, trainingDataWithNoise, nPoints * nPoints)
 
-    new DiscreteGaussianProcess[OneD](configuration.domain, mean, configuration.sampler.sample.map(_._1), landmarkCov)
+    new DiscreteGaussianProcess[_1D](configuration.domain, mean, configuration.sampler.sample.map(_._1), landmarkCov)
   }
 
-  def createLandmarkDiscreteGaussianProcess2D(configuration: DiscreteGaussianProcessConfiguration[TwoD], trainingData: IndexedSeq[(Point[TwoD], Vector[TwoD])], sigma2: Double) = {
+  def createLandmarkDiscreteGaussianProcess2D(configuration: DiscreteGaussianProcessConfiguration[_2D], trainingData: IndexedSeq[(Point[_2D], Vector[_2D])], sigma2: Double) = {
 
     val trainingDataWithNoise = trainingData.map {
       case (x, y) => (x, y, sigma2)
     }
     val nPoints = configuration.points.length
-    val mean: Point[TwoD] => Vector[TwoD] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
-    val landmarkCov = LandmarkKernel[TwoD](configuration.cov, trainingDataWithNoise, nPoints * nPoints)
-    new DiscreteGaussianProcess[TwoD](configuration.domain, mean, configuration.points, landmarkCov)
+    val mean: Point[_2D] => Vector[_2D] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
+    val landmarkCov = LandmarkKernel[_2D](configuration.cov, trainingDataWithNoise, nPoints * nPoints)
+    new DiscreteGaussianProcess[_2D](configuration.domain, mean, configuration.points, landmarkCov)
   }
 
-  def createLandmarkBaseGaussianProcess3D(configuration: DiscreteGaussianProcessConfiguration[ThreeD], trainingData: IndexedSeq[(Point[ThreeD], Vector[ThreeD])], sigma2: Double) = {
+  def createLandmarkBaseGaussianProcess3D(configuration: DiscreteGaussianProcessConfiguration[_3D], trainingData: IndexedSeq[(Point[_3D], Vector[_3D])], sigma2: Double) = {
 
     val trainingDataWithNoise = trainingData.map {
       case (x, y) => (x, y, sigma2)
     }
     val nPoints = configuration.points.length
-    val mean: Point[ThreeD] => Vector[ThreeD] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
-    val landmarkCov = LandmarkKernel[ThreeD](configuration.cov, trainingDataWithNoise, nPoints * nPoints)
-    new DiscreteGaussianProcess[ThreeD](configuration.domain, mean, configuration.points, landmarkCov)
+    val mean: Point[_3D] => Vector[_3D] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
+    val landmarkCov = LandmarkKernel[_3D](configuration.cov, trainingDataWithNoise, nPoints * nPoints)
+    new DiscreteGaussianProcess[_3D](configuration.domain, mean, configuration.points, landmarkCov)
   }
 
-  def createCacheOptimizedLandmarkBaseGaussianProcess3D(configuration: DiscreteGaussianProcessConfiguration[ThreeD], trainingData: IndexedSeq[(Point[ThreeD], Vector[ThreeD])], sigma2: Double, meshSize: Int) = {
+  def createCacheOptimizedLandmarkBaseGaussianProcess3D(configuration: DiscreteGaussianProcessConfiguration[_3D], trainingData: IndexedSeq[(Point[_3D], Vector[_3D])], sigma2: Double, meshSize: Int) = {
 
     val trainingDataWithNoise = trainingData.map {
       case (x, y) => (x, y, sigma2)
     }
     val nPoints = configuration.points.size
-    val mean: Point[ThreeD] => Vector[ThreeD] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
-    val landmarkCov = LandmarkKernelNonRepeatingPoints[ThreeD](configuration.cov, trainingDataWithNoise, meshSize)
-    new DiscreteGaussianProcess[ThreeD](configuration.domain, mean, configuration.points, landmarkCov)
+    val mean: Point[_3D] => Vector[_3D] = createLandmarkMean(trainingDataWithNoise, configuration.cov, configuration.mean)
+    val landmarkCov = LandmarkKernelNonRepeatingPoints[_3D](configuration.cov, trainingDataWithNoise, meshSize)
+    new DiscreteGaussianProcess[_3D](configuration.domain, mean, configuration.points, landmarkCov)
   }
 
   // TODO this is pretty much the same code as the landmark kernel! refactor?

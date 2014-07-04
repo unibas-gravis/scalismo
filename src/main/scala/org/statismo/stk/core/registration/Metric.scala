@@ -53,9 +53,9 @@ abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extend
   }
 }
 
-case class MeanSquaresMetric1D(override val integrator: Integrator[OneD]) extends MeanSquaresMetric[OneD](integrator)
-case class MeanSquaresMetric2D(override val integrator: Integrator[TwoD]) extends MeanSquaresMetric[TwoD](integrator)
-case class MeanSquaresMetric3D(override val integrator: Integrator[ThreeD]) extends MeanSquaresMetric[ThreeD](integrator)
+case class MeanSquaresMetric1D(override val integrator: Integrator[_1D]) extends MeanSquaresMetric[_1D](integrator)
+case class MeanSquaresMetric2D(override val integrator: Integrator[_2D]) extends MeanSquaresMetric[_2D](integrator)
+case class MeanSquaresMetric3D(override val integrator: Integrator[_3D]) extends MeanSquaresMetric[_3D](integrator)
 
 object Metric {
 }

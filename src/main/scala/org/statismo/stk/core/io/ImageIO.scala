@@ -216,7 +216,7 @@ object ImageIO {
   /**
    * returns transformations from voxel to World coordinates and its inverse
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[ThreeD] with CanDifferentiate[ThreeD], Transformation[ThreeD] with CanDifferentiate[ThreeD])] = {
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[_3D] with CanDifferentiate[_3D], Transformation[_3D] with CanDifferentiate[_3D])] = {
 
     val nx = volume.header.dim(1);
     val ny = volume.header.dim(2);
@@ -232,23 +232,23 @@ object ImageIO {
 
     val affineTransMatrix = DenseMatrix.create(4, 4, volume.header.sform_to_mat44().flatten).t
 
-    val t: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
-      def apply(x: Point[ThreeD]) = {
+    val t: Transformation[_3D] with CanDifferentiate[_3D] = new Transformation[_3D] with CanDifferentiate[_3D] {
+      def apply(x: Point[_3D]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t = affineTransMatrix * xh
         Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
       }
-      override def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = ???
+      override def takeDerivative(x: Point[_3D]): MatrixNxN[_3D] = ???
     }
 
     val affineTransMatrixInv = breeze.linalg.inv(affineTransMatrix)
-    val tinv: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
-      def apply(x: Point[ThreeD]) = {
+    val tinv: Transformation[_3D] with CanDifferentiate[_3D] = new Transformation[_3D] with CanDifferentiate[_3D] {
+      def apply(x: Point[_3D]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t = affineTransMatrixInv * xh
         Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
       }
-      override def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = ???
+      override def takeDerivative(x: Point[_3D]): MatrixNxN[_3D] = ???
     }
 
     Success(t, tinv)

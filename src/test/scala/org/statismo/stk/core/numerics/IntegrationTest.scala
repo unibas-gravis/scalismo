@@ -15,10 +15,10 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => Vector(2f) * x(0) ))
+      val img =  ContinuousScalarImage1D( BoxedDomain1D(-0, 1.0), (x: Point[_1D]) => x * x, Some((x: Point[_1D]) => Vector(2f) * x(0) ))
 
       val domain = BoxedDomain1D(-1.0, 1.0)
-      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain, 1000)))  
+      val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(domain, 1000)))
     
       val res = integrator.integrateScalar(img)
       res should be((1.0 / 3.0).toFloat plusOrMinus 0.001)
@@ -27,12 +27,12 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
 
       val img =  ContinuousScalarImage1D( 
           BoxedDomain1D(-math.Pi, math.Pi), 
-          (x: Point[OneD]) => math.sin(x.toDouble).toFloat, 
-          Some((x: Point[OneD]) => Vector( - math.cos(x.toDouble).toFloat ))
+          (x: Point[_1D]) => math.sin(x.toDouble).toFloat,
+          Some((x: Point[_1D]) => Vector( - math.cos(x.toDouble).toFloat ))
           )
 
       val domain = BoxedDomain1D(-math.Pi, math.Pi)
-      val integrator = Integrator[OneD](IntegratorConfiguration(UniformSampler1D(domain, 1000)))  
+      val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(domain, 1000)))
         
       val res = integrator.integrateScalar(img)
       res should be(0.0f plusOrMinus 0.001)
@@ -41,7 +41,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
     
     it("Correctly integrates integrates a compact function") {
 
-      val img =  ContinuousScalarImage1D( BoxedDomain1D(-1.0, 1.0),  (x: Point[OneD]) => 1.0)
+      val img =  ContinuousScalarImage1D( BoxedDomain1D(-1.0, 1.0),  (x: Point[_1D]) => 1.0)
 
       //Utils.show1D(img, DiscreteImageDomain1D(-2., 0.1, 40))
       

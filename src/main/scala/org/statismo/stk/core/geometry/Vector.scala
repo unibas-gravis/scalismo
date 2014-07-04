@@ -101,40 +101,40 @@ class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Fl
 
 trait VectorFactory[D <: Dim] { def create(d : Array[Float]) : Vector[D] }
 
-private[geometry] object vectorFactory1D extends VectorFactory[OneD] {
-  override def create(d: Array[Float]) : Vector[OneD] = {
+private[geometry] object vectorFactory1D extends VectorFactory[_1D] {
+  override def create(d: Array[Float]) : Vector[_1D] = {
     if (d.size != 1)
       throw new Exception(s"Require array of size 1 to create a Vector1D (got ${d.size}")
-    new Vector[OneD](d)
+    new Vector[_1D](d)
   }
 }
 
-private[geometry] object vectorFactory2D extends VectorFactory[TwoD] {
-  override def create(d: Array[Float]) : Vector[TwoD] = {
+private[geometry] object vectorFactory2D extends VectorFactory[_2D] {
+  override def create(d: Array[Float]) : Vector[_2D] = {
     if (d.size != 2)
       throw new Exception(s"Require array of size 2 to create a Vector2D (got ${d.size}")
-    new Vector[TwoD](d)
+    new Vector[_2D](d)
   }
 }
 
-private[geometry] object vectorFactory3D extends VectorFactory[ThreeD] {
-  override def create(d: Array[Float]) : Vector[ThreeD] = {
+private[geometry] object vectorFactory3D extends VectorFactory[_3D] {
+  override def create(d: Array[Float]) : Vector[_3D] = {
     if (d.size != 3)
       throw new Exception(s"Require array of size 3 to create a Vector3D (got ${d.size}")
-    new Vector[ThreeD](d)
+    new Vector[_3D](d)
   }
 }
 
 object Vector {
 
 
-  def crossproduct(u : Vector[ThreeD], v : Vector[ThreeD]) : Vector[ThreeD] = {
+  def crossproduct(u : Vector[_3D], v : Vector[_3D]) : Vector[_3D] = {
       Vector(u(1) * v(2) - u(2) * v(1), u(2) * v(0) - u(0) * v(2), u(0) * v(1)  - u(1) * v(0))
   }
 
-  def apply(x : Float) : Vector[OneD] = new Vector[OneD](Array(x))
-  def apply(x : Float, y : Float) : Vector[TwoD] = new Vector[TwoD](Array(x, y))
-  def apply(x : Float, y : Float, z : Float) : Vector[ThreeD] = new Vector[ThreeD](Array(x, y, z))
+  def apply(x : Float) : Vector[_1D] = new Vector[_1D](Array(x))
+  def apply(x : Float, y : Float) : Vector[_2D] = new Vector[_2D](Array(x, y))
+  def apply(x : Float, y : Float, z : Float) : Vector[_3D] = new Vector[_3D](Array(x, y, z))
 
   def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].vector.create(d)
   def zeros[D <: Dim : DimOps] = {
@@ -143,7 +143,7 @@ object Vector {
   }
 
 
-  implicit def vector1DToDouble(v: Vector[OneD]) = v(0)
+  implicit def vector1DToDouble(v: Vector[_1D]) = v(0)
   implicit def doubleToVector1De(d: Double) = Vector(d.toFloat)
   implicit def tupleOfDoubleToVector2D(t: (Double, Double)) = Vector(t._1.toFloat, t._2.toFloat)
   implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)) = Vector(t._1.toFloat, t._2.toFloat, t._3.toFloat)

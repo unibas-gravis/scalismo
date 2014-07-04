@@ -93,7 +93,7 @@ object StatismoIO {
     } yield {
       // statismo stores the mean as the point position and not as a displaceme
       // ref. we compensate for this
-      def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
+      def flatten(v: IndexedSeq[Point[_3D]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 

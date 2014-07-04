@@ -102,7 +102,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       it("correctly transforms a point") {
         assert(productTransform(pt) === translatedRotatedPt)
       }
-      val productDerivative = (x: Point[TwoD]) =>
+      val productDerivative = (x: Point[_2D]) =>
         breeze.linalg.DenseMatrix.horzcat(
           ts.takeDerivativeWRTParameters(transParams)(x),
           (rs.takeDerivativeWRTParameters(rotationParams)(x)))
@@ -122,7 +122,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain1D(-50.0, 1.0, 100)
-      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[OneD]) => x * x, Some((x: Point[OneD]) => Vector(2f * x)))
+      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[_1D]) => x * x, Some((x: Point[_1D]) => Vector(2f * x)))
 
       val translation = TranslationSpace1D()(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)

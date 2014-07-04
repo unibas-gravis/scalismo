@@ -1,7 +1,7 @@
 package org.statismo.stk.core
 package common
 
-import geometry.{Point, Vector, Dim, OneD, TwoD, ThreeD}
+import geometry.{Point, Vector, Dim, _1D, _2D, _3D}
 import breeze.linalg.DenseVector
 
 
@@ -20,9 +20,9 @@ trait Domain[D <: Dim] { self =>
 trait RealSpace[D <: Dim] extends Domain[D] {
   def isDefinedAt(pt : Point[D]) = true
 }
-object RealSpace1D extends RealSpace[OneD] 
-object RealSpace2D extends RealSpace[TwoD] 
-object RealSpace3D extends RealSpace[ThreeD]
+object RealSpace1D extends RealSpace[_1D]
+object RealSpace2D extends RealSpace[_2D]
+object RealSpace3D extends RealSpace[_3D]
 
 /**
  * A region defined implicitly by an indicator function
@@ -34,9 +34,9 @@ trait ImplicitDomain[D <: Dim] extends Domain[D] {
   override def isDefinedAt(pt : Point[D]) : Boolean = chi(pt)
 }
 
-case class ImplicitDomain1D(val chi : Point[OneD] => Boolean) extends ImplicitDomain[OneD] {}
-case class ImplicitDomain2D(val chi : Point[TwoD] => Boolean) extends ImplicitDomain[TwoD] {}
-case class ImplicitDomain3D(val chi : Point[ThreeD] => Boolean) extends ImplicitDomain[ThreeD] {}
+case class ImplicitDomain1D(val chi : Point[_1D] => Boolean) extends ImplicitDomain[_1D] {}
+case class ImplicitDomain2D(val chi : Point[_2D] => Boolean) extends ImplicitDomain[_2D] {}
+case class ImplicitDomain3D(val chi : Point[_3D] => Boolean) extends ImplicitDomain[_3D] {}
 
 
 trait BoxedDomain[D <: Dim] extends Domain[D] {
@@ -49,19 +49,19 @@ trait BoxedDomain[D <: Dim] extends Domain[D] {
   }
 }
 
-case class BoxedDomain1D( originV : Point[OneD], extentV: Point[OneD]) extends BoxedDomain[OneD]  {
+case class BoxedDomain1D( originV : Point[_1D], extentV: Point[_1D]) extends BoxedDomain[_1D]  {
   def dimensionality = 1
   def origin = originV
   def extent = extentV
 }
 
-case class BoxedDomain2D(originV : Point[TwoD], extentV: Point[TwoD]) extends BoxedDomain[TwoD]{
+case class BoxedDomain2D(originV : Point[_2D], extentV: Point[_2D]) extends BoxedDomain[_2D]{
   def dimensionality = 2
   def origin = originV
   def extent = extentV
 }
 
-case class BoxedDomain3D(originV : Point[ThreeD], extentV: Point[ThreeD]) extends BoxedDomain[ThreeD] {
+case class BoxedDomain3D(originV : Point[_3D], extentV: Point[_3D]) extends BoxedDomain[_3D] {
   def dimensionality = 3
   def origin = originV
   def extent = extentV  
