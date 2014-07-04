@@ -141,35 +141,35 @@ trait MatrixFactory[D <: Dim] {
 }
 
 
-private[geometry] object matrixFactory1D extends MatrixFactory[OneD] {
-  override def create(d: Array[Float]) : MatrixNxN[OneD] = {
+private[geometry] object matrixFactory1D extends MatrixFactory[_1D] {
+  override def create(d: Array[Float]) : MatrixNxN[_1D] = {
     if (d.size != 1) {
       throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
     }
-    new MatrixNxN[OneD](d)
+    new MatrixNxN[_1D](d)
   }
-  override def eye : MatrixNxN[OneD] = MatrixNxN(Array(1f))
+  override def eye : MatrixNxN[_1D] = MatrixNxN(Array(1f))
 }
 
 
-private[geometry] object matrixFactory2D extends MatrixFactory[TwoD] {
-  override def create(d: Array[Float]) : MatrixNxN[TwoD] = {
+private[geometry] object matrixFactory2D extends MatrixFactory[_2D] {
+  override def create(d: Array[Float]) : MatrixNxN[_2D] = {
     if (d.size != 4) {
       throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
     }
-    new MatrixNxN[TwoD](d)
+    new MatrixNxN[_2D](d)
   }
-  override def eye : MatrixNxN[TwoD]= MatrixNxN[TwoD](Array(1f, 0f, 0f, 1f))
+  override def eye : MatrixNxN[_2D]= MatrixNxN[_2D](Array(1f, 0f, 0f, 1f))
 }
 
-private[geometry] object matrixFactory3D extends MatrixFactory[ThreeD] {
-  override def create(d: Array[Float]) : MatrixNxN[ThreeD] = {
+private[geometry] object matrixFactory3D extends MatrixFactory[_3D] {
+  override def create(d: Array[Float]) : MatrixNxN[_3D] = {
     if (d.size != 9) {
       throw new Exception(s"Require array of size 9 to create a Matrix3x3 (got ${d.size}")
     }
-    new MatrixNxN[ThreeD](d)
+    new MatrixNxN[_3D](d)
   }
-  override def eye : MatrixNxN[ThreeD] = MatrixNxN[ThreeD](Array(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
+  override def eye : MatrixNxN[_3D] = MatrixNxN[_3D](Array(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
 }
 
 
@@ -177,14 +177,14 @@ private[geometry] object matrixFactory3D extends MatrixFactory[ThreeD] {
 object MatrixNxN {
 
 
-  def apply(f : Float) : MatrixNxN[OneD] = new MatrixNxN[OneD](Array(f))
-  def apply(row1: Tuple2[Float, Float], row2: Tuple2[Float, Float]) : MatrixNxN[TwoD]= {
-    new MatrixNxN[TwoD](Array(row1._1, row2._1, row1._2, row2._2))
+  def apply(f : Float) : MatrixNxN[_1D] = new MatrixNxN[_1D](Array(f))
+  def apply(row1: Tuple2[Float, Float], row2: Tuple2[Float, Float]) : MatrixNxN[_2D]= {
+    new MatrixNxN[_2D](Array(row1._1, row2._1, row1._2, row2._2))
   }
 
   type TupleF = Tuple3[Float, Float, Float]
-  def apply(row1: TupleF, row2: TupleF, row3: TupleF) : MatrixNxN[ThreeD] = {
-    new MatrixNxN[ThreeD](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
+  def apply(row1: TupleF, row2: TupleF, row3: TupleF) : MatrixNxN[_3D] = {
+    new MatrixNxN[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
   def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].matrixNxN.create(d)

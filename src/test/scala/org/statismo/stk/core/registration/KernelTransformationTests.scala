@@ -26,7 +26,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
-      def approxKernel(x: Point[OneD], y: Point[OneD]) = {
+      def approxKernel(x: Point[_1D], y: Point[_1D]) = {
         (0 until eigPairs.size).foldLeft(0.0)((sum, i) => {
           val (lambda_i, phi_i) = eigPairs(i)
           sum + lambda_i * phi_i(x)(0) * phi_i(y)(0)
@@ -106,7 +106,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
     	val (lambda_i, phi_i) = eigPairs(i)
 
 
-        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[OneD]) => phi_i(x)(0) * phi_i(x)(0), Some((_ : Point[OneD]) => Vector(0.0)))
+        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0), Some((_ : Point[_1D]) => Vector(0.0)))
 
         val v = integrator.integrateScalar(phiImg)
         v should be(1f plusOrMinus 0.1)

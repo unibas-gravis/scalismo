@@ -234,37 +234,37 @@ object SpecializedLowRankGaussianProcess {
 }
 
 class LowRankGaussianProcess1D(
-                                domain: Domain[OneD],
-                                mean: Point[OneD] => Vector[OneD],
-                                eigenPairs: IndexedSeq[(Float, Point[OneD] => Vector[OneD])])
-  extends LowRankGaussianProcess[OneD](domain, mean, eigenPairs) {}
+                                domain: Domain[_1D],
+                                mean: Point[_1D] => Vector[_1D],
+                                eigenPairs: IndexedSeq[(Float, Point[_1D] => Vector[_1D])])
+  extends LowRankGaussianProcess[_1D](domain, mean, eigenPairs) {}
 
 class LowRankGaussianProcess2D(
-                                domain: Domain[TwoD],
-                                mean: Point[TwoD] => Vector[TwoD],
-                                eigenPairs: IndexedSeq[(Float, Point[TwoD] => Vector[TwoD])])
-  extends LowRankGaussianProcess[TwoD](domain, mean, eigenPairs) { }
+                                domain: Domain[_2D],
+                                mean: Point[_2D] => Vector[_2D],
+                                eigenPairs: IndexedSeq[(Float, Point[_2D] => Vector[_2D])])
+  extends LowRankGaussianProcess[_2D](domain, mean, eigenPairs) { }
 
 class LowRankGaussianProcess3D(
-                                domain: Domain[ThreeD],
-                                mean: Point[ThreeD] => Vector[ThreeD],
-                                eigenPairs: IndexedSeq[(Float, Point[ThreeD] => Vector[ThreeD])])
-  extends LowRankGaussianProcess[ThreeD](domain, mean, eigenPairs) {}
+                                domain: Domain[_3D],
+                                mean: Point[_3D] => Vector[_3D],
+                                eigenPairs: IndexedSeq[(Float, Point[_3D] => Vector[_3D])])
+  extends LowRankGaussianProcess[_3D](domain, mean, eigenPairs) {}
 
 
 
 object LowRankGaussianProcess {
-  def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[OneD]) = {
+  def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[_1D]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess1D(configuration.domain, configuration.mean, eigenPairs)
   }
 
-  def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[TwoD]) = {
+  def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[_2D]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess2D(configuration.domain, configuration.mean, eigenPairs)
   }
 
-  def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[ThreeD]) = {
+  def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[_3D]) = {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess3D(configuration.domain, configuration.mean, eigenPairs)
   }

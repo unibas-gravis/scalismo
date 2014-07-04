@@ -47,8 +47,8 @@ class ImageTest extends FunSpec with ShouldMatchers {
     it("yields the right values after composing with a translation") {
 
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0, 6.0),
-        (x: Point[OneD]) => Math.sin(x(0).toDouble).toFloat,
-        Some((x: Point[OneD]) => Vector(Math.cos(x(0).toDouble).toFloat)))
+        (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
+        Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(1f))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4f) === true)
@@ -61,8 +61,8 @@ class ImageTest extends FunSpec with ShouldMatchers {
     it("yields the right values after warping with a translation") {
 
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0, 6.0),
-        (x: Point[OneD]) => Math.sin(x(0).toDouble).toFloat,
-        Some((x: Point[OneD]) => Vector(Math.cos(x(0).toDouble).toFloat)))
+        (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
+        Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(-1f))
       
       val warpedImage = image.compose(translationTransform)

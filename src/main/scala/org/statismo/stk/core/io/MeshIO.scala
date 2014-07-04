@@ -69,7 +69,7 @@ object MeshIO {
 
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
 
-    val domainPoints: IndexedSeq[Point[ThreeD]] = surface.points.toIndexedSeq
+    val domainPoints: IndexedSeq[Point[_3D]] = surface.points.toIndexedSeq
     val cells: IndexedSeq[TriangleCell] = surface.cells
 
     val maybeError: Try[Unit] = for {
@@ -193,7 +193,7 @@ object MeshIO {
     maybeSurface
   }
 
-  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[ThreeD]] = {
+  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
     ndarray.data.grouped(3).map(grp => Point(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
   }
@@ -203,7 +203,7 @@ object MeshIO {
     ndarray.data.grouped(3).map(grp => TriangleCell(grp(0), grp(1), grp(2))).toIndexedSeq
   }
 
-  private def pointSeqToNDArray[T](points: IndexedSeq[Point[ThreeD]]): NDArray[Double] =
+  private def pointSeqToNDArray[T](points: IndexedSeq[Point[_3D]]): NDArray[Double] =
     NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.data.map(_.toDouble)).toArray)
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =

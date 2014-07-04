@@ -4,11 +4,9 @@ package org.statismo.stk.core.geometry
 
 /** a marker trait to distinguish the dimension */
 sealed trait Dim
-trait OneD extends Dim
-trait TwoD extends Dim
-trait ThreeD extends Dim
-
-//trait ToInt[D <: Dim] { def toInt : Int }
+trait _1D extends Dim
+trait _2D extends Dim
+trait _3D extends Dim
 
 trait DimOps[D <: Dim] {
   def toInt : Int
@@ -19,26 +17,26 @@ trait DimOps[D <: Dim] {
 }
 
 object Dim {
-  implicit object oneDOps extends DimOps[OneD] {
+  implicit object oneDOps extends DimOps[_1D] {
     override def toInt = 1
-    override def matrixNxN : MatrixFactory[OneD] = matrixFactory1D
-    override def point : PointFactory[OneD] = pointFactory1D
-    override def vector : VectorFactory[OneD] = vectorFactory1D
-    override def index : IndexFactory[OneD] = indexFactory1D
+    override def matrixNxN : MatrixFactory[_1D] = matrixFactory1D
+    override def point : PointFactory[_1D] = pointFactory1D
+    override def vector : VectorFactory[_1D] = vectorFactory1D
+    override def index : IndexFactory[_1D] = indexFactory1D
   }
-  implicit object twoDOps extends DimOps[TwoD] {
+  implicit object twoDOps extends DimOps[_2D] {
     override def toInt = 2
-    override def matrixNxN : MatrixFactory[TwoD] = matrixFactory2D
-    override def point : PointFactory[TwoD] = pointFactory2D
-    override def vector : VectorFactory[TwoD] = vectorFactory2D
-    override def index : IndexFactory[TwoD] = indexFactory2D
+    override def matrixNxN : MatrixFactory[_2D] = matrixFactory2D
+    override def point : PointFactory[_2D] = pointFactory2D
+    override def vector : VectorFactory[_2D] = vectorFactory2D
+    override def index : IndexFactory[_2D] = indexFactory2D
   }
-  implicit object threeDOps extends DimOps[ThreeD] {
+  implicit object threeDOps extends DimOps[_3D] {
     override def toInt = 3
-    override def matrixNxN : MatrixFactory[ThreeD] = matrixFactory3D
-    override def point : PointFactory[ThreeD] = pointFactory3D
-    override def vector : VectorFactory[ThreeD] = vectorFactory3D
-    override def index : IndexFactory[ThreeD] = indexFactory3D
+    override def matrixNxN : MatrixFactory[_3D] = matrixFactory3D
+    override def point : PointFactory[_3D] = pointFactory3D
+    override def vector : VectorFactory[_3D] = vectorFactory3D
+    override def index : IndexFactory[_3D] = indexFactory3D
   }
 
 

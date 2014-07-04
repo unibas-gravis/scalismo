@@ -55,19 +55,19 @@ abstract class MatrixValuedPDKernel[D <: Dim : DimOps, DO <: Dim: DimOps] { self
 
 }
 
-case class UncorrelatedKernel1x1(k: PDKernel[OneD]) extends MatrixValuedPDKernel[OneD, OneD] {
-  val I = MatrixNxN.eye[OneD]
-  def apply(x: Point[OneD], y: Point[OneD]) = I * (k(x, y)) // k is scalar valued
+case class UncorrelatedKernel1x1(k: PDKernel[_1D]) extends MatrixValuedPDKernel[_1D, _1D] {
+  val I = MatrixNxN.eye[_1D]
+  def apply(x: Point[_1D], y: Point[_1D]) = I * (k(x, y)) // k is scalar valued
 }
 
-case class UncorrelatedKernel2x2(k: PDKernel[TwoD]) extends MatrixValuedPDKernel[TwoD, TwoD] {
-  val I = MatrixNxN.eye[TwoD]
-  def apply(x: Point[TwoD], y: Point[TwoD]) = I * (k(x, y)) // k is scalar valued
+case class UncorrelatedKernel2x2(k: PDKernel[_2D]) extends MatrixValuedPDKernel[_2D, _2D] {
+  val I = MatrixNxN.eye[_2D]
+  def apply(x: Point[_2D], y: Point[_2D]) = I * (k(x, y)) // k is scalar valued
 }
 
-case class UncorrelatedKernel3x3(k: PDKernel[ThreeD]) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
-  val I = MatrixNxN.eye[ThreeD]
-  def apply(x: Point[ThreeD], y: Point[ThreeD]) = I * (k(x, y)) // k is scalar valued
+case class UncorrelatedKernel3x3(k: PDKernel[_3D]) extends MatrixValuedPDKernel[_3D, _3D] {
+  val I = MatrixNxN.eye[_3D]
+  def apply(x: Point[_3D], y: Point[_3D]) = I * (k(x, y)) // k is scalar valued
 }
 
 // TODO maybe this should be called posterior or conditional kernel
@@ -129,38 +129,38 @@ case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDK
 
 }
 
-case class GaussianKernel3D(val sigma: Double) extends PDKernel[ThreeD] {
+case class GaussianKernel3D(val sigma: Double) extends PDKernel[_3D] {
   val sigma2 = sigma * sigma
-  def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
+  def apply(x: Point[_3D], y: Point[_3D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class GaussianKernel2D(val sigma: Double) extends PDKernel[TwoD] {
+case class GaussianKernel2D(val sigma: Double) extends PDKernel[_2D] {
   val sigma2 = sigma * sigma
-  def apply(x: Point[TwoD], y: Point[TwoD]) = {
+  def apply(x: Point[_2D], y: Point[_2D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
+case class GaussianKernel1D(val sigma: Double) extends PDKernel[_1D] {
 
   val sigma2 = sigma * sigma
 
-  def apply(x: Point[OneD], y: Point[OneD]) = {
+  def apply(x: Point[_1D], y: Point[_1D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
+case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[_3D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[_3D, _3D] {
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
-  def mu(x: Point[ThreeD]): Vector[ThreeD] = {
-    var meanDisplacement = Vector.zeros[ThreeD]
+  def mu(x: Point[_3D]): Vector[_3D] = {
+    var meanDisplacement = Vector.zeros[_3D]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -171,12 +171,12 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
   }
 
   @volatile
-  var cache = ImmutableLRU[Point[ThreeD], Vector[ThreeD]](cacheSizeHint)
+  var cache = ImmutableLRU[Point[_3D], Vector[_3D]](cacheSizeHint)
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  def apply(x: Point[ThreeD], y: Point[ThreeD]): MatrixNxN[ThreeD] = {
-    var ms = MatrixNxN.zeros[ThreeD]
+  def apply(x: Point[_3D], y: Point[_3D]): MatrixNxN[_3D] = {
+    var ms = MatrixNxN.zeros[_3D]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
