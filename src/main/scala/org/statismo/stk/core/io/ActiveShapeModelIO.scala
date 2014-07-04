@@ -6,7 +6,7 @@ import scala.util.{Success, Try}
 import java.io.File
 import ncsa.hdf.`object`.Group
 import org.statismo.stk.core.common.UnstructuredPointsDomain
-import org.statismo.stk.core.geometry.{Point, Point3D}
+import org.statismo.stk.core.geometry.{Point}
 import breeze.linalg.{DenseMatrix, DenseVector}
 
 /**

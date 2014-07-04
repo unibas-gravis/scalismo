@@ -69,7 +69,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val v1 = Vector(4.0, -3.0, -1.0)
       val v2 = Vector(3.0, 2.0, 5.0)
       val crossPdBreeze = breeze.linalg.cross(v1.toBreezeVector, v2.toBreezeVector)
-      Vector.crossproduct(v1, v2) should be(Vector3D(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
+      Vector.crossproduct(v1, v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
     }
 
   }
@@ -113,7 +113,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("can be multiplied by a vector") {
-      val v = Vector3D(1, 2, 3)
+      val v = Vector(1, 2, 3)
       val vBreeze = DenseVector(1f, 2f, 3f)
       val mxv = m * v
       val mxvBreeze = m.toBreezeMatrix * vBreeze
@@ -160,7 +160,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("fullfills some simple identities with ones,zeros and ident") {
-      val v = Vector3D(1, 2, 3)
+      val v = Vector(1, 2, 3)
       MatrixNxN.eye[ThreeD] * v should equal(v)
       MatrixNxN.zeros[ThreeD] * v should equal(Vector(0, 0, 0))
       MatrixNxN.ones[ThreeD] * v should equal(Vector(6, 6, 6))

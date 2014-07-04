@@ -18,7 +18,6 @@ import scala.reflect.ClassTag
 import org.statismo.stk.core.common.ScalarValue
 import scala.util.Failure
 import org.statismo.stk.core.mesh.ScalarMeshData
-import org.statismo.stk.core.geometry.Point3D
 import scala.util.Success
 import org.statismo.stk.core.mesh.TriangleCell
 

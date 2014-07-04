@@ -4,31 +4,109 @@ import breeze.linalg.DenseMatrix
 
 
 /**
- * Created by luethi on 7/1/14.
- */
-/////////////////////////////////////
-// Matrix
-/////////////////////////////////////
-/**
  * Simple matrix class. The data is stored in column major ordering
  */
-abstract class MatrixNxN[D <: Dim: DimOps] {
+class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
+
   val dimensionality: Int = implicitly[DimOps[D]].toInt
-  def data: Array[Float]
+
   def apply(i: Int, j: Int): Float = {
     val d = dimensionality
     data(i + d * j)
   }
   def toBreezeMatrix: DenseMatrix[Float] = DenseMatrix.create(dimensionality, dimensionality, data)
-  def *(that: Vector[D]): Vector[D]
-  def *(that: MatrixNxN[D]): MatrixNxN[D]
-  def :*(that: MatrixNxN[D]): MatrixNxN[D]
 
-  def *(f: Float): MatrixNxN[D]
-  def *(d: Double): MatrixNxN[D] = this * d.toFloat
-  def +(that: MatrixNxN[D]): MatrixNxN[D]
-  def -(that: MatrixNxN[D]): MatrixNxN[D]
-  def t : MatrixNxN[D]
+  def *(s: Float): MatrixNxN[D] = {
+    val numElements = dimensionality * dimensionality
+    val newData = new Array[Float](numElements)
+    var i = 0;
+    while (i < numElements) {
+      newData(i) = data(i) * s
+      i += 1
+    }
+    implicitly[DimOps[D]].matrixNxN.create(newData)
+  }
+
+  def *(s : Double) : MatrixNxN[D] = this * s.toFloat
+
+  def *(that: Vector[D]): Vector[D] = {
+
+    var newVecData = new Array[Float](dimensionality)
+
+    var i = 0
+    while (i < dimensionality) {
+      var v = 0.0f
+      var j = 0;
+      while (j < dimensionality) {
+        v += this(i, j) * that(j)
+        j += 1
+      }
+      newVecData(i) = v
+      i += 1
+    }
+    implicitly[DimOps[D]].vector.create(newVecData)
+  }
+
+  def *(that: MatrixNxN[D]): MatrixNxN[D] = {
+
+    var newData = new Array[Float](dimensionality * dimensionality)
+
+    var k = 0
+    while (k < dimensionality) {
+      var i = 0
+      while (i < dimensionality) {
+        var v = 0.0f
+        var j = 0;
+        while (j < dimensionality) {
+          v += this(i, j) * that(j, k)
+          j += 1
+        }
+        newData(k * dimensionality + i) = v
+        i += 1
+      }
+      k += 1
+    }
+    implicitly[DimOps[D]].matrixNxN.create(newData)
+
+  }
+
+  def -(that: MatrixNxN[D]): MatrixNxN[D] = {
+    val dim2 = dimensionality * dimensionality
+    var newData = new Array[Float](dim2)
+    var i = 0
+    while (i < dim2) {
+      newData(i) = this.data(i) - that.data(i)
+      i += 1
+    }
+    implicitly[DimOps[D]].matrixNxN.create(newData)
+  }
+
+  def +(that: MatrixNxN[D]): MatrixNxN[D] = {
+    val dim2 = dimensionality * dimensionality
+    var newData = new Array[Float](dim2)
+    var i = 0
+    while (i < dim2) {
+      newData(i) = this.data(i) + that.data(i)
+      i += 1
+    }
+    implicitly[DimOps[D]].matrixNxN.create(newData)
+  }
+
+   def :*(that: MatrixNxN[D]): MatrixNxN[D] = {
+    val dim2 = dimensionality * dimensionality
+    var newData = new Array[Float](dim2)
+    var i = 0
+    while (i < dim2) {
+      newData(i) = this.data(i) * that.data(i)
+      i += 1
+    }
+    implicitly[DimOps[D]].matrixNxN.create(newData)
+  }
+
+  def t : MatrixNxN[D] = {
+    implicitly[DimOps[D]].matrixNxN.create(this.toBreezeMatrix.t.data)
+  }
+
 
   override def hashCode = data.deep.hashCode
   override def equals(other: Any): Boolean = other match {
@@ -56,115 +134,6 @@ abstract class MatrixNxN[D <: Dim: DimOps] {
 
 }
 
-trait MatrixNxNLike[D <: Dim, MatrixRepr <: MatrixNxN[D], VectorRepr <: Vector[D]] extends MatrixNxN[D] { self: MatrixNxN[D] =>
-
-  def createVector(data: Array[Float]): VectorRepr
-  def createMatrix(data: Array[Float]): MatrixRepr
-
-  override def *(s: Float): MatrixRepr = {
-    val numElements = dimensionality * dimensionality
-    val newData = new Array[Float](numElements)
-    var i = 0;
-    while (i < numElements) {
-      newData(i) = data(i) * s
-      i += 1
-    }
-    createMatrix(newData)
-  }
-
-  override def *(that: Vector[D]): VectorRepr = {
-
-    var newVecData = new Array[Float](dimensionality)
-
-    var i = 0
-    while (i < dimensionality) {
-      var v = 0.0f
-      var j = 0;
-      while (j < dimensionality) {
-        v += self(i, j) * that(j)
-        j += 1
-      }
-      newVecData(i) = v
-      i += 1
-    }
-    createVector(newVecData)
-  }
-
-  override def *(that: MatrixNxN[D]): MatrixNxN[D] = {
-
-    var newData = new Array[Float](dimensionality * dimensionality)
-
-    var k = 0
-    while (k < dimensionality) {
-      var i = 0
-      while (i < dimensionality) {
-        var v = 0.0f
-        var j = 0;
-        while (j < dimensionality) {
-          v += self(i, j) * that(j, k)
-          j += 1
-        }
-        newData(k * dimensionality + i) = v
-        i += 1
-      }
-      k += 1
-    }
-    createMatrix(newData)
-
-  }
-
-  override def -(that: MatrixNxN[D]): MatrixRepr = {
-    val dim2 = dimensionality * dimensionality
-    var newData = new Array[Float](dim2)
-    var i = 0
-    while (i < dim2) {
-      newData(i) = this.data(i) - that.data(i)
-      i += 1
-    }
-    createMatrix(newData)
-  }
-
-  override def +(that: MatrixNxN[D]): MatrixRepr = {
-    val dim2 = dimensionality * dimensionality
-    var newData = new Array[Float](dim2)
-    var i = 0
-    while (i < dim2) {
-      newData(i) = this.data(i) + that.data(i)
-      i += 1
-    }
-    createMatrix(newData)
-  }
-
-  override def :*(that: MatrixNxN[D]): MatrixRepr = {
-    val dim2 = dimensionality * dimensionality
-    var newData = new Array[Float](dim2)
-    var i = 0
-    while (i < dim2) {
-      newData(i) = this.data(i) * that.data(i)
-      i += 1
-    }
-    createMatrix(newData)
-  }
-
-  override def t : MatrixRepr = {
-    createMatrix(this.toBreezeMatrix.t.data)
-  }
-
-}
-
-private case class Matrix1x1(val data: Array[Float]) extends MatrixNxNLike[OneD, Matrix1x1, Vector1D] {
-  override def createMatrix(data: Array[Float]) = Matrix1x1(data)
-  override def createVector(data: Array[Float]) = Vector1D(data(0))
-}
-private case class Matrix2x2(val data: Array[Float]) extends MatrixNxNLike[TwoD, Matrix2x2, Vector2D] {
-  override def createMatrix(data: Array[Float]) = Matrix2x2(data)
-  override def createVector(data: Array[Float]) = Vector2D(data(0), data(1))
-}
-private case class Matrix3x3(val data: Array[Float]) extends MatrixNxNLike[ThreeD, Matrix3x3, Vector3D] {
-  override def createMatrix(data: Array[Float]) = Matrix3x3(data)
-  override def createVector(data: Array[Float]) = Vector3D(data(0), data(1), data(2))
-}
-
 
 trait MatrixFactory[D <: Dim] {
   def create(d : Array[Float]) : MatrixNxN[D]
@@ -177,9 +146,9 @@ private[geometry] object matrixFactory1D extends MatrixFactory[OneD] {
     if (d.size != 1) {
       throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
     }
-    Matrix1x1(d)
+    new MatrixNxN[OneD](d)
   }
-  override def eye : MatrixNxN[OneD] = Matrix1x1(Array(1f))
+  override def eye : MatrixNxN[OneD] = MatrixNxN(Array(1f))
 }
 
 
@@ -188,9 +157,9 @@ private[geometry] object matrixFactory2D extends MatrixFactory[TwoD] {
     if (d.size != 4) {
       throw new Exception(s"Require array of size 4 to create a Matrix2x2 (got ${d.size}")
     }
-    Matrix2x2(d)
+    new MatrixNxN[TwoD](d)
   }
-  override def eye : MatrixNxN[TwoD]= Matrix2x2(Array(1f, 0f, 0f, 1f))
+  override def eye : MatrixNxN[TwoD]= MatrixNxN[TwoD](Array(1f, 0f, 0f, 1f))
 }
 
 private[geometry] object matrixFactory3D extends MatrixFactory[ThreeD] {
@@ -198,9 +167,9 @@ private[geometry] object matrixFactory3D extends MatrixFactory[ThreeD] {
     if (d.size != 9) {
       throw new Exception(s"Require array of size 9 to create a Matrix3x3 (got ${d.size}")
     }
-    Matrix3x3(d)
+    new MatrixNxN[ThreeD](d)
   }
-  override def eye : MatrixNxN[ThreeD] = Matrix3x3(Array(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
+  override def eye : MatrixNxN[ThreeD] = MatrixNxN[ThreeD](Array(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f))
 }
 
 
@@ -208,14 +177,14 @@ private[geometry] object matrixFactory3D extends MatrixFactory[ThreeD] {
 object MatrixNxN {
 
 
-  def apply(f : Float) : MatrixNxN[OneD] = new Matrix1x1(Array(f))
+  def apply(f : Float) : MatrixNxN[OneD] = new MatrixNxN[OneD](Array(f))
   def apply(row1: Tuple2[Float, Float], row2: Tuple2[Float, Float]) : MatrixNxN[TwoD]= {
-    new Matrix2x2(Array(row1._1, row2._1, row1._2, row2._2))
+    new MatrixNxN[TwoD](Array(row1._1, row2._1, row1._2, row2._2))
   }
 
   type TupleF = Tuple3[Float, Float, Float]
   def apply(row1: TupleF, row2: TupleF, row3: TupleF) : MatrixNxN[ThreeD] = {
-    new Matrix3x3(Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
+    new MatrixNxN[ThreeD](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
   def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].matrixNxN.create(d)

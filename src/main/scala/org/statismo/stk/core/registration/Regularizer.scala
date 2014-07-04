@@ -3,7 +3,6 @@ package org.statismo.stk.core.registration
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.statisticalmodel.{DiscreteGaussianProcess, GaussianProcess}
-import org.statismo.stk.core.geometry.{Vector2D, Point}
 import org.statismo.stk.core.geometry._
 
 trait Regularizer extends (ParameterVector => Double) {

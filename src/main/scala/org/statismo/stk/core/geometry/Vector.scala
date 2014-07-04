@@ -8,7 +8,7 @@ package org.statismo.stk.core.geometry
  * Vector definitions
  *=======================================*/
 
-abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vector[D] =>
+class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Vector[D] =>
 
   def norm2: Double = {
     var norm2 = 0.0
@@ -22,9 +22,6 @@ abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vec
   def norm = math.sqrt(norm2)
 
 
-  def createPoint(data: Array[Float]): Point[D]
-  def createVector(data: Array[Float]): Vector[D]
-
   def +(that: Vector[D]): Vector[D] = {
     var newData = new Array[Float](dimensionality)
     var i = 0
@@ -32,7 +29,7 @@ abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vec
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    createVector(newData)
+    implicitly[DimOps[D]].vector.create(newData)
   }
 
   def -(that: Vector[D]): Vector[D] = {
@@ -42,7 +39,7 @@ abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vec
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    createVector(newData)
+    implicitly[DimOps[D]].vector.create(newData)
   }
 
   def *(s: Double): Vector[D] = {
@@ -53,11 +50,10 @@ abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vec
       newData(i) = this.data(i) * sFloat
       i += 1
     }
-    createVector(newData)
+    implicitly[DimOps[D]].vector.create(newData)
   }
 
-  def toPoint: Point[D] = createPoint(
-    self.data)
+  def toPoint: Point[D] = implicitly[DimOps[D]].point.create(self.data)
 
   def dot(that: Vector[D]): Float = {
     val d = dimensionality
@@ -90,52 +86,18 @@ abstract class Vector[D <: Dim: DimOps] extends Coordinate[D, Float] { self: Vec
     implicitly[DimOps[D]].matrixNxN.create(data)
   }
 
+  override def hashCode = data.deep.hashCode
+  override def equals(other: Any): Boolean = other match {
+    case that: Vector[D] => {
+      that.canEqual(this) && this.data.deep == that.data.deep
+    }
+    case _ => false
+  }
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Vector[D]]
 
 }
 
 
-private case class Vector1D(x: Float) extends Vector[OneD]  {
-  def createPoint(data: Array[Float]) = Point1D(data(0))
-  def createVector(data: Array[Float]) = Vector1D(data(0))
-
-  override def apply(i: Int) = {
-    if (i == 0) x else throw new ArrayIndexOutOfBoundsException("index $i > 0")
-  }
-
-  val data = Array(x)
-}
-
-private case class Vector2D(x: Float, y: Float) extends Vector[TwoD] {
-  type TVector = Vector2D
-  type TPoint = Point2D
-
-  def createPoint(data: Array[Float]) = Point2D(data(0), data(1))
-  def createVector(data: Array[Float]) = Vector2D(data(0), data(1))
-
-  override def apply(i: Int) = {
-    if (i == 0) x else if (i == 1) y else throw new ArrayIndexOutOfBoundsException("index $i > 1")
-  }
-
-  val data = Array(x, y)
-}
-
-private case class Vector3D(x: Float, y: Float, z: Float) extends Vector[ThreeD]  {
-  type TVector = Vector3D
-  type TPoint = Point3D
-
-  def createPoint(data: Array[Float]) = Point3D(data(0), data(1), data(2))
-  def createVector(data: Array[Float]) = Vector3D(data(0), data(1), data(2))
-
-  def cross(that: Vector3D): Vector3D = {
-    Vector3D(y * that.z - z * that.y, z * that.x - x * that.z, x * that.y  - y * that.x)
-  }
-
-  override def apply(i: Int) = {
-    if (i == 0) x else if (i == 1) y else if (i == 2) z else throw new ArrayIndexOutOfBoundsException("index $i > 2")
-  }
-
-  val data = Array(x, y, z)
-}
 
 trait VectorFactory[D <: Dim] { def create(d : Array[Float]) : Vector[D] }
 
@@ -143,7 +105,7 @@ private[geometry] object vectorFactory1D extends VectorFactory[OneD] {
   override def create(d: Array[Float]) : Vector[OneD] = {
     if (d.size != 1)
       throw new Exception(s"Require array of size 1 to create a Vector1D (got ${d.size}")
-    Vector1D(d(0))
+    new Vector[OneD](d)
   }
 }
 
@@ -151,7 +113,7 @@ private[geometry] object vectorFactory2D extends VectorFactory[TwoD] {
   override def create(d: Array[Float]) : Vector[TwoD] = {
     if (d.size != 2)
       throw new Exception(s"Require array of size 2 to create a Vector2D (got ${d.size}")
-    Vector2D(d(0), d(1))
+    new Vector[TwoD](d)
   }
 }
 
@@ -159,7 +121,7 @@ private[geometry] object vectorFactory3D extends VectorFactory[ThreeD] {
   override def create(d: Array[Float]) : Vector[ThreeD] = {
     if (d.size != 3)
       throw new Exception(s"Require array of size 3 to create a Vector3D (got ${d.size}")
-    Vector3D(d(0), d(1), d(2))
+    new Vector[ThreeD](d)
   }
 }
 
@@ -167,12 +129,12 @@ object Vector {
 
 
   def crossproduct(u : Vector[ThreeD], v : Vector[ThreeD]) : Vector[ThreeD] = {
-      Vector3D(u(1) * v(2) - u(2) * v(1), u(2) * v(0) - u(0) * v(2), u(0) * v(1)  - u(1) * v(0))
+      Vector(u(1) * v(2) - u(2) * v(1), u(2) * v(0) - u(0) * v(2), u(0) * v(1)  - u(1) * v(0))
   }
 
-  def apply(x : Float) : Vector[OneD] = new Vector1D(x)
-  def apply(x : Float, y : Float) : Vector[TwoD] = new Vector2D(x, y)
-  def apply(x : Float, y : Float, z : Float) : Vector[ThreeD] = new Vector3D(x, y, z)
+  def apply(x : Float) : Vector[OneD] = new Vector[OneD](Array(x))
+  def apply(x : Float, y : Float) : Vector[TwoD] = new Vector[TwoD](Array(x, y))
+  def apply(x : Float, y : Float, z : Float) : Vector[ThreeD] = new Vector[ThreeD](Array(x, y, z))
 
   def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].vector.create(d)
   def zeros[D <: Dim : DimOps] = {

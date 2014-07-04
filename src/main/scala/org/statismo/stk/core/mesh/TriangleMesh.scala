@@ -3,14 +3,7 @@ package mesh
 
 import org.statismo.stk.core.common._
 import org.statismo.stk.core.geometry.{ Point, ThreeD}
-import scala.reflect.ClassTag
-import scala.collection.mutable.HashMap
-import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.geometry.Point3D
-import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.common.Cell
-import org.statismo.stk.core.common.PointData
-import org.statismo.stk.core.common.PointData
 import scala.reflect.ClassTag
 import scala.collection.mutable.HashMap
 import org.statismo.stk.core.common.BoxedDomain3D
