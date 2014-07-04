@@ -5,12 +5,6 @@ import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.Point3D
-import org.statismo.stk.core.geometry.Vector3D
-import org.statismo.stk.core.geometry.Point2D
-import org.statismo.stk.core.geometry.Vector2D
-import org.statismo.stk.core.geometry.Vector1D
-
 
 
 
