@@ -107,7 +107,7 @@ object ImageIO {
         reader.Update()
         val errCode = reader.GetErrorCode()
         if (errCode != 0) {
-          return Failure(new IOException("Failed to read vtk file ${f.getAbsolutePath()}. " +
+          return Failure(new IOException(s"Failed to read vtk file ${f.getAbsolutePath()}. " +
             "(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
