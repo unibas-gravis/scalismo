@@ -43,12 +43,6 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
 
-  //verify that there all points belong to a cell
-  //require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
-
-
-  def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
-
   def boundingBox: BoxedDomain3D = {
     val minx = points.map(_(0)).min
     val miny = points.map(_(1)).min
