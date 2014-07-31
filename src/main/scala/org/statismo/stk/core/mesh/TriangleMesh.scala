@@ -96,13 +96,14 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[ThreeD]], val cell
     if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
   }
 
-  def samplePointInTriangleCell(t: TriangleCell): Point[ThreeD] = {
-    val A = meshPoints(t.ptId1) - Point3D(0, 0, 0)
-    val B = meshPoints(t.ptId2) - Point3D(0, 0, 0)
-    val C = meshPoints(t.ptId3) - Point3D(0, 0, 0)
+  def samplePointInTriangleCell(t: TriangleCell, seed : Int ): Point[ThreeD] = {
+    val A = meshPoints(t.ptId1).toVector
+    val B = meshPoints(t.ptId2).toVector
+    val C = meshPoints(t.ptId3).toVector
 
-    val u = scala.util.Random.nextFloat()
-    val d = scala.util.Random.nextFloat()
+    val rand = new scala.util.Random(seed)
+    val u = rand.nextFloat()
+    val d = rand.nextFloat()
     val v = if (d + u <= 1) d else 1 - u
 
     val s = A * u + B * v + C * (1 - (u + v))
