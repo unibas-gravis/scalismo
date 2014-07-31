@@ -158,39 +158,33 @@ case class PointsWithLikelyCorrespondenceSampler(gp : GaussianProcess[ThreeD], r
 }
 
 case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
+
+  val maxMultiplier = 100000 // the largest number of how many times a cell is replicated
+
+  override val volumeOfSampleRegion = mesh.area
+  
   val p = 1.0 / mesh.area
-  val volumeOfSampleRegion = mesh.area
-  val areas = mesh.cells.map(mesh.computeTriangleArea)
-  val min = breeze.stats.DescriptiveStats.percentile(areas, 0.005)
+  val cellAreas = mesh.cells.map(mesh.computeTriangleArea)
+  val minConsideredCellArea = Math.max(cellAreas.max / maxMultiplier, cellAreas.min)
+  val cellMultipliers = cellAreas.map(area => (area / minConsideredCellArea).ceil.toInt)
 
-  val ratios = areas.map(s => (s / min).ceil.toInt)
-  
-  if(ratios.max > 100000)
-	  throw new Exception("Mesh traingulation is unregular. Differences in triangle areas are too big.")
+  val cellIds = 0 until mesh.cells.size
 
-  val sum = ratios.sum
-  scala.util.Random.setSeed(seed)
+  assert(cellMultipliers.max <= maxMultiplier + 1) // +1 since we take ceiling above
 
-  val replicatedCells = new Array[Int](ratios.sum)
-  var offset = 0
-  ratios.zipWithIndex.foreach(pair => {
-    val cellID = pair._2
-    val mult = pair._1
-    for (i <- 0 until mult) {
-      replicatedCells(offset) = cellID
-      offset = offset + 1
-    }
-  })
+  val random = new scala.util.Random(seed)
 
-  val replicatedCellsSize = replicatedCells.size
-  
+
+  // create a list where each cellId is contained n times (n is the multiplier)
+  val replicatedCells = (cellIds zip cellMultipliers).flatMap{case (id, mult) => List.fill(mult)(id)}
+  assert(cellMultipliers.sum == replicatedCells.size)
   
   val samplePoints = for (i <- 0 until numberOfPoints) yield {
-    val drawnIndex = scala.util.Random.nextInt(replicatedCellsSize)
+    val drawnIndex = random.nextInt(replicatedCells.size)
     val cellidx = replicatedCells(drawnIndex)
-    mesh.samplePointInTriangleCell(mesh.cells(cellidx))
+    mesh.samplePointInTriangleCell(mesh.cells(cellidx), seed)
   }
-  assert(samplePoints.size == numberOfPoints)
+
 
   def sample = {
     samplePoints.map(pt => (pt, p))
