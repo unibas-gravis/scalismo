@@ -31,10 +31,10 @@ abstract class PDKernel[D <: Dim] { self =>
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim : DimOps, DO <: Dim: DimOps] { self =>
+abstract class MatrixValuedPDKernel[D <: Dim : NDSpaceOps, DO <: Dim: NDSpaceOps] { self =>
 
   def apply(x: Point[D], y: Point[D]): MatrixNxN[DO]
-  def outputDim = implicitly[DimOps[DO]].toInt
+  def outputDim = implicitly[NDSpaceOps[DO]].dimensionality
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
@@ -72,10 +72,10 @@ case class UncorrelatedKernel3x3(k: PDKernel[_3D]) extends MatrixValuedPDKernel[
 
 // TODO maybe this should be called posterior or conditional kernel
 // TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
-case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernel[D <: Dim: NDSpaceOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
   
 
-  val dim = implicitly[DimOps[D]].toInt
+  val dim = implicitly[NDSpaceOps[D]].dimensionality
   val N = trainingData.size*dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -101,10 +101,10 @@ case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], traini
 }
 
 // TODO this duplicate should not be there
-case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernelNonRepeatingPoints[D <: Dim: NDSpaceOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
 
-  val dim = implicitly[DimOps[D]].toInt
+  val dim = implicitly[NDSpaceOps[D]].dimensionality
   val N = trainingData.size*dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -245,7 +245,7 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim: NDSpaceOps](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99

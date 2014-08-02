@@ -7,7 +7,7 @@ import org.statismo.stk.core.geometry._
 
 case class IntegratorConfiguration[D <: Dim](sampler: Sampler[D])
 
-case class Integrator[D <: Dim: DimOps](configuration: IntegratorConfiguration[D]) {
+case class Integrator[D <: Dim: NDSpaceOps](configuration: IntegratorConfiguration[D]) {
 
   def sampler = configuration.sampler
 

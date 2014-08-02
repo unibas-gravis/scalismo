@@ -28,7 +28,7 @@ object Registration {
 
   case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
 
-  def iterations[D <: Dim: DimOps](configuration: RegistrationConfiguration[D])(
+  def iterations[D <: Dim: NDSpaceOps](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] =
     {
@@ -79,7 +79,7 @@ object Registration {
       }
     }
 
-  def registration[D <: Dim: DimOps](configuration: RegistrationConfiguration[D])(
+  def registration[D <: Dim: NDSpaceOps](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): RegistrationResult[D] =
     {

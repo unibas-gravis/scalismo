@@ -9,9 +9,9 @@ import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
 
 
-abstract class GaussianProcess[D <: Dim : DimOps] {
+abstract class GaussianProcess[D <: Dim : NDSpaceOps] {
 
-  def outputDimensionality = implicitly[DimOps[D]].toInt
+  def outputDimensionality = implicitly[NDSpaceOps[D]].dimensionality
   val domain: Domain[D]
   val mean: Point[D] => Vector[D]
   val cov: MatrixValuedPDKernel[D, D]
@@ -30,7 +30,7 @@ object GaussianProcess {
   // Gaussian process regression for a low rank gaussian process
   // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
   // TODO maybe the implementations can be joined.
-  def regression[D <: Dim: DimOps](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  def regression[D <: Dim: NDSpaceOps](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2) }
 
     gp match {
@@ -40,7 +40,7 @@ object GaussianProcess {
 
   }
 
-  def regression[D <: Dim : DimOps](gp: LowRankGaussianProcess[D], trainingData : IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  def regression[D <: Dim : NDSpaceOps](gp: LowRankGaussianProcess[D], trainingData : IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     gp match {
       case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, meanOnly)
       case gp => regressionLowRankGP(gp, trainingData, meanOnly)
@@ -48,7 +48,7 @@ object GaussianProcess {
 
   }
 
-  private def regressionLowRankGP[D <: Dim: DimOps](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  private def regressionLowRankGP[D <: Dim: NDSpaceOps](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     val (lambdas, phis) = gp.eigenPairs.unzip
     val outputDim = gp.outputDimensionality
 
@@ -96,7 +96,7 @@ object GaussianProcess {
   }
 
 
-  protected[statisticalmodel] def genericRegressionComputations[D <: Dim : DimOps](gp : LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)])
+  protected[statisticalmodel] def genericRegressionComputations[D <: Dim : NDSpaceOps](gp : LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)])
     : (DenseMatrix[Double], DenseMatrix[Double], DenseVector[Float], DenseVector[Float]) =
     {
       val dim = gp.outputDimensionality
@@ -139,7 +139,7 @@ object GaussianProcess {
    * This implementation explicitly returns a SpecializedLowRankGaussainProcess
    * TODO the implementation is almost the same as for the standard regression. Maybe they couuld be merged
    */
-  private def regressionSpecializedLowRankGP[D <: Dim: DimOps](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): SpecializedLowRankGaussianProcess[D] = {
+  private def regressionSpecializedLowRankGP[D <: Dim: NDSpaceOps](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): SpecializedLowRankGaussianProcess[D] = {
 
     val dim = gp.outputDimensionality
     val (xs, ys, sigma2s) = trainingData.unzip3

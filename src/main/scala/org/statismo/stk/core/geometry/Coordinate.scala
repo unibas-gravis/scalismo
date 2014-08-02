@@ -8,9 +8,9 @@ import breeze.linalg.DenseVector
 /**
  * The basic N-tuple in R^N with scalar type S
  */
-abstract class Coordinate[D <: Dim : DimOps, @specialized(Int, Float, Double) S] {
+abstract class Coordinate[D <: Dim : NDSpaceOps, @specialized(Int, Float, Double) S] {
   val data: Array[S]
-  val dimensionality: Int = implicitly[DimOps[D]].toInt
+  val dimensionality: Int = implicitly[NDSpaceOps[D]].dimensionality
   def apply(i: Int): S = data(i)
   def toBreezeVector = DenseVector(data)
 

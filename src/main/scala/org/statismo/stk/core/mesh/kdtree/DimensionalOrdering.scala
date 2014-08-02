@@ -64,8 +64,8 @@ object DimensionalOrdering {
         x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
     }
 
-  implicit def dimensionalOrderingForPoint[D <: Dim : DimOps] = new DimensionalOrdering[Point[D]] {
-    val dimensions = implicitly[DimOps[D]].toInt
+  implicit def dimensionalOrderingForPoint[D <: Dim : NDSpaceOps] = new DimensionalOrdering[Point[D]] {
+    val dimensions = implicitly[NDSpaceOps[D]].dimensionality
     def compareProjection(d: Int)(x: Point[D], y: Point[D]) =
       Ordering[Double].compare(x(d), y(d))
   }

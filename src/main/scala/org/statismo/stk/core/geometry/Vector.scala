@@ -8,7 +8,7 @@ package org.statismo.stk.core.geometry
  * Vector definitions
  *=======================================*/
 
-class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Vector[D] =>
+class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Vector[D] =>
 
   def norm2: Double = {
     var norm2 = 0.0
@@ -29,7 +29,7 @@ class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].vector.create(newData)
+    implicitly[NDSpaceOps[D]].vector.create(newData)
   }
 
   def -(that: Vector[D]): Vector[D] = {
@@ -39,7 +39,7 @@ class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].vector.create(newData)
+    implicitly[NDSpaceOps[D]].vector.create(newData)
   }
 
   def *(s: Double): Vector[D] = {
@@ -50,10 +50,10 @@ class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       newData(i) = this.data(i) * sFloat
       i += 1
     }
-    implicitly[DimOps[D]].vector.create(newData)
+    implicitly[NDSpaceOps[D]].vector.create(newData)
   }
 
-  def toPoint: Point[D] = implicitly[DimOps[D]].point.create(self.data)
+  def toPoint: Point[D] = implicitly[NDSpaceOps[D]].point.create(self.data)
 
   def dot(that: Vector[D]): Float = {
     val d = dimensionality
@@ -83,7 +83,7 @@ class Vector[D <: Dim: DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       }
       i += 1
     }
-    implicitly[DimOps[D]].matrixNxN.create(data)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(data)
   }
 
   override def hashCode = data.deep.hashCode
@@ -136,10 +136,10 @@ object Vector {
   def apply(x : Float, y : Float) : Vector[_2D] = new Vector[_2D](Array(x, y))
   def apply(x : Float, y : Float, z : Float) : Vector[_3D] = new Vector[_3D](Array(x, y, z))
 
-  def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].vector.create(d)
-  def zeros[D <: Dim : DimOps] = {
-    val dim = implicitly[DimOps[D]].toInt
-    implicitly[DimOps[D]].vector.create(Array.fill[Float](dim)(0f))
+  def apply[D <: Dim : NDSpaceOps](d : Array[Float]) = implicitly[NDSpaceOps[D]].vector.create(d)
+  def zeros[D <: Dim : NDSpaceOps] = {
+    val dim = implicitly[NDSpaceOps[D]].dimensionality
+    implicitly[NDSpaceOps[D]].vector.create(Array.fill[Float](dim)(0f))
   }
 
 
