@@ -8,7 +8,7 @@ package org.statismo.stk.core.geometry
 /**
   * An ND Point
   */
-class Point[D <: Dim : DimOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Coordinate[D, Float] =>
+class Point[D <: Dim : NDSpaceOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Coordinate[D, Float] =>
 
   def +(that: Vector[D]): Point[D] = {
     var newData = new Array[Float](dimensionality)
@@ -17,7 +17,7 @@ class Point[D <: Dim : DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].point.create(newData)
+    implicitly[NDSpaceOps[D]].point.create(newData)
   }
 
   def -(that: Vector[D]): Point[D] = {
@@ -27,7 +27,7 @@ class Point[D <: Dim : DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].point.create(newData)
+    implicitly[NDSpaceOps[D]].point.create(newData)
   }
 
   def -(that: Point[D]): Vector[D] = {
@@ -37,10 +37,10 @@ class Point[D <: Dim : DimOps](val data : Array[Float]) extends Coordinate[D, Fl
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].vector.create(newData)
+    implicitly[NDSpaceOps[D]].vector.create(newData)
   }
 
-  def toVector: Vector[D] = implicitly[DimOps[D]].vector.create(self.data)
+  def toVector: Vector[D] = implicitly[NDSpaceOps[D]].vector.create(self.data)
 
   override def hashCode = data.deep.hashCode
   override def equals(other: Any): Boolean = other match {

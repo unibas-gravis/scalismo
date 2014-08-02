@@ -6,9 +6,9 @@ import breeze.linalg.DenseMatrix
 /**
  * Simple matrix class. The data is stored in column major ordering
  */
-class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
+class MatrixNxN[D <: Dim: NDSpaceOps](val data : Array[Float]) {
 
-  val dimensionality: Int = implicitly[DimOps[D]].toInt
+  val dimensionality: Int = implicitly[NDSpaceOps[D]].dimensionality
 
   def apply(i: Int, j: Int): Float = {
     val d = dimensionality
@@ -24,7 +24,7 @@ class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
       newData(i) = data(i) * s
       i += 1
     }
-    implicitly[DimOps[D]].matrixNxN.create(newData)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(newData)
   }
 
   def *(s : Double) : MatrixNxN[D] = this * s.toFloat
@@ -44,7 +44,7 @@ class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
       newVecData(i) = v
       i += 1
     }
-    implicitly[DimOps[D]].vector.create(newVecData)
+    implicitly[NDSpaceOps[D]].vector.create(newVecData)
   }
 
   def *(that: MatrixNxN[D]): MatrixNxN[D] = {
@@ -66,7 +66,7 @@ class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
       }
       k += 1
     }
-    implicitly[DimOps[D]].matrixNxN.create(newData)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(newData)
 
   }
 
@@ -78,7 +78,7 @@ class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].matrixNxN.create(newData)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(newData)
   }
 
   def +(that: MatrixNxN[D]): MatrixNxN[D] = {
@@ -89,7 +89,7 @@ class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].matrixNxN.create(newData)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(newData)
   }
 
    def :*(that: MatrixNxN[D]): MatrixNxN[D] = {
@@ -100,11 +100,11 @@ class MatrixNxN[D <: Dim: DimOps](val data : Array[Float]) {
       newData(i) = this.data(i) * that.data(i)
       i += 1
     }
-    implicitly[DimOps[D]].matrixNxN.create(newData)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(newData)
   }
 
   def t : MatrixNxN[D] = {
-    implicitly[DimOps[D]].matrixNxN.create(this.toBreezeMatrix.t.data)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(this.toBreezeMatrix.t.data)
   }
 
 
@@ -187,22 +187,22 @@ object MatrixNxN {
     new MatrixNxN[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
-  def apply[D <: Dim : DimOps](d : Array[Float]) = implicitly[DimOps[D]].matrixNxN.create(d)
+  def apply[D <: Dim : NDSpaceOps](d : Array[Float]) = implicitly[NDSpaceOps[D]].matrixNxN.create(d)
 
-  def eye[D <: Dim :  DimOps] : MatrixNxN[D] = implicitly[DimOps[D]].matrixNxN.eye
-  def zeros[D <: Dim: DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](0)
-  def ones[D <: Dim:  DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](1)
+  def eye[D <: Dim :  NDSpaceOps] : MatrixNxN[D] = implicitly[NDSpaceOps[D]].matrixNxN.eye
+  def zeros[D <: Dim: NDSpaceOps]: MatrixNxN[D] = MatrixNxN.fill[D](0)
+  def ones[D <: Dim:  NDSpaceOps]: MatrixNxN[D] = MatrixNxN.fill[D](1)
 
-  def fill[D <: Dim: DimOps](elem: => Float): MatrixNxN[D] = {
-    val dim = implicitly[DimOps[D]].toInt
+  def fill[D <: Dim: NDSpaceOps](elem: => Float): MatrixNxN[D] = {
+    val dim = implicitly[NDSpaceOps[D]].dimensionality
     val data = Array.fill[Float](dim * dim)(elem)
-    implicitly[DimOps[D]].matrixNxN.create(data)
+    implicitly[NDSpaceOps[D]].matrixNxN.create(data)
   }
 
-  def inv[D <: Dim : DimOps](m : MatrixNxN[D]) : MatrixNxN[D] = {
+  def inv[D <: Dim : NDSpaceOps](m : MatrixNxN[D]) : MatrixNxN[D] = {
     val bm = m.toBreezeMatrix
     val bmInv = breeze.linalg.inv(bm)
-    implicitly[DimOps[D]].matrixNxN.create(bmInv.data.map(_.toFloat))
+    implicitly[NDSpaceOps[D]].matrixNxN.create(bmInv.data.map(_.toFloat))
   }
 
 }

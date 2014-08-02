@@ -7,7 +7,7 @@ package org.statismo.stk.core.geometry
  * Index definitions
  *=======================================*/
 
-class Index[D <: Dim : DimOps](val data : Array[Int]) extends Coordinate[D, Int] {}
+class Index[D <: Dim : NDSpaceOps](val data : Array[Int]) extends Coordinate[D, Int] {}
 
 private[geometry] trait IndexFactory[D <: Dim] {
   def create(d : Array[Int]) : Index[D]
