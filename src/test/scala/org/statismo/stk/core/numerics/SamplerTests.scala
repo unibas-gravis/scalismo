@@ -117,8 +117,8 @@ class SamplerTests extends FunSpec with ShouldMatchers {
 
       }
 
-      for (iRatio <- 1 to 3) {
-        for (iPoints <- 1 to 3) {
+      for (iRatio <- 1 to 1) { // for the full test: 1 to 3
+        for (iPoints <- 1 to 1) { // full test: 1 to 3
           val points = iPoints * 5000
           val ratio = iRatio / 4.0
           testSampling(points, ratio)
