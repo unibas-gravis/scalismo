@@ -10,6 +10,7 @@ import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.stats.distributions.RandBasis
 import org.statismo.stk.core.statisticalmodel.GaussianProcess
 import org.apache.commons.math3.random.MersenneTwister
+import java.util
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim, +Pt <: Point[D]] {
@@ -157,36 +158,33 @@ case class PointsWithLikelyCorrespondenceSampler(gp : GaussianProcess[ThreeD], r
 
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
-
-  val maxMultiplier = 100000 // the largest number of how many times a cell is replicated
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[ThreeD, Point[ThreeD]] {
 
   override val volumeOfSampleRegion = mesh.area
-  
-  val p = 1.0 / mesh.area
-  val cellAreas = mesh.cells.map(mesh.computeTriangleArea)
-  val minConsideredCellArea = Math.max(cellAreas.max / maxMultiplier, cellAreas.min)
-  val cellMultipliers = cellAreas.map(area => (area / minConsideredCellArea).ceil.toInt)
 
-  val cellIds = 0 until mesh.cells.size
+  private val p = 1.0 / mesh.area
 
-  assert(cellMultipliers.max <= maxMultiplier + 1) // +1 since we take ceiling above
+  val samplePoints = {
 
-  val random = new scala.util.Random(seed)
+    val accumulatedAreas: Array[Double] = mesh.cells.scanLeft(0.0) {
+      case (sum, cell) =>
+        sum + mesh.computeTriangleArea(cell)
+    }.tail.toArray
 
+    val random = new scala.util.Random(seed)
 
-  // create a list where each cellId is contained n times (n is the multiplier)
-  val replicatedCells = (cellIds zip cellMultipliers).flatMap{case (id, mult) => List.fill(mult)(id)}
-  assert(cellMultipliers.sum == replicatedCells.size)
-  
-  val samplePoints = for (i <- 0 until numberOfPoints) yield {
-    val drawnIndex = random.nextInt(replicatedCells.size)
-    val cellidx = replicatedCells(drawnIndex)
-    mesh.samplePointInTriangleCell(mesh.cells(cellidx), seed)
+    for (i <- 0 until numberOfPoints) yield {
+      val drawnValue = random.nextDouble() * mesh.area
+
+      val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
+      val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
+      assert(index >= 0 && index < accumulatedAreas.length)
+
+      mesh.samplePointInTriangleCell(mesh.cells(index), random.nextInt())
+    }
   }
 
-
-  def sample = {
+  override def sample = {
     samplePoints.map(pt => (pt, p))
   }
 }
