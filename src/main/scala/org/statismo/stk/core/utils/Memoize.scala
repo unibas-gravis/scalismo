@@ -1,18 +1,47 @@
 package org.statismo.stk.core.utils
 
-import org.statismo.stk.core.common.ImmutableLRU
+import java.util.Map.Entry
 
 class Memoize[-T, +R](f: T => R, cacheSizeHint: Int) extends (T => R) {
 
-  @volatile private[this] var valCache = ImmutableLRU[T, R](cacheSizeHint)
+  private class Holder[X] {
+    private var data: Option[X] = None
+
+    def getOrPut(f: => X): X = {
+      data match {
+        case Some(v) => v
+        case None => this.synchronized {
+          data match {
+            case Some(v) => v
+            case None =>
+              data = Some(f)
+              data.get
+          }
+        }
+      }
+    }
+  }
+
+  private[this] val cache = new java.util.LinkedHashMap[T, Holder[R]](64, 0.75f, false) {
+    override def removeEldestEntry(eldest: Entry[T, Holder[R]]) = size() > cacheSizeHint
+  }
 
   override def apply(x: T) = {
-    val (maybeT, _) = valCache.get(x)
-    maybeT.getOrElse {
-      val newValue: R = f(x)
-      valCache = (valCache + (x, newValue))._2 // ignore evicted key
-      newValue
+    val holder: Holder[R] = {
+      cache.get(x) match {
+        case h: Holder[R] => h
+        case null => cache.synchronized {
+          cache.get(x) match {
+            case h: Holder[R] => h
+            case null =>
+              val h = new Holder[R]
+              cache.put(x, h)
+              h
+          }
+        }
+      }
     }
+    holder.getOrPut(f(x))
   }
 
 }
