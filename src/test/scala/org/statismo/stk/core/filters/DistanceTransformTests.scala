@@ -30,7 +30,6 @@ class DistanceTransformTests extends FunSpec with ShouldMatchers {
       val img2D = DiscreteScalarImage2D(dom2D, Array(1.0, 1.0, 1.0, 1.0, 1. , 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0))
       
       val dm =  DistanceTransform.euclideanDistanceTransform2D(img2D)
-      println(dm)
       dm(Index2D(0,0)) should be(math.sqrt(2) plusOrMinus 1e-5)      
       dm(Index2D(1,1)) should be(0. plusOrMinus 1e-5)
       dm(Index2D(1,0)) should be(1. plusOrMinus 1e-5)
