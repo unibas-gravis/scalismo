@@ -117,6 +117,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
     it("yields the same object when a sample from the model is projected") {
       val gp = Fixture.gp
+      // TODO: sample() should arguably accept seed argument
       val sample = gp.sample
 
       val pts = Fixture.sampler.sample.map(_._1)
