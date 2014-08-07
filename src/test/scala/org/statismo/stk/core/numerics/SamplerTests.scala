@@ -9,7 +9,7 @@ import org.statismo.stk.core.io.MeshIO
 import org.statismo.stk.core.mesh.TriangleMesh
 
 import scala.util.Random
-import scala.collection.mutable
+import org.statismo.stk.core.utils.Memoize
 
 class SamplerTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
@@ -23,46 +23,45 @@ class SamplerTests extends FunSpec with ShouldMatchers {
       val random = new Random()
 
       // precalculate values needed for determining if a point lies in a (triangle) cell.
-      case class CellPrecalc(a: Vector3D, b: Vector3D, c: Vector3D, v0: Vector3D, v1: Vector3D, dot00: Float, dot01: Float, dot11: Float)
+      case class CellInfo(a: Vector3D, b: Vector3D, c: Vector3D, v0: Vector3D, v1: Vector3D, dot00: Float, dot01: Float, dot11: Float)
 
-      val precalcCache = new mutable.HashMap[Int, CellPrecalc] {
-        for (cellId <- 0 until facemesh.cells.size) {
-          val cell = facemesh.cells(cellId)
-          val vec = cell.pointIds.map(facemesh.points).map(_.toVector.asInstanceOf[Vector3D])
-          val (a, b, c) = (vec(0), vec(1), vec(2))
-          val v0 = c - a
-          val v1 = b - a
+      def infoForId(cellId: Int): CellInfo = {
+        val cell = facemesh.cells(cellId)
+        val vec = cell.pointIds.map(facemesh.points).map(_.toVector.asInstanceOf[Vector3D])
+        val (a, b, c) = (vec(0), vec(1), vec(2))
+        val v0 = c - a
+        val v1 = b - a
 
-          // Compute dot products
-          val dot00 = v0 dot v0
-          val dot01 = v0 dot v1
-          val dot11 = v1 dot v1
+        // Compute dot products
+        val dot00 = v0 dot v0
+        val dot01 = v0 dot v1
+        val dot11 = v1 dot v1
 
-          this(cellId) = CellPrecalc(a, b, c, v0, v1, dot00, dot01, dot11)
-        }
+        CellInfo(a, b, c, v0, v1, dot00, dot01, dot11)
       }
+      val memoizedInfo = Memoize(infoForId, facemesh.cells.size)
 
       def testSampling(numSamplingPoints: Int, randomAreaSizeRatio: Double): Unit = {
 
+        // the algorithm is taken from http://www.blackpawn.com/texts/pointinpoly/
         def pointInCell(p: Point[ThreeD], cellId: Int, mesh: TriangleMesh): Boolean = {
-          // the algorithm is taken from http://www.blackpawn.com/texts/pointinpoly/
-          val precalc = precalcCache(cellId)
+          val info = memoizedInfo(cellId)
 
-          val v2 = (p.toVector - precalc.a).asInstanceOf[Vector3D]
-          val dot02 = precalc.v0 dot v2
-          val dot12 = precalc.v1 dot v2
+          val v2 = (p.toVector - info.a).asInstanceOf[Vector3D]
+          val dot02 = info.v0 dot v2
+          val dot12 = info.v1 dot v2
 
           // Compute barycentric coordinates
-          val invDenom = 1.0 / (precalc.dot00 * precalc.dot11 - precalc.dot01 * precalc.dot01)
-          val u = (precalc.dot11 * dot02 - precalc.dot01 * dot12) * invDenom
-          val v = (precalc.dot00 * dot12 - precalc.dot01 * dot02) * invDenom
+          val invDenom = 1.0 / (info.dot00 * info.dot11 - info.dot01 * info.dot01)
+          val u = (info.dot11 * dot02 - info.dot01 * dot12) * invDenom
+          val v = (info.dot00 * dot12 - info.dot01 * dot02) * invDenom
 
           // Check if point is in triangle
           if ((u >= 0) && (v >= 0) && (u + v < 1)) {
             // this alone *should* be enough, but for some reason it isn't.
             // we additionally need to check if (A + u*v0 + v*v1) actually corresponds to
             // the point we were given.
-            val check = precalc.a + precalc.v0 * u + precalc.v1 * v
+            val check = info.a + info.v0 * u + info.v1 * v
             val diff = (p - check).toVector.norm
 
             //            if (diff < 0.01) true
@@ -102,12 +101,9 @@ class SamplerTests extends FunSpec with ShouldMatchers {
         val actualRatio = (facemesh.area * randomAreaSizeRatio + areaAdjust) / facemesh.area
         //println(s"actual ratio of selected areas = $actualRatio")
 
-        val randomAreasPar = randomAreas.par
-        val samplePointsPar = samplePoints.par
-
-        val numSampledPointsInArea = samplePointsPar.count(sampledPoint => {
-          randomAreasPar.exists(cellId => pointInCell(sampledPoint, cellId, facemesh))
-        })
+        val numSampledPointsInArea = randomAreas.par.map(cellId => {
+          samplePoints.filter(sampledPoint => pointInCell(sampledPoint, cellId, facemesh))
+        }).flatten.toSet.size
 
         val expectedNumberOfPointsInArea = actualRatio * numSamplingPoints
         //        println(s"expecting ~ ${expectedNumberOfPointsInArea.round} points to be found in randomly selected cells, actual found = $numSampledPointsInArea")
@@ -117,8 +113,10 @@ class SamplerTests extends FunSpec with ShouldMatchers {
 
       }
 
-      for (iRatio <- 1 to 1) { // for the full test: 1 to 3
-        for (iPoints <- 1 to 1) { // full test: 1 to 3
+      // for the full test: 1 to 3
+      for (iRatio <- 1 to 1) {
+        // full test: 1 to 3
+        for (iPoints <- 1 to 1) {
           val points = iPoints * 5000
           val ratio = iRatio / 4.0
           testSampling(points, ratio)
