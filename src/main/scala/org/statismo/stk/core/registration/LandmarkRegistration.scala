@@ -119,7 +119,6 @@ object LandmarkRegistration {
 
     val S = DenseMatrix.eye[Double](dimensionality)
     if (breeze.linalg.det(Sigma_xy) < 0) {
-      println("*** detSigmaxy <0 Flipping last value of S***")
       S(dimensionality - 1, dimensionality - 1) = -1
     }
     val R = uMat * S * vTMat
