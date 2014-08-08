@@ -166,7 +166,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       Matrix3x3.ones * v should equal(Vector3D(6, 6, 6))
     }
 
-    it("yields itself when transposed twise") {
+    it("yields itself when transposed twice") {
       val m = Matrix3x3((3, 4, 1), (3, 7, 2), (7, 9, 11))
       val mtt = m.t.t
       for (i <- 0 until 3; j <- 0 until 3) {
