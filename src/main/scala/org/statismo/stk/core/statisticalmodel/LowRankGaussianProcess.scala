@@ -276,12 +276,13 @@ object LowRankGaussianProcess {
    * create a LowRankGaussianProcess using PCA
    * Currently, this is done by discretizing the transformations and computing the mean and the covariance
    * of the discrete transformations.
+   * TODO: It should be explicitly enforced (using the type system) that the sampler is uniform
+   * TODO: At some point this should be replaced by a functional PCA
+   *
    * @param Domain the domain on which the GP will be defined
    * @param transformations
    * @param sampler A (preferably) uniform sampler from which the points are sampled
    *
-   * @TODO It should be explicitly enforced (using the type system) that the sampler is uniform
-   * @TODO At some point this should be replaced by a functional PCA
    */
   def createLowRankGPFromTransformations[D <: Dim: DimTraits](domain: Domain[D], transformations: Seq[Transformation[D]], sampler: Sampler[D, Point[D]]): LowRankGaussianProcess[D] = {
     val dimTraits = implicitly[DimTraits[D]]
