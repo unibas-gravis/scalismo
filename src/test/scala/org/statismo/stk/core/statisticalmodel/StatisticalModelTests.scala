@@ -1,8 +1,7 @@
 package org.statismo.stk.core.statisticalmodel
 
-
 import scala.language.implicitConversions
-import org.statismo.stk.core.io.{StatismoIO, MeshIO}
+import org.statismo.stk.core.io.{ StatismoIO, MeshIO }
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.implicits._
@@ -12,6 +11,7 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.registration.RigidTransformationSpace3D
+import org.statismo.stk.core.registration.RigidTransformation3D
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
@@ -32,7 +32,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         (x: Point[ThreeD]) => Vector3D(0.0, 0.0, 0.0),
         cov,
         20)
-      val gp =LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
+      val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
       val specializedGP = gp.specializeForPoints(mesh.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
 
@@ -68,13 +68,24 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
     }
 
-    it ("yields the same mean and deformations when transformed with a rigid transformation") {
+    it("can be transformed forth and back and yield the same deformations") {
       org.statismo.stk.core.initialize()
       val path = getClass().getResource("/facemodel.h5").getPath
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
-      val rigidTransform = RigidTransformationSpace3D()
 
-
+      val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+      val rigidTransform = RigidTransformationSpace3D().transformForParameters(parameterVector)
+      val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation3D]
+            
+      val newModel =  StatisticalMeshModel.transform(  StatisticalMeshModel.transform(model, rigidTransform), inverseTransform)  
+      val randParams = DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat)
+      
+      val instance1 = model.instance(randParams)
+      val instance2 = newModel.instance(randParams)
+      
+      val diffs = instance1.points.zip(instance2.points).map {case (p1, p2) => (p1-p2).norm}
+      assert(diffs.max < 0.005f)
     }
+
   }
 }

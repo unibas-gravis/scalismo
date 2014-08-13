@@ -401,7 +401,7 @@ private class RigidTransformation3DRotThenTrans(translationTransform: Translatio
 }
 
 private class RigidTransformation3DTransThenRot(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D)
-  extends ProductTransformation[ThreeD](translationTransform, rotationTransform) with RigidTransformation3D {
+  extends ProductTransformation[ThreeD](rotationTransform, translationTransform) with RigidTransformation3D {
   def inverse : RigidTransformation[ThreeD]= new RigidTransformation3DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
 }
 
@@ -429,6 +429,6 @@ private class RigidTransformation2DRotThenTrans(translationTransform: Translatio
 }
 
 private class RigidTransformation2DTransThenRot(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D)
-  extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation2D {
+  extends ProductTransformation(rotationTransform, translationTransform) with RigidTransformation2D {
   def inverse : RigidTransformation[TwoD]= new RigidTransformation2DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
 }

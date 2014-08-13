@@ -34,6 +34,7 @@ import org.statismo.stk.core.numerics.GradientDescentOptimizer
 import org.statismo.stk.core.numerics.GradientDescentConfiguration
 import org.statismo.stk.core.numerics.GradientDescentOptimizer
 import org.statismo.stk.core.numerics.GradientDescentConfiguration
+import org.apache.commons.math3.stat.regression.RegressionResults
 
 class RegistrationTest extends FunSpec with ShouldMatchers {
 
@@ -70,37 +71,47 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   }
 
   describe("A 3D rigid landmark based registration") {
+
+    val path = getClass().getResource("/facemesh.h5").getPath
+    val mesh = MeshIO.readHDF5(new File(path)).get
+
+    val region = mesh.boundingBox
+    val origin = region.origin
+    val extent = region.extent
+    val center = ((extent - origin) * 0.5).toPoint
+
+    val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
+    val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+    val rigidTransform = RigidTransformationSpace3D().transformForParameters(parameterVector)
+
+    val rigidTransformed = mesh warp rigidTransform
+
+    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.points.zip(rigidTransformed.points).toIndexedSeq)
+
+    //should not test on parameters here since many euler angles can lead to the same rotation matrix
+    val rigidRegTransformed = mesh warp regResult.transform
     it("can retrieve correct parameters") {
 
-      val path = getClass().getResource("/facemesh.h5").getPath
-      val mesh = MeshIO.readHDF5(new File(path)).get
-
-      val region = mesh.boundingBox
-      val origin = region.origin
-      val extent = region.extent
-      val center = ((extent - origin) * 0.5).toPoint
-
-      val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
-      val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val trans = RigidTransformationSpace3D().transformForParameters(parameterVector)
-
-      val rotated = mesh warp trans
-      //Utils.showVTK(Utils.meshToVTKMesh(rotatedTrans))
-
-      val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.points.zip(rotated.points).toIndexedSeq)
-      //Utils.showVTK(Utils.meshToVTKMesh(mesh compose regResult.transform))
-
-      //should not test on parameters here since many euler angles can lead to the same rotation matrix
-      val regRotated = mesh warp regResult.transform
-
-      for ((p, i) <- regRotated.points.zipWithIndex) {
-        p(0) should be(rotated.points(i)(0) plusOrMinus 0.0001)
-        p(1) should be(rotated.points(i)(1) plusOrMinus 0.0001)
-        p(2) should be(rotated.points(i)(2) plusOrMinus 0.0001)
+      for ((p, i) <- rigidRegTransformed.points.zipWithIndex) {
+        p(0) should be(rigidTransformed.points(i)(0) plusOrMinus 0.0001)
+        p(1) should be(rigidTransformed.points(i)(1) plusOrMinus 0.0001)
+        p(2) should be(rigidTransformed.points(i)(2) plusOrMinus 0.0001)
       }
     }
+
+    it("Rigid Transformation forth and back of a mesh gives the same points ") {
+      val inverseTrans = regResult.transform.asInstanceOf[RigidTransformation3D].inverse
+      val tranformed = mesh.warp(regResult.transform).warp(inverseTrans)
+
+      for ((p, i) <- tranformed.points.zipWithIndex) {
+        p(0) should be(mesh.points(i)(0) plusOrMinus 0.0001)
+        p(1) should be(mesh.points(i)(1) plusOrMinus 0.0001)
+        p(2) should be(mesh.points(i)(2) plusOrMinus 0.0001)
+      }
+    }
+
   }
-  
+
   describe("A 2D similarity landmark based registration") {
     it("can transform the points appropriately") {
       val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))
@@ -109,7 +120,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotationParams = DenseVector[Float](-angle)
         val transParams = DenseVector[Float](1f, 1.5f)
-        
+
         val scalingFactor = scala.util.Random.nextFloat
         val productParams = DenseVector.vertcat(DenseVector.vertcat(transParams, rotationParams), DenseVector(scalingFactor))
 
@@ -146,12 +157,12 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val trans = RigidTransformationSpace3D().product(ScalingSpace3D()).transformForParameters(parameterVector)
 
       val translatedRotatedScaled = mesh warp trans
-    
+
       val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.points.zip(translatedRotatedScaled.points).toIndexedSeq)
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regSim = mesh warp regResult.transform
-      
+
       for ((p, i) <- regSim.points.zipWithIndex.take(100)) {
         p(0) should be(translatedRotatedScaled.points(i)(0) plusOrMinus 0.0001)
         p(1) should be(translatedRotatedScaled.points(i)(1) plusOrMinus 0.0001)
