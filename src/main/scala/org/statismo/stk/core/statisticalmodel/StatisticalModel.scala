@@ -128,7 +128,7 @@ object StatisticalMeshModel {
     val newPhis = phis.map(phi => {
       def newPhi(pt: Point[ThreeD]): Vector[ThreeD] = {
         val ptOrigGp = invTransform(pt)
-        rigidTransform(ptOrigGp + phi(ptOrigGp)) - rigidTransform(ptOrigGp)
+        rigidTransform(ptOrigGp + phi(ptOrigGp)) - pt
       }
       newPhi _
     })
