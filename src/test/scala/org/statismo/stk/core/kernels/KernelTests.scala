@@ -4,15 +4,16 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry.implicits._
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{ Point, ThreeD, MatrixNxN }
-import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, DiscreteGaussianProcess, LowRankGaussianProcessConfiguration}
+import org.statismo.stk.core.geometry.{Point, ThreeD}
+import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, LowRankGaussianProcessConfiguration}
 import org.statismo.stk.core.geometry.Vector3D
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.geometry.Point3D
 import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
+import org.statismo.stk.core.geometry
 
-class KernelTransformationTests extends FunSpec with ShouldMatchers {
+class KernelTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
 
   describe("a Kernel") {
@@ -49,19 +50,25 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxedDomain3D(Point3D(-5, 1, 3), Point3D(100, 80, 50))
 
-      val nystromSampler = UniformSampler3D(domain, 8 * 8 * 8)
+      val domain = BoxedDomain3D(Point3D(-5, 1, 3), Point3D(100, 90, 25))
+      val samplerForNystromApprox = UniformSampler3D(domain, 7 * 7 * 7)
+
 
       val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
       val mu = (pt: Point[ThreeD]) => Vector3D(1, 10, -5)
-      val gpConf = LowRankGaussianProcessConfiguration(domain, nystromSampler, mu, k, 500)
+      val gpConf = LowRankGaussianProcessConfiguration(domain, samplerForNystromApprox, mu, k, 500)
+
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConf)
 
-      val sampleTransformations = for (i <- (0 until 3000).par) yield {
-        val sample = gp.sample
+
+      val sampleTransformations = for (i <- (0 until 5000).par) yield {
+        // TODO: gp.sample() should (arguably) accept seed.
+        val sample: (Point[ThreeD] => geometry.Vector[ThreeD]) = gp.sample
+
         new Transformation[ThreeD] {
           def apply(x: Point[ThreeD]) = x + sample(x)
+
           def takeDerivative(x: Point[ThreeD]) = ???
         }
       }
@@ -70,23 +77,24 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val testPtSampler = UniformDistributionRandomSampler3D(domain, 1)
       val pts = testPtSampler.sample.map(_._1)
 
-
       val sampleCovKernel = SampleCovarianceKernel3D(sampleTransformations.toIndexedSeq, pts.size)
-      
+
+      // since mu always returns the same vector, it's enough to calculate it once
+      val mux = mu(Point3D(0, 0, 0))
       for (x <- pts.par) {
+        val mu2 = sampleCovKernel.mu(x)
         for (d <- 0 until 3) {
-          sampleCovKernel.mu(x)(d) should be(mu(x)(d) plusOrMinus (0.2f))
+          mu2(d) should be(mux(d) plusOrMinus 0.2f)
         }
       }
 
       for (x <- pts.par; y <- pts) {
-        val kxy = k(x, y)
+        val gpxy = gp.cov(x, y)
         val sampleCovxy = sampleCovKernel(x, y)
         for (d1 <- 0 until 3; d2 <- 0 until 3) {
-          kxy(d1, d2) should be(sampleCovxy(d1, d2) plusOrMinus (0.2f))
+          sampleCovxy(d1, d2) should be(gpxy(d1, d2) plusOrMinus 0.2f)
         }
       }
-
     }
   }
 
