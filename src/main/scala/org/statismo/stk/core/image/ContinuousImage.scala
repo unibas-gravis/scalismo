@@ -14,7 +14,6 @@ import org.statismo.stk.core.registration.{ CanDifferentiate, Transformation }
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.Domain
-import org.statismo.stk.core.common.ImplicitDomain
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.numerics.IntegratorConfiguration
@@ -106,20 +105,20 @@ trait ContinuousScalarImageLike[D <: Dim, Repr <: ContinuousScalarImage[D]] { se
   def +(that: CI): Repr = {
     def f(x: Point[D]): Float = self.f(x) + that.f(x)
     def df = for (selfdf <- self.df; thatdf <- that.df) yield ((x: Point[D]) => selfdf(x) + thatdf(x))
-    newConcreteImageRepr(self.domain.intersection(that.domain), f, df)
+    newConcreteImageRepr(Domain.intersection[D](self.domain,that.domain), f, df)
   }
 
   def -(that: CI): Repr = {
     def f(x: Point[D]): Float = self.f(x) - that.f(x)
     def df = for (seldf <- self.df; thatdf <- that.df) yield (x: Point[D]) => seldf(x) - thatdf(x)
-    val newDomain = self.domain.intersection(that.domain)
+    val newDomain = Domain.intersection[D](self.domain, that.domain)
     newConcreteImageRepr(newDomain, f, df)
   }
 
   def :*(that: CI): Repr = {
     def f(x: Point[D]): Float = self.f(x) * that.f(x)
     def df = for (selfdf <- self.df; thatdf <- that.df) yield ((x: Point[D]) => selfdf(x) * that(x) + thatdf(x) * self.f(x))
-    val newDomain = self.domain.intersection(that.domain)
+    val newDomain = Domain.intersection[D](self.domain, that.domain)
     newConcreteImageRepr(newDomain, f, df)
   }
 
@@ -146,9 +145,8 @@ trait ContinuousScalarImageLike[D <: Dim, Repr <: ContinuousScalarImage[D]] { se
       case _ => None
     }
 
-    val newDomain = new ImplicitDomain[D] {
-      override val chi = (pt: Point[D]) => self.isDefinedAt(t(pt))
-    }
+    val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => self.isDefinedAt(t(pt)))
+ 
     newConcreteImageRepr(newDomain, f, df)
   }
 }
