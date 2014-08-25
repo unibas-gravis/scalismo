@@ -9,8 +9,6 @@ import org.statismo.stk.core.geometry.Index._
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.registration.TranslationSpace1D
 import org.statismo.stk.core.registration.TranslationSpace2D
-import org.statismo.stk.core.common.ImplicitDomain
-import org.statismo.stk.core.common.ImplicitDomain1D
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import scala.language.implicitConversions
