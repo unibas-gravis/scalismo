@@ -10,6 +10,7 @@ import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.image.DiscreteImageDomain
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.Domain
 
 trait MetricConfiguration
 
@@ -43,7 +44,7 @@ abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extend
 
  
     val fullMetricGradient = (x: Point[D]) => {
-      val domain = warpedImage.domain.intersection(dDMovingImage.domain)
+      val domain = Domain.intersection(warpedImage.domain,dDMovingImage.domain)
       if (domain.isDefinedAt(x))
         Some(movingGradientImage(transform(x)).toBreezeVector * dDMovingImage(x))
       else None
