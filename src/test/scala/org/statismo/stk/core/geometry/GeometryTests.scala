@@ -21,13 +21,12 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("does not equal a Vector[ThreeD]") {
-      p should not equal (v)
-      p should not equal (vGeneric)
+      p should not equal v
+      p should not equal vGeneric
     }
     it("can be described as a Vector3D") {
       p.toVector should equal(v)
     }
-
   }
 
   describe("A 3D Vector") {
@@ -36,8 +35,8 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("does not equal a Point[ThreeD]") {
-      v should not equal (p)
-      v should not equal (pGeneric)
+      v should not equal p
+      v should not equal pGeneric
     }
 
     it("equals a point when converted to point") {
@@ -48,8 +47,8 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       Vector(1).norm2 should equal(1)
       Vector(1, 1).norm2 should equal(2)
       Vector(1, 1, 1).norm2 should equal(3)
-      Vector(math.sqrt(2).toFloat, math.sqrt(2).toFloat).norm2 should be(4.0 plusOrMinus (1e-5))
-      v.norm should be(math.sqrt(v.norm2) plusOrMinus (1e-5))
+      Vector(math.sqrt(2).toFloat, math.sqrt(2).toFloat).norm2 should be(4.0 plusOrMinus 1e-5)
+      v.norm should be(math.sqrt(v.norm2) plusOrMinus 1e-5)
     }
 
     it("gives the correct dot value for the dot product") {
@@ -71,7 +70,6 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val crossPdBreeze = breeze.linalg.cross(v1.toBreezeVector, v2.toBreezeVector)
       Vector.crossproduct(v1, v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
     }
-
   }
   describe("a 3x3 matrix") {
 
@@ -118,16 +116,15 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val mxv = m * v
       val mxvBreeze = m.toBreezeMatrix * vBreeze
       for (i <- 0 until 3) {
-        mxv(i) should be(mxvBreeze(i) plusOrMinus (1e-8))
+        mxv(i) should be(mxvBreeze(i) plusOrMinus 1e-8)
       }
-
     }
 
     it("can be multiplied by a scalar") {
       val m1 = (m * 0.1).toBreezeMatrix
       val m2 = m.toBreezeMatrix * 0.1f
       for (i <- 0 until 3; j <- 0 until 3) {
-        m1(i, j) should be(m2(i, j) plusOrMinus (1e-8))
+        m1(i, j) should be(m2(i, j) plusOrMinus 1e-8)
       }
     }
 
@@ -135,7 +132,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val m1 = m + m
       val m2 = m.toBreezeMatrix + m.toBreezeMatrix
       for (i <- 0 until 3; j <- 0 until 3) {
-        m1(i, j) should be(m2(i, j) plusOrMinus (1e-8))
+        m1(i, j) should be(m2(i, j) plusOrMinus 1e-8)
       }
     }
 
@@ -143,7 +140,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val m1 = m :* m
       val m2 = m.toBreezeMatrix :* m.toBreezeMatrix
       for (i <- 0 until 3; j <- 0 until 3) {
-        m1(i, j) should be(m2(i, j) plusOrMinus (1e-8))
+        m1(i, j) should be(m2(i, j) plusOrMinus 1e-8)
       }
     }
 
@@ -155,7 +152,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val resBreeze = m.toBreezeMatrix * m2.toBreezeMatrix
 
       for (i <- 0 until 3; j <- 0 until 3) {
-        res(i, j) should be(resBreeze(i, j) plusOrMinus (1e-5))
+        res(i, j) should be(resBreeze(i, j) plusOrMinus 1e-5)
       }
     }
 
@@ -170,7 +167,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val m = MatrixNxN((3, 4, 1), (3, 7, 2), (7, 9, 11))
       val mtt = m.t.t
       for (i <- 0 until 3; j <- 0 until 3) {
-        mtt(i,j) should equal (m(i,j))
+        mtt(i, j) should equal(m(i, j))
       }
     }
 
@@ -179,10 +176,9 @@ class GeometryTests extends FunSpec with ShouldMatchers {
       val mInvertible = m.t * m // m^T *m is always invertible
       val almostEye = mInvertible * MatrixNxN.inv(mInvertible)
       val eye = MatrixNxN.eye[_3D]
-      for (i <- 0 until 3; j <- 0 until 3)  {
-        almostEye(i,j) should be(eye(i,j) plusOrMinus 1e-5f)
+      for (i <- 0 until 3; j <- 0 until 3) {
+        almostEye(i, j) should be(eye(i, j) plusOrMinus 1e-5f)
       }
     }
   }
-
 }

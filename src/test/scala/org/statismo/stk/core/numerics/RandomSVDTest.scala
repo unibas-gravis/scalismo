@@ -17,14 +17,14 @@ class RandomSVDTest extends FunSpec with ShouldMatchers {
       val (ub, lb, vbt) = breeze.linalg.svd(Kdouble)
 
       for (j <- 0 until 10) {
-        (lr(j) should be(lb(j) plusOrMinus 0.005))
+        lr(j) should be(lb(j) plusOrMinus 0.005)
 
-        for (i <- (0 until ur.rows)) {
-          (math.abs(ur(i, j)) should be(math.abs(ub(i, j)) plusOrMinus 0.005))
+        for (i <- 0 until ur.rows) {
+          math.abs(ur(i, j)) should be(math.abs(ub(i, j)) plusOrMinus 0.005)
         }
 
-        for (i <- (0 until vrt.rows)) {
-          (math.abs(vrt(i, j)) should be(math.abs(vbt(i, j)) plusOrMinus 0.005))
+        for (i <- 0 until vrt.rows) {
+          math.abs(vrt(i, j)) should be(math.abs(vbt(i, j)) plusOrMinus 0.005)
         }
 
       }

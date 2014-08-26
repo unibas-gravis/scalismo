@@ -3,7 +3,6 @@ package numerics
 
 import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.mesh.TriangleMesh
@@ -14,18 +13,18 @@ import java.util
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim] {
-  
-  val numberOfPoints : Int
+
+  val numberOfPoints: Int
   /**
    * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probbility density function
-   *  according to which the points are sampled
+   * according to which the points are sampled
    */
   def sample: IndexedSeq[(Point[D], Double)]
 
   def volumeOfSampleRegion: Double
 }
 
-case class UniformSampler1D(val domain: BoxedDomain1D, val numberOfPoints: Int)  extends Sampler[_1D]{
+case class UniformSampler1D(domain: BoxedDomain1D, numberOfPoints: Int) extends Sampler[_1D] {
 
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
@@ -34,17 +33,16 @@ case class UniformSampler1D(val domain: BoxedDomain1D, val numberOfPoints: Int) 
     val step = (domain.extent(0) - domain.origin(0)) / numberOfPoints.toFloat
     for (i <- 0 until numberOfPoints) yield (Point(domain.origin(0) + i * step), p)
   }
-
 }
 
-case class UniformSampler2D(val domain: BoxedDomain[_2D], val numberOfPoints: Int) extends Sampler[_2D] {
+case class UniformSampler2D(domain: BoxedDomain[_2D], numberOfPoints: Int) extends Sampler[_2D] {
 
   val p = 1.0 / domain.volume
   def volumeOfSampleRegion = domain.volume
   // TODO this actually samples less points than it is supposed to . 
   // Check how we can fix it.
   override def sample = {
-    if (math.pow(math.floor(math.sqrt(numberOfPoints)), 2) < numberOfPoints ) {
+    if (math.pow(math.floor(math.sqrt(numberOfPoints)), 2) < numberOfPoints) {
       throw new Exception("The number of points for sampling needs to be a power of 2")
     }
     val nbPerDim = math.sqrt(numberOfPoints).floor.toInt
@@ -54,45 +52,45 @@ case class UniformSampler2D(val domain: BoxedDomain[_2D], val numberOfPoints: In
   }
 }
 
-case class UniformSampler3D(val domain: BoxedDomain3D, val numberOfPoints: Int) extends Sampler[_3D] {
+case class UniformSampler3D(domain: BoxedDomain3D, numberOfPoints: Int) extends Sampler[_3D] {
   val p = 1.0 / domain.volume
   def volumeOfSampleRegion = domain.volume
   override def sample = {
-    if (math.pow(math.floor(math.cbrt(numberOfPoints)), 3) < numberOfPoints ) {
+    if (math.pow(math.floor(math.cbrt(numberOfPoints)), 3) < numberOfPoints) {
       throw new Exception("The number of points for sampling needs to be a power of 3")
     }
-    
+
     val nbPerDim = math.cbrt(numberOfPoints).floor.toInt
     val step0 = (domain.extent(0) - domain.origin(0)) / nbPerDim
     val step1 = (domain.extent(1) - domain.origin(1)) / nbPerDim
     val step2 = (domain.extent(2) - domain.origin(2)) / nbPerDim
 
     for (i <- 0 until nbPerDim; j <- 0 until nbPerDim; k <- 0 until nbPerDim)
-      yield (Point(domain.origin(0) + i * step0, domain.origin(1) + j * step1, domain.origin(2) + k * step2), p)
+    yield (Point(domain.origin(0) + i * step0, domain.origin(1) + j * step1, domain.origin(2) + k * step2), p)
   }
 }
 
-case class UniformDistributionRandomSampler1D(val domain: BoxedDomain1D, val numberOfPoints: Int) extends Sampler[_1D] {
+case class UniformDistributionRandomSampler1D(domain: BoxedDomain1D, numberOfPoints: Int) extends Sampler[_1D] {
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
   override def sample = {
     val distr = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
-    (0 until numberOfPoints).map(i => (Point(distr.draw.toFloat), p))
+    (0 until numberOfPoints).map(i => (Point(distr.draw().toFloat), p))
   }
 }
 
-case class UniformDistributionRandomSampler2D(val domain: BoxedDomain[_2D], val numberOfPoints: Int) extends Sampler[_2D] {
+case class UniformDistributionRandomSampler2D(domain: BoxedDomain[_2D], numberOfPoints: Int) extends Sampler[_2D] {
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
   override def sample = {
     val distrDim1 = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
     val distrDim2 = breeze.stats.distributions.Uniform(domain.origin(1), domain.extent(1))
 
-    (0 until numberOfPoints).map(i => (Point(distrDim1.draw.toFloat, distrDim2.draw.toFloat), p))
+    (0 until numberOfPoints).map(i => (Point(distrDim1.draw().toFloat, distrDim2.draw().toFloat), p))
   }
 }
 
-case class UniformDistributionRandomSampler3D(val domain: BoxedDomain[_3D], val numberOfPoints: Int) extends Sampler[_3D] {
+case class UniformDistributionRandomSampler3D(domain: BoxedDomain[_3D], numberOfPoints: Int) extends Sampler[_3D] {
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
   def sample = {
@@ -100,12 +98,12 @@ case class UniformDistributionRandomSampler3D(val domain: BoxedDomain[_3D], val 
     val distrDim2 = breeze.stats.distributions.Uniform(domain.origin(1), domain.extent(1))
     val distrDim3 = breeze.stats.distributions.Uniform(domain.origin(2), domain.extent(2))
 
-    (0 until numberOfPoints).map(i => (Point(distrDim1.draw.toFloat, distrDim2.draw.toFloat, distrDim3.draw.toFloat), p))
+    (0 until numberOfPoints).map(i => (Point(distrDim1.draw().toFloat, distrDim2.draw().toFloat, distrDim3.draw().toFloat), p))
   }
 }
 
-case class SampleOnceSampler[D <: Dim](val sampler: Sampler[D]) extends Sampler[D] {
-  
+case class SampleOnceSampler[D <: Dim](sampler: Sampler[D]) extends Sampler[D] {
+
   val numberOfPoints = sampler.numberOfPoints
   def volumeOfSampleRegion = sampler.volumeOfSampleRegion
   var sampleValues: IndexedSeq[(Point[D], Double)] = IndexedSeq()
@@ -120,9 +118,10 @@ case class SampleOnceSampler[D <: Dim](val sampler: Sampler[D]) extends Sampler[
   }
 }
 
-case class RandomMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
-  val p = 1.0 / mesh.area // should be replaced with real mesh volume
+  val p = 1.0 / mesh.area
+  // should be replaced with real mesh volume
   val volumeOfSampleRegion = mesh.area
   def sample = {
     val points = mesh.points.force
@@ -134,31 +133,39 @@ case class RandomMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed
   }
 }
 
-case class PointsWithLikelyCorrespondenceSampler(gp : GaussianProcess[_3D], refmesh: TriangleMesh, targetMesh : TriangleMesh, maxMd : Double) extends Sampler[_3D] {
+case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D], refmesh: TriangleMesh, targetMesh: TriangleMesh, maxMd: Double) extends Sampler[_3D] {
 
-//  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
-  val meanPts = refmesh.points.map {x: Point[_3D] => x + gp.mean(x)}
-  val ptsWithDist = refmesh.points.zipWithIndex.par
-    .map {case (refPt, refPtId)  => {
-    val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts(refPtId))
-    (refPt, gp.marginal(refPt).mahalanobisDistance((closestTgtPt - refPt).toBreezeVector))
+  //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
+  val meanPts = refmesh.points.map {
+    x: Point[_3D] => x + gp.mean(x)
   }
-
+  val ptsWithDist = refmesh.points.zipWithIndex.par
+    .map {
+    case (refPt, refPtId) =>
+      val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts(refPtId))
+      (refPt, gp.marginal(refPt).mahalanobisDistance((closestTgtPt - refPt).toBreezeVector))
   }
 
   val pts = ptsWithDist
-    .filter{ case (refPt, dist) => dist <  maxMd }
-    .map{case (refPt, dist)=> (refPt, 1.0)}
-    .map{case (refPt, dist)=> (refPt, 1.0)}
+    .filter {
+    case (refPt, dist) => dist < maxMd
+  }
+    .map {
+    case (refPt, dist) => (refPt, 1.0)
+  }
+    .map {
+    case (refPt, dist) => (refPt, 1.0)
+  }
     .toIndexedSeq
 
   override val volumeOfSampleRegion = 1.0
   override val numberOfPoints = pts.size
-  override def sample = { println(s"Sampled: $numberOfPoints"); pts }
-
+  override def sample = {
+    println(s"Sampled: $numberOfPoints"); pts
+  }
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   override val volumeOfSampleRegion = mesh.area
 
@@ -189,7 +196,7 @@ case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, val numberOfPoint
   }
 }
 
-case class FixedPointsMeshSampler3D(mesh: TriangleMesh, val numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class FixedPointsMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   val volumeOfSampleRegion = mesh.area
   val p = 1.0 / mesh.area
