@@ -8,7 +8,7 @@ package org.statismo.stk.core.geometry
 /**
   * An ND Point
   */
-class Point[D <: Dim : NDSpaceOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Coordinate[D, Float] =>
+class Point[D <: Dim : ToInt](val data : Array[Float]) extends Coordinate[D, Float] { self: Coordinate[D, Float] =>
 
   def +(that: Vector[D]): Point[D] = {
     var newData = new Array[Float](dimensionality)
@@ -17,7 +17,7 @@ class Point[D <: Dim : NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    implicitly[NDSpaceOps[D]].point.create(newData)
+    Point[D](newData)
   }
 
   def -(that: Vector[D]): Point[D] = {
@@ -27,7 +27,7 @@ class Point[D <: Dim : NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[NDSpaceOps[D]].point.create(newData)
+    Point[D](newData)
   }
 
   def -(that: Point[D]): Vector[D] = {
@@ -37,10 +37,10 @@ class Point[D <: Dim : NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[NDSpaceOps[D]].vector.create(newData)
+    Vector[D](newData)
   }
 
-  def toVector: Vector[D] = implicitly[NDSpaceOps[D]].vector.create(self.data)
+  def toVector: Vector[D] = Vector[D](self.data)
 
   override def hashCode = data.deep.hashCode
   override def equals(other: Any): Boolean = other match {
@@ -56,41 +56,13 @@ class Point[D <: Dim : NDSpaceOps](val data : Array[Float]) extends Coordinate[D
 }
 
 
-trait PointFactory[D <: Dim] { def create(d : Array[Float]) : Point[D] }
-
-private[geometry] object pointFactory1D extends PointFactory[_1D] {
-  override def create(d: Array[Float]) : Point[_1D] = {
-    if (d.size != 1)
-      throw new Exception(s"Require array of size 1 to create a Point1D (got ${d.size}")
-    new Point[_1D](d)
-  }
-}
-
-private[geometry] object pointFactory2D extends PointFactory[_2D] {
-  override def create(d: Array[Float]) : Point[_2D] = {
-    if (d.size != 2)
-      throw new Exception(s"Require array of size 2 to create a Point2D (got ${d.size}")
-    new Point[_2D](d)
-  }
-}
-
-private[geometry] object pointFactory3D extends PointFactory[_3D] {
-  override def create(d: Array[Float]) : Point[_3D] = {
-    if (d.size != 3)
-      throw new Exception(s"Require array of size 3 to create a Point3D (got ${d.size}")
-    new Point[_3D](d)
-  }
-}
-
-
 object Point {
 
   def apply(x : Float) : Point[_1D] = new Point[_1D](Array(x))
   def apply(x : Float, y : Float) : Point[_2D] = new Point[_2D](Array(x, y))
   def apply(x : Float, y : Float, z : Float) : Point[_3D] = new Point[_3D](Array(x, y, z))
 
-  def apply[D <: Dim : PointFactory](d : Array[Float]) = implicitly[PointFactory[D]].create(d)
-
+  def apply[D <: Dim : ToInt](d : Array[Float]) = new Point[D](d)
 
 
   implicit def Point1DToDouble(p: Point[_1D]) = p(0)

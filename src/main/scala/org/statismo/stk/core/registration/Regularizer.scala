@@ -16,7 +16,7 @@ object RKHSNormRegularizer extends Regularizer {
   def takeDerivative(alpha : ParameterVector) = alpha * 2f
 }
 
-case class DiscreteRKHSNormRegularizer[D <: Dim: NDSpaceOps](val gp : DiscreteGaussianProcess[D]) extends Regularizer {
+case class DiscreteRKHSNormRegularizer[D <: Dim: ToInt](val gp : DiscreteGaussianProcess[D]) extends Regularizer {
 
   val points = gp.points
   val dim = gp.outputDimensionality

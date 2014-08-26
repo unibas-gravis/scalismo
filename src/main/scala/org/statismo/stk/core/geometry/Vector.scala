@@ -8,7 +8,7 @@ package org.statismo.stk.core.geometry
  * Vector definitions
  *=======================================*/
 
-class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D, Float] { self: Vector[D] =>
+class Vector[D <: Dim: ToInt](val data : Array[Float]) extends Coordinate[D, Float] { self: Vector[D] =>
 
   def norm2: Double = {
     var norm2 = 0.0
@@ -29,7 +29,7 @@ class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    implicitly[NDSpaceOps[D]].vector.create(newData)
+    Vector[D](newData)
   }
 
   def -(that: Vector[D]): Vector[D] = {
@@ -39,7 +39,7 @@ class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    implicitly[NDSpaceOps[D]].vector.create(newData)
+    Vector[D](newData)
   }
 
   def *(s: Double): Vector[D] = {
@@ -50,10 +50,10 @@ class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       newData(i) = this.data(i) * sFloat
       i += 1
     }
-    implicitly[NDSpaceOps[D]].vector.create(newData)
+    Vector[D](newData)
   }
 
-  def toPoint: Point[D] = implicitly[NDSpaceOps[D]].point.create(self.data)
+  def toPoint: Point[D] = new Point[D](self.data)
 
   def dot(that: Vector[D]): Float = {
     val d = dimensionality
@@ -83,7 +83,7 @@ class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D
       }
       i += 1
     }
-    implicitly[NDSpaceOps[D]].matrixNxN.create(data)
+    MatrixNxN[D](data)
   }
 
   override def hashCode = data.deep.hashCode
@@ -98,33 +98,6 @@ class Vector[D <: Dim: NDSpaceOps](val data : Array[Float]) extends Coordinate[D
 }
 
 
-
-trait VectorFactory[D <: Dim] { def create(d : Array[Float]) : Vector[D] }
-
-private[geometry] object vectorFactory1D extends VectorFactory[_1D] {
-  override def create(d: Array[Float]) : Vector[_1D] = {
-    if (d.size != 1)
-      throw new Exception(s"Require array of size 1 to create a Vector1D (got ${d.size}")
-    new Vector[_1D](d)
-  }
-}
-
-private[geometry] object vectorFactory2D extends VectorFactory[_2D] {
-  override def create(d: Array[Float]) : Vector[_2D] = {
-    if (d.size != 2)
-      throw new Exception(s"Require array of size 2 to create a Vector2D (got ${d.size}")
-    new Vector[_2D](d)
-  }
-}
-
-private[geometry] object vectorFactory3D extends VectorFactory[_3D] {
-  override def create(d: Array[Float]) : Vector[_3D] = {
-    if (d.size != 3)
-      throw new Exception(s"Require array of size 3 to create a Vector3D (got ${d.size}")
-    new Vector[_3D](d)
-  }
-}
-
 object Vector {
 
 
@@ -136,10 +109,10 @@ object Vector {
   def apply(x : Float, y : Float) : Vector[_2D] = new Vector[_2D](Array(x, y))
   def apply(x : Float, y : Float, z : Float) : Vector[_3D] = new Vector[_3D](Array(x, y, z))
 
-  def apply[D <: Dim : NDSpaceOps](d : Array[Float]) = implicitly[NDSpaceOps[D]].vector.create(d)
-  def zeros[D <: Dim : NDSpaceOps] = {
-    val dim = implicitly[NDSpaceOps[D]].dimensionality
-    implicitly[NDSpaceOps[D]].vector.create(Array.fill[Float](dim)(0f))
+  def apply[D <: Dim : ToInt](d : Array[Float]) = new Vector[D](d)
+  def zeros[D <: Dim : ToInt] = {
+    val dim = implicitly[ToInt[D]].toInt
+    new Vector[D](Array.fill[Float](dim)(0f))
   }
 
 
