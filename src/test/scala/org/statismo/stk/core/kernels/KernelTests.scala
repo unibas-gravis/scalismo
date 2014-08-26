@@ -3,7 +3,7 @@ package org.statismo.stk.core.kernels
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{ Point, _3D, Vector }
+import org.statismo.stk.core.geometry.{Point, _3D, Vector}
 import Point.implicits._
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, LowRankGaussianProcessConfiguration}
 import org.statismo.stk.core.common.BoxedDomain3D
@@ -28,9 +28,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
       val pt1 = 0.1f
       val pt2 = 1.0f
       gk(pt1, pt2) + gk(pt1, pt2) should be(gk2(pt1, pt2))
-
     }
-
   }
   describe("A scalar valued Gaussian kernel") {
     it("evaluated with twice the same argument yields 1") {
@@ -88,8 +86,6 @@ class KernelTests extends FunSpec with ShouldMatchers {
           sampleCovxy(d1, d2) should be(gpxy(d1, d2) plusOrMinus 0.2f)
         }
       }
-
     }
   }
-
 }

@@ -2,13 +2,11 @@ package org.statismo.stk.core
 package mesh
 
 import org.statismo.stk.core.common._
-import org.statismo.stk.core.geometry.{ Point, _3D, Vector}
+import org.statismo.stk.core.geometry.{Point, _3D, Vector}
 import org.statismo.stk.core.common.Cell
-import org.statismo.stk.core.common.PointData
-import org.statismo.stk.core.common.PointData
 import scala.reflect.ClassTag
-import scala.collection.mutable.HashMap
 import org.statismo.stk.core.common.BoxedDomain3D
+import scala.collection.mutable
 
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
@@ -18,11 +16,10 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 }
 
 
-
-case class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomainBase[_3D](meshPoints) {
+case class TriangleMesh private(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomainBase[_3D](meshPoints) {
 
   // a map that has for every point the neighboring cell ids
-  private[this] val cellMap: HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(HashMap())
+  private[this] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
 
 
   private[this] def updateCellMapForPtId(ptId: Int, cell: TriangleCell): Unit = {
@@ -52,7 +49,7 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: 
     BoxedDomain3D(Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
-  def warp(transform: Function1[Point[_3D], Point[_3D]]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
+  def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
   def cellNeighbors(id: Int): Seq[TriangleCell] = cellMap(id)
 
@@ -89,7 +86,7 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: 
     if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
   }
 
-  def samplePointInTriangleCell(t: TriangleCell, seed : Int ): Point[_3D] = {
+  def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
     val A = meshPoints(t.ptId1).toVector
     val B = meshPoints(t.ptId2).toVector
     val C = meshPoints(t.ptId3).toVector
@@ -107,16 +104,15 @@ case class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: 
 
 object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
-
 }
 
 
-case class ScalarMeshData[S: ScalarValue: ClassTag](val mesh: TriangleMesh, val values: Array[S]) extends ScalarPointData[_3D, S] {
+case class ScalarMeshData[S: ScalarValue : ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
   require(mesh.numberOfPoints == values.size)
   val valueDimensionality = 1
   override val domain = mesh
 
-  override def map[S2: ScalarValue: ClassTag](f: S => S2): ScalarPointData[_3D, S2] = {
+  override def map[S2: ScalarValue : ClassTag](f: S => S2): ScalarPointData[_3D, S2] = {
     ScalarMeshData(mesh, values.map(f))
   }
 }
