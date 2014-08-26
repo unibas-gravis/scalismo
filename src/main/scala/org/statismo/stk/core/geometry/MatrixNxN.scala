@@ -6,9 +6,9 @@ import breeze.linalg.DenseMatrix
 /**
  * Simple matrix class. The data is stored in column major ordering
  */
-class MatrixNxN[D <: Dim: ToInt](val data : Array[Float]) {
+class MatrixNxN[D <: Dim: DimOps] private (val data : Array[Float]) {
 
-  val dimensionality: Int = implicitly[ToInt[D]].toInt
+  val dimensionality: Int = implicitly[DimOps[D]].toInt
 
   def apply(i: Int, j: Int): Float = {
     val d = dimensionality
@@ -149,9 +149,9 @@ object MatrixNxN {
     new MatrixNxN[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
-  def apply[D <: Dim : ToInt](d : Array[Float]) = new MatrixNxN[D](d)
+  def apply[D <: Dim : DimOps](d : Array[Float]) = new MatrixNxN[D](d)
 
-  def eye[D <: Dim](implicit ev : ToInt[D]) : MatrixNxN[D] = {
+  def eye[D <: Dim](implicit ev : DimOps[D]) : MatrixNxN[D] = {
     val dim =  ev.toInt
     val data = Array.fill(dim * dim)(0f)
     for (i <- 0 until dim) {
@@ -160,16 +160,16 @@ object MatrixNxN {
     new MatrixNxN[D](data)
 
   }
-  def zeros[D <: Dim: ToInt]: MatrixNxN[D] = MatrixNxN.fill[D](0)
-  def ones[D <: Dim:  ToInt]: MatrixNxN[D] = MatrixNxN.fill[D](1)
+  def zeros[D <: Dim: DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](0)
+  def ones[D <: Dim:  DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](1)
 
-  def fill[D <: Dim: ToInt](elem: => Float): MatrixNxN[D] = {
-    val dim = implicitly[ToInt[D]].toInt
+  def fill[D <: Dim: DimOps](elem: => Float): MatrixNxN[D] = {
+    val dim = implicitly[DimOps[D]].toInt
     val data = Array.fill[Float](dim * dim)(elem)
     new MatrixNxN[D](data)
   }
 
-  def inv[D <: Dim : ToInt](m : MatrixNxN[D]) : MatrixNxN[D] = {
+  def inv[D <: Dim : DimOps](m : MatrixNxN[D]) : MatrixNxN[D] = {
     val bm = m.toBreezeMatrix
     val bmInv = breeze.linalg.inv(bm)
     new MatrixNxN[D](bmInv.data.map(_.toFloat))
