@@ -49,9 +49,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         val transParams = DenseVector[Float](1f, 1.5f)
         val productParams = DenseVector.vertcat(transParams, rotationParams)
 
-        val productSpace = RigidTransformationSpace2D(c)
+        val productSpace = RigidTransformationSpace[_2D](c)
 
-        val transformedPoints = points.map((pt: Point[_2D]) => productSpace(productParams)(pt))
+        val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
 
         val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints))
 
@@ -81,7 +81,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val trans = RigidTransformationSpace3D().transformForParameters(parameterVector)
+      val trans = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
 
       val rotated = mesh warp trans
       //Utils.showVTK(Utils.meshToVTKMesh(rotatedTrans))
@@ -112,9 +112,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         val scalingFactor = scala.util.Random.nextFloat
         val productParams = DenseVector.vertcat(DenseVector.vertcat(transParams, rotationParams), DenseVector(scalingFactor))
 
-        val productSpace = RigidTransformationSpace2D(c).product(ScalingSpace2D())
+        val productSpace = RigidTransformationSpace[_2D](c).product(ScalingSpace[_2D])
 
-        val transformedPoints = points.map((pt: Point[_2D]) => productSpace(productParams)(pt))
+        val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
 
         val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints))
 
@@ -142,7 +142,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
       val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2f)
-      val trans = RigidTransformationSpace3D().product(ScalingSpace3D()).transformForParameters(parameterVector)
+      val trans = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D]).transformForParameters(parameterVector)
 
       val translatedRotatedScaled = mesh warp trans
     
@@ -174,12 +174,12 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         integrator = integr,
         metric = MeanSquaresMetric2D(integr),
-        transformationSpace = TranslationSpace2D(),
+        transformationSpace = TranslationSpace[_2D],
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
       val translationParams = DenseVector[Float](-10.0, 5.0)
-      val translationTransform = regConf.transformationSpace(translationParams)
+      val translationTransform = regConf.transformationSpace.transformForParameters(translationParams)
       val transformedLena = fixedImage compose translationTransform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
 
@@ -201,12 +201,12 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(300, 1e-4)),
         integrator = integr,
         metric = MeanSquaresMetric2D(integr),
-        transformationSpace = RotationSpace2D(center),
+        transformationSpace = RotationSpace[_2D](center),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
       val rotationParams = DenseVector[Float](math.Pi / 8.0)
-      val transform = regConf.transformationSpace(rotationParams)
+      val transform = regConf.transformationSpace.transformForParameters(rotationParams)
       val transformedLena = fixedImage compose transform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
 
@@ -228,7 +228,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
     it("Recovers the correct parameters for a translation transfrom") {
 
       val translationParams = DenseVector[Float](-10.0, 0, 0)
-      val translationTransform = TranslationSpace3D()(translationParams)
+      val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
       val integr = Integrator[_3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 20000)))
@@ -237,7 +237,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         integrator = integr,
         metric = MeanSquaresMetric3D(integr),
-        transformationSpace = TranslationSpace3D(),
+        transformationSpace = TranslationSpace[_3D],
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 
@@ -250,7 +250,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
     ignore("Recovers the correct parameters for a SMALL rotation transform") {
       val pi = Math.PI
       val rotationParams = DenseVector[Float](-pi / 10, 0, 0)
-      val rotationTransform = RotationSpace3D(center)(rotationParams)
+      val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
       val integr = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 10000)))
@@ -258,7 +258,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(400, 2e-12)),
         integrator = integr,
         metric = MeanSquaresMetric3D(integr),
-        transformationSpace = RotationSpace3D(center),
+        transformationSpace = RotationSpace[_3D](center),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
 

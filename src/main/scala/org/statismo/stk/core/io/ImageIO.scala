@@ -28,7 +28,7 @@ import org.statismo.stk.core.image.DiscreteScalarImage3D
 import niftijio.NiftiVolume
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.{CanDifferentiate, RigidTransformation3D, Transformation}
+import org.statismo.stk.core.registration.{CanDifferentiate, Transformation}
 import org.statismo.stk.core.image.Interpolation
 import org.statismo.stk.core.image.Resample
 import org.statismo.stk.core.image.DiscreteScalarImage3D
