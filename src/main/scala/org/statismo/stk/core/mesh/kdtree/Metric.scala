@@ -54,8 +54,8 @@ object Metric {
     }
   }
 
-  implicit def metricFromCoordVectorD[D <: Dim: DimTraits](implicit n: Numeric[Double]) = new Metric[Point[D], Double] {
-    val dim = implicitly[DimTraits[D]].dimensionality
+  implicit def metricFromCoordVectorD[D <: Dim: DimOps](implicit n: Numeric[Double]) = new Metric[Point[D], Double] {
+    val dim = implicitly[DimOps[D]].toInt
     def distance(x: Point[D], y: Point[D]): Double = {
       var i = 0
       var v = 0.0

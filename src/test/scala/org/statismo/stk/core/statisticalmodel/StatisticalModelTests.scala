@@ -4,7 +4,6 @@ import scala.language.implicitConversions
 import org.statismo.stk.core.io.{ StatismoIO, MeshIO }
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
 import org.scalatest.FunSpec
@@ -28,10 +27,10 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
       val meshPoints = mesh.points
       val region = mesh.boundingBox
-      val gpConfiguration = LowRankGaussianProcessConfiguration[ThreeD](
+      val gpConfiguration = LowRankGaussianProcessConfiguration[_3D](
         region,
         UniformSampler3D(region, 7 * 7 * 7),
-        (x: Point[ThreeD]) => Vector3D(0.0, 0.0, 0.0),
+        (x: Point[_3D]) => Vector(0.0, 0.0, 0.0),
         cov,
         20)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)

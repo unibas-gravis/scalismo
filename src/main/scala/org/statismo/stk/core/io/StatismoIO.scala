@@ -151,7 +151,7 @@ object StatismoIO {
     } yield {
       // statismo stores the mean as the point position and not as a displaceme
       // ref. we compensate for this
-      def flatten(v: IndexedSeq[Point[ThreeD]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
+      def flatten(v: IndexedSeq[Point[_3D]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
@@ -238,8 +238,8 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(Vector(3, model.mesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(Vector(3, model.mesh.points.size), pointArray.toArray))
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(3, model.mesh.cells.size), cellArray.toArray))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.mesh.points.size), pointArray.toArray))
     } yield Success(())
   }
 
@@ -270,7 +270,7 @@ object StatismoIO {
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkMeshRepresenter")
       ba <- refAsByteArray(model.mesh)
-      _ <- h5file.writeNDArray[Byte](s"$modelPath/representer/reference", NDArray(Vector(ba.length, 1), ba))
+      _ <- h5file.writeNDArray[Byte](s"$modelPath/representer/reference", NDArray(IndexedSeq(ba.length, 1), ba))
     } yield Success(())
 
   }
@@ -302,7 +302,7 @@ object StatismoIO {
         else
           Success(vertArray))
       vertMat = ndArrayToMatrix(vertArray)
-      points = for (i <- 0 until vertMat.cols) yield Point3D(vertMat(0, i), vertMat(1, i), vertMat(2, i))
+      points = for (i <- 0 until vertMat.cols) yield Point(vertMat(0, i), vertMat(1, i), vertMat(2, i))
       cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells").flatMap(cellArray =>
         if (cellArray.dims(0) != 3)
           Failure(new Exception("the representer cells are not triangles"))

@@ -4,10 +4,6 @@ package org.statismo.stk.core.utils
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.implicits._
-import vtk.vtkPolyDataReader
-import org.statismo.stk.core._
 import org.statismo.stk.core.io.MeshIO
 import org.statismo.stk.core.io.ImageIO
 

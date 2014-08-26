@@ -10,9 +10,9 @@ import org.statismo.stk.core.registration.{ RigidTransformation3D, Transformatio
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh
  */
-class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProcess[ThreeD]) {
+class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProcess[_3D]) {
 
-  def posterior(trainingData: IndexedSeq[(Point[ThreeD], Vector[ThreeD])], sigma2: Double, meanOnly: Boolean = false): StatisticalMeshModel = {
+  def posterior(trainingData: IndexedSeq[(Point[_3D], Vector[_3D])], sigma2: Double, meanOnly: Boolean = false): StatisticalMeshModel = {
     val posteriorGP = GaussianProcess.regression(gp, trainingData, sigma2, meanOnly)
     new StatisticalMeshModel(mesh, posteriorGP)
   }
@@ -30,13 +30,13 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
    */
   def sample: TriangleMesh = {
     gp match {
-      case sgp: SpecializedLowRankGaussianProcess[ThreeD] => {
+      case sgp: SpecializedLowRankGaussianProcess[_3D] => {
         val dfsAtPoints = sgp.sampleAtPoints
         TriangleMesh(dfsAtPoints.map { case (x, df) => x + df }, mesh.cells)
       }
       case _ => {
         val df = gp.sample
-        mesh.warp((x: Point[ThreeD]) => x + df(x))
+        mesh.warp((x: Point[_3D]) => x + df(x))
 
       }
     }
@@ -47,13 +47,13 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
    */
   def instance(coeffs: DenseVector[Float]): TriangleMesh = {
     gp match {
-      case sgp: SpecializedLowRankGaussianProcess[ThreeD] => {
+      case sgp: SpecializedLowRankGaussianProcess[_3D] => {
         val dfsAtPoints = sgp.instanceAtPoints(coeffs)
         TriangleMesh(dfsAtPoints.map { case (x, df) => x + df }, mesh.cells)
       }
       case _ => {
         val df = gp.instance(coeffs)
-        mesh.warp((x: Point[ThreeD]) => x + df(x))
+        mesh.warp((x: Point[_3D]) => x + df(x))
       }
     }
   }
@@ -74,9 +74,9 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
       val numPCAComponents = phiMat.cols
 
       @volatile
-      var closestPointCache = ImmutableLRU[Point[ThreeD], (Point[ThreeD], Int)](1000)
+    var closestPointCache = ImmutableLRU[Point[_3D], (Point[_3D], Int)](1000)
 
-      def findClosestPointMemoized(pt: Point[ThreeD]) = {
+    def findClosestPointMemoized(pt: Point[_3D]) = {
         val (maybeClosestPt, newClosestPointCache) = closestPointCache.get(pt)
         maybeClosestPt.getOrElse {
           val closestPtWithId = mesh.findClosestPoint(pt)
@@ -85,14 +85,14 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
         }
       }
 
-      def mean(pt: Point[ThreeD]): Vector3D = {
+    def mean(pt: Point[_3D]): Vector[_3D] = {
         val (closestPt, closestPtId) = findClosestPointMemoized(pt)
-        Vector3D(meanVec(closestPtId * 3), meanVec(closestPtId * 3 + 1), meanVec(closestPtId * 3 + 2))
+      Vector(meanVec(closestPtId * 3), meanVec(closestPtId * 3 + 1), meanVec(closestPtId * 3 + 2))
       }
 
-      def phi(i: Int)(pt: Point[ThreeD]): Vector[ThreeD] = {
+    def phi(i: Int)(pt: Point[_3D]): Vector[_3D] = {
         val (closestPt, closestPtId) = findClosestPointMemoized(pt)
-        Vector3D(phiMat(closestPtId * 3, i), phiMat(closestPtId * 3 + 1, i), phiMat(closestPtId * 3 + 2, i))
+      Vector(phiMat(closestPtId * 3, i), phiMat(closestPtId * 3 + 1, i), phiMat(closestPtId * 3 + 2, i))
       }
 
       val eigenPairs = (0 until numPCAComponents) map (i => (pcaVariance(i), phi(i)_))
@@ -115,13 +115,13 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
       val (lambdas, phis) = gp.eigenPairs.unzip
       val newRef = model.mesh.warp(rigidTransform)
 
-      def newMean(pt: Point[ThreeD]): Vector[ThreeD] = {
+    def newMean(pt : Point[_3D]) : Vector[_3D] = {
         val ptOrigGp = invTransform(pt)
         rigidTransform(ptOrigGp + gp.mean(ptOrigGp)) - rigidTransform(ptOrigGp)
       }
 
       val newPhis = phis.map(phi => {
-        def newPhi(pt: Point[ThreeD]): Vector[ThreeD] = {
+      def newPhi(pt: Point[_3D]): Vector[_3D] = {
           val ptOrigGp = invTransform(pt)
           rigidTransform(ptOrigGp + phi(ptOrigGp)) - pt
         }
@@ -138,18 +138,18 @@ class StatisticalMeshModel(val mesh: TriangleMesh, val gp: LowRankGaussianProces
       val gp = model.gp
       val (lambdas, phis) = gp.eigenPairs.unzip
       
-      def correspondingPointOnOldMesh(newMeshPt: Point[ThreeD]): Point[ThreeD] = {
+      def correspondingPointOnOldMesh(newMeshPt: Point[_3D]): Point[_3D] = {
         val ptId = newRef.findClosestPoint(newMeshPt)._2
         model.mesh.points(ptId)
       }
 
-      def newMean(pt: Point[ThreeD]): Vector[ThreeD] = {
+      def newMean(pt: Point[_3D]): Vector[_3D] = {
         val ptOnOldRef = correspondingPointOnOldMesh(pt)
         ptOnOldRef + gp.mean(ptOnOldRef) - pt
       }
 
       val newPhis = phis.map(phi => {
-        def newPhi(pt: Point[ThreeD]): Vector[ThreeD] = {
+        def newPhi(pt: Point[_3D]): Vector[_3D] = {
           val ptOnOldRef = correspondingPointOnOldMesh(pt)
           phi(ptOnOldRef)
         }

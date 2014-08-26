@@ -3,33 +3,12 @@ package org.statismo.stk.core.registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
-import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.image.ContinuousScalarImage
-import org.statismo.stk.core.image.ContinuousVectorImage
-import org.statismo.stk.core.numerics.GradientDescentOptimizer
-import org.statismo.stk.core.numerics.LBFGSOptimizer
 import org.statismo.stk.core.numerics.CostFunction
-import org.statismo.stk.core.common.DiscreteDomain
-import org.statismo.stk.core.image.DiscreteImageDomain
-import org.statismo.stk.core.image.ContinuousScalarImage1D
-import org.statismo.stk.core.image.DiscreteImageDomain1D
-import org.statismo.stk.core.image.ContinuousScalarImage2D
-import org.statismo.stk.core.image.ContinuousScalarImage3D
-import org.statismo.stk.core.image.DiscreteImageDomain2D
 import org.statismo.stk.core.numerics.Optimizer
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.numerics.IntegratorConfiguration
 import org.statismo.stk.core.numerics.{ Sampler, SampleOnceSampler }
-import org.statismo.stk.core.image.DiscreteImageDomain3D
-import org.statismo.stk.core.image.Utils
-import org.statismo.stk.core.image.ContinuousScalarImage3D
-import org.statismo.stk.core.image.DiscreteImage3D
-import org.statismo.stk.core.image.DiscreteScalarImage3D
-import org.statismo.stk.core.image.DiscreteImageDomain3D
-import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.common.BoxedDomain
-import org.statismo.stk.core.common.BoxedDomain1D
-import org.statismo.stk.core.common.BoxedDomain2D
 import org.statismo.stk.core.geometry._
 
 case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
@@ -49,7 +28,7 @@ object Registration {
 
   case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
 
-  def iterations[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
+  def iterations[D <: Dim: DimOps](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] =
     {
@@ -100,7 +79,7 @@ object Registration {
       }
     }
 
-  def registration[D <: Dim: DimTraits](configuration: RegistrationConfiguration[D])(
+  def registration[D <: Dim: DimOps](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): RegistrationResult[D] =
     {
