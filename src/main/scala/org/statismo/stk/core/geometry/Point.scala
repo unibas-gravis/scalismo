@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 /**
  * An n-dimensional Point
  */
-class Point[D <: Dim : DimOps] private(val data: Array[Float]) extends Coordinate[D, Float] {
+class Point[D <: Dim : DimOps] private(private[statismo] override val data: Array[Float]) extends Coordinate[D, Float] {
 
   def +(that: Vector[D]): Point[D] = {
     val newData = new Array[Float](dimensionality)
