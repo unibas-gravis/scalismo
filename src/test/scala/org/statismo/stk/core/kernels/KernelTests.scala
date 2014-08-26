@@ -3,29 +3,30 @@ package org.statismo.stk.core.kernels
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{ Point, _3D, MatrixNxN, Vector }
-import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, DiscreteGaussianProcess, LowRankGaussianProcessConfiguration}
+import org.statismo.stk.core.geometry.{ Point, _3D, Vector }
+import Point.implicits._
+import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, LowRankGaussianProcessConfiguration}
 import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
 
-class KernelTransformationTests extends FunSpec with ShouldMatchers {
+class KernelTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
 
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {
       val gk = GaussianKernel1D(3.5)
       val gkMult = gk * 100
-      val pt1 = 0.1
-      val pt2 = 1.0
+      val pt1 = 0.1f
+      val pt2 = 1.0f
       gk(pt1, pt2) * 100.0 should be(gkMult(pt1, pt2))
     }
 
     it("yields correct result when two kernels are added") {
       val gk = GaussianKernel1D(3.5)
       val gk2 = gk + gk
-      val pt1 = 0.1
-      val pt2 = 1.0
+      val pt1 = 0.1f
+      val pt2 = 1.0f
       gk(pt1, pt2) + gk(pt1, pt2) should be(gk2(pt1, pt2))
 
     }
@@ -34,12 +35,12 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
   describe("A scalar valued Gaussian kernel") {
     it("evaluated with twice the same argument yields 1") {
       val gk = GaussianKernel1D(3.5)
-      gk(0.1, 0.1) should be(1.0 plusOrMinus 1e-8)
+      gk(0.1f, 0.1f) should be(1.0 plusOrMinus 1e-8)
     }
 
     it("given two arguments far apart yields almost 0") {
       val gk = GaussianKernel1D(1.0)
-      gk(0.1, 100) should be(0.0 plusOrMinus 1e-8)
+      gk(0.1f, 100) should be(0.0 plusOrMinus 1e-8)
     }
   }
 
@@ -59,7 +60,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         val sample = gp.sample
         new Transformation[_3D] {
           def apply(x: Point[_3D]) = x + sample(x)
-          def takeDerivative(x: Point[_3D]) = ???
+          def takeDerivative(x: Point[_3D]) = throw new UnsupportedOperationException
         }
       }
 
@@ -72,7 +73,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       
       for (x <- pts.par) {
         for (d <- 0 until 3) {
-          sampleCovKernel.mu(x)(d) should be(mu(x)(d) plusOrMinus (0.2f))
+          sampleCovKernel.mu(x)(d) should be(mu(x)(d) plusOrMinus 0.2f)
         }
       }
 
@@ -80,7 +81,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         val kxy = k(x, y)
         val sampleCovxy = sampleCovKernel(x, y)
         for (d1 <- 0 until 3; d2 <- 0 until 3) {
-          kxy(d1, d2) should be(sampleCovxy(d1, d2) plusOrMinus (0.2f))
+          kxy(d1, d2) should be(sampleCovxy(d1, d2) plusOrMinus 0.2f)
         }
       }
 

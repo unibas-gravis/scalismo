@@ -7,7 +7,7 @@ import org.statismo.stk.core.common.RealSpace3D
 object Mesh {
 
   /**
-   * Creates a new ContinuousScalarImage  defined on R^3, which is the distance transform of the mesh
+   * Creates a new ContinuousScalarImage  defined on R^^3, which is the distance transform of the mesh
    */
   def meshToDistanceImage(mesh: TriangleMesh): ContinuousScalarImage3D = {
 
@@ -43,9 +43,9 @@ object Mesh {
     val remainingPoints =  mesh.points.par.filter{ !clipPointPredicate(_)}.zipWithIndex.toMap
     val remainingPointTriplet = for {
       cell <- mesh.cells.par
-      val points = cell.pointIds.map(mesh.points)
-      val validCell = points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _)
-      if (validCell)
+      points = cell.pointIds.map(mesh.points)
+      validCell = points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _)
+      if validCell
     } yield { points }
 
     val points = remainingPointTriplet.flatten.distinct
