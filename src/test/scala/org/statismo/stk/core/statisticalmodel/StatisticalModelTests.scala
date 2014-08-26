@@ -10,7 +10,7 @@ import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.numerics.UniformSampler3D
-import org.statismo.stk.core.registration.RigidTransformationSpace3D
+import org.statismo.stk.core.registration.RigidTransformationSpace
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
@@ -71,7 +71,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       org.statismo.stk.core.initialize()
       val path = getClass().getResource("/facemodel.h5").getPath
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
-      val rigidTransform = RigidTransformationSpace3D()
+      val rigidTransform = RigidTransformationSpace[_3D]()
 
 
     }
