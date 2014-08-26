@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 /**
  * An n-dimensional Vector
  */
-class Vector[D <: Dim : DimOps] private(val data: Array[Float]) extends Coordinate[D, Float] {
+class Vector[D <: Dim : DimOps] private(private[statismo] override val data: Array[Float]) extends Coordinate[D, Float] {
 
   def norm: Double = math.sqrt(norm2)
 
