@@ -10,10 +10,10 @@ trait Cell {
   def pointIds : IndexedSeq[Int]
 }
 
-abstract class DiscreteDomain[D <: Dim : NDSpaceOps] extends Domain[D]{
+abstract class DiscreteDomain[D <: Dim : ToInt] extends Domain[D]{
 
 
-  def dimensionality: Int = implicitly[NDSpaceOps[D]].dimensionality
+  def dimensionality: Int = implicitly[ToInt[D]].toInt
 
   def points: SeqView[Point[D],Seq[_]]
   // def cells : IndexedSeq[Cell] // TODO add it later here
@@ -28,7 +28,7 @@ abstract class DiscreteDomain[D <: Dim : NDSpaceOps] extends Domain[D]{
 }
 
 
-abstract class UnstructuredPointsDomainBase[D <: Dim : NDSpaceOps](_points : IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
+abstract class UnstructuredPointsDomainBase[D <: Dim : ToInt](_points : IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
 
 
   private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.zipWithIndex.toIndexedSeq)
@@ -51,4 +51,4 @@ abstract class UnstructuredPointsDomainBase[D <: Dim : NDSpaceOps](_points : Ind
   }
 
 }
-case class UnstructuredPointsDomain[D <: Dim : NDSpaceOps](_points : IndexedSeq[Point[D]]) extends UnstructuredPointsDomainBase[D](_points)
+case class UnstructuredPointsDomain[D <: Dim : ToInt](_points : IndexedSeq[Point[D]]) extends UnstructuredPointsDomainBase[D](_points)

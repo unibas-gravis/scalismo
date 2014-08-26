@@ -20,7 +20,7 @@ import org.statismo.stk.core.common.BoxedDomain1D
 //  def dimensionality = 3
 //}
 
-abstract class DiscreteImageDomain[D <: Dim : NDSpaceOps] extends DiscreteDomain[D] with BoxedDomain[D]{ //extends ImageDomain[Point] {
+abstract class DiscreteImageDomain[D <: Dim : ToInt] extends DiscreteDomain[D] with BoxedDomain[D]{ //extends ImageDomain[Point] {
 
   def spacing: Vector[D]
   def size: Index[D]
