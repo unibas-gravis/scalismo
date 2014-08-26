@@ -68,7 +68,7 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
 
-              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0).toFloat), Vector1D(imageData.spacing(0).toFloat), Index1D(imageData.size(0).toInt))
+              val domain = DiscreteImageDomain1D(Point(imageData.origin(0).toFloat), Vector(imageData.spacing(0).toFloat), Index(imageData.size(0).toInt))
               Success(DiscreteScalarImage1D(domain, imageData.data))
             }
           }
@@ -92,9 +92,9 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain3D(
-                Point3D(imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
-                Vector3D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
-                Index3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
+                Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
+                Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
+                Index(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
               Success(DiscreteScalarImage3D(domain, imageData.data))
             }
@@ -137,9 +137,9 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
               val domain = DiscreteImageDomain2D(
-                Point2D(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
-                Vector2D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
-                Index2D(imageData.size(0).toInt, imageData.size(1).toInt))
+                Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
+                Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
+                Index(imageData.size(0).toInt, imageData.size(1).toInt))
               Success(DiscreteScalarImage2D(domain, imageData.data))
             }
           }
@@ -183,31 +183,31 @@ object ImageIO {
         dim = 1
 
       // the 8 corners of the box
-      val c1 = transVoxelToWorld(Point3D(0, 0, 0))
-      val c2 = transVoxelToWorld(Point3D(0, 0, nz))
-      val c3 = transVoxelToWorld(Point3D(0, ny, 0))
-      val c4 = transVoxelToWorld(Point3D(0, ny, nz))
-      val c5 = transVoxelToWorld(Point3D(nx, 0, 0))
-      val c6 = transVoxelToWorld(Point3D(nx, 0, nz))
-      val c7 = transVoxelToWorld(Point3D(nx, ny, 0))
-      val c8 = transVoxelToWorld(Point3D(nx, ny, nz))
+      val c1 = transVoxelToWorld(Point(0, 0, 0))
+      val c2 = transVoxelToWorld(Point(0, 0, nz))
+      val c3 = transVoxelToWorld(Point(0, ny, 0))
+      val c4 = transVoxelToWorld(Point(0, ny, nz))
+      val c5 = transVoxelToWorld(Point(nx, 0, 0))
+      val c6 = transVoxelToWorld(Point(nx, 0, nz))
+      val c7 = transVoxelToWorld(Point(nx, ny, 0))
+      val c8 = transVoxelToWorld(Point(nx, ny, nz))
 
       val voxelDataVTK = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield volume.data(i)(j)(k)(d);
 
       // we create an image from the raw voxel data, which we can then transform using our transformation machinery to its world coordinates.
-      val unitDomain = DiscreteImageDomain3D(Point3D(0, 0, 0), Vector3D(1, 1, 1), Index3D(nx, ny, nz))
+      val unitDomain = DiscreteImageDomain3D(Point(0, 0, 0), Vector(1, 1, 1), Index(nx, ny, nz))
       val img = DiscreteScalarImage3D[Scalar](unitDomain, voxelDataVTK.map(v => scalarConv.fromDouble(v)).toArray)
 
       val corners = IndexedSeq(c1, c2, c3, c4, c5, c6, c7, c8)
 
-      val newOrigin = Point3D(corners.map(c => c(0)).min.toFloat, corners.map(c => c(1)).min.toFloat, corners.map(c => c(2)).min.toFloat)
-      val newExtent = Point3D(corners.map(c => c(0)).max.toFloat, corners.map(c => c(1)).max.toFloat, corners.map(c => c(2)).max.toFloat)
+      val newOrigin = Point(corners.map(c => c(0)).min.toFloat, corners.map(c => c(1)).min.toFloat, corners.map(c => c(2)).min.toFloat)
+      val newExtent = Point(corners.map(c => c(0)).max.toFloat, corners.map(c => c(1)).max.toFloat, corners.map(c => c(2)).max.toFloat)
 
       val cimg = Interpolation.interpolate(img, 0)
       //val newSpacing = Vector3D((newExtent - newOrigin)(0) / nx, (newExtent - newOrigin)(1) / ny, (newExtent - newOrigin)(2) / nz)
-      val newSpacing = Vector3D(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
+      val newSpacing = Vector(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
 
-      val newDomain = DiscreteImageDomain3D(newOrigin, newSpacing, Index3D(nx, ny, nz))
+      val newDomain = DiscreteImageDomain3D(newOrigin, newSpacing, Index(nx, ny, nz))
       Resample.sample[Scalar](cimg.compose(transWorldToVoxel), newDomain, 0f)
     }
 
@@ -216,7 +216,7 @@ object ImageIO {
   /**
    * returns transformations from voxel to World coordinates and its inverse
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[ThreeD] with CanDifferentiate[ThreeD], Transformation[ThreeD] with CanDifferentiate[ThreeD])] = {
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[_3D] with CanDifferentiate[_3D], Transformation[_3D] with CanDifferentiate[_3D])] = {
 
     val nx = volume.header.dim(1);
     val ny = volume.header.dim(2);
@@ -232,23 +232,23 @@ object ImageIO {
 
     val affineTransMatrix = DenseMatrix.create(4, 4, volume.header.sform_to_mat44().flatten).t
 
-    val t: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
-      def apply(x: Point[ThreeD]) = {
+    val t: Transformation[_3D] with CanDifferentiate[_3D] = new Transformation[_3D] with CanDifferentiate[_3D] {
+      def apply(x: Point[_3D]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t = affineTransMatrix * xh
-        Point3D(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+        Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
       }
-      override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
+      override def takeDerivative(x: Point[_3D]): MatrixNxN[_3D] = ???
     }
 
     val affineTransMatrixInv = breeze.linalg.inv(affineTransMatrix)
-    val tinv: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
-      def apply(x: Point[ThreeD]) = {
+    val tinv: Transformation[_3D] with CanDifferentiate[_3D] = new Transformation[_3D] with CanDifferentiate[_3D] {
+      def apply(x: Point[_3D]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t = affineTransMatrixInv * xh
-        Point3D(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+        Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
       }
-      override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
+      override def takeDerivative(x: Point[_3D]): MatrixNxN[_3D] = ???
     }
 
     Success(t, tinv)
@@ -331,7 +331,7 @@ object ImageIO {
         val d1 = for (k <- 0 until size(2)) {
           val d2 = for (j <- 0 until size(1)) {
             val d3 = for (i <- 0 until size(0)) {
-              volume.data(i)(j)(k)(d) = scalarConv.toDouble(img(Index3D(i, j, k)))
+              volume.data(i)(j)(k)(d) = scalarConv.toDouble(img(Index(i, j, k)))
             }
           }
         }
@@ -407,11 +407,11 @@ object ImageIO {
     var voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
 
     if (img.valueDimensionality > 1)
-      voxelArrayDim = voxelArrayDim ++ Vector[Long](img.valueDimensionality)
+      voxelArrayDim = voxelArrayDim ++ IndexedSeq[Long](img.valueDimensionality)
 
     // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](
-      Vector[Long](img.domain.dimensionality, img.domain.dimensionality),
+      IndexedSeq[Long](img.domain.dimensionality, img.domain.dimensionality),
       img.domain.directions)
 
     val maybeError: Try[Unit] = for {

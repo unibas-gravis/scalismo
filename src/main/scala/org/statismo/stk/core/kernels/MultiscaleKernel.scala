@@ -1,6 +1,6 @@
 package org.statismo.stk.core.kernels
 
-import org.statismo.stk.core.geometry.{OneD, TwoD, Point, ThreeD}
+import org.statismo.stk.core.geometry.{_1D, _2D, Point, _3D}
 
 /**
  * Created by gerith00 on 3/26/14.
@@ -11,13 +11,13 @@ object MultiscaleKernel {
 
 }
 
-case class MultiScaleBSplineKernel1D(order: Int, min: Int, max: Int) extends PDKernel[OneD] {
+case class MultiScaleBSplineKernel1D(order: Int, min: Int, max: Int) extends PDKernel[_1D] {
 
   val scale = (j: Int) => scala.math.pow(2.0, -1.0 * j)
   val bspline1D = BSpline.create1DBSpline(order)
   val kernels = for (i <- min to max) yield { BSplineKernel1D(order, i) * scale(i) }
 
-  def apply(x: Point[OneD], y: Point[OneD]): Double = {
+  def apply(x: Point[_1D], y: Point[_1D]): Double = {
     var sum = 0.0
     for (k <- kernels) {
       sum += k(x, y)
@@ -27,13 +27,13 @@ case class MultiScaleBSplineKernel1D(order: Int, min: Int, max: Int) extends PDK
 
 }
 
-case class MultiScaleBSplineKernel2D(order: Int, min: Int, max: Int) extends PDKernel[TwoD] {
+case class MultiScaleBSplineKernel2D(order: Int, min: Int, max: Int) extends PDKernel[_2D] {
 
   val scale = (j: Int) => scala.math.pow(2.0, -1.0 * j)
 
   val kernels = for (i <- min to max) yield { BSplineKernel2D(order, i) * scale(i) }
 
-  def apply(x: Point[TwoD], y: Point[TwoD]): Double = {
+  def apply(x: Point[_2D], y: Point[_2D]): Double = {
     var sum = 0.0
     for (k <- kernels) {
       sum += k(x, y)
@@ -43,13 +43,13 @@ case class MultiScaleBSplineKernel2D(order: Int, min: Int, max: Int) extends PDK
 
 }
 
-case class MultiScaleBSplineKernel3D(order: Int, min: Int, max: Int) extends PDKernel[ThreeD] {
+case class MultiScaleBSplineKernel3D(order: Int, min: Int, max: Int) extends PDKernel[_3D] {
 
   val scale = (j: Int) => scala.math.pow(2.0, -2.0 * j)
 
   val kernels = for (i <- min to max) yield { BSplineKernel3D(order, i) * scale(i) }
 
-  def apply(x: Point[ThreeD], y: Point[ThreeD]): Double = {
+  def apply(x: Point[_3D], y: Point[_3D]): Double = {
     var sum = 0.0
     for (k <- kernels) {
       sum += k(x, y)
@@ -59,13 +59,13 @@ case class MultiScaleBSplineKernel3D(order: Int, min: Int, max: Int) extends PDK
 
 }
 
-case class AnisotropicMultiScaleBSplineKernel3D(order: Int, min: Int, max: Int, eta: Point[ThreeD] => Double) extends PDKernel[ThreeD] {
+case class AnisotropicMultiScaleBSplineKernel3D(order: Int, min: Int, max: Int, eta: Point[_3D] => Double) extends PDKernel[_3D] {
 
-  val scale = (x:Point[ThreeD], y: Point[ThreeD], j: Int) => scala.math.pow(2.0, -1*j*((eta(x)+eta(y) + 2.0)*0.5))
+  val scale = (x:Point[_3D], y: Point[_3D], j: Int) => scala.math.pow(2.0, -1*j*((eta(x)+eta(y) + 2.0)*0.5))
 
   val kernels = for (i <- min to max) yield { BSplineKernel3D(order, i) }
 
-  def apply(x: Point[ThreeD], y: Point[ThreeD]): Double = {
+  def apply(x: Point[_3D], y: Point[_3D]): Double = {
     var sum = 0.0
     for ((k,i) <- kernels.zipWithIndex) {
       sum += k(x, y)*scale(x,y,i)
@@ -75,14 +75,14 @@ case class AnisotropicMultiScaleBSplineKernel3D(order: Int, min: Int, max: Int, 
 
 }
 
-case class BSplineKernel3D(order: Int, j: Int) extends PDKernel[ThreeD] {
+case class BSplineKernel3D(order: Int, j: Int) extends PDKernel[_3D] {
 
   val bspline3D = BSpline.create3DBSpline(order)
   val c: Double = scala.math.pow(2.0, j)
   val O: Double = 0.5 * (order + 1)
   val two_j: Float = c.toFloat
 
-  def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
+  def apply(x: Point[_3D], y: Point[_3D]) = {
 
     // Sum over all j from low to up
 
@@ -127,14 +127,14 @@ case class BSplineKernel3D(order: Int, j: Int) extends PDKernel[ThreeD] {
 
 }
 
-case class BSplineKernel2D(order: Int, j: Int) extends PDKernel[TwoD] {
+case class BSplineKernel2D(order: Int, j: Int) extends PDKernel[_2D] {
 
   val bspline2D = BSpline.create2DBSpline(order)
   val c: Double = scala.math.pow(2.0, j)
   val O: Double = 0.5 * (order + 1)
   val two_j: Float = c.toFloat
 
-  def apply(x: Point[TwoD], y: Point[TwoD]) = {
+  def apply(x: Point[_2D], y: Point[_2D]) = {
 
     // Sum over all j from low to up
 
@@ -172,14 +172,14 @@ case class BSplineKernel2D(order: Int, j: Int) extends PDKernel[TwoD] {
 
 }
 
-case class BSplineKernel1D(order: Int, j: Int) extends PDKernel[OneD] {
+case class BSplineKernel1D(order: Int, j: Int) extends PDKernel[_1D] {
 
   val bspline1D = BSpline.create1DBSpline(order)
   val c: Double = scala.math.pow(2.0, j)
   val O: Double = 0.5 * (order + 1)
   val two_j: Float = c.toFloat
 
-  def apply(x: Point[OneD], y: Point[OneD]) = {
+  def apply(x: Point[_1D], y: Point[_1D]) = {
 
     // Sum over all j from low to up
 
@@ -210,14 +210,14 @@ case class BSplineKernel1D(order: Int, j: Int) extends PDKernel[OneD] {
 
 }
 
-case class SpatiallyVaryingBSplineKernel1D(order: Int, j: Int, eta: Point[OneD] => Double) extends PDKernel[OneD] {
+case class SpatiallyVaryingBSplineKernel1D(order: Int, j: Int, eta: Point[_1D] => Double) extends PDKernel[_1D] {
 
   val bspline1D = BSpline.create1DBSpline(order)
   val c: Double = scala.math.pow(2.0, j)
   val O: Double = 0.5 * (order + 1)
   val two_j: Float = c.toFloat
 
-  def apply(x: Point[OneD], y: Point[OneD]) = {
+  def apply(x: Point[_1D], y: Point[_1D]) = {
 
     // Sum over all j from low to up
 

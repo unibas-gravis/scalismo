@@ -18,7 +18,6 @@ import scala.reflect.ClassTag
 import org.statismo.stk.core.common.ScalarValue
 import scala.util.Failure
 import org.statismo.stk.core.mesh.ScalarMeshData
-import org.statismo.stk.core.geometry.Point3D
 import scala.util.Success
 import org.statismo.stk.core.mesh.TriangleCell
 
@@ -70,7 +69,7 @@ object MeshIO {
 
   def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
 
-    val domainPoints: IndexedSeq[Point[ThreeD]] = surface.points.toIndexedSeq
+    val domainPoints: IndexedSeq[Point[_3D]] = surface.points.toIndexedSeq
     val cells: IndexedSeq[TriangleCell] = surface.cells
 
     val maybeError: Try[Unit] = for {
@@ -194,9 +193,9 @@ object MeshIO {
     maybeSurface
   }
 
-  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point3D] = {
+  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
-    ndarray.data.grouped(3).map(grp => Point3D(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
+    ndarray.data.grouped(3).map(grp => Point(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
   }
 
   private def NDArrayToCellSeq(ndarray: NDArray[Int]): IndexedSeq[TriangleCell] = {
@@ -204,11 +203,11 @@ object MeshIO {
     ndarray.data.grouped(3).map(grp => TriangleCell(grp(0), grp(1), grp(2))).toIndexedSeq
   }
 
-  private def pointSeqToNDArray[T](points: IndexedSeq[Point[ThreeD]]): NDArray[Double] =
-    NDArray(Vector(points.size, 3), points.flatten(pt => pt.data.map(_.toDouble)).toArray)
+  private def pointSeqToNDArray[T](points: IndexedSeq[Point[_3D]]): NDArray[Double] =
+    NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.data.map(_.toDouble)).toArray)
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
-    NDArray(Vector(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)
+    NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)
 
 }
 

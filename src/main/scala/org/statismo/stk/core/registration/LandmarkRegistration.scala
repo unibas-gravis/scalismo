@@ -10,10 +10,10 @@ import breeze.linalg._
 
 object LandmarkRegistration {
 
-  private val origin2D = Point2D(0f, 0f)
-  private val origin3D = Point3D(0f, 0f, 0f)
+  private val origin2D = Point(0f, 0f)
+  private val origin3D = Point(0f, 0f, 0f)
   
-  private def rigidSimilarity3DCommon(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], similarityFlag: Boolean = false) = {
+  private def rigidSimilarity3DCommon(landmarks: IndexedSeq[(Point[_3D], Point[_3D])], similarityFlag: Boolean = false) = {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
     // assert(center.size == 2)
     assert(t.size == 3)
@@ -48,21 +48,21 @@ object LandmarkRegistration {
     (t, rotparams, s)
   }
 
-  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])]): RegistrationResult[ThreeD] = {
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RegistrationResult[_3D] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
     val rigidSpace = RigidTransformationSpace3D()
     RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
   }
 
-  def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])]): RegistrationResult[ThreeD] = {
+  def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RegistrationResult[_3D] = {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams).map(_.toFloat), DenseVector(s.toFloat))
     val similritySpace = RigidTransformationSpace3D().product(ScalingSpace3D())
     RegistrationResult(similritySpace(optimalParameters), optimalParameters)
   }
 
-  private def rigidSimilarity2DCommon(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], similarityFlag: Boolean = false) = {
+  private def rigidSimilarity2DCommon(landmarks: IndexedSeq[(Point[_2D], Point[_2D])], similarityFlag: Boolean = false) = {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
     assert(t.size == 2)
     assert(rotMat.rows == 2 && rotMat.cols == 2)
@@ -75,14 +75,14 @@ object LandmarkRegistration {
     (t, phi, s)
   }
 
-  def similarity2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])]): RegistrationResult[TwoD] = {
+  def similarity2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): RegistrationResult[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat), DenseVector(s.toFloat))
     val similartiySpace = RigidTransformationSpace2D(origin2D).product(ScalingSpace2D())
     RegistrationResult(similartiySpace(optimalParameters), optimalParameters)
   }
 
-  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])]): RegistrationResult[TwoD] = {
+  def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): RegistrationResult[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat)
     val rigidSpace = RigidTransformationSpace2D(origin2D)

@@ -7,9 +7,7 @@
 package org.statismo.stk.core.mesh.kdtree
 
 import scala.annotation.tailrec
-import org.statismo.stk.core.geometry.{ Point, ThreeD }
-import org.statismo.stk.core.geometry.Dim
-import org.statismo.stk.core.geometry.DimTraits
+import org.statismo.stk.core.geometry._
 
 
 /**
@@ -66,8 +64,8 @@ object DimensionalOrdering {
         x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
     }
 
-  implicit def dimensionalOrderingForPoint[D <: Dim :  DimTraits] = new DimensionalOrdering[Point[D]] {
-    val dimensions = implicitly[DimTraits[D]].dimensionality
+  implicit def dimensionalOrderingForPoint[D <: Dim : DimOps] = new DimensionalOrdering[Point[D]] {
+    val dimensions = implicitly[DimOps[D]].toInt
     def compareProjection(d: Int)(x: Point[D], y: Point[D]) =
       Ordering[Double].compare(x(d), y(d))
   }

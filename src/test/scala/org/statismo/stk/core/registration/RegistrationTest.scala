@@ -8,7 +8,6 @@ import java.io.File
 import java.io.IOException
 import org.statismo.stk.core.image.DiscreteImageDomain2D
 import geometry._
-import geometry.implicits._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.io.ImageIO
@@ -43,9 +42,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
-      val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))
+      val points: IndexedSeq[Point[_2D]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))
 
-      val c = Point2D(1.0, 4 / 3.0)
+      val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotationParams = DenseVector[Float](-angle)
         val transParams = DenseVector[Float](1f, 1.5f)
@@ -53,11 +52,11 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
         val productSpace = RigidTransformationSpace2D(c)
 
-        val transformedPoints = points.map((pt: Point[TwoD]) => productSpace(productParams)(pt))
+        val transformedPoints = points.map((pt: Point[_2D]) => productSpace(productParams)(pt))
 
         val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints))
 
-        val alignedPoints = points.map((pt: Point[TwoD]) => regResult.transform(pt))
+        val alignedPoints = points.map((pt: Point[_2D]) => regResult.transform(pt))
 
         (transformedPoints(0)(0) should be(alignedPoints(0)(0) plusOrMinus 0.0001))
         (transformedPoints(0)(1) should be(alignedPoints(0)(1) plusOrMinus 0.0001))
@@ -114,9 +113,9 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
   describe("A 2D similarity landmark based registration") {
     it("can transform the points appropriately") {
-      val points: IndexedSeq[Point[TwoD]] = IndexedSeq(Point2D(0.0, 0.0), Point2D(1.0, 4.0), Point2D(2.0, 0.0))
+      val points: IndexedSeq[Point[_2D]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))
 
-      val c = Point2D(1.0, 4 / 3.0)
+      val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotationParams = DenseVector[Float](-angle)
         val transParams = DenseVector[Float](1f, 1.5f)
@@ -126,7 +125,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
 
         val productSpace = RigidTransformationSpace2D(c).product(ScalingSpace2D())
 
-        val transformedPoints = points.map((pt: Point[TwoD]) => productSpace(productParams)(pt))
+        val transformedPoints = points.map((pt: Point[_2D]) => productSpace(productParams)(pt))
 
         val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints))
 
@@ -180,8 +179,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
-      val regConf = RegistrationConfiguration[TwoD](
+      val integr = Integrator[_2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
+      val regConf = RegistrationConfiguration[_2D](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         integrator = integr,
@@ -207,8 +206,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[TwoD](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
-      val regConf = RegistrationConfiguration[TwoD](
+      val integr = Integrator[_2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
+      val regConf = RegistrationConfiguration[_2D](
         //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(300, 1e-4)),
         integrator = integr,
@@ -243,8 +242,8 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace3D()(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val integr = Integrator[ThreeD](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 20000)))
-      val regConf = RegistrationConfiguration[ThreeD](
+      val integr = Integrator[_3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 20000)))
+      val regConf = RegistrationConfiguration[_3D](
 
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         integrator = integr,
@@ -266,7 +265,7 @@ class RegistrationTest extends FunSpec with ShouldMatchers {
       val transformed = fixedImage.compose(rotationTransform)
 
       val integr = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 10000)))
-      val regConf = RegistrationConfiguration[ThreeD](
+      val regConf = RegistrationConfiguration[_3D](
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(400, 2e-12)),
         integrator = integr,
         metric = MeanSquaresMetric3D(integr),

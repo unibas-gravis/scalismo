@@ -10,6 +10,7 @@ import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.image.DiscreteImageDomain
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.Domain
 
 trait MetricConfiguration
 
@@ -43,7 +44,7 @@ abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extend
 
  
     val fullMetricGradient = (x: Point[D]) => {
-      val domain = warpedImage.domain.intersection(dDMovingImage.domain)
+      val domain = Domain.intersection(warpedImage.domain,dDMovingImage.domain)
       if (domain.isDefinedAt(x))
         Some(movingGradientImage(transform(x)).toBreezeVector * dDMovingImage(x))
       else None
@@ -53,9 +54,9 @@ abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extend
   }
 }
 
-case class MeanSquaresMetric1D(override val integrator: Integrator[OneD]) extends MeanSquaresMetric[OneD](integrator)
-case class MeanSquaresMetric2D(override val integrator: Integrator[TwoD]) extends MeanSquaresMetric[TwoD](integrator)
-case class MeanSquaresMetric3D(override val integrator: Integrator[ThreeD]) extends MeanSquaresMetric[ThreeD](integrator)
+case class MeanSquaresMetric1D(override val integrator: Integrator[_1D]) extends MeanSquaresMetric[_1D](integrator)
+case class MeanSquaresMetric2D(override val integrator: Integrator[_2D]) extends MeanSquaresMetric[_2D](integrator)
+case class MeanSquaresMetric3D(override val integrator: Integrator[_3D]) extends MeanSquaresMetric[_3D](integrator)
 
 object Metric {
 }
