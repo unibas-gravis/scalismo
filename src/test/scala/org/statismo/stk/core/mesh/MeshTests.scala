@@ -7,9 +7,14 @@ import Point.implicits._
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
+import org.statismo.stk.core.registration.RotationSpace
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.ScalingSpace3D
-import org.statismo.stk.core.registration.RotationSpace3D
+import org.statismo.stk.core.registration.ProductTransformationSpace
+import org.statismo.stk.core.image.Resample
+import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.io.ImageIO
+import org.statismo.stk.core.registration.ScalingSpace
+
 
 class MeshTests extends FunSpec with ShouldMatchers {
 
@@ -45,8 +50,8 @@ class MeshTests extends FunSpec with ShouldMatchers {
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val mesh = TriangleMesh(pts, cells)
 
-      val R = RotationSpace3D((0.0f, 0.0f, 0.0f))(DenseVector(0.3, 0.4, 0.1))
-      val s = ScalingSpace3D()(DenseVector(2.0))
+      val R = RotationSpace[_3D]((0.0f, 0.0f, 0.0f)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
+      val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
       val transformedMesh = mesh.warp(R).warp(s)
       mesh.area should be(0.5 plusOrMinus 1e-8)
       transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 

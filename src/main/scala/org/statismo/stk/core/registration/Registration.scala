@@ -13,7 +13,7 @@ import org.statismo.stk.core.geometry._
 
 case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
 
-case class RegistrationConfiguration[D <: Dim](
+case class RegistrationConfiguration[D <: Dim : DimOps](
   val optimizer: Optimizer,
   val integrator: Integrator[D],
   val metric: ImageMetric[D],
@@ -38,7 +38,7 @@ object Registration {
 
       val costFunction = new CostFunction {
         def onlyValue(params: ParameterVector): Double = {
-          val transformation = transformationSpace(params)
+          val transformation = transformationSpace.transformForParameters(params)
           
           configuration.metric(movingImage, fixedImage, transformation) + configuration.regularizationWeight * regularizer(params)
 
@@ -52,7 +52,7 @@ object Registration {
           val integrationStrategy = Integrator[D](IntegratorConfiguration(sampleStrategy))
 
           // compute the value of the cost function
-          val transformation = transformationSpace(params)
+          val transformation = transformationSpace.transformForParameters(params)
           val errorVal = configuration.metric(movingImage, fixedImage, transformation)         
           val value = errorVal + configuration.regularizationWeight * regularizer(params)
 
@@ -72,7 +72,7 @@ object Registration {
       val optimizer = configuration.optimizer
       optimizer.iterations(configuration.initialParameters, costFunction).map { optimizerState =>
         val optParams = optimizerState.parameters
-        val transformation = transformationSpace(optParams)
+        val transformation = transformationSpace.transformForParameters(optParams)
 
         val regRes = RegistrationResult(transformation, optParams)
         RegistrationState(regRes, optimizerState)
