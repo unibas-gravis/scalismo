@@ -332,7 +332,7 @@ private class RigidTransformationRotThenTrans[D <: Dim: DimOps](translationTrans
 }
 
 private class RigidTransformationTransThenRot[D <: Dim: DimOps](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D])
-  extends ProductTransformation[D](translationTransform, rotationTransform) with RigidTransformation[D] {
+  extends ProductTransformation[D](rotationTransform, translationTransform) with RigidTransformation[D] {
   def inverse: RigidTransformation[D] = new RigidTransformationRotThenTrans[D](translationTransform.inverse, rotationTransform.inverse)
 
 }
