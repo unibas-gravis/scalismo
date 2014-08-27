@@ -84,7 +84,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
   describe("A continuous 2Dimage") {
     it("can be translated to a new place") {
 
-      val cImg = ContinuousScalarImage2D(BoxedDomain2D((0.0, 0.0), (1.0, 1.0)), _ => 1.0)
+      val cImg = ContinuousScalarImage2D(BoxedDomain2D((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
       val transSpace = TranslationSpace[_2D]
       def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)
