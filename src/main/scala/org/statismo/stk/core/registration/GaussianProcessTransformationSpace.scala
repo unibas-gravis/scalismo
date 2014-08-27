@@ -9,7 +9,7 @@ import breeze.linalg.DenseVector
 import org.statismo.stk.core.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import org.statismo.stk.core.geometry._
 
-class GaussianProcessTransformationSpace[D <: Dim : ToInt](gp: GaussianProcess[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: GaussianProcess[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = GaussianProcessTransformation[D]
 
@@ -41,6 +41,6 @@ object GaussianProcessTransformation {
 
 
 object GaussianProcessTransformationSpace {
-
+  def apply[D <: Dim](gp: GaussianProcess[D]) = new GaussianProcessTransformationSpace[D](gp)
 }
 

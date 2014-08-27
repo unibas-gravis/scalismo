@@ -96,7 +96,7 @@ class TranslationSpace[D <: Dim: DimOps] extends TransformationSpace[D] with Dif
   def parametersDimensionality: Int = implicitly[DimOps[D]].toInt
   override def identityTransformParameters = DenseVector.zeros(parametersDimensionality)
 
-  override def transformForParameters(p: ParameterVector): TranslationTransform[D] = TranslationTransform(new Vector[D](p.data))
+  override def transformForParameters(p: ParameterVector): TranslationTransform[D] = TranslationTransform(Vector[D](p.data))
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[D] => DenseMatrix.eye[Float](parametersDimensionality) }
 }
