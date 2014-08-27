@@ -6,7 +6,6 @@ import Interpolation._
 import org.scalatest.Ignore
 import org.statismo.stk.core.io.ImageIO
 import java.io.File
-import org.statismo.stk.core.registration.RotationSpace2D
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.Point._
 import org.statismo.stk.core.geometry.Vector._

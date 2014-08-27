@@ -9,9 +9,8 @@ import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.numerics.UniformSampler3D
-import org.statismo.stk.core.registration.RigidTransformationSpace3D
-import org.statismo.stk.core.registration.RigidTransformation3D
-import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.registration.RigidTransformationSpace
+import org.statismo.stk.core.registration.RigidTransformation
 
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
@@ -74,8 +73,8 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
 
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val rigidTransform = RigidTransformationSpace3D().transformForParameters(parameterVector)
-      val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation3D]
+      val rigidTransform = RigidTransformationSpace[_3D].transformForParameters(parameterVector)
+      val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
 
       val newModel = StatisticalMeshModel.transform(StatisticalMeshModel.transform(model, rigidTransform), inverseTransform)
       val randParams = DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat)

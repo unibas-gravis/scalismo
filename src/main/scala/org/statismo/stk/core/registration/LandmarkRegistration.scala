@@ -51,15 +51,15 @@ object LandmarkRegistration {
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RegistrationResult[_3D] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
-    val rigidSpace = RigidTransformationSpace3D()
-    RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
+    val rigidSpace = RigidTransformationSpace[_3D]()
+    RegistrationResult(rigidSpace.transformForParameters(optimalParameters), optimalParameters)
   }
 
   def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RegistrationResult[_3D] = {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams).map(_.toFloat), DenseVector(s.toFloat))
-    val similritySpace = RigidTransformationSpace3D().product(ScalingSpace3D())
-    RegistrationResult(similritySpace(optimalParameters), optimalParameters)
+    val similritySpace = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D])
+    RegistrationResult(similritySpace.transformForParameters(optimalParameters), optimalParameters)
   }
 
   private def rigidSimilarity2DCommon(landmarks: IndexedSeq[(Point[_2D], Point[_2D])], similarityFlag: Boolean = false) = {
@@ -78,15 +78,15 @@ object LandmarkRegistration {
   def similarity2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): RegistrationResult[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat), DenseVector(s.toFloat))
-    val similartiySpace = RigidTransformationSpace2D(origin2D).product(ScalingSpace2D())
-    RegistrationResult(similartiySpace(optimalParameters), optimalParameters)
+    val similartiySpace = RigidTransformationSpace[_2D](origin2D).product(ScalingSpace[_2D])
+    RegistrationResult(similartiySpace.transformForParameters(optimalParameters), optimalParameters)
   }
 
   def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): RegistrationResult[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat)
-    val rigidSpace = RigidTransformationSpace2D(origin2D)
-    RegistrationResult(rigidSpace(optimalParameters), optimalParameters)
+    val rigidSpace = RigidTransformationSpace[_2D](origin2D)
+    RegistrationResult(rigidSpace.transformForParameters(optimalParameters), optimalParameters)
   }
 
   private def computeRigidNDTransformParams[D <: Dim](landmarks: IndexedSeq[(Point[D], Point[D])], similarityFlag: Boolean = false): (DenseVector[Double], DenseMatrix[Double], Double) = {
