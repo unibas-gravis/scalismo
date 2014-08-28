@@ -3,8 +3,7 @@ package numerics
 
 import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.BoxedDomain1D
-import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.stats.distributions.RandBasis
 import org.statismo.stk.core.statisticalmodel.GaussianProcess
@@ -24,7 +23,7 @@ trait Sampler[D <: Dim] {
   def volumeOfSampleRegion: Double
 }
 
-case class UniformSampler1D(domain: BoxedDomain1D, numberOfPoints: Int) extends Sampler[_1D] {
+case class UniformSampler1D(domain: BoxedDomain[_1D], numberOfPoints: Int) extends Sampler[_1D] {
 
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
@@ -52,7 +51,7 @@ case class UniformSampler2D(domain: BoxedDomain[_2D], numberOfPoints: Int) exten
   }
 }
 
-case class UniformSampler3D(domain: BoxedDomain3D, numberOfPoints: Int) extends Sampler[_3D] {
+case class UniformSampler3D(domain: BoxedDomain[_3D], numberOfPoints: Int) extends Sampler[_3D] {
   val p = 1.0 / domain.volume
   def volumeOfSampleRegion = domain.volume
   override def sample = {
@@ -70,7 +69,7 @@ case class UniformSampler3D(domain: BoxedDomain3D, numberOfPoints: Int) extends 
   }
 }
 
-case class UniformDistributionRandomSampler1D(domain: BoxedDomain1D, numberOfPoints: Int) extends Sampler[_1D] {
+case class UniformDistributionRandomSampler1D(domain: BoxedDomain[_1D], numberOfPoints: Int) extends Sampler[_1D] {
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
   override def sample = {

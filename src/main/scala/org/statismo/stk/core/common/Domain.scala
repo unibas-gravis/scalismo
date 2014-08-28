@@ -37,21 +37,12 @@ trait BoxedDomain[D <: Dim] extends Domain[D] {
   }
 }
 
-case class BoxedDomain1D(originV: Point[_1D], extentV: Point[_1D]) extends BoxedDomain[_1D] {
-  def dimensionality = 1
-  def origin = originV
-  def extent = extentV
-}
 
-case class BoxedDomain2D(originV: Point[_2D], extentV: Point[_2D]) extends BoxedDomain[_2D] {
-  def dimensionality = 2
-  def origin = originV
-  def extent = extentV
-}
-
-case class BoxedDomain3D(originV: Point[_3D], extentV: Point[_3D]) extends BoxedDomain[_3D] {
-  def dimensionality = 3
-  def origin = originV
-  def extent = extentV
+object BoxedDomain {
+  
+  def apply[D <: Dim](originV: Point[D], extentV: Point[D]) = new BoxedDomain[D]{
+    override def origin = originV
+    override def extent = extentV   
+  }
 }
 

@@ -9,9 +9,10 @@ import org.statismo.stk.core.geometry.Index.implicits._
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.registration.TranslationSpace1D
 import org.statismo.stk.core.registration.TranslationSpace2D
-import org.statismo.stk.core.common.BoxedDomain1D
-import org.statismo.stk.core.common.BoxedDomain2D
+import org.statismo.stk.core.common.BoxedDomain
 import scala.language.implicitConversions
+import org.statismo.stk.core.image.DiscreteImageDomain1D
+import org.statismo.stk.core.image.DiscreteScalarImage1D
 
 
 class ImageTest extends FunSpec with ShouldMatchers {
@@ -45,7 +46,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
   describe("A continuous 1D image") {
     it("yields the right values after composing with a translation") {
 
-      val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0f, 6.0f),
+      val image = ContinuousScalarImage1D(BoxedDomain[_1D](-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(1f))
@@ -59,7 +60,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
     it("yields the right values after warping with a translation") {
 
-      val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0f, 6.0f),
+      val image = ContinuousScalarImage1D(BoxedDomain[_1D](-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace1D()(DenseVector(-1f))
@@ -80,7 +81,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
   describe("A continuous 2Dimage") {
     it("can be translated to a new place") {
 
-      val cImg = ContinuousScalarImage2D(BoxedDomain2D((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
+      val cImg = ContinuousScalarImage2D(BoxedDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
 
       def t = TranslationSpace2D()(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)

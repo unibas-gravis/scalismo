@@ -2,27 +2,23 @@ package org.statismo.stk.core
 package image
 
 import scala.language.implicitConversions
-import scala.{ specialized => spec }
-import reflect.runtime.universe.{ TypeTag, typeOf }
-import scala.reflect.ClassTag
-import breeze.linalg.DenseVector
-import numerics.Integrator
-import breeze.linalg.DenseMatrix
-import scala.reflect.ClassTag
-import scala.util.Random
-import org.statismo.stk.core.registration.{ CanDifferentiate, Transformation }
-import org.statismo.stk.core.numerics.Integrator
-import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.Domain
-import org.statismo.stk.core.registration.CanDifferentiate
-import org.statismo.stk.core.registration.CanDifferentiate
+import org.statismo.stk.core.geometry.Dim
+import org.statismo.stk.core.geometry.MatrixNxN
+import org.statismo.stk.core.geometry.Point
+import org.statismo.stk.core.geometry.Vector
+import org.statismo.stk.core.geometry._1D
+import org.statismo.stk.core.geometry._2D
+import org.statismo.stk.core.geometry._3D
 import org.statismo.stk.core.numerics.IntegratorConfiguration
-import org.statismo.stk.core.numerics.UniformSampler2D
-import org.statismo.stk.core.common.BoxedDomain2D
-import org.statismo.stk.core.numerics.UniformSampler1D
-import org.statismo.stk.core.common.BoxedDomain1D
+import org.statismo.stk.core.registration.CanDifferentiate
+import org.statismo.stk.core.registration.Transformation
+import numerics.Integrator
 import org.statismo.stk.core.numerics.UniformSampler3D
-import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.numerics.UniformSampler2D
+import org.statismo.stk.core.numerics.UniformSampler1D
+
+import org.statismo.stk.core.common.BoxedDomain
 
 /**
  * The generic interface for continuous images
@@ -166,7 +162,7 @@ case class ContinuousScalarImage1D(val domain: Domain[_1D], val f: Point[_1D] =>
       }
 
       val support = filter.support
-      val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain1D], numberOfPoints)))
+      val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain[_1D]], numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage1D(filter.support, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -186,7 +182,7 @@ case class ContinuousScalarImage1D(val domain: Domain[_1D], val f: Point[_1D] =>
           }
 
           val support = filter.support
-          val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain1D], 9)))
+          val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain[_1D]], 9)))
 
           val intermediateContinuousImage = ContinuousVectorImage1D(filter.support, pixelDimensionality, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
@@ -269,7 +265,7 @@ case class ContinuousScalarImage3D(domain: Domain[_3D], val f: Point[_3D] => Flo
 
       val support = filter.support
 
-      val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain3D], numberOfPoints)))
+      val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain[_3D]], numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage3D(filter.support, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -289,7 +285,7 @@ case class ContinuousScalarImage3D(domain: Domain[_3D], val f: Point[_3D] => Flo
 
           }
           val support = filter.support
-          val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain3D], numberOfPoints)))
+          val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain[_3D]], numberOfPoints)))
 
           val intermediateContinuousImage = ContinuousVectorImage3D(filter.support, 3, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
