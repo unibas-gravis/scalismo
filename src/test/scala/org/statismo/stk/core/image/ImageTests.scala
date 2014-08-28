@@ -12,7 +12,7 @@ import scala.language.implicitConversions
 import org.statismo.stk.core.registration.TranslationSpace
 import org.statismo.stk.core.geometry.Point.implicits._
 
-class ImageTest extends FunSpec with ShouldMatchers {
+class ImageTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   describe("A discrete 1D image") {

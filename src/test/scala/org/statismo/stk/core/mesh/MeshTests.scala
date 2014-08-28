@@ -9,10 +9,6 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.registration.RotationSpace
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.ProductTransformationSpace
-import org.statismo.stk.core.image.Resample
-import org.statismo.stk.core.common.BoxedDomain3D
-import org.statismo.stk.core.io.ImageIO
 import org.statismo.stk.core.registration.ScalingSpace
 
 
@@ -43,7 +39,6 @@ class MeshTests extends FunSpec with ShouldMatchers {
       val (closestPt, closestPtId) = mesh.findClosestPoint(newPt)
       assert(closestPtId === 2)
       assert(closestPt === pts(2))
-
     }
     it("computes its area correctly for a triangle") {
       val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0f, 0.0f, 0.0f), (0.0f, 1.0f, 0.0f), (1.0f, 0.0f, 0.0f))
@@ -69,11 +64,8 @@ class MeshTests extends FunSpec with ShouldMatchers {
       val path = getClass.getResource("/unit-sphere.vtk").getPath
       val spheremesh = MeshIO.readMesh(new File(path)).get
       val binaryImg = Mesh.meshToBinaryImage(spheremesh)
-      binaryImg(Point(0,0,0)) should be(1)
-      binaryImg(Point(2,0,0)) should be(0)
-               
+      binaryImg(Point(0, 0, 0)) should be(1)
+      binaryImg(Point(2, 0, 0)) should be(0)
     }
-
   }
-
 }
