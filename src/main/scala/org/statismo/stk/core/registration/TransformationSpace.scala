@@ -125,6 +125,7 @@ class RotationSpace[D <: Dim: DimOps] private (centre: Point[D]) extends Transfo
   def parametersDimensionality: Int = implicitly[DimOps[D]].toInt match {
     case 2 => 1
     case 3 => 3
+    case _ => throw new IllegalArgumentException("rotations only defined for 2- and 3-dimensional space")
   }
 
   //  Euler angles
@@ -134,7 +135,7 @@ class RotationSpace[D <: Dim: DimOps] private (centre: Point[D]) extends Transfo
     require(p.length == parametersDimensionality)
 
     val rotMatrix =  implicitly[DimOps[D]].toInt match {
-      case 3 => {
+      case 3 =>
         // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
         val cospsi = Math.cos(p(2)).toFloat
         val sinpsi = Math.sin(p(2)).toFloat
@@ -149,13 +150,10 @@ class RotationSpace[D <: Dim: DimOps] private (centre: Point[D]) extends Transfo
           (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
           (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
           (-sinth, sinpsi * costh, cospsi * costh))
-
-      }
-      case 2 => {
+      case 2 =>
         MatrixNxN(
           (math.cos(p(0)).toFloat, -math.sin(p(0)).toFloat),
           (math.sin(p(0)).toFloat, math.cos(p(0)).toFloat))
-      }
     }
 
     RotationTransform[D](rotMatrix.asInstanceOf[MatrixNxN[D]], centre)
@@ -203,8 +201,8 @@ class RotationSpace[D <: Dim: DimOps] private (centre: Point[D]) extends Transfo
         val cy = centre(1)
 
         DenseMatrix(
-          (-sa * (x(0) - cx) - ca * (x(1) - cy)),
-          (ca * (x(0) - cx) - sa * (x(1) - cy))).map(_.toFloat)
+          -sa * (x(0) - cx) - ca * (x(1) - cy),
+          ca * (x(0) - cx) - sa * (x(1) - cy)).map(_.toFloat)
       }
     }
 
@@ -213,7 +211,10 @@ class RotationSpace[D <: Dim: DimOps] private (centre: Point[D]) extends Transfo
 
 }
 object RotationSpace {
-  def apply[D <: Dim: DimOps](centre: Point[D]) = new RotationSpace[D](centre)
+  def apply[D <: Dim: DimOps](centre: Point[D]) = {
+    require(implicitly[DimOps[D]].toInt == 2 || implicitly[DimOps[D]].toInt == 3)
+    new RotationSpace[D](centre)
+  }
 
   // with origin as default centre
   def apply[D <: Dim: DimOps]() = {
@@ -268,8 +269,8 @@ class ScalingSpace[D <: Dim: DimOps] extends TransformationSpace[D] with Differe
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
 
     val df = implicitly[DimOps[D]].toInt match {
-      case 3 => x: Point[_3D] => DenseMatrix((x(0)), (x(1)), (x(2)))
-      case 2 => x: Point[_2D] => DenseMatrix((x(0)), (x(1)))
+      case 3 => x: Point[_3D] => DenseMatrix(x(0), x(1), x(2))
+      case 2 => x: Point[_2D] => DenseMatrix(x(0), x(1))
     }
     df.asInstanceOf[Point[D] => DenseMatrix[Float]]
   }
