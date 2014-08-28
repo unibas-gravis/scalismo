@@ -17,8 +17,6 @@ import org.statismo.stk.core.io.MeshIO
 
 class TransformationTests extends FunSpec with ShouldMatchers {
 
-  //FIXME: this test needs to be seriously overhauled.
-
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   org.statismo.stk.core.initialize()
@@ -29,12 +27,12 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val scale = ss.transformForParameters(params)
     val pt = Point(2.0, 1.0)
     val scaledPt = scale(pt)
-    it("Scales a point correctly") {
+    it("scales a point correctly") {
       scaledPt(0) should be(6f plusOrMinus 0.0001)
       scaledPt(1) should be(3f plusOrMinus 0.0001)
     }
 
-    it("Can be inverted") {
+    it("can be inverted") {
       val identitiyTransform = ss.transformForParameters(params).inverse compose scale
       identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001)
       identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001)
@@ -48,7 +46,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val rotate = rs.transformForParameters(DenseVector(phi.toFloat))
     val pt = Point(2.0, 2.0)
     val rotatedPt = rotate(pt)
-    it("Rotates a point correctly") {
+    it("rotates a point correctly") {
       rotatedPt(0) should be(3.5f plusOrMinus 0.0001)
       rotatedPt(1) should be(3.5f plusOrMinus 0.0001)
     }
@@ -62,7 +60,8 @@ class TransformationTests extends FunSpec with ShouldMatchers {
   }
 
   describe("A translation in 2D") {
-    it("translates an image") {
+    ignore("translates an image") {
+      //FIXME: this test is incomplete
       val testImgUrl = getClass.getResource("/lena.h5").getPath
       val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
       val continuousImage = Interpolation.interpolate(discreteImage, 3)
@@ -81,7 +80,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val productSpace = ts.product(rs)
 
       it("can be composed with a rotation 2D") {
-        assert(productSpace.parametersDimensionality === ts.parametersDimensionality + rs.parametersDimensionality)
+        productSpace.parametersDimensionality should equal(ts.parametersDimensionality + rs.parametersDimensionality)
       }
 
       val transParams = DenseVector[Float](1.0, 1.5)
@@ -100,19 +99,20 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val productTransform = productSpace.transformForParameters(productParams)
 
       it("correctly transforms a point") {
-        assert(productTransform(pt) === translatedRotatedPt)
+        productTransform(pt) should equal(translatedRotatedPt)
       }
       val productDerivative = (x: Point[_2D]) =>
         breeze.linalg.DenseMatrix.horzcat(
           ts.takeDerivativeWRTParameters(transParams)(x),
           rs.takeDerivativeWRTParameters(rotationParams)(x))
       it("differentiates correctly with regard to parameters") {
-        assert(productSpace.takeDerivativeWRTParameters(productParams)(pt) === productDerivative(pt))
+        productSpace.takeDerivativeWRTParameters(productParams)(pt) should equal(productDerivative(pt))
       }
-      it("differenetiates correctly the parametrized transforms") {
-        assert(productTransform.takeDerivative(pt) === translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt))
+      it("correctly differentiates the parametrized transforms") {
+        productTransform.takeDerivative(pt) should equal(translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt))
       }
 
+      // FIXME: either fix, or remove.
       //      it("can be inverted") {
       //        val identitiyTransform = (productSpace.transformForParameters(productParams).inverse) compose productTransform
       //        (identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001f))
@@ -127,7 +127,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)
 
-      assert(translatedImg(-10) === 0)
+      translatedImg(-10) should equal(0)
     }
   }
 
@@ -157,12 +157,10 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)
 
-      // val inverseRotation =  RotationSpace3D(center).inverseTransform(parameterVector).get
-
       val rotatedImage = continuousImage.compose(rotation)
 
 
-      for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) assert(rotatedImage(p) === continuousImage(p))
+      for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) rotatedImage(p) should equal(continuousImage(p))
     }
 
     val mesh = MeshIO.readHDF5(new File(getClass.getResource("/facemesh.h5").getPath)).get
@@ -184,13 +182,9 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     }
 
 
-    it("A rigid transformation yields the same result as the composition of rotation and translation") {
+    it("a rigid transformation yields the same result as the composition of rotation and translation") {
 
-      val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val rotSpace = RotationSpace[_3D](Point(0f, 0f, 0f))
-      val rotation = rotSpace.transformForParameters(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
-      val translation = TranslationSpace[_3D].transformForParameters(translationParams)
 
       val rigid = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
 
@@ -200,7 +194,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val diffNormMax = transformedRigid.points.zip(transformedComposed.points).map {
         case (p1, p2) => (p1 - p2).norm
       }.max
-      assert(diffNormMax < 0.00001)
+      diffNormMax should be < 0.00001
     }
   }
 
