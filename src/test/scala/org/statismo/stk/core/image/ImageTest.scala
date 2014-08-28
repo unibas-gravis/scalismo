@@ -3,11 +3,9 @@ package org.statismo.stk.core.image
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.Point.implicits._
 import org.statismo.stk.core.geometry.Vector.implicits._
 import org.statismo.stk.core.geometry.Index.implicits._
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.TranslationSpace
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import scala.language.implicitConversions
@@ -85,18 +83,15 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val cImg = ContinuousScalarImage2D(BoxedDomain2D((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
 
-      val transSpace = TranslationSpace[_2D]
       def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)
 
-      warpedImg.isDefinedAt((-0.5f, -0.5f)) should be(false)
-      warpedImg.isDefinedAt((-2.5f, -2.5f)) should be(false)
-      warpedImg.isDefinedAt((-1.5f, -1.5f)) should be(true)
+      warpedImg.isDefinedAt((-0.5f, -0.5f)) should equal(false)
+      warpedImg.isDefinedAt((-2.5f, -2.5f)) should equal(false)
+      warpedImg.isDefinedAt((-1.5f, -1.5f)) should equal(true)
       warpedImg(-1.5f, -1.5f) should be(1.0)
-
     }
   }
-
 }
 
 
