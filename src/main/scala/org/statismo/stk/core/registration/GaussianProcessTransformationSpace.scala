@@ -3,40 +3,38 @@ package registration
 
 import TransformationSpace.ParameterVector
 
-import scala.NotImplementedError
 import breeze.linalg.DenseVector
 
-import org.statismo.stk.core.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
+import org.statismo.stk.core.statisticalmodel.GaussianProcess
 import org.statismo.stk.core.geometry._
 
-class GaussianProcessTransformationSpace[D <: Dim] private (gp: GaussianProcess[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
+class GaussianProcessTransformationSpace[D <: Dim] private(gp: GaussianProcess[D]) extends TransformationSpace[D] {
 
   override type T = GaussianProcessTransformation[D]
 
-  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
+  override def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
 
-  def parametersDimensionality = gp.rank
+  override def parametersDimensionality = gp.rank
 
-  def inverseTransform(p: ParameterVector) = None
-
-  def transformForParameters(p: ParameterVector) =  GaussianProcessTransformation[D](gp, p)
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[D] => gp.jacobian(p)(x) }
+  override def transformForParameters(p: ParameterVector) = GaussianProcessTransformation[D](gp, p)
+  override def takeDerivativeWRTParameters(p: ParameterVector) = {
+    x: Point[D] => gp.jacobian(p)(x)
+  }
 }
 
 
-class GaussianProcessTransformation[D <: Dim] private(gp : GaussianProcess[D], alpha: ParameterVector) extends Transformation[D] with CanDifferentiate[D] {
+class GaussianProcessTransformation[D <: Dim] private(gp: GaussianProcess[D], alpha: ParameterVector) extends Transformation[D] {
 
   val instance = gp.instance(alpha)
 
-  def apply(x: Point[D]) : Point[D] = {
+  override def apply(x: Point[D]): Point[D] = {
     val newPointAsVector = instance(x)
-    x+newPointAsVector
+    x + newPointAsVector
   }
-  def takeDerivative(x: Point[D]) = { throw new NotImplementedError("take derivative of kernel") }
 }
 
 object GaussianProcessTransformation {
-  def apply[D <: Dim](gp: GaussianProcess[D], alpha : TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha) 
+  def apply[D <: Dim](gp: GaussianProcess[D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
 }
 
 
