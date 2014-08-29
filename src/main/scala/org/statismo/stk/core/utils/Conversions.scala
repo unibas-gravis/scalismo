@@ -23,9 +23,8 @@ import vtk.vtkDoubleArray
 import vtk.vtkIdList
 import org.statismo.stk.core.mesh.TriangleCell
 import scala.util.Failure
-import org.statismo.stk.core.image.DiscreteImageDomain2D
+import org.statismo.stk.core.image.DiscreteImageDomain
 import vtk.vtkDataArray
-import org.statismo.stk.core.image.DiscreteImageDomain3D
 import vtk.vtkImageData
 import org.statismo.stk.core.mesh.ScalarMeshData
 import org.statismo.stk.core.common.ScalarValue
@@ -208,7 +207,7 @@ object MeshConversion {
     }
 
     // set points
-    val pointDataArray = mesh.points.force.toArray.map(_.data).flatten
+    val pointDataArray = mesh.points.toIndexedSeq.toArray.map(_.data).flatten
     val pointDataArrayVTK = VTKHelpers.createVtkDataArray(pointDataArray, 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
@@ -275,7 +274,7 @@ object ImageConversion {
     val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
     val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
 
-    val domain = DiscreteImageDomain3D(origin, spacing, size)
+    val domain = DiscreteImageDomain[_3D](origin, spacing, size)
     val scalars = sp.GetPointData().GetScalars()
     val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
     pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage3D(domain, pixelArray))
@@ -300,7 +299,7 @@ object ImageConversion {
     val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
     val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1))
 
-    val domain = DiscreteImageDomain2D(origin, spacing, size)
+    val domain = DiscreteImageDomain[_2D](origin, spacing, size)
     val scalars = sp.GetPointData().GetScalars()
     val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
     pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage2D(domain, pixelArray))

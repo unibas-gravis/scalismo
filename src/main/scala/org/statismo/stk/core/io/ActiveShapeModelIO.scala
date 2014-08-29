@@ -5,9 +5,10 @@ import org.statismo.stk.core.statisticalmodel.{MultivariateNormalDistribution, A
 import scala.util.{Success, Try}
 import java.io.File
 import ncsa.hdf.`object`.Group
-import org.statismo.stk.core.common.UnstructuredPointsDomain
 import org.statismo.stk.core.geometry.{Point}
 import breeze.linalg.{DenseMatrix, DenseVector}
+import org.statismo.stk.core.common.SpatiallyIndexedFiniteDiscreteDomain
+import org.statismo.stk.core.geometry._3D
 
 /**
  * Created by Luethi on 09.03.14.
@@ -55,7 +56,7 @@ object ActiveShapeModelIO {
       meanVecs = meanArray.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists =  meanVecs.zip(covMats).map{case(m, c) => new  MultivariateNormalDistribution(m, c)}.toArray
-      ASMProfileDistributions(new UnstructuredPointsDomain(pts),dists)
+      ASMProfileDistributions(SpatiallyIndexedFiniteDiscreteDomain.fromSeq[_3D](pts),dists)
   }
 
   }
@@ -63,7 +64,7 @@ object ActiveShapeModelIO {
   private[this] def writeIntensityDistributions(h5file : HDF5File, group: Group, distributions: ASMProfileDistributions) : Try[Unit] = {
     val numEntries = distributions.domain.numberOfPoints
     val distDim = if (numEntries > 0) distributions.values(0).mean.size else 0
-    val ptArray  = distributions.domain.points.force.flatten(_.data).toArray
+    val ptArray  = distributions.domain.points.toIndexedSeq.flatten(_.data).toArray
     val meanArray = distributions.values.map(_.mean.data).flatten
     val covArray = distributions.values.map(_.cov.data).flatten
     val groupName = group.getFullName

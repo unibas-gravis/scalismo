@@ -8,7 +8,7 @@ import java.io.File
 import org.statismo.stk.core.image.DiscreteScalarImage2D
 import org.statismo.stk.core.image.DiscreteScalarImage
 import scala.util.Success
-import org.statismo.stk.core.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
+import org.statismo.stk.core.image.DiscreteImageDomain
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import org.statismo.stk.core.image.DiscreteScalarImage2D
 import java.io.IOException
@@ -68,7 +68,7 @@ object ImageIO {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
 
-              val domain = DiscreteImageDomain1D(Point(imageData.origin(0).toFloat), Vector(imageData.spacing(0).toFloat), Index(imageData.size(0).toInt))
+              val domain = DiscreteImageDomain[_1D](Point(imageData.origin(0).toFloat), Vector(imageData.spacing(0).toFloat), Index(imageData.size(0).toInt))
               Success(DiscreteScalarImage1D(domain, imageData.data))
             }
           }
@@ -91,7 +91,7 @@ object ImageIO {
             } else if (imageData.pixelDimensionality != 1) {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
-              val domain = DiscreteImageDomain3D(
+              val domain = DiscreteImageDomain[_3D](
                 Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
                 Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
                 Index(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
@@ -136,7 +136,7 @@ object ImageIO {
             } else if (imageData.pixelDimensionality != 1) {
               Failure(new Exception("wrong pixel dimensionality in image data"))
             } else {
-              val domain = DiscreteImageDomain2D(
+              val domain = DiscreteImageDomain[_2D](
                 Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
                 Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
                 Index(imageData.size(0).toInt, imageData.size(1).toInt))
@@ -195,7 +195,7 @@ object ImageIO {
       val voxelDataVTK = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield volume.data(i)(j)(k)(d);
 
       // we create an image from the raw voxel data, which we can then transform using our transformation machinery to its world coordinates.
-      val unitDomain = DiscreteImageDomain3D(Point(0, 0, 0), Vector(1, 1, 1), Index(nx, ny, nz))
+      val unitDomain = DiscreteImageDomain[_3D](Point(0, 0, 0), Vector(1, 1, 1), Index(nx, ny, nz))
       val img = DiscreteScalarImage3D[Scalar](unitDomain, voxelDataVTK.map(v => scalarConv.fromDouble(v)).toArray)
 
       val corners = IndexedSeq(c1, c2, c3, c4, c5, c6, c7, c8)
@@ -207,7 +207,7 @@ object ImageIO {
       //val newSpacing = Vector3D((newExtent - newOrigin)(0) / nx, (newExtent - newOrigin)(1) / ny, (newExtent - newOrigin)(2) / nz)
       val newSpacing = Vector(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
 
-      val newDomain = DiscreteImageDomain3D(newOrigin, newSpacing, Index(nx, ny, nz))
+      val newDomain = DiscreteImageDomain[_3D](newOrigin, newSpacing, Index(nx, ny, nz))
       Resample.sample[Scalar](cimg.compose(transWorldToVoxel), newDomain, 0f)
     }
 
@@ -411,7 +411,7 @@ object ImageIO {
 
     // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](
-      IndexedSeq[Long](img.domain.dimensionality, img.domain.dimensionality),
+      IndexedSeq[Long](img.domain.size.dimensionality, img.domain.size.dimensionality),
       img.domain.directions)
 
     val maybeError: Try[Unit] = for {

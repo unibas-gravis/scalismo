@@ -163,7 +163,7 @@ object StatismoIO {
 
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
-    val discretizedMean = model.mean.points.flatten(_.data)
+    val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.data)
     val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
     val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDimensionality, model.gp.rank)
     for {
