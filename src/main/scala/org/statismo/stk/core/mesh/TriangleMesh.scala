@@ -16,7 +16,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 }
 
 
-case class TriangleMesh private(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomainBase[_3D](meshPoints) {
+case class TriangleMesh private(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) extends SpatiallyIndexedFiniteDiscreteDomain[_3D] {
 
   // a map that has for every point the neighboring cell ids
   private[this] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
@@ -33,10 +33,8 @@ case class TriangleMesh private(meshPoints: IndexedSeq[Point[_3D]], cells: Index
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
 
-  //verify that there all points belong to a cell
-  //require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
-
-
+  override def points = meshPoints.toIterator
+  
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
 
   def boundingBox: BoxedDomain[_3D] = {
