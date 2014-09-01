@@ -6,13 +6,12 @@ import org.scalatest.FunSpec
 import java.nio.ByteBuffer
 import java.io.File
 import java.io.IOException
-import org.statismo.stk.core.image.DiscreteImageDomain2D
 import geometry._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.io.ImageIO
 import org.statismo.stk.core.image.Interpolation
-import org.statismo.stk.core.image.{ DiscreteImageDomain1D, ContinuousScalarImage3D, DiscreteImageDomain3D }
+import org.statismo.stk.core.image.DiscreteImageDomain
 import org.statismo.stk.core.image.DiscreteScalarImage1D
 import org.statismo.stk.core.numerics.GradientDescentOptimizer
 import org.statismo.stk.core.numerics.GradientDescentConfiguration
