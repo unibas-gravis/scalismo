@@ -139,7 +139,7 @@ object StatisticalMeshModel {
 
     def correspondingPointOnOldMesh(newMeshPt: Point[_3D]): Point[_3D] = {
       val ptId = newRef.findClosestPoint(newMeshPt)._2
-      model.mesh.points.toIndexedSeq(ptId)
+      model.mesh.points(ptId)
     }
 
     def newMean(pt: Point[_3D]): Vector[_3D] = {

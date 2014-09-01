@@ -7,33 +7,31 @@ import org.statismo.stk.core.common.FiniteDiscreteDomain
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import breeze.linalg.DenseVector
 
-class DiscreteImageDomain[D <: Dim: DimOps] private() extends FiniteDiscreteDomain[D] with BoxedDomain[D] {
-  //extends ImageDomain[Point] {
+case class DiscreteImageDomain[D <: Dim: DimOps] (origin: Point[D], spacing: Vector[D], size: Index[D]) extends FiniteDiscreteDomain[D] with BoxedDomain[D] {
 
-  def spacing: Vector[D]
-  def size: Index[D]
+  override def extent: Point[D] = origin + Vector((spacing.toBreezeVector :* size.toBreezeVector.map(_.toFloat)).data)
 
-  def directions: Array[Double] = DenseVector.ones[Double](size.dimensionality).data
+  def directions: Array[Double] = ( 0 until (size.dimensionality * size.dimensionality)).map (i => if(i % size.dimensionality == i / size.dimensionality) 1.0 else 0.0) toArray
 
   override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
-  
-  override def myPoints = {
+
+  override def points = {
     val p = size.dimensionality match {
-      case 1 => for (i <- (0 until size(0)).view) yield Point(origin(0) + spacing(0) * i)
-      case 2 => for (j <- (0 until size(1)).view; i <- (0 until size(0)).view)
+      case 1 => for (i <- (0 until size(0))) yield Point(origin(0) + spacing(0) * i)
+      case 2 => for (j <- (0 until size(1)); i <- (0 until size(0)))
         yield Point(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j)
-      case 3 => for (k <- (0 until size(2)).view; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
+      case 3 => for (k <- (0 until size(2)); j <- (0 until size(1)); i <- (0 until size(0)))
         yield Point(origin(0) + spacing(0) * i, origin(1) + spacing(1) * j, origin(2) + spacing(2) * k)
-      case _ => throw new NotImplementedException
+      case _ => throw new NotImplementedError("Only dimensionality 1, 2 and 3 are supported for DiscreteImageDomain")
     }
-    p.toIterator.asInstanceOf[Iterator[Point[D]]]
+    p.toStream.asInstanceOf[Stream[Point[D]]]
   }
 
   def indexToLinearIndex(idx: Index[D]): Int = idx.dimensionality match {
     case 1 => idx(0)
     case 2 => idx(0) + idx(1) * size(0)
     case 3 => idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
-    case _ => throw new NotImplementedException
+    case _ => throw new NotImplementedError("Only dimensionality 1, 2 and 3 are supported for DiscreteImageDomain")
 
   }
   def linearIndexToIndex(linearIdx: Int): Index[D] = {
@@ -45,13 +43,11 @@ class DiscreteImageDomain[D <: Dim: DimOps] private() extends FiniteDiscreteDoma
         linearIdx % (size(0) * size(1)) % size(0),
         linearIdx % (size(0) * size(1)) / size(0),
         linearIdx / (size(0) * size(1))))
-      case _ => throw new NotImplementedException
+      case _ => throw new NotImplementedError("Only dimensionality 1, 2 and 3 are supported for DiscreteImageDomain")
     }
     t.asInstanceOf[Index[D]]
   }
 }
 
 
-object DiscreteImageDomain {
-    def apply[D <: Dim : DimOps](origin: Point[D], spacing: Vector[D], size: Index[D]) = new DiscreteImageDomain()
-}
+

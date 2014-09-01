@@ -6,10 +6,10 @@ import org.statismo.stk.core.image._
 import org.statismo.stk.core.geometry.Point.implicits._
 import org.statismo.stk.core.geometry.Vector.implicits._
 import org.statismo.stk.core.geometry.Index.implicits._
-
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
+import org.statismo.stk.core.geometry._
 
 class ImageIOTest extends FunSpec with ShouldMatchers {
 
@@ -17,7 +17,7 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
 
   describe("A 1D scalar image") {
     it("can be stored and read again") {
-      val domain = DiscreteImageDomain1D(0, 0.02f, 50)
+      val domain = DiscreteImageDomain[_1D](0, 0.02f, 50)
       val values = domain.points.map(x => math.sin(2 * math.Pi * x)).map(_.toFloat).toArray
       val discreteImage = DiscreteScalarImage1D[Float](domain, values)
 
@@ -53,7 +53,7 @@ class ImageIOTest extends FunSpec with ShouldMatchers {
 
   describe("A 2D vector image") {
     it("can be stored and read again") {
-      val domain = DiscreteImageDomain2D((1.0f, 0.0f), (0.5f, 1.0f), (2, 3))
+      val domain = DiscreteImageDomain[_2D]((1.0f, 0.0f), (0.5f, 1.0f), (2, 3))
       val discreteImage = DiscreteScalarImage2D[Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
       val tmpImgFile = File.createTempFile("image2D", ".h5")
