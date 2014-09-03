@@ -179,7 +179,10 @@ class FastReadOnlyNiftiVolume private (private val raf: RandomAccessFile) {
     lazy val scl_slope = floatAt(112)
     lazy val scl_inter = floatAt(116)
     lazy val sform_code = shortAt(254)
-
+    
+    lazy val srow_x = (0 until 4) .map(i => floatAt(280+i*4)).toArray
+    lazy val srow_y = (0 until 4) .map(i => floatAt(296+i*4)).toArray
+    lazy val srow_z =(0 until 4) .map(i => floatAt(312+i*4)).toArray
   }
 }
 

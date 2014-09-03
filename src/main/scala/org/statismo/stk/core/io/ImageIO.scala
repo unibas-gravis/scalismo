@@ -171,13 +171,14 @@ object ImageIO {
 
   private def readNifti[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
-    val scalarConv = implicitly[ScalarValue[Scalar]]
-
+    val scalarConv = implicitly[ScalarValue[Scalar]] 
+    
     for {
-      volume <- Try { NiftiVolume.read(file.getAbsolutePath()) }
+      volume <- Try { FastReadOnlyNiftiVolume.read(file.getAbsolutePath()) }
       (transVoxelToWorld, transWorldToVoxel) <- computeNiftiWorldToVoxelTransforms(volume)
 
     } yield {
+
       val nx = volume.header.dim(1);
       val ny = volume.header.dim(2);
       val nz = volume.header.dim(3);
@@ -187,11 +188,12 @@ object ImageIO {
         dim = 1
 
       /* figure out the anisotropic scaling factor */
-      val spacing = DenseVector(volume.header.pixdim.drop(1).take(3))
+      val s = volume.header.pixdim
+      val spacing = DenseVector(s(1), s(2), s(3))
       val anisotropicScaling = AnisotropicScalingSpace3D()(spacing)
       /* get a rigid registration by mapping a few points */
 
-      val origPs = List(Point3D(0, 0, nz), Point3D(0, ny, 0),Point3D(0, ny, nz), Point3D(nx, 0, 0),Point3D(nx, 0, nz), Point3D(nx, ny, 0), Point3D(nx, ny, nz))
+      val origPs = List(Point3D(0, 0, nz), Point3D(0, ny, 0), Point3D(0, ny, nz), Point3D(nx, 0, 0), Point3D(nx, 0, nz), Point3D(nx, ny, 0), Point3D(nx, ny, nz))
       val scaledPS = origPs.map(anisotropicScaling)
       val imgPs = origPs.map(transVoxelToWorld)
 
@@ -199,13 +201,8 @@ object ImageIO {
       val newDomain = DiscreteImageDomain3D(Index3D(nx, ny, nz), DenseVector(rigidReg.parameters.data ++ spacing.data))
 
       val transform = AnisotropicSimilarityTransformationSpace3D()(DenseVector(rigidReg.parameters.data ++ spacing.data))
-      
-      
-      println("nifti transform of origin " + transVoxelToWorld(Point3D(0, 0, 0)))
-      println("my transform of origin " + transform(Point3D(0, 0, 0)))
 
-      val voxelDataVTK = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield volume.data(i)(j)(k)(d);
-      DiscreteScalarImage3D[Scalar](newDomain, voxelDataVTK.map(v => scalarConv.fromDouble(v)).toArray)
+      DiscreteScalarImage3D[Scalar](newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
 
     }
 
@@ -214,7 +211,7 @@ object ImageIO {
   /**
    * returns transformations from voxel to World coordinates and its inverse
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(volume: NiftiVolume): Try[(Transformation[ThreeD] with CanDifferentiate[ThreeD], Transformation[ThreeD] with CanDifferentiate[ThreeD])] = {
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: FastReadOnlyNiftiVolume): Try[(Transformation[ThreeD] with CanDifferentiate[ThreeD], Transformation[ThreeD] with CanDifferentiate[ThreeD])] = {
 
     val nx = volume.header.dim(1);
     val ny = volume.header.dim(2);
@@ -228,13 +225,12 @@ object ImageIO {
     // for details about the nifty format
     if (volume.header.sform_code == 0) return Failure(new IOException("currently we can only read nifty format with sform_code > 0"))
 
-    val affineTransMatrix = DenseMatrix.create(4, 4, volume.header.sform_to_mat44().flatten).t
-
+    val affineTransMatrix =  DenseMatrix.create(4, 4, volume.header.srow_x++ volume.header.srow_y++ volume.header.srow_z++ Array(0f, 0f, 0f, 1f)).t 
     val t: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
       def apply(x: Point[ThreeD]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
-        val t = affineTransMatrix * xh
-        Point3D(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+        val t = affineTransMatrix * xh.map(_.toFloat)
+        Point3D(t(0), t(1), t(2))
       }
       override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
     }
@@ -243,8 +239,8 @@ object ImageIO {
     val tinv: Transformation[ThreeD] with CanDifferentiate[ThreeD] = new Transformation[ThreeD] with CanDifferentiate[ThreeD] {
       def apply(x: Point[ThreeD]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
-        val t = affineTransMatrixInv * xh
-        Point3D(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+        val t = affineTransMatrixInv *  xh.map(_.toFloat)
+        Point3D(t(0), t(1), t(2))
       }
       override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
     }
