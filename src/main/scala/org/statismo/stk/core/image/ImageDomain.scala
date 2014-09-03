@@ -15,6 +15,7 @@ import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation2D
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace2D
 import org.statismo.stk.core.registration.SimilarityTransformationSpace1D
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace3D
+import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation3D
 
 abstract class DiscreteImageDomain[D <: Dim] extends DiscreteDomain[D] with BoxedDomain[D] {
 
@@ -59,11 +60,10 @@ case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[On
 
 }
 
-case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransformParameters: DenseVector[Float]) extends DiscreteImageDomain[TwoD] {
+case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransform : AnisotropicSimilarityTransformation2D ) extends DiscreteImageDomain[TwoD] {
 
   val dimTraits = geometry.twoD
 
-  private val anisotropSimTransform = AnisotropicSimilarityTransformationSpace2D().transformForParameters(anisotropSimTransformParameters)
   private val inverseAnisotropicTransform = anisotropSimTransform.inverse
   
   def origin = anisotropSimTransform(Point2D(0, 0))
@@ -94,9 +94,8 @@ case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransformParamet
 
 }
 
-case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransformParameters: DenseVector[Float]) extends DiscreteImageDomain[ThreeD] {
+case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransform : AnisotropicSimilarityTransformation3D ) extends DiscreteImageDomain[ThreeD] {
 
-  private val anisotropSimTransform = AnisotropicSimilarityTransformationSpace3D().transformForParameters(anisotropSimTransformParameters)
   private val inverseAnisotropicTransform = anisotropSimTransform.inverse
   
   override def origin = anisotropSimTransform(Point3D(0, 0, 0))
@@ -139,7 +138,8 @@ object DiscreteImageDomain3D {
 
     val rigidParameters = origin.data ++ Array(0f, 0f, 0f)
     val anisotropicScalingParmaters = spacing.data
-    new DiscreteImageDomain3D(size, DenseVector(rigidParameters++anisotropicScalingParmaters))
+    val anisotropSimTransform = AnisotropicSimilarityTransformationSpace3D().transformForParameters( DenseVector(rigidParameters++anisotropicScalingParmaters))
+    new DiscreteImageDomain3D(size,anisotropSimTransform)
 
   }
 
@@ -148,8 +148,9 @@ object DiscreteImageDomain3D {
 object DiscreteImageDomain2D {
   def apply(origin: Point[TwoD], spacing: Vector[TwoD], size: Index[TwoD]) = {
     val rigidParameters = origin.data ++ Array(0f)
-    val anisotropicScalingParmaters = spacing.data   
-    new DiscreteImageDomain2D(size, DenseVector(rigidParameters ++anisotropicScalingParmaters))
+    val anisotropicScalingParmaters = spacing.data    
+    val anisotropSimTransform = AnisotropicSimilarityTransformationSpace2D().transformForParameters( DenseVector(rigidParameters++anisotropicScalingParmaters))
+    new DiscreteImageDomain2D(size, anisotropSimTransform)
   }
 }
 
