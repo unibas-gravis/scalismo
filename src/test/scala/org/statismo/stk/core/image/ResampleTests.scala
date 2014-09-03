@@ -2,27 +2,19 @@ package org.statismo.stk.core.image
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import Interpolation._
-import org.scalatest.Ignore
 import org.statismo.stk.core.io.ImageIO
 import java.io.File
-import org.statismo.stk.core.registration.RotationSpace2D
-import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.Point._
-import org.statismo.stk.core.geometry.Vector._
-import org.statismo.stk.core.geometry.Index._
 
-import breeze.linalg.DenseVector
 
-class ResampleTest extends FunSpec with ShouldMatchers {
+class ResampleTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
 
   describe("Resampling a 2D image") {
 
-    val testImgUrl = getClass().getResource("/lena.h5").getPath()
+    val testImgUrl = getClass.getResource("/lena.h5").getPath
     val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
-    
-     // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the 
+
+    // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the
     // pixel values at the strong edges - and we thus could not formulate a reasonable test
     val continuousImage = Interpolation.interpolate(discreteImage, 1)
 
@@ -32,13 +24,12 @@ class ResampleTest extends FunSpec with ShouldMatchers {
       for (i <- 0 until discreteImage.values.size) {
         discreteImage.values(i) should be(resampledImage.values(i))
       }
-
     }
   }
 
 
   describe("Resampling a 3D image") {
-    val path = getClass().getResource("/3dimage.h5").getPath()
+    val path = getClass.getResource("/3dimage.h5").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
     val continuousImage = Interpolation.interpolate(discreteImage, 0)
 
@@ -48,7 +39,5 @@ class ResampleTest extends FunSpec with ShouldMatchers {
         discreteImage.values(i) should be(resampledImage.values(i))
       }
     }
-
   }
-
 }

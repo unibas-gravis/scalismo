@@ -1,31 +1,30 @@
 package org.statismo.stk.core.statisticalmodel
 
 import scala.language.implicitConversions
-import org.statismo.stk.core.io.{ StatismoIO, MeshIO }
+import org.statismo.stk.core.io.{StatismoIO, MeshIO}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
-import breeze.linalg.{ DenseVector, DenseMatrix }
+import breeze.linalg.{DenseVector, DenseMatrix}
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.numerics.UniformSampler3D
-import org.statismo.stk.core.registration.RigidTransformationSpace3D
-import org.statismo.stk.core.registration.RigidTransformation3D
-import org.statismo.stk.core.mesh.TriangleMesh
+import org.statismo.stk.core.registration.RigidTransformationSpace
+import org.statismo.stk.core.registration.RigidTransformation
 
 
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
+  org.statismo.stk.core.initialize()
+
   describe("A statistical model") {
     it("yields the right mean and deformations when created from a discretized gp") {
-      org.statismo.stk.core.initialize()
-      val path = getClass().getResource("/facemesh.h5").getPath
+      val path = getClass.getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
       val cov = UncorrelatedKernel3x3(GaussianKernel3D(100) * 100)
 
-      val meshPoints = mesh.points
       val region = mesh.boundingBox
       val gpConfiguration = LowRankGaussianProcessConfiguration[_3D](
         region,
@@ -35,10 +34,9 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         20)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
-      val specializedGP = gp.specializeForPoints(mesh.points.toIndexedSeq) // for convenience, to get mean and PCA components already discretized
 
-      var mVec = DenseVector.zeros[Float](mesh.numberOfPoints * 3)
-      var U = DenseMatrix.zeros[Float](mesh.numberOfPoints * 3, phis.size)
+      val mVec = DenseVector.zeros[Float](mesh.numberOfPoints * 3)
+      val U = DenseMatrix.zeros[Float](mesh.numberOfPoints * 3, phis.size)
       for ((pt, ptId) <- mesh.points.toIndexedSeq.par.zipWithIndex) {
         val mAtPt = gp.mean(pt)
         val phisAtPt = phis.map(phi => phi(pt))
@@ -57,25 +55,27 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
       // evaluating the newGP at the points of the mesh should yield the same deformations as the original gp
       for (pt <- mesh.points.par) {
-        for (d <- 0 until 3) { gp.mean(pt)(d) should be(newGP.mean(pt)(d) plusOrMinus 1e-5) }
+        for (d <- 0 until 3) {
+          gp.mean(pt)(d) should be(newGP.mean(pt)(d) plusOrMinus 1e-5)
+        }
 
         for (i <- 0 until newLambdas.size) {
           val phi_iAtPoint = phis(i)(pt)
           val newPhi_iAtPoint = newPhis(i)(pt)
-          for (d <- 0 until 3) { phi_iAtPoint(d) should equal(newPhi_iAtPoint(d)) }
+          for (d <- 0 until 3) {
+            phi_iAtPoint(d) should equal(newPhi_iAtPoint(d))
+          }
         }
-
       }
-
     }
 
     it("can be transformed forth and back and yield the same deformations") {
-      val path = getClass().getResource("/facemodel.h5").getPath
+      val path = getClass.getResource("/facemodel.h5").getPath
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
 
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val rigidTransform = RigidTransformationSpace3D().transformForParameters(parameterVector)
-      val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation3D]
+      val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
+      val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
 
       val newModel = StatisticalMeshModel.transform(StatisticalMeshModel.transform(model, rigidTransform), inverseTransform)
       val randParams = DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat)
@@ -83,30 +83,35 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val instance1 = model.instance(randParams)
       val instance2 = newModel.instance(randParams)
 
-      val diffs = instance1.points.zip(instance2.points).map { case (p1, p2) => (p1 - p2).norm }
+      val diffs = instance1.points.zip(instance2.points).map {
+        case (p1, p2) => (p1 - p2).norm
+      }
       assert(diffs.max < 0.005f)
     }
-    
-    org.statismo.stk.core.initialize
-    val path = getClass().getResource("/facemodel.h5").getPath
+
+    val path = getClass.getResource("/facemodel.h5").getPath
     val model = StatismoIO.readStatismoMeshModel(new File(path)).get
     val newMesh = model.instance(DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat) * 2f)
-    val newModel = StatisticalMeshModel.changeMesh(model,newMesh)
+    val newModel = StatisticalMeshModel.changeMesh(model, newMesh)
 
     def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel) {
 
       val newMean = newModel.mean
       val oldMean = oldModel.mean
-      newMean.points.zip(oldMean.points).foreach { case (p1, p2) => assert((p1 - p2).norm < 0.001f) }
+      newMean.points.zip(oldMean.points).foreach {
+        case (p1, p2) => assert((p1 - p2).norm < 0.001f)
+      }
 
       val instanceCoeffs = DenseVector.rand(oldModel.gp.eigenPairs.size).map(_.toFloat)
       val instanceOldModel = oldModel.instance(instanceCoeffs)
       val instanceNewModel = newModel.instance(instanceCoeffs)
-      instanceNewModel.points.zip(instanceOldModel.points).foreach { case (p1, p2) => assert((p1 - p2).norm < 0.001f) }
+      instanceNewModel.points.zip(instanceOldModel.points).foreach {
+        case (p1, p2) => assert((p1 - p2).norm < 0.001f)
+      }
     }
 
     it("can change the mean shape and still yield the same shape space") {
-      compareModels(model, newModel )
+      compareModels(model, newModel)
     }
 
     it("can write a changed mean statistical mode, read it and still yield the same space") {
@@ -116,6 +121,5 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val readModel = StatismoIO.readStatismoMeshModel(tmpStatismoFile).get
       compareModels(model, readModel)
     }
-
   }
 }

@@ -7,7 +7,7 @@ trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
 
-trait DimOps[D] {
+trait DimOps[D <: Dim] {
   def toInt: Int
 }
 
