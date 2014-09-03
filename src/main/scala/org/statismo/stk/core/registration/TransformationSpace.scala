@@ -226,7 +226,7 @@ case class RotationSpace3D(val centre: Point[ThreeD]) extends TransformationSpac
   }
 }
 
-class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre: Point[ThreeD] = Point3D(0, 0, 0)) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
+case class RotationTransform3D(rotMatrix: MatrixNxN[ThreeD], centre: Point[ThreeD] = Point3D(0, 0, 0)) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(pt: Point[ThreeD]): Point[ThreeD] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
@@ -276,7 +276,7 @@ case class RotationSpace2D(val centre: Point[TwoD]) extends TransformationSpace[
   }
 }
 
-class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre: Point[TwoD] = Point2D(0, 0)) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
+case class RotationTransform2D(rotMatrix: MatrixNxN[TwoD], centre: Point[TwoD] = Point2D(0, 0)) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(pt: Point[TwoD]): Point[TwoD] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
@@ -311,7 +311,7 @@ case class ScalingSpace3D() extends TransformationSpace[ThreeD] with Differentia
   }
 }
 
-class ScalingTransformation3D(s: Float) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
+case class ScalingTransformation3D(s: Float) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(x: Point[ThreeD]): Point[ThreeD] = Point3D(x(0) * s, x(1) * s, x(2) * s)
 
   def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = Matrix3x3.eye * s
@@ -339,7 +339,7 @@ case class ScalingSpace2D() extends TransformationSpace[TwoD] with Differentiabl
   }
 }
 
-class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
+case class ScalingTransformation2D(s: Float) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(x: Point[TwoD]): Point[TwoD] = Point2D(x(0) * s, x(1) * s)
 
   def takeDerivative(x: Point[TwoD]): MatrixNxN[TwoD] = Matrix2x2.eye * s
@@ -368,7 +368,7 @@ case class ScalingSpace1D() extends TransformationSpace[OneD] with Differentiabl
   }
 }
 
-class ScalingTransformation1D(s: Float) extends Transformation[OneD] with CanInvert[OneD] with CanDifferentiate[OneD] {
+case class ScalingTransformation1D(s: Float) extends Transformation[OneD] with CanInvert[OneD] with CanDifferentiate[OneD] {
   def apply(x: Point[OneD]): Point[OneD] = Point1D(x(0) * s)
 
   def takeDerivative(x: Point[OneD]): MatrixNxN[OneD] = Matrix1x1.eye * s
@@ -399,13 +399,13 @@ object RigidTransformation3D {
   def apply(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D): RigidTransformation3D = new RigidTransformation3DTransThenRot(rotationTransform, translationTransform)
 }
 
-private class RigidTransformation3DRotThenTrans(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D)
+private case class RigidTransformation3DRotThenTrans(translationTransform: TranslationTransform3D, rotationTransform: RotationTransform3D)
   extends ProductTransformation[ThreeD](translationTransform, rotationTransform) with RigidTransformation3D {
 
   def inverse: RigidTransformation3DTransThenRot = new RigidTransformation3DTransThenRot(rotationTransform.inverse, translationTransform.inverse)
 }
 
-private class RigidTransformation3DTransThenRot(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D)
+private case class RigidTransformation3DTransThenRot(rotationTransform: RotationTransform3D, translationTransform: TranslationTransform3D)
   extends ProductTransformation[ThreeD](rotationTransform, translationTransform) with RigidTransformation3D {
   def inverse: RigidTransformation3DRotThenTrans = new RigidTransformation3DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
 }
@@ -424,18 +424,18 @@ case class RigidTransformationSpace2D(center: Point[TwoD] = Point2D(0, 0))
   }
 }
 
-private class RigidTransformation2DRotThenTrans(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D)
+private case class RigidTransformation2DRotThenTrans(translationTransform: TranslationTransform2D, rotationTransform: RotationTransform2D)
   extends ProductTransformation(translationTransform, rotationTransform) with RigidTransformation2D {
 
   def inverse = new RigidTransformation2DTransThenRot(rotationTransform.inverse, translationTransform.inverse)
 }
 
-private class RigidTransformation2DTransThenRot(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D)
+private case class RigidTransformation2DTransThenRot(rotationTransform: RotationTransform2D, translationTransform: TranslationTransform2D)
   extends ProductTransformation(rotationTransform, translationTransform) with RigidTransformation2D {
   def inverse = new RigidTransformation2DRotThenTrans(translationTransform.inverse, rotationTransform.inverse)
 }
 
-class AnisotropicScalingTransformation3D(s: Vector3D) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
+case class AnisotropicScalingTransformation3D(s: Vector3D) extends Transformation[ThreeD] with CanInvert[ThreeD] with CanDifferentiate[ThreeD] {
   def apply(x: Point[ThreeD]): Point[ThreeD] = Point3D(x(0) * s(0), x(1) * s(1), x(2) * s(2))
 
   def takeDerivative(x: Point[ThreeD]): MatrixNxN[ThreeD] = Matrix3x3(breeze.linalg.diag(s.toBreezeVector).data)
@@ -478,19 +478,19 @@ case class AnisotropicSimilarityTransformationSpace3D(center: Point[ThreeD] = Po
 trait AnisotropicSimilarityTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D]
 trait AnisotropicSimilarityTransformation3D extends AnisotropicSimilarityTransformation[ThreeD]
 
-private class RigidTransformationThenAnisotropicScaling3D(anisotropicScaling: AnisotropicScalingTransformation3D, rigidTransform: RigidTransformation3DTransThenRot)
+private case class RigidTransformationThenAnisotropicScaling3D(anisotropicScaling: AnisotropicScalingTransformation3D, rigidTransform: RigidTransformation3DTransThenRot)
   extends ProductTransformation[ThreeD](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation3D {
 
   def inverse: AnisotropicScalingThenRigidTransformation3D = new AnisotropicScalingThenRigidTransformation3D(rigidTransform.inverse, anisotropicScaling.inverse)
 }
 
-private class AnisotropicScalingThenRigidTransformation3D(rigidTransform: RigidTransformation3DRotThenTrans, anisotropicScaling: AnisotropicScalingTransformation3D)
+private case class AnisotropicScalingThenRigidTransformation3D(rigidTransform: RigidTransformation3DRotThenTrans, anisotropicScaling: AnisotropicScalingTransformation3D)
   extends ProductTransformation[ThreeD](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation3D {
 
   def inverse: RigidTransformationThenAnisotropicScaling3D = new RigidTransformationThenAnisotropicScaling3D(anisotropicScaling.inverse, rigidTransform.inverse)
 }
 
-class AnisotropicScalingTransformation2D(s: Vector2D) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
+case class AnisotropicScalingTransformation2D(s: Vector2D) extends Transformation[TwoD] with CanInvert[TwoD] with CanDifferentiate[TwoD] {
   def apply(x: Point[TwoD]): Point[TwoD] = Point2D(x(0) * s(0), x(1) * s(1))
 
   def takeDerivative(x: Point[TwoD]): MatrixNxN[TwoD] = Matrix2x2(breeze.linalg.diag(s.toBreezeVector).data)
@@ -533,13 +533,13 @@ case class AnisotropicSimilarityTransformationSpace2D(center: Point[TwoD] = Poin
 }
 trait AnisotropicSimilarityTransformation2D extends AnisotropicSimilarityTransformation[TwoD]
 
-private class RigidTransformationThenAnisotropicScaling2D(anisotropicScaling: AnisotropicScalingTransformation2D, rigidTransform: RigidTransformation2DTransThenRot)
+private case class RigidTransformationThenAnisotropicScaling2D(anisotropicScaling: AnisotropicScalingTransformation2D, rigidTransform: RigidTransformation2DTransThenRot)
   extends ProductTransformation[TwoD](anisotropicScaling, rigidTransform) with AnisotropicSimilarityTransformation2D {
 
   def inverse: AnisotropicScalingThenRigidTransformation2D = new AnisotropicScalingThenRigidTransformation2D(rigidTransform.inverse, anisotropicScaling.inverse)
 }
 
-private class AnisotropicScalingThenRigidTransformation2D(rigidTransform: RigidTransformation2DRotThenTrans, anisotropicScaling: AnisotropicScalingTransformation2D)
+private case class AnisotropicScalingThenRigidTransformation2D(rigidTransform: RigidTransformation2DRotThenTrans, anisotropicScaling: AnisotropicScalingTransformation2D)
   extends ProductTransformation[TwoD](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation2D {
 
   def inverse: RigidTransformationThenAnisotropicScaling2D = new RigidTransformationThenAnisotropicScaling2D(anisotropicScaling.inverse, rigidTransform.inverse)
@@ -562,13 +562,13 @@ case class SimilarityTransformationSpace1D()
 
 trait SimilarityTransform1D extends ProductTransformation[OneD] with CanInvert[OneD]
 
-private class ScalingThenTranslation1D(translation: TranslationTransform1D, scaling: ScalingTransformation1D)
+private case class ScalingThenTranslation1D(translation: TranslationTransform1D, scaling: ScalingTransformation1D)
   extends ProductTransformation[OneD](translation, scaling) with SimilarityTransform1D {
 
   def inverse: TranslationThenScaling1D = new TranslationThenScaling1D(scaling.inverse, translation.inverse)
 }
 
-private class TranslationThenScaling1D(scaling: ScalingTransformation1D, translation: TranslationTransform1D)
+private case class TranslationThenScaling1D(scaling: ScalingTransformation1D, translation: TranslationTransform1D)
   extends ProductTransformation[OneD](scaling, translation) with SimilarityTransform1D {
 
   def inverse: ScalingThenTranslation1D = new ScalingThenTranslation1D(translation.inverse, scaling.inverse)

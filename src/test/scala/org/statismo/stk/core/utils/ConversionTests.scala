@@ -37,8 +37,6 @@ class ConversionTests extends FunSpec with ShouldMatchers {
       val vtksp = ImageConversion.image2DTovtkStructuredPoints(origimg)
       val restoredImg = ImageConversion.vtkStructuredPointsTo2DScalarImage[Short](vtksp).get
 
-      println("***** restored domain parameters " + restoredImg.domain.anisotropSimTransformParameters)
-      println("***** original  domain parameters " + origimg.domain.anisotropSimTransformParameters)
       origimg should equal(restoredImg)
 
     }

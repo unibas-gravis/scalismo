@@ -25,6 +25,7 @@ import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.image.DiscreteScalarImage3D
 import org.statismo.stk.core.registration.LandmarkRegistration
 import org.statismo.stk.core.registration.AnisotropicScalingSpace3D
+import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace3D
 
 /**
  * WARNING! WE ARE USING RAS COORDINATE SYSTEM
@@ -179,7 +180,8 @@ object ImageIO {
       val imgPs = origPs.map(transVoxelToWorld)
 
       val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq)
-      val newDomain = DiscreteImageDomain3D(Index3D(nx, ny, nz), DenseVector(rigidReg.parameters.data ++ spacing.data))
+      val transform = AnisotropicSimilarityTransformationSpace3D().transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))      
+      val newDomain = DiscreteImageDomain3D(Index3D(nx, ny, nz), transform)
 
       DiscreteScalarImage3D[Scalar](newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
     }
