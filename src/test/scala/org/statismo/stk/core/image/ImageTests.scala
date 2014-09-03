@@ -3,18 +3,16 @@ package org.statismo.stk.core.image
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.geometry.Point.implicits._
 import org.statismo.stk.core.geometry.Vector.implicits._
 import org.statismo.stk.core.geometry.Index.implicits._
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.TranslationSpace1D
-import org.statismo.stk.core.registration.TranslationSpace2D
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import scala.language.implicitConversions
+import org.statismo.stk.core.registration.TranslationSpace
+import org.statismo.stk.core.geometry.Point.implicits._
 
-
-class ImageTest extends FunSpec with ShouldMatchers {
+class ImageTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   describe("A discrete 1D image") {
@@ -48,7 +46,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
-      val translationTransform = TranslationSpace1D()(DenseVector(1f))
+      val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(1f))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4f) === true)
       assert(composedImage.isDefinedAt(5f) === true)
@@ -62,9 +60,11 @@ class ImageTest extends FunSpec with ShouldMatchers {
       val image = ContinuousScalarImage1D(BoxedDomain1D(-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
-      val translationTransform = TranslationSpace1D()(DenseVector(-1f))
+
+      val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(-1f))
 
       val warpedImage = image.compose(translationTransform)
+
       warpedImage.isDefinedAt(-4f) should equal(false)
       warpedImage.isDefinedAt(-3f) should equal(true)
       warpedImage.isDefinedAt(5f) should equal(true)
@@ -72,6 +72,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
       warpedImage.isDefinedAt(5.5f) should equal(true)
       warpedImage.isDefinedAt(6.5f) should equal(true)
       warpedImage.isDefinedAt(7f) should equal(true)
+
       warpedImage(0) should be(image(-1) plusOrMinus 1e-5f)
     }
   }
@@ -82,7 +83,7 @@ class ImageTest extends FunSpec with ShouldMatchers {
 
       val cImg = ContinuousScalarImage2D(BoxedDomain2D((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
 
-      def t = TranslationSpace2D()(DenseVector(2.0, 2.0))
+      def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)
 
       warpedImg.isDefinedAt((-0.5f, -0.5f)) should equal(false)
@@ -123,6 +124,7 @@ class DomainTest extends FunSpec with ShouldMatchers {
     }
 
     it("can correclty map a linear index to an index and back") {
+
       val domain = DiscreteImageDomain3D((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
       val idx = Index(5, 3, 7)
       val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
