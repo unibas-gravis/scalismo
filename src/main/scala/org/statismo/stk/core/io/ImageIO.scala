@@ -28,11 +28,15 @@ import org.statismo.stk.core.image.DiscreteScalarImage3D
 import niftijio.NiftiVolume
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.{CanDifferentiate, RigidTransformation3D, Transformation}
+import org.statismo.stk.core.registration.{ CanDifferentiate, RigidTransformation3D, Transformation }
 import org.statismo.stk.core.image.Interpolation
 import org.statismo.stk.core.image.Resample
 import org.statismo.stk.core.image.DiscreteScalarImage3D
 import niftijio.NiftiHeader
+import org.statismo.stk.core.registration.LandmarkRegistration
+import org.statismo.stk.core.registration.AnisotropicScalingSpace3D
+import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace3D
+import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace3D
 
 /**
  * WARNING! WE ARE USING RAS COORDINATE SYSTEM
@@ -182,33 +186,27 @@ object ImageIO {
       if (dim == 0)
         dim = 1
 
-      // the 8 corners of the box
-      val c1 = transVoxelToWorld(Point3D(0, 0, 0))
-      val c2 = transVoxelToWorld(Point3D(0, 0, nz))
-      val c3 = transVoxelToWorld(Point3D(0, ny, 0))
-      val c4 = transVoxelToWorld(Point3D(0, ny, nz))
-      val c5 = transVoxelToWorld(Point3D(nx, 0, 0))
-      val c6 = transVoxelToWorld(Point3D(nx, 0, nz))
-      val c7 = transVoxelToWorld(Point3D(nx, ny, 0))
-      val c8 = transVoxelToWorld(Point3D(nx, ny, nz))
+      /* figure out the anisotropic scaling factor */
+      val spacing = DenseVector(volume.header.pixdim.drop(1).take(3))
+      val anisotropicScaling = AnisotropicScalingSpace3D()(spacing)
+      /* get a rigid registration by mapping a few points */
+
+      val origPs = List(Point3D(0, 0, nz), Point3D(0, ny, 0),Point3D(0, ny, nz), Point3D(nx, 0, 0),Point3D(nx, 0, nz), Point3D(nx, ny, 0), Point3D(nx, ny, nz))
+      val scaledPS = origPs.map(anisotropicScaling)
+      val imgPs = origPs.map(transVoxelToWorld)
+
+      val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq)
+      val newDomain = DiscreteImageDomain3D(Index3D(nx, ny, nz), DenseVector(rigidReg.parameters.data ++ spacing.data))
+
+      val transform = AnisotropicSimilarityTransformationSpace3D()(DenseVector(rigidReg.parameters.data ++ spacing.data))
+      
+      
+      println("nifti transform of origin " + transVoxelToWorld(Point3D(0, 0, 0)))
+      println("my transform of origin " + transform(Point3D(0, 0, 0)))
 
       val voxelDataVTK = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield volume.data(i)(j)(k)(d);
+      DiscreteScalarImage3D[Scalar](newDomain, voxelDataVTK.map(v => scalarConv.fromDouble(v)).toArray)
 
-      // we create an image from the raw voxel data, which we can then transform using our transformation machinery to its world coordinates.
-      val unitDomain = DiscreteImageDomain3D(Point3D(0, 0, 0), Vector3D(1, 1, 1), Index3D(nx, ny, nz))
-      val img = DiscreteScalarImage3D[Scalar](unitDomain, voxelDataVTK.map(v => scalarConv.fromDouble(v)).toArray)
-
-      val corners = IndexedSeq(c1, c2, c3, c4, c5, c6, c7, c8)
-
-      val newOrigin = Point3D(corners.map(c => c(0)).min.toFloat, corners.map(c => c(1)).min.toFloat, corners.map(c => c(2)).min.toFloat)
-      val newExtent = Point3D(corners.map(c => c(0)).max.toFloat, corners.map(c => c(1)).max.toFloat, corners.map(c => c(2)).max.toFloat)
-
-      val cimg = Interpolation.interpolate(img, 0)
-      //val newSpacing = Vector3D((newExtent - newOrigin)(0) / nx, (newExtent - newOrigin)(1) / ny, (newExtent - newOrigin)(2) / nz)
-      val newSpacing = Vector3D(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
-
-      val newDomain = DiscreteImageDomain3D(newOrigin, newSpacing, Index3D(nx, ny, nz))
-      Resample.sample[Scalar](cimg.compose(transWorldToVoxel), newDomain, 0f)
     }
 
   }
