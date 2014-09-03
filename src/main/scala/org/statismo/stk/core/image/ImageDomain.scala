@@ -48,9 +48,10 @@ case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[On
   val directions = Array(1.0)
 
   private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
-
+  private val inverseTransform = transform.inverse
+  
   override def indexToPoint(i: Index[OneD]): Point[OneD] = transform(Point1D(i(0)))
-  override def pointToIndex(p: Point[OneD]): Index[OneD] = Index1D(transform.inverse(p)(0).toInt)
+  override def pointToIndex(p: Point[OneD]): Index[OneD] = Index1D(inverseTransform(p)(0).toInt)
 
   def isInside(pt: Point[OneD]): Boolean = {
     pt(0) >= origin(0) && pt(0) <= extent(0)
@@ -63,7 +64,8 @@ case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransformParamet
   val dimTraits = geometry.twoD
 
   private val anisotropSimTransform = AnisotropicSimilarityTransformationSpace2D().transformForParameters(anisotropSimTransformParameters)
-
+  private val inverseAnisotropicTransform = anisotropSimTransform.inverse
+  
   def origin = anisotropSimTransform(Point2D(0, 0))
 
   private val iVecImage = anisotropSimTransform(Point2D(1, 0)) - anisotropSimTransform(Point2D(0, 0))
@@ -81,12 +83,12 @@ case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransformParamet
 
   override def indexToPoint(i: Index[TwoD]) = anisotropSimTransform(Point2D(i(0), i(1)))
   override def pointToIndex(p: Point[TwoD]) = {
-    val t = anisotropSimTransform.inverse(p).data.map(_.toInt)
+    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
     Index2D(t(0), t(1))
   }
 
   def isInside(pt: Point[TwoD]): Boolean = {
-    val invPt = anisotropSimTransform.inverse(pt)
+    val invPt = inverseAnisotropicTransform(pt)
     invPt(0) < size(0) && invPt(1) < size(1)
   }
 
@@ -95,7 +97,8 @@ case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransformParamet
 case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransformParameters: DenseVector[Float]) extends DiscreteImageDomain[ThreeD] {
 
   private val anisotropSimTransform = AnisotropicSimilarityTransformationSpace3D().transformForParameters(anisotropSimTransformParameters)
-
+  private val inverseAnisotropicTransform = anisotropSimTransform.inverse
+  
   override def origin = anisotropSimTransform(Point3D(0, 0, 0))
 
   override def spacing = Vector3D(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
@@ -113,7 +116,7 @@ case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransformParam
 
   override def indexToPoint(i: Index[ThreeD]) = anisotropSimTransform(Point3D(i(0), i(1), i(2)))
   override def pointToIndex(p: Point[ThreeD]) = {
-    val t = anisotropSimTransform.inverse(p).data.map(_.toInt)
+    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
     Index3D(t(0), t(1), t(2))
   }
 
@@ -126,7 +129,7 @@ case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransformParam
       linearIdx / (size(0) * size(1)))
 
   def isInside(pt: Point[ThreeD]): Boolean = {
-    val invPt = anisotropSimTransform.inverse(pt)
+    val invPt = inverseAnisotropicTransform(pt)
     invPt(0) < size(0) && invPt(1) < size(1) && invPt(2) < size(2)
   }
 }
