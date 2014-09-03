@@ -86,15 +86,15 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
       it("returns the same data as the niftijio reader when using FastReadOnlyNiftiVolume") {
         val filename = getClass.getResource("/3dimage.nii").getPath
         val o = NiftiVolume.read(filename)
-        val n = FastReadOnlyNiftiVolume.read(filename)
+        val n = FastReadOnlyNiftiVolume.read(filename).get
 
         for (i <- 0 until 8) {
           n.header.dim(i) should equal(o.header.dim(i))
           n.header.pixdim(i) should equal(o.header.pixdim(i))
         }
 
-        n.header.scl_inter should equal(o.header.scl_inter)
         n.header.vox_offset should equal(o.header.vox_offset)
+        n.header.scl_inter should equal(o.header.scl_inter)
         n.header.scl_slope should equal(o.header.scl_slope)
         n.header.sform_code should equal(o.header.sform_code)
 
