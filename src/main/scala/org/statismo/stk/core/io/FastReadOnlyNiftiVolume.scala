@@ -227,7 +227,7 @@ class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
       doubles
     }
 
-    def qform_to_mat44: Array[Array[Double]] = {
+    lazy val qform_to_mat44: Array[Array[Double]] = {
       val qb: Double = quatern_bcd(0)
       val qc: Double = quatern_bcd(1)
       val qd: Double = quatern_bcd(2)
