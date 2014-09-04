@@ -55,7 +55,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       lambdas should equal(newLambdas)
 
       // evaluating the newGP at the points of the mesh should yield the same deformations as the original gp
-      for (pt <- mesh.points.par) {
+      for (pt <- mesh.pointSeq.par) {
         for (d <- 0 until 3) { gp.mean(pt)(d) should be(newGP.mean(pt)(d) plusOrMinus 1e-5) }
 
         for (i <- 0 until newLambdas.size) {

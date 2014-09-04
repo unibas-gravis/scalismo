@@ -11,7 +11,7 @@ trait Cell {
 }
 
 trait DiscreteDomain[D <: Dim] extends Domain[D] {
-  def points: Stream[Point[D]]
+  def points: Iterator[Point[D]]
 }
 
 trait PointGenerator[D <: Dim] extends Function0[Point[D]]
@@ -19,7 +19,7 @@ trait PointGenerator[D <: Dim] extends Function0[Point[D]]
 object DiscreteDomain {
   def fromPredicateAndGenerator[D <: Dim: DimOps](generator: PointGenerator[D], _isDefinedAt: Point[D] => Boolean) = {
     new DiscreteDomain[D] {
-      override def points = Stream.continually(generator())
+      override def points = Iterator.continually(generator())
       override def isDefinedAt(pt: Point[D]) = _isDefinedAt(pt)
     }
   }
@@ -33,21 +33,24 @@ object FiniteDiscreteDomain {
 
   def fromSeq[D <: Dim: DimOps](_points: IndexedSeq[Point[D]]) =
     new FiniteDiscreteDomain[D] {
-      override def points = _points.toStream
+      override def points = _points.toIterator
       override def isDefinedAt(p: Point[D]) = _points.contains(p)
       override def numberOfPoints = _points.size
     }
 
   def fromPredicateAndGenerator[D <: Dim: DimOps](generator: PointGenerator[D], _isDefinedAt: Point[D] => Boolean, _numberOfPoints: Int) = new FiniteDiscreteDomain[D] {
-    override def points = Stream.continually(generator()).take(_numberOfPoints)
+    override def points = Iterator.continually(generator()).take(_numberOfPoints)
     override def numberOfPoints = _numberOfPoints
     override def isDefinedAt(pt: Point[D]) = _isDefinedAt(pt) && points.contains(pt)
   }
 }
 
-case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: DimOps]  (points: Stream[Point[D]], numberOfPoints: Int) extends FiniteDiscreteDomain[D] {
+case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: DimOps]  (pointSeq: IndexedSeq[Point[D]], numberOfPoints: Int) extends FiniteDiscreteDomain[D] {
 
-  private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(points.toIndexedSeq.zipWithIndex)
+  override def points = pointSeq.toIterator
+  def points(idx : Int) = pointSeq(idx)
+    
+  private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(pointSeq.zipWithIndex)
   override def isDefinedAt(pt: Point[D]) = findClosestPoint(pt)._1 == pt
 
   def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
@@ -59,8 +62,11 @@ case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: DimOps]  (points: Stre
 }
 
 object SpatiallyIndexedFiniteDiscreteDomain {
-  def fromSeq[D <: Dim: DimOps](_points: IndexedSeq[Point[D]]) = SpatiallyIndexedFiniteDiscreteDomain[D](_points.toStream, _points.size)
-  def fromGenereator[D <: Dim: DimOps](generator: PointGenerator[D], _numberOfPoitns: Int) = SpatiallyIndexedFiniteDiscreteDomain[D](Stream.continually(generator()).take(_numberOfPoitns), _numberOfPoitns)
+  def fromSeq[D <: Dim: DimOps](_points: IndexedSeq[Point[D]]) = SpatiallyIndexedFiniteDiscreteDomain[D](_points, _points.size)
+  def fromGenereator[D <: Dim: DimOps](generator: PointGenerator[D], _numberOfPoitns: Int) = {
+    val _points = Iterator.continually(generator()).take(_numberOfPoitns).toIndexedSeq
+    SpatiallyIndexedFiniteDiscreteDomain[D](_points, _numberOfPoitns)
+  } 
 
 }
 
