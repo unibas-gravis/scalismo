@@ -249,7 +249,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
       val samples = for (i <- 0 until 10) yield model.sample
       val transforms = for (s <- samples) yield new Transformation[_3D] {
-        val samplePts = s.points.force
+        val samplePts = s.pointSeq
 
         override def apply(x: Point[_3D]): Point[_3D] = {
           val (_, ptId) = model.mesh.findClosestPoint(x)

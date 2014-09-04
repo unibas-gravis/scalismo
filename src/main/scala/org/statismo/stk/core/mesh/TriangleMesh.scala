@@ -16,7 +16,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 }
 
 class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) 
-	extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints.toStream, meshPoints.size) {
+	extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
   private[this] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
