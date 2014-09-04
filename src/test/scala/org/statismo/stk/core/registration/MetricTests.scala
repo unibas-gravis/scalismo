@@ -19,9 +19,10 @@ class MetricTests extends FunSpec with ShouldMatchers {
       val img = ContinuousScalarImage1D(BoxedDomain[_1D](0.0f, 1.0f),
         (x: Point[_1D]) => x * x,
         Some((x: Point[_1D]) => Vector(2f) * x(0)))
-      val identityTransform = TranslationSpace1D()(TranslationSpace1D().identityTransformParameters)
+      val transSpace = TranslationSpace[_1D]
+      val identityTransform = transSpace.transformForParameters(transSpace.identityTransformParameters)
       val integrator = Integrator(IntegratorConfiguration(UniformSampler1D(domain, 1000)))
-      MeanSquaresMetric1D(integrator)(img, img,identityTransform) should be(0.0 plusOrMinus 0.001)
+      MeanSquaresMetric1D(integrator)(img, img, identityTransform) should be(0.0 plusOrMinus 0.001)
     }
   }
 }
