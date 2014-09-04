@@ -4,7 +4,8 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin._
         
 object BuildSettings {
   val buildOrganization = "org.statismo"
-  val buildVersion = "0.3.2"
+  val buildVersion = "0.3.3"
+
   val buildScalaVersion = "2.10.3"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
@@ -38,12 +39,12 @@ object ShellPrompt {
 }
 
 object Resolvers {
-  val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
-  val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-  val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
-  val twitter = "twitter" at "http://maven.twttr.com/"
-  val statismoSnapshot = "statismo" at "http://statismo.cs.unibas.ch/repository"
-  val stkResolvers = Seq(statismoSnapshot, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
+  private val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
+  private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
+  private val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
+  private val twitter = "twitter" at "http://maven.twttr.com/"
+  private val statismoPublic = "statismo" at "http://statismo.cs.unibas.ch/repository/public"
+  val stkResolvers = Seq(statismoPublic, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
 }
 
 object Dependencies {

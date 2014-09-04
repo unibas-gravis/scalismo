@@ -83,6 +83,7 @@ class HDF5File(h5file: FileFormat) {
   def readNDArray[T](path: String): Try[NDArray[T]] = {
 
     h5file.get(path) match {
+      case null => Failure(new Exception(s"Path $path does not exist"))
       case s: H5ScalarDS => {
         // we need to explicitly set the selectedDims to dims, in order to avoid that 
         // in the three D case only the first slice is read (bug in hdf5?)
@@ -267,6 +268,8 @@ class HDF5File(h5file: FileFormat) {
 
   def createGroup(absolutePath: String): Try[Group] = {
 
+    val normalizedPath = absolutePath.replaceAll("//*", "/")
+
     val root = if (h5file.getRootNode() == null) 
       return Failure(new Throwable("file not correctly opened"))
     else {
@@ -274,12 +277,12 @@ class HDF5File(h5file: FileFormat) {
         .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject()
         .asInstanceOf[Group]
     }
-    if (absolutePath.startsWith("/") == false)
+    if (normalizedPath.startsWith("/") == false)
       return Failure(new Exception("relative path provieded tocreateGroup: " + absolutePath))
     if (absolutePath.trim == "/")
       return Success(root)
 
-    createGroup(root, absolutePath.stripPrefix("/"))
+    createGroup(root, normalizedPath.stripPrefix("/"))
 
   }
 

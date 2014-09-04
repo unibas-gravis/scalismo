@@ -55,6 +55,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
       val samplerForNystromApprox = UniformSampler3D(domain, 7 * 7 * 7)
 
 
+
       val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
       val mu = (pt: Point[ThreeD]) => Vector3D(1, 10, -5)
       val gpConf = LowRankGaussianProcessConfiguration(domain, samplerForNystromApprox, mu, k, 500)
@@ -65,7 +66,6 @@ class KernelTests extends FunSpec with ShouldMatchers {
       val sampleTransformations = for (i <- (0 until 5000).par) yield {
         // TODO: gp.sample() should (arguably) accept seed.
         val sample: (Point[ThreeD] => geometry.Vector[ThreeD]) = gp.sample
-
         new Transformation[ThreeD] {
           def apply(x: Point[ThreeD]) = x + sample(x)
 
