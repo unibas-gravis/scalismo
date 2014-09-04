@@ -5,7 +5,8 @@ import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.linalg.{DenseVector, DenseMatrix}
 import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.registration.RigidTransformation3D
+import org.statismo.stk.core.registration.RigidTransformation
+
 
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh
@@ -108,7 +109,8 @@ object StatisticalMeshModel {
    * TODO - Part of this functionality should be moved into the GP. But for this we would have to define
    * a proper domain-warp concept!
    */
-  def transform(model: StatisticalMeshModel, rigidTransform: RigidTransformation3D): StatisticalMeshModel = {
+
+  def transform(model: StatisticalMeshModel, rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
     val invTransform = rigidTransform.inverse
     val gp = model.gp
     val (lambdas, phis) = gp.eigenPairs.unzip
