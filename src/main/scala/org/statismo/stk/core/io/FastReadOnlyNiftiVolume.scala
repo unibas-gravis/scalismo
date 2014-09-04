@@ -212,7 +212,10 @@ class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
     lazy val vox_offset = floatAt(108)
     lazy val scl_slope = floatAt(112)
     lazy val scl_inter = floatAt(116)
+    lazy val qform_code = shortAt(252)
     lazy val sform_code = shortAt(254)
+    lazy val quatern_bcd = new DirectArray[Float](256, 3)
+    lazy val qoffset_xyz = new DirectArray[Float](268, 3)
 
     lazy val sformArray: Array[Double] = {
       val floats = new DirectArray[Float](280, 12)
@@ -222,6 +225,58 @@ class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
       }
       doubles(15) = 1.0
       doubles
+    }
+
+    def qform_to_mat44: Array[Array[Double]] = {
+      val qb: Double = quatern_bcd(0)
+      val qc: Double = quatern_bcd(1)
+      val qd: Double = quatern_bcd(2)
+      val qx: Double = qoffset_xyz(0)
+      val qy: Double = qoffset_xyz(1)
+      val qz: Double = qoffset_xyz(2)
+      val dx: Double = this.pixdim(1)
+      val dy: Double = this.pixdim(2)
+      val dz: Double = this.pixdim(3)
+      val qfac: Double = this.pixdim(0)
+
+      val R: Array[Array[Double]] = Array.ofDim[Double](4,4)
+
+      /* last row is always [ 0 0 0 1 ] */
+      R(3)(0) = 0.0
+      R(3)(1) = 0.0
+      R(3)(2) = 0.0
+      R(3)(3) = 1.0
+      var d: Double = qd
+      var c: Double = qc
+      var b: Double = qb
+      var a: Double = 1.0 - (b * b + c * c + d * d)
+      if (a < 1.e-7) {
+        a = 1.0 / Math.sqrt(b * b + c * c + d * d)
+        b *= a
+        c *= a
+        d *= a
+        a = 0.0
+      }
+      else {
+        a = Math.sqrt(a)
+      }
+      val xd: Double = if (dx > 0.0) dx else 1.0
+      val yd: Double = if (dy > 0.0) dy else 1.0
+      var zd: Double = if (dz > 0.0) dz else 1.0
+      if (qfac < 0.0) zd = -zd
+      R(0)(0) = (a * a + b * b - c * c - d * d) * xd
+      R(0)(1) = 2.0 * (b * c - a * d) * yd
+      R(0)(2) = 2.0 * (b * d + a * c) * zd
+      R(1)(0) = 2.0 * (b * c + a * d) * xd
+      R(1)(1) = (a * a + c * c - b * b - d * d) * yd
+      R(1)(2) = 2.0 * (c * d - a * b) * zd
+      R(2)(0) = 2.0 * (b * d - a * c) * xd
+      R(2)(1) = 2.0 * (c * d + a * b) * yd
+      R(2)(2) = (a * a + d * d - c * c - b * b) * zd
+      R(0)(3) = qx
+      R(1)(3) = qy
+      R(2)(3) = qz
+      R
     }
   }
 }
