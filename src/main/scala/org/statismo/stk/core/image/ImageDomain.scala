@@ -50,7 +50,7 @@ case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[On
 
   private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   private val inverseTransform = transform.inverse
-  
+
   override def indexToPoint(i: Index[OneD]): Point[OneD] = transform(Point1D(i(0)))
   override def pointToIndex(p: Point[OneD]): Index[OneD] = Index1D(inverseTransform(p)(0).toInt)
 
@@ -60,17 +60,20 @@ case class DiscreteImageDomain1D(val origin: Point[OneD], val spacing: Vector[On
 
 }
 
-case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransform : AnisotropicSimilarityTransformation2D ) extends DiscreteImageDomain[TwoD] {
+case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransform: AnisotropicSimilarityTransformation2D) extends DiscreteImageDomain[TwoD] {
 
   val dimTraits = geometry.twoD
 
   private val inverseAnisotropicTransform = anisotropSimTransform.inverse
-  
+
   def origin = anisotropSimTransform(Point2D(0, 0))
 
   private val iVecImage = anisotropSimTransform(Point2D(1, 0)) - anisotropSimTransform(Point2D(0, 0))
   private val jVecImage = anisotropSimTransform(Point2D(0, 1)) - anisotropSimTransform(Point2D(0, 0))
-
+  
+  if (iVecImage(1) != 0 || jVecImage(0) != 0 )
+    throw new NotImplementedError("DiscreteImageDomain needs to be oriented along the space axis in this version.")
+  
   override val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data).map(_.toDouble)
   override def spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
@@ -94,10 +97,10 @@ case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransform : Anis
 
 }
 
-case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransform : AnisotropicSimilarityTransformation3D ) extends DiscreteImageDomain[ThreeD] {
+case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransform: AnisotropicSimilarityTransformation3D) extends DiscreteImageDomain[ThreeD] {
 
   private val inverseAnisotropicTransform = anisotropSimTransform.inverse
-  
+
   override def origin = anisotropSimTransform(Point3D(0, 0, 0))
 
   override def spacing = Vector3D(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
@@ -106,8 +109,14 @@ case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransform : An
   private val jVecImage = anisotropSimTransform(Point3D(0, 1, 0)) - anisotropSimTransform(Point3D(0, 0, 0))
   private val kVecImage = anisotropSimTransform(Point3D(0, 0, 1)) - anisotropSimTransform(Point3D(0, 0, 0))
 
-  val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data ++ (kVecImage * (1.0 / kVecImage.norm)).data).map(_.toDouble)
+  /**
+   * To be removed after refactoring : we make sure that there is no rotation of the image domain in order to remain coherent with
+   * the BoxedDomain implmentation that is assuming directions along the space axis.
+   */
+  if (iVecImage(1) != 0 || iVecImage(2) != 0 || jVecImage(0) != 0 || jVecImage(2) != 0 || kVecImage(0) != 0 || kVecImage(1) != 0)
+    throw new NotImplementedError("DiscreteImageDomain needs to be oriented along the space axis in this version.")
 
+  val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data ++ (kVecImage * (1.0 / kVecImage.norm)).data).map(_.toDouble)
   val dimTraits = geometry.threeD
 
   def points = for (k <- (0 until size(2)).view; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
@@ -138,8 +147,8 @@ object DiscreteImageDomain3D {
 
     val rigidParameters = origin.data ++ Array(0f, 0f, 0f)
     val anisotropicScalingParmaters = spacing.data
-    val anisotropSimTransform = AnisotropicSimilarityTransformationSpace3D().transformForParameters( DenseVector(rigidParameters++anisotropicScalingParmaters))
-    new DiscreteImageDomain3D(size,anisotropSimTransform)
+    val anisotropSimTransform = AnisotropicSimilarityTransformationSpace3D().transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParmaters))
+    new DiscreteImageDomain3D(size, anisotropSimTransform)
 
   }
 
@@ -148,8 +157,8 @@ object DiscreteImageDomain3D {
 object DiscreteImageDomain2D {
   def apply(origin: Point[TwoD], spacing: Vector[TwoD], size: Index[TwoD]) = {
     val rigidParameters = origin.data ++ Array(0f)
-    val anisotropicScalingParmaters = spacing.data    
-    val anisotropSimTransform = AnisotropicSimilarityTransformationSpace2D().transformForParameters( DenseVector(rigidParameters++anisotropicScalingParmaters))
+    val anisotropicScalingParmaters = spacing.data
+    val anisotropSimTransform = AnisotropicSimilarityTransformationSpace2D().transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParmaters))
     new DiscreteImageDomain2D(size, anisotropSimTransform)
   }
 }
