@@ -100,6 +100,11 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
 
         val om = DenseMatrix.create(4, 4, o.header.sform_to_mat44().flatten)
         val nm = DenseMatrix.create(4, 4, n.header.sformArray)
+
+        val oq = o.header.qform_to_mat44()
+        val nq = n.header.qform_to_mat44
+
+        oq.deep should equal(nq.deep)
         om.toString() should equal(nm.toString())
 
         val oh = {
