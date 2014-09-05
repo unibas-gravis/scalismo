@@ -3,7 +3,7 @@ package registration
 
 import registration.TransformationSpace.{ ParameterVector }
 import breeze.linalg.{ svd, DenseVector, DenseMatrix, Axis }
-import breeze.stats.{mean, variance}
+import breeze.stats.{ mean, variance }
 import org.statismo.stk.core.geometry._
 import breeze.linalg.diag
 import breeze.linalg._
@@ -12,39 +12,41 @@ object LandmarkRegistration {
 
   private val origin2D = Point2D(0f, 0f)
   private val origin3D = Point3D(0f, 0f, 0f)
-  
+
+  def rotMatrixToEulerAngles(rotMat: DenseMatrix[Double]) = {
+    // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix
+    // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
+
+    if (Math.abs(Math.abs(rotMat(2, 0)) - 1) > 0.0001) {
+      val theta1 = Math.asin(-rotMat(2, 0))
+
+      val psi1 = Math.atan2(rotMat(2, 1) / Math.cos(theta1), rotMat(2, 2) / Math.cos(theta1))
+
+      val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta1))
+
+      DenseVector(phi1, theta1, psi1)
+    } else {
+      /* Gimbal lock, we simply set phi to be 0 */
+      val phi = 0.0
+      if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
+        val theta = Math.PI / 2.0
+        val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
+        DenseVector(phi, theta, psi)
+      } else {
+        val theta = -Math.PI / 2.0
+        val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
+        DenseVector(phi, theta, psi)
+      }
+    }
+  }
+
   private def rigidSimilarity3DCommon(landmarks: IndexedSeq[(Point[ThreeD], Point[ThreeD])], similarityFlag: Boolean = false) = {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
     // assert(center.size == 2)
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
 
-    // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix
-    // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
-
-    val rotparams =
-      if (Math.abs(Math.abs(rotMat(2, 0)) - 1) > 0.0001) {
-        val theta1 = Math.asin(-rotMat(2, 0))
-
-        val psi1 = Math.atan2(rotMat(2, 1) / Math.cos(theta1), rotMat(2, 2) / Math.cos(theta1))
-
-        val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta1))
-
-        DenseVector(phi1, theta1, psi1)
-      } else {
-        /* Gimbal lock, we simply set phi to be 0 */
-        val phi = 0.0
-        if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
-          val theta = Math.PI / 2.0
-          val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
-          DenseVector(phi, theta, psi)
-        } else {
-          val theta = -Math.PI / 2.0
-          val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
-          DenseVector(phi, theta, psi)
-        }
-      }
-
+    val rotparams = rotMatrixToEulerAngles(rotMat)
     (t, rotparams, s)
   }
 
@@ -62,16 +64,20 @@ object LandmarkRegistration {
     RegistrationResult(similritySpace(optimalParameters), optimalParameters)
   }
 
-  private def rigidSimilarity2DCommon(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], similarityFlag: Boolean = false) = {
-    val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
-    assert(t.size == 2)
-    assert(rotMat.rows == 2 && rotMat.cols == 2)
+  def rotationMatrixToAngle2D(rotMat: DenseMatrix[Double]) = {
     // we can compute the angle from the form of the rotation matrix
     // the acos cannot distinguish between angles in the interval [0,pi] and [-pi, 0]. We double
     // check with the sin in the rotation matrix and correct the sign accordingly
     val phiUpToSign = math.acos(rotMat(0, 0))
-    val phi = if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign else phiUpToSign
+    if (math.abs(math.sin(phiUpToSign) - rotMat(1, 0)) > 0.0001) -phiUpToSign else phiUpToSign
+  }
 
+  private def rigidSimilarity2DCommon(landmarks: IndexedSeq[(Point[TwoD], Point[TwoD])], similarityFlag: Boolean = false) = {
+    val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
+    assert(t.size == 2)
+    assert(rotMat.rows == 2 && rotMat.cols == 2)
+   
+    val phi =rotationMatrixToAngle2D(rotMat)
     (t, phi, s)
   }
 
