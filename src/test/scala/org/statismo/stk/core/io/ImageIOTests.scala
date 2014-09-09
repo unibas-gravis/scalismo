@@ -80,10 +80,9 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
       f.delete()
     }
 
-
     describe("in Nifti format") {
 
-      it("returns the same data as the niftijio reader when using FastReadOnlyNiftiVolume") {
+     it("returns the same data as the niftijio reader when using FastReadOnlyNiftiVolume") {
         val filename = getClass.getResource("/3dimage.nii").getPath
         val o = NiftiVolume.read(filename)
         val n = FastReadOnlyNiftiVolume.read(filename).get
@@ -125,13 +124,15 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
       it("can be written and read again") {
         val pathH5 = getClass.getResource("/3dimage.nii").getPath
         val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
-
         val tmpfile = File.createTempFile("dummy", ".nii")
         tmpfile.deleteOnExit()
 
-        ImageIO.writeImage(origImg, tmpfile)
+        ImageIO.writeImage(origImg, tmpfile).get
+
         val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
-        origImg.domain.origin should equal(rereadImg.domain.origin)
+
+        (origImg.domain.origin - (rereadImg.domain.origin)).norm should be(0.0 plusOrMinus 1e-2)
+
         (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 plusOrMinus 1e-2)
         origImg.domain.size should equal(rereadImg.domain.size)
         for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
