@@ -5,8 +5,8 @@ import scala.util.Try
 import scala.util.Failure
 import java.io.File
 import scala.util.Success
-import org.statismo.stk.core.image.{DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D}
-import reflect.runtime.universe.{TypeTag, typeOf}
+import org.statismo.stk.core.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
+import reflect.runtime.universe.{ TypeTag, typeOf }
 import org.statismo.stk.core.image.DiscreteScalarImage2D
 import java.io.IOException
 import org.statismo.stk.core.image.DiscreteImage
@@ -26,6 +26,7 @@ import org.statismo.stk.core.image.DiscreteScalarImage3D
 import org.statismo.stk.core.registration.LandmarkRegistration
 import org.statismo.stk.core.registration.AnisotropicScalingSpace3D
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace3D
+import org.apache.commons.math3.geometry.Space
 
 /**
  * WARNING! WE ARE USING RAS COORDINATE SYSTEM
@@ -34,12 +35,12 @@ import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpa
 object ImageIO {
 
   private case class GenericImageData[Scalar](
-                                               origin: Array[Double],
-                                               spacing: Array[Double],
-                                               size: Array[Long],
-                                               pixelDimensionality: Int,
-                                               voxelType: String,
-                                               data: Array[Scalar]) {
+    origin: Array[Double],
+    spacing: Array[Double],
+    size: Array[Long],
+    pixelDimensionality: Int,
+    voxelType: String,
+    data: Array[Scalar]) {
     def hasDimensionality(dim: Int): Boolean = {
       origin.size == dim &&
         spacing.size == dim &&
@@ -47,50 +48,52 @@ object ImageIO {
     }
   }
 
-  def read1DScalarImage[Scalar: ScalarValue : TypeTag](file: File): Try[DiscreteScalarImage1D[Scalar]] = {
+  def read1DScalarImage[Scalar: ScalarValue: TypeTag](file: File): Try[DiscreteScalarImage1D[Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
 
         val imageDataOrFailure = readHDF5[Scalar](f)
         imageDataOrFailure.flatMap {
-          imageData => {
-            if (!imageData.hasDimensionality(1)) {
-              Failure(new Exception(s"wrong dimensionality in the image data"))
-            } else if (imageData.pixelDimensionality != 1) {
-              Failure(new Exception("wrong pixel dimensionality in image data"))
-            } else {
+          imageData =>
+            {
+              if (!imageData.hasDimensionality(1)) {
+                Failure(new Exception(s"wrong dimensionality in the image data"))
+              } else if (imageData.pixelDimensionality != 1) {
+                Failure(new Exception("wrong pixel dimensionality in image data"))
+              } else {
 
-              val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0).toFloat), Vector1D(imageData.spacing(0).toFloat), Index1D(imageData.size(0).toInt))
-              Success(DiscreteScalarImage1D(domain, imageData.data))
+                val domain = DiscreteImageDomain1D(Point1D(imageData.origin(0).toFloat), Vector1D(imageData.spacing(0).toFloat), Index1D(imageData.size(0).toInt))
+                Success(DiscreteScalarImage1D(domain, imageData.data))
+              }
             }
-          }
         }
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
 
-  def read3DScalarImage[Scalar: ScalarValue : TypeTag : ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
+  def read3DScalarImage[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
 
         val imageDataOrFailure = readHDF5[Scalar](f)
         imageDataOrFailure.flatMap {
-          imageData => {
-            if (!imageData.hasDimensionality(3)) {
-              Failure(new Exception(s"wrong dimensionality in the image data"))
-            } else if (imageData.pixelDimensionality != 1) {
-              Failure(new Exception("wrong pixel dimensionality in image data"))
-            } else {
-              val domain = DiscreteImageDomain3D(
-                Point3D(imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
-                Vector3D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
-                Index3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
+          imageData =>
+            {
+              if (!imageData.hasDimensionality(3)) {
+                Failure(new Exception(s"wrong dimensionality in the image data"))
+              } else if (imageData.pixelDimensionality != 1) {
+                Failure(new Exception("wrong pixel dimensionality in image data"))
+              } else {
+                val domain = DiscreteImageDomain3D(
+                  Point3D(imageData.origin(0).toFloat, imageData.origin(1).toFloat, imageData.origin(2).toFloat),
+                  Vector3D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
+                  Index3D(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
-              Success(DiscreteScalarImage3D(domain, imageData.data))
+                Success(DiscreteScalarImage3D(domain, imageData.data))
+              }
             }
-          }
         }
       case f if f.getAbsolutePath.endsWith(".vtk") =>
         val reader = new vtkStructuredPointsReader()
@@ -112,26 +115,27 @@ object ImageIO {
     }
   }
 
-  def read2DScalarImage[Scalar: ScalarValue : TypeTag](file: File): Try[DiscreteScalarImage2D[Scalar]] = {
+  def read2DScalarImage[Scalar: ScalarValue: TypeTag](file: File): Try[DiscreteScalarImage2D[Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
 
         val imageDataOrFailure = readHDF5[Scalar](f)
         imageDataOrFailure.flatMap {
-          imageData => {
-            if (!imageData.hasDimensionality(2)) {
-              Failure(new Exception("wrong dimensionality in the image data "))
-            } else if (imageData.pixelDimensionality != 1) {
-              Failure(new Exception("wrong pixel dimensionality in image data"))
-            } else {
-              val domain = DiscreteImageDomain2D(
-                Point2D(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
-                Vector2D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
-                Index2D(imageData.size(0).toInt, imageData.size(1).toInt))
-              Success(DiscreteScalarImage2D(domain, imageData.data))
+          imageData =>
+            {
+              if (!imageData.hasDimensionality(2)) {
+                Failure(new Exception("wrong dimensionality in the image data "))
+              } else if (imageData.pixelDimensionality != 1) {
+                Failure(new Exception("wrong pixel dimensionality in image data"))
+              } else {
+                val domain = DiscreteImageDomain2D(
+                  Point2D(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
+                  Vector2D(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
+                  Index2D(imageData.size(0).toInt, imageData.size(1).toInt))
+                Success(DiscreteScalarImage2D(domain, imageData.data))
+              }
             }
-          }
         }
       case f if f.getAbsolutePath.endsWith(".vtk") =>
         val reader = new vtkStructuredPointsReader()
@@ -152,7 +156,7 @@ object ImageIO {
     }
   }
 
-  private def readNifti[Scalar: ScalarValue : TypeTag : ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
+  private def readNifti[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
 
     val scalarConv = implicitly[ScalarValue[Scalar]]
 
@@ -172,17 +176,18 @@ object ImageIO {
       /* figure out the anisotropic scaling factor */
       val s = volume.header.pixdim
       val spacing = DenseVector(s(1), s(2), s(3))
-      val anisotropicScaling = AnisotropicScalingSpace3D()(spacing)
-      /* get a rigid registration by mapping a few points */
 
+      val anisotropicScaling = AnisotropicScalingSpace3D()(spacing)
+
+      /* get a rigid registration by mapping a few points */
       val origPs = List(Point3D(0, 0, nz), Point3D(0, ny, 0), Point3D(0, ny, nz), Point3D(nx, 0, 0), Point3D(nx, 0, nz), Point3D(nx, ny, 0), Point3D(nx, ny, nz))
       val scaledPS = origPs.map(anisotropicScaling)
       val imgPs = origPs.map(transVoxelToWorld)
 
       val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq)
-      val transform = AnisotropicSimilarityTransformationSpace3D().transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))      
-      val newDomain = DiscreteImageDomain3D(Index3D(nx, ny, nz), transform)
+      val transform = AnisotropicSimilarityTransformationSpace3D().transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
+      val newDomain = DiscreteImageDomain3D(Index3D(nx, ny, nz), transform)
       DiscreteScalarImage3D[Scalar](newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
     }
   }
@@ -199,9 +204,22 @@ object ImageIO {
 
     // check this page http://brainder.org/2012/09/23/the-nifti-file-format/
     // for details about the nifty format
-    if (volume.header.sform_code == 0) return Failure(new IOException("currently we can only read nifty format with sform_code > 0"))
+    if (volume.header.sform_code == 0 && volume.header.qform_code == 0)
+      return Failure(new IOException("cannot read nifti with both qform and sform codes set to 0"))
 
-    val affineTransMatrix = DenseMatrix.create(4, 4, volume.header.sformArray).t
+    val affineTransMatrix = if (volume.header.sform_code == 0 && volume.header.qform_code > 0)
+      DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t
+    else
+      DenseMatrix.create(4, 4, volume.header.sformArray).t
+
+    // flip scaling to account for RAS coordinates 
+    affineTransMatrix(0, 0) = -affineTransMatrix(0, 0)
+    affineTransMatrix(1, 1) = -affineTransMatrix(1, 1)
+  
+    //also flip origin (translation params) 
+    affineTransMatrix(0, 3) = -affineTransMatrix(0,3)
+    affineTransMatrix(1, 3) = -affineTransMatrix(1,3)
+
     val t = new Transformation[ThreeD] {
       def apply(x: Point[ThreeD]) = {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
@@ -251,7 +269,7 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[Scalar: ScalarValue : TypeTag : ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -260,7 +278,7 @@ object ImageIO {
     }
   }
 
-  def writeImage[Scalar: ScalarValue : TypeTag : ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -270,7 +288,7 @@ object ImageIO {
     }
   }
 
-  def writeImage[Scalar: ScalarValue : TypeTag : ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(img, file)
@@ -281,7 +299,7 @@ object ImageIO {
     }
   }
 
-  private[this] def writeNifti[Scalar: ScalarValue : TypeTag : ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+  private[this] def writeNifti[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
     val scalarConv = implicitly[ScalarValue[Scalar]]
 
     val domain = img.domain
@@ -297,31 +315,52 @@ object ImageIO {
         volume.data(i)(j)(k)(d) = scalarConv.toDouble(img(Index3D(i, j, k)))
       }
 
+      // params : (Translation++rotation++anisScaling)
+      val anisotropicTransformParams = img.domain.anisotropSimTransform.parameters.data
+      val translationParams = anisotropicTransformParams.take(3)
+      val rotationParams = anisotropicTransformParams.drop(3).take(3)
+      val scalingParams = anisotropicTransformParams.drop(6).take(3)
+
+      if ((DenseVector(scalingParams.map(Math.abs)) - domain.spacing.toBreezeVector).norm > 0.01f || (DenseVector(translationParams) - domain.origin.toBreezeVector).norm > 0.01f)
+        return Failure(new Exception("NiftiIO: indicated anistotropic similarity transform parameters mismatch with the image domain. params : " + scalingParams.deep + " domain spacing : " + domain.spacing))
+
+      val alpha = rotationParams(0)
+      val beta = rotationParams(1)
+      val gamma = rotationParams(2)
+
+      val ca = Math.cos(alpha); val sa = Math.sin(alpha);
+      val cb = Math.cos(beta); val sb = Math.sin(beta);
+      val cg = Math.cos(gamma); val sg = Math.sin(gamma);
+
+      /**
+       * Here to force the RAS view, we invert the first and second component of the anisotropic scaling
+       * We also flip the first two components of the translation to the origin
+       */
+
+      val M = DenseMatrix.zeros[Double](4, 4)
+      M(0, 0) = cb * cg * (domain.spacing(0) * -1f); M(0, 1) = -cb * sg; M(0, 2) = sb; M(0, 3) =   -domain.origin(0)
+      M(1, 0) = ca * sg + sa * sb * cg; M(1, 1) = -1f * (ca * cg - (sa * sb * sg)) * domain.spacing(1); M(1, 2) = -sa * cb; M(1, 3) = -domain.origin(1)
+      M(2, 0) = sa * sg - ca * sb * cg; M(2, 1) = (sa * cg + (ca * sb * sg)); M(2, 2) = domain.spacing(2) * (ca * cb); M(2, 3) = domain.origin(2)
+      M(3, 3) = 1
+
       // the header
       //  val header = new NiftiHeader()
       volume.header.setDatatype(niftyDataTypeFromScalar[Scalar])
       volume.header.qform_code = 0
       volume.header.sform_code = 2 // TODO check me that this is right
-      volume.header.srow_x(0) = domain.spacing(0)
-      volume.header.srow_x(1) = 0f
-      volume.header.srow_x(2) = 0f
-      volume.header.srow_x(3) = domain.origin(0)
-      volume.header.srow_y(0) = 0f
-      volume.header.srow_y(1) = domain.spacing(1)
-      volume.header.srow_y(2) = 0f
-      volume.header.srow_y(3) = domain.origin(1)
-      volume.header.srow_z(0) = 0f
-      volume.header.srow_z(1) = 0f
-      volume.header.srow_z(2) = domain.spacing(2)
-      volume.header.srow_z(3) = domain.origin(2)
+
+      volume.header.srow_x = M.t.toDenseVector.data.take(4).map(_.toFloat)
+      volume.header.srow_y = M.t.toDenseVector.data.drop(4).take(4).map(_.toFloat)
+      volume.header.srow_z = M.t.toDenseVector.data.drop(8).take(4).map(_.toFloat)
       volume.header.pixdim(1) = domain.spacing(0)
       volume.header.pixdim(2) = domain.spacing(1)
       volume.header.pixdim(3) = domain.spacing(2)
+
       volume.write(file.getAbsolutePath)
     }
   }
 
-  private[this] def niftyDataTypeFromScalar[Scalar: ScalarValue : TypeTag : ClassTag]: Short = {
+  private[this] def niftyDataTypeFromScalar[Scalar: ScalarValue: TypeTag: ClassTag]: Short = {
 
     typeOf[Scalar] match {
       case t if t =:= typeOf[Char] => 2
@@ -333,13 +372,13 @@ object ImageIO {
     }
   }
 
-  private def writeVTK[Scalar: ScalarValue : TypeTag : ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
+  private def writeVTK[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
 
     val imgVtk = ImageConversion.image2DTovtkStructuredPoints(img)
     writeVTKInternal(imgVtk, file)
   }
 
-  private def writeVTK[Scalar: ScalarValue : TypeTag : ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
+  private def writeVTK[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
     val imgVtk = ImageConversion.image3DTovtkStructuredPoints(img)
     writeVTKInternal(imgVtk, file)
   }
@@ -357,7 +396,7 @@ object ImageIO {
     }
   }
 
-  private def writeHDF5[D <: Dim, Scalar: TypeTag : ClassTag](img: DiscreteImage[D, Scalar], file: File): Try[Unit] = {
+  private def writeHDF5[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteImage[D, Scalar], file: File): Try[Unit] = {
 
     val maybeVoxelType = scalarTypeToString[Scalar]()
     if (maybeVoxelType.isEmpty) {
