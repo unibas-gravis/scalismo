@@ -6,7 +6,7 @@ import TransformationSpace.ParameterVector
 import scala.NotImplementedError
 import breeze.linalg.DenseVector
 
-import org.statismo.stk.core.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
+import org.statismo.stk.core.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import org.statismo.stk.core.geometry._
 
 case class GaussianProcessTransformationSpace1D(gp: GaussianProcess[OneD]) extends TransformationSpace[OneD] with DifferentiableTransforms[OneD] {
@@ -26,19 +26,17 @@ case class GaussianProcessTransformationSpace1D(gp: GaussianProcess[OneD]) exten
 
 }
 
-
 // the actual kernel transform
-case class GaussianProcessTransformation1D(gp : GaussianProcess[OneD], alpha: ParameterVector) extends Transformation[OneD] with CanDifferentiate[OneD]{
+case class GaussianProcessTransformation1D(gp: GaussianProcess[OneD], alpha: ParameterVector) extends ParametricTransformation[OneD] with CanDifferentiate[OneD] {
 
   val instance = gp.instance(alpha)
-
-  def apply(x: Point[OneD]) : Point[OneD] = {
+  val parameters = alpha
+  def apply(x: Point[OneD]): Point[OneD] = {
     val newPointAsVector = instance(x)
     Point1D(x(0) + newPointAsVector(0))
   }
   def takeDerivative(x: Point[OneD]) = { throw new NotImplementedError("take derivative of kernel") }
 }
-
 
 case class GaussianProcessTransformationSpace2D(gp: GaussianProcess[TwoD]) extends TransformationSpace[TwoD] with DifferentiableTransforms[TwoD] {
 
@@ -47,7 +45,6 @@ case class GaussianProcessTransformationSpace2D(gp: GaussianProcess[TwoD]) exten
   def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
 
   def parametersDimensionality = gp.rank
-
 
   def inverseTransform(p: ParameterVector) = None
 
@@ -59,18 +56,16 @@ case class GaussianProcessTransformationSpace2D(gp: GaussianProcess[TwoD]) exten
 }
 
 // the actual kernel transform
-case class GaussianProcessTransformation2D(gp : GaussianProcess[TwoD], alpha: ParameterVector) extends Transformation[TwoD] with CanDifferentiate[TwoD] {
+case class GaussianProcessTransformation2D(gp: GaussianProcess[TwoD], alpha: ParameterVector) extends ParametricTransformation[TwoD] with CanDifferentiate[TwoD] {
 
   val instance = gp.instance(alpha)
-
-  def apply(x: Point[TwoD]) : Point[TwoD] = {
+  val parameters = alpha
+  def apply(x: Point[TwoD]): Point[TwoD] = {
     val newPointAsVector = instance(x)
     Point2D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1))
   }
   def takeDerivative(x: Point[TwoD]) = { throw new NotImplementedError("take derivative of kernel") }
 }
-
-
 
 case class GaussianProcessTransformationSpace3D(gp: GaussianProcess[ThreeD]) extends TransformationSpace[ThreeD] with DifferentiableTransforms[ThreeD] {
 
@@ -79,7 +74,6 @@ case class GaussianProcessTransformationSpace3D(gp: GaussianProcess[ThreeD]) ext
   def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
 
   def parametersDimensionality = gp.rank
-
 
   def inverseTransform(p: ParameterVector) = None
 
@@ -91,17 +85,16 @@ case class GaussianProcessTransformationSpace3D(gp: GaussianProcess[ThreeD]) ext
 }
 
 // the actual kernel transform
-case class GaussianProcessTransformation3D(gp : GaussianProcess[ThreeD], alpha: ParameterVector) extends Transformation[ThreeD] with CanDifferentiate[ThreeD] {
+case class GaussianProcessTransformation3D(gp: GaussianProcess[ThreeD], alpha: ParameterVector) extends ParametricTransformation[ThreeD] with CanDifferentiate[ThreeD] {
 
   val instance = gp.instance(alpha)
-
-  def apply(x: Point[ThreeD]) : Point[ThreeD] = {
+  val parameters = alpha
+  def apply(x: Point[ThreeD]): Point[ThreeD] = {
     val newPointAsVector = instance(x)
     Point3D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1), x(2) + newPointAsVector(2))
   }
   def takeDerivative(x: Point[ThreeD]) = { throw new NotImplementedError("take derivative of kernel") }
 }
-
 
 object GaussianProcessTransformationSpace {
 
