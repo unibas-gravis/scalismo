@@ -3,7 +3,7 @@ package org.statismo.stk.core.io
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.lang.{Short => JShort, Float => JFloat, Long => JLong, Double => JDouble}
-import reflect.runtime.universe.{ TypeTag, typeOf }
+import reflect.runtime.universe.{TypeTag, typeOf}
 import java.nio.channels.FileChannel
 import scala.util.Try
 
@@ -15,7 +15,7 @@ import scala.util.Try
  *
  * 1. o.header.sform_to_mat44().flatten -> n.header.sformArray
  * 2. for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
- *    -> n.dataArray
+ * -> n.dataArray
  *
  * This class is optimized to massively outperform the original implementation when reading .nii files,
  * however it only supports the functionality that is absolutely required for our use case
@@ -32,7 +32,7 @@ import scala.util.Try
  *
  * @param file the RandomAccessFile in Nifti format (read only)
  */
-class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
+class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
   lazy val header: NiftiHeader = {
     val buf = ByteBuffer.allocate(348)
     file.readFully(buf.array())
@@ -81,7 +81,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       for (index <- 0 until array.length) {
         val value = buf.get.toDouble
         val fixedValue = if (unsigned && value < 0) value + 256 else value
-        array(index) = if(transform) doTransform(fixedValue) else fixedValue
+        array(index) = if (transform) doTransform(fixedValue) else fixedValue
       }
     }
 
@@ -90,7 +90,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       for (index <- 0 until array.length) {
         val value = (if (header.isLittleEndian) JShort.reverseBytes(buf.getShort) else buf.getShort).toDouble
         val fixedValue = if (unsigned && value < 0) Math.abs(value) + (1 << 15) else value
-        array(index) = if(transform) doTransform(fixedValue) else fixedValue
+        array(index) = if (transform) doTransform(fixedValue) else fixedValue
       }
     }
 
@@ -99,7 +99,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       for (index <- 0 until array.length) {
         val value = (if (header.isLittleEndian) Integer.reverseBytes(buf.getInt) else buf.getInt).toDouble
         val fixedValue = if (unsigned && value < 0) Math.abs(value) + (1 << 31) else value
-        array(index) = if(transform) doTransform(fixedValue) else fixedValue
+        array(index) = if (transform) doTransform(fixedValue) else fixedValue
       }
     }
 
@@ -108,7 +108,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       for (index <- 0 until array.length) {
         val value = (if (header.isLittleEndian) JLong.reverseBytes(buf.getLong) else buf.getLong).toDouble
         val fixedValue = if (unsigned && value < 0) Math.abs(value) + (1 << 63) else value
-        array(index) = if(transform) doTransform(fixedValue) else fixedValue
+        array(index) = if (transform) doTransform(fixedValue) else fixedValue
       }
     }
 
@@ -116,7 +116,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 4)
       for (index <- 0 until array.length) {
         val value = (if (header.isLittleEndian) JFloat.intBitsToFloat(Integer.reverseBytes(buf.getInt)) else buf.getFloat).toDouble
-        array(index) = if(transform) doTransform(value) else value
+        array(index) = if (transform) doTransform(value) else value
       }
     }
 
@@ -124,7 +124,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 8)
       for (index <- 0 until array.length) {
         val value = if (header.isLittleEndian) JDouble.longBitsToDouble(JLong.reverseBytes(buf.getLong)) else buf.getDouble
-        array(index) = if(transform) doTransform(value) else value
+        array(index) = if (transform) doTransform(value) else value
       }
     }
 
@@ -196,6 +196,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
      */
     class DirectArray[T: TypeTag](offset: Int, size: Int) {
       def apply(index: Int): T = {
+        if (index < 0 || index >= size) throw new ArrayIndexOutOfBoundsException
         typeOf[T] match {
           case t if t <:< typeOf[Short] => shortAt(offset + 2 * index).asInstanceOf[T]
           case t if t <:< typeOf[Float] => floatAt(offset + 4 * index).asInstanceOf[T]
@@ -204,14 +205,17 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       }
     }
 
-    lazy val dim = new DirectArray[Short](40,8)
+    lazy val dim = new DirectArray[Short](40, 8)
     lazy val datatype = shortAt(70)
-    lazy val pixdim = new DirectArray[Float](76,8)
+    lazy val pixdim = new DirectArray[Float](76, 8)
 
     lazy val vox_offset = floatAt(108)
     lazy val scl_slope = floatAt(112)
     lazy val scl_inter = floatAt(116)
+    lazy val qform_code = shortAt(252)
     lazy val sform_code = shortAt(254)
+    lazy val quatern_bcd = new DirectArray[Float](256, 3)
+    lazy val qoffset_xyz = new DirectArray[Float](268, 3)
 
     lazy val sformArray: Array[Double] = {
       val floats = new DirectArray[Float](280, 12)
@@ -221,6 +225,58 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       }
       doubles(15) = 1.0
       doubles
+    }
+
+    lazy val qform_to_mat44: Array[Array[Double]] = {
+      val qb: Double = quatern_bcd(0)
+      val qc: Double = quatern_bcd(1)
+      val qd: Double = quatern_bcd(2)
+      val qx: Double = qoffset_xyz(0)
+      val qy: Double = qoffset_xyz(1)
+      val qz: Double = qoffset_xyz(2)
+      val dx: Double = this.pixdim(1)
+      val dy: Double = this.pixdim(2)
+      val dz: Double = this.pixdim(3)
+      val qfac: Double = this.pixdim(0)
+
+      val R: Array[Array[Double]] = Array.ofDim[Double](4,4)
+
+      /* last row is always [ 0 0 0 1 ] */
+      R(3)(0) = 0.0
+      R(3)(1) = 0.0
+      R(3)(2) = 0.0
+      R(3)(3) = 1.0
+      var d: Double = qd
+      var c: Double = qc
+      var b: Double = qb
+      var a: Double = 1.0 - (b * b + c * c + d * d)
+      if (a < 1.e-7) {
+        a = 1.0 / Math.sqrt(b * b + c * c + d * d)
+        b *= a
+        c *= a
+        d *= a
+        a = 0.0
+      }
+      else {
+        a = Math.sqrt(a)
+      }
+      val xd: Double = if (dx > 0.0) dx else 1.0
+      val yd: Double = if (dy > 0.0) dy else 1.0
+      var zd: Double = if (dz > 0.0) dz else 1.0
+      if (qfac < 0.0) zd = -zd
+      R(0)(0) = (a * a + b * b - c * c - d * d) * xd
+      R(0)(1) = 2.0 * (b * c - a * d) * yd
+      R(0)(2) = 2.0 * (b * d + a * c) * zd
+      R(1)(0) = 2.0 * (b * c + a * d) * xd
+      R(1)(1) = (a * a + c * c - b * b - d * d) * yd
+      R(1)(2) = 2.0 * (c * d - a * b) * zd
+      R(2)(0) = 2.0 * (b * d - a * c) * xd
+      R(2)(1) = 2.0 * (c * d + a * b) * yd
+      R(2)(2) = (a * a + d * d - c * c - b * b) * zd
+      R(0)(3) = qx
+      R(1)(3) = qy
+      R(2)(3) = qz
+      R
     }
   }
 }
