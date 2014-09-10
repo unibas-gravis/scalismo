@@ -70,10 +70,13 @@ case class DiscreteImageDomain2D(size: Index[TwoD], anisotropSimTransform: Aniso
 
   private val iVecImage = anisotropSimTransform(Point2D(1, 0)) - anisotropSimTransform(Point2D(0, 0))
   private val jVecImage = anisotropSimTransform(Point2D(0, 1)) - anisotropSimTransform(Point2D(0, 0))
-  
-  if (iVecImage(1) != 0 || jVecImage(0) != 0 )
-    throw new NotImplementedError("DiscreteImageDomain needs to be oriented along the space axis in this version.")
-  
+
+  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
+  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
+
+  if (Math.abs(nomiVecImage(1)) > 0.001f || Math.abs(nomjVecImage(0)) > 0.001f )
+    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage}")
+
   override val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data).map(_.toDouble)
   override def spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
@@ -106,15 +109,20 @@ case class DiscreteImageDomain3D(size: Index[ThreeD], anisotropSimTransform: Ani
   override def spacing = Vector3D(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
 
   private val iVecImage = anisotropSimTransform(Point3D(1, 0, 0)) - anisotropSimTransform(Point3D(0, 0, 0))
-  private val jVecImage = anisotropSimTransform(Point3D(0, 1, 0)) - anisotropSimTransform(Point3D(0, 0, 0))
+  private val jVecImage = anisotropSimTransform(Point3D(0, 1, 0)) - anisotropSimTransform(Point3D(0, 0, 0)) 
   private val kVecImage = anisotropSimTransform(Point3D(0, 0, 1)) - anisotropSimTransform(Point3D(0, 0, 0))
+
+  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
+  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
+  private val nomkVecImage = kVecImage * (1.0 / kVecImage.norm)
 
   /**
    * To be removed after refactoring : we make sure that there is no rotation of the image domain in order to remain coherent with
    * the BoxedDomain implmentation that is assuming directions along the space axis.
    */
-  if (iVecImage(1) != 0 || iVecImage(2) != 0 || jVecImage(0) != 0 || jVecImage(2) != 0 || kVecImage(0) != 0 || kVecImage(1) != 0)
-    throw new NotImplementedError("DiscreteImageDomain needs to be oriented along the space axis in this version.")
+
+  if (Math.abs(nomiVecImage(1)) > 0.06f || Math.abs(nomiVecImage(2)) > 0.06f || Math.abs(nomjVecImage(0)) > 0.06f || Math.abs(nomjVecImage(2)) > 0.06f || Math.abs(nomkVecImage(0)) > 0.06f || Math.abs(nomkVecImage(1)) > 0.06f)
+    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage} k:${nomkVecImage}")
 
   val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data ++ (kVecImage * (1.0 / kVecImage.norm)).data).map(_.toDouble)
   val dimTraits = geometry.threeD
