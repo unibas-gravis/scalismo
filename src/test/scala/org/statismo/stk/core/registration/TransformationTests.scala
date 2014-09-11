@@ -187,24 +187,65 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val translationParams = DenseVector[Float](1.5, 1.0, 3.5)
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      
-      val rotation = RotationSpace3D(Point3D(0f,0f,0f))(DenseVector( Math.PI, -Math.PI / 2.0, -Math.PI)) 
+
+      val rotation = RotationSpace3D(Point3D(0f, 0f, 0f))(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
       val translation = TranslationSpace3D()(translationParams)
-          
+
       val composed = translation compose rotation
       val rigid = RigidTransformationSpace3D().transformForParameters(parameterVector)
 
       val transformedRigid = mesh.warp(rigid)
       val transformedComposed = mesh.warp(rigid)
-      
-      val diffNormMax = transformedRigid.points.zip(transformedComposed.points).map { case (p1,p2) => (p1-p2).norm}.max
+
+      val diffNormMax = transformedRigid.points.zip(transformedComposed.points).map { case (p1, p2) => (p1 - p2).norm }.max
       assert(diffNormMax < 0.00001)
-      
+
     }
 
   }
 
-  describe("A Transformation space") {
+  describe("An anisotropic similarity transform") {
+
+    val translationParams = DenseVector(1f, 2f, 3f)
+    val rotationParams = DenseVector(0f, Math.PI.toFloat / 2f, Math.PI.toFloat / 4f)
+    val anisotropScalingParams = DenseVector(2f, 3f, 1f)
+
+    val translation = TranslationSpace3D().transformForParameters(translationParams)
+    val rotation = RotationSpace3D(Point3D(0, 0, 0)).transformForParameters(rotationParams)
+    val anisotropicScaling = AnisotropicScalingSpace3D().transformForParameters(anisotropScalingParams)
+
+    val p = Point3D(1, 1, 1)
+    it("Anisotropic scaling is correctly invertible") {
+      val inverseScaling = anisotropicScaling.inverse
+      assert((inverseScaling(anisotropicScaling(p)) - p).norm < 0.1f)
+    }
+
+    val composedTrans = translation compose rotation compose anisotropicScaling
+    val combinedParams = DenseVector(translationParams.data ++ rotationParams.data ++ anisotropScalingParams.data)
+    val anisotropicSimTrans = AnisotropicSimilarityTransformationSpace3D().transformForParameters(combinedParams)
+
+    val rigidTransformation = RigidTransformationSpace3D().transformForParameters(DenseVector(translationParams.data ++ rotationParams.data))
+
+    it("yields the right result as a composition of unit transform") {
+      assert((anisotropicSimTrans(p) - composedTrans(p)).norm < 0.1f)
+    }
+
+    it("yields the right result as a composition of anisotropic scaling and rigid transform") {
+      val composedTrans2 = rigidTransformation compose anisotropicScaling
+      assert((anisotropicSimTrans(p) - composedTrans2(p)).norm < 0.1f)
+    }
+    
+    it("a rigid transformation is correctly invertible") {
+      val inverseRigid = rigidTransformation.inverse
+      assert((inverseRigid(rigidTransformation(p)) - p).norm < 0.1f)
+    }
+    
+
+    it("Anisotropic similarity is correctly invertible") {
+      val inverseTrans = anisotropicSimTrans.inverse
+      val shouldBeP = inverseTrans(anisotropicSimTrans(p))
+        assert((shouldBeP - p).norm < 0.1f)
+    }
 
   }
 
