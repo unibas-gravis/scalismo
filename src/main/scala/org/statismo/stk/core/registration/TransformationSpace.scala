@@ -491,7 +491,7 @@ trait AnisotropicSimilarityTransformation[D <: Dim] extends ProductTransformatio
 trait AnisotropicSimilarityTransformation3D extends AnisotropicSimilarityTransformation[ThreeD]
 
 private case class RigidTransformationThenAnisotropicScaling3D(anisotropicScaling: AnisotropicScalingTransformation3D, rigidTransform: RigidTransformation3DTransThenRot)
-  extends ProductTransformation[ThreeD](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation3D {
+  extends ProductTransformation[ThreeD](anisotropicScaling, rigidTransform) with AnisotropicSimilarityTransformation3D {
 
   def inverse: AnisotropicScalingThenRigidTransformation3D = new AnisotropicScalingThenRigidTransformation3D(rigidTransform.inverse, anisotropicScaling.inverse)
 }
