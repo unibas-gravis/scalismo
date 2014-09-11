@@ -12,6 +12,8 @@ import org.statismo.stk.core.common.ImplicitDomain1D
 import org.statismo.stk.core.common.BoxedDomain1D
 import org.statismo.stk.core.common.BoxedDomain2D
 import scala.language.implicitConversions
+import org.statismo.stk.core.io.ImageIO
+import java.io.File
 
 class ImageTest extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d : Double) = d.toFloat
@@ -131,6 +133,21 @@ class DomainTest extends FunSpec with ShouldMatchers {
       val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
       assert(recIdx === idx)
     }
+    
+    it("the anisotropic similarity transform defining the donmain is correct and invertible") {
+        val pathH5 = getClass.getResource("/3dimage.nii").getPath
+        val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+        
+        val trans = origImg.domain.anisotropSimTransform
+        val inverseTrans = trans.inverse
+        
+        assert( (trans(Point3D(0,0,0)) - origImg.domain.origin).norm < 0.1f)
+        assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
+               
+        assert( (trans(Point3D(origImg.domain.size(0)-1,origImg.domain.size(1)-1,origImg.domain.size(2)-1)) - origImg.domain.extent).norm < 0.1f)
+        assert( (inverseTrans(origImg.domain.extent) - Point3D(origImg.domain.size(0)-1,origImg.domain.size(1)-1,origImg.domain.size(2)-1)).norm < 0.1f)                                   
+    }
+    
   }
 
 }
