@@ -52,7 +52,7 @@ object Dependencies {
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
   val breezeMath = "org.scalanlp" % "breeze_2.10" % "0.7"
   val breezeNative = "org.scalanlp" % "breeze-natives_2.10" % "0.7"
-  val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.2.0"
+  val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.3.0"
 }
 
 object STKBuild extends Build {

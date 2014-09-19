@@ -99,7 +99,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       compareModels(model, newModel)
     }
 
-    org.statismo.stk.core.initialize
+    org.statismo.stk.core.initialize()
     val path = getClass().getResource("/facemodel.h5").getPath
     val model = StatismoIO.readStatismoMeshModel(new File(path)).get
     val newMesh = model.instance(DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat) * 2f)
