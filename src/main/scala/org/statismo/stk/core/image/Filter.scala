@@ -1,9 +1,6 @@
 package org.statismo.stk.core.image
 
 import org.statismo.stk.core.common.BoxedDomain
-import org.statismo.stk.core.common.BoxedDomain1D
-import org.statismo.stk.core.common.BoxedDomain2D
-import org.statismo.stk.core.common.BoxedDomain3D
 import org.statismo.stk.core.geometry._
 
 trait Filter[D <: Dim] extends Function1[Point[D], Float] {
@@ -20,7 +17,7 @@ case class GaussianFilter1D(stddev: Double) extends Filter[_1D] {
   }
 
   val extent = (3.0 * stddev).toFloat
-  def support = BoxedDomain1D(Point(-extent), Point(extent))
+  def support = BoxedDomain[_1D](Point(-extent), Point(extent))
 }
 
 case class GaussianFilter2D(stddev: Double) extends Filter[_2D] {
@@ -30,7 +27,7 @@ case class GaussianFilter2D(stddev: Double) extends Filter[_2D] {
   }
 
   val extent = (3.0 * stddev).toFloat
-  def support = BoxedDomain2D(Point(-extent, -extent), Point(extent, extent))
+  def support = BoxedDomain[_2D](Point(-extent, -extent), Point(extent, extent))
 }
 
 case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
@@ -44,7 +41,7 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
   }
 
   val extent = (3.0 * stddev).toFloat
-  def support = BoxedDomain3D(Point(-extent, -extent, -extent), Point(extent, extent, extent))
+  def support = BoxedDomain[_3D](Point(-extent, -extent, -extent), Point(extent, extent, extent))
 }
 
 case class BoxedFilter1D(width: Int) extends Filter[_1D] {
@@ -54,17 +51,17 @@ case class BoxedFilter1D(width: Int) extends Filter[_1D] {
     else if( p(0).abs == w) w
     else 0f
   }
-  def support = BoxedDomain1D(Point(-w), Point(w))
+  def support = BoxedDomain[_1D](Point(-w), Point(w))
 }
 
 case class BoxedFilter2D(width: Int) extends Filter[_2D] {
   def apply(p: Point[_2D]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2f
-  def support = BoxedDomain2D(Point(-w, -w), Point(w, w))
+  def support = BoxedDomain[_2D](Point(-w, -w), Point(w, w))
 }
 
 case class BoxedFilter3D(width: Int) extends Filter[_3D] {
   def apply(p: Point[_3D]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2f
-  def support = BoxedDomain3D(Point(-w, -w, -w), Point(w, w, w))
+  def support = BoxedDomain[_3D](Point(-w, -w, -w), Point(w, w, w))
 }
