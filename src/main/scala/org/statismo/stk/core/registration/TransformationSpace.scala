@@ -282,7 +282,10 @@ object RotationTransform {
   }
 }
 
-class ScalingSpace[D <: Dim: DimOps] extends TransformationSpace[D] with DifferentiableTransforms[D] {
+
+
+
+abstract class ScalingSpace[D <: Dim: DimOps] extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = ScalingTransformation[D]
 
@@ -294,19 +297,38 @@ class ScalingSpace[D <: Dim: DimOps] extends TransformationSpace[D] with Differe
     require(p.length == parametersDimensionality)
     ScalingTransformation[D](p(0))
   }
+}
 
-  override def takeDerivativeWRTParameters(p: ParameterVector) = {
+private class ScalingSpace3D extends ScalingSpace[_3D] {
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[_3D] => DenseMatrix(x(0), x(1), x(2))}
+}
 
-    val df = implicitly[DimOps[D]].toInt match {
-      case 3 => x: Point[_3D] => DenseMatrix(x(0), x(1), x(2))
-      case 2 => x: Point[_2D] => DenseMatrix(x(0), x(1))
-    }
-    df.asInstanceOf[Point[D] => DenseMatrix[Float]]
-  }
+private class ScalingSpace2D extends ScalingSpace[_2D] {
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[_2D] => DenseMatrix(x(0), x(1))}
+}
+
+private class ScalingSpace1D extends ScalingSpace[_1D] {
+  override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[_1D] => DenseMatrix(x(0))}
 }
 
 object ScalingSpace {
-  def apply[D <: Dim: DimOps] = new ScalingSpace[D]
+  
+  trait Create[D <: Dim] {
+    def createScalingSpace : ScalingSpace[D]
+  }
+  implicit object createScalingSpace1D extends Create[_1D] {
+    override def createScalingSpace : ScalingSpace[_1D] = new ScalingSpace1D
+  }
+ 
+  implicit object createScalingSpace2D extends Create[_2D] {
+    override def createScalingSpace : ScalingSpace[_2D] = new ScalingSpace2D
+  }
+  
+   implicit object createScalingSpace3D extends Create[_3D] {
+    override def createScalingSpace : ScalingSpace[_3D] = new ScalingSpace3D
+  }
+   
+  def apply[D <: Dim: DimOps]()(implicit ev  : Create[D]) = ev.createScalingSpace
 
 }
 
