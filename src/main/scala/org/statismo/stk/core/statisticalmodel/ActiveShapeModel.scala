@@ -8,13 +8,13 @@ import org.statismo.stk.core.image.{ContinuousScalarImage, ContinuousScalarImage
 import org.statismo.stk.core.common.{DiscreteDomain, PointData}
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
-import org.statismo.stk.core.common.UnstructuredPointsDomain
 import org.statismo.stk.core.io.{HDF5File, HDF5ReadWrite}
 import ncsa.hdf.`object`.Group
 import scala.util.Try
+import org.statismo.stk.core.common.SpatiallyIndexedFiniteDiscreteDomain
 
 
-case class ASMProfileDistributions(val domain: UnstructuredPointsDomain[_3D], val values: Array[MultivariateNormalDistribution]) extends PointData[_3D, MultivariateNormalDistribution] {
+case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDomain[_3D], val values: Array[MultivariateNormalDistribution]) extends PointData[_3D, MultivariateNormalDistribution] {
   require(domain.numberOfPoints == values.size)
 
 }
@@ -111,7 +111,7 @@ object ActiveShapeModel {
       def apply(model : ActiveShapeModel[_], curFit : TriangleMesh, ptId : Int) : Seq[Point[_3D]] = {
 
 
-      val curFitPt = curFit.points(ptId)
+      val curFitPt = curFit.points.toIndexedSeq(ptId)
       val interval = searchDistance * 2 / numberOfPoints
 
       val normalUnnormalized = curFit.normalAtPoint(curFitPt)
@@ -146,12 +146,12 @@ object ActiveShapeModel {
 
       // extract features for the given pointsfrom all training datasets
       val featureVectorsAtPt = for ((image, targetSurface) <- trainingDataSurfaces) yield {
-        val surfacePt = targetSurface.points(ptId)
+        val surfacePt = targetSurface.points.toIndexedSeq(ptId)
         featureExtractor(image, targetSurface, surfacePt)
       }
       MultivariateNormalDistribution.estimateFromData(featureVectorsAtPt)
     }
-    val pointData = new ASMProfileDistributions(new UnstructuredPointsDomain[_3D](profilePts), featureDistributions.toArray)
+    val pointData = new ASMProfileDistributions(SpatiallyIndexedFiniteDiscreteDomain.fromSeq[_3D](profilePts), featureDistributions.toArray)
     new ActiveShapeModel(model, pointData, featureExtractor)
   }
 
@@ -204,7 +204,7 @@ object ActiveShapeModel {
   private[this] def findBestCorrespondingPoints[FE <: ActiveShapeModel.FeatureExtractor](model: ActiveShapeModel[FE], curFit: TriangleMesh, targetImage: ContinuousScalarImage3D, ptGenerator: SearchPointSampler, config: ASMFittingConfig): IndexedSeq[(Int, Point[_3D])] = {
     val searchPts = model.intensityDistributions.domain.points
     val refPtsToSearchWithId = searchPts.map(pt => model.mesh.findClosestPoint(pt))
-    val matchingPts = for ((pt, id) <- refPtsToSearchWithId.par) yield {
+    val matchingPts = for ((pt, id) <- refPtsToSearchWithId.toIndexedSeq.par) yield {
       (id, findBestMatchingPointAtPoint(model, curFit, id, targetImage, ptGenerator, config))
     }
     val matchingPtsWithinDist = for ((id, optPt) <- matchingPts if optPt.isDefined) yield (id, optPt.get)
@@ -216,8 +216,8 @@ object ActiveShapeModel {
    * Retuns Some(Point) if its feature vector is close to a trained feature in terms of the mahalobis distance, otherwise None
    */
   private[this] def findBestMatchingPointAtPoint[FE <: ActiveShapeModel.FeatureExtractor](model: ActiveShapeModel[FE], curFit: TriangleMesh, ptId: Int, targetImage: ContinuousScalarImage3D, ptGenerator: SearchPointSampler, config: ASMFittingConfig): Option[Point[_3D]] = {
-    val refPt = model.mesh.points(ptId)
-    val curPt = curFit.points(ptId)
+    val refPt = model.mesh.points.toIndexedSeq(ptId)
+    val curPt = curFit.points.toIndexedSeq(ptId)
     val samplePts = ptGenerator(model, curFit, ptId)
 
     val ptsWithDists = for (imgPt <- samplePts) yield {

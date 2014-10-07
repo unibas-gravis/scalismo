@@ -2,12 +2,12 @@ package org.statismo.stk.core
 package mesh
 
 import org.statismo.stk.core.common._
-import org.statismo.stk.core.geometry.{Point, _3D, Vector}
+import org.statismo.stk.core.geometry.{ Point, _3D, Vector }
 import org.statismo.stk.core.common.Cell
 import scala.reflect.ClassTag
-import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.common.BoxedDomain
 import scala.collection.mutable
-
+import org.statismo.stk.core.geometry.DimOps
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
@@ -15,38 +15,32 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
-
-case class TriangleMesh private(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) extends UnstructuredPointsDomainBase[_3D](meshPoints) {
+class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) 
+	extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
   private[this] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
-
 
   private[this] def updateCellMapForPtId(ptId: Int, cell: TriangleCell): Unit = {
     val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
     cellMap.update(ptId, cellsForKey :+ cell)
   }
 
-
   if (!cellMapOpt.isDefined)
     for (cell <- cells) {
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
-
-  //verify that there all points belong to a cell
-  //require(cellMap.size == meshPoints.size, { println("Provided mesh data contains points not belonging to any cell !") })
-
-
+ 
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
 
-  def boundingBox: BoxedDomain3D = {
+  def boundingBox: BoxedDomain[_3D] = {
     val minx = points.map(_(0)).min
     val miny = points.map(_(1)).min
     val minz = points.map(_(2)).min
     val maxx = points.map(_(0)).max
     val maxy = points.map(_(1)).max
     val maxz = points.map(_(2)).max
-    BoxedDomain3D(Point(minx, miny, minz), Point(maxx, maxy, maxz))
+    BoxedDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
   def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
@@ -101,18 +95,16 @@ case class TriangleMesh private(meshPoints: IndexedSeq[Point[_3D]], cells: Index
   }
 }
 
-
 object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 }
 
-
-case class ScalarMeshData[S: ScalarValue : ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
+case class ScalarMeshData[S: ScalarValue: ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
   require(mesh.numberOfPoints == values.size)
   val valueDimensionality = 1
   override val domain = mesh
 
-  override def map[S2: ScalarValue : ClassTag](f: S => S2): ScalarPointData[_3D, S2] = {
+  override def map[S2: ScalarValue: ClassTag](f: S => S2): ScalarPointData[_3D, S2] = {
     ScalarMeshData(mesh, values.map(f))
   }
 }

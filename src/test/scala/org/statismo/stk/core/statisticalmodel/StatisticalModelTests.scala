@@ -12,7 +12,6 @@ import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.registration.RigidTransformationSpace
 import org.statismo.stk.core.registration.RigidTransformation
 
-
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
@@ -54,10 +53,12 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       lambdas should equal(newLambdas)
 
       // evaluating the newGP at the points of the mesh should yield the same deformations as the original gp
-      for (pt <- mesh.points.par) {
+
+      for (pt <- mesh.pointSeq.par) {
         for (d <- 0 until 3) {
           gp.mean(pt)(d) should be(newGP.mean(pt)(d) plusOrMinus 1e-5)
         }
+
 
         for (i <- 0 until newLambdas.size) {
           val phi_iAtPoint = phis(i)(pt)
@@ -78,10 +79,10 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
 
       val newModel = StatisticalMeshModel.transform(StatisticalMeshModel.transform(model, rigidTransform), inverseTransform)
-      val randParams = DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat)
-
+      val randParams = DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat) * 0.01f
       val instance1 = model.instance(randParams)
       val instance2 = newModel.instance(randParams)
+
 
       val diffs = instance1.points.zip(instance2.points).map {
         case (p1, p2) => (p1 - p2).norm
@@ -94,20 +95,16 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
     val newMesh = model.instance(DenseVector.rand(model.gp.eigenPairs.size).map(_.toFloat) * 2f)
     val newModel = StatisticalMeshModel.changeMesh(model, newMesh)
 
+
     def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel) {
+      val oldMean = oldModel.mean
 
       val newMean = newModel.mean
-      val oldMean = oldModel.mean
-      newMean.points.zip(oldMean.points).foreach {
-        case (p1, p2) => assert((p1 - p2).norm < 0.001f)
-      }
-
-      val instanceCoeffs = DenseVector.rand(oldModel.gp.eigenPairs.size).map(_.toFloat)
+      newMean.points.zip(oldMean.points).foreach { case (p1, p2) => assert((p1 - p2).norm < 0.001f) }
+      val instanceCoeffs = DenseVector.rand(oldModel.gp.eigenPairs.size).map(_.toFloat) * 0.01f
       val instanceOldModel = oldModel.instance(instanceCoeffs)
       val instanceNewModel = newModel.instance(instanceCoeffs)
-      instanceNewModel.points.zip(instanceOldModel.points).foreach {
-        case (p1, p2) => assert((p1 - p2).norm < 0.001f)
-      }
+      instanceNewModel.points.toIndexedSeq.zip(instanceOldModel.points.toIndexedSeq).foreach { case (p1, p2) => assert((p1 - p2).norm < 0.001f) }
     }
 
     it("can change the mean shape and still yield the same shape space") {

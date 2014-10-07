@@ -9,9 +9,7 @@ import org.statismo.stk.core.numerics._
 import breeze.linalg.DenseVector
 import java.io.File
 import org.statismo.stk.core.kernels._
-import org.statismo.stk.core.common.BoxedDomain1D
-import org.statismo.stk.core.common.BoxedDomain2D
-import org.statismo.stk.core.common.BoxedDomain3D
+import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.io.StatismoIO
 import org.statismo.stk.core.registration.Transformation
 
@@ -20,7 +18,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
   describe("A Gaussian process regression") {
     it("keeps the landmark points fixed for a 1D case") {
-      val domain = BoxedDomain1D(-5.0f, 5f)
+      val domain = BoxedDomain[_1D](-5.0f, 5f)
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(5))
       val config = LowRankGaussianProcessConfiguration[_1D](domain, UniformSampler1D(domain, 500), _ => Vector(0f), kernel, 100)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess1D(config)
@@ -35,7 +33,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
 
     it("yields a larger posterior variance for points that are less strongly constrained") {
-      val domain = BoxedDomain1D(-5.0f, 5f)
+      val domain = BoxedDomain[_1D](-5.0f, 5f)
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(1.0))
       val config = LowRankGaussianProcessConfiguration[_1D](domain, UniformSampler1D(domain, 500), _ => Vector(0f), kernel, 100)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess1D(config)
@@ -53,7 +51,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
 
     it("keeps the landmark points fixed for a 2D case") {
-      val domain = BoxedDomain2D((-5.0f, -5.0f), (5.0f, 5.0f))
+      val domain = BoxedDomain[_2D]((-5.0f, -5.0f), (5.0f, 5.0f))
       val config = LowRankGaussianProcessConfiguration[_2D](domain, UniformSampler2D(domain, 400), _ => Vector(0.0, 0.0), UncorrelatedKernel2x2(GaussianKernel2D(5)), 100)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess2D(config)
 
@@ -67,7 +65,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     }
 
     it("keeps the landmark points fixed for a 3D case") {
-      val domain = BoxedDomain3D((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxedDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val config = LowRankGaussianProcessConfiguration[_3D](domain, UniformSampler3D(domain, 6 * 6 * 6), _ => Vector(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 50)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(config)
 
@@ -87,7 +85,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
   describe("a lowRankGaussian process") {
     object Fixture {
-      val domain = BoxedDomain3D((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxedDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = UniformSampler3D(domain, 7 * 7 * 7)
       val kernel = UncorrelatedKernel3x3(GaussianKernel3D(10))
       val gp = {
@@ -156,7 +154,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         }
       }
 
-      val domain = BoxedDomain3D((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxedDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = UniformSampler3D(domain, 7 * 7 * 7)
       val kernel = covKernel
       val gp = {
@@ -180,7 +178,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
   describe("a specialized Gaussian process") {
 
     object Fixture {
-      val domain = BoxedDomain3D((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxedDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = UniformSampler3D(domain, 6 * 6 * 6)
       val gp = {
         val config = LowRankGaussianProcessConfiguration[_3D](domain, sampler, _ => Vector(0.0, 0.0, 0.0), UncorrelatedKernel3x3(GaussianKernel3D(5)), 100)
@@ -251,7 +249,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
       val samples = for (i <- 0 until 10) yield model.sample
       val transforms = for (s <- samples) yield new Transformation[_3D] {
-        val samplePts = s.points.force
+        val samplePts = s.pointSeq
 
         override def apply(x: Point[_3D]): Point[_3D] = {
           val (_, ptId) = model.mesh.findClosestPoint(x)
