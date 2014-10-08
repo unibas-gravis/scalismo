@@ -22,6 +22,7 @@ abstract class DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends
   def isDefinedAt(idx: Index[D]): Boolean = {
     (0 until domain.dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
   }
+  override lazy val hashCode = super.hashCode
 
 }
 
@@ -33,7 +34,6 @@ abstract class DiscreteScalarImage[D <: Dim, Pixel] extends DiscreteImage[D, Pix
 case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain1D, val values: Array[Pixel]) extends DiscreteScalarImage[OneD, Pixel] {
   require(domain.numberOfPoints == values.size)
   def map[@specialized(Short, Float) A: ScalarValue : ClassTag](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.values.map(f))
-
 }
 
 case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain2D, val values: Array[Pixel]) extends DiscreteScalarImage[TwoD, Pixel] {
