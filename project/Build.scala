@@ -13,7 +13,7 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
+    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
     shellPrompt := ShellPrompt.buildShellPrompt)
 }
 
