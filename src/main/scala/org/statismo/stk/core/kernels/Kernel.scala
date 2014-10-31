@@ -256,7 +256,6 @@ object Kernel {
 
     val createVector = implicitly[DimTraits[D]].createVector _ // get the create vector function for the right dimension
 
-    val volumeOfSampleRegion = sampler.volumeOfSampleRegion
 
     val (ptsForNystrom, _) = sampler.sample.unzip
 
@@ -266,11 +265,11 @@ object Kernel {
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
 
-    // TODO check that this is also correct for non-rectangular domains
-    val lambda = lambdaMat.map(lmbda => (volumeOfSampleRegion / effectiveNumberOfPointsSampled.toDouble) * lmbda)
+
+    val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble) )
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
 
-    val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled / volumeOfSampleRegion) * pinv(diag(lambdaMat(0 until numParams)))
+    val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled) * pinv(diag(lambdaMat(0 until numParams)))
 
     def computePhis(x: Point[D]): DenseMatrix[Double] = computeKernelVectorFor(x, ptsForNystrom, k) * W
     val computePhisMemoized = Memoize(computePhis, 1000)
