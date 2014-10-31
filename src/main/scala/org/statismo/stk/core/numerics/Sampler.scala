@@ -28,7 +28,7 @@ trait Sampler[D <: Dim, +Pt <: Point[D]] {
 case class UniformSampler1D(val domain: BoxedDomain1D, val numberOfPoints: Int)  extends Sampler[OneD, Point1D]{
 
   def volumeOfSampleRegion = domain.volume
-  val p = 1.0 / domain.volume
+  val p =  1.0 / domain.volume
 
   override def sample = {
     val step = (domain.extent(0) - domain.origin(0)) / numberOfPoints.toFloat
