@@ -18,13 +18,14 @@ case class DiscreteGaussianProcessConfiguration[D <: Dim] (
                                                             val points: IndexedSeq[Point[D]],
                                                             val cov: MatrixValuedPDKernel[D,D])
 
-case class DiscreteGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
-                                                        val mean: Point[D] => Vector[D], val points: IndexedSeq[Point[D]], val cov: MatrixValuedPDKernel[D,D]) extends GaussianProcess[D] {
+case class DiscreteGaussianProcess[D <: Dim: DimTraits](_domain: Domain[D],
+                                                        _mean: Point[D] => Vector[D], val points: IndexedSeq[Point[D]], _cov: MatrixValuedPDKernel[D,D])
+  extends GaussianProcess[D](_domain, _mean, _cov) {
 
   override protected val dimTraits = implicitly[DimTraits[D]]
   def outputDim = dimTraits.dimensionality
   private def N = points.size
-  override val rank = points.size*outputDim
+  val rank = points.size*outputDim
 
   def instance(alpha: DenseVector[Float]): Point[D] => Vector[D] = {
 
@@ -59,14 +60,6 @@ case class DiscreteGaussianProcess[D <: Dim: DimTraits](val domain: Domain[D],
       J(::,(i*dim) until (i*dim + dim)) := cov(points(i),x).toBreezeMatrix
     })
     J
-  }
-
-  /**
-   * Compute the marginal distribution for the given point
-   */
-
-  def marginal(pt: Point[D]): MVNormalForPoint[D] = {
-    MVNormalForPoint(pt, mean(pt), cov(pt, pt))
   }
 
 
