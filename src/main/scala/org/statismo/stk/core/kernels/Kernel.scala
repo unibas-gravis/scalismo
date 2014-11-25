@@ -196,7 +196,7 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
 
 object Kernel {
 
-  def computeKernelMatrix[D <: Dim](xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
+  def computeKernelMatrix[D <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
     val d = k.outputDim
 
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
