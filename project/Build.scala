@@ -4,7 +4,7 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin._
         
 object BuildSettings {
   val buildOrganization = "org.statismo"
-  val buildVersion = "0.3.8"
+  val buildVersion = "0.4.1"
   val buildScalaVersion = "2.10.4"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
@@ -12,6 +12,8 @@ object BuildSettings {
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
+    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
+    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
     shellPrompt := ShellPrompt.buildShellPrompt)
 }
 
@@ -52,7 +54,7 @@ object Dependencies {
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
   val breezeMath = "org.scalanlp" % "breeze_2.10" % "0.7"
   val breezeNative = "org.scalanlp" % "breeze-natives_2.10" % "0.7"
-  val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.3.1"
+  val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.5.0"
 }
 
 object STKBuild extends Build {
