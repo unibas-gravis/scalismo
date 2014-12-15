@@ -18,9 +18,9 @@ case class Integrator[D <: Dim: DimOps](configuration: IntegratorConfiguration[D
   def integrateScalar(f: Function1[Point[D], Option[Float]]): Float = {
     val samples = configuration.sampler.sample
 
-    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * 1f / p.toFloat }.sum
+    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * (1f / p.toFloat)}.sum
 
-    sum / (sampler.numberOfPoints - 1).toFloat
+    sum / samples.size
   }
 
   def integrateVector(img: ContinuousVectorImage[D]): Vector[D] = {

@@ -10,11 +10,72 @@ import breeze.linalg.DenseVector
 import java.io.File
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.common.BoxedDomain
+
 import org.statismo.stk.core.io.StatismoIO
 import org.statismo.stk.core.registration.Transformation
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
+
+
+  describe("samples from a gaussian process") {
+
+    def testVarianceForGP(gp : GaussianProcess[_1D], domain : BoxedDomain[_1D]): Unit = {
+      val numPoints = 3
+      val sampler = UniformDistributionRandomSampler1D(domain, numPoints)
+      val (pts, _) = sampler.sample.unzip
+
+      val numSamples = 500
+      def sampleValueForIthPoint(i : Int) = for (_ <- 0 until numSamples) yield {
+        val (_, vecs) = gp.sampleAtPoints(pts).unzip
+        vecs(i)(0)
+      }
+
+      // choose an arbitrary point of the domain and check that its mean and variance is correct
+
+      def testAtIthPoint(i : Int) {
+        val sampleValuesAtPt = sampleValueForIthPoint(i)
+        val meanAtPt= sampleValuesAtPt.sum / numSamples
+        val varAtPt = (sampleValuesAtPt.foldLeft(0.0f)((acc, e) => acc + (e - meanAtPt) * (e - meanAtPt))) / numSamples
+
+        meanAtPt should be(0.0f plusOrMinus (3e-1f))
+        varAtPt should be(1.0f plusOrMinus (3e-1f))
+      }
+      for (i <- 0 until numPoints) testAtIthPoint(i)
+    }
+
+    it("have the correct mean and variance for a full gp") {
+      val domain = BoxedDomain[_1D](Point(-1.0), Point(1.0))
+      val m = (_ : Point[_1D]) => Vector(0)
+      val k = UncorrelatedKernel1x1(GaussianKernel1D(2.0))
+      val gp = GaussianProcess[_1D](domain, m, k)
+      testVarianceForGP(gp, domain)
+    }
+
+    it("have the correct mean and variance for a low-rank gp") {
+      val domain = BoxedDomain[_1D](Point(-1.0), Point(1.0))
+      val m = (_ : Point[_1D]) => Vector(0)
+      val k = UncorrelatedKernel1x1(GaussianKernel1D(2.0))
+      val sampler = UniformDistributionRandomSampler1D(domain, 500)
+      val lgp = LowRankGaussianProcess.createLowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain, sampler, m, k, 100))
+
+      testVarianceForGP(lgp, domain)
+    }
+
+    it("have the correct mean and variance for a specialized low-rank gp") {
+
+      val domain = BoxedDomain[_1D](Point(-1.0), Point(1.0))
+      val m = (_ : Point[_1D]) => Vector(0)
+      val k = UncorrelatedKernel1x1(GaussianKernel1D(2.0))
+      val sampler = UniformDistributionRandomSampler1D(domain, 500)
+      val (pts, _) = sampler.sample.unzip
+      val lgp = LowRankGaussianProcess.createLowRankGaussianProcess1D(LowRankGaussianProcessConfiguration(domain, sampler, m, k, 100))
+
+      testVarianceForGP(lgp.specializeForPoints(pts), domain)
+
+    }
+
+  }
 
   describe("A Gaussian process regression") {
     it("keeps the landmark points fixed for a 1D case") {
@@ -272,4 +333,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       }
     }
   }
+
+
+
 }

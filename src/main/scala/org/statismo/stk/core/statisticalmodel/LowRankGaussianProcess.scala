@@ -12,32 +12,18 @@ import breeze.stats.distributions.Gaussian
 import breeze.stats.mean
 
 case class LowRankGaussianProcessConfiguration[D <: Dim](
-  val domain: Domain[D],
-  val sampler: Sampler[D],
-  val mean: Point[D] => Vector[D],
-  val cov: MatrixValuedPDKernel[D, D],
-  val numBasisFunctions: Int)
+                                                          val domain: Domain[D],
+                                                          val sampler: Sampler[D],
+                                                          val mean: Point[D] => Vector[D],
+                                                          val cov: MatrixValuedPDKernel[D, D],
+                                                          val numBasisFunctions: Int)
 
-class LowRankGaussianProcess[D <: Dim: DimOps](val domain: Domain[D],
-  val mean: Point[D] => Vector[D],
-  val eigenPairs: IndexedSeq[(Float, Point[D] => Vector[D])])
-  extends GaussianProcess[D] {
+class LowRankGaussianProcess[D <: Dim: DimOps](domain: Domain[D],
+                                                  mean: Point[D] => Vector[D],
+                                                  val eigenPairs: IndexedSeq[(Float, Point[D] => Vector[D])])
+  extends GaussianProcess[D](domain, mean, LowRankGaussianProcess.covFromEigenpairs(eigenPairs)) {
 
   def rank = eigenPairs.size
-
-  val cov: MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
-    def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
-      val ptDim = implicitly[DimOps[D]].toInt
-      val phis = eigenPairs.map(_._2)
-
-      var outer = MatrixNxN.zeros[D]
-      for ((lambda_i, phi_i) <- eigenPairs) {
-        outer = outer + (phi_i(x) outer phi_i(y)) * lambda_i
-      }
-      outer
-
-    }
-  }
 
   def instance(alpha: DenseVector[Float]): Point[D] => Vector[D] = {
     require(eigenPairs.size == alpha.size)
@@ -54,6 +40,13 @@ class LowRankGaussianProcess[D <: Dim: DimOps](val domain: Domain[D],
   def sample: Point[D] => Vector[D] = {
     val coeffs = for (_ <- 0 until eigenPairs.size) yield Gaussian(0, 1).draw().toFloat
     instance(DenseVector(coeffs.toArray))
+  }
+
+
+
+  override def sampleAtPoints(pts : Seq[Point[D]]) : Seq[(Point[D], Vector[D])] = {
+    val aSample = sample
+    pts.map(pt => (pt, aSample(pt)))
   }
 
   def jacobian(p: DenseVector[Float]) = { x: Point[D] =>
@@ -74,12 +67,6 @@ class LowRankGaussianProcess[D <: Dim: DimOps](val domain: Domain[D],
     SpecializedLowRankGaussianProcess(this, points)
   }
 
-  /**
-   * Compute the marginal distribution for the given point
-   */
-  def marginal(pt: Point[D]): MVNormalForPoint[D] = {
-    MVNormalForPoint(pt, mean(pt), cov(pt, pt))
-  }
 
   def project(trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double = 1e-6): (Point[D] => Vector[D]) = {
     val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
@@ -265,6 +252,27 @@ object LowRankGaussianProcess {
     val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
     new LowRankGaussianProcess3D(configuration.domain, configuration.mean, eigenPairs)
   }
+
+
+
+  private def covFromEigenpairs[D <: Dim : DimOps](eigenPairs : IndexedSeq[(Float, Point[D] => Vector[D])]) : MatrixValuedPDKernel[D, D]= {
+    val dimOps = implicitly[DimOps[D]]
+    val cov: MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
+      def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
+        val ptDim = dimOps.toInt
+        val phis = eigenPairs.map(_._2)
+
+        var outer = MatrixNxN.zeros[D]
+        for ((lambda_i, phi_i) <- eigenPairs) {
+          outer = outer + (phi_i(x) outer phi_i(y)) * lambda_i
+        }
+        outer
+
+      }
+    }
+    cov
+  }
+
 
   /**
    * create a LowRankGaussianProcess using PCA

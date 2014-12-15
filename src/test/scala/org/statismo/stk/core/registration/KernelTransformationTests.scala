@@ -59,7 +59,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
 
       //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
-      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / numPoints), eigPairsApprox.size)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix  * (1.0 / numPoints), eigPairsApprox.size)
 
       for (l <- approxLambdas.zipWithIndex)
         l._1 should be(realLambdas(l._2).toFloat plusOrMinus 0.1f)
@@ -86,7 +86,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       }
 
  
-      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (domain.volume / pts.size), eigPairsApprox.size)
+      val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (1.0 / pts.size), eigPairsApprox.size)
       for (l <- approxLambdas.zipWithIndex)
         l._1 should be(realLambdas(l._2).toFloat plusOrMinus 0.1)
 
@@ -102,8 +102,13 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val integrator = Integrator(IntegratorConfiguration(sampler))
 
       for (i <- 0 until 20) {
-        val (_, phi_i) = eigPairs(i)
-        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0), Some((_: Point[_1D]) => Vector(0.0)))
+
+
+    	val (lambda_i, phi_i) = eigPairs(i)
+        def p(x : Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
+        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), Some(Point1D => Vector(0.0)))
+
+
         val v = integrator.integrateScalar(phiImg)
         v should be(1f plusOrMinus 0.1)
       }
