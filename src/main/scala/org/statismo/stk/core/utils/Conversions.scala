@@ -10,7 +10,7 @@ import org.statismo.stk.core.image.DiscreteScalarImage2D
 import org.statismo.stk.core.geometry._
 import vtk.vtkStructuredPoints
 import vtk.vtkInformation
-import reflect.runtime.universe.{TypeTag, typeOf}
+import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.NotImplementedError
 import scala.reflect.ClassTag
 import scala.util.Try
@@ -44,7 +44,7 @@ object VTKHelpers {
   val VTK_DOUBLE = 11
   val VTK_ID_TYPE = 12
 
-  def getVtkScalarType[Pixel: ScalarValue : TypeTag]: Int = {
+  def getVtkScalarType[Pixel: ScalarValue: TypeTag]: Int = {
     typeOf[Pixel] match {
       case t if t =:= typeOf[Byte] => VTK_CHAR
       case t if t =:= typeOf[Short] => VTK_SHORT
@@ -216,7 +216,7 @@ object MeshConversion {
     pd
   }
 
-  def meshDataToVtkPolyData[S: ScalarValue : ClassTag : TypeTag](meshData: ScalarMeshData[S]): vtkPolyData = {
+  def meshDataToVtkPolyData[S: ScalarValue: ClassTag: TypeTag](meshData: ScalarMeshData[S]): vtkPolyData = {
     val pd = meshToVTKPolyData(meshData.mesh)
     val scalarData = VTKHelpers.createVtkDataArray(meshData.values, meshData.valueDimensionality) // TODO make this more general
     pd.GetPointData().SetScalars(scalarData)
@@ -225,7 +225,7 @@ object MeshConversion {
 }
 
 object ImageConversion {
-  def image2DTovtkStructuredPoints[Pixel: ScalarValue : ClassTag : TypeTag](img: DiscreteScalarImage2D[Pixel]): vtkStructuredPoints = {
+  def image2DTovtkStructuredPoints[Pixel: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage2D[Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     val domain = img.domain
     sp.SetDimensions(domain.size(0), domain.size(1), 1)
@@ -241,7 +241,7 @@ object ImageConversion {
     sp
   }
 
-  def image3DTovtkStructuredPoints[Pixel: ScalarValue : ClassTag : TypeTag](img: DiscreteScalarImage3D[Pixel]): vtkStructuredPoints = {
+  def image3DTovtkStructuredPoints[Pixel: ScalarValue: ClassTag: TypeTag](img: DiscreteScalarImage3D[Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     val domain = img.domain
     sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
@@ -255,7 +255,7 @@ object ImageConversion {
     sp
   }
 
-  def vtkStructuredPointsTo3DScalarImage[Pixel: ScalarValue : TypeTag](sp: vtkImageData): Try[DiscreteScalarImage3D[Pixel]] = {
+  def vtkStructuredPointsTo3DScalarImage[Pixel: ScalarValue: TypeTag](sp: vtkImageData): Try[DiscreteScalarImage3D[Pixel]] = {
     if (sp.GetNumberOfScalarComponents() != 1) {
       return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
     }
@@ -280,7 +280,7 @@ object ImageConversion {
     pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage3D(domain, pixelArray))
   }
 
-  def vtkStructuredPointsTo2DScalarImage[Pixel: ScalarValue : TypeTag](sp: vtkStructuredPoints): Try[DiscreteScalarImage2D[Pixel]] = {
+  def vtkStructuredPointsTo2DScalarImage[Pixel: ScalarValue: TypeTag](sp: vtkStructuredPoints): Try[DiscreteScalarImage2D[Pixel]] = {
     if (sp.GetNumberOfScalarComponents() != 1) {
       return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
     }

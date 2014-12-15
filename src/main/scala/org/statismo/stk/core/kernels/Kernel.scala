@@ -1,7 +1,7 @@
 package org.statismo.stk.core
 package kernels
 
-import breeze.linalg.{DenseVector, pinv, diag, DenseMatrix}
+import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
 import org.statismo.stk.core.numerics.RandomSVD
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.common.ImmutableLRU
@@ -31,7 +31,7 @@ abstract class PDKernel[D <: Dim] { self =>
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim : DimOps, DO <: Dim: DimOps] { self =>
+abstract class MatrixValuedPDKernel[D <: Dim: DimOps, DO <: Dim: DimOps] { self =>
 
   def apply(x: Point[D], y: Point[D]): MatrixNxN[DO]
   def outputDim = implicitly[DimOps[DO]].toInt
@@ -72,59 +72,57 @@ case class UncorrelatedKernel3x3(k: PDKernel[_3D]) extends MatrixValuedPDKernel[
 
 // TODO maybe this should be called posterior or conditional kernel
 // TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
-case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
-  
+case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
   val dim = implicitly[DimOps[D]].toInt
-  val N = trainingData.size*dim
+  val N = trainingData.size * dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
   val (xs, ys, sigma2s) = trainingData.unzip3
 
-  val noise : DenseMatrix[Double] = breeze.linalg.diag(DenseVector(sigma2s.map(sigma => List.fill(dim)(sigma)).flatten.toArray))
+  val noise: DenseMatrix[Double] = breeze.linalg.diag(DenseVector(sigma2s.map(sigma => List.fill(dim)(sigma)).flatten.toArray))
 
-  val K_inv : DenseMatrix[Double] = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k).map(_.toDouble) + noise)
+  val K_inv: DenseMatrix[Double] = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs, k).map(_.toDouble) + noise)
 
-  def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
+  def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D](x, xs, k) }
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - MatrixNxN[D]( ((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat) )
+    k(x, y) - MatrixNxN[D](((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat))
 
   }
-                            
-  val memcov = Memoize.memfun2(cov _,memSize)
+
+  val memcov = Memoize.memfun2(cov _, memSize)
 
   def apply(x: Point[D], y: Point[D]) = {
-    memcov(x,y)
+    memcov(x, y)
   }
 
 }
 
 // TODO this duplicate should not be there
-case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
-
+case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
   val dim = implicitly[DimOps[D]].toInt
-  val N = trainingData.size*dim
+  val N = trainingData.size * dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
   val (xs, ys, sigma2s) = trainingData.unzip3
 
   val noise = breeze.linalg.diag(DenseVector(sigma2s.map(x => List.fill(dim)(x)).flatten.toArray))
 
-  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k).map(_.toDouble) + noise)
+  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs, k).map(_.toDouble) + noise)
 
-  def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
+  def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D](x, xs, k) }
 
-  val memxstar = Memoize(xstar,memSize)
+  val memxstar = Memoize(xstar, memSize)
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - MatrixNxN[D]( ((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat) )
+    k(x, y) - MatrixNxN[D](((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat))
 
   }
 
   def apply(x: Point[D], y: Point[D]) = {
-    cov(x,y)
+    cov(x, y)
   }
 
 }
@@ -198,7 +196,8 @@ object Kernel {
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
-    for { (xi, i) <- xiWithIndex; (xj, j) <- xjWithIndex.drop(i) } {
+    for { p1 <- xiWithIndex;  (xi, i) = p1; p2 <- xjWithIndex.drop(i) } {
+      val (xj, j) = p2
       val kxixj = k(xi, xj);
       var di = 0;
       while (di < d) {
@@ -213,7 +212,7 @@ object Kernel {
     }
     K
   }
-  
+
   /**
    * for every domain point x in the list, we compute the kernel vector
    * kx = (k(x, x1), ... k(x, xm))

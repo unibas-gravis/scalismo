@@ -167,9 +167,11 @@ object StatismoIO {
     val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
     val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDimensionality, model.gp.rank)
     for {
-      (point, idx) <- model.mesh.points.toSeq.par.zipWithIndex
-      ((lmda, phi), j) <- model.gp.eigenPairs.zipWithIndex
+      pointsWithIndices <- model.mesh.points.toSeq.par.zipWithIndex
+      eigenPairsWithIndices <- model.gp.eigenPairs.zipWithIndex
     } {
+      val (point, idx) = pointsWithIndices
+      val ((lmda, phi), j)= eigenPairsWithIndices
       pcaBasis(idx * model.gp.outputDimensionality until (idx + 1) * model.gp.outputDimensionality, j) := phi(point).toBreezeVector
     }
 

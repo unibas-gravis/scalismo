@@ -18,7 +18,7 @@ import org.statismo.stk.core.common.ScalarValue._
 
 class MeshIOTests extends FunSpec with ShouldMatchers {
 
-  org.statismo.stk.core.initialize
+  org.statismo.stk.core.initialize()
   
   describe("MeshIO") {
 //    // TODO add a test to test reading and writing

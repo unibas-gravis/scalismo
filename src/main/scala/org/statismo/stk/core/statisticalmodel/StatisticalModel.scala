@@ -80,7 +80,7 @@ object StatisticalMeshModel {
       val (maybeClosestPt, _) = closestPointCache.get(pt)
       maybeClosestPt.getOrElse {
         val closestPtWithId = mesh.findClosestPoint(pt)
-        closestPointCache = (closestPointCache +(pt, closestPtWithId))._2 // ignore evicted key
+        closestPointCache = (closestPointCache +((pt, closestPtWithId)))._2 // ignore evicted key
         closestPtWithId
       }
     }

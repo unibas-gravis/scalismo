@@ -82,7 +82,7 @@ object GaussianProcess {
             }
             innerPhisAtx
           }
-          phisAtXCache = (phisAtXCache + (x, newPhisAtX))._2 // ignore evicted key
+          phisAtXCache = (phisAtXCache + ((x, newPhisAtX)))._2 // ignore evicted key
           newPhisAtX
         }
         val vec = phisAtX * innerU(::, i)
@@ -189,7 +189,7 @@ object GaussianProcess {
             }
             innerPhisAtx
           }
-          phisAtXCache = (phisAtXCache + (x, newPhisAtX))._2 // ignore evicted key
+          phisAtXCache = (phisAtXCache + ((x, newPhisAtX)))._2 // ignore evicted key
           newPhisAtX
         }
         val vec = phisAtX * innerU(::, i)
