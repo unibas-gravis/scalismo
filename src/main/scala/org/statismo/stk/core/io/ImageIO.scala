@@ -26,7 +26,7 @@ import org.statismo.stk.core.image.DiscreteScalarImage3D
 import org.statismo.stk.core.registration.LandmarkRegistration
 import org.statismo.stk.core.registration.AnisotropicScalingSpace
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace
-import javafx.geometry.Point3D
+
 import org.statismo.stk.core.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import org.statismo.stk.core.registration.AnisotropicScalingSpace
