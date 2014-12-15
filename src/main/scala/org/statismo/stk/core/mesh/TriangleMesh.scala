@@ -93,6 +93,8 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
     val s = A * u + B * v + C * (1 - (u + v))
     Point(s(0), s(1), s(2))
   }
+
+  override lazy val hashCode = super.hashCode
 }
 
 object TriangleMesh {

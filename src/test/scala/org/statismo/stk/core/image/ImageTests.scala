@@ -10,6 +10,8 @@ import org.statismo.stk.core.common.BoxedDomain
 import scala.language.implicitConversions
 import org.statismo.stk.core.registration.TranslationSpace
 import org.statismo.stk.core.geometry.Point.implicits._
+import org.statismo.stk.core.io.ImageIO
+import java.io.File
 
 class ImageTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
@@ -76,7 +78,6 @@ class ImageTests extends FunSpec with ShouldMatchers {
     }
   }
 
-
   describe("A continuous 2Dimage") {
     it("can be translated to a new place") {
 
@@ -92,7 +93,6 @@ class ImageTests extends FunSpec with ShouldMatchers {
     }
   }
 }
-
 
 class DomainTest extends FunSpec with ShouldMatchers {
   describe("a domain") {
@@ -114,6 +114,18 @@ class DomainTest extends FunSpec with ShouldMatchers {
       val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
       assert(recIdx === idx)
     }
+
+    it("domains with same parameters yield to the same anisotropic simlarity transform ") {
+      val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
+      val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
+      assert(domain1.anisotropSimTransform == domain2.anisotropSimTransform)
+    }
+    it("equality works for image domains ") {
+      val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
+      val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
+      assert(domain1 == domain2)
+    }
+
   }
 
   describe("a discrete domain in 3d") {
@@ -129,5 +141,31 @@ class DomainTest extends FunSpec with ShouldMatchers {
       val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
       assert(recIdx === idx)
     }
+
+    it("domains with same parameters yield to the same anisotropic simlarity transform ") {
+      val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
+      val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
+      assert(domain1.anisotropSimTransform == domain2.anisotropSimTransform)
+    }
+    it("equality works for image domains ") {
+      val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
+      val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
+      assert(domain1 == domain2)
+    }
+
+    it("the anisotropic similarity transform defining the donmain is correct and invertible") {
+      val pathH5 = getClass.getResource("/3dimage.nii").getPath
+      val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+
+      val trans = origImg.domain.anisotropSimTransform
+      val inverseTrans = trans.inverse
+
+      assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
+      assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
+
+      assert((trans(Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)) - origImg.domain.extent).norm < 0.1f)
+      assert((inverseTrans(origImg.domain.extent) - Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)).norm < 0.1f)
+    }
+
   }
 }

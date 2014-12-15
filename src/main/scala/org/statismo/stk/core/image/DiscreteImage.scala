@@ -22,6 +22,7 @@ abstract class DiscreteImage[D <: Dim: DimOps, @specialized(Float, Short) Pixel]
   def isDefinedAt(idx: Index[D]): Boolean = {
     (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
   }
+  override lazy val hashCode = super.hashCode
 
 }
 
@@ -33,7 +34,6 @@ abstract class DiscreteScalarImage[D <: Dim: DimOps, Pixel] extends DiscreteImag
 case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain[_1D], val values: Array[Pixel]) extends DiscreteScalarImage[_1D, Pixel] {
   require(domain.numberOfPoints == values.size)
   def map[@specialized(Short, Float) A: ScalarValue: ClassTag](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.values.map(f))
-
 }
 
 case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain[_2D], val values: Array[Pixel]) extends DiscreteScalarImage[_2D, Pixel] {
@@ -48,7 +48,7 @@ case class DiscreteScalarImage3D[@specialized(Short, Float) Pixel: ScalarValue](
 
 object DiscreteImage1D {
 
-  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain[_1D]): DiscreteScalarImage1D[Pixel] = {
+  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain1D): DiscreteScalarImage1D[Pixel] = {
     val ScalarValue = implicitly[ScalarValue[Pixel]]
     val N = domain.numberOfPoints
     val values = for (i <- 0 to N) yield Random.nextFloat
@@ -59,7 +59,7 @@ object DiscreteImage1D {
 
 object DiscreteImage2D {
 
-  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain[_2D]): DiscreteScalarImage2D[Pixel] = {
+  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain2D): DiscreteScalarImage2D[Pixel] = {
     val ScalarValue = implicitly[ScalarValue[Pixel]]
     val N = domain.numberOfPoints
     val values = for (i <- 0 to N) yield Random.nextFloat
@@ -70,7 +70,7 @@ object DiscreteImage2D {
 
 object DiscreteImage3D {
 
-  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain[_3D]): DiscreteScalarImage3D[Pixel] = {
+  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain3D): DiscreteScalarImage3D[Pixel] = {
     val ScalarValue = implicitly[ScalarValue[Pixel]]
     val N = domain.numberOfPoints
     val values = for (i <- 0 to N) yield Random.nextFloat

@@ -130,7 +130,9 @@ case class GradientDescentOptimizer(configuration: GradientDescentConfiguration)
       if (configuration.withLineSearch) {
         val step = goldenSectionLineSearch(8, x, 0, stepLength, gradient, c)
         val newParam = x - gradient * step.toFloat
-        optimize(newParam, c, it + 1) ++ Iterator(State(it, newValue, gradient, newParam, step))
+
+	Iterator(State(it, newValue, gradient, newParam, step))  ++ optimize(newParam, c, it + 1) 
+
       } else if (configuration.robinsMonroe) {
         val step = configuration.stepLength / Math.pow(it + (configuration.numIterations * 0.1), configuration.stepDecreaseCoeff)
         val newParam = x - gradient * step.toFloat

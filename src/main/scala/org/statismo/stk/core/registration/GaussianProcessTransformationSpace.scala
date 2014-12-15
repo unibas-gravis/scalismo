@@ -4,11 +4,10 @@ package registration
 import TransformationSpace.ParameterVector
 
 import breeze.linalg.DenseVector
-
-import org.statismo.stk.core.statisticalmodel.GaussianProcess
+import org.statismo.stk.core.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import org.statismo.stk.core.geometry._
 
-class GaussianProcessTransformationSpace[D <: Dim] private(gp: GaussianProcess[D]) extends TransformationSpace[D] {
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: GaussianProcess[D]) extends TransformationSpace[D] {
 
   override type T = GaussianProcessTransformation[D]
 
@@ -22,11 +21,10 @@ class GaussianProcessTransformationSpace[D <: Dim] private(gp: GaussianProcess[D
   }
 }
 
-
-class GaussianProcessTransformation[D <: Dim] private(gp: GaussianProcess[D], alpha: ParameterVector) extends Transformation[D] {
+class GaussianProcessTransformation[D <: Dim] private (gp: GaussianProcess[D], alpha: ParameterVector) extends ParametricTransformation[D] {
 
   val instance = gp.instance(alpha)
-
+  val parameters = alpha
   override def apply(x: Point[D]): Point[D] = {
     val newPointAsVector = instance(x)
     x + newPointAsVector
@@ -36,7 +34,6 @@ class GaussianProcessTransformation[D <: Dim] private(gp: GaussianProcess[D], al
 object GaussianProcessTransformation {
   def apply[D <: Dim](gp: GaussianProcess[D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
 }
-
 
 object GaussianProcessTransformationSpace {
   def apply[D <: Dim](gp: GaussianProcess[D]) = new GaussianProcessTransformationSpace[D](gp)

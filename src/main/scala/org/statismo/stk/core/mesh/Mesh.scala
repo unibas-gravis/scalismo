@@ -41,12 +41,14 @@ object Mesh {
 
     // predicate tested at the beginning, once.
     val remainingPoints =  mesh.points.toIndexedSeq.par.filter{ !clipPointPredicate(_)}.zipWithIndex.toMap
-    val remainingPointTriplet = for {
-      cell <- mesh.cells.par
-      points = cell.pointIds.map(mesh.points.toIndexedSeq)
-      validCell = points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _)
-      if validCell
-    } yield { points }
+    val pts = mesh.points.toIndexedSeq
+    
+    val remainingPointTriplet = mesh.cells.par.map {
+      cell => 
+        val points = cell.pointIds.map(pts)
+        (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
+    }.filter(_._2).map(_._1)
+    
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
