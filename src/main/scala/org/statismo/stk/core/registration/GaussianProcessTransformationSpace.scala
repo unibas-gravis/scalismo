@@ -1,13 +1,16 @@
 package org.statismo.stk.core
 package registration
 
+import scala.NotImplementedError
 import TransformationSpace.ParameterVector
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.statisticalmodel.GaussianProcess
+import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
 
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
-import org.statismo.stk.core.geometry._
 
-class GaussianProcessTransformationSpace[D <: Dim] private (gp: GaussianProcess[D]) extends TransformationSpace[D] {
+
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = GaussianProcessTransformation[D]
 
@@ -21,7 +24,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: GaussianProcess[
   }
 }
 
-class GaussianProcessTransformation[D <: Dim] private (gp: GaussianProcess[D], alpha: ParameterVector) extends ParametricTransformation[D] {
+class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
 
   val instance = gp.instance(alpha)
   val parameters = alpha
@@ -29,13 +32,18 @@ class GaussianProcessTransformation[D <: Dim] private (gp: GaussianProcess[D], a
     val newPointAsVector = instance(x)
     x + newPointAsVector
   }
+  def takeDerivative(x: Point[D]) = { throw new NotImplementedError("take derivative of kernel") }
 }
 
 object GaussianProcessTransformation {
-  def apply[D <: Dim](gp: GaussianProcess[D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
 }
 
 object GaussianProcessTransformationSpace {
-  def apply[D <: Dim](gp: GaussianProcess[D]) = new GaussianProcessTransformationSpace[D](gp)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D]) = new GaussianProcessTransformationSpace[D](gp)
 }
+
+
+
+
 

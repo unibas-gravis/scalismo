@@ -1,7 +1,7 @@
 package org.statismo.stk.core
 package statisticalmodel
 
-import breeze.linalg.{ DenseVector, DenseMatrix}
+import breeze.linalg.{*, DenseVector, DenseMatrix}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
@@ -9,16 +9,41 @@ import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
 
 
-abstract class GaussianProcess[D <: Dim : DimOps] {
 
-  def outputDimensionality = implicitly[DimOps[D]].toInt
-  val domain: Domain[D]
-  val mean: Point[D] => Vector[D]
-  val cov: MatrixValuedPDKernel[D, D]
-  def rank : Int
-  def marginal(pt: Point[D]): MVNormalForPoint[D]
-  def jacobian(p: DenseVector[Float]) : Point[D] => DenseMatrix[Float]
-  def instance(alpha: DenseVector[Float]): Point[D] => Vector[D]
+class GaussianProcess[D <: Dim : DimOps] protected (val domain : Domain[D], val mean : Point[D] => Vector[D], val cov : MatrixValuedPDKernel[D, D]) {
+
+  protected[this] val dimOps : DimOps[D] = implicitly[DimOps[D]]
+
+  def outputDimensionality = dimOps.toInt
+
+  def sampleAtPoints(pts : Seq[Point[D]]) : Seq[(Point[D], Vector[D])] = {
+    val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
+
+
+    // TODO using the svd is slightly inefficient, but with the current version of breeze, the cholesky decomposition does not seem to work
+    val (u, s, _) = breeze.linalg.svd(K)
+    val L = u.copy
+    for (i <- 0 until s.size) {
+      L(::, i) := u(::, i) * Math.sqrt(s(i))
+    }
+       val r = breeze.stats.distributions.Gaussian(0, 1)
+    val nGaussians = for (i <- 0 until pts.size * outputDimensionality) yield r.draw()
+    val v =DenseVector(nGaussians.toArray)
+    val sampleVec = L * v
+    val vecs = sampleVec.toArray.grouped(outputDimensionality)
+      .map(data => Vector[D](data.map(_.toFloat)))
+      .toSeq
+    pts zip vecs
+  }
+
+  /**
+   * Compute the marginal distribution for the given point
+   */
+  def marginal(pt: Point[D]): MVNormalForPoint[D] = {
+    MVNormalForPoint(pt, mean(pt), cov(pt, pt))
+  }
+
+
 }
 
 
@@ -26,6 +51,9 @@ abstract class GaussianProcess[D <: Dim : DimOps] {
 
 object GaussianProcess {
 
+  def apply[D <: Dim : DimOps](domain : Domain[D],  mean : Point[D] => Vector[D], cov : MatrixValuedPDKernel[D, D]) = {
+    new GaussianProcess[D](domain, mean, cov)
+  }
 
   // Gaussian process regression for a low rank gaussian process
   // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
