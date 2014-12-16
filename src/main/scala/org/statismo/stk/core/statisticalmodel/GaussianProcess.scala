@@ -9,11 +9,12 @@ import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
 
 
-class GaussianProcess[D <: Dim : DimTraits] protected (val domain : Domain[D], val mean : Point[D] => Vector[D], val cov : MatrixValuedPDKernel[D, D]) {
 
-  protected[this] val dimTraits : DimTraits[D] = implicitly[DimTraits[D]]
+class GaussianProcess[D <: Dim : DimOps] protected (val domain : Domain[D], val mean : Point[D] => Vector[D], val cov : MatrixValuedPDKernel[D, D]) {
 
-  def outputDimensionality = dimTraits.dimensionality
+  protected[this] val dimOps : DimOps[D] = implicitly[DimOps[D]]
+
+  def outputDimensionality = dimOps.toInt
 
   def sampleAtPoints(pts : Seq[Point[D]]) : Seq[(Point[D], Vector[D])] = {
     val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
@@ -30,7 +31,7 @@ class GaussianProcess[D <: Dim : DimTraits] protected (val domain : Domain[D], v
     val v =DenseVector(nGaussians.toArray)
     val sampleVec = L * v
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
-      .map(data => dimTraits.createVector(data.map(_.toFloat)))
+      .map(data => Vector[D](data.map(_.toFloat)))
       .toSeq
     pts zip vecs
   }
@@ -42,6 +43,7 @@ class GaussianProcess[D <: Dim : DimTraits] protected (val domain : Domain[D], v
     MVNormalForPoint(pt, mean(pt), cov(pt, pt))
   }
 
+
 }
 
 
@@ -49,14 +51,14 @@ class GaussianProcess[D <: Dim : DimTraits] protected (val domain : Domain[D], v
 
 object GaussianProcess {
 
-  def apply[D <: Dim : DimTraits](domain : Domain[D],  mean : Point[D] => Vector[D], cov : MatrixValuedPDKernel[D, D]) = {
+  def apply[D <: Dim : DimOps](domain : Domain[D],  mean : Point[D] => Vector[D], cov : MatrixValuedPDKernel[D, D]) = {
     new GaussianProcess[D](domain, mean, cov)
   }
 
   // Gaussian process regression for a low rank gaussian process
   // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
   // TODO maybe the implementations can be joined.
-  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  def regression[D <: Dim: DimOps](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2) }
 
     gp match {
@@ -66,7 +68,7 @@ object GaussianProcess {
 
   }
 
-  def regression[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData : IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  def regression[D <: Dim : DimOps](gp: LowRankGaussianProcess[D], trainingData : IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     gp match {
       case gp: SpecializedLowRankGaussianProcess[D] => regressionSpecializedLowRankGP(gp, trainingData, meanOnly)
       case gp => regressionLowRankGP(gp, trainingData, meanOnly)
@@ -74,10 +76,9 @@ object GaussianProcess {
 
   }
 
-  private def regressionLowRankGP[D <: Dim: DimTraits](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
+  private def regressionLowRankGP[D <: Dim: DimOps](gp: LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D] = {
     val (lambdas, phis) = gp.eigenPairs.unzip
-    val dimTraits = implicitly[DimTraits[D]]
-    val outputDim = dimTraits.dimensionality
+    val outputDim = gp.outputDimensionality
 
     val (minv, qtL, yVec, mVec) = GaussianProcess.genericRegressionComputations(gp, trainingData)
     val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
@@ -109,11 +110,11 @@ object GaussianProcess {
             }
             innerPhisAtx
           }
-          phisAtXCache = (phisAtXCache + (x, newPhisAtX))._2 // ignore evicted key
+          phisAtXCache = (phisAtXCache + ((x, newPhisAtX)))._2 // ignore evicted key
           newPhisAtX
         }
         val vec = phisAtX * innerU(::, i)
-        dimTraits.createVector(vec.data)
+        Vector[D](vec.data)
       }
 
       val phis_p = for (i <- 0 until phis.size) yield ((x : Point[D]) => phip(i)(x))
@@ -123,12 +124,10 @@ object GaussianProcess {
   }
 
 
-  protected[statisticalmodel] def genericRegressionComputations[D <: Dim : DimTraits](gp : LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)])
+  protected[statisticalmodel] def genericRegressionComputations[D <: Dim : DimOps](gp : LowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)])
     : (DenseMatrix[Double], DenseMatrix[Double], DenseVector[Float], DenseVector[Float]) =
     {
-
-      val dimTraits = implicitly[DimTraits[D]]
-      val dim = dimTraits.dimensionality
+      val dim = gp.outputDimensionality
       def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
       val (xs, ys, sigma2s) = trainingData.unzip3
@@ -168,10 +167,9 @@ object GaussianProcess {
    * This implementation explicitly returns a SpecializedLowRankGaussainProcess
    * TODO the implementation is almost the same as for the standard regression. Maybe they couuld be merged
    */
-  private def regressionSpecializedLowRankGP[D <: Dim: DimTraits](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): SpecializedLowRankGaussianProcess[D] = {
+  private def regressionSpecializedLowRankGP[D <: Dim: DimOps](gp: SpecializedLowRankGaussianProcess[D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): SpecializedLowRankGaussianProcess[D] = {
 
-    val dimTraits = implicitly[DimTraits[D]]
-    val dim = dimTraits.dimensionality
+    val dim = gp.outputDimensionality
     val (xs, ys, sigma2s) = trainingData.unzip3
     //def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -219,11 +217,11 @@ object GaussianProcess {
             }
             innerPhisAtx
           }
-          phisAtXCache = (phisAtXCache + (x, newPhisAtX))._2 // ignore evicted key
+          phisAtXCache = (phisAtXCache + ((x, newPhisAtX)))._2 // ignore evicted key
           newPhisAtX
         }
         val vec = phisAtX * innerU(::, i)
-        dimTraits.createVector(vec.data)
+        Vector[D](vec.data)
       }
 
       val phis_p = for (i <- 0 until phis.size) yield ((x : Point[D])=> phip(i)(x))

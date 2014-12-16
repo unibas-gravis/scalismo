@@ -29,7 +29,7 @@
 //
 //  describe("A 1D function smoothing") {
 //
-//    val domain = DiscreteImageDomain1D(-100., 0.1, 2000)
+//    val domain = DiscreteImageDomain[_1D](-100., 0.1, 2000)
 //   
 //    def noisySine(x: Point[OneD]): Float = {
 //      //continuousImg(x)
@@ -38,7 +38,7 @@
 //    }
 //
 //    val noisyImage = ContinuousScalarImage1D(BoxedDomain1D(-5.0, 5.0), noisySine)
-//    //val discreteDomain = DiscreteImageDomain1D(-5., 0.1, 100)
+//    //val discreteDomain = DiscreteImageDomain[_1D](-5., 0.1, 100)
 //    val box = BoxedDomain1D(-5.0, 5.0)
 //
 //    ignore("Works with a box filter (via convolution)") {
@@ -64,7 +64,7 @@
 //      val boxImage = ContinuousScalarImage1D(RealSpace1D, (p: Point[OneD]) => if (p(0) >= -0.5 && p(0) <= 0.5) 1f else 0f)
 //      val filter = BoxedFilter1D(1)
 //
-//      val discreteDomain = DiscreteImageDomain1D(Point1D(-5), Vector1D(0.01f), Index1D(1000))
+//      val discreteDomain = DiscreteImageDomain[_1D](Point1D(-5), Vector1D(0.01f), Index1D(1000))
 //
 //      val convoledOnce = boxImage.convolve(filter, 100)
 //      val convolvedTwice = convoledOnce.convolve(filter,100)

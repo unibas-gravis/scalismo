@@ -250,7 +250,7 @@ class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
       var c: Double = qc
       var b: Double = qb
       var a: Double = 1.0 - (b * b + c * c + d * d)
-      if (a < 1.e-7) {
+      if (a < 1e-7) {
         a = 1.0 / Math.sqrt(b * b + c * c + d * d)
         b *= a
         c *= a

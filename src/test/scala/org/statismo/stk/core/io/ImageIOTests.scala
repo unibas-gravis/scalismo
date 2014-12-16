@@ -3,21 +3,39 @@ package org.statismo.stk.core.io
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.image._
-import org.statismo.stk.core.geometry.implicits._
 import java.io.File
 import scala.util.Success
 import scala.util.Failure
 import niftijio.NiftiVolume
 import breeze.linalg.DenseMatrix
+import org.statismo.stk.core.geometry._1D
+import org.statismo.stk.core.geometry.Index
+import org.statismo.stk.core.geometry.Point
+import org.statismo.stk.core.geometry.Vector
+import org.statismo.stk.core.geometry._2D
+import org.statismo.stk.core.image.DiscreteImageDomain3D
+import org.statismo.stk.core.geometry._3D
+import breeze.linalg.DenseVector
+import org.apache.commons.math3.exception.ZeroException
 
 class ImageIOTests extends FunSpec with ShouldMatchers {
 
   org.statismo.stk.core.initialize()
 
+  def equalImages(img1: DiscreteScalarImage3D[_], img2: DiscreteScalarImage3D[_]): Boolean = {
+
+    val valFlag = (0 until img1.values.size by img1.values.size / 1000).forall { i =>
+      img1.values(i) == img2.values(i)
+    }
+
+    valFlag && ((img1.domain.origin - img2.domain.origin).norm < 0.01f) &&
+      ((img1.domain.spacing - img2.domain.spacing).norm < 0.01f) && ((img1.domain.size == img2.domain.size))
+  }
+
   describe("A 1D scalar image") {
     it("can be stored and read again") {
-      val domain = DiscreteImageDomain1D(0, 0.02, 50)
-      val values = domain.points.map(x => math.sin(2 * math.Pi * x)).map(_.toFloat).toArray
+      val domain = DiscreteImageDomain[_1D](Point(0), Vector(0.02f), Index(50))
+      val values = domain.points.map(x => math.sin(2 * math.Pi * x(0))).map(_.toFloat).toArray
       val discreteImage = DiscreteScalarImage1D[Float](domain, values)
 
       val tmpImgFile = File.createTempFile("image1D", ".h5")
@@ -47,42 +65,36 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
     }
   }
 
-  describe("A 2D vector image") {
-    it("can be stored and read again") {
-      val domain = DiscreteImageDomain2D((1.0, 0.0), (0.5, 1.0), (2, 3))
-      val discreteImage = DiscreteScalarImage2D[Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
-
-      val tmpImgFile = File.createTempFile("image2D", ".h5")
-      tmpImgFile.deleteOnExit()
-
-      ImageIO.writeImage(discreteImage, tmpImgFile)
-      val restoredDiscreteImgOrFailure = ImageIO.read2DScalarImage[Float](tmpImgFile)
-
-      restoredDiscreteImgOrFailure.isSuccess should be(right = true)
-      discreteImage should equal(restoredDiscreteImgOrFailure.get)
-
-      tmpImgFile.delete()
-    }
-  }
-
   describe("A 3D scalar image") {
-    it("can be read and written again") {
-      val path = getClass.getResource("/3dimage.h5").getPath
 
-      val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-      //   Utils.show3D[Short](discreteImage)
-
-      val f = File.createTempFile("dummy", ".h5")
+    it("can be stored to VTK and re-read in right precision") {
+      val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), Index(15, 15, 15))
+      val values = DenseVector.zeros[Short](15 * 15 * 15).data
+      val discreteImage = DiscreteScalarImage3D(domain, values)
+      val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()
-      val t = ImageIO.writeImage(discreteImage, f)
+      ImageIO.writeImage(discreteImage, f)
+      val readImg = ImageIO.read3DScalarImage[Short](f).get
 
-      assert(t.isSuccess)
-      f.delete()
+      readImg.values should equal(discreteImage.values)
+
+      assert(equalImages(readImg, discreteImage))
+
+    }
+
+    it("can be converted to vtk and back and yields the same image") {
+      val path = getClass.getResource("/3dimage.h5").getPath
+      val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+      val f = File.createTempFile("dummy", ".vtk")
+      f.deleteOnExit()
+      ImageIO.writeImage(discreteImage, f)
+      val readImg = ImageIO.read3DScalarImage[Short](f).get
+      assert(equalImages(readImg, discreteImage))
     }
 
     describe("in Nifti format") {
 
-     it("returns the same data as the niftijio reader when using FastReadOnlyNiftiVolume") {
+      it("returns the same data as the niftijio reader when using FastReadOnlyNiftiVolume") {
         val filename = getClass.getResource("/3dimage.nii").getPath
         val o = NiftiVolume.read(filename)
         val n = FastReadOnlyNiftiVolume.read(filename).get

@@ -100,7 +100,7 @@ object MultivariateNormalDistribution {
 
 }
 
-case class MVNormalForPoint[D <: Dim: DimTraits](val pt: Point[D], _mean: Vector[D], _cov: MatrixNxN[D]) extends MultivariateNormalDistribution(_mean.toBreezeVector, _cov.toBreezeMatrix) {
+case class MVNormalForPoint[D <: Dim](val pt: Point[D], _mean: Vector[D], _cov: MatrixNxN[D]) extends MultivariateNormalDistribution(_mean.toBreezeVector, _cov.toBreezeMatrix) {
   def pdf(x: Vector[D]): Double = pdf(x.toBreezeVector)
   def logpdf(x: Vector[D]): Double = logpdf(x.toBreezeVector)
 }
