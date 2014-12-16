@@ -1,7 +1,7 @@
 package org.statismo.stk.core
 package kernels
 
-import breeze.linalg.{DenseVector, pinv, diag, DenseMatrix}
+import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
 import org.statismo.stk.core.numerics.RandomSVD
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.common.ImmutableLRU
@@ -31,11 +31,10 @@ abstract class PDKernel[D <: Dim] { self =>
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim, DO <: Dim: DimTraits] { self =>
-  val oDimTraits = implicitly[DimTraits[DO]]
+abstract class MatrixValuedPDKernel[D <: Dim: DimOps, DO <: Dim: DimOps] { self =>
 
   def apply(x: Point[D], y: Point[D]): MatrixNxN[DO]
-  def outputDim = oDimTraits.dimensionality
+  def outputDim = implicitly[DimOps[DO]].toInt
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
@@ -56,115 +55,110 @@ abstract class MatrixValuedPDKernel[D <: Dim, DO <: Dim: DimTraits] { self =>
 
 }
 
-case class UncorrelatedKernel1x1(k: PDKernel[OneD]) extends MatrixValuedPDKernel[OneD, OneD] {
-  val I = Matrix1x1.eye
-  def apply(x: Point[OneD], y: Point[OneD]) = I * (k(x, y)) // k is scalar valued
+case class UncorrelatedKernel1x1(k: PDKernel[_1D]) extends MatrixValuedPDKernel[_1D, _1D] {
+  val I = MatrixNxN.eye[_1D]
+  def apply(x: Point[_1D], y: Point[_1D]) = I * (k(x, y)) // k is scalar valued
 }
 
-case class UncorrelatedKernel2x2(k: PDKernel[TwoD]) extends MatrixValuedPDKernel[TwoD, TwoD] {
-  val I = Matrix2x2.eye
-  def apply(x: Point[TwoD], y: Point[TwoD]) = I * (k(x, y)) // k is scalar valued
+case class UncorrelatedKernel2x2(k: PDKernel[_2D]) extends MatrixValuedPDKernel[_2D, _2D] {
+  val I = MatrixNxN.eye[_2D]
+  def apply(x: Point[_2D], y: Point[_2D]) = I * (k(x, y)) // k is scalar valued
 }
 
-case class UncorrelatedKernel3x3(k: PDKernel[ThreeD]) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
-  val I = Matrix3x3.eye
-  def apply(x: Point[ThreeD], y: Point[ThreeD]) = I * (k(x, y)) // k is scalar valued
+case class UncorrelatedKernel3x3(k: PDKernel[_3D]) extends MatrixValuedPDKernel[_3D, _3D] {
+  val I = MatrixNxN.eye[_3D]
+  def apply(x: Point[_3D], y: Point[_3D]) = I * (k(x, y)) // k is scalar valued
 }
 
 // TODO maybe this should be called posterior or conditional kernel
 // TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
-case class LandmarkKernel[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
-  
+case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
-  val dimTraits = implicitly[DimTraits[D]]
-  val dim = dimTraits.dimensionality
-  val N = trainingData.size*dim
+  val dim = implicitly[DimOps[D]].toInt
+  val N = trainingData.size * dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
   val (xs, ys, sigma2s) = trainingData.unzip3
 
-  val noise : DenseMatrix[Double] = breeze.linalg.diag(DenseVector(sigma2s.map(sigma => List.fill(dim)(sigma)).flatten.toArray))
+  val noise: DenseMatrix[Double] = breeze.linalg.diag(DenseVector(sigma2s.map(sigma => List.fill(dim)(sigma)).flatten.toArray))
 
-  val K_inv : DenseMatrix[Double] = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k).map(_.toDouble) + noise)
+  val K_inv: DenseMatrix[Double] = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs, k).map(_.toDouble) + noise)
 
-  def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
+  def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D](x, xs, k) }
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - dimTraits.createMatrixNxN( ((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat) )
+    k(x, y) - MatrixNxN[D](((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat))
 
   }
-                            
-  val memcov = Memoize.memfun2(cov _,memSize)
+
+  val memcov = Memoize.memfun2(cov _, memSize)
 
   def apply(x: Point[D], y: Point[D]) = {
-    memcov(x,y)
+    memcov(x, y)
   }
 
 }
 
 // TODO this duplicate should not be there
-case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D,D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
-
-  val dimTraits = implicitly[DimTraits[D]]
-  val dim = dimTraits.dimensionality
-  val N = trainingData.size*dim
+  val dim = implicitly[DimOps[D]].toInt
+  val N = trainingData.size * dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
   val (xs, ys, sigma2s) = trainingData.unzip3
 
   val noise = breeze.linalg.diag(DenseVector(sigma2s.map(x => List.fill(dim)(x)).flatten.toArray))
 
-  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs,k).map(_.toDouble) + noise)
+  val K_inv = breeze.linalg.pinv(Kernel.computeKernelMatrix[D](xs, k).map(_.toDouble) + noise)
 
-  def xstar(x : Point[D]) = { Kernel.computeKernelVectorFor[D](x,xs,k) }
+  def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D](x, xs, k) }
 
-  val memxstar = Memoize(xstar,memSize)
+  val memxstar = Memoize(xstar, memSize)
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x,y) - dimTraits.createMatrixNxN( ((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat) )
+    k(x, y) - MatrixNxN[D](((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat))
 
   }
 
   def apply(x: Point[D], y: Point[D]) = {
-    cov(x,y)
+    cov(x, y)
   }
 
 }
 
-case class GaussianKernel3D(val sigma: Double) extends PDKernel[ThreeD] {
+case class GaussianKernel3D(val sigma: Double) extends PDKernel[_3D] {
   val sigma2 = sigma * sigma
-  def apply(x: Point[ThreeD], y: Point[ThreeD]) = {
+  def apply(x: Point[_3D], y: Point[_3D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class GaussianKernel2D(val sigma: Double) extends PDKernel[TwoD] {
+case class GaussianKernel2D(val sigma: Double) extends PDKernel[_2D] {
   val sigma2 = sigma * sigma
-  def apply(x: Point[TwoD], y: Point[TwoD]) = {
+  def apply(x: Point[_2D], y: Point[_2D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class GaussianKernel1D(val sigma: Double) extends PDKernel[OneD] {
+case class GaussianKernel1D(val sigma: Double) extends PDKernel[_1D] {
 
   val sigma2 = sigma * sigma
 
-  def apply(x: Point[OneD], y: Point[OneD]) = {
+  def apply(x: Point[_1D], y: Point[_1D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[ThreeD, ThreeD] {
-  val dimTraits3D = implicitly[DimTraits[ThreeD]]
+case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[_3D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[_3D, _3D] {
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
-  def mu(x: Point[ThreeD]): Vector[ThreeD] = {
-    var meanDisplacement = dimTraits3D.zeroVector
+  def mu(x: Point[_3D]): Vector[_3D] = {
+    var meanDisplacement = Vector.zeros[_3D]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -175,12 +169,12 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[ThreeD]], 
   }
 
   @volatile
-  var cache = ImmutableLRU[Point[ThreeD], Vector[ThreeD]](cacheSizeHint)
+  var cache = ImmutableLRU[Point[_3D], Vector[_3D]](cacheSizeHint)
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  def apply(x: Point[ThreeD], y: Point[ThreeD]): Matrix3x3 = {
-    var ms = Matrix3x3.zeros
+  def apply(x: Point[_3D], y: Point[_3D]): MatrixNxN[_3D] = {
+    var ms = MatrixNxN.zeros[_3D]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -202,7 +196,8 @@ object Kernel {
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
-    for { (xi, i) <- xiWithIndex; (xj, j) <- xjWithIndex.drop(i) } {
+    for { p1 <- xiWithIndex;  (xi, i) = p1; p2 <- xjWithIndex.drop(i) } {
+      val (xj, j) = p2
       val kxixj = k(xi, xj);
       var di = 0;
       while (di < d) {
@@ -217,7 +212,7 @@ object Kernel {
     }
     K
   }
-  
+
   /**
    * for every domain point x in the list, we compute the kernel vector
    * kx = (k(x, x1), ... k(x, xm))
@@ -249,13 +244,10 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: DimTraits](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D, Point[D]]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
-
-    val createVector = implicitly[DimTraits[D]].createVector _ // get the create vector function for the right dimension
-
 
     val (ptsForNystrom, _) = sampler.sample.unzip
 
@@ -277,7 +269,7 @@ object Kernel {
     def phi(i: Int)(x: Point[D]) = {
       val value = computePhisMemoized(x)
       // extract the right entry for the i-th phi function
-      createVector(value(::, i).toArray.map(_.toFloat))
+      Vector[D](value(::, i).toArray.map(_.toFloat))
 
     }
 

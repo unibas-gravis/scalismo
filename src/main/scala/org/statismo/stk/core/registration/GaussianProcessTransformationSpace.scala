@@ -1,102 +1,49 @@
 package org.statismo.stk.core
 package registration
 
-import TransformationSpace.ParameterVector
-
 import scala.NotImplementedError
+import TransformationSpace.ParameterVector
+import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.statisticalmodel.GaussianProcess
+import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
+
 import breeze.linalg.DenseVector
 
-import org.statismo.stk.core.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
-import org.statismo.stk.core.geometry._
 
-case class GaussianProcessTransformationSpace1D(gp: LowRankGaussianProcess[OneD]) extends TransformationSpace[OneD] with DifferentiableTransforms[OneD] {
-  override type T = GaussianProcessTransformation1D
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
-  def parametersDimensionality = gp.rank
+  override type T = GaussianProcessTransformation[D]
 
-  def inverseTransform(p: ParameterVector) = None
+  override def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
 
-  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
+  override def parametersDimensionality = gp.rank
 
-  override def transformForParameters(p: ParameterVector) = new GaussianProcessTransformation1D(gp, p)
-
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[OneD] =>
-    gp.jacobian(p)(x)
+  override def transformForParameters(p: ParameterVector) = GaussianProcessTransformation[D](gp, p)
+  override def takeDerivativeWRTParameters(p: ParameterVector) = {
+    x: Point[D] => gp.jacobian(p)(x)
   }
-
 }
 
-// the actual kernel transform
-case class GaussianProcessTransformation1D(gp: LowRankGaussianProcess[OneD], alpha: ParameterVector) extends ParametricTransformation[OneD] with CanDifferentiate[OneD] {
+class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
 
   val instance = gp.instance(alpha)
   val parameters = alpha
-  def apply(x: Point[OneD]): Point[OneD] = {
+  override def apply(x: Point[D]): Point[D] = {
     val newPointAsVector = instance(x)
-    Point1D(x(0) + newPointAsVector(0))
+    x + newPointAsVector
   }
-  def takeDerivative(x: Point[OneD]) = { throw new NotImplementedError("take derivative of kernel") }
+  def takeDerivative(x: Point[D]) = { throw new NotImplementedError("take derivative of kernel") }
 }
 
-case class GaussianProcessTransformationSpace2D(gp: LowRankGaussianProcess[TwoD]) extends TransformationSpace[TwoD] with DifferentiableTransforms[TwoD] {
-
-  override type T = GaussianProcessTransformation2D
-
-  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
-
-  def parametersDimensionality = gp.rank
-
-  def inverseTransform(p: ParameterVector) = None
-
-  override def transformForParameters(p: ParameterVector) = new GaussianProcessTransformation2D(gp, p)
-
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[TwoD] =>
-    gp.jacobian(p)(x)
-  }
-}
-
-// the actual kernel transform
-case class GaussianProcessTransformation2D(gp: LowRankGaussianProcess[TwoD], alpha: ParameterVector) extends ParametricTransformation[TwoD] with CanDifferentiate[TwoD] {
-
-  val instance = gp.instance(alpha)
-  val parameters = alpha
-  def apply(x: Point[TwoD]): Point[TwoD] = {
-    val newPointAsVector = instance(x)
-    Point2D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1))
-  }
-  def takeDerivative(x: Point[TwoD]) = { throw new NotImplementedError("take derivative of kernel") }
-}
-
-case class GaussianProcessTransformationSpace3D(gp: LowRankGaussianProcess[ThreeD]) extends TransformationSpace[ThreeD] with DifferentiableTransforms[ThreeD] {
-
-  override type T = GaussianProcessTransformation3D
-
-  def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
-
-  def parametersDimensionality = gp.rank
-
-  def inverseTransform(p: ParameterVector) = None
-
-  def transformForParameters(p: ParameterVector) = new GaussianProcessTransformation3D(gp, p)
-  def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[ThreeD] =>
-    gp.jacobian(p)(x)
-  }
-
-}
-
-// the actual kernel transform
-case class GaussianProcessTransformation3D(gp: LowRankGaussianProcess[ThreeD], alpha: ParameterVector) extends ParametricTransformation[ThreeD] with CanDifferentiate[ThreeD] {
-
-  val instance = gp.instance(alpha)
-  val parameters = alpha
-  def apply(x: Point[ThreeD]): Point[ThreeD] = {
-    val newPointAsVector = instance(x)
-    Point3D(x(0) + newPointAsVector(0), x(1) + newPointAsVector(1), x(2) + newPointAsVector(2))
-  }
-  def takeDerivative(x: Point[ThreeD]) = { throw new NotImplementedError("take derivative of kernel") }
+object GaussianProcessTransformation {
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
 }
 
 object GaussianProcessTransformationSpace {
-
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D]) = new GaussianProcessTransformationSpace[D](gp)
 }
+
+
+
+
 

@@ -4,8 +4,7 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import org.statismo.stk.core.statisticalmodel.{ASMProfileDistributions, MultivariateNormalDistribution, ActiveShapeModel}
-import org.statismo.stk.core.common.UnstructuredPointsDomain
-import org.statismo.stk.core.geometry.{Point, ThreeD, Point3D}
+import org.statismo.stk.core.geometry.{Point, _3D}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scala.util.{Try, Success}
 import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
@@ -13,6 +12,7 @@ import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.mesh.TriangleMesh
 import ncsa.hdf.`object`.Group
 import org.statismo.stk.core.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
+import org.statismo.stk.core.common.SpatiallyIndexedFiniteDiscreteDomain
 
 /**
  * Created by Luethi on 09.03.14.
@@ -34,7 +34,7 @@ class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
     val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.mesh, 100, 42)).sample.unzip
-    val ptDomain = new UnstructuredPointsDomain[ThreeD](profilePoints)
+    val ptDomain = SpatiallyIndexedFiniteDiscreteDomain.fromSeq(profilePoints)
     val dists = for (i <- 0 until ptDomain.numberOfPoints) yield
       (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat , DenseMatrix.eye[Float](3) * i.toFloat))
     val profileDists = ASMProfileDistributions(ptDomain, dists.toArray)
