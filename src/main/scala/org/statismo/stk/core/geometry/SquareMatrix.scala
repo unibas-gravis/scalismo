@@ -4,11 +4,11 @@ import breeze.linalg.DenseMatrix
 
 
 /**
- * Simple matrix class. The data is stored in column major ordering
+ * Simple square matrix class of dimension D x D. The data is stored in column major ordering
  */
-class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Float]) {
+class SquareMatrix[D <: Dim : NDSpace] private (private[statismo] val data: Array[Float]) {
 
-  val dimensionality: Int = implicitly[DimOps[D]].toInt
+  val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   def apply(i: Int, j: Int): Float = {
     val d = dimensionality
@@ -17,7 +17,7 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
 
   def toBreezeMatrix: DenseMatrix[Float] = DenseMatrix.create(dimensionality, dimensionality, data)
 
-  def *(s: Float): MatrixNxN[D] = {
+  def *(s: Float): SquareMatrix[D] = {
     val numElements = dimensionality * dimensionality
     val newData = new Array[Float](numElements)
     var i = 0
@@ -25,10 +25,10 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
       newData(i) = data(i) * s
       i += 1
     }
-    MatrixNxN[D](newData)
+    SquareMatrix[D](newData)
   }
 
-  def *(s: Double): MatrixNxN[D] = this * s.toFloat
+  def *(s: Double): SquareMatrix[D] = this * s.toFloat
 
   def *(that: Vector[D]): Vector[D] = {
 
@@ -48,7 +48,7 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
     Vector[D](newData)
   }
 
-  def *(that: MatrixNxN[D]): MatrixNxN[D] = {
+  def *(that: SquareMatrix[D]): SquareMatrix[D] = {
 
     val newData = new Array[Float](dimensionality * dimensionality)
 
@@ -67,10 +67,10 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
       }
       k += 1
     }
-    MatrixNxN[D](newData)
+    SquareMatrix[D](newData)
   }
 
-  def -(that: MatrixNxN[D]): MatrixNxN[D] = {
+  def -(that: SquareMatrix[D]): SquareMatrix[D] = {
     val dim2 = dimensionality * dimensionality
     val newData = new Array[Float](dim2)
     var i = 0
@@ -78,10 +78,10 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
       newData(i) = this.data(i) - that.data(i)
       i += 1
     }
-    MatrixNxN[D](newData)
+    SquareMatrix[D](newData)
   }
 
-  def +(that: MatrixNxN[D]): MatrixNxN[D] = {
+  def +(that: SquareMatrix[D]): SquareMatrix[D] = {
     val dim2 = dimensionality * dimensionality
     val newData = new Array[Float](dim2)
     var i = 0
@@ -89,10 +89,10 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
       newData(i) = this.data(i) + that.data(i)
       i += 1
     }
-    MatrixNxN[D](newData)
+    SquareMatrix[D](newData)
   }
 
-  def :*(that: MatrixNxN[D]): MatrixNxN[D] = {
+  def :*(that: SquareMatrix[D]): SquareMatrix[D] = {
     val dim2 = dimensionality * dimensionality
     val newData = new Array[Float](dim2)
     var i = 0
@@ -100,23 +100,23 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
       newData(i) = this.data(i) * that.data(i)
       i += 1
     }
-    MatrixNxN[D](newData)
+    SquareMatrix[D](newData)
   }
 
-  def t: MatrixNxN[D] = {
-    MatrixNxN[D](this.toBreezeMatrix.t.data)
+  def t: SquareMatrix[D] = {
+    SquareMatrix[D](this.toBreezeMatrix.t.data)
   }
 
 
   override def hashCode = data.deep.hashCode()
 
   override def equals(other: Any): Boolean = other match {
-    case that: MatrixNxN[D] =>
+    case that: SquareMatrix[D] =>
       that.canEqual(this) && this.data.deep == that.data.deep
     case _ => false
   }
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[MatrixNxN[D]]
+  def canEqual(other: Any): Boolean = other.isInstanceOf[SquareMatrix[D]]
 
   override def toString = {
     val s = new StringBuilder("[")
@@ -135,42 +135,42 @@ class MatrixNxN[D <: Dim : DimOps] private (private[statismo] val data: Array[Fl
 }
 
 
-object MatrixNxN {
+object SquareMatrix {
 
 
-  def apply(f: Float): MatrixNxN[_1D] = new MatrixNxN[_1D](Array(f))
-  def apply(row1: (Float, Float), row2: (Float, Float)): MatrixNxN[_2D] = {
-    new MatrixNxN[_2D](Array(row1._1, row2._1, row1._2, row2._2))
+  def apply(f: Float): SquareMatrix[_1D] = new SquareMatrix[_1D](Array(f))
+  def apply(row1: (Float, Float), row2: (Float, Float)): SquareMatrix[_2D] = {
+    new SquareMatrix[_2D](Array(row1._1, row2._1, row1._2, row2._2))
   }
 
   type TupleF = (Float, Float, Float)
-  def apply(row1: TupleF, row2: TupleF, row3: TupleF): MatrixNxN[_3D] = {
-    new MatrixNxN[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
+  def apply(row1: TupleF, row2: TupleF, row3: TupleF): SquareMatrix[_3D] = {
+    new SquareMatrix[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
-  def apply[D <: Dim : DimOps](d: Array[Float]) = new MatrixNxN[D](d)
+  def apply[D <: Dim : NDSpace](d: Array[Float]) = new SquareMatrix[D](d)
 
-  def eye[D <: Dim](implicit ev: DimOps[D]): MatrixNxN[D] = {
-    val dim = ev.toInt
+  def eye[D <: Dim](implicit ev: NDSpace[D]): SquareMatrix[D] = {
+    val dim = ev.dimensionality
     val data = Array.fill(dim * dim)(0f)
     for (i <- 0 until dim) {
       data(i * dim + i) = 1
     }
-    new MatrixNxN[D](data)
+    new SquareMatrix[D](data)
   }
 
-  def zeros[D <: Dim : DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](0)
-  def ones[D <: Dim : DimOps]: MatrixNxN[D] = MatrixNxN.fill[D](1)
+  def zeros[D <: Dim : NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](0)
+  def ones[D <: Dim : NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](1)
 
-  def fill[D <: Dim : DimOps](elem: => Float): MatrixNxN[D] = {
-    val dim = implicitly[DimOps[D]].toInt
+  def fill[D <: Dim : NDSpace](elem: => Float): SquareMatrix[D] = {
+    val dim = implicitly[NDSpace[D]].dimensionality
     val data = Array.fill[Float](dim * dim)(elem)
-    new MatrixNxN[D](data)
+    new SquareMatrix[D](data)
   }
 
-  def inv[D <: Dim : DimOps](m: MatrixNxN[D]): MatrixNxN[D] = {
+  def inv[D <: Dim : NDSpace](m: SquareMatrix[D]): SquareMatrix[D] = {
     val bm = m.toBreezeMatrix
     val bmInv: DenseMatrix[Double] = breeze.linalg.inv(bm)
-    new MatrixNxN[D](bmInv.data.map(_.toFloat))
+    new SquareMatrix[D](bmInv.data.map(_.toFloat))
   }
 }

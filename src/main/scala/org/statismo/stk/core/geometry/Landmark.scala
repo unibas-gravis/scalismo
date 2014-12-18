@@ -9,12 +9,12 @@ import org.statismo.stk.core.statisticalmodel.NDimensionalNormalDistribution
  * The primary reason is to force implementations to provide the correct extension encode/decode functions when using
  * the LandmarkIO methods for reading and writing JSON representations of landmarks.
  */
-final case class Landmark[D <: Dim : DimOps](point: Point[D], name: String, description: Option[String] = None, uncertainty: Option[NDimensionalNormalDistribution[D]] = None)
+final case class Landmark[D <: Dim : NDSpace](point: Point[D], name: String, description: Option[String] = None, uncertainty: Option[NDimensionalNormalDistribution[D]] = None)
 
 object Landmark {
   import scala.language.implicitConversions
-  implicit def legacyTupleAsLandmark[D <: Dim: DimOps](tuple: (String, Point[D])) : Landmark[D] = Landmark(tuple._2, tuple._1)
+  implicit def legacyTupleAsLandmark[D <: Dim: NDSpace](tuple: (String, Point[D])) : Landmark[D] = Landmark(tuple._2, tuple._1)
 
-  implicit def extensionEncodeFunction[D <: Dim: DimOps]: LandmarkIO.ExtensionEncodeFunction[D, Landmark[D]] = { lm => (lm, None) }
-  implicit def extensionDecodeFunction[D <: Dim: DimOps]: LandmarkIO.ExtensionDecodeFunction[D, Landmark[D]] = { case (lm, _) => lm }
+  implicit def extensionEncodeFunction[D <: Dim: NDSpace]: LandmarkIO.ExtensionEncodeFunction[D, Landmark[D]] = { lm => (lm, None) }
+  implicit def extensionDecodeFunction[D <: Dim: NDSpace]: LandmarkIO.ExtensionDecodeFunction[D, Landmark[D]] = { case (lm, _) => lm }
 }

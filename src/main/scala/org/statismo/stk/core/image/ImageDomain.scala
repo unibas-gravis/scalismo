@@ -185,11 +185,11 @@ object DiscreteImageDomain {
     }
   }
 
-  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: Index[D])(implicit evDim: DimOps[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: Index[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
     evCreateRot.createImageDomain(origin, spacing, size)
   }
 
-  def apply[D <: Dim](size: Index[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: DimOps[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim](size: Index[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
     evCreateRot.createWithTransform(size, transform)
   }
 

@@ -7,7 +7,7 @@ import org.statismo.stk.core.common.Cell
 import scala.reflect.ClassTag
 import org.statismo.stk.core.common.BoxedDomain
 import scala.collection.mutable
-import org.statismo.stk.core.geometry.DimOps
+import org.statismo.stk.core.geometry.NDSpace
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)

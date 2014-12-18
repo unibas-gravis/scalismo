@@ -7,18 +7,18 @@ trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
 
-trait DimOps[D <: Dim] {
-  def toInt: Int
+trait NDSpace[D <: Dim] {
+  def dimensionality: Int
 }
 
 object Dim {
-  implicit object OneDOps extends DimOps[_1D] {
-    override def toInt = 1
+  implicit object OneDSpace extends NDSpace[_1D] {
+    override val dimensionality = 1
   }
-  implicit object TwoDOps extends DimOps[_2D] {
-    override def toInt = 2
+  implicit object TwoDSpace extends NDSpace[_2D] {
+    override val dimensionality = 2
   }
-  implicit object ThreeDOps extends DimOps[_3D] {
-    override def toInt = 3
+  implicit object ThreeDSpace extends NDSpace[_3D] {
+    override val dimensionality = 3
   }
 }

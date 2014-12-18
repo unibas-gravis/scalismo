@@ -26,8 +26,8 @@ object LandmarkIO {
 
 
   private object Uncertainty {
-    def u2m[D <: Dim : DimOps](u: Uncertainty): NDimensionalNormalDistribution[D] = {
-      val dim = implicitly[DimOps[D]].toInt
+    def u2m[D <: Dim : NDSpace](u: Uncertainty): NDimensionalNormalDistribution[D] = {
+      val dim = implicitly[NDSpace[D]].dimensionality
       val pcs: Seq[Vector[D]] = u.pcs.take(dim).map{l => Vector(l.take(dim).toArray)}
       val variances: Seq[Float] = u.stdDevs.take(dim).map(f => f * f)
 
@@ -35,7 +35,7 @@ object LandmarkIO {
       NDimensionalNormalDistribution(mean, pcs.zip(variances))
     }
 
-    def m2u[D <: Dim : DimOps](m: NDimensionalNormalDistribution[D]): Uncertainty = {
+    def m2u[D <: Dim : NDSpace](m: NDimensionalNormalDistribution[D]): Uncertainty = {
       val (pcs, variances) = m.principalComponents.unzip
       val stdDevs: List[Float] = variances.map(Math.sqrt(_).toFloat).toList
       val pcList: List[List[Float]] = pcs.map(v => v.data.toList).toList
@@ -44,7 +44,7 @@ object LandmarkIO {
   }
 
 
-  private def landmarkCodec[D <: Dim : DimOps]: CodecJson[ExtLandmark[D]] = {
+  private def landmarkCodec[D <: Dim : NDSpace]: CodecJson[ExtLandmark[D]] = {
     CodecJson(
       e => ("extensions" :=? e.exts) ->?:
         ("uncertainty" :=? e.lm.uncertainty.map(Uncertainty.m2u(_))) ->?:
@@ -94,9 +94,9 @@ object LandmarkIO {
   /* Convenience method if the "standard" landmarks are used.
    * This simply avoids having to specify the Landmark[D] type all the time.
    */
-  def readLandmarksJson[D <: Dim : DimOps](source: Sourceable) = readLandmarksJson[D, Landmark[D]](source)
+  def readLandmarksJson[D <: Dim : NDSpace](source: Sourceable) = readLandmarksJson[D, Landmark[D]](source)
 
-  def readLandmarksJson[D <: Dim, A](sourceable: Sourceable)(implicit extDecode: ExtensionDecodeFunction[D, A], dimOps: DimOps[D]): Try[List[A]] = {
+  def readLandmarksJson[D <: Dim, A](sourceable: Sourceable)(implicit extDecode: ExtensionDecodeFunction[D, A], dimOps: NDSpace[D]): Try[List[A]] = {
     val source = sourceable.asSource()
 
     implicit val lmCodec = landmarkCodec[D]
@@ -114,12 +114,12 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksJson[D <: Dim, A](output: Sinkable, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], dimOps: DimOps[D]): Try[Unit] = Try {
+  def writeLandmarksJson[D <: Dim, A](output: Sinkable, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], dimOps: NDSpace[D]): Try[Unit] = Try {
     val lms = landmarks.map(extEncode).map{case (lm, ext) => ExtLandmark(lm, ext)}
     writeLandmarksJsonRaw(output, lms)
   }.flatten
 
-  private def writeLandmarksJsonRaw[D <: Dim : DimOps](output: Sinkable, landmarks: List[ExtLandmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonRaw[D <: Dim : NDSpace](output: Sinkable, landmarks: List[ExtLandmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(output.asOutputStream(), true)
     val result = Try {
       implicit val lmCodec = landmarkCodec[D]
@@ -150,8 +150,8 @@ object LandmarkIO {
     result
   }
 
-  def readLandmarksCsv[D <: Dim : DimOps](source: Sourceable): Try[immutable.IndexedSeq[Landmark[D]]] = {
-    val items = implicitly[DimOps[D]].toInt
+  def readLandmarksCsv[D <: Dim : NDSpace](source: Sourceable): Try[immutable.IndexedSeq[Landmark[D]]] = {
+    val items = implicitly[NDSpace[D]].dimensionality
     for (landmarks <- readLandmarksCsvRaw(source)) yield {
       for (landmark <- landmarks) yield Landmark(Point(landmark._2.take(items)), landmark._1)
     }
