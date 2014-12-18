@@ -1,5 +1,7 @@
 package org.statismo.stk.core.geometry
 
+import breeze.linalg.DenseVector
+
 import scala.language.implicitConversions
 
 /**
@@ -103,11 +105,18 @@ object Vector {
     Vector(u(1) * v(2) - u(2) * v(1), u(2) * v(0) - u(0) * v(2), u(0) * v(1) - u(1) * v(0))
   }
 
+  def fromBreezeVector[D <: Dim : DimOps] (breeze: DenseVector[Float]) : Vector[D] = {
+    val dim = implicitly[DimOps[D]].toInt
+    require (breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
+    Vector.apply[D](breeze.data)
+  }
+
+
   object implicits {
-    implicit def vector1DToFloat(v: Vector[_1D]) = v(0)
-    implicit def floatToVector1D(f: Float) = Vector(f)
-    implicit def tupleOfFloatToVector2D(t: (Float, Float)) = Vector(t._1, t._2)
-    implicit def tupleOfFloatToVector3D(t: (Float, Float, Float)) = Vector(t._1, t._2, t._3)
+    implicit def vector1DToFloat(v: Vector[_1D]): Float = v(0)
+    implicit def floatToVector1D(f: Float): Vector[_1D] = Vector(f)
+    implicit def tupleOfFloatToVector2D(t: (Float, Float)): Vector[_2D] = Vector(t._1, t._2)
+    implicit def tupleOfFloatToVector3D(t: (Float, Float, Float)): Vector[_3D] = Vector(t._1, t._2, t._3)
   }
 }
 
