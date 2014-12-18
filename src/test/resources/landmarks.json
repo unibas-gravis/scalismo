@@ -1,0 +1,1 @@
+[{"id":"one","coordinates":[1,2,3]},{"id":"two","description":"Landmark two","coordinates":[2,3,4],"uncertainty":{"stddevs":[3,2,1],"pcvectors":[[0,0,1],[0,1,0],[1,0,0]]}}]

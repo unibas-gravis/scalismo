@@ -39,11 +39,7 @@ class GaussianProcess[D <: Dim : DimOps] protected (val domain : Domain[D], val 
   /**
    * Compute the marginal distribution for the given point
    */
-  def marginal(pt: Point[D]): MVNormalForPoint[D] = {
-    MVNormalForPoint(pt, mean(pt), cov(pt, pt))
-  }
-
-
+  def marginal(pt: Point[D]): NDimensionalNormalDistribution[D] = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
 }
 
 

@@ -89,7 +89,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
       warpedImg.isDefinedAt((-0.5f, -0.5f)) should equal(false)
       warpedImg.isDefinedAt((-2.5f, -2.5f)) should equal(false)
       warpedImg.isDefinedAt((-1.5f, -1.5f)) should equal(true)
-      warpedImg(-1.5f, -1.5f) should be(1.0)
+      warpedImg((-1.5f, -1.5f)) should be(1.0)
     }
   }
 }
