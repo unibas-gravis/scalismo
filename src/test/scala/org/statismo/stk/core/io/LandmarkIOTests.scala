@@ -148,9 +148,5 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
       val sc = LandmarkIO.readLandmarksJson[_3D](jsonComplexStream()).get
       sc should equal(jsonLms)
     }
-
-
-    ignore("FIXME") {
-    }
   }
 }
