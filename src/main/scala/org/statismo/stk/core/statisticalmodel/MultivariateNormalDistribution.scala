@@ -109,25 +109,25 @@ object MultivariateNormalDistribution {
 }
 
 object NDimensionalNormalDistribution {
-  def apply[D<: Dim : DimOps](mean: Vector[D], principalComponents: Seq[(Vector[D], Float)]): NDimensionalNormalDistribution[D] = {
-    val dim = implicitly[DimOps[D]].toInt
+  def apply[D<: Dim : NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Float)]): NDimensionalNormalDistribution[D] = {
+    val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
-    val cov: MatrixNxN[D] = {
+    val cov: SquareMatrix[D] = {
       val d2 = {
         val data = Array.fill(dim*dim)(0.0f)
         for (i <- 0 until dim) data(i* dim + i) = principalComponents(i)._2
-        MatrixNxN[D](data)
+        SquareMatrix[D](data)
       }
-      val u = MatrixNxN[D](principalComponents.map(_._1.data).flatten.toArray)
+      val u = SquareMatrix[D](principalComponents.map(_._1.data).flatten.toArray)
       u * d2 * u.t
     }
     NDimensionalNormalDistribution(mean, cov)
   }
 }
 
-case class NDimensionalNormalDistribution[D <: Dim : DimOps](mean: Vector[D], cov: MatrixNxN[D])
-  extends MultivariateNormalDistributionLike[Vector[D], MatrixNxN[D]] {
+case class NDimensionalNormalDistribution[D <: Dim : NDSpace](mean: Vector[D], cov: SquareMatrix[D])
+  extends MultivariateNormalDistributionLike[Vector[D], SquareMatrix[D]] {
 
   private val impl = MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix)
 
@@ -135,7 +135,7 @@ case class NDimensionalNormalDistribution[D <: Dim : DimOps](mean: Vector[D], co
 
   override def logpdf(x: Vector[D]): Double = impl.logpdf(x.toBreezeVector)
 
-  override def dim: Int = implicitly[DimOps[D]].toInt
+  override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
   override def drawSample(): Vector[D] = Vector.fromBreezeVector(impl.drawSample())
 

@@ -4,7 +4,7 @@ package image
 import scala.language.implicitConversions
 import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry.Dim
-import org.statismo.stk.core.geometry.MatrixNxN
+import org.statismo.stk.core.geometry.SquareMatrix
 import org.statismo.stk.core.geometry.Point
 import org.statismo.stk.core.geometry.Vector
 import org.statismo.stk.core.geometry._1D
@@ -303,9 +303,9 @@ case class ContinuousScalarImage3D(domain: Domain[_3D], val f: Point[_3D] => Flo
 // Vector Images
 /////////////////////////////////////////////
 
-case class ContinuousVectorImage1D(val domain: Domain[_1D], val pixelDimensionality: Int, val f: Point[_1D] => Vector[_1D], val df: Option[Point[_1D] => MatrixNxN[_1D]]) extends ContinuousVectorImage[_1D] {}
+case class ContinuousVectorImage1D(val domain: Domain[_1D], val pixelDimensionality: Int, val f: Point[_1D] => Vector[_1D], val df: Option[Point[_1D] => SquareMatrix[_1D]]) extends ContinuousVectorImage[_1D] {}
 
-case class ContinuousVectorImage2D(val domain: Domain[_2D], val pixelDimensionality: Int, val f: Point[_2D] => Vector[_2D], val df: Option[Point[_2D] => MatrixNxN[_2D]]) extends ContinuousVectorImage[_2D] {}
+case class ContinuousVectorImage2D(val domain: Domain[_2D], val pixelDimensionality: Int, val f: Point[_2D] => Vector[_2D], val df: Option[Point[_2D] => SquareMatrix[_2D]]) extends ContinuousVectorImage[_2D] {}
 
-case class ContinuousVectorImage3D(val domain: Domain[_3D], val pixelDimensionality: Int, val f: Point[_3D] => Vector[_3D], val df: Option[Point[_3D] => MatrixNxN[_3D]]) extends ContinuousVectorImage[_3D] {}
+case class ContinuousVectorImage3D(val domain: Domain[_3D], val pixelDimensionality: Int, val f: Point[_3D] => Vector[_3D], val df: Option[Point[_3D] => SquareMatrix[_3D]]) extends ContinuousVectorImage[_3D] {}
 

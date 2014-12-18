@@ -19,7 +19,7 @@ trait CanInvert[D <: Dim] {
 
 trait CanDifferentiate[D <: Dim] {
   self: Transformation[D] =>
-  def takeDerivative(x: Point[D]): MatrixNxN[D]
+  def takeDerivative(x: Point[D]): SquareMatrix[D]
 }
 
 trait TransformationSpace[D <: Dim] {
@@ -98,11 +98,11 @@ case class ProductTransformation[D <: Dim](outerTransform: ParametricTransformat
 
 }
 
-class TranslationSpace[D <: Dim: DimOps] extends TransformationSpace[D] with DifferentiableTransforms[D] {
+class TranslationSpace[D <: Dim: NDSpace] extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = TranslationTransform[D]
 
-  def parametersDimensionality: Int = implicitly[DimOps[D]].toInt
+  def parametersDimensionality: Int = implicitly[NDSpace[D]].dimensionality
   override def identityTransformParameters = DenseVector.zeros(parametersDimensionality)
 
   override def transformForParameters(p: ParameterVector): TranslationTransform[D] = TranslationTransform[D](Vector[D](p.data))
@@ -111,18 +111,18 @@ class TranslationSpace[D <: Dim: DimOps] extends TransformationSpace[D] with Dif
 }
 
 object TranslationSpace {
-  def apply[D <: Dim: DimOps] = new TranslationSpace[D]
+  def apply[D <: Dim: NDSpace] = new TranslationSpace[D]
 
 }
 
-case class TranslationTransform[D <: Dim: DimOps](t: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+case class TranslationTransform[D <: Dim: NDSpace](t: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   def apply(pt: Point[D]): Point[D] = pt + t
-  override def takeDerivative(x: Point[D]): MatrixNxN[D] = MatrixNxN.eye[D]
+  override def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix.eye[D]
   override def inverse: TranslationTransform[D] = new TranslationTransform(t * (-1f))
   val parameters = t.toBreezeVector
 }
 
-abstract class RotationSpace[D <: Dim: DimOps] extends TransformationSpace[D] with DifferentiableTransforms[D] {
+abstract class RotationSpace[D <: Dim: NDSpace] extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   def centre: Point[D]
 
@@ -139,7 +139,7 @@ private class RotationSpace2D(val centre: Point[_2D]) extends RotationSpace[_2D]
   override def transformForParameters(p: ParameterVector): RotationTransform[_2D] = {
     require(p.length == parametersDimensionality)
 
-    val rotMatrix = MatrixNxN(
+    val rotMatrix = SquareMatrix(
       (math.cos(p(0)).toFloat, -math.sin(p(0)).toFloat),
       (math.sin(p(0)).toFloat, math.cos(p(0)).toFloat))
 
@@ -179,7 +179,7 @@ private class RotationSpace3D(val centre: Point[_3D]) extends RotationSpace[_3D]
       val cosphi = Math.cos(p(0)).toFloat
       val sinphi = Math.sin(p(0)).toFloat
 
-      MatrixNxN(
+      SquareMatrix(
         (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
         (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
         (-sinth, sinpsi * costh, cospsi * costh))
@@ -238,23 +238,23 @@ object RotationSpace {
     override def createRotationSpace(centre: Point[_3D]): RotationSpace[_3D] = new RotationSpace3D(centre)
   }
 
-  def apply[D <: Dim](centre: Point[D])(implicit evDim: DimOps[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim](centre: Point[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
     evCreateRot.createRotationSpace(centre)
   }
 
   // with origin as default centre
-  def apply[D <: Dim]()(implicit evDim: DimOps[D], evCreateRot: Create[D]) = {
-    val origin = Point[D](DenseVector.zeros[Float](implicitly[DimOps[D]].toInt).data)
+  def apply[D <: Dim]()(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+    val origin = Point[D](DenseVector.zeros[Float](implicitly[NDSpace[D]].dimensionality).data)
     evCreateRot.createRotationSpace(origin)
 
   }
 }
 
-abstract class RotationTransform[D <: Dim: DimOps] extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+abstract class RotationTransform[D <: Dim: NDSpace] extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override def inverse: RotationTransform[D]
 }
 
-private case class RotationTransform3D(rotMatrix: MatrixNxN[_3D], centre: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
+private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
   def apply(pt: Point[_3D]): Point[_3D] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
@@ -263,16 +263,16 @@ private case class RotationTransform3D(rotMatrix: MatrixNxN[_3D], centre: Point[
 
   val parameters = LandmarkRegistration.rotMatrixToEulerAngles(rotMatrix.toBreezeMatrix.map(_.toDouble)).map(_.toFloat)
 
-  def takeDerivative(x: Point[_3D]): MatrixNxN[_3D] = {
+  def takeDerivative(x: Point[_3D]): SquareMatrix[_3D] = {
     rotMatrix
   }
 
   override def inverse: RotationTransform3D = {
-    new RotationTransform3D(MatrixNxN.inv(rotMatrix), centre)
+    new RotationTransform3D(SquareMatrix.inv(rotMatrix), centre)
   }
 }
 
-private case class RotationTransform2D(rotMatrix: MatrixNxN[_2D], centre: Point[_2D] = Point(0, 0)) extends RotationTransform[_2D] {
+private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Point[_2D] = Point(0, 0)) extends RotationTransform[_2D] {
   def apply(pt: Point[_2D]): Point[_2D] = {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
@@ -280,41 +280,41 @@ private case class RotationTransform2D(rotMatrix: MatrixNxN[_2D], centre: Point[
 
   }
   val parameters = DenseVector(LandmarkRegistration.rotationMatrixToAngle2D(rotMatrix.toBreezeMatrix.map(_.toDouble)).toFloat)
-  def takeDerivative(x: Point[_2D]): MatrixNxN[_2D] = {
+  def takeDerivative(x: Point[_2D]): SquareMatrix[_2D] = {
     rotMatrix
   }
 
   override def inverse: RotationTransform2D = {
-    new RotationTransform2D(MatrixNxN.inv(rotMatrix), centre)
+    new RotationTransform2D(SquareMatrix.inv(rotMatrix), centre)
   }
 }
 
 object RotationTransform {
 
   trait Create[D <: Dim] {
-    def createRotationTransform(rotMatrix: MatrixNxN[D], centre: Point[D]): RotationTransform[D]
+    def createRotationTransform(rotMatrix: SquareMatrix[D], centre: Point[D]): RotationTransform[D]
   }
 
   implicit object createRotationTransform2D extends Create[_2D] {
-    override def createRotationTransform(rotMatrix: MatrixNxN[_2D], centre: Point[_2D]): RotationTransform[_2D] = new RotationTransform2D(rotMatrix, centre)
+    override def createRotationTransform(rotMatrix: SquareMatrix[_2D], centre: Point[_2D]): RotationTransform[_2D] = new RotationTransform2D(rotMatrix, centre)
   }
 
   implicit object createRotationTransform3D extends Create[_3D] {
-    override def createRotationTransform(rotMatrix: MatrixNxN[_3D], centre: Point[_3D]): RotationTransform[_3D] = new RotationTransform3D(rotMatrix, centre)
+    override def createRotationTransform(rotMatrix: SquareMatrix[_3D], centre: Point[_3D]): RotationTransform[_3D] = new RotationTransform3D(rotMatrix, centre)
   }
 
-  def apply[D <: Dim](rotMatrix: MatrixNxN[D], centre: Point[D])(implicit evDim: DimOps[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim](rotMatrix: SquareMatrix[D], centre: Point[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
     evCreateRot.createRotationTransform(rotMatrix, centre)
   }
 
-  def apply[D <: Dim](rotMatrix: MatrixNxN[D])(implicit evDim: DimOps[D], evCreateRot: Create[D]) = {
-    val centre = Point[D](DenseVector.zeros[Float](implicitly[DimOps[D]].toInt).data)
+  def apply[D <: Dim](rotMatrix: SquareMatrix[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+    val centre = Point[D](DenseVector.zeros[Float](implicitly[NDSpace[D]].dimensionality).data)
     evCreateRot.createRotationTransform(rotMatrix, centre)
   }
 
 }
 
-abstract class ScalingSpace[D <: Dim: DimOps] extends TransformationSpace[D] with DifferentiableTransforms[D] {
+abstract class ScalingSpace[D <: Dim: NDSpace] extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = ScalingTransformation[D]
 
@@ -357,14 +357,14 @@ object ScalingSpace {
     override def createScalingSpace: ScalingSpace[_3D] = new ScalingSpace3D
   }
 
-  def apply[D <: Dim: DimOps]()(implicit ev: Create[D]) = ev.createScalingSpace
+  def apply[D <: Dim: NDSpace]()(implicit ev: Create[D]) = ev.createScalingSpace
 
 }
 
-class ScalingTransformation[D <: Dim: DimOps] private (s: Float) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+class ScalingTransformation[D <: Dim: NDSpace] private (s: Float) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   def apply(x: Point[D]): Point[D] = (x.toVector * s).toPoint
   val parameters = DenseVector(s)
-  def takeDerivative(x: Point[D]): MatrixNxN[D] = MatrixNxN.eye[D] * s
+  def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix.eye[D] * s
 
   override def inverse: ScalingTransformation[D] = {
     if (s == 0) new ScalingTransformation[D](0) else new ScalingTransformation[D](1.0f / s)
@@ -372,10 +372,10 @@ class ScalingTransformation[D <: Dim: DimOps] private (s: Float) extends Paramet
 }
 
 object ScalingTransformation {
-  def apply[D <: Dim: DimOps](s: Float) = new ScalingTransformation[D](s)
+  def apply[D <: Dim: NDSpace](s: Float) = new ScalingTransformation[D](s)
 }
 
-class RigidTransformationSpace[D <: Dim: DimOps: RotationSpace.Create] private (center: Point[D])
+class RigidTransformationSpace[D <: Dim: NDSpace: RotationSpace.Create] private (center: Point[D])
   extends ProductTransformationSpace[D, TranslationTransform[D], RotationTransform[D]](TranslationSpace[D], RotationSpace[D](center)) {
 
   override def transformForParameters(p: ParameterVector): RigidTransformation[D] = {
@@ -386,9 +386,9 @@ class RigidTransformationSpace[D <: Dim: DimOps: RotationSpace.Create] private (
 
 object RigidTransformationSpace {
 
-  def apply[D <: Dim: DimOps: RotationSpace.Create](center: Point[D]) = new RigidTransformationSpace[D](center)
-  def apply[D <: Dim: DimOps: RotationSpace.Create]() = {
-    val origin = Point[D](DenseVector.zeros[Float](implicitly[DimOps[D]].toInt).data)
+  def apply[D <: Dim: NDSpace: RotationSpace.Create](center: Point[D]) = new RigidTransformationSpace[D](center)
+  def apply[D <: Dim: NDSpace: RotationSpace.Create]() = {
+    val origin = Point[D](DenseVector.zeros[Float](implicitly[NDSpace[D]].dimensionality).data)
     new RigidTransformationSpace[D](origin)
   }
 }
@@ -397,29 +397,29 @@ object RigidTransformationSpace {
 trait RigidTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D]
 
 object RigidTransformation {
-  def apply[D <: Dim: DimOps](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D]): RigidTransformation[D] = new RigidTransformationRotThenTrans(translationTransform, rotationTransform)
-  def apply[D <: Dim: DimOps](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D]): RigidTransformation[D] = new RigidTransformationTransThenRot(rotationTransform, translationTransform)
+  def apply[D <: Dim: NDSpace](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D]): RigidTransformation[D] = new RigidTransformationRotThenTrans(translationTransform, rotationTransform)
+  def apply[D <: Dim: NDSpace](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D]): RigidTransformation[D] = new RigidTransformationTransThenRot(rotationTransform, translationTransform)
 
 }
 
-private class RigidTransformationRotThenTrans[D <: Dim: DimOps](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D])
+private class RigidTransformationRotThenTrans[D <: Dim: NDSpace](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D])
   extends ProductTransformation[D](translationTransform, rotationTransform) with RigidTransformation[D] {
 
   def inverse = new RigidTransformationTransThenRot[D](rotationTransform.inverse, translationTransform.inverse)
 }
 
-private class RigidTransformationTransThenRot[D <: Dim: DimOps](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D])
+private class RigidTransformationTransThenRot[D <: Dim: NDSpace](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D])
   extends ProductTransformation[D](rotationTransform, translationTransform) with RigidTransformation[D] {
   def inverse = new RigidTransformationRotThenTrans[D](translationTransform.inverse, rotationTransform.inverse)
 
 }
 
-case class AnisotropicScalingTransformation[D <: Dim: DimOps](s: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
  
   def apply(x: Point[D]): Point[D] = Point((x.toBreezeVector :* s.toBreezeVector).data)
 
   val parameters = s.toBreezeVector
-  def takeDerivative(x: Point[D]): MatrixNxN[D] = MatrixNxN[D](breeze.linalg.diag(s.toBreezeVector).data)
+  def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix[D](breeze.linalg.diag(s.toBreezeVector).data)
 
   override def inverse: AnisotropicScalingTransformation[D] = {
     val sinv = s.data.map(v => if (v == 0) 0 else 1.0 / v) map (_.toFloat)
@@ -427,9 +427,9 @@ case class AnisotropicScalingTransformation[D <: Dim: DimOps](s: Vector[D]) exte
   }
 }
 
-case class AnisotropicScalingSpace[D <: Dim: DimOps]() extends TransformationSpace[D] with DifferentiableTransforms[D] {
+case class AnisotropicScalingSpace[D <: Dim: NDSpace]() extends TransformationSpace[D] with DifferentiableTransforms[D] {
   override type T = AnisotropicScalingTransformation[D]
-  def parametersDimensionality: Int = implicitly[DimOps[D]].toInt
+  def parametersDimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   override def identityTransformParameters = DenseVector.ones[Float](parametersDimensionality)
 
@@ -445,19 +445,19 @@ case class AnisotropicScalingSpace[D <: Dim: DimOps]() extends TransformationSpa
 
 trait AnisotropicSimilarityTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D]
 
-private  class RigidTransformationThenAnisotropicScaling[D <: Dim: DimOps](anisotropicScaling: AnisotropicScalingTransformation[D], rigidTransform: RigidTransformationTransThenRot[D])
+private  class RigidTransformationThenAnisotropicScaling[D <: Dim: NDSpace](anisotropicScaling: AnisotropicScalingTransformation[D], rigidTransform: RigidTransformationTransThenRot[D])
   extends ProductTransformation[D](anisotropicScaling, rigidTransform) with AnisotropicSimilarityTransformation[D] {
 
   def inverse: AnisotropicScalingThenRigidTransformation[D] = new AnisotropicScalingThenRigidTransformation[D](rigidTransform.inverse, anisotropicScaling.inverse)
 }
 
-private class AnisotropicScalingThenRigidTransformation[D <: Dim: DimOps](rigidTransform: RigidTransformationRotThenTrans[D], anisotropicScaling: AnisotropicScalingTransformation[D])
+private class AnisotropicScalingThenRigidTransformation[D <: Dim: NDSpace](rigidTransform: RigidTransformationRotThenTrans[D], anisotropicScaling: AnisotropicScalingTransformation[D])
   extends ProductTransformation[D](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation[D] {
 
   def inverse: RigidTransformationThenAnisotropicScaling[D] = new RigidTransformationThenAnisotropicScaling[D](anisotropicScaling.inverse, rigidTransform.inverse)
 }
 
-case class AnisotropicSimilarityTransformationSpace[D <: Dim: DimOps: RotationSpace.Create](center: Point[D])
+case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: RotationSpace.Create](center: Point[D])
   extends ProductTransformationSpace[D, RigidTransformation[D], AnisotropicScalingTransformation[D]](RigidTransformationSpace[D](center), AnisotropicScalingSpace[D]()) {
 
   override def transformForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[D] = {

@@ -14,9 +14,9 @@ import org.statismo.stk.core.common.PointData
 import org.statismo.stk.core.common.ScalarValue
 import org.statismo.stk.core.common.ScalarPointData
 
-abstract class DiscreteImage[D <: Dim: DimOps, @specialized(Float, Short) Pixel] extends ScalarPointData[D, Pixel] {
+abstract class DiscreteImage[D <: Dim: NDSpace, @specialized(Float, Short) Pixel] extends ScalarPointData[D, Pixel] {
   def domain: DiscreteImageDomain[D]
-  val dimensionality = implicitly[DimOps[D]].toInt
+  val dimensionality = implicitly[NDSpace[D]].dimensionality
 
   def apply(idx: Index[D]): Pixel = values(domain.indexToLinearIndex(idx))
   def isDefinedAt(idx: Index[D]): Boolean = {
@@ -26,7 +26,7 @@ abstract class DiscreteImage[D <: Dim: DimOps, @specialized(Float, Short) Pixel]
 
 }
 
-abstract class DiscreteScalarImage[D <: Dim: DimOps, Pixel] extends DiscreteImage[D, Pixel] {
+abstract class DiscreteScalarImage[D <: Dim: NDSpace, Pixel] extends DiscreteImage[D, Pixel] {
   def valueDimensionality = 1
   def map[Pixel2: ScalarValue: ClassTag](f: Pixel => Pixel2): DiscreteScalarImage[D, Pixel2]
 }
