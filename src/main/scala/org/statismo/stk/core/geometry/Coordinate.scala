@@ -5,8 +5,8 @@ import breeze.linalg.DenseVector
 /**
  * The basic n-tuple in R^n^ with scalar type S
  */
-abstract class Coordinate[D <: Dim: DimOps, @specialized(Int, Float, Double) S] {
-  val dimensionality: Int = implicitly[DimOps[D]].toInt
+abstract class Coordinate[D <: Dim: NDSpace, @specialized(Int, Float, Double) S] {
+  val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   private[statismo] val data: Array[S]
 

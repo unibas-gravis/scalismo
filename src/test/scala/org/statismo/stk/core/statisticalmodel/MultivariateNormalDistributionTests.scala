@@ -11,7 +11,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       val mvn = new MultivariateNormalDistribution(DenseVector(2f), DenseMatrix(3f))
       val n = breeze.stats.distributions.Gaussian(2, Math.sqrt(3f))
       for (pt <- Seq(0, 0.1, -2, 3.1)) {
-        n.pdf(pt) should be(mvn.pdf(DenseVector(pt.toFloat)) plusOrMinus (1e-5))
+        n.pdf(pt) should be(mvn.pdf(DenseVector(pt.toFloat)) plusOrMinus 1e-5)
       }
     }
 
@@ -26,7 +26,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
     val mvn = new MultivariateNormalDistribution(mu, cov)
 
     it("yields the right mean and covariance matrix when we sample from the data") {
-      val samples = for (i <- 0 until 2000) yield mvn.drawSample
+      val samples = for (i <- 0 until 2000) yield mvn.drawSample()
       val estimatedMVN = MultivariateNormalDistribution.estimateFromData(samples)
       for (i <- 0 until mu.length) {
         mu(i) should be(estimatedMVN.mean(i) plusOrMinus 0.1f)
@@ -49,8 +49,19 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
         covRec(i,j) should be (mvn.cov(i,j) plusOrMinus 1e-5f)
       }
     }
+  }
 
-
+  describe("An NDimensionalNormalDistribution") {
+    it("returns the same principal components it was constructed with") {
+      import org.statismo.stk.core.geometry.Vector
+      val axes = List(Vector(1, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1))
+      // these are knowingly not sorted
+      val variances = List(1.0f, 4.0f, 3.0f)
+      val data = axes zip variances
+      val n = NDimensionalNormalDistribution(Vector(0, 0, 0), data)
+      // to compare however, we must ensure that both are sorted
+      n.principalComponents should equal(data.sortBy(x => x._2).reverse)
+    }
   }
 
   describe("The mahalanobis distance") {
@@ -82,7 +93,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       val variance = 5f
       val stddev = math.sqrt(variance)
       val mvn = new MultivariateNormalDistribution(DenseVector(0f), DenseMatrix.create[Float](1, 1, Array(variance)))
-      mvn.mahalanobisDistance(DenseVector(math.sqrt(variance).toFloat)) should be(1.0 plusOrMinus(1e-5))
+      mvn.mahalanobisDistance(DenseVector(math.sqrt(variance).toFloat)) should be(1.0 plusOrMinus 1e-5)
     }
   }
 

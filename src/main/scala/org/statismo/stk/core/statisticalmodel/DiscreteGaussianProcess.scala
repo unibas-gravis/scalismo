@@ -19,7 +19,7 @@ case class DiscreteGaussianProcessConfiguration[D <: Dim] (
                                                             val cov: MatrixValuedPDKernel[D,D])
 
 
-case class DiscreteGaussianProcess[D <: Dim: DimOps](_domain: Domain[D],
+case class DiscreteGaussianProcess[D <: Dim: NDSpace](_domain: Domain[D],
                                                         _mean: Point[D] => Vector[D], val points: IndexedSeq[Point[D]], _cov: MatrixValuedPDKernel[D,D])
   extends GaussianProcess[D](_domain, _mean, _cov) {
 
@@ -128,7 +128,7 @@ object DiscreteGaussianProcess {
   }
 
   // TODO this is pretty much the same code as the landmark kernel! refactor?
-  private def createLandmarkMean[D <: Dim: DimOps](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
+  private def createLandmarkMean[D <: Dim: NDSpace](trainingData: IndexedSeq[(Point[D], Vector[D], Double)], kernel: MatrixValuedPDKernel[D, D], mean: (Point[D]) => Vector[D]): (Point[D]) => Vector[D] = {
 
     val dim = kernel.outputDim
     val N = trainingData.size*dim

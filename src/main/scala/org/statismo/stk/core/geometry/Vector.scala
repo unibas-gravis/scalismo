@@ -1,11 +1,13 @@
 package org.statismo.stk.core.geometry
 
+import breeze.linalg.DenseVector
+
 import scala.language.implicitConversions
 
 /**
  * An n-dimensional Vector
  */
-class Vector[D <: Dim : DimOps] private(private[statismo] override val data: Array[Float]) extends Coordinate[D, Float] {
+class Vector[D <: Dim : NDSpace] private(private[statismo] override val data: Array[Float]) extends Coordinate[D, Float] {
 
   def norm: Double = math.sqrt(norm2)
 
@@ -64,7 +66,7 @@ class Vector[D <: Dim : DimOps] private(private[statismo] override val data: Arr
     dotprod
   }
 
-  def outer(that: Vector[D]): MatrixNxN[D] = {
+  def outer(that: Vector[D]): SquareMatrix[D] = {
 
     require(that.dimensionality == dimensionality)
     val d = dimensionality
@@ -80,7 +82,7 @@ class Vector[D <: Dim : DimOps] private(private[statismo] override val data: Arr
       }
       i += 1
     }
-    MatrixNxN[D](data)
+    SquareMatrix[D](data)
   }
 
   protected override def canEqual(other: Any): Boolean = other.isInstanceOf[Vector[D]]
@@ -89,13 +91,13 @@ class Vector[D <: Dim : DimOps] private(private[statismo] override val data: Arr
 
 object Vector {
 
-  def apply[D <: Dim : DimOps](d: Array[Float]) = new Vector[D](d)
+  def apply[D <: Dim : NDSpace](d: Array[Float]) = new Vector[D](d)
   def apply(x: Float): Vector[_1D] = new Vector[_1D](Array(x))
   def apply(x: Float, y: Float): Vector[_2D] = new Vector[_2D](Array(x, y))
   def apply(x: Float, y: Float, z: Float): Vector[_3D] = new Vector[_3D](Array(x, y, z))
 
-  def zeros[D <: Dim : DimOps] = {
-    val dim = implicitly[DimOps[D]].toInt
+  def zeros[D <: Dim : NDSpace] = {
+    val dim = implicitly[NDSpace[D]].dimensionality
     new Vector[D](Array.fill[Float](dim)(0f))
   }
 
@@ -103,11 +105,18 @@ object Vector {
     Vector(u(1) * v(2) - u(2) * v(1), u(2) * v(0) - u(0) * v(2), u(0) * v(1) - u(1) * v(0))
   }
 
+  def fromBreezeVector[D <: Dim : NDSpace] (breeze: DenseVector[Float]) : Vector[D] = {
+    val dim = implicitly[NDSpace[D]].dimensionality
+    require (breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
+    Vector.apply[D](breeze.data)
+  }
+
+
   object implicits {
-    implicit def vector1DToFloat(v: Vector[_1D]) = v(0)
-    implicit def floatToVector1D(f: Float) = Vector(f)
-    implicit def tupleOfFloatToVector2D(t: (Float, Float)) = Vector(t._1, t._2)
-    implicit def tupleOfFloatToVector3D(t: (Float, Float, Float)) = Vector(t._1, t._2, t._3)
+    implicit def vector1DToFloat(v: Vector[_1D]): Float = v(0)
+    implicit def floatToVector1D(f: Float): Vector[_1D] = Vector(f)
+    implicit def tupleOfFloatToVector2D(t: (Float, Float)): Vector[_2D] = Vector(t._1, t._2)
+    implicit def tupleOfFloatToVector3D(t: (Float, Float, Float)): Vector[_3D] = Vector(t._1, t._2, t._3)
   }
 }
 

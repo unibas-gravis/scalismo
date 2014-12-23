@@ -7,7 +7,7 @@ import org.statismo.stk.core.common.Cell
 import scala.reflect.ClassTag
 import org.statismo.stk.core.common.BoxedDomain
 import scala.collection.mutable
-import org.statismo.stk.core.geometry.DimOps
+import org.statismo.stk.core.geometry.NDSpace
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
@@ -45,7 +45,7 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
 
   def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
-  def cellNeighbors(id: Int): Seq[TriangleCell] = cellMap(id)
+  def neighbourCells(id: Int): Seq[TriangleCell] = cellMap(id)
 
   def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
     val pt1 = meshPoints(cell.ptId1)
@@ -59,7 +59,7 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
 
   def normalAtPoint(pt: Point[_3D]): Vector[_3D] = {
     val closestMeshPtId = findClosestPoint(pt)._2
-    val neigborCells = cellNeighbors(closestMeshPtId)
+    val neigborCells = neighbourCells(closestMeshPtId)
     val normalUnnormalized = neigborCells.foldLeft(Vector(0f, 0f, 0f))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
     normalUnnormalized * (1.0 / normalUnnormalized.norm)
   }

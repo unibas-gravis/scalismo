@@ -216,7 +216,7 @@ object ActiveShapeModel {
       case (pt, dist) => dist
     }
 
-    val shapeDistForPt = model.gp.marginal(refPt).mahalanobisDistance((minPt - refPt).toBreezeVector)
+    val shapeDistForPt = model.gp.marginal(refPt).mahalanobisDistance(minPt - refPt)
     if (minIntensityDist < config.maxIntensityStddev && shapeDistForPt < config.maxShapeStddev) Some(minPt) else None
   }
 
