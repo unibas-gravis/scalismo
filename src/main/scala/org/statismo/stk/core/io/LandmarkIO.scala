@@ -1,66 +1,62 @@
 package org.statismo.stk.core.io
 
 import java.io._
-
-import argonaut.Argonaut._
-import argonaut.{CodecJson, Json, Parse}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.statisticalmodel.NDimensionalNormalDistribution
-
 import scala.language.implicitConversions
 import scala.collection.immutable
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
-import scalaz.{Failure => ZFailure, Success => ZSuccess}
+import scala.util.{ Failure, Success, Try }
+import spray.json.JsonFormat
+import spray.json.JsObject
+import spray.json._
+import DefaultJsonProtocol._
 
 object LandmarkIO {
 
-  type ExtensionEncodeFunction[D <: Dim, A] = A => (Landmark[D], Option[Map[String, Json]])
-  type ExtensionDecodeFunction[D <: Dim, A] = (Landmark[D], Option[Map[String, Json]]) => A
+  private case class ExtLandmark[D <: Dim](lm: Landmark[D], exts: Option[Map[String, JsValue]])
+  private case class Uncertainty(stddevs: List[Float], pcvectors: List[List[Float]])
+  private implicit val uncertaintyProtocol = jsonFormat2(Uncertainty.apply)
 
-  private case class ExtLandmark[D <: Dim](lm: Landmark[D], exts: Option[Map[String, Json]])
-
-  private case class Uncertainty(stdDevs: List[Float], pcs: List[List[Float]])
-
-  private implicit val uncertaintyCodec: CodecJson[Uncertainty] = casecodec2(Uncertainty.apply _, Uncertainty.unapply _)("stddevs", "pcvectors")
+  type ExtensionEncodeFunction[D <: Dim, A] = A => (Landmark[D], Option[Map[String, JsValue]])
+  type ExtensionDecodeFunction[D <: Dim, A] = (Landmark[D], Option[Map[String, JsValue]]) => A
 
 
-  private object Uncertainty {
-    def u2m[D <: Dim : NDSpace](u: Uncertainty): NDimensionalNormalDistribution[D] = {
-      val dim = implicitly[NDSpace[D]].dimensionality
-      val pcs: Seq[Vector[D]] = u.pcs.take(dim).map{l => Vector(l.take(dim).toArray)}
-      val variances: Seq[Float] = u.stdDevs.take(dim).map(f => f * f)
-
-      val mean: Vector[D] = Vector(Array.fill(dim)(0.0f))
-      NDimensionalNormalDistribution(mean, pcs.zip(variances))
-    }
-
-    def m2u[D <: Dim : NDSpace](m: NDimensionalNormalDistribution[D]): Uncertainty = {
-      val (pcs, variances) = m.principalComponents.unzip
-      val stdDevs: List[Float] = variances.map(Math.sqrt(_).toFloat).toList
-      val pcList: List[List[Float]] = pcs.map(v => v.data.toList).toList
-      Uncertainty(stdDevs, pcList)
-    }
+  private implicit def u2m[D <: Dim: NDSpace](u: Uncertainty): NDimensionalNormalDistribution[D] = {
+    val dim = implicitly[NDSpace[D]].dimensionality
+    val pcs: Seq[Vector[D]] = u.pcvectors.take(dim).map { l => Vector(l.take(dim).toArray) }
+    val variances: Seq[Float] = u.stddevs.take(dim).map(f => f * f)
+    val mean: Vector[D] = Vector(Array.fill(dim)(0.0f))
+    NDimensionalNormalDistribution(mean, pcs.zip(variances))
   }
 
+  private implicit def m2u[D <: Dim: NDSpace](m: NDimensionalNormalDistribution[D]): Uncertainty = {
+    val (pcs, variances) = m.principalComponents.unzip
+    val stdDevs: List[Float] = variances.map(Math.sqrt(_).toFloat).toList
+    val pcList: List[List[Float]] = pcs.map(v => v.data.toList).toList
+    Uncertainty(stdDevs, pcList)
+  }
 
-  private def landmarkCodec[D <: Dim : NDSpace]: CodecJson[ExtLandmark[D]] = {
-    CodecJson(
-      e => ("extensions" :=? e.exts) ->?:
-        ("uncertainty" :=? e.lm.uncertainty.map(Uncertainty.m2u(_))) ->?:
-        ("coordinates" := e.lm.point.data.toList) ->:
-        ("description" :=? e.lm.description) ->?:
-        ("id" := e.lm.name) ->: jEmptyObject,
-      c => for {
-        data <- (c --\ "coordinates").as[List[Float]]
-        id <- (c --\ "id").as[String]
-        desc <- (c --\ "description").as[Option[String]]
-        unc <- (c --\ "uncertainty").as[Option[Uncertainty]]
-        ext <- (c --\ "extensions").as[Option[Map[String, Json]]]
-      } yield {
-        ExtLandmark(Landmark(Point(data.toArray), id, desc, unc.map(u => Uncertainty.u2m(u))), ext)
-      }
-    )
+  private case class LandmarkJsonFormat[D <: Dim: NDSpace]() extends JsonFormat[ExtLandmark[D]] {
+    def write(l: ExtLandmark[D]) = {
+      val fixedMap = Map("id" -> JsString(l.lm.id),
+        "coordinates" -> arrayFormat[Float].write(l.lm.point.data))
+      val descriptionMap = l.lm.description.map { d => Map("description" -> JsString(d)) }.getOrElse(Map())
+      val uncertaintyMap = l.lm.uncertainty.map { u => Map("uncertainty" -> uncertaintyProtocol.write(u)) }.getOrElse(Map())
+      val extensionsMap = l.exts.map(e => Map("extensions" -> JsObject(e))).getOrElse(Map())
+      JsObject(fixedMap ++ descriptionMap ++ uncertaintyMap ++ extensionsMap)
+    }
+
+    def read(value: JsValue) = {
+      val (id, coordinates) = value.asJsObject.getFields("id", "coordinates")  match {
+        case Seq(i, c) => (i.convertTo[String], c.convertTo[Array[Float]])
+        case _ => throw new DeserializationException("No coordinates or landmark id Found")
+      }               
+      val description = value.asJsObject.getFields("description").headOption.map(_.convertTo[String])
+      val extensions = value.asJsObject.getFields("extensions").headOption.map(_.convertTo[Map[String, JsValue]])
+      val uncertainty =  value.asJsObject.getFields("uncertainty").headOption.map(_.convertTo[Uncertainty])      
+      ExtLandmark(Landmark[D](id, Point[D](coordinates), description, uncertainty.map(u2m(_))), extensions)
+    }
   }
 
   object Sourceable {
@@ -91,49 +87,54 @@ object LandmarkIO {
     def asOutputStream(): OutputStream
   }
 
-  /* Convenience method if the "standard" landmarks are used.
-   * This simply avoids having to specify the Landmark[D] type all the time.
-   */
-  def readLandmarksJson[D <: Dim : NDSpace](source: Sourceable) = readLandmarksJson[D, Landmark[D]](source)
-
-  def readLandmarksJson[D <: Dim, A](sourceable: Sourceable)(implicit extDecode: ExtensionDecodeFunction[D, A], dimOps: NDSpace[D]): Try[List[A]] = {
-    val source = sourceable.asSource()
-
-    implicit val lmCodec = landmarkCodec[D]
-
-    val result = Try {
-      val stringData = source.getLines().mkString("\n")
-      Parse.decodeValidation[List[ExtLandmark[D]]](stringData) match {
-        case ZSuccess(extLms) => Success(extLms.map(e => extDecode(e.lm, e.exts)))
-        case ZFailure(v) => Failure(new IllegalArgumentException(v))
-      }
-    }.flatten
-    try {
-      source.close()
-    }
-    result
+  def writeLandmarksJson[D <: Dim: NDSpace](output: Sinkable, landmarks: List[Landmark[D]]) = {
+    implicit val noextEncode: LandmarkIO.ExtensionEncodeFunction[D, Landmark[D]] = { tlm => (tlm, None) }
+    writeLandmarksJson[D, Landmark[D]](output: Sinkable, landmarks)
   }
-
-  def writeLandmarksJson[D <: Dim, A](output: Sinkable, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], dimOps: NDSpace[D]): Try[Unit] = Try {
-    val lms = landmarks.map(extEncode).map{case (lm, ext) => ExtLandmark(lm, ext)}
+       
+  def writeLandmarksJson[D <: Dim: NDSpace, A](output: Sinkable, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A]): Try[Unit] = Try {
+    val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext) }
+    implicit val e = LandmarkJsonFormat[D]
     writeLandmarksJsonRaw(output, lms)
   }.flatten
 
-  private def writeLandmarksJsonRaw[D <: Dim : NDSpace](output: Sinkable, landmarks: List[ExtLandmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonRaw[D <: Dim: NDSpace](output: Sinkable, landmarks: List[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(output.asOutputStream(), true)
     val result = Try {
-      implicit val lmCodec = landmarkCodec[D]
-      writer.println(landmarks.asJson.toString())
+      writer.println(landmarks.toJson.toString())
     }
-    try {writer.close()}
+    try { writer.close() }
     result
   }
+  
+  /* Convenience method if the "standard" landmarks are used.
+   * This simply avoids having to specify the Landmark[D] type all the time.
+   */
+  def readLandmarksJson[D <: Dim : NDSpace](source: Sourceable) = {
+    implicit val noextDecode: LandmarkIO.ExtensionDecodeFunction[D, Landmark[D]] = { (lm, json) => lm }
+    readLandmarksJson[D, Landmark[D]](source)
+  }
+  
+  def readLandmarksJson[D <: Dim: NDSpace, A](sourceable: Sourceable)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
+    val source = sourceable.asSource()
+    implicit val e = LandmarkJsonFormat[D]
+    for {
+      result <- Try {
+        val stringData = source.getLines().mkString("\n")
+        val extLms = JsonParser(stringData).convertTo[List[ExtLandmark[D]]]
+        extLms.map(e => extDecode(e.lm, e.exts))
+      }
+      d <- Try { source.close() }
+    } yield result
+  }
 
-  /** ******************************************************************************************************************
-    * Legacy file format (.csv) support:
-    *
-    * label, x[, y[, z] ]
-    * *****************************************************************************************************************/
+  /**
+   * ******************************************************************************************************************
+   * Legacy file format (.csv) support:
+   *
+   * label, x[, y[, z] ]
+   * ****************************************************************************************************************
+   */
 
   private def readLandmarksCsvRaw(source: Sourceable): Try[immutable.IndexedSeq[(String, Array[Float])]] = {
     val src = source.asSource()
@@ -150,10 +151,10 @@ object LandmarkIO {
     result
   }
 
-  def readLandmarksCsv[D <: Dim : NDSpace](source: Sourceable): Try[immutable.IndexedSeq[Landmark[D]]] = {
+  def readLandmarksCsv[D <: Dim: NDSpace](source: Sourceable): Try[immutable.IndexedSeq[Landmark[D]]] = {
     val items = implicitly[NDSpace[D]].dimensionality
     for (landmarks <- readLandmarksCsvRaw(source)) yield {
-      for (landmark <- landmarks) yield Landmark(Point(landmark._2.take(items)), landmark._1)
+      for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
     }
   }
 
@@ -162,9 +163,9 @@ object LandmarkIO {
       val out = new PrintWriter(sink.asOutputStream(), true)
       for (landmark <- landmarks) {
         val line = landmark.point.dimensionality match {
-          case 1 => landmark.name.trim + "," + landmark.point(0) + ",0,0"
-          case 2 => landmark.name.trim + "," + landmark.point(0) + "," + landmark.point(1) + ",0"
-          case 3 => landmark.name.trim + "," + landmark.point(0) + "," + landmark.point(1) + "," + landmark.point(2)
+          case 1 => landmark.id.trim + "," + landmark.point(0) + ",0,0"
+          case 2 => landmark.id.trim + "," + landmark.point(0) + "," + landmark.point(1) + ",0"
+          case 3 => landmark.id.trim + "," + landmark.point(0) + "," + landmark.point(1) + "," + landmark.point(2)
           case _ => Failure(new Exception("Landmarks with dimensionality " + landmark.point.dimensionality + "not supported"))
         }
         out.println(line)
@@ -172,5 +173,4 @@ object LandmarkIO {
       out.close()
     }
   }
-
 }

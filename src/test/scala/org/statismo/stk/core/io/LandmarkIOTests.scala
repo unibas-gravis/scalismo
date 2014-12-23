@@ -1,8 +1,6 @@
 package org.statismo.stk.core.io
 
-import java.io.{ByteArrayOutputStream, File}
-
-import argonaut.{CodecJson, Json}
+import java.io.{ ByteArrayOutputStream, File }
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
@@ -10,12 +8,11 @@ import org.statismo.stk.core.statisticalmodel.NDimensionalNormalDistribution
 
 import scala.language.implicitConversions
 
-
 class LandmarkIOTests extends FunSpec with ShouldMatchers {
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 
-  describe("LandmarkIO") {
+  describe("Spray LandmarkIO") {
 
     val csvName = "/landmarks.csv"
     val csvUrl = getClass.getResource(csvName)
@@ -29,7 +26,6 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
     /*
      * LEGACY LANDMARKS (csv format)
      */
-
 
     it("can read 3D landmarks in CSV format from a file") {
       val landmarksTry = LandmarkIO.readLandmarksCsv[_3D](new File(csvUrl.getPath))
@@ -86,13 +82,15 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
       NDimensionalNormalDistribution(Vector(0, 0, 0), data)
     }
 
-    val jsonLm1 = Landmark(Point(1, 2, 3), "one")
-    val jsonLm2 = Landmark(Point(2, 3, 4), "two", Some("Landmark two"), Some(distWithDefaultVectors(1, 4, 9)))
+    val jsonLm1 = Landmark("one", Point(1, 2, 3))
+    val jsonLm2 = Landmark("two", Point(2, 3, 4), Some("Landmark two"), Some(distWithDefaultVectors(1, 4, 9)))
     val jsonLms = List(jsonLm1, jsonLm2)
+
+    import org.statismo.stk.core.io.LandmarkIO._
 
     it("can serialize and deserialize simple landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJson(out, jsonLms)
+      LandmarkIO.writeLandmarksJson[_3D](out, jsonLms)
       val written = new String(out.toByteArray)
       val read = LandmarkIO.readLandmarksJson[_3D](written).get
       read should equal(jsonLms)
@@ -109,10 +107,11 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
      * For simplicity, it uses an internal case class
      */
 
-    import argonaut.Argonaut._
+    import spray.json._
+    import DefaultJsonProtocol._
 
     case class LMData(color: Option[String], visibility: Boolean)
-    implicit val LMDataCodec: CodecJson[LMData] = casecodec2(LMData.apply, LMData.unapply)("color", "visibility")
+    implicit val LMDataProtocol = jsonFormat2(LMData)
 
     case class TestLandmark(lm: Landmark[_3D], data: LMData)
 
@@ -123,16 +122,15 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
     val extLms = List(extLm1, extLm2)
     val extLmsE = List(extLm1, extLm2E)
 
-
-    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = {tlm => (tlm.lm, Some(Map("test.ext" -> tlm.data.asJson)))}
-    implicit val extDecode: LandmarkIO.ExtensionDecodeFunction[_3D, TestLandmark] = {(lm, json) =>
-      val data = json.map(_.get("test.ext")).map(_.get.as[LMData].toOption).flatten
+    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = { tlm => (tlm.lm, Some(Map("test.ext" -> (tlm.data).toJson))) }
+    implicit val extDecode: LandmarkIO.ExtensionDecodeFunction[_3D, TestLandmark] = { (lm, json) =>
+      val data = json.map(_.get("test.ext")).flatMap(_.map(_.convertTo[LMData]))
       TestLandmark(lm, data.getOrElse(LMData(None, false)))
     }
 
     it("can serialize and deserialize complex landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJson(out, extLms)
+      LandmarkIO.writeLandmarksJson[_3D, TestLandmark](out, extLms)
       val read = LandmarkIO.readLandmarksJson[_3D, TestLandmark](out.toByteArray).get
       read should equal(extLms)
     }

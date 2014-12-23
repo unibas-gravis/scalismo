@@ -53,8 +53,8 @@ object Dependencies {
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.7"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.7"
-  val argonaut = "io.argonaut" %% "argonaut" % "6.0.4"
   val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.5.0"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.1"
 }
 
 object STKBuild extends Build {
@@ -73,10 +73,10 @@ object STKBuild extends Build {
       EclipseKeys.withSource := true))
   // Sub-project specific dependencies
   val commonDeps = Seq(
-    argonaut,
     scalatest,
     breezeMath,
     breezeNative,
     statismoNativelibs,
+    sprayJson,
     commonsio)
 }
