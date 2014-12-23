@@ -6,13 +6,12 @@ import org.statismo.stk.core.numerics.GradientDescentOptimizer
 import org.statismo.stk.core.image.DiscreteImageDomain
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.numerics.GradientDescentConfiguration
-import org.statismo.stk.core.image.DiscreteImageDomain1D
 
 
 
 
 object Configuration {  
-//case class KernelRegistration1D(domain : DiscreteImageDomain1D) extends RegistrationConfiguration[CoordVector1D] {
+//case class KernelRegistration1D(domain : DiscreteImageDomain[_1D]) extends RegistrationConfiguration[CoordVector1D] {
 //
 //	val gk = GaussianKernel1D(0.1)
 //	val gp = (domain : DiscreteImageDomain[CoordVector1D]) => GaussianProcess[CoordVector1D]((x: Point1D) => DenseVector(0.), gk)

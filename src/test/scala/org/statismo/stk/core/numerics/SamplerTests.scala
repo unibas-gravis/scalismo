@@ -4,12 +4,12 @@ import java.io.File
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.geometry.{Vector3D, Point, ThreeD}
 import org.statismo.stk.core.io.MeshIO
 import org.statismo.stk.core.mesh.TriangleMesh
 
 import scala.util.Random
 import org.statismo.stk.core.utils.Memoize
+import org.statismo.stk.core.geometry.{Point, _3D, Vector}
 
 class SamplerTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
@@ -23,11 +23,11 @@ class SamplerTests extends FunSpec with ShouldMatchers {
       val random = new Random()
 
       // precalculate values needed for determining if a point lies in a (triangle) cell.
-      case class CellInfo(a: Vector3D, b: Vector3D, c: Vector3D, v0: Vector3D, v1: Vector3D, dot00: Float, dot01: Float, dot11: Float)
+      case class CellInfo(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], v0: Vector[_3D], v1: Vector[_3D], dot00: Float, dot01: Float, dot11: Float)
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
-        val vec = cell.pointIds.map(facemesh.points).map(_.toVector.asInstanceOf[Vector3D])
+        val vec = cell.pointIds.map(facemesh.points).map(_.toVector)
         val (a, b, c) = (vec(0), vec(1), vec(2))
         val v0 = c - a
         val v1 = b - a
@@ -44,10 +44,10 @@ class SamplerTests extends FunSpec with ShouldMatchers {
       def testSampling(numSamplingPoints: Int, randomAreaSizeRatio: Double): Unit = {
 
         // the algorithm is taken from http://www.blackpawn.com/texts/pointinpoly/
-        def pointInCell(p: Point[ThreeD], cellId: Int, mesh: TriangleMesh): Boolean = {
+        def pointInCell(p: Point[_3D], cellId: Int, mesh: TriangleMesh): Boolean = {
           val info = memoizedInfo(cellId)
 
-          val v2 = (p.toVector - info.a).asInstanceOf[Vector3D]
+          val v2 = p.toVector - info.a
           val dot02 = info.v0 dot v2
           val dot12 = info.v1 dot v2
 

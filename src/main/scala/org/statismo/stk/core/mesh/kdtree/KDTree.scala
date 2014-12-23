@@ -108,7 +108,7 @@ case class KDTreeInnerNode[A, B](
       val currentBest = values.last._2
 
       val newValues = if (myDist < currentBest) {
-        (values :+ ((key, value), myDist)) sortBy (_._2) take (n)
+        (values :+ (((key, value), myDist))) sortBy (_._2) take (n)
       } else values
       val newCurrentBest = values.last._2
 
