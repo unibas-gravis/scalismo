@@ -211,7 +211,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         }
 
         def apply(x: Point[_3D], y: Point[_3D]) = {
-          MatrixNxN[_3D](f(x, y).data)
+          SquareMatrix[_3D](f(x, y).data)
         }
       }
 

@@ -13,7 +13,7 @@ import org.statismo.stk.core.geometry._
 
 case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
 
-case class RegistrationConfiguration[D <: Dim : DimOps](
+case class RegistrationConfiguration[D <: Dim : NDSpace](
                                                          optimizer: Optimizer,
                                                          integrator: Integrator[D],
                                                          metric: ImageMetric[D],
@@ -28,7 +28,7 @@ object Registration {
 
   case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
 
-  def iterations[D <: Dim : DimOps](configuration: RegistrationConfiguration[D])(
+  def iterations[D <: Dim : NDSpace](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] = {
     val regularizer = configuration.regularizer
@@ -80,7 +80,7 @@ object Registration {
     }
   }
 
-  def registration[D <: Dim : DimOps](configuration: RegistrationConfiguration[D])(
+  def registration[D <: Dim : NDSpace](configuration: RegistrationConfiguration[D])(
     fixedImage: ContinuousScalarImage[D],
     movingImage: ContinuousScalarImage[D]): RegistrationResult[D] = {
     val regStates = iterations(configuration)(fixedImage, movingImage)

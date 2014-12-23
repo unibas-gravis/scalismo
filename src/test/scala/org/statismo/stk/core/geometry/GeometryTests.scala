@@ -60,7 +60,7 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     it("gives the correct value for the outer product") {
       val v1 = Vector(4.0, -3.0, -1.0)
       val v2 = Vector(3.0, 2.0, 5.0)
-      val res = MatrixNxN((12f, 8f, 20f), (-9f, -6f, -15f), (-3f, -2f, -5f))
+      val res = SquareMatrix((12f, 8f, 20f), (-9f, -6f, -15f), (-3f, -2f, -5f))
       (v1 outer v2) should be(res)
     }
 
@@ -74,23 +74,23 @@ class GeometryTests extends FunSpec with ShouldMatchers {
   describe("a 3x3 matrix") {
 
     // storage is column major
-    val m = MatrixNxN[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
+    val m = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
 
     it("can be created using zeros") {
-      val m = MatrixNxN.zeros[_3D]
+      val m = SquareMatrix.zeros[_3D]
       for (i <- 0 until 3; j <- 0 until 3) {
         m(i, j) should be(0f)
       }
     }
 
     it("can be correclty initialized by a tuple") {
-      val mInitFromTuple = MatrixNxN((1.1, 1.2, 1.3), (2.1, 2.2, 2.3), (3.1, 3.2, 3.3))
+      val mInitFromTuple = SquareMatrix((1.1, 1.2, 1.3), (2.1, 2.2, 2.3), (3.1, 3.2, 3.3))
       mInitFromTuple should equal(m)
     }
 
     it("should euqal another 3x3 matrix with the same values") {
-      val m = MatrixNxN[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
-      val m2 = MatrixNxN[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      val m = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      val m2 = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
       m should equal(m2)
     }
 
@@ -145,8 +145,8 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("can be multiplied (matrix product) with another matrix") {
-      val m = MatrixNxN((1, 2, 3), (2, 7, 3), (9, 2, 8))
-      val m2 = MatrixNxN((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val m = SquareMatrix((1, 2, 3), (2, 7, 3), (9, 2, 8))
+      val m2 = SquareMatrix((3, 4, 1), (3, 7, 2), (7, 9, 11))
 
       val res = m * m2
       val resBreeze = m.toBreezeMatrix * m2.toBreezeMatrix
@@ -158,13 +158,13 @@ class GeometryTests extends FunSpec with ShouldMatchers {
 
     it("fullfills some simple identities with ones,zeros and ident") {
       val v = Vector(1, 2, 3)
-      MatrixNxN.eye[_3D] * v should equal(v)
-      MatrixNxN.zeros[_3D] * v should equal(Vector(0, 0, 0))
-      MatrixNxN.ones[_3D] * v should equal(Vector(6, 6, 6))
+      SquareMatrix.eye[_3D] * v should equal(v)
+      SquareMatrix.zeros[_3D] * v should equal(Vector(0, 0, 0))
+      SquareMatrix.ones[_3D] * v should equal(Vector(6, 6, 6))
     }
 
     it("yields itself when transposed twice") {
-      val m = MatrixNxN((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val m = SquareMatrix((3, 4, 1), (3, 7, 2), (7, 9, 11))
       val mtt = m.t.t
       for (i <- 0 until 3; j <- 0 until 3) {
         mtt(i, j) should equal(m(i, j))
@@ -172,10 +172,10 @@ class GeometryTests extends FunSpec with ShouldMatchers {
     }
 
     it("yields the identity transform when inverted and multiplied with itself") {
-      val m = MatrixNxN((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val m = SquareMatrix((3, 4, 1), (3, 7, 2), (7, 9, 11))
       val mInvertible = m.t * m // m^T *m is always invertible
-      val almostEye = mInvertible * MatrixNxN.inv(mInvertible)
-      val eye = MatrixNxN.eye[_3D]
+      val almostEye = mInvertible * SquareMatrix.inv(mInvertible)
+      val eye = SquareMatrix.eye[_3D]
       for (i <- 0 until 3; j <- 0 until 3) {
         almostEye(i, j) should be(eye(i, j) plusOrMinus 1e-5f)
       }

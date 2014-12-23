@@ -18,7 +18,7 @@ case class LowRankGaussianProcessConfiguration[D <: Dim](
                                                           val cov: MatrixValuedPDKernel[D, D],
                                                           val numBasisFunctions: Int)
 
-class LowRankGaussianProcess[D <: Dim: DimOps](domain: Domain[D],
+class LowRankGaussianProcess[D <: Dim: NDSpace](domain: Domain[D],
                                                   mean: Point[D] => Vector[D],
                                                   val eigenPairs: IndexedSeq[(Float, Point[D] => Vector[D])])
   extends GaussianProcess[D](domain, mean, LowRankGaussianProcess.covFromEigenpairs(eigenPairs)) {
@@ -94,7 +94,7 @@ class LowRankGaussianProcess[D <: Dim: DimOps](domain: Domain[D],
   }
 }
 
-class SpecializedLowRankGaussianProcess[D <: Dim: DimOps](gp: LowRankGaussianProcess[D], val points: IndexedSeq[Point[D]], val meanVector: DenseVector[Float], val lambdas: IndexedSeq[Float], val eigenMatrix: DenseMatrix[Float])
+class SpecializedLowRankGaussianProcess[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D], val points: IndexedSeq[Point[D]], val meanVector: DenseVector[Float], val lambdas: IndexedSeq[Float], val eigenMatrix: DenseMatrix[Float])
   extends LowRankGaussianProcess[D](gp.domain, gp.mean, gp.eigenPairs) {
 
   private val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
@@ -109,11 +109,11 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimOps](gp: LowRankGaussianPro
 
   override val cov: MatrixValuedPDKernel[D, D] = {
     new MatrixValuedPDKernel[D, D] {
-      def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
+      def apply(x: Point[D], y: Point[D]): SquareMatrix[D] = {
 
         // if pt is in our map, we compute it efficiently, otherwise we
         // fall back to generic version
-        val cov: Option[MatrixNxN[D]] = for {
+        val cov: Option[SquareMatrix[D]] = for {
           ptId1 <- pointToIdxMap.get(x)
           ptId2 <- pointToIdxMap.get(y)
         } yield computeCov(ptId1, ptId2)
@@ -166,7 +166,7 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimOps](gp: LowRankGaussianPro
   }
 
   //compute covariance for two points with given ptIds
-  private def computeCov(ptId1: Int, ptId2: Int): MatrixNxN[D] = {
+  private def computeCov(ptId1: Int, ptId2: Int): SquareMatrix[D] = {
     val eigenMatrixForPtId1 = eigenMatrix(ptId1 * outputDimensionality until (ptId1 + 1) * outputDimensionality, ::)
     val eigenMatrixForPtId2 = eigenMatrix(ptId2 * outputDimensionality until (ptId2 + 1) * outputDimensionality, ::)
     //val covValue = eigenMatrixForPtId1 * breeze.linalg.diag(stddev :* stddev) * eigenMatrixForPtId2.t
@@ -191,13 +191,13 @@ class SpecializedLowRankGaussianProcess[D <: Dim: DimOps](gp: LowRankGaussianPro
       }
     }
 
-    MatrixNxN[D](covValue.data)
+    SquareMatrix[D](covValue.data)
   }
 
 }
 
 object SpecializedLowRankGaussianProcess {
-  def apply[D <: Dim: DimOps](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]]) = {
+  def apply[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D], points: IndexedSeq[Point[D]]) = {
 
     // precompute all the at the given points
     val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
@@ -255,14 +255,14 @@ object LowRankGaussianProcess {
 
 
 
-  private def covFromEigenpairs[D <: Dim : DimOps](eigenPairs : IndexedSeq[(Float, Point[D] => Vector[D])]) : MatrixValuedPDKernel[D, D]= {
-    val dimOps = implicitly[DimOps[D]]
+  private def covFromEigenpairs[D <: Dim : NDSpace](eigenPairs : IndexedSeq[(Float, Point[D] => Vector[D])]) : MatrixValuedPDKernel[D, D]= {
+    val dimOps = implicitly[NDSpace[D]]
     val cov: MatrixValuedPDKernel[D, D] = new MatrixValuedPDKernel[D, D] {
-      def apply(x: Point[D], y: Point[D]): MatrixNxN[D] = {
-        val ptDim = dimOps.toInt
+      def apply(x: Point[D], y: Point[D]): SquareMatrix[D] = {
+        val ptDim = dimOps.dimensionality
         val phis = eigenPairs.map(_._2)
 
-        var outer = MatrixNxN.zeros[D]
+        var outer = SquareMatrix.zeros[D]
         for ((lambda_i, phi_i) <- eigenPairs) {
           outer = outer + (phi_i(x) outer phi_i(y)) * lambda_i
         }
@@ -286,8 +286,8 @@ object LowRankGaussianProcess {
    * @param sampler A (preferably) uniform sampler from which the points are sampled
    *
    */
-  def createLowRankGPFromTransformations[D <: Dim: DimOps](domain: Domain[D], transformations: Seq[Transformation[D]], sampler: Sampler[D]): LowRankGaussianProcess[D] = {
-    val dim = implicitly[DimOps[D]].toInt
+  def createLowRankGPFromTransformations[D <: Dim: NDSpace](domain: Domain[D], transformations: Seq[Transformation[D]], sampler: Sampler[D]): LowRankGaussianProcess[D] = {
+    val dim = implicitly[NDSpace[D]].dimensionality
 
     val samplePts = sampler.sample.map(_._1)
 

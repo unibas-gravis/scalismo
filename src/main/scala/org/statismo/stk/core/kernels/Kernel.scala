@@ -31,10 +31,10 @@ abstract class PDKernel[D <: Dim] { self =>
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim: DimOps, DO <: Dim: DimOps] { self =>
+abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { self =>
 
-  def apply(x: Point[D], y: Point[D]): MatrixNxN[DO]
-  def outputDim = implicitly[DimOps[DO]].toInt
+  def apply(x: Point[D], y: Point[D]): SquareMatrix[DO]
+  def outputDim = implicitly[NDSpace[DO]].dimensionality
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def apply(x: Point[D], y: Point[D]) = self.apply(x, y) + that.apply(x, y)
@@ -56,25 +56,25 @@ abstract class MatrixValuedPDKernel[D <: Dim: DimOps, DO <: Dim: DimOps] { self 
 }
 
 case class UncorrelatedKernel1x1(k: PDKernel[_1D]) extends MatrixValuedPDKernel[_1D, _1D] {
-  val I = MatrixNxN.eye[_1D]
+  val I = SquareMatrix.eye[_1D]
   def apply(x: Point[_1D], y: Point[_1D]) = I * (k(x, y)) // k is scalar valued
 }
 
 case class UncorrelatedKernel2x2(k: PDKernel[_2D]) extends MatrixValuedPDKernel[_2D, _2D] {
-  val I = MatrixNxN.eye[_2D]
+  val I = SquareMatrix.eye[_2D]
   def apply(x: Point[_2D], y: Point[_2D]) = I * (k(x, y)) // k is scalar valued
 }
 
 case class UncorrelatedKernel3x3(k: PDKernel[_3D]) extends MatrixValuedPDKernel[_3D, _3D] {
-  val I = MatrixNxN.eye[_3D]
+  val I = SquareMatrix.eye[_3D]
   def apply(x: Point[_3D], y: Point[_3D]) = I * (k(x, y)) // k is scalar valued
 }
 
 // TODO maybe this should be called posterior or conditional kernel
 // TODO maybe it should not even be here, but be an internal in the Gaussian process ? Think about
-case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernel[D <: Dim: NDSpace](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
-  val dim = implicitly[DimOps[D]].toInt
+  val dim = implicitly[NDSpace[D]].dimensionality
   val N = trainingData.size * dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -87,7 +87,7 @@ case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], train
   def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D](x, xs, k) }
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x, y) - MatrixNxN[D](((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat))
+    k(x, y) - SquareMatrix[D](((xstar(x) * K_inv) * xstar(y)).data.map(_.toFloat))
 
   }
 
@@ -100,9 +100,9 @@ case class LandmarkKernel[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], train
 }
 
 // TODO this duplicate should not be there
-case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
+case class LandmarkKernelNonRepeatingPoints[D <: Dim: NDSpace](k: MatrixValuedPDKernel[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], memSize: Int) extends MatrixValuedPDKernel[D, D] {
 
-  val dim = implicitly[DimOps[D]].toInt
+  val dim = implicitly[NDSpace[D]].dimensionality
   val N = trainingData.size * dim
   def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
 
@@ -117,7 +117,7 @@ case class LandmarkKernelNonRepeatingPoints[D <: Dim: DimOps](k: MatrixValuedPDK
   val memxstar = Memoize(xstar, memSize)
 
   def cov(x: Point[D], y: Point[D]) = {
-    k(x, y) - MatrixNxN[D](((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat))
+    k(x, y) - SquareMatrix[D](((memxstar(x) * K_inv) * memxstar(y).t).data.map(_.toFloat))
 
   }
 
@@ -173,8 +173,8 @@ case class SampleCovarianceKernel3D(val ts: IndexedSeq[Transformation[_3D]], cac
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  def apply(x: Point[_3D], y: Point[_3D]): MatrixNxN[_3D] = {
-    var ms = MatrixNxN.zeros[_3D]
+  def apply(x: Point[_3D], y: Point[_3D]): SquareMatrix[_3D] = {
+    var ms = SquareMatrix.zeros[_3D]
     var i = 0;
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -244,7 +244,7 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: DimOps](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim: NDSpace](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
