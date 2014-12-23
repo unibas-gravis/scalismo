@@ -9,6 +9,7 @@ import scala.io.Source
 import scala.util.{ Failure, Success, Try }
 import spray.json.JsonFormat
 import spray.json.JsObject
+
 import spray.json._
 import DefaultJsonProtocol._
 
@@ -121,7 +122,7 @@ object LandmarkIO {
     for {
       result <- Try {
         val stringData = source.getLines().mkString("\n")
-        val extLms = JsonParser(stringData).convertTo[List[ExtLandmark[D]]]
+        val extLms = stringData.parseJson.convertTo[List[ExtLandmark[D]]]
         extLms.map(e => extDecode(e.lm, e.exts))
       }
       d <- Try { source.close() }
