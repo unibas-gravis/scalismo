@@ -5,36 +5,43 @@ import scala.util.Try
 import scala.util.Failure
 import java.io.File
 import scala.util.Success
-import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.image._
 import reflect.runtime.universe.{ TypeTag, typeOf }
-import org.statismo.stk.core.image.DiscreteScalarImage2D
 import java.io.IOException
-import org.statismo.stk.core.image.DiscreteImage
 import scala.reflect.ClassTag
-import org.statismo.stk.core.image.DiscreteScalarImage1D
 import org.statismo.stk.core.geometry._
 import vtk.vtkStructuredPointsReader
 import org.statismo.stk.core.utils.ImageConversion
 import vtk.vtkStructuredPointsWriter
 import vtk.vtkStructuredPoints
-import org.statismo.stk.core.common.ScalarValue
 import niftijio.NiftiVolume
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.image.DiscreteScalarImage3D
 import org.statismo.stk.core.registration.LandmarkRegistration
 import org.statismo.stk.core.registration.AnisotropicScalingSpace
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace
-
-import org.statismo.stk.core.image.{ DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import org.statismo.stk.core.registration.AnisotropicScalingSpace
+import spire.math.Numeric
+
 /**
  * WARNING! WE ARE USING RAS COORDINATE SYSTEM
  */
 
 object ImageIO {
+
+
+  trait WriteNifty[D <: Dim] {
+    def write[A : Numeric : TypeTag : ClassTag] (img : DiscreteScalarImage[D, A], f : File) : Try[Unit]
+  }
+
+
+  implicit object DiscreteScalarImage3DNifty extends WriteNifty[_3D] {
+    def write[A : Numeric :  TypeTag : ClassTag] (img : DiscreteScalarImage[_3D, A], f : File) : Try[Unit] = {
+      writeNifti[A](img, f)
+    }
+  }
 
   private case class GenericImageData[Scalar](
 
@@ -52,7 +59,7 @@ object ImageIO {
     }
   }
 
-  def read1DScalarImage[Scalar: ScalarValue: TypeTag](file: File): Try[DiscreteScalarImage1D[Scalar]] = {
+  def read1DScalarImage[Scalar: Numeric: TypeTag : ClassTag](file: File): Try[DiscreteScalarImage[_1D, Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
@@ -69,7 +76,7 @@ object ImageIO {
               } else {
 
                 val domain = DiscreteImageDomain[_1D](Point(imageData.origin(0).toFloat), Vector(imageData.spacing(0).toFloat), Index(imageData.size(0).toInt))
-                Success(DiscreteScalarImage1D(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, imageData.data))
               }
             }
         }
@@ -77,7 +84,7 @@ object ImageIO {
     }
   }
 
-  def read3DScalarImage[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
+  def read3DScalarImage[Scalar: Numeric: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
@@ -97,7 +104,7 @@ object ImageIO {
                   Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
                   Index(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
-                Success(DiscreteScalarImage3D(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, imageData.data))
 
               }
             }
@@ -122,7 +129,7 @@ object ImageIO {
     }
   }
 
-  def read2DScalarImage[Scalar: ScalarValue: TypeTag](file: File): Try[DiscreteScalarImage2D[Scalar]] = {
+  def read2DScalarImage[Scalar: Numeric: ClassTag : TypeTag](file: File): Try[DiscreteScalarImage[_2D, Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
@@ -141,7 +148,7 @@ object ImageIO {
                   Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
                   Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
                   Index(imageData.size(0).toInt, imageData.size(1).toInt))
-                Success(DiscreteScalarImage2D(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, imageData.data))
               }
 
             }
@@ -152,7 +159,7 @@ object ImageIO {
         reader.Update()
         val errCode = reader.GetErrorCode()
         if (errCode != 0) {
-          return Failure(new IOException("Failed to read vtk file ${file.getAbsolutePath()}. " +
+          return Failure(new IOException(s"Failed to read vtk file ${file.getAbsolutePath()}. " +
             "(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
@@ -165,9 +172,9 @@ object ImageIO {
     }
   }
 
-  private def readNifti[Scalar: ScalarValue: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage3D[Scalar]] = {
+  private def readNifti[Scalar: Numeric: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, Scalar]] = {
 
-    val scalarConv = implicitly[ScalarValue[Scalar]]
+    val scalarConv = implicitly[Numeric[Scalar]]
 
     for {
 
@@ -199,7 +206,7 @@ object ImageIO {
       val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
       val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-      DiscreteScalarImage3D[Scalar](newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
+      DiscreteScalarImage(newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
 
     }
   }
@@ -282,41 +289,11 @@ object ImageIO {
     genericImageData
   }
 
-  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage1D[Scalar], file: File): Try[Unit] = {
 
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".h5") => writeHDF5(img, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
+  def writeNifti[Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, Scalar], file: File): Try[Unit] = {
 
-  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
 
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".h5") => writeHDF5(img, file)
-      case f if f.endsWith(".vtk") => writeVTK(img, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  def writeImage[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
-
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".h5") => writeHDF5(img, file)
-      case f if f.endsWith(".vtk") => writeVTK(img, file)
-      case f if f.endsWith(".nii") || f.endsWith(".nia") => writeNifti(img, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  private[this] def writeNifti[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
-    val scalarConv = implicitly[ScalarValue[Scalar]]
+    val scalarConv = implicitly[Numeric[Scalar]]
 
     val domain = img.domain
     val size = domain.size
@@ -378,7 +355,7 @@ object ImageIO {
     }
   }
 
-  private[this] def niftyDataTypeFromScalar[Scalar: ScalarValue: TypeTag: ClassTag]: Short = {
+  private[this] def niftyDataTypeFromScalar[Scalar: Numeric: TypeTag: ClassTag]: Short = {
 
     typeOf[Scalar] match {
       case t if t =:= typeOf[Char] => 2
@@ -390,16 +367,15 @@ object ImageIO {
     }
   }
 
-  private def writeVTK[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage2D[Scalar], file: File): Try[Unit] = {
+  def writeVTK[D <: Dim : NDSpace, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
 
-    val imgVtk = ImageConversion.image2DTovtkStructuredPoints(img)
-    writeVTKInternal(imgVtk, file)
+    for {
+      imgVtk <- ImageConversion.imageTovtkStructuredPoints(img)
+      _ <- writeVTKInternal(imgVtk, file)
+    }  yield ()
+
   }
 
-  private def writeVTK[Scalar: ScalarValue: TypeTag: ClassTag](img: DiscreteScalarImage3D[Scalar], file: File): Try[Unit] = {
-    val imgVtk = ImageConversion.image3DTovtkStructuredPoints(img)
-    writeVTKInternal(imgVtk, file)
-  }
 
   private def writeVTKInternal(imgVtk: vtkStructuredPoints, file: File): Try[Unit] = {
     val writer = new vtkStructuredPointsWriter()
@@ -415,7 +391,7 @@ object ImageIO {
     }
   }
 
-  private def writeHDF5[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteImage[D, Scalar], file: File): Try[Unit] = {
+  def writeHDF5[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
 
     val maybeVoxelType = scalarTypeToString[Scalar]()
     if (maybeVoxelType.isEmpty) {
@@ -430,9 +406,6 @@ object ImageIO {
     // vector dims that is stored in the field Dimensions. This is the convention of the itk implementation
     // which we follow)
     var voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
-
-    if (img.valueDimensionality > 1)
-      voxelArrayDim = voxelArrayDim ++ IndexedSeq[Long](img.valueDimensionality)
 
     // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](

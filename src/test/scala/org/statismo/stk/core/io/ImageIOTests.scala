@@ -22,7 +22,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
 
   org.statismo.stk.core.initialize()
 
-  def equalImages(img1: DiscreteScalarImage3D[_], img2: DiscreteScalarImage3D[_]): Boolean = {
+  def equalImages(img1: DiscreteScalarImage[_3D, _], img2: DiscreteScalarImage[_3D, _]): Boolean = {
 
     val valFlag = (0 until img1.values.size by img1.values.size / 1000).forall { i =>
       img1.values(i) == img2.values(i)
@@ -36,12 +36,12 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
     it("can be stored and read again") {
       val domain = DiscreteImageDomain[_1D](Point(0), Vector(0.02f), Index(50))
       val values = domain.points.map(x => math.sin(2 * math.Pi * x(0))).map(_.toFloat).toArray
-      val discreteImage = DiscreteScalarImage1D[Float](domain, values)
+      val discreteImage = DiscreteScalarImage[_1D, Float](domain, values)
 
       val tmpImgFile = File.createTempFile("image1D", ".h5")
       tmpImgFile.deleteOnExit()
 
-      ImageIO.writeImage(discreteImage, tmpImgFile)
+      ImageIO.writeHDF5(discreteImage, tmpImgFile)
       val restoredDiscreteImgOrFailure = ImageIO.read1DScalarImage[Float](tmpImgFile)
 
       restoredDiscreteImgOrFailure.isSuccess should equal(true)
@@ -56,7 +56,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
       val path = getClass.getResource("/lena.h5").getPath
       val lena = ImageIO.read2DScalarImage[Short](new File(path)).get
       val tmpImgFile = File.createTempFile("image2D", ".vtk")
-      ImageIO.writeImage(lena, tmpImgFile) match {
+      ImageIO.writeVTK(lena, tmpImgFile) match {
         case Failure(ex) => throw new Exception(ex)
         case Success(_) =>
       }
@@ -70,10 +70,10 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
     it("can be stored to VTK and re-read in right precision") {
       val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), Index(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
-      val discreteImage = DiscreteScalarImage3D(domain, values)
+      val discreteImage = DiscreteScalarImage(domain, values)
       val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()
-      ImageIO.writeImage(discreteImage, f)
+      ImageIO.writeVTK(discreteImage, f)
       val readImg = ImageIO.read3DScalarImage[Short](f).get
 
       readImg.values should equal(discreteImage.values)
@@ -87,7 +87,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
       val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
       val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()
-      ImageIO.writeImage(discreteImage, f)
+      ImageIO.writeVTK(discreteImage, f)
       val readImg = ImageIO.read3DScalarImage[Short](f).get
       assert(equalImages(readImg, discreteImage))
     }
@@ -139,7 +139,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
         val tmpfile = File.createTempFile("dummy", ".nii")
         tmpfile.deleteOnExit()
 
-        ImageIO.writeImage(origImg, tmpfile).get
+        ImageIO.writeNifti(origImg, tmpfile).get
 
         val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
 

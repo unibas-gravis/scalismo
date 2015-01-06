@@ -7,7 +7,8 @@ import org.statismo.stk.core.common.Cell
 import scala.reflect.ClassTag
 import org.statismo.stk.core.common.BoxedDomain
 import scala.collection.mutable
-import org.statismo.stk.core.geometry.NDSpace
+
+import spire.math.Numeric
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
@@ -101,12 +102,14 @@ object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 }
 
-case class ScalarMeshData[S: ScalarValue: ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
+case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
   require(mesh.numberOfPoints == values.size)
-  val valueDimensionality = 1
+
+  override def numeric = implicitly[Numeric[S]]
+
   override val domain = mesh
 
-  override def map[S2: ScalarValue: ClassTag](f: S => S2): ScalarPointData[_3D, S2] = {
+  override def map[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
     ScalarMeshData(mesh, values.map(f))
   }
 }

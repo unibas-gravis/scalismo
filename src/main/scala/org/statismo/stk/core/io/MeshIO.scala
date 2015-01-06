@@ -10,11 +10,13 @@ import vtk._
 import org.statismo.stk.core.utils.MeshConversion
 import reflect.runtime.universe.TypeTag
 import scala.reflect.ClassTag
-import org.statismo.stk.core.common.ScalarValue
 import scala.util.Failure
 import org.statismo.stk.core.mesh.ScalarMeshData
 import scala.util.Success
 import org.statismo.stk.core.mesh.TriangleCell
+
+
+import spire.math.Numeric
 
 object MeshIO {
 
@@ -49,7 +51,7 @@ object MeshIO {
     }
   }
 
-  def writeMeshData[Scalar: ScalarValue : TypeTag : ClassTag](meshData: ScalarMeshData[Scalar], file: File): Try[Unit] = {
+  def writeMeshData[Scalar: Numeric : TypeTag : ClassTag](meshData: ScalarMeshData[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeVTK(meshData, file)
@@ -78,7 +80,7 @@ object MeshIO {
   }
 
 
-  def writeVTK[S: ScalarValue : TypeTag : ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
+  def writeVTK[S: Numeric : TypeTag : ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()

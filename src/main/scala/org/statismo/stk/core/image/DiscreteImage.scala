@@ -5,18 +5,16 @@ import scala.language.implicitConversions
 import scala.{ specialized => spec }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.reflect.ClassTag
-import breeze.linalg.DenseVector
-import breeze.linalg.DenseMatrix
 import scala.reflect.ClassTag
-import scala.util.Random
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.PointData
-import org.statismo.stk.core.common.ScalarValue
 import org.statismo.stk.core.common.ScalarPointData
+import spire.math.Numeric
 
-abstract class DiscreteImage[D <: Dim: NDSpace, @specialized(Float, Short) Pixel] extends ScalarPointData[D, Pixel] {
+trait DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PointData[D, Pixel] {
+  def ndSpace : NDSpace[D]
   def domain: DiscreteImageDomain[D]
-  val dimensionality = implicitly[NDSpace[D]].dimensionality
+  val dimensionality = ndSpace.dimensionality
 
   def apply(idx: Index[D]): Pixel = values(domain.indexToLinearIndex(idx))
   def isDefinedAt(idx: Index[D]): Boolean = {
@@ -26,55 +24,56 @@ abstract class DiscreteImage[D <: Dim: NDSpace, @specialized(Float, Short) Pixel
 
 }
 
-abstract class DiscreteScalarImage[D <: Dim: NDSpace, Pixel] extends DiscreteImage[D, Pixel] {
-  def valueDimensionality = 1
-  def map[Pixel2: ScalarValue: ClassTag](f: Pixel => Pixel2): DiscreteScalarImage[D, Pixel2]
-}
-
-case class DiscreteScalarImage1D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain[_1D], val values: Array[Pixel]) extends DiscreteScalarImage[_1D, Pixel] {
+class DiscreteScalarImage[D <: Dim: NDSpace, A : Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val values: Array[A]) extends DiscreteImage[D, A] with ScalarPointData[D, A] {
   require(domain.numberOfPoints == values.size)
-  def map[@specialized(Short, Float) A: ScalarValue: ClassTag](f: Pixel => A) = DiscreteScalarImage1D(this.domain, this.values.map(f))
+
+  override def numeric = implicitly[Numeric[A]]
+  override def ndSpace = implicitly[NDSpace[D]]
+
+
+  def map[B: Numeric : ClassTag](f: A => B) : DiscreteScalarImage[D, B] = {
+    new DiscreteScalarImage(domain, values.map(f))
+  }
 }
 
-case class DiscreteScalarImage2D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain[_2D], val values: Array[Pixel]) extends DiscreteScalarImage[_2D, Pixel] {
-  require(domain.numberOfPoints == values.size)
-  def map[@specialized(Short, Float) A: ScalarValue: ClassTag](f: Pixel => A) = DiscreteScalarImage2D(this.domain, this.values.map(f))
-}
 
-case class DiscreteScalarImage3D[@specialized(Short, Float) Pixel: ScalarValue](val domain: DiscreteImageDomain[_3D], val values: Array[Pixel]) extends DiscreteScalarImage[_3D, Pixel] {
-  require(domain.numberOfPoints == values.size)
-  def map[@specialized(Short, Float) A: ScalarValue: ClassTag](f: Pixel => A) = DiscreteScalarImage3D(this.domain, this.values.map(f))
-}
+object DiscreteScalarImage {
 
-object DiscreteImage1D {
 
-  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain1D): DiscreteScalarImage1D[Pixel] = {
-    val ScalarValue = implicitly[ScalarValue[Pixel]]
-    val N = domain.numberOfPoints
-    val values = for (i <- 0 to N) yield Random.nextFloat
-    DiscreteScalarImage1D(domain, values.map(ScalarValue.fromFloat(_)).toArray)
+  trait Create[D <: Dim] {
+    def createDiscreteScalarImage[A : Numeric : ClassTag](domain : DiscreteImageDomain[D], values : Array[A]) : DiscreteScalarImage[D, A]
   }
 
-}
-
-object DiscreteImage2D {
-
-  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain2D): DiscreteScalarImage2D[Pixel] = {
-    val ScalarValue = implicitly[ScalarValue[Pixel]]
-    val N = domain.numberOfPoints
-    val values = for (i <- 0 to N) yield Random.nextFloat
-    DiscreteScalarImage2D(domain, values.map(ScalarValue.fromFloat(_)).toArray)
+  implicit object createDiscreteScalarImage1D extends Create[_1D] {
+    override def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[_1D], values: Array[A]): DiscreteScalarImage[_1D, A] = {
+      new DiscreteScalarImage[_1D, A](domain, values)
+    }
   }
 
-}
-
-object DiscreteImage3D {
-
-  def random[Pixel: ScalarValue: ClassTag](domain: DiscreteImageDomain3D): DiscreteScalarImage3D[Pixel] = {
-    val ScalarValue = implicitly[ScalarValue[Pixel]]
-    val N = domain.numberOfPoints
-    val values = for (i <- 0 to N) yield Random.nextFloat
-    DiscreteScalarImage3D(domain, values.map(ScalarValue.fromFloat(_)).toArray)
+  implicit object createDiscreteScalarImage2D extends Create[_2D] {
+    override def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[_2D], values: Array[A]): DiscreteScalarImage[_2D, A] = {
+      new DiscreteScalarImage[_2D, A](domain, values)
+    }
   }
 
+  implicit object createDiscreteScalarImage3D extends Create[_3D] {
+    override def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[_3D], values: Array[A]): DiscreteScalarImage[_3D, A] = {
+      new DiscreteScalarImage[_3D, A](domain, values)
+    }
+  }
+
+
+  def apply[D <: Dim : NDSpace, A : Numeric : ClassTag](domain : DiscreteImageDomain[D], values : Array[A])(implicit evCreateImage : Create[D]) = {
+    evCreateImage.createDiscreteScalarImage(domain, values)
+  }
+
+  def apply[D <: Dim : NDSpace, A : Numeric : ClassTag](domain : DiscreteImageDomain[D], f : Point[D] => A)(implicit evCreateImage : Create[D]) = {
+    evCreateImage.createDiscreteScalarImage(domain, domain.points.map(f).toArray)
+  }
+
+
+
+
+
 }
+
