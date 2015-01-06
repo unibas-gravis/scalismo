@@ -3,7 +3,7 @@ package org.statismo.stk.core.image
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.image.Interpolation._
+import org.statismo.stk.core.image.Interpolation.interpolate
 import org.statismo.stk.core.geometry.Point.implicits._
 import org.statismo.stk.core.geometry.Vector.implicits._
 import org.statismo.stk.core.geometry.Index.implicits._
@@ -24,7 +24,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
     it("interpolates the values for origin 2.3 and spacing 1.5") {
       val domain = DiscreteImageDomain[_1D](2.3f, 1.5f, 7)
       val discreteImage = DiscreteScalarImage(domain, Array[Float](1.4, 2.1, 7.5, 9.0, 8.0, 0.0, 2.1))
-      val continuousImg = interpolate1D(discreteImage, 0)
+      val continuousImg =interpolate(discreteImage, 0)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
         continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
       }
@@ -36,7 +36,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
     it("interpolates the values for origin 2.3 and spacing 1.5") {
       val domain = DiscreteImageDomain[_1D](2.3f, 1.5f, 7)
       val discreteImage = DiscreteScalarImage[_1D, Float](domain, Array[Float](1.4, 2.1, 7.5, 9, 8, 0, 2.1))
-      val continuousImg = interpolate1D(discreteImage, 1)
+      val continuousImg = interpolate(discreteImage, 1)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
         continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
       }
@@ -45,7 +45,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
     it("interpolates the values for origin 0 and spacing 1") {
       val domain = DiscreteImageDomain[_1D](0f, 1, 5)
       val discreteImage = DiscreteScalarImage(domain, Array(3.0, 2.0, 1.5, 1.0, 0.0))
-      val continuousImg = interpolate1D(discreteImage, 0)
+      val continuousImg = interpolate(discreteImage, 0)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
         assert(continuousImg(pt) === discreteImage(idx))
       }
@@ -57,7 +57,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_1D](-2.0f, 0.01f, 400)
 
         val discreteSinImage = DiscreteScalarImage(domain, domain.points.map(x => math.sin(x * math.Pi)).toArray)
-        val interpolatedSinImage = interpolate1D(discreteSinImage, 3)
+        val interpolatedSinImage = interpolate(discreteSinImage, 3)
         val derivativeImage = interpolatedSinImage.differentiate.get
 
         val discreteCosImage = DiscreteScalarImage(domain, domain.points.map(x => math.Pi * math.cos(x * math.Pi)).toArray)
@@ -73,21 +73,12 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
 
     describe("of degree 0") {
 
-      it("Has coefficients equal to the image samples") {
-
-        val domain = DiscreteImageDomain[_2D]((1.0f, 0.0f), (0.5f, 1.0f), (2, 3))
-        val discreteImage = DiscreteScalarImage[_2D, Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
-        val coeffs = Interpolation.determineCoefficients2D(0, discreteImage)
-        for (idx <- 0 until discreteImage.domain.points.size) {
-          coeffs(idx) should be(discreteImage(idx) plusOrMinus 0.0001f)
-        }
-      }
 
       it("Interpolates the values for a simple domain") {
         val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f), (2, 3))
         val discreteImage = DiscreteScalarImage(domain, Array(1f, 2f, 3f, 4f, 5f, 6f))
 
-        val continuousImg = interpolate2D(discreteImage, 0)
+        val continuousImg = interpolate(discreteImage, 0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -98,7 +89,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_2D]((2.0f, 3.0f), (1.5f, 0.1f), (2, 3))
         val discreteImage = DiscreteScalarImage(domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
-        val continuousImg = interpolate2D(discreteImage, 0)
+        val continuousImg = interpolate(discreteImage, 0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -110,7 +101,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_2D]((2.0f, 3.0f), (1.5f, 1.3f), (10, 10))
         val discreteImage = DiscreteScalarImage(domain, domain.points.map(x => x(0)).toArray)
 
-        val continuousImg = interpolate2D(discreteImage, 3)
+        val continuousImg = interpolate(discreteImage, 3)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -120,7 +111,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       it("Interpolates the values correctly for a test dataset") {
         val testImgUrl = getClass.getResource("/lena256.h5").getPath
         val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
-        val interpolatedImage = Interpolation.interpolate2D(discreteFixedImage, 2)
+        val interpolatedImage = Interpolation.interpolate(discreteFixedImage, 2)
 
         for ((p, i) <- discreteFixedImage.domain.points.zipWithIndex) {
           interpolatedImage(p).toShort should be(discreteFixedImage(i) plusOrMinus 30)
@@ -131,7 +122,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_2D]((-2.0f, -2.0f), (0.01f, 0.01f), (400, 400))
 
         val discreteFImage = DiscreteScalarImage(domain, domain.points.map(x => x(0) * x(0) + x(1) * x(1)).toArray)
-        val interpolatedFImage = interpolate2D(discreteFImage, 3)
+        val interpolatedFImage = interpolate(discreteFImage, 3)
         val derivativeImage = interpolatedFImage.differentiate.get
 
         for ((pt, idx) <- domain.points.zipWithIndex.filter(x => math.abs(x._1(0)) < 1.90 && math.abs(x._1(1)) < 1.90)) {
@@ -144,22 +135,12 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
   describe("A 3D interpolation  Spline") {
     describe("of degree 0") {
 
-      it("Has coefficients equal to the image samples") {
-
-        val domain = DiscreteImageDomain[_3D]((2.0f, 3.0f, 0.0f), (1.5f, 1.3f, 2.0f), (2, 3, 2))
-        val discreteImage = DiscreteScalarImage[_3D, Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
-
-        for (idx <- 0 until discreteImage.domain.points.size) {
-          val coeffs = Interpolation.determineCoefficients3D(0, discreteImage)
-          coeffs(idx) should be(discreteImage(idx) plusOrMinus 0.0001f)
-        }
-      }
 
       it("Interpolates the values for origin (2,3,0) and spacing (1.5, 1.3, 2)") {
         val domain = DiscreteImageDomain[_3D]((2.0f, 3.0f, 0.0f), (1.5f, 1.3f, 2.0f), (2, 3, 2))
         val discreteImage = DiscreteScalarImage[_3D, Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
-        val continuousImg = interpolate3D(discreteImage, 0)
+        val continuousImg = interpolate(discreteImage, 0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -172,7 +153,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_3D]((2.0f, 3.0f, 0.0f), (1.5f, 1.3f, 2.0f), (2, 3, 2))
         val discreteImage = DiscreteScalarImage[_3D, Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
-        val continuousImg = interpolate3D(discreteImage, 1)
+        val continuousImg = interpolate(discreteImage, 1)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -185,7 +166,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_3D]((2.0f, 3.0f, 0.0f), (1.5f, 1.3f, 2.0f), (10, 10, 10))
         val discreteImage = DiscreteScalarImage[_3D, Float](domain, domain.points.map(x => x(0)).toArray)
 
-        val continuousImg = interpolate3D(discreteImage, 3)
+        val continuousImg = interpolate(discreteImage, 3)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
           continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
@@ -196,7 +177,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val domain = DiscreteImageDomain[_3D]((-2.0f, -2.0f, -2.0f), (0.1f, 0.1f, 0.1f), (40, 40, 40))
 
         val discreteFImage = DiscreteScalarImage(domain, domain.points.map(x => x(0) * x(0) + x(1) * x(1) + x(2) * x(2)).toArray)
-        val interpolatedFImage = interpolate3D(discreteFImage, 3)
+        val interpolatedFImage = interpolate(discreteFImage, 3)
         val derivativeImage = interpolatedFImage.differentiate.get
 
         for ((pt, idx) <- domain.points.zipWithIndex.filter(x => math.abs(x._1(0)) < 1.0 && math.abs(x._1(1)) < 1.0 && math.abs(x._1(2)) < 1.0)) {
@@ -209,7 +190,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       it("Interpolates a real dataset correctly") {
         val path = getClass.getResource("/3dimage.h5").getPath
         val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-        val continuousImage = Interpolation.interpolate3D(discreteImage, 1)
+        val continuousImage = Interpolation.interpolate(discreteImage, 1)
 
         for ((p, i) <- discreteImage.domain.points.zipWithIndex.filter(p => p._2 % 100 == 0))
           discreteImage.values(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
