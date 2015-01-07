@@ -4,6 +4,7 @@ package numerics
 import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.image.DiscreteImageDomain
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.stats.distributions.RandBasis
 import org.statismo.stk.core.statisticalmodel.GaussianProcess
@@ -23,83 +24,34 @@ trait Sampler[D <: Dim] {
   def volumeOfSampleRegion: Double
 }
 
-case class UniformSampler1D(domain: BoxedDomain[_1D], numberOfPoints: Int) extends Sampler[_1D] {
 
-  def volumeOfSampleRegion = domain.volume
-  val p =  1.0 / domain.volume
-
-  override def sample = {
-    val step = (domain.extent(0) - domain.origin(0)) / numberOfPoints.toFloat
-    for (i <- 0 until numberOfPoints) yield (Point(domain.origin(0) + i * step), p)
-  }
-}
-
-case class UniformSampler2D(domain: BoxedDomain[_2D], numberOfPoints: Int) extends Sampler[_2D] {
+case class GridSampler[D <: Dim : NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
+  override def volumeOfSampleRegion = domain.volume
+  override val numberOfPoints = domain.numberOfPoints
 
   val p = 1.0 / domain.volume
-  def volumeOfSampleRegion = domain.volume
-  // TODO this actually samples less points than it is supposed to . 
-  // Check how we can fix it.
+
+
   override def sample = {
-    if (math.pow(math.floor(math.sqrt(numberOfPoints)), 2) < numberOfPoints) {
-      throw new Exception("The number of points for sampling needs to be a power of 2")
-    }
-    val nbPerDim = math.sqrt(numberOfPoints).floor.toInt
-    val step0 = (domain.extent(0) - domain.origin(0)) / nbPerDim
-    val step1 = (domain.extent(1) - domain.origin(1)) / nbPerDim
-    for (i <- 0 until nbPerDim; j <- 0 until nbPerDim) yield (Point(domain.origin(0) + i * step0, domain.origin(1) + j * step1), p)
+    domain.points.toIndexedSeq.map(pt => (pt, p))
   }
 }
 
-case class UniformSampler3D(domain: BoxedDomain[_3D], numberOfPoints: Int) extends Sampler[_3D] {
-  val p = 1.0 / domain.volume
-  def volumeOfSampleRegion = domain.volume
-  override def sample = {
-    if (math.pow(math.floor(math.cbrt(numberOfPoints)), 3) < numberOfPoints) {
-      throw new Exception("The number of points for sampling needs to be a power of 3")
-    }
-
-    val nbPerDim = math.cbrt(numberOfPoints).floor.toInt
-    val step0 = (domain.extent(0) - domain.origin(0)) / nbPerDim
-    val step1 = (domain.extent(1) - domain.origin(1)) / nbPerDim
-    val step2 = (domain.extent(2) - domain.origin(2)) / nbPerDim
-
-    for (i <- 0 until nbPerDim; j <- 0 until nbPerDim; k <- 0 until nbPerDim)
-    yield (Point(domain.origin(0) + i * step0, domain.origin(1) + j * step1, domain.origin(2) + k * step2), p)
-  }
-}
-
-case class UniformDistributionRandomSampler1D(domain: BoxedDomain[_1D], numberOfPoints: Int) extends Sampler[_1D] {
+case class UniformSampler[D <: Dim : NDSpace](domain: BoxedDomain[D], numberOfPoints: Int) extends Sampler[D] {
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
+
+  val ndSpace = implicitly[NDSpace[D]]
+
+  val randGens = for (i <- (0 until ndSpace.dimensionality)) yield {
+    breeze.stats.distributions.Uniform(domain.origin(i), domain.extent(i))
+  }
+
   override def sample = {
-    val distr = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
-    (0 until numberOfPoints).map(i => (Point(distr.draw().toFloat), p))
+    for (_ <- 0 until numberOfPoints) yield (Point.apply[D](randGens.map(r => r.draw().toFloat).toArray) ,p)
   }
 }
 
-case class UniformDistributionRandomSampler2D(domain: BoxedDomain[_2D], numberOfPoints: Int) extends Sampler[_2D] {
-  def volumeOfSampleRegion = domain.volume
-  val p = 1.0 / domain.volume
-  override def sample = {
-    val distrDim1 = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
-    val distrDim2 = breeze.stats.distributions.Uniform(domain.origin(1), domain.extent(1))
-
-    (0 until numberOfPoints).map(i => (Point(distrDim1.draw().toFloat, distrDim2.draw().toFloat), p))
-  }
-}
-
-case class UniformDistributionRandomSampler3D(domain: BoxedDomain[_3D], numberOfPoints: Int) extends Sampler[_3D] {
-  def volumeOfSampleRegion = domain.volume
-  val p = 1.0 / domain.volume
-  def sample = {
-    val distrDim1 = breeze.stats.distributions.Uniform(domain.origin(0), domain.extent(0))
-    val distrDim2 = breeze.stats.distributions.Uniform(domain.origin(1), domain.extent(1))
-    val distrDim3 = breeze.stats.distributions.Uniform(domain.origin(2), domain.extent(2))
-
-    (0 until numberOfPoints).map(i => (Point(distrDim1.draw().toFloat, distrDim2.draw().toFloat, distrDim3.draw().toFloat), p))
-  }
-}
 
 case class SampleOnceSampler[D <: Dim](sampler: Sampler[D]) extends Sampler[D] {
 

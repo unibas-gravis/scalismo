@@ -46,7 +46,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
   describe("A continuous 1D image") {
     it("yields the right values after composing with a translation") {
 
-      val image = ContinuousScalarImage1D(BoxedDomain[_1D](-4.0f, 6.0f),
+      val image = ContinuousScalarImage(BoxedDomain[_1D](-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(1f))
@@ -60,7 +60,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
 
     it("yields the right values after warping with a translation") {
 
-      val image = ContinuousScalarImage1D(BoxedDomain[_1D](-4.0f, 6.0f),
+      val image = ContinuousScalarImage(BoxedDomain[_1D](-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
 
@@ -83,7 +83,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
   describe("A continuous 2Dimage") {
     it("can be translated to a new place") {
 
-      val cImg = ContinuousScalarImage2D(BoxedDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
+      val cImg = ContinuousScalarImage(BoxedDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), (_ : Point[_2D]) => 1.0)
 
       def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)

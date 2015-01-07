@@ -89,7 +89,12 @@ object DiscreteScalarImage {
   }
 
 
-  // interpolation stuff
+  def resample[D <: Dim : Interpolator : Create, @specialized(Short, Float, Double) Pixel: Numeric: ClassTag](img: DiscreteScalarImage[D, Pixel], domain: DiscreteImageDomain[D], interpolationDegree : Int, outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
+    val contImg = interpolate(img, interpolationDegree)
+    ContinuousScalarImage.sample(contImg, domain, outsideValue)
+  }
+
+    // interpolation stuff
   //
   trait Interpolator[D <: Dim] {
     def interpolate[@specialized(Short, Int, Float, Double) Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], degree: Int)
@@ -134,7 +139,7 @@ object DiscreteScalarImage {
           val splineBasisD1: (Double => Double) = { x => (nthOrderBSpline(degree - 1)(x + 0.5f) - nthOrderBSpline(degree - 1)(x - 0.5f)) * (1 / image.domain.spacing(0))}
           Vector(iterateOnPoints(x, splineBasisD1).toFloat)
         }
-        new ContinuousScalarImage1D(image.domain, f, Some(df))
+        ContinuousScalarImage(image.domain, f, Some(df))
       }
 
       /* determine the b-spline coefficients for a 1D image */
@@ -197,7 +202,7 @@ object DiscreteScalarImage {
           Vector(dfx, dfy)
         }
 
-        new ContinuousScalarImage2D(image.domain, f, Some(df))
+        ContinuousScalarImage(image.domain, f, Some(df))
 
       }
 
@@ -283,7 +288,7 @@ object DiscreteScalarImage {
           val dfz = (iterateOnPoints(x, splineBasisD3) * (1 / image.domain.spacing(2))).toFloat
           Vector(dfx, dfy, dfz)
         }
-        new ContinuousScalarImage3D(image.domain, f, Some(df))
+        ContinuousScalarImage(image.domain, f, Some(df))
 
       }
 

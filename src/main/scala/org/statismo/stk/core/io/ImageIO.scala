@@ -1,6 +1,8 @@
 package org.statismo.stk.core
 package io
 
+import org.statismo.stk.core.utils.ImageConversion.SupportsConversionToVTK
+
 import scala.util.Try
 import scala.util.Failure
 import java.io.File
@@ -367,13 +369,10 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D <: Dim : NDSpace, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
+  def writeVTK[D <: Dim : NDSpace : SupportsConversionToVTK, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
 
-    for {
-      imgVtk <- ImageConversion.imageTovtkStructuredPoints(img)
-      _ <- writeVTKInternal(imgVtk, file)
-    }  yield ()
-
+      val imgVtk = ImageConversion.imageTovtkStructuredPoints(img)
+      writeVTKInternal(imgVtk, file)
   }
 
 

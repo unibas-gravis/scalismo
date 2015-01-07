@@ -22,7 +22,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(20))
       val domain = BoxedDomain[_1D](-5.0f, 195.0f)
 
-      val sampler = UniformSampler1D(domain, 500)
+      val sampler = UniformSampler(domain, 500)
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
@@ -47,7 +47,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val scalarKernel = UncorrelatedKernel1x1(GaussianKernel1D(10))
       val domain = BoxedDomain[_1D](0.0f,10.0f)
       val numPoints =500
-      val sampler = UniformSampler1D(domain, numPoints)
+      val sampler = UniformSampler(domain, numPoints)
       val (points, _) = sampler.sample.unzip
       val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, 10, sampler)
       val approxLambdas = eigPairsApprox.map(_._1)
@@ -72,7 +72,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val scalarKernel = GaussianKernel2D(10)
       val ndKernel = UncorrelatedKernel2x2(scalarKernel)
       val domain = BoxedDomain[_2D]((0.0f, 0.0f),  (5.0f, 5.0f))
-      val sampler = UniformSampler2D(domain, 400)
+      val sampler = UniformSampler(domain, 400)
       val (pts, _) = sampler.sample.unzip
 
       val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, 10, sampler)
@@ -94,8 +94,11 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = UncorrelatedKernel1x1(GaussianKernel1D(1.0))
+
       val domain = BoxedDomain[_1D](-5.0f, 5.0f)
-      val sampler = UniformSampler1D(domain, 500)
+      val grid = DiscreteImageDomain(domain.origin, (domain.extent - domain.origin) * (1.0 / 1000.0), Index(1000))
+      val sampler = GridSampler(grid)
+
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
@@ -106,7 +109,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     	val (lambda_i, phi_i) = eigPairs(i)
         def p(x : Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
-        val phiImg = new ContinuousScalarImage1D(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), Some(Point1D => Vector(0.0)))
+        val phiImg = ContinuousScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), Some((pt : Point[_1D]) => Vector(0.0)))
 
 
         val v = integrator.integrateScalar(phiImg)

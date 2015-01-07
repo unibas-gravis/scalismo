@@ -30,7 +30,7 @@ class ConversionTests extends FunSpec with ShouldMatchers {
     it("can be converted to and from vtk") {
       val path = getClass().getResource("/lena.h5").getPath
       val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(path)).get
-      val vtksp = ImageConversion.imageTovtkStructuredPoints(origimg).get
+      val vtksp = ImageConversion.imageTovtkStructuredPoints(origimg)
       val restoredImg = ImageConversion.vtkStructuredPointsTo2DScalarImage[Short](vtksp).get
 
       origimg should equal(restoredImg)

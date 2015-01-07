@@ -1,6 +1,6 @@
 package org.statismo.stk.core.mesh
 
-import org.statismo.stk.core.image.ContinuousScalarImage3D
+import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.geometry.{ Point, _3D, Vector }
 import org.statismo.stk.core.common.RealSpace3D
 
@@ -9,7 +9,7 @@ object Mesh {
   /**
    * Creates a new ContinuousScalarImage  defined on R^^3, which is the distance transform of the mesh
    */
-  def meshToDistanceImage(mesh: TriangleMesh): ContinuousScalarImage3D = {
+  def meshToDistanceImage(mesh: TriangleMesh): ContinuousScalarImage[_3D] = {
 
     def dist(pt: Point[_3D]): Float = {
       val (closestPt, _) = mesh.findClosestPoint(pt)
@@ -20,17 +20,17 @@ object Mesh {
       val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
-    ContinuousScalarImage3D(RealSpace3D, (pt: Point[_3D]) => dist(pt), Some((pt: Point[_3D]) => grad(pt)))
+    ContinuousScalarImage(RealSpace3D, (pt: Point[_3D]) => dist(pt), Some((pt: Point[_3D]) => grad(pt)))
   }
 
-  def meshToBinaryImage(mesh: TriangleMesh): ContinuousScalarImage3D = {
+  def meshToBinaryImage(mesh: TriangleMesh): ContinuousScalarImage[_3D] = {
     def inside(pt: Point[_3D]): Short = {
       val closestMeshPt = mesh.findClosestPoint(pt)._1
       val dotprod = mesh.normalAtPoint(closestMeshPt) dot (closestMeshPt - pt)
       if (dotprod > 0.0) 1 else 0
     }
 
-    ContinuousScalarImage3D(RealSpace3D, (pt: Point[_3D]) => inside(pt), None)
+    ContinuousScalarImage(RealSpace3D, (pt: Point[_3D]) => inside(pt), None)
   }
 
   /**

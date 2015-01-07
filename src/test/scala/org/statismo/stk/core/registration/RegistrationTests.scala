@@ -8,10 +8,10 @@ import geometry._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.io.ImageIO
-import org.statismo.stk.core.image.{DiscreteScalarImage, Interpolation}
+import org.statismo.stk.core.image.{DiscreteScalarImage}
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.numerics.IntegratorConfiguration
-import org.statismo.stk.core.numerics.{UniformDistributionRandomSampler2D, UniformDistributionRandomSampler3D}
+import org.statismo.stk.core.numerics.{UniformSampler}
 import org.statismo.stk.core.io.MeshIO
 import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.numerics.LBFGSOptimizer
@@ -148,7 +148,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
       val domain = discreteFixedImage.domain
 
-      val integr = Integrator[_2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
+      val integr = Integrator[_2D](IntegratorConfiguration(UniformSampler(domain, 4000)))
       val regConf = RegistrationConfiguration[_2D](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
@@ -175,7 +175,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[_2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain, 4000)))
+      val integr = Integrator[_2D](IntegratorConfiguration(UniformSampler(domain, 4000)))
       val regConf = RegistrationConfiguration[_2D](
         //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(300, 1e-4)),
@@ -210,7 +210,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val integr = Integrator[_3D](IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 20000)))
+      val integr = Integrator[_3D](IntegratorConfiguration(UniformSampler(domain, 20000)))
       val regConf = RegistrationConfiguration[_3D](
 
         optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
@@ -232,7 +232,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
-      val integr = Integrator(IntegratorConfiguration(UniformDistributionRandomSampler3D(domain, 10000)))
+      val integr = Integrator(IntegratorConfiguration(UniformSampler(domain, 10000)))
       val regConf = RegistrationConfiguration[_3D](
         optimizer = GradientDescentOptimizer(GradientDescentConfiguration(400, 2e-12)),
         integrator = integr,

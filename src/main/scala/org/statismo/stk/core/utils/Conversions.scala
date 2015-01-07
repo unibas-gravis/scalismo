@@ -225,7 +225,13 @@ object MeshConversion {
 object ImageConversion {
 
     // TODO replace it with a typeclass to make it typesafe
-   def imageTovtkStructuredPoints[D <: Dim : NDSpace, Pixel: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): Try[vtkStructuredPoints] = {
+    trait SupportsConversionToVTK[D <: Dim]
+    object SupportsConversionToVTK {
+      implicit object _2DSupportsConversionToVTK extends SupportsConversionToVTK[_2D]
+      implicit object _3DSupportsConversionToVTK extends SupportsConversionToVTK[_3D]
+    }
+
+   def imageTovtkStructuredPoints[D <: Dim : NDSpace : SupportsConversionToVTK, Pixel: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
 
      val sp = new vtkStructuredPoints()
      val domain = img.domain
@@ -244,16 +250,16 @@ object ImageConversion {
          sp.SetDimensions(domain.size(0), domain.size(1), 1)
          sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
          sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
-         Success(sp)
+         sp
        }
        case 3 => {
          sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
          sp.SetOrigin(domain.origin(0), domain.origin(1), domain.origin(2))
          sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
-         Success(sp)
+         sp
        }
        case _ => {
-         Failure(new IllegalArgumentException(s"Images of dimensionality $dim cannot be converted to vtk"))
+         throw new IllegalArgumentException(s"Images of dimensionality $dim cannot be converted to vtk. This should never happen")
        }
      }
   }
