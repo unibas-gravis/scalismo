@@ -63,7 +63,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       //FIXME: this test is incomplete
       val testImgUrl = getClass.getResource("/lena.h5").getPath
       val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
-      val continuousImage = Interpolation.interpolate(discreteImage, 3)
+      val continuousImage = DiscreteScalarImage.interpolate(discreteImage, 3)
 
       val translation = TranslationSpace[_2D].transformForParameters(DenseVector[Float](10, 0))
       val translatedImg = continuousImage.compose(translation)
@@ -134,7 +134,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     val path = getClass.getResource("/3dimage.h5").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate(discreteImage, 0)
+    val continuousImage = DiscreteScalarImage.interpolate(discreteImage, 0)
 
     it("translation forth and back of a real dataset yields the same image") {
 

@@ -17,7 +17,7 @@ class ResampleTests extends FunSpec with ShouldMatchers {
 
     // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the
     // pixel values at the strong edges - and we thus could not formulate a reasonable test
-    val continuousImage = Interpolation.interpolate(discreteImage, 1)
+    val continuousImage = DiscreteScalarImage.interpolate(discreteImage, 1)
 
     it("yields the original discrete image") {
       val resampledImage = Resample.sample[_2D, Short](continuousImage, discreteImage.domain, 0)
@@ -32,7 +32,7 @@ class ResampleTests extends FunSpec with ShouldMatchers {
   describe("Resampling a 3D image") {
     val path = getClass.getResource("/3dimage.h5").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate(discreteImage, 0)
+    val continuousImage = DiscreteScalarImage.interpolate(discreteImage, 0)
 
     it("yields the original discrete image") {
       val resampledImage = Resample.sample[_3D, Short](continuousImage, discreteImage.domain, 0)

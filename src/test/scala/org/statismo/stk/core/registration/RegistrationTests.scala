@@ -8,7 +8,7 @@ import geometry._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.io.ImageIO
-import org.statismo.stk.core.image.Interpolation
+import org.statismo.stk.core.image.{DiscreteScalarImage, Interpolation}
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.numerics.IntegratorConfiguration
 import org.statismo.stk.core.numerics.{UniformDistributionRandomSampler2D, UniformDistributionRandomSampler3D}
@@ -144,7 +144,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     it("Recovers the correct parameters for a translation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.h5").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = Interpolation.interpolate(discreteFixedImage, 3)
+      val fixedImage = DiscreteScalarImage.interpolate(discreteFixedImage, 3)
 
       val domain = discreteFixedImage.domain
 
@@ -170,7 +170,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     it("Recovers the correct parameters for a rotation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.h5").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = Interpolation.interpolate(discreteFixedImage, 3)
+      val fixedImage = DiscreteScalarImage.interpolate(discreteFixedImage, 3)
 
       val domain = discreteFixedImage.domain
       val center = ((domain.extent - domain.origin) * 0.5).toPoint
@@ -197,7 +197,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
   describe("A 3D image registration") {
     val testImgUrl = getClass.getResource("/3ddm.h5").getPath
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(testImgUrl)).get
-    val fixedImage = Interpolation.interpolate(discreteFixedImage, 3)
+    val fixedImage = DiscreteScalarImage.interpolate(discreteFixedImage, 3)
 
     val domain = discreteFixedImage.domain
     val origin = domain.origin
