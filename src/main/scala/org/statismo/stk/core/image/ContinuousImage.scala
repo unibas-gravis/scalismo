@@ -115,7 +115,7 @@ object ContinuousScalarImage {
   def apply[D <: Dim](domain: Domain[D], f: Point[D] => Float, df: Option[Point[D] => Vector[D]] = None) = new ContinuousScalarImage[D](domain, f, df)
 
 
-  def sample[D <: Dim : DiscreteScalarImage.Create, @specialized(Short, Float, Double) Pixel: Numeric: ClassTag](img: ContinuousScalarImage[D], domain: DiscreteImageDomain[D], outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
+  def sample[D <: Dim : NDSpace , @specialized(Short, Float, Double) Pixel: Numeric: ClassTag](img: ContinuousScalarImage[D], domain: DiscreteImageDomain[D], outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
     val numeric = implicitly[Numeric[Pixel]]
     val sampledValues = domain.points.toIndexedSeq.par.map((pt: Point[D]) => {
       if (img.isDefinedAt(pt)) numeric.fromDouble(img(pt))
@@ -123,7 +123,7 @@ object ContinuousScalarImage {
     })
 
 
-    implicitly[DiscreteScalarImage.Create[D]].createDiscreteScalarImage(domain, sampledValues.toArray)
+    DiscreteScalarImage(domain, sampledValues.toArray)
   }
 
 

@@ -48,38 +48,12 @@ class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private(val
 object DiscreteScalarImage {
 
 
-  trait Create[D <: Dim] {
-    def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A]): DiscreteScalarImage[D, A]
+  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
+    new DiscreteScalarImage[D, A](domain, values)
   }
 
-  object Create {
-
-    implicit object createDiscreteScalarImage1D extends Create[_1D] {
-      override def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[_1D], values: Array[A]): DiscreteScalarImage[_1D, A] = {
-        new DiscreteScalarImage[_1D, A](domain, values)
-      }
-    }
-
-    implicit object createDiscreteScalarImage2D extends Create[_2D] {
-      override def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[_2D], values: Array[A]): DiscreteScalarImage[_2D, A] = {
-        new DiscreteScalarImage[_2D, A](domain, values)
-      }
-    }
-
-    implicit object createDiscreteScalarImage3D extends Create[_3D] {
-      override def createDiscreteScalarImage[A: Numeric : ClassTag](domain: DiscreteImageDomain[_3D], values: Array[A]): DiscreteScalarImage[_3D, A] = {
-        new DiscreteScalarImage[_3D, A](domain, values)
-      }
-    }
-
-  }
-
-  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A])(implicit evCreateImage: Create[D]) = {
-    evCreateImage.createDiscreteScalarImage(domain, values)
-  }
-
-  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A)(implicit evCreateImage: Create[D]) = {
-    evCreateImage.createDiscreteScalarImage(domain, domain.points.map(f).toArray)
+  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
+    new DiscreteScalarImage[D, A](domain, domain.points.map(f).toArray)
   }
 
 
@@ -89,7 +63,7 @@ object DiscreteScalarImage {
   }
 
 
-  def resample[D <: Dim : Interpolator : Create, @specialized(Short, Float, Double) Pixel: Numeric: ClassTag](img: DiscreteScalarImage[D, Pixel], domain: DiscreteImageDomain[D], interpolationDegree : Int, outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
+  def resample[D <: Dim : NDSpace: Interpolator, @specialized(Short, Float, Double) Pixel: Numeric: ClassTag](img: DiscreteScalarImage[D, Pixel], domain: DiscreteImageDomain[D], interpolationDegree : Int, outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
     val contImg = interpolate(img, interpolationDegree)
     ContinuousScalarImage.sample(contImg, domain, outsideValue)
   }
