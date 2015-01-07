@@ -28,7 +28,7 @@ trait PointData[D <: Dim, A] extends PartialFunction[Int, A] {
 
 trait ScalarPointData[D <: Dim, @specialized(Float, Short) A] extends PointData[D, A] {
 
-  def numeric : Numeric[A]
+  protected[this] def numeric : Numeric[A]
 
   def map[B: Numeric : ClassTag](f: A => B): ScalarPointData[D, B]
 

@@ -3,6 +3,7 @@ package image
 
 import spire.math.Numeric
 
+import scala.annotation.unspecialized
 import scala.language.implicitConversions
 import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry._
@@ -17,20 +18,20 @@ import scala.reflect.ClassTag
 /**
  * The generic interface for continuous images
  */
-trait ContinuousImage[D <: Dim, @specialized(Short, Float) Pixel] extends Function1[Point[D], Pixel] { self =>
+trait ContinuousImage[D <: Dim, @specialized(Short, Float) A] extends Function1[Point[D], A] { self =>
 
   /** the function that defines the image values */
-  val f: Point[D] => Pixel
+  val f: Point[D] => A
   def domain: Domain[D]
   def isDefinedAt(pt: Point[D]): Boolean = domain.isDefinedAt(pt)
 
 
-  def apply(x: Point[D]): Pixel = {
+  def apply(x: Point[D]): A = {
     if (!isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
     f(x)
   }
 
-  def liftPixelValue: (Point[D] => Option[Pixel]) = { x =>
+  def liftValues: (Point[D] => Option[A]) = { x =>
     if (isDefinedAt(x)) Some(f(x))
     else None
   }
@@ -39,9 +40,9 @@ trait ContinuousImage[D <: Dim, @specialized(Short, Float) Pixel] extends Functi
 
 object ContinuousImage {
 
-  def lift[D <: Dim, Pixel](fl: Pixel => Pixel): ContinuousImage[D, Pixel] => ContinuousImage[D, Pixel] = {
-    img: ContinuousImage[D, Pixel] =>
-      new ContinuousImage[D, Pixel] {
+  def lift[D <: Dim, A](fl: A => A): ContinuousImage[D, A] => ContinuousImage[D, A] = {
+    img: ContinuousImage[D, A] =>
+      new ContinuousImage[D, A] {
         override def apply(x: Point[D]) = fl(img.apply(x))
         val f = img.f
         def domain = img.domain
@@ -107,6 +108,10 @@ class ContinuousScalarImage[D <: Dim] private (val domain: Domain[D], val f: Poi
 
     new ContinuousScalarImage(newDomain, f, df)
   }
+
+  def andThen(g: Float => Float): ContinuousScalarImage[D] = {
+    new ContinuousScalarImage(domain, f andThen g)
+  }
 }
 
 
@@ -134,7 +139,7 @@ object ContinuousScalarImage {
 
         def intermediateF(t: Point[D]) = {
           val p = (x - t).toPoint
-          img.liftPixelValue(p).getOrElse(0f) * filter(t)
+          img.liftValues(p).getOrElse(0f) * filter(t)
         }
 
         val support = filter.support
