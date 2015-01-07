@@ -35,7 +35,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       )
 
       val domain = BoxedDomain[_1D](-math.Pi.toFloat, math.Pi.toFloat)
-      val numPoints = 255
+      val numPoints = 500
       val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), Vector(2.0 * math.Pi / numPoints), Index(numPoints))
       val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler(domain, 100000)))
 

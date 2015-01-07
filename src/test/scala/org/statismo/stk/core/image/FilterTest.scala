@@ -25,7 +25,8 @@ class FilterTest extends FunSpec with ShouldMatchers {
     it("integrates to 1") {
       val gf = GaussianFilter2D(10)
 
-      val grid = DiscreteImageDomain(gf.support.origin, (gf.support.extent - gf.support.origin) * (1.0 / 200), Index(200, 200))
+      val grid = DiscreteImageDomain(gf.support.origin, (gf.support.extent - gf.support.origin) * (1.0 / 600), Index(601, 601))
+
       val integrator = Integrator[_2D](IntegratorConfiguration(GridSampler(grid)))
 
       val value = integrator.integrateScalar((x: Point[_2D]) => Some(gf(x)))
@@ -42,7 +43,7 @@ class FilterTest extends FunSpec with ShouldMatchers {
       val integrator =  Integrator[_3D](IntegratorConfiguration(GridSampler(grid)))
       val value = integrator.integrateScalar((x: Point[_3D]) => Some(gf(x)))
 
-      value should be(1.0f plusOrMinus 0.01f)
+      value should be(1.0f plusOrMinus 0.1f)
     }
   }
   
