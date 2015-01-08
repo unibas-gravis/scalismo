@@ -1,9 +1,9 @@
 package org.statismo.stk.core
 package image
 
+import org.statismo.stk.core.image.filter.Filter
 import spire.math.Numeric
 
-import scala.annotation.unspecialized
 import scala.language.implicitConversions
 import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry._
@@ -11,14 +11,14 @@ import org.statismo.stk.core.numerics.{UniformSampler, IntegratorConfiguration, 
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.Transformation
 
-import org.statismo.stk.core.common.BoxedDomain
+
 
 import scala.reflect.ClassTag
 
 /**
  * The generic interface for continuous images
  */
-trait ContinuousImage[D <: Dim, @specialized(Short, Float) A] extends Function1[Point[D], A] { self =>
+trait ContinuousImage[D <: Dim, A] extends Function1[Point[D], A] { self =>
 
   /** the function that defines the image values */
   val f: Point[D] => A
@@ -120,13 +120,13 @@ object ContinuousScalarImage {
   def apply[D <: Dim](domain: Domain[D], f: Point[D] => Float, df: Option[Point[D] => Vector[D]] = None) = new ContinuousScalarImage[D](domain, f, df)
 
 
-  def sample[D <: Dim : NDSpace , @specialized(Short, Float, Double) Pixel: Numeric: ClassTag](img: ContinuousScalarImage[D], domain: DiscreteImageDomain[D], outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
+  def sample[D <: Dim : NDSpace , Pixel: Numeric: ClassTag](img: ContinuousScalarImage[D], domain: DiscreteImageDomain[D], outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
     val numeric = implicitly[Numeric[Pixel]]
+
     val sampledValues = domain.points.toIndexedSeq.par.map((pt: Point[D]) => {
       if (img.isDefinedAt(pt)) numeric.fromDouble(img(pt))
       else numeric.fromDouble(outsideValue)
     })
-
 
     DiscreteScalarImage(domain, sampledValues.toArray)
   }
@@ -176,6 +176,7 @@ object ContinuousScalarImage {
 
       ContinuousScalarImage(img.domain, f, convolvedImgDerivative)
   }
+
 
 }
 

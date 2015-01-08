@@ -1,4 +1,4 @@
-package org.statismo.stk.core.image
+package org.statismo.stk.core.image.filter
 
 import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.geometry._

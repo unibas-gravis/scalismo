@@ -2,6 +2,7 @@ package org.statismo.stk.core.image
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
+import org.statismo.stk.core.image.filter.{GaussianFilter3D, GaussianFilter2D, GaussianFilter1D}
 import org.statismo.stk.core.numerics.{GridSampler, UniformSampler, Integrator, IntegratorConfiguration}
 import org.statismo.stk.core.geometry._
 

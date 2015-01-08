@@ -26,7 +26,7 @@ trait PointData[D <: Dim, A] extends PartialFunction[Int, A] {
   def canEqual(other: Any): Boolean = other.isInstanceOf[PointData[D, A]]
 }
 
-trait ScalarPointData[D <: Dim, @specialized(Float, Short) A] extends PointData[D, A] {
+trait ScalarPointData[D <: Dim, A] extends PointData[D, A] {
 
   protected[this] def numeric : Numeric[A]
 

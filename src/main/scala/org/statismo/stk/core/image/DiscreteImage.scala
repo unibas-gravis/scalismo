@@ -17,7 +17,7 @@ import spire.math.Numeric
  * @tparam D  The dimensionality of the image
  * @tparam Pixel The type of the pixel (usually a scalar or a vector)
  */
-trait DiscreteImage[D <: Dim, @specialized(Float, Short) Pixel] extends PointData[D, Pixel] {
+trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
 
   protected[this] def ndSpace: NDSpace[D]
 
@@ -73,14 +73,19 @@ object DiscreteScalarImage {
     new DiscreteScalarImage[D, A](domain, domain.points.map(f).toArray)
   }
 
+  /** create a new DiscreteScalarImage, with all pixel values set to the given value */
+  def apply[D <: Dim : NDSpace, A : Numeric : ClassTag](domain : DiscreteImageDomain[D])(v : => A) = {
+    new DiscreteScalarImage[D, A](domain, Array.fill(domain.numberOfPoints)(v))
+  }
+
   /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpoation of given order */
-  def interpolate[D <: Dim : Interpolator, @specialized(Short, Int, Float, Double) Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], order: Int)
+  def interpolate[D <: Dim : Interpolator, Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], order: Int)
   : ContinuousScalarImage[D] = {
     implicitly[Interpolator[D]].interpolate(image, order)
   }
 
   /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
-  def resample[D <: Dim : NDSpace : Interpolator, @specialized(Short, Float, Double) Pixel: Numeric : ClassTag](img: DiscreteScalarImage[D, Pixel], newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
+  def resample[D <: Dim : NDSpace : Interpolator, Pixel: Numeric : ClassTag](img: DiscreteScalarImage[D, Pixel], newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
     val contImg = interpolate(img, interpolationDegree)
     ContinuousScalarImage.sample(contImg, newDomain, outsideValue)
   }
@@ -89,14 +94,14 @@ object DiscreteScalarImage {
    * Typeclass for doing interpolation
    */
   trait Interpolator[D <: Dim] {
-    def interpolate[@specialized(Short, Int, Float, Double) Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], degree: Int)
+    def interpolate[ Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], degree: Int)
     : ContinuousScalarImage[D]
   }
 
   object Interpolator {
 
     implicit object _1DImageinterpolate extends Interpolator[_1D] {
-      def interpolate[@specialized(Short, Int, Float, Double) Scalar: Numeric](image: DiscreteScalarImage[_1D, Scalar], degree: Int)
+      def interpolate[ Scalar: Numeric](image: DiscreteScalarImage[_1D, Scalar], degree: Int)
       : ContinuousScalarImage[_1D] = {
 
         val ck = determineCoefficients1D(degree, image)
@@ -135,7 +140,7 @@ object DiscreteScalarImage {
       }
 
       /* determine the b-spline coefficients for a 1D image */
-      private def determineCoefficients1D[@specialized(Short, Int, Float, Double) Pixel: Numeric](degree: Int, img: DiscreteScalarImage[_1D, Pixel]): Array[Float] = {
+      private def determineCoefficients1D[Pixel: Numeric](degree: Int, img: DiscreteScalarImage[_1D, Pixel]): Array[Float] = {
         val numeric = implicitly[Numeric[Pixel]]
 
         // the c is an input-output argument here
@@ -147,7 +152,7 @@ object DiscreteScalarImage {
 
 
     implicit object _2DImageinterpolate extends Interpolator[_2D] {
-      def interpolate[@specialized(Short, Int, Float, Double) Scalar: Numeric](image: DiscreteScalarImage[_2D, Scalar], degree: Int)
+      def interpolate[Scalar: Numeric](image: DiscreteScalarImage[_2D, Scalar], degree: Int)
       : ContinuousScalarImage[_2D] = {
         val ck = determineCoefficients2D(degree, image)
 
@@ -198,7 +203,7 @@ object DiscreteScalarImage {
 
       /* determine the b-spline coefficients for a 2D image. The coefficients are retunred
       * as a DenseVector, i.e. the rows are written one after another */
-      private def determineCoefficients2D[@specialized(Short, Int, Float, Double) Pixel: Numeric](degree: Int, img: DiscreteScalarImage[_2D, Pixel]): Array[Float] = {
+      private def determineCoefficients2D[Pixel: Numeric](degree: Int, img: DiscreteScalarImage[_2D, Pixel]): Array[Float] = {
         val numeric = implicitly[Numeric[Pixel]]
         val coeffs = DenseVector.zeros[Float](img.values.size)
         var y = 0
@@ -221,7 +226,7 @@ object DiscreteScalarImage {
 
 
     implicit object _3DImageinterpolate extends Interpolator[_3D] {
-      def interpolate[@specialized(Short, Int, Float, Double) Scalar: Numeric](image: DiscreteScalarImage[_3D, Scalar], degree: Int)
+      def interpolate[Scalar: Numeric](image: DiscreteScalarImage[_3D, Scalar], degree: Int)
       : ContinuousScalarImage[_3D] = {
         val ck = determineCoefficients3D(degree, image)
 
@@ -281,7 +286,7 @@ object DiscreteScalarImage {
       }
 
 
-      private def determineCoefficients3D[@specialized(Short, Int, Float, Double) Pixel: Numeric](degree: Int, img: DiscreteScalarImage[_3D, Pixel]): Array[Float] = {
+      private def determineCoefficients3D[Pixel: Numeric](degree: Int, img: DiscreteScalarImage[_3D, Pixel]): Array[Float] = {
         val numeric = implicitly[Numeric[Pixel]]
         val coeffs = DenseVector.zeros[Float](img.values.size)
         var z = 0

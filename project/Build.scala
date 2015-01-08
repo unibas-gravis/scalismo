@@ -38,6 +38,7 @@ object ShellPrompt {
   }
 }
 
+
 object Resolvers {
   private val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
   private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"

@@ -67,7 +67,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val translation = TranslationSpace[_2D].transformForParameters(DenseVector[Float](10, 0))
       val translatedImg = continuousImage.compose(translation)
-      val resampledImage = Resample.sample[_2D, Short](translatedImg, discreteImage.domain, 0)
+      val resampledImage = ContinuousScalarImage.sample[_2D, Short](translatedImg, discreteImage.domain, 0)
     }
 
     describe("composed with a rotation") {
