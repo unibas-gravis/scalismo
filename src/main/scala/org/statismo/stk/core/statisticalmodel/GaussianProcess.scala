@@ -1,6 +1,7 @@
 package org.statismo.stk.core
 package statisticalmodel
 
+import breeze.linalg.svd.SVD
 import breeze.linalg.{*, DenseVector, DenseMatrix}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.common.ImmutableLRU
@@ -21,7 +22,7 @@ class GaussianProcess[D <: Dim : NDSpace] protected (val domain : Domain[D], val
 
 
     // TODO using the svd is slightly inefficient, but with the current version of breeze, the cholesky decomposition does not seem to work
-    val (u, s, _) = breeze.linalg.svd(K)
+    val SVD(u, s, _) = breeze.linalg.svd(K)
     val L = u.copy
     for (i <- 0 until s.size) {
       L(::, i) := u(::, i) * Math.sqrt(s(i))
@@ -88,7 +89,7 @@ object GaussianProcess {
     } else {
       val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
       val Sigma = D * minv * D
-      val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
+      val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
       val innerU = innerUDbl.map(_.toFloat)
       @volatile
       var phisAtXCache = ImmutableLRU[Point[D], DenseMatrix[Float]](1000)
@@ -195,7 +196,7 @@ object GaussianProcess {
     } else {
       val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
       val Sigma = D * minv * D
-      val (innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
+      val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
       val innerU = innerUDbl.map(_.toFloat)
       @volatile
       var phisAtXCache = ImmutableLRU[Point[D], DenseMatrix[Float]](1000)

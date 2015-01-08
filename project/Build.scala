@@ -51,8 +51,8 @@ object Resolvers {
 object Dependencies {
   val commonsio = "org.apache.commons" % "commons-io" % "1.3.2"
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze" % "0.7"
-  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.7"
+  val breezeMath = "org.scalanlp" %% "breeze" % "0.10"
+  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.10"
   val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.5.0"
   val sprayJson = "io.spray" %% "spray-json" % "1.3.1"
 }

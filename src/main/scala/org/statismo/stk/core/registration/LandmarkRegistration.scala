@@ -2,6 +2,7 @@ package org.statismo.stk.core
 package registration
 
 
+import breeze.linalg.svd.SVD
 import breeze.stats.mean
 
 import registration.TransformationSpace.{ ParameterVector }
@@ -128,7 +129,7 @@ object LandmarkRegistration {
     val mu_y = mean(Y.t, Axis._1)
     val Sigma_xy = (Y.t - (mu_y * DenseVector.ones[Double](n).t)) * (X.t - mu_x * DenseVector.ones[Double](n).t).t
 
-    val (uMat, dMat, vTMat) = svd(Sigma_xy)
+    val SVD(uMat, dMat, vTMat) = svd(Sigma_xy)
 
     val S = DenseMatrix.eye[Double](dimensionality)
     if (breeze.linalg.det(Sigma_xy) < 0) {

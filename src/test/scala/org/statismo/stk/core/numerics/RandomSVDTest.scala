@@ -1,5 +1,6 @@
 package org.statismo.stk.core.numerics
 
+import breeze.linalg.svd.SVD
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
@@ -17,7 +18,7 @@ class RandomSVDTest extends FunSpec with ShouldMatchers {
       val K = Kernel.computeKernelMatrix(xs, k)
       val Kdouble = K.map(_.toDouble)
       val (ur, lr, vrt) = RandomSVD.computeSVD(Kdouble, 10)
-      val (ub, lb, vbt) = breeze.linalg.svd(Kdouble)
+      val SVD(ub, lb, vbt) = breeze.linalg.svd(Kdouble)
 
 
       val mr = ur(::, 0 until 10) * breeze.linalg.diag(lr(0 until 10)) * vrt(0 until 10, 0 until 10)

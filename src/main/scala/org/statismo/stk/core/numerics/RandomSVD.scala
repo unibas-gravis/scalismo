@@ -1,5 +1,7 @@
 package org.statismo.stk.core.numerics
 
+import breeze.linalg.qr.QR
+import breeze.linalg.svd.SVD
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
 import org.statismo.stk.core.utils
 import org.statismo.stk.core.utils.Benchmark
@@ -22,12 +24,12 @@ object RandomSVD {
 	  val Omega = DenseMatrix.zeros[Double](m, k + p).map(_ => standardNormal.draw)
 	  val Y = (A.t * (A * (A.t * (A * Omega))))
 
-	  val (qfull, _) = breeze.linalg.qr(Y)
+	  val QR(qfull, _) = breeze.linalg.qr(Y)
 
     val q = qfull(::, 0 until k + p)
 	  val B = q.t * A
 
-	  val (uHat, sigma, vt) = breeze.linalg.svd(B)
+	  val SVD(uHat, sigma, vt) = breeze.linalg.svd(B)
 	  val U = q * uHat
 	  (U(::, 0 until k), sigma(0 until k), vt(0 until k, 0 until k))
   }

@@ -11,7 +11,7 @@ trait Regularizer extends (ParameterVector => Double) {
 }
 
 object RKHSNormRegularizer extends Regularizer {
-	def apply(alpha : ParameterVector) = { val t = alpha.norm(2);  t*t}
+	def apply(alpha : ParameterVector) = { val t = breeze.linalg.norm(alpha, 2);  t*t}
   
   def takeDerivative(alpha : ParameterVector) = alpha * 2f
 }

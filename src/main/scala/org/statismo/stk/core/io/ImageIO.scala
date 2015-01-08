@@ -246,7 +246,7 @@ object ImageIO {
     val tinv = new Transformation[_3D] {
       def apply(x: Point[_3D]) = {
         val xh: DenseVector[Double] = DenseVector(x(0), x(1), x(2), 1.0)
-        val t: DenseVector[Float] = affineTransMatrixInv * xh.map(_.toFloat)
+        val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
         Point(t(0), t(1), t(2))
       }
     }
@@ -339,7 +339,7 @@ object ImageIO {
       val rotationParams = anisotropicTransformParams.drop(3).take(3)
       val scalingParams = anisotropicTransformParams.drop(6).take(3)
 
-      if ((DenseVector(scalingParams.map(Math.abs)) - domain.spacing.toBreezeVector).norm > 0.01f || (DenseVector(translationParams) - domain.origin.toBreezeVector).norm > 0.01f)
+      if (breeze.linalg.norm(DenseVector(scalingParams.map(Math.abs)) - domain.spacing.toBreezeVector) > 0.01f || breeze.linalg.norm(DenseVector(translationParams) - domain.origin.toBreezeVector) > 0.01f)
         return Failure(new Exception("NiftiIO: indicated anistotropic similarity transform parameters mismatch with the image domain. params : " + scalingParams.deep + " domain spacing : " + domain.spacing))
 
       val alpha = rotationParams(0)

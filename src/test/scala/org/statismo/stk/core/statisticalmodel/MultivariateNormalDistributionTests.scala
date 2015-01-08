@@ -77,7 +77,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       val cov = DenseMatrix.create[Float](2,2, Array(1, 0, 0, 1))
       val mvn = new MultivariateNormalDistribution(mu, cov)
       val x = DenseVector(3f, 7f)
-      mvn.mahalanobisDistance(x) should be(x.norm(2)) 
+      mvn.mahalanobisDistance(x) should be(breeze.linalg.norm(x, 2))
     }
 
     it("increases with distance from the mean") {

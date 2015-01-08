@@ -1,5 +1,6 @@
 package org.statismo.stk.core.statisticalmodel
 
+import breeze.linalg.svd.SVD
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.kernels.{ MatrixValuedPDKernel, Kernel }
 import org.statismo.stk.core.common.Domain
@@ -324,7 +325,7 @@ object LowRankGaussianProcess {
     }
 
     val (x0, meanVec) = demean(X)
-    val (u, d2, vt) = breeze.linalg.svd(x0 * x0.t * (1.0 / (n - 1)))
+    val SVD(u, d2, vt) = breeze.linalg.svd(x0 * x0.t * (1.0 / (n - 1)))
 
     val D = d2.map(v => Math.sqrt(v))
     val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)
