@@ -334,7 +334,7 @@ object ImageIO {
       }
 
       // params : (Translation++rotation++anisScaling)
-      val anisotropicTransformParams = img.domain.anisotropSimTransform.parameters.data
+      val anisotropicTransformParams = img.domain.indexToPhysicalCoordinateTransform.parameters.data
       val translationParams = anisotropicTransformParams.take(3)
       val rotationParams = anisotropicTransformParams.drop(3).take(3)
       val scalingParams = anisotropicTransformParams.drop(6).take(3)

@@ -105,20 +105,20 @@ class DomainTest extends FunSpec with ShouldMatchers {
   describe("a discrete domain in 2d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))
-      assert(domain.indexToLinearIndex((40, 34)) === 40 + 34 * domain.size(0))
+      assert(domain.indexToPointId((40, 34)) === 40 + 34 * domain.size(0))
     }
 
     it("can correclty map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       val idx = Index(5, 7)
-      val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
+      val recIdx = domain.pointIdToIndex(domain.indexToPointId(idx))
       assert(recIdx === idx)
     }
 
     it("domains with same parameters yield to the same anisotropic simlarity transform ") {
       val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
-      assert(domain1.anisotropSimTransform == domain2.anisotropSimTransform)
+      assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
     }
     it("equality works for image domains ") {
       val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
@@ -131,21 +131,21 @@ class DomainTest extends FunSpec with ShouldMatchers {
   describe("a discrete domain in 3d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
-      assert(domain.indexToLinearIndex((40, 34, 15)) === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
+      assert(domain.indexToPointId((40, 34, 15)) === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
     }
 
     it("can correclty map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
 
       val idx = Index(5, 3, 7)
-      val recIdx = domain.linearIndexToIndex(domain.indexToLinearIndex(idx))
+      val recIdx = domain.pointIdToIndex(domain.indexToPointId(idx))
       assert(recIdx === idx)
     }
 
     it("domains with same parameters yield to the same anisotropic simlarity transform ") {
       val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
       val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
-      assert(domain1.anisotropSimTransform == domain2.anisotropSimTransform)
+      assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
     }
     it("equality works for image domains ") {
       val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
@@ -157,14 +157,14 @@ class DomainTest extends FunSpec with ShouldMatchers {
       val pathH5 = getClass.getResource("/3dimage.nii").getPath
       val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
 
-      val trans = origImg.domain.anisotropSimTransform
+      val trans = origImg.domain.indexToPhysicalCoordinateTransform
       val inverseTrans = trans.inverse
 
       assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
       assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
 
-      (trans(Point(origImg.domain.size(0) , origImg.domain.size(1) , origImg.domain.size(2) )) - origImg.domain.boundingBox.oppositeCorner).norm should be <(0.1)
-      (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1) , origImg.domain.size(2) )).norm should be <(0.1)
+      (trans(Point(origImg.domain.size(0) , origImg.domain.size(1) , origImg.domain.size(2) )) - origImg.domain.imageBox.oppositeCorner).norm should be <(0.1)
+      (inverseTrans(origImg.domain.imageBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1) , origImg.domain.size(2) )).norm should be <(0.1)
     }
 
   }

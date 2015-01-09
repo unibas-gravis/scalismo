@@ -8,139 +8,80 @@ import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpa
 import org.statismo.stk.core.registration.SimilarityTransformationSpace1D
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation
 
+/**
+ * Defines points in D dimension which are aligned on a regular grid.
+ *
+ * The grid points are defined by specifying an origin, a spacing between the grid points,
+ * and the size (number of points) in each direction.
+ *
+ * A global coordinate system is assumed, and all units are measured in mm.
+ *
+ * @tparam D The dimensionality of the domain
+ */
 abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDomain[D]  {
 
+  /** the first point (lower-left corner in 2D) of the grid */
   def origin : Point[D]
+
+  /** the distance (in mm) between two points in each space direction */
   def spacing: Vector[D]
+
+  /** the number of points in each direction */
   def size : Index[D]
 
+  /** Direction cosines (currently not used) */
   def directions: Array[Double]
+
+  /** the dimensionality of the domain */
   val dimensionality = implicitly[NDSpace[D]].dimensionality
 
   override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
 
+  /** converts a grid index into a id that identifies a point */
+  def indexToPointId(idx: Index[D]): Int
 
-  def indexToLinearIndex(idx: Index[D]): Int
-  def linearIndexToIndex(linearIdx: Int): Index[D]
+  /** The index for the given point id */
+  def pointIdToIndex(linearIdx: Int): Index[D]
 
+  /** the point corresponding to the given index */
   def indexToPoint(i: Index[D]): Point[D]
+
+  /** the index correspoinding to the physical point coordinate */
   def pointToIndex(p: Point[D]): Index[D]
 
-  def anisotropSimTransform: AnisotropicSimilarityTransformation[D]
 
-  def boundingBox : BoxDomain[D] = {
+  /** a rectangular region that represents the area over which an image is defined by the points
+    * that represent this image.
+    */
+  def imageBox : BoxDomain[D] = {
     val extendData = (0 until dimensionality).map(i => size(i) * spacing(i))
     val extent = Vector[D](extendData.toArray)
     val oppositeCorner = origin + extent
     BoxDomain(origin, oppositeCorner)
   }
 
-  def isDefinedAt(pt : Point[D]) : Boolean = {
+  /** true if the point is part of the grid points */
+  override def isDefinedAt(pt : Point[D]) : Boolean = {
     // we define a point as being part of the domain if it is very close to a grid point
     // TODO, this is rather inefficient, and could be improved by using the notion of continuous index
     val ptOnGrid = indexToPoint(pointToIndex(pt))
     (ptOnGrid - pt).norm < 1e-8
   }
 
-}
 
-private case class DiscreteImageDomain1D(origin: Point[_1D], spacing: Vector[_1D], size: Index[_1D]) extends DiscreteImageDomain[_1D] {
-
-  def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
-
-  override def anisotropSimTransform = transform
-  def indexToLinearIndex(idx: Index[_1D]) = idx(0)
-  def linearIndexToIndex(linearIdx: Int) = Index(linearIdx)
-
-  val directions = Array(1.0)
-
-  private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
-  private val inverseTransform = transform.inverse
-
-  override def indexToPoint(i: Index[_1D]): Point[_1D] = transform(Point(i(0)))
-  override def pointToIndex(p: Point[_1D]): Index[_1D] = Index(inverseTransform(p)(0).toInt)
-
-}
-
-private case class DiscreteImageDomain2D(size: Index[_2D], anisotropSimTransform: AnisotropicSimilarityTransformation[_2D]) extends DiscreteImageDomain[_2D] {
-
-  private val inverseAnisotropicTransform = anisotropSimTransform.inverse
-
-  def origin = anisotropSimTransform(Point(0, 0))
-
-  private val iVecImage = anisotropSimTransform(Point(1, 0)) - anisotropSimTransform(Point(0, 0))
-  private val jVecImage = anisotropSimTransform(Point(0, 1)) - anisotropSimTransform(Point(0, 0))
-
-  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
-  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
-
-  if (Math.abs(nomiVecImage(1)) > 0.001f || Math.abs(nomjVecImage(0)) > 0.001f)
-    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage}")
-
-  override val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data).map(_.toDouble)
-  override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
-
-  def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield anisotropSimTransform(Point(i, j))
-
-  override def indexToPoint(i: Index[_2D]) = anisotropSimTransform(Point(i(0), i(1)))
-  override def pointToIndex(p: Point[_2D]) = {
-    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
-    Index(t(0), t(1))
-  }
-
-  def indexToLinearIndex(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
-  def linearIndexToIndex(linearIdx: Int) = (Index(linearIdx % size(0), linearIdx / size(0)))
-
-}
-
-private case class DiscreteImageDomain3D(size: Index[_3D], anisotropSimTransform: AnisotropicSimilarityTransformation[_3D]) extends DiscreteImageDomain[_3D] {
-
-  private val inverseAnisotropicTransform = anisotropSimTransform.inverse
-
-  override def origin = anisotropSimTransform(Point(0, 0, 0))
-
-  override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
-
-  private val iVecImage = anisotropSimTransform(Point(1, 0, 0)) - anisotropSimTransform(Point(0, 0, 0))
-  private val jVecImage = anisotropSimTransform(Point(0, 1, 0)) - anisotropSimTransform(Point(0, 0, 0))
-  private val kVecImage = anisotropSimTransform(Point(0, 0, 1)) - anisotropSimTransform(Point(0, 0, 0))
-
-  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
-  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
-  private val nomkVecImage = kVecImage * (1.0 / kVecImage.norm)
-
-  /**
-   * To be removed after refactoring : we make sure that there is no rotation of the image domain in order to remain coherent with
-   * the BoxedDomain implmentation that is assuming directions along the space axis.
-   */
-
-  if (Math.abs(nomiVecImage(1)) > 0.06f || Math.abs(nomiVecImage(2)) > 0.06f || Math.abs(nomjVecImage(0)) > 0.06f || Math.abs(nomjVecImage(2)) > 0.06f || Math.abs(nomkVecImage(0)) > 0.06f || Math.abs(nomkVecImage(1)) > 0.06f)
-    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage} k:${nomkVecImage}")
-
-  val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data ++ (kVecImage * (1.0 / kVecImage.norm)).data).map(_.toDouble)
-
-  def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
-    yield anisotropSimTransform(Point(i, j, k))
-
-  override def indexToPoint(i: Index[_3D]) = anisotropSimTransform(Point(i(0), i(1), i(2)))
-  override def pointToIndex(p: Point[_3D]) = {
-    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
-    Index(t(0), t(1), t(2))
-  }
-
-  def indexToLinearIndex(idx: Index[_3D]) = idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
-  def linearIndexToIndex(linearIdx: Int) =
-    Index(
-      linearIdx % (size(0) * size(1)) % size(0),
-      linearIdx % (size(0) * size(1)) / size(0),
-      linearIdx / (size(0) * size(1)))
+  /** the anisotropic similarity transform that maps between the index and physical coordinates*/
+  private[core] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
 
 
 }
 
+/**
+ * Factory methods for creating DiscreteImageDomain objects
+ */
 object DiscreteImageDomain {
 
-  trait Create[D <: Dim] {
+  /** Typeclass for creating domains of arbitrary dimensionality */
+  sealed trait Create[D <: Dim] {
     def createImageDomain(origin: Point[D], spacing: Vector[D], size: Index[D]): DiscreteImageDomain[D]
     def createWithTransform(size: Index[D], transform: AnisotropicSimilarityTransformation[D]): DiscreteImageDomain[D]
   }
@@ -165,7 +106,7 @@ object DiscreteImageDomain {
     override def createWithTransform(size: Index[_3D], transform: AnisotropicSimilarityTransformation[_3D]): DiscreteImageDomain[_3D] = new DiscreteImageDomain3D(size, transform)
   }
 
-  implicit object createImageDomain1D extends Create[_1D] {
+   implicit object createImageDomain1D extends Create[_1D] {
     override def createImageDomain(origin: Point[_1D], spacing: Vector[_1D], size: Index[_1D]): DiscreteImageDomain[_1D] = new DiscreteImageDomain1D(origin, spacing, size)
     override def createWithTransform(size: Index[_1D], transform: AnisotropicSimilarityTransformation[_1D]): DiscreteImageDomain[_1D] = {
       val origin = transform(Point(0))
@@ -174,18 +115,118 @@ object DiscreteImageDomain {
     }
   }
 
+  /** Create a new discreteImageDomain with given origin, spacing and size*/
   def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: Index[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
     evCreateRot.createImageDomain(origin, spacing, size)
   }
 
-  def apply[D <: Dim](size: Index[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+  /** Create a discreteImageDomain where the points are defined as tranformations of the indeces (from (0,0,0) to (size - 1, size - 1 , size -1)
+    * This makes it possible to define image regions which are not aligned to the coordinate axis.
+    */
+  private[core] def apply[D <: Dim](size: Index[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
     evCreateRot.createWithTransform(size, transform)
   }
+
 
 }
 
 
+//
+// The actual implementations for each dimension
+//
+private case class DiscreteImageDomain1D(origin: Point[_1D], spacing: Vector[_1D], size: Index[_1D]) extends DiscreteImageDomain[_1D] {
 
+  def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
+
+  override def indexToPhysicalCoordinateTransform = transform
+  def indexToPointId(idx: Index[_1D]) = idx(0)
+  def pointIdToIndex(linearIdx: Int) = Index(linearIdx)
+
+  val directions = Array(1.0)
+
+  private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
+  private val inverseTransform = transform.inverse
+
+  override def indexToPoint(i: Index[_1D]): Point[_1D] = transform(Point(i(0)))
+  override def pointToIndex(p: Point[_1D]): Index[_1D] = Index(inverseTransform(p)(0).toInt)
+
+}
+
+private case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D]) extends DiscreteImageDomain[_2D] {
+
+  private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
+
+  def origin = indexToPhysicalCoordinateTransform(Point(0, 0))
+
+  private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
+  private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
+
+  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
+  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
+
+  if (Math.abs(nomiVecImage(1)) > 0.001f || Math.abs(nomjVecImage(0)) > 0.001f)
+    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage}")
+
+  override val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data).map(_.toDouble)
+  override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
+
+  def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
+
+  override def indexToPoint(i: Index[_2D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1)))
+  override def pointToIndex(p: Point[_2D]) = {
+    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
+    Index(t(0), t(1))
+  }
+
+  def indexToPointId(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
+  def pointIdToIndex(linearIdx: Int) = (Index(linearIdx % size(0), linearIdx / size(0)))
+
+}
+
+private case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_3D]) extends DiscreteImageDomain[_3D] {
+
+  private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
+
+  override def origin = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+
+  override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
+
+  private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val kVecImage = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+
+  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
+  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
+  private val nomkVecImage = kVecImage * (1.0 / kVecImage.norm)
+
+  /**
+   * To be removed after refactoring : we make sure that there is no rotation of the image domain in order to remain coherent with
+   * the BoxedDomain implmentation that is assuming directions along the space axis.
+   */
+
+  if (Math.abs(nomiVecImage(1)) > 0.06f || Math.abs(nomiVecImage(2)) > 0.06f || Math.abs(nomjVecImage(0)) > 0.06f || Math.abs(nomjVecImage(2)) > 0.06f || Math.abs(nomkVecImage(0)) > 0.06f || Math.abs(nomkVecImage(1)) > 0.06f)
+    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage} k:${nomkVecImage}")
+
+  val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data ++ (kVecImage * (1.0 / kVecImage.norm)).data).map(_.toDouble)
+
+  def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
+  yield indexToPhysicalCoordinateTransform(Point(i, j, k))
+
+  override def indexToPoint(i: Index[_3D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1), i(2)))
+  override def pointToIndex(p: Point[_3D]) = {
+    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
+      Index(t(0), t(1), t(2))
+  }
+
+  def indexToPointId(idx: Index[_3D]) = idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
+  def pointIdToIndex(linearIdx: Int) =
+    Index(
+      linearIdx % (size(0) * size(1)) % size(0),
+      linearIdx % (size(0) * size(1)) / size(0),
+      linearIdx / (size(0) * size(1)))
+
+
+}
 
 
 

@@ -18,7 +18,7 @@ abstract class DiscreteImage[D <: Dim: NDSpace, @specialized(Float, Short) Pixel
   def domain: DiscreteImageDomain[D]
   val dimensionality = implicitly[NDSpace[D]].dimensionality
 
-  def apply(idx: Index[D]): Pixel = values(domain.indexToLinearIndex(idx))
+  def apply(idx: Index[D]): Pixel = values(domain.indexToPointId(idx))
   def isDefinedAt(idx: Index[D]): Boolean = {
     (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
   }
