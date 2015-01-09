@@ -434,10 +434,9 @@ object ImageIO {
     if (img.valueDimensionality > 1)
       voxelArrayDim = voxelArrayDim ++ IndexedSeq[Long](img.valueDimensionality)
 
-    // TODO directions are currently ignore. This should not be
     val directions = NDArray[Double](
       IndexedSeq[Long](img.domain.size.dimensionality, img.domain.size.dimensionality),
-      img.domain.directions)
+      img.domain.directions.data.map(_.toDouble))
 
     val maybeError: Try[Unit] = for {
       h5file <- HDF5Utils.createFile(file)

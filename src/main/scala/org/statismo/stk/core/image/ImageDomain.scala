@@ -29,8 +29,8 @@ abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDom
   /** the number of points in each direction */
   def size : Index[D]
 
-  /** Direction cosines (currently not used) */
-  def directions: Array[Double]
+  /** Direction cosine matrix */
+  def directions: SquareMatrix[D]
 
   /** the dimensionality of the domain */
   val dimensionality = implicitly[NDSpace[D]].dimensionality
@@ -142,7 +142,7 @@ private case class DiscreteImageDomain1D(origin: Point[_1D], spacing: Vector[_1D
   def indexToPointId(idx: Index[_1D]) = idx(0)
   def pointIdToIndex(linearIdx: Int) = Index(linearIdx)
 
-  val directions = Array(1.0)
+  override val directions = SquareMatrix(1.0f)
 
   private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   private val inverseTransform = transform.inverse
@@ -167,7 +167,7 @@ private case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordi
   if (Math.abs(nomiVecImage(1)) > 0.001f || Math.abs(nomjVecImage(0)) > 0.001f)
     throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage}")
 
-  override val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data).map(_.toDouble)
+  override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data)
   override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
@@ -207,7 +207,12 @@ private case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordi
   if (Math.abs(nomiVecImage(1)) > 0.06f || Math.abs(nomiVecImage(2)) > 0.06f || Math.abs(nomjVecImage(0)) > 0.06f || Math.abs(nomjVecImage(2)) > 0.06f || Math.abs(nomkVecImage(0)) > 0.06f || Math.abs(nomkVecImage(1)) > 0.06f)
     throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage} k:${nomkVecImage}")
 
-  val directions = ((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data ++ (kVecImage * (1.0 / kVecImage.norm)).data).map(_.toDouble)
+  val directions = SquareMatrix[_3D](
+    ((iVecImage * (1.0 / iVecImage.norm)).data
+    ++ (jVecImage * (1.0 / jVecImage.norm)).data
+    ++ (kVecImage * (1.0 / kVecImage.norm)).data)
+      .map(_.toFloat)
+  )
 
   def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
   yield indexToPhysicalCoordinateTransform(Point(i, j, k))
