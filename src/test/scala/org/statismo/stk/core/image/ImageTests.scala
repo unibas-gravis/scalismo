@@ -163,8 +163,8 @@ class DomainTest extends FunSpec with ShouldMatchers {
       assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
       assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
 
-      assert((trans(Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)) - origImg.domain.corner).norm < 0.1f)
-      assert((inverseTrans(origImg.domain.corner) - Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)).norm < 0.1f)
+      (trans(Point(origImg.domain.size(0) , origImg.domain.size(1) , origImg.domain.size(2) )) - origImg.domain.boundingBox.oppositeCorner).norm should be <(0.1)
+      (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1) , origImg.domain.size(2) )).norm should be <(0.1)
     }
 
   }

@@ -173,7 +173,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val fixedImage = Interpolation.interpolate(discreteFixedImage, 3)
 
       val domain = discreteFixedImage.domain
-      val center = ((domain.corner - domain.origin) * 0.5).toPoint
+      val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
       val integr = Integrator[_2D](IntegratorConfiguration(UniformDistributionRandomSampler2D(domain.boundingBox, 4000)))
       val regConf = RegistrationConfiguration[_2D](
@@ -201,7 +201,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
     val domain = discreteFixedImage.domain
     val origin = domain.origin
-    val corener = domain.corner
+    val corener = domain.boundingBox.oppositeCorner
     val center = ((corener - origin) * 0.5).toPoint
 
     it("Recovers the correct parameters for a translation transfrom") {

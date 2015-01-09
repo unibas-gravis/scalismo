@@ -1,20 +1,24 @@
 package org.statismo.stk.core
 package image
 
-import org.statismo.stk.core.common.{BoxDomain, BoxLike, FiniteDiscreteDomain}
+import org.statismo.stk.core.common.{BoxDomain, FiniteDiscreteDomain}
 import org.statismo.stk.core.geometry._
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace
 import org.statismo.stk.core.registration.SimilarityTransformationSpace1D
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation
 
-abstract class DiscreteImageDomain[D <: Dim] extends FiniteDiscreteDomain[D] with BoxLike[D] {
+abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDomain[D]  {
 
+  def origin : Point[D]
   def spacing: Vector[D]
-  def size: Index[D]
-  val directions: Array[Double]
+  def size : Index[D]
+
+  def directions: Array[Double]
+  val dimensionality = implicitly[NDSpace[D]].dimensionality
 
   override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
+
 
   def indexToLinearIndex(idx: Index[D]): Int
   def linearIndexToIndex(linearIdx: Int): Index[D]
@@ -24,7 +28,12 @@ abstract class DiscreteImageDomain[D <: Dim] extends FiniteDiscreteDomain[D] wit
 
   def anisotropSimTransform: AnisotropicSimilarityTransformation[D]
 
-  def boundingBox : BoxDomain[D] = BoxDomain(origin, corner)
+  def boundingBox : BoxDomain[D] = {
+    val extendData = (0 until dimensionality).map(i => size(i) * spacing(i))
+    val extent = Vector[D](extendData.toArray)
+    val oppositeCorner = origin + extent
+    BoxDomain(origin, oppositeCorner)
+  }
 
   def isDefinedAt(pt : Point[D]) : Boolean = {
     // we define a point as being part of the domain if it is very close to a grid point
@@ -35,11 +44,9 @@ abstract class DiscreteImageDomain[D <: Dim] extends FiniteDiscreteDomain[D] wit
 
 }
 
-private case class DiscreteImageDomain1D(val origin: Point[_1D], val spacing: Vector[_1D], val size: Index[_1D]) extends DiscreteImageDomain[_1D] {
+private case class DiscreteImageDomain1D(origin: Point[_1D], spacing: Vector[_1D], size: Index[_1D]) extends DiscreteImageDomain[_1D] {
 
   def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
-
-  val corner: Point[_1D] = Point(origin(0) + spacing(0) * size(0))
 
   override def anisotropSimTransform = transform
   def indexToLinearIndex(idx: Index[_1D]) = idx(0)
@@ -74,8 +81,6 @@ private case class DiscreteImageDomain2D(size: Index[_2D], anisotropSimTransform
   override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield anisotropSimTransform(Point(i, j))
-
-  val corner = anisotropSimTransform(Point(size(0) - 1, size(1) - 1))
 
   override def indexToPoint(i: Index[_2D]) = anisotropSimTransform(Point(i(0), i(1)))
   override def pointToIndex(p: Point[_2D]) = {
@@ -123,7 +128,6 @@ private case class DiscreteImageDomain3D(size: Index[_3D], anisotropSimTransform
     Index(t(0), t(1), t(2))
   }
 
-  val corner = anisotropSimTransform(Point(size(0) - 1, size(1) - 1, size(2) - 1))
   def indexToLinearIndex(idx: Index[_3D]) = idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
   def linearIndexToIndex(linearIdx: Int) =
     Index(

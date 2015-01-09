@@ -150,7 +150,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val parameterVector = DenseVector[Float](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
       val origin = discreteImage.domain.origin
-      val corner = discreteImage.domain.corner
+      val corner = discreteImage.domain.boundingBox.oppositeCorner
       val center = ((corner - origin) * 0.5).toPoint
 
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)

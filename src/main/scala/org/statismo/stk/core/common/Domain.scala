@@ -27,21 +27,16 @@ object RealSpace2D extends Domain[_2D]{ override def isDefinedAt(pt: Point[_2D])
 object RealSpace3D extends Domain[_3D]{ override def isDefinedAt(pt: Point[_3D])= true}
 
 
-trait BoxLike[D <: Dim] {
-  def origin: Point[D]
-  def corner: Point[D]
-  def extent : Vector[D] = corner - origin
-  def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (corner(i) - origin(i)))
-  def isInside(pt : Point[D]) : Boolean = {
-    def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= corner(i)
-    (0 until pt.dimensionality).foldLeft(true)((defined, i) => defined && isInsideAxis(i))
-  }
-
-}
-
-case class BoxDomain[D <: Dim](origin : Point[D], corner : Point[D]) extends Domain[D] with BoxLike[D] {
+case class BoxDomain[D <: Dim](origin : Point[D], oppositeCorner : Point[D]) extends Domain[D]  {
   def isDefinedAt(pt: Point[D]): Boolean = {
     isInside(pt)
+  }
+
+  def extent : Vector[D] = oppositeCorner - origin
+  def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
+  def isInside(pt : Point[D]) : Boolean = {
+    def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= oppositeCorner(i)
+    (0 until pt.dimensionality).foldLeft(true)((defined, i) => defined && isInsideAxis(i))
   }
 }
 
