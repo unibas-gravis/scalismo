@@ -1,24 +1,14 @@
 package org.statismo.stk.core
 package image
 
-import common.{ DiscreteDomain, BoxedDomain }
+import org.statismo.stk.core.common.{BoxDomain, BoxLike, FiniteDiscreteDomain}
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.BoxedDomain
-import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.registration.CanInvert
-import org.statismo.stk.core.registration.AnisotropicScalingTransformation
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.registration.AnisotropicScalingSpace
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpace
-import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import org.statismo.stk.core.registration.SimilarityTransformationSpace1D
 import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation
-import org.statismo.stk.core.registration.AnisotropicScalingTransformation
-import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation
-import org.statismo.stk.core.common.FiniteDiscreteDomain
 
-abstract class DiscreteImageDomain[D <: Dim] extends FiniteDiscreteDomain[D] with BoxedDomain[D] {
+abstract class DiscreteImageDomain[D <: Dim] extends FiniteDiscreteDomain[D] with BoxLike[D] {
 
   def spacing: Vector[D]
   def size: Index[D]
@@ -32,8 +22,16 @@ abstract class DiscreteImageDomain[D <: Dim] extends FiniteDiscreteDomain[D] wit
   def indexToPoint(i: Index[D]): Point[D]
   def pointToIndex(p: Point[D]): Index[D]
 
-  def isInside(pt: Point[D]): Boolean
   def anisotropSimTransform: AnisotropicSimilarityTransformation[D]
+
+  def boundingBox : BoxDomain[D] = BoxDomain(origin, corner)
+
+  def isDefinedAt(pt : Point[D]) : Boolean = {
+    // we define a point as being part of the domain if it is very close to a grid point
+    // TODO, this is rather inefficient, and could be improved by using the notion of continuous index
+    val ptOnGrid = indexToPoint(pointToIndex(pt))
+    (ptOnGrid - pt).norm < 1e-8
+  }
 
 }
 
@@ -41,7 +39,7 @@ private case class DiscreteImageDomain1D(val origin: Point[_1D], val spacing: Ve
 
   def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
 
-  val extent: Point[_1D] = Point(origin(0) + spacing(0) * size(0))
+  val corner: Point[_1D] = Point(origin(0) + spacing(0) * size(0))
 
   override def anisotropSimTransform = transform
   def indexToLinearIndex(idx: Index[_1D]) = idx(0)
@@ -54,10 +52,6 @@ private case class DiscreteImageDomain1D(val origin: Point[_1D], val spacing: Ve
 
   override def indexToPoint(i: Index[_1D]): Point[_1D] = transform(Point(i(0)))
   override def pointToIndex(p: Point[_1D]): Index[_1D] = Index(inverseTransform(p)(0).toInt)
-
-  def isInside(pt: Point[_1D]): Boolean = {
-    pt(0) >= origin(0) && pt(0) <= extent(0)
-  }
 
 }
 
@@ -81,7 +75,7 @@ private case class DiscreteImageDomain2D(size: Index[_2D], anisotropSimTransform
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield anisotropSimTransform(Point(i, j))
 
-  val extent = anisotropSimTransform(Point(size(0) - 1, size(1) - 1))
+  val corner = anisotropSimTransform(Point(size(0) - 1, size(1) - 1))
 
   override def indexToPoint(i: Index[_2D]) = anisotropSimTransform(Point(i(0), i(1)))
   override def pointToIndex(p: Point[_2D]) = {
@@ -91,11 +85,6 @@ private case class DiscreteImageDomain2D(size: Index[_2D], anisotropSimTransform
 
   def indexToLinearIndex(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
   def linearIndexToIndex(linearIdx: Int) = (Index(linearIdx % size(0), linearIdx / size(0)))
-
-  def isInside(pt: Point[_2D]): Boolean = {
-    val invPt = inverseAnisotropicTransform(pt)
-    invPt(0) < size(0) && invPt(1) < size(1)
-  }
 
 }
 
@@ -134,7 +123,7 @@ private case class DiscreteImageDomain3D(size: Index[_3D], anisotropSimTransform
     Index(t(0), t(1), t(2))
   }
 
-  val extent = anisotropSimTransform(Point(size(0) - 1, size(1) - 1, size(2) - 1))
+  val corner = anisotropSimTransform(Point(size(0) - 1, size(1) - 1, size(2) - 1))
   def indexToLinearIndex(idx: Index[_3D]) = idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
   def linearIndexToIndex(linearIdx: Int) =
     Index(
@@ -142,10 +131,6 @@ private case class DiscreteImageDomain3D(size: Index[_3D], anisotropSimTransform
       linearIdx % (size(0) * size(1)) / size(0),
       linearIdx / (size(0) * size(1)))
 
-  def isInside(pt: Point[_3D]): Boolean = {
-    val invPt = inverseAnisotropicTransform(pt)
-    invPt(0) < size(0) && invPt(1) < size(1) && invPt(2) < size(2)
-  }
 
 }
 

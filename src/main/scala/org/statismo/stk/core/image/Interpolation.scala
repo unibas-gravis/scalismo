@@ -50,7 +50,7 @@ object Interpolation {
         val splineBasisD1: (Double => Double) = { x => (bSpline(degree - 1)(x + 0.5f) - bSpline(degree - 1)(x - 0.5f)) * (1/image.domain.spacing(0)) }
         Vector(iterateOnPoints(x, splineBasisD1).toFloat)
       }    
-    new ContinuousScalarImage1D(image.domain,   f, Some(df))
+    new ContinuousScalarImage1D(image.domain.boundingBox,   f, Some(df))
   }
 
 
@@ -100,7 +100,7 @@ object Interpolation {
         Vector(dfx, dfy)
       }
 
-    new ContinuousScalarImage2D(image.domain,f, Some(df))
+    new ContinuousScalarImage2D(image.domain.boundingBox,f, Some(df))
   }
 
   
@@ -161,7 +161,7 @@ object Interpolation {
         val dfz = (iterateOnPoints(x, splineBasisD3)* (1/image.domain.spacing(2))).toFloat
         Vector(dfx, dfy, dfz)
     }
-    new ContinuousScalarImage3D(image.domain, f, Some(df))
+    new ContinuousScalarImage3D(image.domain.boundingBox, f, Some(df))
   }
 
   

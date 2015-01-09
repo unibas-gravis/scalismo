@@ -18,7 +18,7 @@ import org.statismo.stk.core.numerics.UniformSampler3D
 import org.statismo.stk.core.numerics.UniformSampler2D
 import org.statismo.stk.core.numerics.UniformSampler1D
 
-import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxDomain
 
 /**
  * The generic interface for continuous images
@@ -162,7 +162,7 @@ case class ContinuousScalarImage1D(val domain: Domain[_1D], val f: Point[_1D] =>
       }
 
       val support = filter.support
-      val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain[_1D]], numberOfPoints)))
+      val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxDomain[_1D]], numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage1D(filter.support, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -182,7 +182,7 @@ case class ContinuousScalarImage1D(val domain: Domain[_1D], val f: Point[_1D] =>
           }
 
           val support = filter.support
-          val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxedDomain[_1D]], 9)))
+          val integrator = Integrator[_1D](IntegratorConfiguration(UniformSampler1D(support.asInstanceOf[BoxDomain[_1D]], 9)))
 
           val intermediateContinuousImage = ContinuousVectorImage1D(filter.support, pixelDimensionality, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)
@@ -265,7 +265,7 @@ case class ContinuousScalarImage3D(domain: Domain[_3D], val f: Point[_3D] => Flo
 
       val support = filter.support
 
-      val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain[_3D]], numberOfPoints)))
+      val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxDomain[_3D]], numberOfPoints)))
 
       val intermediateContinuousImage = ContinuousScalarImage3D(filter.support, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -285,7 +285,7 @@ case class ContinuousScalarImage3D(domain: Domain[_3D], val f: Point[_3D] => Flo
 
           }
           val support = filter.support
-          val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxedDomain[_3D]], numberOfPoints)))
+          val integrator = Integrator[_3D](IntegratorConfiguration(UniformSampler3D(support.asInstanceOf[BoxDomain[_3D]], numberOfPoints)))
 
           val intermediateContinuousImage = ContinuousVectorImage3D(filter.support, 3, intermediateDF, None)
           integrator.integrateVector(intermediateContinuousImage)

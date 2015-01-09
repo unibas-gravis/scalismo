@@ -88,10 +88,10 @@
 //
 //    ignore("works for a box image ") {
 //
-//      def domainBox(origin: Point[TwoD], extent: Point[TwoD]) =
-//        (p: Point[TwoD]) => (p(0) >= origin(0) && p(1) >= origin(1) && p(0) <= extent(0) && p(1) <= extent(1))
+//      def domainBox(origin: Point[TwoD], corner: Point[TwoD]) =
+//        (p: Point[TwoD]) => (p(0) >= origin(0) && p(1) >= origin(1) && p(0) <= corner(0) && p(1) <= corner(1))
 //
-//      def innerBox(origin: Point2D, extent: Point2D) = (p: Point[TwoD]) => if (domainBox(origin, extent)(p)) 200f else 1f
+//      def innerBox(origin: Point2D, corner: Point2D) = (p: Point[TwoD]) => if (domainBox(origin, corner)(p)) 200f else 1f
 //
 //      val boxImage = ContinuousScalarImage2D(BoxedDomain2D((-5., -5.), (5., 5.)), innerBox((-2., -2.), (2., 2.)))
 //
@@ -111,13 +111,13 @@
 //    val originalImage = Interpolation.interpolate(discreteImage, 3)
 //    val f = (p:Point[TwoD]) => if(p.toVector.norm < 5) 250f else originalImage(p)
 //    val dummyImage = ContinuousScalarImage2D(discreteImage.domain, f,  None)
-//    show(dummyImage, BoxedDomain2D(discreteImage.domain.origin, discreteImage.domain.extent), -1f)
+//    show(dummyImage, BoxedDomain2D(discreteImage.domain.origin, discreteImage.domain.corner), -1f)
 //
 //    it("works with box filter") {
 //      val boxFilter = GaussianFilter2D(6.)
 //
 //      val smoothed = originalImage.convolve(boxFilter,400)
-//      show(smoothed, BoxedDomain2D(discreteImage.domain.origin, discreteImage.domain.extent), -1f)
+//      show(smoothed, BoxedDomain2D(discreteImage.domain.origin, discreteImage.domain.corner), -1f)
 //    }
 //
 //    ignore("works with Gaussian filter") {
@@ -126,7 +126,7 @@
 //
 //      for (d <- deviations) {
 //        val smoothed = originalImage.convolve(GaussianFilter2D(d), 100)
-//        show(smoothed, BoxedDomain2D(discreteImage.domain.origin, discreteImage.domain.extent), -1f)
+//        show(smoothed, BoxedDomain2D(discreteImage.domain.origin, discreteImage.domain.corner), -1f)
 //      }
 //    }
 //

@@ -9,7 +9,7 @@ import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.image.ContinuousScalarImage
 import org.statismo.stk.core.image.DiscreteImageDomain
 import org.statismo.stk.core.numerics.Integrator
-import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxDomain
 import org.statismo.stk.core.common.Domain
 
 trait MetricConfiguration

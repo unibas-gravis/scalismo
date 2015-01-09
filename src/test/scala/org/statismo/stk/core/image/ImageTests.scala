@@ -6,7 +6,7 @@ import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.Vector.implicits._
 import org.statismo.stk.core.geometry.Index.implicits._
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxDomain
 import scala.language.implicitConversions
 import org.statismo.stk.core.registration.TranslationSpace
 import org.statismo.stk.core.geometry.Point.implicits._
@@ -44,7 +44,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
   describe("A continuous 1D image") {
     it("yields the right values after composing with a translation") {
 
-      val image = ContinuousScalarImage1D(BoxedDomain[_1D](-4.0f, 6.0f),
+      val image = ContinuousScalarImage1D(BoxDomain[_1D](-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
       val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(1f))
@@ -58,7 +58,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
 
     it("yields the right values after warping with a translation") {
 
-      val image = ContinuousScalarImage1D(BoxedDomain[_1D](-4.0f, 6.0f),
+      val image = ContinuousScalarImage1D(BoxDomain[_1D](-4.0f, 6.0f),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         Some((x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat)))
 
@@ -81,7 +81,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
   describe("A continuous 2Dimage") {
     it("can be translated to a new place") {
 
-      val cImg = ContinuousScalarImage2D(BoxedDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
+      val cImg = ContinuousScalarImage2D(BoxDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), _ => 1.0)
 
       def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)
@@ -163,8 +163,8 @@ class DomainTest extends FunSpec with ShouldMatchers {
       assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
       assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
 
-      assert((trans(Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)) - origImg.domain.extent).norm < 0.1f)
-      assert((inverseTrans(origImg.domain.extent) - Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)).norm < 0.1f)
+      assert((trans(Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)) - origImg.domain.corner).norm < 0.1f)
+      assert((inverseTrans(origImg.domain.corner) - Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)).norm < 0.1f)
     }
 
   }
