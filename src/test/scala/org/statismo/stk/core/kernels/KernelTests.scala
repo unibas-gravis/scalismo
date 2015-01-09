@@ -6,8 +6,8 @@ import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.geometry.{Point, _3D, Vector}
 import Point.implicits._
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, LowRankGaussianProcessConfiguration}
-import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.numerics.UniformSampler
+import org.statismo.stk.core.common.BoxDomain
 
 class KernelTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
@@ -44,7 +44,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxedDomain[_3D](Point(-5, 1, 3), Point(100, 90, 25))
+      val domain = BoxDomain[_3D](Point(-5, 1, 3), Point(100, 90, 25))
 
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 

@@ -10,8 +10,9 @@ trait Cell {
   def pointIds: IndexedSeq[Int]
 }
 
-trait DiscreteDomain[D <: Dim] extends Domain[D] {
+trait DiscreteDomain[D <: Dim]  {
   def points: Iterator[Point[D]]
+  def isDefinedAt(pt: Point[D]) : Boolean
 }
 
 trait PointGenerator[D <: Dim] extends Function0[Point[D]]

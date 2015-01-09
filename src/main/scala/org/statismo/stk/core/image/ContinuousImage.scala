@@ -10,10 +10,8 @@ import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.numerics.{UniformSampler, IntegratorConfiguration, Integrator}
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.Transformation
-
-
-
 import scala.reflect.ClassTag
+import org.statismo.stk.core.common.BoxDomain
 
 /**
  * The generic interface for continuous images
@@ -105,7 +103,6 @@ class ContinuousScalarImage[D <: Dim] private (val domain: Domain[D], val f: Poi
     }
 
     val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => self.isDefinedAt(t(pt)))
-
     new ContinuousScalarImage(newDomain, f, df)
   }
 

@@ -1,10 +1,9 @@
 package org.statismo.stk.core
 package numerics
 
-import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.BoxedDomain
 import org.statismo.stk.core.image.DiscreteImageDomain
+import org.statismo.stk.core.common.BoxDomain
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.stats.distributions.RandBasis
 import org.statismo.stk.core.statisticalmodel.GaussianProcess
@@ -26,18 +25,18 @@ trait Sampler[D <: Dim] {
 
 
 case class GridSampler[D <: Dim : NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
-  override def volumeOfSampleRegion = domain.volume
+  override def volumeOfSampleRegion = domain.imageBox.volume
   override val numberOfPoints = domain.numberOfPoints
 
-  val p = 1.0 / domain.volume
-
+  val p = 1.0 / volumeOfSampleRegion
 
   override def sample = {
     domain.points.toIndexedSeq.map(pt => (pt, p))
   }
 }
 
-case class UniformSampler[D <: Dim : NDSpace](domain: BoxedDomain[D], numberOfPoints: Int) extends Sampler[D] {
+case class UniformSampler[D <: Dim : NDSpace](domain: BoxDomain[D], numberOfPoints: Int) extends Sampler[D] {
+
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
 
