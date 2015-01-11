@@ -2,7 +2,7 @@ package org.statismo.stk.core.registration
 
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.image.ContinuousScalarImage
+import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.Point.implicits._
 import org.statismo.stk.core.numerics.Integrator
@@ -16,9 +16,9 @@ class MetricTests extends FunSpec with ShouldMatchers {
     it("returns 0 if provided twice the same image") {
 
       val domain = BoxDomain[_1D](0f, 1.0f)
-      val img = ContinuousScalarImage(BoxDomain[_1D](0.0f, 1.0f),
+      val img = DifferentiableScalarImage(BoxDomain[_1D](0.0f, 1.0f),
         (x: Point[_1D]) => x * x,
-        Some((x: Point[_1D]) => Vector(2f) * x(0)))
+        (x: Point[_1D]) => Vector(2f) * x(0))
       val transSpace = TranslationSpace[_1D]
       val identityTransform = transSpace.transformForParameters(transSpace.identityTransformParameters)
       val integrator = Integrator(IntegratorConfiguration(UniformSampler(domain, 1000)))

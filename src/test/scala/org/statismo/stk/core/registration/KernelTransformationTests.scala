@@ -108,7 +108,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
     	val (lambda_i, phi_i) = eigPairs(i)
         def p(x : Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
-        val phiImg = ContinuousScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), Some((pt : Point[_1D]) => Vector(0.0)))
+        val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt : Point[_1D]) => Vector(0.0))
 
 
         val v = integrator.integrateScalar(phiImg)

@@ -67,7 +67,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val translation = TranslationSpace[_2D].transformForParameters(DenseVector[Float](10, 0))
       val translatedImg = continuousImage.compose(translation)
-      val resampledImage = ContinuousScalarImage.sample[_2D, Short](translatedImg, discreteImage.domain, 0)
+      val resampledImage = ScalarImage.sample[_2D, Short](translatedImg, discreteImage.domain, 0)
     }
 
     describe("composed with a rotation") {
@@ -121,7 +121,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain[_1D](-50.0f, 1.0f, 100)
-      val continuousImage = ContinuousScalarImage(domain.imageBox, (x: Point[_1D]) => x * x, Some((x: Point[_1D]) => Vector(2f * x)))
+      val continuousImage = DifferentiableScalarImage(domain.imageBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)

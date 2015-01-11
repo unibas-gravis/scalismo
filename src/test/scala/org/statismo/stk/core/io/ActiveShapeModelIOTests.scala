@@ -8,7 +8,7 @@ import org.statismo.stk.core.geometry.{Point, _3D}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scala.util.{Try, Success}
 import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
-import org.statismo.stk.core.image.ContinuousScalarImage
+import org.statismo.stk.core.image.ScalarImage
 import org.statismo.stk.core.mesh.TriangleMesh
 import ncsa.hdf.`object`.Group
 import org.statismo.stk.core.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
