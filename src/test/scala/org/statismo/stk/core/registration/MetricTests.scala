@@ -6,7 +6,6 @@ import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.geometry.Point.implicits._
 import org.statismo.stk.core.numerics.Integrator
-import org.statismo.stk.core.numerics.IntegratorConfiguration
 import org.statismo.stk.core.numerics.UniformSampler
 import org.statismo.stk.core.common.BoxDomain
 
@@ -21,7 +20,7 @@ class MetricTests extends FunSpec with ShouldMatchers {
         (x: Point[_1D]) => Vector(2f) * x(0))
       val transSpace = TranslationSpace[_1D]
       val identityTransform = transSpace.transformForParameters(transSpace.identityTransformParameters)
-      val integrator = Integrator(IntegratorConfiguration(UniformSampler(domain, 1000)))
+      val integrator = Integrator(UniformSampler(domain, 1000))
       MeanSquaresMetric1D(integrator)(img, img, identityTransform) should be(0.0 plusOrMinus 0.001)
     }
   }

@@ -11,7 +11,6 @@ import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.common.BoxDomain
 import org.statismo.stk.core.common.Domain
 
-trait MetricConfiguration
 
 trait ImageMetric[D <: Dim] {
   def apply(img1: ScalarImage[D], img2: ScalarImage[D], transform: Transformation[D]): Double

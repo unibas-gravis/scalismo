@@ -10,14 +10,12 @@ import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.io.ImageIO
 import org.statismo.stk.core.image.{DiscreteScalarImage}
 import org.statismo.stk.core.numerics.Integrator
-import org.statismo.stk.core.numerics.IntegratorConfiguration
 import org.statismo.stk.core.numerics.{UniformSampler}
 import org.statismo.stk.core.io.MeshIO
 import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.numerics.LBFGSOptimizer
-import org.statismo.stk.core.numerics.LBFGSOptimizerConfiguration
 import org.statismo.stk.core.numerics.GradientDescentOptimizer
-import org.statismo.stk.core.numerics.GradientDescentConfiguration
+
 
 class RegistrationTests extends FunSpec with ShouldMatchers {
 
@@ -143,15 +141,18 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
   describe("A 2D image registration") {
     it("Recovers the correct parameters for a translation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.h5").getPath
+
+      import DiscreteScalarImage.CanInterpolate._
+
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
       val fixedImage = discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
 
-      val integr = Integrator[_2D](IntegratorConfiguration(UniformSampler(domain.imageBox, 4000)))
+      val integr = Integrator[_2D](UniformSampler(domain.imageBox, 4000))
       val regConf = RegistrationConfiguration[_2D](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
-        optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
+        optimizer = LBFGSOptimizer(numIterations = 300),
         integrator = integr,
         metric = MeanSquaresMetric2D(integr),
         transformationSpace = TranslationSpace[_2D],
@@ -175,10 +176,10 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[_2D](IntegratorConfiguration(UniformSampler(domain.imageBox, 4000)))
+      val integr = Integrator[_2D](UniformSampler(domain.imageBox, 4000))
       val regConf = RegistrationConfiguration[_2D](
-        //optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(300, 1e-4)),
+
+        optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
         integrator = integr,
         metric = MeanSquaresMetric2D(integr),
         transformationSpace = RotationSpace[_2D](center),
@@ -210,10 +211,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val integr = Integrator[_3D](IntegratorConfiguration(UniformSampler(domain.imageBox, 20000)))
+      val integr = Integrator[_3D](UniformSampler(domain.imageBox, 20000))
       val regConf = RegistrationConfiguration[_3D](
-
-        optimizer = LBFGSOptimizer(LBFGSOptimizerConfiguration(300)),
+        optimizer = LBFGSOptimizer(numIterations = 300),
         integrator = integr,
         metric = MeanSquaresMetric3D(integr),
         transformationSpace = TranslationSpace[_3D],
@@ -232,9 +232,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
-      val integr = Integrator(IntegratorConfiguration(UniformSampler(domain.imageBox, 10000)))
+      val integr = Integrator(UniformSampler(domain.imageBox, 10000))
       val regConf = RegistrationConfiguration[_3D](
-        optimizer = GradientDescentOptimizer(GradientDescentConfiguration(400, 2e-12)),
+        optimizer = GradientDescentOptimizer(numIterations = 400, stepLength = 2e-12),
         integrator = integr,
         metric = MeanSquaresMetric3D(integr),
         transformationSpace = RotationSpace[_3D](center),
