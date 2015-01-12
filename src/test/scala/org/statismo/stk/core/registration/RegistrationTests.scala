@@ -144,7 +144,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     it("Recovers the correct parameters for a translation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.h5").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = DiscreteScalarImage.interpolate(discreteFixedImage, 3)
+      val fixedImage = discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
 
@@ -170,7 +170,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     it("Recovers the correct parameters for a rotation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.h5").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = DiscreteScalarImage.interpolate(discreteFixedImage, 3)
+      val fixedImage =discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
       val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
@@ -197,7 +197,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
   describe("A 3D image registration") {
     val testImgUrl = getClass.getResource("/3ddm.h5").getPath
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(testImgUrl)).get
-    val fixedImage = DiscreteScalarImage.interpolate(discreteFixedImage, 3)
+    val fixedImage = discreteFixedImage.interpolate(3)
 
     val domain = discreteFixedImage.domain
     val origin = domain.origin

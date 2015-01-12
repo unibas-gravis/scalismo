@@ -6,7 +6,7 @@ import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage, DiscreteImageDomain}
+import org.statismo.stk.core.image.{Image, DifferentiableScalarImage, ScalarImage, DiscreteImageDomain}
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.common.BoxDomain
 import org.statismo.stk.core.common.Domain
@@ -31,7 +31,8 @@ abstract class MeanSquaresMetric[D <: Dim](val integrator: Integrator[D]) extend
 
   def apply(fixedImage: ScalarImage[D], movingImage: ScalarImage[D], transform: Transformation[D]) = {
     val warpedImage = fixedImage.compose(transform)
-    integrator.integrateScalar((warpedImage - movingImage).square) / integrator.sampler.volumeOfSampleRegion
+    def square(img : ScalarImage[D]) = img :* img
+    integrator.integrateScalar(square(warpedImage - movingImage)) / integrator.sampler.volumeOfSampleRegion
   }
 
   def takeDerivativeWRTToTransform(fixedImage: DifferentiableScalarImage[D], movingImage: ScalarImage[D], transform: Transformation[D]) = {

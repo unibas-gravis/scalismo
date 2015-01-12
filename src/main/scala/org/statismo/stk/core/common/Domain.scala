@@ -22,9 +22,10 @@ object Domain {
   }
 }
 
-object RealSpace1D extends Domain[_1D]{ override def isDefinedAt(pt: Point[_1D])= true}
-object RealSpace2D extends Domain[_2D]{ override def isDefinedAt(pt: Point[_2D])= true}
-object RealSpace3D extends Domain[_3D]{ override def isDefinedAt(pt: Point[_3D])= true}
+case class RealSpace[D <: Dim]() extends Domain[D] {
+  override def isDefinedAt(pt: Point[D])= true
+}
+
 
 
 case class BoxDomain[D <: Dim](origin : Point[D], oppositeCorner : Point[D]) extends Domain[D]  {

@@ -2,6 +2,7 @@ package org.statismo.stk.core
 package image
 
 import breeze.linalg.DenseVector
+import org.statismo.stk.core.image.DiscreteScalarImage.Interpolator
 import org.statismo.stk.core.numerics.BSpline._
 
 import scala.language.implicitConversions
@@ -43,7 +44,7 @@ trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Numeric).
  */
-class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val values: Array[A] )
+class DiscreteScalarImage[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val values: Array[A] )
   extends DiscreteImage[D, A] with ScalarPointData[D, A] {
 
   require (domain.numberOfPoints == values.size)
@@ -56,6 +57,20 @@ class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (va
   def map[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
     new DiscreteScalarImage (domain, values.map (f) )
   }
+
+
+  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpoation of given order */
+  def interpolate(order: Int)
+  : DifferentiableScalarImage[D] = {
+    implicitly[Interpolator[D]].interpolate(this, order)
+  }
+
+  /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
+  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double): DiscreteScalarImage[D, A] = {
+    val contImg = interpolate(interpolationDegree)
+    contImg.sample(newDomain, outsideValue)
+  }
+
 }
 
 /**
@@ -64,31 +79,20 @@ class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (va
 object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
+  def apply[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
     new DiscreteScalarImage[D, A](domain, values)
   }
 
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
-  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
+  def apply[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
     new DiscreteScalarImage[D, A](domain, domain.points.map(f).toArray)
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-  def apply[D <: Dim : NDSpace, A : Numeric : ClassTag](domain : DiscreteImageDomain[D])(v : => A) = {
+  def apply[D <: Dim : NDSpace : Interpolator, A : Numeric : ClassTag](domain : DiscreteImageDomain[D])(v : => A) = {
     new DiscreteScalarImage[D, A](domain, Array.fill(domain.numberOfPoints)(v))
   }
 
-  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpoation of given order */
-  def interpolate[D <: Dim : Interpolator, Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], order: Int)
-  : DifferentiableScalarImage[D] = {
-    implicitly[Interpolator[D]].interpolate(image, order)
-  }
-
-  /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
-  def resample[D <: Dim : NDSpace : Interpolator, Pixel: Numeric : ClassTag](img: DiscreteScalarImage[D, Pixel], newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
-    val contImg = interpolate(img, interpolationDegree)
-    ScalarImage.sample(contImg, newDomain, outsideValue)
-  }
 
   /**
    * Typeclass for doing interpolation
