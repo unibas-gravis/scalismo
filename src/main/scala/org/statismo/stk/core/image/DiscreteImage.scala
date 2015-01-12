@@ -2,7 +2,7 @@ package org.statismo.stk.core
 package image
 
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.image.DiscreteScalarImage.{CanInterpolate, CanInterpolate$}
+import org.statismo.stk.core.image.DiscreteScalarImage.{CanInterpolate}
 import org.statismo.stk.core.numerics.BSpline._
 
 import scala.language.implicitConversions

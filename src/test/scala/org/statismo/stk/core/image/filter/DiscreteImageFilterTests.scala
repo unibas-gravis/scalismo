@@ -13,13 +13,13 @@ import org.statismo.stk.core.image.{ScalarImage, DiscreteImageDomain, DiscreteSc
 import org.statismo.stk.core.io.ImageIO
 import scala.language.implicitConversions
 
-class DiscreteImageFilterTests extends FunSpec with ShouldMatchers {
-
-  org.statismo.stk.core.initialize()
-
-  implicit def doubleToFloat(d: Double) = d.toFloat
-
-
+//class DiscreteImageFilterTests extends FunSpec with ShouldMatchers {
+//
+//  org.statismo.stk.core.initialize()
+//
+//  implicit def doubleToFloat(d: Double) = d.toFloat
+//
+//
 //  describe("A 2D distance transform") {
 //
 //    it("yields the right distance values") {

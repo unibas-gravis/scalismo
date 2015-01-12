@@ -86,7 +86,7 @@ object DiscreteImageDomain {
     def createWithTransform(size: Index[D], transform: AnisotropicSimilarityTransformation[D]): DiscreteImageDomain[D]
   }
 
-  implicit object canCreateImageDomain2D$ extends CanCreate[_2D] {
+  implicit object canCreateImageDomain2D extends CanCreate[_2D] {
     override def createImageDomain(origin: Point[_2D], spacing: Vector[_2D], size: Index[_2D]): DiscreteImageDomain[_2D] = {
       val rigidParameters = origin.data ++ Array(0f)
       val anisotropicScalingParmaters = spacing.data
@@ -96,7 +96,7 @@ object DiscreteImageDomain {
     override def createWithTransform(size: Index[_2D], transform: AnisotropicSimilarityTransformation[_2D]): DiscreteImageDomain[_2D] = new DiscreteImageDomain2D(size, transform)
   }
 
-  implicit object canCreateImageDomain3D$ extends CanCreate[_3D] {
+  implicit object canCreateImageDomain3D extends CanCreate[_3D] {
     override def createImageDomain(origin: Point[_3D], spacing: Vector[_3D], size: Index[_3D]): DiscreteImageDomain[_3D] = {
       val rigidParameters = origin.data ++ Array(0f, 0f, 0f)
       val anisotropicScalingParmaters = spacing.data
@@ -106,7 +106,7 @@ object DiscreteImageDomain {
     override def createWithTransform(size: Index[_3D], transform: AnisotropicSimilarityTransformation[_3D]): DiscreteImageDomain[_3D] = new DiscreteImageDomain3D(size, transform)
   }
 
-   implicit object canCreateImageDomain1D$ extends CanCreate[_1D] {
+   implicit object canCreateImageDomain1D extends CanCreate[_1D] {
     override def createImageDomain(origin: Point[_1D], spacing: Vector[_1D], size: Index[_1D]): DiscreteImageDomain[_1D] = new DiscreteImageDomain1D(origin, spacing, size)
     override def createWithTransform(size: Index[_1D], transform: AnisotropicSimilarityTransformation[_1D]): DiscreteImageDomain[_1D] = {
       val origin = transform(Point(0))

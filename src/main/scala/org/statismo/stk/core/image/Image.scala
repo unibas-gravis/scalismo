@@ -1,7 +1,6 @@
 package org.statismo.stk.core
 package image
 
-//import org.statismo.stk.core.image.DiscreteScalarImage.{CanInterpolate}
 import org.statismo.stk.core.image.filter.Filter
 import spire.math.Numeric
 
