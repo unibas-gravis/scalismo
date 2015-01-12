@@ -19,8 +19,8 @@ import scala.reflect.ClassTag
  */
 trait Image[D <: Dim, A] extends Function1[Point[D], A] { self =>
 
-  /** the function that defines the image values */
-  val value: Point[D] => A
+  /** a function that defines the image values. It must be defined on the full domain */
+  protected[Image] val f: Point[D] => A
 
   /** The domain on which the image is defined */
   def domain: Domain[D]
@@ -32,7 +32,7 @@ trait Image[D <: Dim, A] extends Function1[Point[D], A] { self =>
    * if an image is accessed outside of its definition, an exception is thrown */
   override def apply(x: Point[D]): A = {
     if (!isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
-    value(x)
+    f(x)
   }
 
   /**
@@ -40,8 +40,8 @@ trait Image[D <: Dim, A] extends Function1[Point[D], A] { self =>
    * but yields none if the value is outside of the domain
    */
   def liftValues: (Point[D] => Option[A]) = new Image[D, Option[A]] {
-    override val value = { (x : Point[D]) =>
-      if (self.isDefinedAt(x)) Some(self.value(x))
+    override val f = { (x : Point[D]) =>
+      if (self.isDefinedAt(x)) Some(self.f(x))
       else None
     }
     override def domain = RealSpace[D]
@@ -62,7 +62,7 @@ object Image {
     img: Image[D, A] =>
       new Image[D, A] {
         override def apply(x: Point[D]) = fl(img.apply(x))
-        val value = img.value
+        override val f = img.f
         def domain = img.domain
       }
   }
@@ -73,17 +73,17 @@ object Image {
 /**
   * An image whose values are scalar.
   */
-class ScalarImage[D <: Dim : NDSpace : Interpolator] protected (val domain: Domain[D], val value: Point[D] => Float) extends Image[D, Float] {
+class ScalarImage[D <: Dim : NDSpace : Interpolator] protected (val domain: Domain[D], val f: Point[D] => Float) extends Image[D, Float] {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarImage[D]): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) + that.value(x)
+    def f(x: Point[D]): Float = this.f(x) + that.f(x)
     new ScalarImage(Domain.intersection[D](domain,that.domain), f)
   }
 
   /** subtract two images. The domain of the new image is the intersection of the domains of the individual images*/
   def -(that: ScalarImage[D]): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) - that.value(x)
+    def f(x: Point[D]): Float = this.f(x) - that.f(x)
     val newDomain = Domain.intersection[D](domain, that.domain)
     new ScalarImage(newDomain, f)
   }
@@ -91,21 +91,21 @@ class ScalarImage[D <: Dim : NDSpace : Interpolator] protected (val domain: Doma
 
   /** element wise multiplcation. The domain of the new image is the intersection of the domains of the individual images*/
   def :*(that: ScalarImage[D]): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) * that.value(x)
+    def f(x: Point[D]): Float = this.f(x) * that.f(x)
     val newDomain = Domain.intersection[D](domain, that.domain)
     new ScalarImage(newDomain, f)
   }
 
   /** scalar multiplication of an image */
   def *(s: Double): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) * s.toFloat
+    def f(x: Point[D]): Float = this.f(x) * s.toFloat
     val newDomain = domain
     new ScalarImage(newDomain, f)
   }
 
   /** composes (i.e. warp) an image with a transformation. */
   def compose(t: Transformation[D]): ScalarImage[D] = {
-    def f(x: Point[D]) = this.value(t(x))
+    def f(x: Point[D]) = this.f(t(x))
 
     val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => isDefinedAt(t(pt)))
     new ScalarImage(newDomain, f)
@@ -113,7 +113,7 @@ class ScalarImage[D <: Dim : NDSpace : Interpolator] protected (val domain: Doma
 
   /** applies the given function to the image values */
   def andThen(g: Float => Float): ScalarImage[D] = {
-    new ScalarImage(domain, value andThen g)
+    new ScalarImage(domain, f andThen g)
   }
 
   /** convolution of an image with a given filter. The convolution is carried out by
@@ -164,10 +164,12 @@ class ScalarImage[D <: Dim : NDSpace : Interpolator] protected (val domain: Doma
 object ScalarImage {
 
   /**
-   * Creates a new scalar image with given domain and values
+   *  Creates a new scalar image with given domain and values
+   *
+   * @param domain The domain over which the image is defined
+   * @param f A function which yields for each point of the domain its value
    */
-  def apply[D <: Dim : NDSpace : Interpolator](domain: Domain[D], values: Point[D] => Float) = new ScalarImage[D](domain, values)
-
+  def apply[D <: Dim : NDSpace : Interpolator](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
 
 }
 
@@ -180,27 +182,27 @@ class DifferentiableScalarImage[D <: Dim : NDSpace : Interpolator] (_domain: Dom
   def differentiate : VectorImage[D] = VectorImage(domain, df)
 
   def +(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) + that.value(x)
+    def f(x: Point[D]): Float = this.f(x) + that.f(x)
     def df = (x: Point[D]) => this.df(x) + that.df(x)
     new DifferentiableScalarImage(Domain.intersection[D](domain,that.domain), f, df)
   }
 
   def -(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) - that.value(x)
+    def f(x: Point[D]): Float = this.f(x) - that.f(x)
     def df = (x: Point[D]) => this.df(x) - that.df(x)
     val newDomain = Domain.intersection[D](domain, that.domain)
     new DifferentiableScalarImage(newDomain, f, df)
   }
 
   def :*(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) * that.value(x)
-    def df = (x: Point[D]) => this.df(x) * that(x) + that.df(x) * this.value(x)
+    def f(x: Point[D]): Float = this.f(x) * that.f(x)
+    def df = (x: Point[D]) => this.df(x) * that(x) + that.df(x) * this.f(x)
     val newDomain = Domain.intersection[D](this.domain, that.domain)
     new DifferentiableScalarImage(newDomain, f, df)
   }
 
   override def *(s: Double): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.value(x) * s.toFloat
+    def f(x: Point[D]): Float = this.f(x) * s.toFloat
     val df = (x: Point[D]) => this.df(x) * s.toFloat
     val newDomain = domain
     new DifferentiableScalarImage(newDomain, f, df)
@@ -208,7 +210,7 @@ class DifferentiableScalarImage[D <: Dim : NDSpace : Interpolator] (_domain: Dom
 
 
   def compose(t: Transformation[D] with CanDifferentiate[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]) = this.value(t(x))
+    def f(x: Point[D]) = this.f(t(x))
     val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => this.isDefinedAt(t(pt)))
     val df = (x: Point[D]) => t.takeDerivative(x) * this.df(t(x))
 
@@ -238,7 +240,7 @@ class DifferentiableScalarImage[D <: Dim : NDSpace : Interpolator] (_domain: Dom
       }
     }
 
-    new DifferentiableScalarImage(domain, convolvedImage.value, convolvedImgDerivative)
+    new DifferentiableScalarImage(domain, convolvedImage.f, convolvedImgDerivative)
   }
 
 
@@ -249,6 +251,12 @@ class DifferentiableScalarImage[D <: Dim : NDSpace : Interpolator] (_domain: Dom
  */
 object DifferentiableScalarImage {
 
+  /** creates a new differentiable image.
+    *
+    * @param domain the domain of the image
+    * @param f a function that yiels for each point of the domain its intensities
+    * @param df the derivative of the function f
+    */
   def apply[D <: Dim : NDSpace : Interpolator](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
 
 }
@@ -257,6 +265,6 @@ object DifferentiableScalarImage {
 /**
  * An vector valued image.
  */
-case class VectorImage[D <: Dim](domain: Domain[D], value: Point[D] => Vector[D]) extends Image[D, Vector[D]]
+case class VectorImage[D <: Dim](domain: Domain[D], f: Point[D] => Vector[D]) extends Image[D, Vector[D]]
 
 
