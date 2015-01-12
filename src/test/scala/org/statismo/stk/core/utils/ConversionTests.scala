@@ -1,6 +1,8 @@
 
 package org.statismo.stk.core.utils
 
+import org.statismo.stk.core.geometry._2D
+
 import scala.language.implicitConversions
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
@@ -31,7 +33,7 @@ class ConversionTests extends FunSpec with ShouldMatchers {
       val path = getClass().getResource("/lena.h5").getPath
       val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(path)).get
       val vtksp = ImageConversion.imageTovtkStructuredPoints(origimg)
-      val restoredImg = ImageConversion.vtkStructuredPointsTo2DScalarImage[Short](vtksp).get
+      val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get
 
       origimg should equal(restoredImg)
 

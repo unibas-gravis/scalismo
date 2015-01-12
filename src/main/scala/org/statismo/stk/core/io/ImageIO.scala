@@ -1,7 +1,7 @@
 package org.statismo.stk.core
 package io
 
-import org.statismo.stk.core.utils.ImageConversion.SupportsConversionToVTK
+import org.statismo.stk.core.utils.ImageConversion.CanConvertToVTK
 
 import scala.util.Try
 import scala.util.Failure
@@ -121,7 +121,7 @@ object ImageIO {
             "(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
-        val img = ImageConversion.vtkStructuredPointsTo3DScalarImage[Scalar](sp)
+        val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, Scalar](sp)
         reader.Delete()
         sp.Delete()
         img
@@ -165,7 +165,7 @@ object ImageIO {
             "(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
-        val img = ImageConversion.vtkStructuredPointsTo2DScalarImage[Scalar](sp)
+        val img = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Scalar](sp)
         reader.Delete()
         sp.Delete()
         img
@@ -369,7 +369,7 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D <: Dim : NDSpace : SupportsConversionToVTK, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
+  def writeVTK[D <: Dim : NDSpace : CanConvertToVTK, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
 
       val imgVtk = ImageConversion.imageTovtkStructuredPoints(img)
       writeVTKInternal(imgVtk, file)

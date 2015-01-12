@@ -2,7 +2,7 @@ package org.statismo.stk.core
 package image
 
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.image.DiscreteScalarImage.Interpolator
+import org.statismo.stk.core.image.DiscreteScalarImage.{CanInterpolate, CanInterpolate$}
 import org.statismo.stk.core.numerics.BSpline._
 
 import scala.language.implicitConversions
@@ -44,7 +44,7 @@ trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Numeric).
  */
-class DiscreteScalarImage[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val values: Array[A] )
+class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val values: Array[A] )
   extends DiscreteImage[D, A] with ScalarPointData[D, A] {
 
   require (domain.numberOfPoints == values.size)
@@ -60,13 +60,13 @@ class DiscreteScalarImage[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassT
 
 
   /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpoation of given order */
-  def interpolate(order: Int)
+  def interpolate(order: Int)(implicit ev : DiscreteScalarImage.CanInterpolate[D])
   : DifferentiableScalarImage[D] = {
-    implicitly[Interpolator[D]].interpolate(this, order)
+    ev.interpolate(this, order)
   }
 
   /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
-  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double): DiscreteScalarImage[D, A] = {
+  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double)(implicit ev : DiscreteScalarImage.CanInterpolate[D]): DiscreteScalarImage[D, A] = {
     val contImg = interpolate(interpolationDegree)
     contImg.sample(newDomain, outsideValue)
   }
@@ -79,17 +79,17 @@ class DiscreteScalarImage[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassT
 object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
+  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
     new DiscreteScalarImage[D, A](domain, values)
   }
 
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
-  def apply[D <: Dim : NDSpace : Interpolator, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
+  def apply[D <: Dim : NDSpace, A: Numeric : ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
     new DiscreteScalarImage[D, A](domain, domain.points.map(f).toArray)
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-  def apply[D <: Dim : NDSpace : Interpolator, A : Numeric : ClassTag](domain : DiscreteImageDomain[D])(v : => A) = {
+  def apply[D <: Dim : NDSpace, A : Numeric : ClassTag](domain : DiscreteImageDomain[D])(v : => A) = {
     new DiscreteScalarImage[D, A](domain, Array.fill(domain.numberOfPoints)(v))
   }
 
@@ -97,14 +97,14 @@ object DiscreteScalarImage {
   /**
    * Typeclass for doing interpolation
    */
-  trait Interpolator[D <: Dim] {
+  trait CanInterpolate[D <: Dim] {
     def interpolate[ Scalar: Numeric](image: DiscreteScalarImage[D, Scalar], degree: Int)
     : DifferentiableScalarImage[D]
   }
 
-  object Interpolator {
+  object CanInterpolate {
 
-    implicit object _1DImageinterpolate extends Interpolator[_1D] {
+    implicit object _1DImageinterpolate extends CanInterpolate[_1D] {
       def interpolate[ Scalar: Numeric](image: DiscreteScalarImage[_1D, Scalar], degree: Int)
       : DifferentiableScalarImage[_1D] = {
 
@@ -155,7 +155,7 @@ object DiscreteScalarImage {
     }
 
 
-    implicit object _2DImageinterpolate extends Interpolator[_2D] {
+    implicit object _2DImageinterpolate extends CanInterpolate[_2D] {
       def interpolate[Scalar: Numeric](image: DiscreteScalarImage[_2D, Scalar], degree: Int)
       : DifferentiableScalarImage[_2D] = {
         val ck = determineCoefficients2D(degree, image)
@@ -229,7 +229,7 @@ object DiscreteScalarImage {
     }
 
 
-    implicit object _3DImageinterpolate extends Interpolator[_3D] {
+    implicit object _3DImageinterpolate extends CanInterpolate[_3D] {
       def interpolate[Scalar: Numeric](image: DiscreteScalarImage[_3D, Scalar], degree: Int)
       : DifferentiableScalarImage[_3D] = {
         val ck = determineCoefficients3D(degree, image)
