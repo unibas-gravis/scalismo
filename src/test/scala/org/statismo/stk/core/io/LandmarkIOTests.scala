@@ -1,6 +1,7 @@
 package org.statismo.stk.core.io
 
-import java.io.{ ByteArrayOutputStream, File }
+import java.io.{ByteArrayOutputStream, File}
+
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.geometry._
@@ -86,11 +87,9 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
     val jsonLm2 = Landmark("two", Point(2, 3, 4), Some("Landmark two"), Some(distWithDefaultVectors(1, 4, 9)))
     val jsonLms = List(jsonLm1, jsonLm2)
 
-    import org.statismo.stk.core.io.LandmarkIO._
-
     it("can serialize and deserialize simple landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJson[_3D](out, jsonLms)
+      LandmarkIO.writeLandmarksJson(out, jsonLms)
       val written = new String(out.toByteArray)
       val read = LandmarkIO.readLandmarksJson[_3D](written).get
       read should equal(jsonLms)
@@ -104,33 +103,33 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
     /*
      * COMPLEX JSON LANDMARKS (with extensions)
      * This example uses two additional (bogus) attributes: color, and visibility.
-     * For simplicity, it uses an internal case class
+     * For simplicity, it uses an internal case class.
      */
 
+    import spray.json.DefaultJsonProtocol._
     import spray.json._
-    import DefaultJsonProtocol._
 
-    case class LMData(color: Option[String], visibility: Boolean)
+    case class LMData(color: Option[String], visible: Boolean)
     implicit val LMDataProtocol = jsonFormat2(LMData)
 
     case class TestLandmark(lm: Landmark[_3D], data: LMData)
 
-    val extLm1 = TestLandmark(jsonLm1, LMData(None, false))
-    val extLm2 = TestLandmark(jsonLm2, LMData(Some("red"), true))
-    val extLm2E = TestLandmark(jsonLm2, LMData(None, false))
+    val extLm1 = TestLandmark(jsonLm1, LMData(None, visible = false))
+    val extLm2 = TestLandmark(jsonLm2, LMData(Some("red"), visible = true))
+    val extLm2E = TestLandmark(jsonLm2, LMData(None, visible = false))
 
     val extLms = List(extLm1, extLm2)
     val extLmsE = List(extLm1, extLm2E)
 
-    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = { tlm => (tlm.lm, Some(Map("test.ext" -> (tlm.data).toJson))) }
+    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = { tlm => (tlm.lm, Some(Map("test.ext" -> tlm.data.toJson)))}
     implicit val extDecode: LandmarkIO.ExtensionDecodeFunction[_3D, TestLandmark] = { (lm, json) =>
       val data = json.map(_.get("test.ext")).flatMap(_.map(_.convertTo[LMData]))
-      TestLandmark(lm, data.getOrElse(LMData(None, false)))
+      TestLandmark(lm, data.getOrElse(LMData(None, visible = false)))
     }
 
     it("can serialize and deserialize complex landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJson[_3D, TestLandmark](out, extLms)
+      LandmarkIO.writeLandmarksJson(out, extLms)
       val read = LandmarkIO.readLandmarksJson[_3D, TestLandmark](out.toByteArray).get
       read should equal(extLms)
     }
