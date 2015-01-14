@@ -130,7 +130,7 @@ object StatisticalMeshModel {
     })
 
     val newEigenpairs = lambdas.zip(newPhis)
-    val newGp = new LowRankGaussianProcess3D(newRef, newMean, newEigenpairs)
+    val newGp = new LowRankGaussianProcess3D(newRef.boundingBox, newMean, newEigenpairs)
 
     new StatisticalMeshModel(newRef, newGp)
   }
@@ -158,7 +158,7 @@ object StatisticalMeshModel {
     })
 
     val newEigenpairs = lambdas.zip(newPhis)
-    val newGp = new LowRankGaussianProcess3D(newRef, newMean, newEigenpairs)
+    val newGp = new LowRankGaussianProcess3D(newRef.boundingBox, newMean, newEigenpairs)
     new StatisticalMeshModel(newRef, newGp)
   }
 }

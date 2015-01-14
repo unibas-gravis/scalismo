@@ -5,9 +5,10 @@ import org.statismo.stk.core.common._
 import org.statismo.stk.core.geometry.{ Point, _3D, Vector }
 import org.statismo.stk.core.common.Cell
 import scala.reflect.ClassTag
-import org.statismo.stk.core.common.BoxedDomain
+import org.statismo.stk.core.common.BoxDomain
 import scala.collection.mutable
-import org.statismo.stk.core.geometry.NDSpace
+
+import spire.math.Numeric
 
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
@@ -33,14 +34,14 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
  
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
 
-  def boundingBox: BoxedDomain[_3D] = {
+  def boundingBox: BoxDomain[_3D] = {
     val minx = points.map(_(0)).min
     val miny = points.map(_(1)).min
     val minz = points.map(_(2)).min
     val maxx = points.map(_(0)).max
     val maxy = points.map(_(1)).max
     val maxz = points.map(_(2)).max
-    BoxedDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
+    BoxDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
   def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
@@ -101,12 +102,14 @@ object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 }
 
-case class ScalarMeshData[S: ScalarValue: ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
+case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
   require(mesh.numberOfPoints == values.size)
-  val valueDimensionality = 1
+
+  override def numeric = implicitly[Numeric[S]]
+
   override val domain = mesh
 
-  override def map[S2: ScalarValue: ClassTag](f: S => S2): ScalarPointData[_3D, S2] = {
+  override def map[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
     ScalarMeshData(mesh, values.map(f))
   }
 }

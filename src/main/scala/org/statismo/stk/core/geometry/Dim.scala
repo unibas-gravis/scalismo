@@ -21,4 +21,5 @@ object Dim {
   implicit object ThreeDSpace extends NDSpace[_3D] {
     override val dimensionality = 3
   }
+
 }

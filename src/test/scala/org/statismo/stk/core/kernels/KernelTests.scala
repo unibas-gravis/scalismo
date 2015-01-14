@@ -6,9 +6,8 @@ import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.geometry.{Point, _3D, Vector}
 import Point.implicits._
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess, LowRankGaussianProcessConfiguration}
-import org.statismo.stk.core.common.BoxedDomain
-import org.statismo.stk.core.numerics.UniformSampler3D
-import org.statismo.stk.core.numerics.UniformDistributionRandomSampler3D
+import org.statismo.stk.core.numerics.UniformSampler
+import org.statismo.stk.core.common.BoxDomain
 
 class KernelTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
@@ -45,9 +44,9 @@ class KernelTests extends FunSpec with ShouldMatchers {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxedDomain[_3D](Point(-5, 1, 3), Point(100, 90, 25))
+      val domain = BoxDomain[_3D](Point(-5, 1, 3), Point(100, 90, 25))
 
-      val samplerForNystromApprox = UniformSampler3D(domain, 7 * 7 * 7)
+      val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 
       val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
@@ -64,7 +63,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
       }
 
 
-      val testPtSampler = UniformDistributionRandomSampler3D(domain, 1)
+      val testPtSampler = UniformSampler(domain, 1)
       val pts = testPtSampler.sample.map(_._1)
 
 

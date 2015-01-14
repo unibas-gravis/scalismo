@@ -8,7 +8,7 @@ import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.statismo.stk.core.numerics.UniformSampler3D
+import org.statismo.stk.core.numerics.{UniformSampler}
 import org.statismo.stk.core.registration.RigidTransformationSpace
 import org.statismo.stk.core.registration.RigidTransformation
 import org.statismo.stk.core.mesh.TriangleMesh
@@ -30,7 +30,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val region = mesh.boundingBox
       val gpConfiguration = LowRankGaussianProcessConfiguration[_3D](
         region,
-        UniformSampler3D(region, 7 * 7 * 7),
+        UniformSampler(region, 7 * 7 * 7),
         (x: Point[_3D]) => Vector(0.0, 0.0, 0.0),
         cov,
         20)

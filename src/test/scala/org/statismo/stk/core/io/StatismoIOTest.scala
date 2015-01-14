@@ -5,10 +5,6 @@ import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 
-import scala.util.Success
-import scala.util.Failure
-import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.image.Utils
 import org.statismo.stk.core.mesh.{ TriangleMesh }
 import org.statismo.stk.core.io.StatismoIO._
 import breeze.linalg.DenseVector

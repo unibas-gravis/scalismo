@@ -38,6 +38,7 @@ object ShellPrompt {
   }
 }
 
+
 object Resolvers {
   private val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
   private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
@@ -55,6 +56,7 @@ object Dependencies {
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.10"
   val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.5.0"
   val sprayJson = "io.spray" %% "spray-json" % "1.3.1"
+  val spire = "org.spire-math" %% "spire" % "0.9.0"
 }
 
 object STKBuild extends Build {
@@ -78,5 +80,7 @@ object STKBuild extends Build {
     breezeNative,
     statismoNativelibs,
     sprayJson,
-    commonsio)
+    commonsio,
+    spire
+  )
 }

@@ -3,7 +3,7 @@ package org.statismo.stk.core.registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
-import org.statismo.stk.core.image.ContinuousScalarImage
+import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage}
 import org.statismo.stk.core.numerics.CostFunction
 import org.statismo.stk.core.numerics.Optimizer
 import org.statismo.stk.core.numerics.Integrator
@@ -29,8 +29,8 @@ object Registration {
   case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
 
   def iterations[D <: Dim : NDSpace](configuration: RegistrationConfiguration[D])(
-    fixedImage: ContinuousScalarImage[D],
-    movingImage: ContinuousScalarImage[D]): Iterator[RegistrationState[D]] = {
+    fixedImage: ScalarImage[D],
+    movingImage: DifferentiableScalarImage[D]): Iterator[RegistrationState[D]] = {
     val regularizer = configuration.regularizer
 
     val transformationSpace = configuration.transformationSpace
@@ -81,8 +81,8 @@ object Registration {
   }
 
   def registration[D <: Dim : NDSpace](configuration: RegistrationConfiguration[D])(
-    fixedImage: ContinuousScalarImage[D],
-    movingImage: ContinuousScalarImage[D]): RegistrationResult[D] = {
+    fixedImage: ScalarImage[D],
+    movingImage: DifferentiableScalarImage[D]): RegistrationResult[D] = {
     val regStates = iterations(configuration)(fixedImage, movingImage)
     regStates.toSeq.last.registrationResult
   }

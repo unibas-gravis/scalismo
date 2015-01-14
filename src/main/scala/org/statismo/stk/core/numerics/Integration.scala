@@ -11,8 +11,8 @@ case class Integrator[D <: Dim: NDSpace](configuration: IntegratorConfiguration[
 
   def sampler = configuration.sampler
 
-  def integrateScalar(img: ContinuousScalarImage[D]): Float = {
-    integrateScalar(img.liftPixelValue)
+  def integrateScalar(img: ScalarImage[D]): Float = {
+    integrateScalar(img.liftValues)
   }
 
   def integrateScalar(f: Function1[Point[D], Option[Float]]): Float = {
@@ -23,8 +23,8 @@ case class Integrator[D <: Dim: NDSpace](configuration: IntegratorConfiguration[
     sum / samples.size
   }
 
-  def integrateVector(img: ContinuousVectorImage[D]): Vector[D] = {
-    integrateVector(img.liftPixelValue)
+  def integrateVector(img: VectorImage[D]): Vector[D] = {
+    integrateVector(img.liftValues)
   }
 
   def integrateVector(f: Function1[Point[D], Option[Vector[D]]]): Vector[D] = {

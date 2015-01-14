@@ -14,7 +14,7 @@ import org.statismo.stk.core.geometry.Vector._
 import org.statismo.stk.core.geometry.Index._
 
 import org.statismo.stk.core.mesh.ScalarMeshData
-import org.statismo.stk.core.common.ScalarValue._
+
 
 class MeshIOTests extends FunSpec with ShouldMatchers {
 

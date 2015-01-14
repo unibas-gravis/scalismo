@@ -63,11 +63,11 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       //FIXME: this test is incomplete
       val testImgUrl = getClass.getResource("/lena.h5").getPath
       val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
-      val continuousImage = Interpolation.interpolate(discreteImage, 3)
+      val continuousImage = discreteImage.interpolate(3)
 
       val translation = TranslationSpace[_2D].transformForParameters(DenseVector[Float](10, 0))
       val translatedImg = continuousImage.compose(translation)
-      val resampledImage = Resample.sample[Short](translatedImg, discreteImage.domain, 0)
+      val resampledImage = translatedImg.sample[Short](discreteImage.domain, 0)
     }
 
     describe("composed with a rotation") {
@@ -121,7 +121,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain[_1D](-50.0f, 1.0f, 100)
-      val continuousImage = ContinuousScalarImage1D(domain, (x: Point[_1D]) => x * x, Some((x: Point[_1D]) => Vector(2f * x)))
+      val continuousImage = DifferentiableScalarImage(domain.imageBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)
@@ -134,7 +134,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
     val path = getClass.getResource("/3dimage.h5").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = Interpolation.interpolate(discreteImage, 0)
+    val continuousImage = discreteImage.interpolate(0)
 
     it("translation forth and back of a real dataset yields the same image") {
 
@@ -150,8 +150,8 @@ class TransformationTests extends FunSpec with ShouldMatchers {
 
       val parameterVector = DenseVector[Float](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
       val origin = discreteImage.domain.origin
-      val extent = discreteImage.domain.extent
-      val center = ((extent - origin) * 0.5).toPoint
+      val corner = discreteImage.domain.imageBox.oppositeCorner
+      val center = ((corner - origin) * 0.5).toPoint
 
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)
 

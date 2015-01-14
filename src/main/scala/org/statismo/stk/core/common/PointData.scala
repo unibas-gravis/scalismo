@@ -2,6 +2,7 @@ package org.statismo.stk.core.common
 
 import org.statismo.stk.core.geometry.Dim
 import scala.reflect.ClassTag
+import spire.math.Numeric
 
 trait PointData[D <: Dim, A] extends PartialFunction[Int, A] {
   def domain: DiscreteDomain[D]
@@ -25,9 +26,11 @@ trait PointData[D <: Dim, A] extends PartialFunction[Int, A] {
   def canEqual(other: Any): Boolean = other.isInstanceOf[PointData[D, A]]
 }
 
-trait ScalarPointData[D <: Dim, @specialized(Float, Short) Pixel] extends PointData[D, Pixel] {
-  def valueDimensionality : Int
-  def map[Pixel2: ScalarValue: ClassTag](f: Pixel => Pixel2): ScalarPointData[D, Pixel2]
+trait ScalarPointData[D <: Dim, A] extends PointData[D, A] {
+
+  protected[this] def numeric : Numeric[A]
+
+  def map[B: Numeric : ClassTag](f: A => B): ScalarPointData[D, B]
 
 }
 

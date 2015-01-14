@@ -22,27 +22,22 @@ object Domain {
   }
 }
 
-object RealSpace1D extends Domain[_1D]{ override def isDefinedAt(pt: Point[_1D])= true}
-object RealSpace2D extends Domain[_2D]{ override def isDefinedAt(pt: Point[_2D])= true}
-object RealSpace3D extends Domain[_3D]{ override def isDefinedAt(pt: Point[_3D])= true}
-
-
-trait BoxedDomain[D <: Dim] extends Domain[D] {
-  def origin: Point[D]
-  def extent: Point[D]
-  def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (extent(i) - origin(i)))
-  def isDefinedAt(pt: Point[D]): Boolean = {
-    def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= extent(i)
-    (0 until pt.dimensionality).foldLeft(true)((defined, i) => defined && isInsideAxis(i))
-  }
+case class RealSpace[D <: Dim]() extends Domain[D] {
+  override def isDefinedAt(pt: Point[D])= true
 }
 
 
-object BoxedDomain {
-  
-  def apply[D <: Dim](originV: Point[D], extentV: Point[D]) = new BoxedDomain[D]{
-    override def origin = originV
-    override def extent = extentV   
+
+case class BoxDomain[D <: Dim](origin : Point[D], oppositeCorner : Point[D]) extends Domain[D]  {
+  def isDefinedAt(pt: Point[D]): Boolean = {
+    isInside(pt)
+  }
+
+  def extent : Vector[D] = oppositeCorner - origin
+  def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
+  def isInside(pt : Point[D]) : Boolean = {
+    def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= oppositeCorner(i)
+    (0 until pt.dimensionality).foldLeft(true)((defined, i) => defined && isInsideAxis(i))
   }
 }
 
