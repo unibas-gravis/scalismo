@@ -20,7 +20,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val img = DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f) * x(0))
 
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), Index(255))
-      val integrator = Integrator[_1D](IntegratorConfiguration(GridSampler(grid)))
+      val integrator = Integrator[_1D](GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
       res should be((1.0 / 3.0).toFloat plusOrMinus 0.01)
@@ -36,7 +36,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
 
       val numPoints = 1000
       val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), Vector(2 * math.Pi.toFloat / numPoints), Index(numPoints))
-      val integrator = Integrator(IntegratorConfiguration(GridSampler(grid)))
+      val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
       res should be(0.0f plusOrMinus 0.01)
@@ -53,8 +53,8 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val numPoints = 200
       val grid1 = DiscreteImageDomain(Point(-1.0), Vector(2.0 / numPoints), Index(numPoints))
       val grid2 = DiscreteImageDomain(Point(-8.0), Vector(16.0 / numPoints), Index(numPoints))
-      val integrator1 = Integrator(IntegratorConfiguration(GridSampler(grid1)))
-      val integrator2 = Integrator(IntegratorConfiguration(GridSampler(grid2)))
+      val integrator1 = Integrator(GridSampler(grid1))
+      val integrator2 = Integrator(GridSampler(grid2))
       val res1 = integrator1.integrateScalar(img)
       val res2 = integrator2.integrateScalar(img)
 

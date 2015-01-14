@@ -101,7 +101,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
-      val integrator = Integrator(IntegratorConfiguration(sampler))
+      val integrator = Integrator(sampler)
 
       for (i <- 0 until 20) {
 

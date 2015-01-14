@@ -28,13 +28,12 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val cov = UncorrelatedKernel3x3(GaussianKernel3D(100) * 100)
 
       val region = mesh.boundingBox
-      val gpConfiguration = LowRankGaussianProcessConfiguration[_3D](
+      val gp = LowRankGaussianProcess.createLowRankGaussianProcess[_3D](
         region,
         UniformSampler(region, 7 * 7 * 7),
         (x: Point[_3D]) => Vector(0.0, 0.0, 0.0),
         cov,
         20)
-      val gp = LowRankGaussianProcess.createLowRankGaussianProcess3D(gpConfiguration)
       val (lambdas, phis) = gp.eigenPairs.unzip
 
       val mVec = DenseVector.zeros[Float](mesh.numberOfPoints * 3)

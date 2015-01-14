@@ -7,7 +7,7 @@ import spire.math.Numeric
 import scala.language.implicitConversions
 import org.statismo.stk.core.common.{RealSpace, Domain}
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.numerics.{UniformSampler, IntegratorConfiguration, Integrator}
+import org.statismo.stk.core.numerics.{UniformSampler, Integrator}
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.Transformation
 import scala.reflect.ClassTag
@@ -129,7 +129,7 @@ class ScalarImage[D <: Dim : NDSpace] protected (val domain: Domain[D], val f: P
 
       val support = filter.support
 
-      val integrator = Integrator[D](IntegratorConfiguration(UniformSampler(support, numberOfPoints)))
+      val integrator = Integrator[D](UniformSampler(support, numberOfPoints))
 
       val intermediateContinuousImage = ScalarImage(filter.support, intermediateF)
       integrator.integrateScalar(intermediateContinuousImage)
@@ -232,7 +232,7 @@ class DifferentiableScalarImage[D <: Dim : NDSpace] (_domain: Domain[D], _f: Poi
 
         }
         val support = filter.support
-        val integrator = Integrator[D](IntegratorConfiguration(UniformSampler(support, numberOfPoints)))
+        val integrator = Integrator[D](UniformSampler(support, numberOfPoints))
 
         val intermediateContinuousImage = VectorImage(filter.support, intermediateDF)
         integrator.integrateVector(intermediateContinuousImage)

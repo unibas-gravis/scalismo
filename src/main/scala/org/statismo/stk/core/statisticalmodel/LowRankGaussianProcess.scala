@@ -12,12 +12,6 @@ import scala.Some
 import breeze.stats.distributions.Gaussian
 import breeze.stats.mean
 
-case class LowRankGaussianProcessConfiguration[D <: Dim](
-                                                          val domain: Domain[D],
-                                                          val sampler: Sampler[D],
-                                                          val mean: Point[D] => Vector[D],
-                                                          val cov: MatrixValuedPDKernel[D, D],
-                                                          val numBasisFunctions: Int)
 
 class LowRankGaussianProcess[D <: Dim: NDSpace](domain: Domain[D],
                                                   mean: Point[D] => Vector[D],
@@ -239,20 +233,17 @@ class LowRankGaussianProcess3D(
   extends LowRankGaussianProcess[_3D](domain, mean, eigenPairs) {}
 
 object LowRankGaussianProcess {
-  def createLowRankGaussianProcess1D(configuration: LowRankGaussianProcessConfiguration[_1D]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
-    new LowRankGaussianProcess1D(configuration.domain, configuration.mean, eigenPairs)
+  def createLowRankGaussianProcess[D <: Dim : NDSpace](
+    domain: Domain[D],
+    sampler: Sampler[D],
+    mean: Point[D] => Vector[D],
+    cov: MatrixValuedPDKernel[D, D],
+    numBasisFunctions: Int) =
+  {
+    val eigenPairs = Kernel.computeNystromApproximation(cov, numBasisFunctions, sampler)
+    new LowRankGaussianProcess[D](domain, mean, eigenPairs)
   }
 
-  def createLowRankGaussianProcess2D(configuration: LowRankGaussianProcessConfiguration[_2D]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
-    new LowRankGaussianProcess2D(configuration.domain, configuration.mean, eigenPairs)
-  }
-
-  def createLowRankGaussianProcess3D(configuration: LowRankGaussianProcessConfiguration[_3D]) = {
-    val eigenPairs = Kernel.computeNystromApproximation(configuration.cov, configuration.numBasisFunctions, configuration.sampler)
-    new LowRankGaussianProcess3D(configuration.domain, configuration.mean, eigenPairs)
-  }
 
 
 

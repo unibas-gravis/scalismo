@@ -22,10 +22,12 @@ object Domain {
   }
 }
 
-case class RealSpace[D <: Dim]() extends Domain[D] {
+class RealSpace[D <: Dim] extends Domain[D] {
   override def isDefinedAt(pt: Point[D])= true
 }
-
+object RealSpace {
+  def apply[D <: Dim] = new RealSpace[D]
+}
 
 
 case class BoxDomain[D <: Dim](origin : Point[D], oppositeCorner : Point[D]) extends Domain[D]  {
