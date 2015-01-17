@@ -8,8 +8,7 @@ import org.statismo.stk.core.numerics.BSpline._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.PointData
-import org.statismo.stk.core.common.ScalarPointData
+import org.statismo.stk.core.common.{PointDataAsArray, PointData, ScalarPointData}
 import spire.math.Numeric
 
 /**
@@ -26,13 +25,12 @@ trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
 
   val dimensionality = ndSpace.dimensionality
 
-  def apply(idx: Index[D]): Pixel = values(domain.indexToPointId(idx))
+  def apply(idx: Index[D]): Pixel = this(domain.pointId(idx))
 
   def isDefinedAt(idx: Index[D]): Boolean = {
     (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
   }
 
-  override lazy val hashCode = super.hashCode
 
 }
 
@@ -40,22 +38,23 @@ trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
  * A scalar valued discrete image.
  *
  * @param domain The domain over which this image is defined
- * @param values The values for each grid points.
+ * @param data The values for each grid points.
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Numeric).
  */
-class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val values: Array[A] )
-  extends DiscreteImage[D, A] with ScalarPointData[D, A] {
+class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val data: Array[A] )
+  extends DiscreteImage[D, A] with ScalarPointData[D, A] with PointDataAsArray[D, A] {
 
-  require (domain.numberOfPoints == values.size)
+  require (domain.numberOfPoints == data.size)
 
   protected[this] override def numeric = implicitly[Numeric[A]]
 
   protected override def ndSpace = implicitly[NDSpace[D]]
 
+
   /** returns a new image whose whose pixel values have been mapped using the function f */
-  def map[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
-    new DiscreteScalarImage (domain, values.map (f) )
+  def mapScalar[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
+    new DiscreteScalarImage (domain, data.map (f) )
   }
 
 
@@ -148,7 +147,7 @@ object DiscreteScalarImage {
         val numeric = implicitly[Numeric[Pixel]]
 
         // the c is an input-output argument here
-        val c = img.values.map(numeric.toFloat)
+        val c = img.data.map(numeric.toFloat)
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
         c
       }
@@ -176,7 +175,7 @@ object DiscreteScalarImage {
             var k = k1
             while (k <= k1 + K - 1) {
               val kBC = applyMirrorBoundaryCondition(k, image.domain.size(0))
-              val idx = image.domain.indexToPointId(Index(kBC, lBC))
+              val idx = image.domain.pointId(Index(kBC, lBC))
               result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l)
               k = k + 1
             }
@@ -212,13 +211,13 @@ object DiscreteScalarImage {
         val coeffs = DenseVector.zeros[Float](img.values.size)
         var y = 0
         while (y < img.domain.size(1)) {
-          val rowValues = (0 until img.domain.size(0)).map(x => img.values(img.domain.indexToPointId(Index(x, y))))
+          val rowValues = (0 until img.domain.size(0)).map(x => img(img.domain.pointId(Index(x, y))))
 
           // the c is an input-output argument here
           val c = rowValues.map(numeric.toFloat).toArray
           BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-          val idxInCoeffs = img.domain.indexToPointId(Index(0, y))
+          val idxInCoeffs = img.domain.pointId(Index(0, y))
           coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
           y = y + 1
         }
@@ -258,7 +257,7 @@ object DiscreteScalarImage {
               k = k1
               while (k <= k1 + K - 1) {
                 val kBC = applyMirrorBoundaryCondition(k, image.domain.size(0))
-                val idx = image.domain.indexToPointId(Index(kBC, lBC, mBC))
+                val idx = image.domain.pointId(Index(kBC, lBC, mBC))
                 result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
                 k = k + 1
               }
@@ -298,12 +297,12 @@ object DiscreteScalarImage {
         while (z < img.domain.size(2)) {
           y = 0
           while (y < img.domain.size(1)) {
-            val rowValues = (0 until img.domain.size(0)).map(x => img.values(img.domain.indexToPointId(Index(x, y, z))))
+            val rowValues = (0 until img.domain.size(0)).map(x => img(Index(x, y, z)))
 
             // the c is an input-output argument here
             val c = rowValues.map(numeric.toFloat).toArray
             BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-            val idxInCoeffs = img.domain.indexToPointId(Index(0, y, z))
+            val idxInCoeffs = img.domain.pointId(Index(0, y, z))
             coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
             y = y + 1
           }

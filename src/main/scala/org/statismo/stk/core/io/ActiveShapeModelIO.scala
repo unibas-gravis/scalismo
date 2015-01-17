@@ -63,10 +63,10 @@ object ActiveShapeModelIO {
 
   private[this] def writeIntensityDistributions(h5file : HDF5File, group: Group, distributions: ASMProfileDistributions) : Try[Unit] = {
     val numEntries = distributions.domain.numberOfPoints
-    val distDim = if (numEntries > 0) distributions.values(0).mean.size else 0
+    val distDim = if (numEntries > 0) distributions.data(0).mean.size else 0
     val ptArray  = distributions.domain.points.toIndexedSeq.flatten(_.data).toArray
-    val meanArray = distributions.values.map(_.mean.data).flatten
-    val covArray = distributions.values.map(_.cov.data).flatten
+    val meanArray = distributions.data.map(_.mean.data).flatten
+    val covArray = distributions.data.map(_.cov.data).flatten
     val groupName = group.getFullName
     for {
       _ <- h5file.writeInt(s"$groupName/numberOfProfilePoints", numEntries)

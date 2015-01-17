@@ -28,6 +28,7 @@ object DiscreteDomain {
 
 trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] {
   def numberOfPoints: Int
+  def pointId(pt : Point[D]) : Option[Int]
 }
 
 object FiniteDiscreteDomain {
@@ -37,12 +38,20 @@ object FiniteDiscreteDomain {
       override def points = _points.toIterator
       override def isDefinedAt(p: Point[D]) = _points.contains(p)
       override def numberOfPoints = _points.size
+      override def pointId(pt : Point[D]) = {
+        val idx = _points.indexOf(pt)
+        if (idx == -1) None else Some(idx)
+      }
     }
 
   def fromPredicateAndGenerator[D <: Dim: NDSpace](generator: PointGenerator[D], _isDefinedAt: Point[D] => Boolean, _numberOfPoints: Int) = new FiniteDiscreteDomain[D] {
     override def points = Iterator.continually(generator()).take(_numberOfPoints)
     override def numberOfPoints = _numberOfPoints
     override def isDefinedAt(pt: Point[D]) = _isDefinedAt(pt) && points.contains(pt)
+    override def pointId(pt : Point[D]) = {
+      val idx = points.indexOf(pt)
+      if (idx == -1) None else Some(idx)
+    }
   }
 }
 
@@ -60,6 +69,12 @@ case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (pointSeq: I
   }
 
   def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)] = kdTreeMap.findNearest(pt, n)
+
+  override def pointId(pt : Point[D]) = {
+    val idx = pointSeq.indexOf(pt)
+    if (idx == -1) None else Some(idx)
+  }
+
 }
 
 object SpatiallyIndexedFiniteDiscreteDomain {
