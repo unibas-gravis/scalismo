@@ -192,7 +192,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImage = discreteImage.interpolate(1)
 
         for ((p, i) <- discreteImage.domain.points.zipWithIndex.filter(p => p._2 % 100 == 0))
-          discreteImage.values(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
+          discreteImage(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
       }
     }
   }

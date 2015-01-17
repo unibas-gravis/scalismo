@@ -38,16 +38,16 @@ abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDom
   override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
 
   /** converts a grid index into a id that identifies a point */
-  def indexToPointId(idx: Index[D]): Int
+  def pointId(idx: Index[D]): Int
 
   /** The index for the given point id */
-  def pointIdToIndex(linearIdx: Int): Index[D]
+  def index(pointId: Int): Index[D]
 
   /** the point corresponding to the given index */
-  def indexToPoint(i: Index[D]): Point[D]
+  //def indexToPoint(i: Index[D]): Point[D]
 
   /** the index correspoinding to the physical point coordinate */
-  def pointToIndex(p: Point[D]): Index[D]
+  //def pointToIndex(p: Point[D]): Index[D]
 
 
   /** a rectangular region that represents the area over which an image is defined by the points
@@ -62,12 +62,34 @@ abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDom
 
   /** true if the point is part of the grid points */
   override def isDefinedAt(pt : Point[D]) : Boolean = {
-    // we define a point as being part of the domain if it is very close to a grid point
-    // TODO, this is rather inefficient, and could be improved by using the notion of continuous index
-    val ptOnGrid = indexToPoint(pointToIndex(pt))
-    (ptOnGrid - pt).norm < 1e-8
+    isIndex(pointToContinuousIndex(pt))
   }
 
+  /** returns the point id in case it is defined, None otherwise. */
+  override def pointId(pt : Point[D]) : Option[Int] = {
+    val cidx = pointToContinuousIndex(pt)
+    val ptId = pointId(continuousIndextoIndex(cidx))
+    if (isIndex(cidx)) Some(ptId) else None
+  }
+
+
+  private def continuousIndextoIndex(cidx : Vector[D]) : Index[D] = {
+    val data = cidx.data.map(Math.round)
+    Index[D](data)
+  }
+  private def pointToContinuousIndex(pt : Point[D]) : Vector[D] = {
+    val data = (0 until dimensionality).map(i => (pt(i) - origin(i)) / spacing(i))
+    Vector[D](data.toArray)
+  }
+
+  def indexToPoint(i: Index[D]) = {
+    indexToPhysicalCoordinateTransform(Point[D](i.data.map(_.toFloat)))
+  }
+
+
+  private def isIndex(continousIndex : Vector[D]) : Boolean = {
+    (0 until dimensionality).forall(i => (continousIndex(i) - Math.round(continousIndex(i)) < 1e-8))
+  }
 
   /** the anisotropic similarity transform that maps between the index and physical coordinates*/
   private[core] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
@@ -127,7 +149,6 @@ object DiscreteImageDomain {
     evCreateRot.createWithTransform(size, transform)
   }
 
-
 }
 
 
@@ -139,16 +160,17 @@ private case class DiscreteImageDomain1D(origin: Point[_1D], spacing: Vector[_1D
   def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
 
   override def indexToPhysicalCoordinateTransform = transform
-  def indexToPointId(idx: Index[_1D]) = idx(0)
-  def pointIdToIndex(linearIdx: Int) = Index(linearIdx)
+
+  override def index(linearIdx: Int) = Index(linearIdx)
+  override def pointId(idx : Index[_1D]) = idx(0)
 
   override val directions = SquareMatrix(1.0f)
 
   private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   private val inverseTransform = transform.inverse
 
-  override def indexToPoint(i: Index[_1D]): Point[_1D] = transform(Point(i(0)))
-  override def pointToIndex(p: Point[_1D]): Index[_1D] = Index(inverseTransform(p)(0).toInt)
+//  override def indexToPoint(i: Index[_1D]): Point[_1D] = transform(Point(i(0)))
+//  override def pointToIndex(p: Point[_1D]): Index[_1D] = Index(inverseTransform(p)(0).toInt)
 
 }
 
@@ -172,14 +194,13 @@ private case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordi
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
 
-  override def indexToPoint(i: Index[_2D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1)))
-  override def pointToIndex(p: Point[_2D]) = {
-    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
-    Index(t(0), t(1))
-  }
+//  override def pointToIndex(p: Point[_2D]) = {
+//    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
+//    Index(t(0), t(1))
+//  }
 
-  def indexToPointId(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
-  def pointIdToIndex(linearIdx: Int) = (Index(linearIdx % size(0), linearIdx / size(0)))
+  override def index(ptId: Int) = (Index(ptId % size(0), ptId / size(0)))
+  override def pointId(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
 
 }
 
@@ -218,18 +239,21 @@ private case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordi
   yield indexToPhysicalCoordinateTransform(Point(i, j, k))
 
   override def indexToPoint(i: Index[_3D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1), i(2)))
-  override def pointToIndex(p: Point[_3D]) = {
-    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
-      Index(t(0), t(1), t(2))
-  }
+//  override def pointToIndex(p: Point[_3D]) = {
+//    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
+//      Index(t(0), t(1), t(2))
+//  }
 
-  def indexToPointId(idx: Index[_3D]) = idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
-  def pointIdToIndex(linearIdx: Int) =
+  override def index(pointId: Int) =
     Index(
-      linearIdx % (size(0) * size(1)) % size(0),
-      linearIdx % (size(0) * size(1)) / size(0),
-      linearIdx / (size(0) * size(1)))
+      pointId % (size(0) * size(1)) % size(0),
+      pointId % (size(0) * size(1)) / size(0),
+      pointId / (size(0) * size(1)))
 
+
+  override def pointId(idx : Index[_3D]) : Int = {
+    idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
+  }
 
 }
 

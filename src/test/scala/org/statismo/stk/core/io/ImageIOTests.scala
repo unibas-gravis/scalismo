@@ -25,7 +25,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
   def equalImages(img1: DiscreteScalarImage[_3D, _], img2: DiscreteScalarImage[_3D, _]): Boolean = {
 
     val valFlag = (0 until img1.values.size by img1.values.size / 1000).forall { i =>
-      img1.values(i) == img2.values(i)
+      img1.data(i) == img2.data(i)
     }
 
     valFlag && ((img1.domain.origin - img2.domain.origin).norm < 0.01f) &&
@@ -76,7 +76,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
       ImageIO.writeVTK(discreteImage, f)
       val readImg = ImageIO.read3DScalarImage[Short](f).get
 
-      readImg.values should equal(discreteImage.values)
+      readImg.data should equal(discreteImage.data)
 
       assert(equalImages(readImg, discreteImage))
 
@@ -148,7 +148,7 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
         (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 plusOrMinus 1e-2)
         origImg.domain.size should equal(rereadImg.domain.size)
         for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
-          origImg.values(i) should equal(rereadImg.values(i))
+          origImg(i) should equal(rereadImg(i))
         }
       }
     }

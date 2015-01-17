@@ -158,6 +158,7 @@ object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 }
 
+<<<<<<< HEAD
 /**
  * 3-dimensional triangle mesh with scalar values associated to mesh points.
  * @tparam S type of the scalar values defined over the mesh (Short, Int, Float, Double)
@@ -165,15 +166,18 @@ object TriangleMesh {
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values. 
  * The number of values and mesh points must be equal.
  * */
-case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, values: Array[S]) extends ScalarPointData[_3D, S] {
-  require(mesh.numberOfPoints == values.size)
+case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, data: Array[S]) extends ScalarPointData[_3D, S] {
+  require(mesh.numberOfPoints == data.size)
 
   override def numeric = implicitly[Numeric[S]]
-
+  override def values = data.iterator
   override val domain = mesh
 
-  override def map[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
-    ScalarMeshData(mesh, values.map(f))
+  override def apply(ptId : Int) = data(ptId)
+  override def isDefinedAt(ptId : Int) = data.isDefinedAt(ptId)
+
+  override def mapScalar[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
+    ScalarMeshData(mesh, data.map(f))
   }
 }
 

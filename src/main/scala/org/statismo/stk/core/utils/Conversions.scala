@@ -216,7 +216,7 @@ object MeshConversion {
 
   def meshDataToVtkPolyData[S: Numeric: ClassTag: TypeTag](meshData: ScalarMeshData[S]): vtkPolyData = {
     val pd = meshToVTKPolyData(meshData.mesh)
-    val scalarData = VTKHelpers.createVtkDataArray(meshData.values, 1) // TODO make this more general
+    val scalarData = VTKHelpers.createVtkDataArray(meshData.data, 1) // TODO make this more general
     pd.GetPointData().SetScalars(scalarData)
     pd
   }

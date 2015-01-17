@@ -107,13 +107,13 @@ class DomainTest extends FunSpec with ShouldMatchers {
   describe("a discrete domain in 2d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))
-      assert(domain.indexToPointId((40, 34)) === 40 + 34 * domain.size(0))
+      assert(domain.pointId((40, 34)) === 40 + 34 * domain.size(0))
     }
 
     it("can correclty map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       val idx = Index(5, 7)
-      val recIdx = domain.pointIdToIndex(domain.indexToPointId(idx))
+      val recIdx = domain.index(domain.pointId(idx))
       assert(recIdx === idx)
     }
 
@@ -133,14 +133,14 @@ class DomainTest extends FunSpec with ShouldMatchers {
   describe("a discrete domain in 3d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
-      assert(domain.indexToPointId((40, 34, 15)) === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
+      assert(domain.pointId((40, 34, 15)) === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
     }
 
     it("can correclty map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
 
       val idx = Index(5, 3, 7)
-      val recIdx = domain.pointIdToIndex(domain.indexToPointId(idx))
+      val recIdx = domain.index(domain.pointId(idx))
       assert(recIdx === idx)
     }
 
