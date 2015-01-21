@@ -33,11 +33,11 @@ class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
     val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
-    val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.mesh, 100, 42)).sample.unzip
+    val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42)).sample.unzip
     val ptDomain = SpatiallyIndexedFiniteDiscreteDomain.fromSeq(profilePoints)
     val dists = for (i <- 0 until ptDomain.numberOfPoints) yield
       (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat , DenseMatrix.eye[Float](3) * i.toFloat))
-    val profileDists = ASMProfileDistributions(ptDomain, dists.toArray)
+    val profileDists = ASMProfileDistributions(ptDomain, dists)
     new ActiveShapeModel(shapeModel,  profileDists, new NormalDirectionFeatureExtractor(5, 10))
   }
 

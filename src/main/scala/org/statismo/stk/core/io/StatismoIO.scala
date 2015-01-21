@@ -148,7 +148,7 @@ object StatismoIO {
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
-      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
+      new StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
     }
 
     modelOrFailure
@@ -164,21 +164,13 @@ object StatismoIO {
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.data)
-    val pcaVariance = model.gp.eigenPairs.map(p => p._1).toArray
-    val pcaBasis = DenseMatrix.zeros[Float](model.mesh.points.size * model.gp.outputDimensionality, model.gp.rank)
-    for {
-      pointsWithIndices <- model.mesh.points.toSeq.par.zipWithIndex
-      eigenPairsWithIndices <- model.gp.eigenPairs.zipWithIndex
-    } {
-      val (point, idx) = pointsWithIndices
-      val ((lmda, phi), j)= eigenPairsWithIndices
-      pcaBasis(idx * model.gp.outputDimensionality until (idx + 1) * model.gp.outputDimensionality, j) := phi(point).toBreezeVector
-    }
+    val variance = model.gp.variance
 
+    val pcaBasis = model.gp.basisMatrix
     if (statismoVersion == v081) {
       // statismo 081 has the variance included in the pcaBasis
-      for (i <- 0 until pcaVariance.length) {
-        pcaBasis(::, i) *= math.sqrt(pcaVariance(i)).toFloat
+      for (i <- 0 until variance.length) {
+        pcaBasis(::, i) *= math.sqrt(variance(i)).toFloat
       }
     }
 
@@ -187,7 +179,7 @@ object StatismoIO {
       _ <- h5file.writeArray(s"$modelPath/model/mean", discretizedMean.toArray)
       _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray(s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols), pcaBasis.t.flatten(false).toArray))
-      _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", pcaVariance.toArray)
+      _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", variance.toArray)
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup(s"$modelPath/representer")
       _ <- if (statismoVersion == v090) {
@@ -219,8 +211,8 @@ object StatismoIO {
 
   private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
-    val cellArray = model.mesh.cells.map(_.ptId1) ++ model.mesh.cells.map(_.ptId2) ++ model.mesh.cells.map(_.ptId3)
-    val pts = model.mesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
+    val cellArray = model.referenceMesh.cells.map(_.ptId1) ++ model.referenceMesh.cells.map(_.ptId2) ++ model.referenceMesh.cells.map(_.ptId3)
+    val pts = model.referenceMesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
 
     for {
@@ -229,8 +221,8 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(3, model.mesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.mesh.points.size), pointArray.toArray))
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(3, model.referenceMesh.cells.size), cellArray.toArray))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.points.size), pointArray.toArray))
     } yield Success(())
   }
 
@@ -260,7 +252,7 @@ object StatismoIO {
 
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkMeshRepresenter")
-      ba <- refAsByteArray(model.mesh)
+      ba <- refAsByteArray(model.referenceMesh)
       _ <- h5file.writeNDArray[Byte](s"$modelPath/representer/reference", NDArray(IndexedSeq(ba.length, 1), ba))
     } yield Success(())
   }

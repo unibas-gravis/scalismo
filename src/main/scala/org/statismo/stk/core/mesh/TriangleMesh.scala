@@ -159,6 +159,7 @@ object TriangleMesh {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /**
  * 3-dimensional triangle mesh with scalar values associated to mesh points.
  * @tparam S type of the scalar values defined over the mesh (Short, Int, Float, Double)
@@ -166,10 +167,9 @@ object TriangleMesh {
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values. 
  * The number of values and mesh points must be equal.
  * */
-case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, data: Array[S]) extends ScalarPointData[_3D, S] {
+case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val data: Array[S]) extends ScalarPointData[_3D, S](mesh, data) {
   require(mesh.numberOfPoints == data.size)
 
-  override def numeric = implicitly[Numeric[S]]
   override def values = data.iterator
   override val domain = mesh
 

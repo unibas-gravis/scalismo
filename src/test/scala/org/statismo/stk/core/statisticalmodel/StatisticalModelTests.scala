@@ -22,10 +22,12 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
 
   describe("A statistical model") {
+    it("TODO replace with tests for discrete gp") { assert(false) }
+    /*
     it("yields the right mean and deformations when created from a discretized gp") {
       val path = getClass.getResource("/facemesh.h5").getPath
       val mesh = MeshIO.readHDF5(new File(path)).get
-      val cov = UncorrelatedKernel3x3(GaussianKernel3D(100) * 100)
+      val cov = UncorrelatedKernel[_3D](GaussianKernel[_3D](100) * 100)
 
       val region = mesh.boundingBox
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess[_3D](
@@ -116,5 +118,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val readModel = StatismoIO.readStatismoMeshModel(tmpStatismoFile).get
       compareModels(model, readModel)
     }
+  */
   }
+
 }
