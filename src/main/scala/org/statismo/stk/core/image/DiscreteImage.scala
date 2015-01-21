@@ -8,7 +8,7 @@ import org.statismo.stk.core.numerics.BSpline._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.{PointDataAsArray, PointData, ScalarPointData}
+import org.statismo.stk.core.common.{PointData, ScalarPointData}
 import spire.math.Numeric
 
 /**
@@ -42,18 +42,16 @@ trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Numeric).
  */
-class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (val domain: DiscreteImageDomain[D], val data: Array[A] )
-  extends DiscreteImage[D, A] with ScalarPointData[D, A] with PointDataAsArray[D, A] {
+class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (override val domain: DiscreteImageDomain[D], data: Array[A] )
+  extends ScalarPointData[D, A](domain, data) with DiscreteImage[D, A]  {
 
   require (domain.numberOfPoints == data.size)
-
-  protected[this] override def numeric = implicitly[Numeric[A]]
 
   protected override def ndSpace = implicitly[NDSpace[D]]
 
 
   /** returns a new image whose whose pixel values have been mapped using the function f */
-  def mapScalar[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
+  override def mapScalar[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
     new DiscreteScalarImage (domain, data.map (f) )
   }
 

@@ -10,7 +10,7 @@ import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
 import breeze.linalg.DenseVector
 
 
-class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = GaussianProcessTransformation[D]
 
@@ -24,7 +24,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
   }
 }
 
-class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
+class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, D], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
 
   val instance = gp.instance(alpha)
   val parameters = alpha
@@ -36,11 +36,11 @@ class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProces
 }
 
 object GaussianProcessTransformation {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D, D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
 }
 
 object GaussianProcessTransformationSpace {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D]) = new GaussianProcessTransformationSpace[D](gp)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D, D]) = new GaussianProcessTransformationSpace[D](gp)
 }
 
 

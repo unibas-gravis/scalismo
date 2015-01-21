@@ -5,22 +5,26 @@ import org.statismo.stk.core.mesh.{ ScalarMeshData, TriangleMesh }
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.geometry.{ Point, Vector }
 import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage}
-import org.statismo.stk.core.common.{PointDataAsArray, DiscreteDomain, PointData, SpatiallyIndexedFiniteDiscreteDomain}
+import org.statismo.stk.core.common.{DiscreteDomain, PointData, SpatiallyIndexedFiniteDiscreteDomain}
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
 import org.statismo.stk.core.io.{ HDF5File, HDF5ReadWrite }
 import ncsa.hdf.`object`.Group
 import scala.util.Try
 
-case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDomain[_3D], val data: Array[MultivariateNormalDistribution])
-  extends PointData[_3D, MultivariateNormalDistribution] with PointDataAsArray[_3D, MultivariateNormalDistribution] {
+case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDomain[_3D], val data: IndexedSeq[MultivariateNormalDistribution])
+  extends PointData[_3D, MultivariateNormalDistribution]  {
   require(domain.numberOfPoints == data.size)
+
+  def apply(i : Int) = data(i)
+  def isDefinedAt(i : Int) = data.isDefinedAt(i)
+  def values = data.iterator
+
 }
 
 case class ActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor](shapeModel: StatisticalMeshModel,
   val intensityDistributions: ASMProfileDistributions,
-  val featureExtractor: FE)
-  extends StatisticalMeshModel(shapeModel.mesh, shapeModel.gp) {
+  val featureExtractor: FE) {
 
   def featureDistance(pt: Point[_3D], featureVec: DenseVector[Float]): Double = {
     val (_, ptId) = intensityDistributions.domain.findClosestPoint(pt)
@@ -120,15 +124,15 @@ object ActiveShapeModel {
    */
   def trainModel[FE <: FeatureExtractor](model: StatisticalMeshModel, trainingData: TrainingData, featureExtractor: FE, config: ASMTrainingConfig): ActiveShapeModel[FE] = {
 
-    val sampler = FixedPointsUniformMeshSampler3D(model.mesh, config.numberOfSamplingPoints, config.randomSeed)
+    val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, config.numberOfSamplingPoints, config.randomSeed)
     val profilePts = sampler.samplePoints
 
-    val trainingDataSurfaces = for ((image, transform) <- trainingData) yield (image, model.mesh.warp(transform))
+    val trainingDataSurfaces = for ((image, transform) <- trainingData) yield (image, model.referenceMesh.warp(transform))
 
     // create for each point a multivariate normal distribution, which is estimated frm the
     // features extrated by the feature extractor
     val featureDistributions = for (pt <- profilePts) yield {
-      val (_, ptId) = model.mesh.findClosestPoint(pt)
+      val (_, ptId) = model.referenceMesh.findClosestPoint(pt)
 
       // extract features for the given pointsfrom all training datasets
       val featureVectorsAtPt = for ((image, targetSurface) <- trainingDataSurfaces) yield {
@@ -137,13 +141,13 @@ object ActiveShapeModel {
       }
       MultivariateNormalDistribution.estimateFromData(featureVectorsAtPt)
     }
-    val pointData = new ASMProfileDistributions(SpatiallyIndexedFiniteDiscreteDomain.fromSeq[_3D](profilePts), featureDistributions.toArray)
+    val pointData = new ASMProfileDistributions(SpatiallyIndexedFiniteDiscreteDomain.fromSeq[_3D](profilePts), featureDistributions)
     new ActiveShapeModel(model, pointData, featureExtractor)
   }
 
-  def fitModel[FE <: FeatureExtractor](model: ActiveShapeModel[FE], targetImage: DifferentiableScalarImage[_3D], maxNumIterations: Int, ptGenerator: SearchPointSampler, config: ASMFittingConfig): Iterator[TriangleMesh] = {
+  def fitModel[FE <: FeatureExtractor](asm: ActiveShapeModel[FE], targetImage: DifferentiableScalarImage[_3D], maxNumIterations: Int, ptGenerator: SearchPointSampler, config: ASMFittingConfig): Iterator[TriangleMesh] = {
 
-    fitModel(model, targetImage, maxNumIterations, ptGenerator, model.mean, config)
+    fitModel(asm, targetImage, maxNumIterations, ptGenerator, asm.shapeModel.mean, config)
   }
 
   def fitModel[FE <: FeatureExtractor](model: ActiveShapeModel[FE], targetImage: DifferentiableScalarImage[_3D], maxNumIterations: Int, ptGenerator: SearchPointSampler, startingMesh: TriangleMesh, config: ASMFittingConfig): Iterator[TriangleMesh] = {
@@ -158,18 +162,14 @@ object ActiveShapeModel {
       }
   }
 
-  private[this] def fitIteration[FE <: ActiveShapeModel.FeatureExtractor](model: ActiveShapeModel[FE], targetImage: DifferentiableScalarImage[_3D], startingShape: TriangleMesh, ptGenerator: SearchPointSampler, config: ASMFittingConfig): TriangleMesh = {
+  private[this] def fitIteration[FE <: ActiveShapeModel.FeatureExtractor](asm: ActiveShapeModel[FE], targetImage: DifferentiableScalarImage[_3D], startingShape: TriangleMesh, ptGenerator: SearchPointSampler, config: ASMFittingConfig): TriangleMesh = {
 
-    val referencePoints = model.mesh.points.toIndexedSeq
+    val referencePoints = asm.shapeModel.referenceMesh.points.toIndexedSeq
 
-    val refPtIdsWithTargetPt = findBestCorrespondingPoints(model, startingShape, targetImage, ptGenerator, config)
+    val refPtIdsWithTargetPt = findBestCorrespondingPoints(asm, startingShape, targetImage, ptGenerator, config)
 
-    // project mesh into the model
-    val gpRegressionTrainingData = refPtIdsWithTargetPt.map {
-      case (refId, targetPt) => (referencePoints(refId), targetPt - referencePoints(refId))
-    }
-    val coeffs = model.gp.coefficients(gpRegressionTrainingData, sigma2 = 1e-6)
-    val uncorrectedMesh = model.instance(coeffs)
+    val coeffs = asm.shapeModel.coefficients(refPtIdsWithTargetPt, sigma2 = 1e-6)
+    val uncorrectedMesh = asm.shapeModel.instance(coeffs)
     val correctedCoeffs = coeffs.map {
       c =>
         c match {
@@ -178,19 +178,19 @@ object ActiveShapeModel {
           case _ => -config.maxCoefficientStddev
         }
     }
-    val newFit = model.instance(correctedCoeffs.map(_.toFloat))
+    val newFit = asm.shapeModel.instance(correctedCoeffs.map(_.toFloat))
     newFit
   }
 
   /**
    * get for each point in the model the one that fits best the description. Start the search from the current fitting result (curFit)
    */
-  private[this] def findBestCorrespondingPoints[FE <: ActiveShapeModel.FeatureExtractor](model: ActiveShapeModel[FE], curFit: TriangleMesh, targetImage: DifferentiableScalarImage[_3D], ptGenerator: SearchPointSampler, config: ASMFittingConfig): IndexedSeq[(Int, Point[_3D])] = {
-    val searchPts = model.intensityDistributions.domain.points
-    val refPtsToSearchWithId = searchPts.map(pt => model.mesh.findClosestPoint(pt))
+  private[this] def findBestCorrespondingPoints[FE <: ActiveShapeModel.FeatureExtractor](asm: ActiveShapeModel[FE], curFit: TriangleMesh, targetImage: DifferentiableScalarImage[_3D], ptGenerator: SearchPointSampler, config: ASMFittingConfig): IndexedSeq[(Int, Point[_3D])] = {
+    val searchPts = asm.intensityDistributions.domain.points
+    val refPtsToSearchWithId = searchPts.map(pt => asm.shapeModel.referenceMesh.findClosestPoint(pt))
     val matchingPts = refPtsToSearchWithId.toIndexedSeq.par.map {
       case (pt, id) =>
-        (id, findBestMatchingPointAtPoint(model, curFit, id, targetImage, ptGenerator, config))
+        (id, findBestMatchingPointAtPoint(asm, curFit, id, targetImage, ptGenerator, config))
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
@@ -201,21 +201,21 @@ object ActiveShapeModel {
    * find the point in the target that is the best match at the given point
    * Retuns Some(Point) if its feature vector is close to a trained feature in terms of the mahalobis distance, otherwise None
    */
-  private[this] def findBestMatchingPointAtPoint[FE <: ActiveShapeModel.FeatureExtractor](model: ActiveShapeModel[FE], curFit: TriangleMesh, ptId: Int, targetImage: DifferentiableScalarImage[_3D], ptGenerator: SearchPointSampler, config: ASMFittingConfig): Option[Point[_3D]] = {
-    val refPt = model.mesh.points.toIndexedSeq(ptId)
+  private[this] def findBestMatchingPointAtPoint[FE <: ActiveShapeModel.FeatureExtractor](asm: ActiveShapeModel[FE], curFit: TriangleMesh, ptId: Int, targetImage: DifferentiableScalarImage[_3D], ptGenerator: SearchPointSampler, config: ASMFittingConfig): Option[Point[_3D]] = {
+    val refPt = asm.shapeModel.referenceMesh.points.toIndexedSeq(ptId)
     val curPt = curFit.points.toIndexedSeq(ptId)
-    val samplePts = ptGenerator(model, curFit, ptId)
+    val samplePts = ptGenerator(asm, curFit, ptId)
 
     val ptsWithDists = for (imgPt <- samplePts) yield {
-      val featureVector = model.featureExtractor(targetImage, curFit, imgPt)
-      val dist = model.featureDistance(refPt, featureVector)
+      val featureVector = asm.featureExtractor(targetImage, curFit, imgPt)
+      val dist = asm.featureDistance(refPt, featureVector)
       (imgPt, dist)
     }
     val (minPt, minIntensityDist) = ptsWithDists.minBy {
       case (pt, dist) => dist
     }
 
-    val shapeDistForPt = model.gp.marginal(refPt).mahalanobisDistance(minPt - refPt)
+    val shapeDistForPt = asm.shapeModel.marginal(ptId).mahalanobisDistance(minPt - refPt)
     if (minIntensityDist < config.maxIntensityStddev && shapeDistForPt < config.maxShapeStddev) Some(minPt) else None
   }
 

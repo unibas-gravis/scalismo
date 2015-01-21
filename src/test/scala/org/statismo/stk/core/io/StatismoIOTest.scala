@@ -16,19 +16,7 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
   describe("a Statismo Mesh Model") {
 
     def assertModelEqual(model1 : StatisticalMeshModel, model2 : StatisticalMeshModel) : Unit = {
-      val coeffs = DenseVector.ones[Float](model1.gp.rank)
-      val def1 = model1.gp.instance(coeffs)
-      val def2 = model2.gp.instance(coeffs)
-
-      model1.mesh.points.zip(model2.mesh.points).map {
-        pair =>
-        {
-          def1(pair._1)(0) should be(def2(pair._2)(0) plusOrMinus 0.01f)
-          def1(pair._1)(1) should be(def2(pair._2)(1) plusOrMinus 0.01f)
-          def1(pair._1)(2) should be(def2(pair._2)(2) plusOrMinus 0.01f)
-        }
-      }
-
+      assert(model1 == model2)
     }
 
 

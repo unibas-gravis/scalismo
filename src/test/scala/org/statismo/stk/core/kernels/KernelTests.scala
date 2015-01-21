@@ -3,7 +3,7 @@ package org.statismo.stk.core.kernels
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.registration.Transformation
-import org.statismo.stk.core.geometry.{Point, _3D, Vector}
+import org.statismo.stk.core.geometry.{_1D, Point, _3D, Vector}
 import Point.implicits._
 import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess}
 import org.statismo.stk.core.numerics.UniformSampler
@@ -14,7 +14,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
 
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {
-      val gk = GaussianKernel1D(3.5)
+      val gk = GaussianKernel[_1D](3.5)
       val gkMult = gk * 100
       val pt1 = 0.1f
       val pt2 = 1.0f
@@ -22,7 +22,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
     }
 
     it("yields correct result when two kernels are added") {
-      val gk = GaussianKernel1D(3.5)
+      val gk = GaussianKernel[_1D](3.5)
       val gk2 = gk + gk
       val pt1 = 0.1f
       val pt2 = 1.0f
@@ -31,12 +31,12 @@ class KernelTests extends FunSpec with ShouldMatchers {
   }
   describe("A scalar valued Gaussian kernel") {
     it("evaluated with twice the same argument yields 1") {
-      val gk = GaussianKernel1D(3.5)
+      val gk = GaussianKernel[_1D](3.5)
       gk(0.1f, 0.1f) should be(1.0 plusOrMinus 1e-8)
     }
 
     it("given two arguments far apart yields almost 0") {
-      val gk = GaussianKernel1D(1.0)
+      val gk = GaussianKernel[_1D](1.0)
       gk(0.1f, 100) should be(0.0 plusOrMinus 1e-8)
     }
   }
@@ -48,7 +48,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
 
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 
-      val k = UncorrelatedKernel3x3(GaussianKernel3D(100.0))
+      val k = UncorrelatedKernel[_3D](GaussianKernel[_3D](100.0))
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess(domain, samplerForNystromApprox, mu, k, 500)
 
@@ -66,7 +66,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
       val pts = testPtSampler.sample.map(_._1)
 
 
-      val sampleCovKernel = SampleCovarianceKernel3D(sampleTransformations.toIndexedSeq, pts.size)
+      val sampleCovKernel = SampleCovarianceKernel[_3D](sampleTransformations.toIndexedSeq, pts.size)
 
       // since mu always returns the same vector, it's enough to calculate it once
       val mux = mu(Point(0, 0, 0))

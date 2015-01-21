@@ -19,7 +19,7 @@ object ActiveShapeModelIO {
   def writeASM[FE <: ActiveShapeModel.FeatureExtractor : HDF5Write](asm : ActiveShapeModel[FE], fn : File) : Try[Unit] = {
     val featureExtractorWriter = implicitly[HDF5Write[FE]]
     for {
-      statismoStatus <- StatismoIO.writeStatismoMeshModel(asm, fn)
+      statismoStatus <- StatismoIO.writeStatismoMeshModel(asm.shapeModel, fn)
       h5file <- HDF5Utils.openFileForWriting(fn)
       asmGroup <- h5file.createGroup("/ASMModel")
       _ <- writeIntensityDistributions(h5file, asmGroup, asm.intensityDistributions)
@@ -65,8 +65,8 @@ object ActiveShapeModelIO {
     val numEntries = distributions.domain.numberOfPoints
     val distDim = if (numEntries > 0) distributions.data(0).mean.size else 0
     val ptArray  = distributions.domain.points.toIndexedSeq.flatten(_.data).toArray
-    val meanArray = distributions.data.map(_.mean.data).flatten
-    val covArray = distributions.data.map(_.cov.data).flatten
+    val meanArray = distributions.data.map(_.mean.data).flatten.toArray
+    val covArray = distributions.data.map(_.cov.data).flatten.toArray
     val groupName = group.getFullName
     for {
       _ <- h5file.writeInt(s"$groupName/numberOfProfilePoints", numEntries)
