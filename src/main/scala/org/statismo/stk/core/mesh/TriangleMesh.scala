@@ -19,6 +19,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
   /** Returns true if the given point identifier is part of the triangle cell*/
   def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
+
 /**
  * 3-dimensional triangle mesh. 
  * 
@@ -29,7 +30,7 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
 	extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
-  private[this] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
+  private[core] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
 
   private[this] def updateCellMapForPtId(ptId: Int, cell: TriangleCell): Unit = {
     val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
@@ -56,14 +57,14 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
     BoxDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
-  /** 
+  /**
    *  Returns a triangle mesh that is the image of this mesh by the given transform.
    *  
    *  This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
    *  
    *  @param transform A function that maps a given point to a new position. All instances of [[Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D]]</code> are valid arguments. 
    *  */
-  def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
+  override def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
    /**
    * Returns the identifiers of the mesh cells to which the given point identifier belongs */
@@ -158,8 +159,6 @@ object TriangleMesh {
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 /**
  * 3-dimensional triangle mesh with scalar values associated to mesh points.
  * @tparam S type of the scalar values defined over the mesh (Short, Int, Float, Double)

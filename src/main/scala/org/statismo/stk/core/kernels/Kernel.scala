@@ -81,7 +81,7 @@ case class MultiScaleKernel[D <: Dim : NDSpace](kernel : MatrixValuedPDKernel[D,
 
 object Kernel {
 
-  def computeKernelMatrix[D <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Float] = {
+  def computeKernelMatrix[D <: Dim, DO <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, DO]): DenseMatrix[Float] = {
     val d = k.outputDim
 
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)

@@ -3,9 +3,17 @@ package common
 
 import geometry.{ Point, Vector, Dim, _1D, _2D, _3D }
 import breeze.linalg.DenseVector
+import org.statismo.stk.core.registration.{CanInvert, Transformation}
 
-trait Domain[D <: Dim] {
+trait Domain[D <: Dim] { self =>
   def isDefinedAt(pt: Point[D]): Boolean
+
+  def warp(t : Transformation[D] with CanInvert[D]) : Domain[D] = new Domain[D] {
+    val tinv = t.inverse
+    override def isDefinedAt(pt : Point[D]): Boolean = {
+      self.isDefinedAt(tinv(pt))
+    }
+  }
 }
 
 object Domain {

@@ -26,14 +26,18 @@ object DiscreteDomain {
   }
 }
 
-trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] {
+trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] { self =>
   def numberOfPoints: Int
   def pointId(pt : Point[D]) : Option[Int]
+
+  def warp(t : Point[D] => Point[D]) : FiniteDiscreteDomain[D] = {
+    FiniteDiscreteDomain.fromSeq(self.points.map(t).toIndexedSeq)
+  }
 }
 
 object FiniteDiscreteDomain {
 
-  def fromSeq[D <: Dim: NDSpace](_points: IndexedSeq[Point[D]]) =
+  def fromSeq[D <: Dim](_points: IndexedSeq[Point[D]]) =
     new FiniteDiscreteDomain[D] {
       override def points = _points.toIterator
       override def isDefinedAt(p: Point[D]) = _points.contains(p)
@@ -58,8 +62,9 @@ object FiniteDiscreteDomain {
 case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (pointSeq: IndexedSeq[Point[D]], numberOfPoints: Int) extends FiniteDiscreteDomain[D] {
 
   override def points = pointSeq.toIterator
-  def points(idx : Int) = pointSeq(idx)
-    
+  def points(id : Int) = pointSeq(id)
+  def apply(id : Int) = points(id)
+
   private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(pointSeq.zipWithIndex)
   override def isDefinedAt(pt: Point[D]) = findClosestPoint(pt)._1 == pt
 

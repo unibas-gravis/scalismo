@@ -19,7 +19,7 @@ import java.io.FileOutputStream
 import org.statismo.stk.core.mesh.TriangleMesh
 import java.io.DataInputStream
 import java.io.FileInputStream
-import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
+import org.statismo.stk.core.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel}
 
 object StatismoIO {
   object StatismoModelType extends Enumeration {
@@ -148,7 +148,7 @@ object StatismoIO {
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
-      new StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
+      StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
     }
 
     modelOrFailure
