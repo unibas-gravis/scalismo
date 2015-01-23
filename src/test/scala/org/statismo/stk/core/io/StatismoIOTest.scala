@@ -16,9 +16,17 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
   describe("a Statismo Mesh Model") {
 
     def assertModelEqual(model1 : StatisticalMeshModel, model2 : StatisticalMeshModel) : Unit = {
-      assert(model1 == model2)
+      assert(model1.mean == model2.mean && model1.gp == model2.gp)
     }
 
+
+
+    it("two copied models are equal") {
+      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+      val model = StatismoIO.readStatismoMeshModel(statismoFile).get
+      val model2 = StatisticalMeshModel(model.referenceMesh, model.gp.meanVector, model.gp.variance.copy, model.gp.basisMatrix)
+      assertModelEqual(model, model2)
+    }
 
     it("can be written and read again") {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
