@@ -14,6 +14,8 @@ import org.statismo.stk.core.registration.RigidTransformation
 case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp : DiscreteLowRankGaussianProcess[_3D, _3D])
 {
 
+  val rank = gp.rank
+
   def mean : TriangleMesh = warpReference(gp.mean)
 
   def cov(ptId1 : Int, ptId2 : Int) = gp.cov(ptId1, ptId2)
@@ -50,10 +52,10 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
     val newBasisMat = DenseMatrix.zeros[Float](gp.basisMatrix.rows, gp.basisMatrix.cols)
 
     for (i <- 0 until gp.rank) {
-      val newithBaiss = for ((pt, basisAtPoint) <- gp.basis(i).pointsWithValues) yield {
+      val newIthBasis = for ((pt, basisAtPoint) <- gp.basis(i).pointsWithValues) yield {
         rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
       }
-      val data = newithBaiss.map(_.data).flatten.toArray
+      val data = newIthBasis.map(_.data).flatten.toArray
       newBasisMat(::, i) := DenseVector(data)
     }
     val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain, newMean, gp.variance, newBasisMat)
@@ -67,13 +69,11 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   def changeReference(t : Point[_3D] => Point[_3D]): StatisticalMeshModel = {
 
     val newRef = referenceMesh.warp(t)
-    val newMean = gp.mean.pointsWithValues.map{case(refPt, meanVec) => (t(refPt) - refPt) + meanVec}
+    val newMean = gp.mean.pointsWithValues.map{case(refPt, meanVec) => (refPt - t(refPt)) + meanVec}
     val newMeanVec = DenseVector(newMean.map(_.data).flatten.toArray)
     val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](newRef, newMeanVec, gp.variance, gp.basisMatrix)
     new StatisticalMeshModel(newRef, newGp)
   }
-
-
 
 
   private def warpReference(vectorPointData: VectorPointData[_3D, _3D]) = {
@@ -87,25 +87,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 object StatisticalMeshModel {
 
     def apply(referenceMesh: TriangleMesh, gp: LowRankGaussianProcess[_3D, _3D]): StatisticalMeshModel = {
-      val points = referenceMesh.points.toSeq
-
-      // precompute all the at the given points
-      val (gpLambdas, gpPhis) = gp.eigenPairs.unzip
-      val m = DenseVector.zeros[Float](points.size * gp.outputDimensionality)
-      for (xWithIndex <- points.zipWithIndex.par) {
-        val (x, i) = xWithIndex
-        m(i * gp.outputDimensionality until (i + 1) * gp.outputDimensionality) := gp.mean(x).toBreezeVector
-      }
-
-      val U = DenseMatrix.zeros[Float](points.size * gp.outputDimensionality, gp.rank)
-      for (xWithIndex <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
-        val (x, i) = xWithIndex
-        val v = phi_j(x)
-        U(i * gp.outputDimensionality until (i + 1) * gp.outputDimensionality, j) := phi_j(x).toBreezeVector
-      }
-
-      val lambdas = new DenseVector[Float](gpLambdas.toArray)
-      val discreteGp = new DiscreteLowRankGaussianProcess[_3D, _3D](referenceMesh, m, lambdas, U)
+      val discreteGp = DiscreteLowRankGaussianProcess(referenceMesh, gp)
       new StatisticalMeshModel(referenceMesh, discreteGp)
     }
 

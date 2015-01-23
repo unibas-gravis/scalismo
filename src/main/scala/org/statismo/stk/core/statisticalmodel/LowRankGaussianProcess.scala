@@ -86,18 +86,24 @@ class LowRankGaussianProcess[DI <: Dim : NDSpace, DO <: Dim : NDSpace](domain: D
   def posterior(trainingData: IndexedSeq[(Point[DI], Vector[DO], Double)]) : LowRankGaussianProcess[DI, DO] = {
     LowRankGaussianProcess.regression(this, trainingData)
   }
+
+  def discretize(points : Seq[Point[DI]]) : DiscreteLowRankGaussianProcess[DI, DO] = {
+    val domain = FiniteDiscreteDomain.fromSeq(points.toIndexedSeq)
+    DiscreteLowRankGaussianProcess(domain, this)
+  }
+
 }
 
 
 object LowRankGaussianProcess {
-  def createLowRankGaussianProcess[D <: Dim : NDSpace](
+  def createLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace](
                                                         domain: Domain[D],
                                                         sampler: Sampler[D],
-                                                        mean: Point[D] => Vector[D],
-                                                        cov: MatrixValuedPDKernel[D, D],
+                                                        mean: Point[D] => Vector[DO],
+                                                        cov: MatrixValuedPDKernel[D, DO],
                                                         numBasisFunctions: Int) = {
     val eigenPairs = Kernel.computeNystromApproximation(cov, numBasisFunctions, sampler)
-    new LowRankGaussianProcess[D, D](domain, mean, eigenPairs)
+    new LowRankGaussianProcess[D, DO](domain, mean, eigenPairs)
   }
 
 

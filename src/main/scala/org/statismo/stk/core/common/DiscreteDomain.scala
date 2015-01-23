@@ -29,7 +29,7 @@ object DiscreteDomain {
 trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] { self =>
   def numberOfPoints: Int
   def pointId(pt : Point[D]) : Option[Int]
-
+  def pointsWithId : Iterator[(Point[D], Int)] = points.zipWithIndex
   def warp(t : Point[D] => Point[D]) : FiniteDiscreteDomain[D] = {
     FiniteDiscreteDomain.fromSeq(self.points.map(t).toIndexedSeq)
   }

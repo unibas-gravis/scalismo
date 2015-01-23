@@ -112,7 +112,7 @@ object Kernel {
    * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
    * faster (breeze implementation detail). This should be replaced at some point
    */
-  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, D]): DenseMatrix[Double] = {
+  def computeKernelVectorFor[D <: Dim, DO <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D, DO]): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val kxs = DenseMatrix.zeros[Double](d, xs.size * d)
@@ -135,7 +135,10 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: NDSpace](k: MatrixValuedPDKernel[D, D], numBasisFunctions: Int, sampler: Sampler[D]): IndexedSeq[(Float, Point[D] => Vector[D])] = {
+  def computeNystromApproximation[D <: Dim: NDSpace, DO <: Dim : NDSpace](k: MatrixValuedPDKernel[D, DO],
+                                                                          numBasisFunctions: Int,
+                                                                          sampler: Sampler[D])
+  : IndexedSeq[(Float, Point[D] => Vector[DO])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -160,7 +163,7 @@ object Kernel {
     def phi(i: Int)(x: Point[D]) = {
       val value = computePhisMemoized(x)
       // extract the right entry for the i-th phi function
-      Vector[D](value(::, i).toArray.map(_.toFloat))
+      Vector[DO](value(::, i).toArray.map(_.toFloat))
 
     }
 
