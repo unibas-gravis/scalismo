@@ -3,7 +3,7 @@ package statisticalmodel
 
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.linalg.{DenseVector, DenseMatrix}
-import org.statismo.stk.core.common.{PointData, FiniteDiscreteDomain, ImmutableLRU}
+import org.statismo.stk.core.common.{VectorPointData, PointData, FiniteDiscreteDomain, ImmutableLRU}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.registration.RigidTransformation
 
@@ -11,41 +11,76 @@ import org.statismo.stk.core.registration.RigidTransformation
 /**
  * A StatisticalMeshModel, as it is currently defined, is a mesh, together with a Gaussian process defined (at least) on the bounding box of the mesh
  */
-case class StatisticalMeshModel(val referenceMesh: TriangleMesh, meanVector : DenseVector[Float], lambdas : DenseVector[Float], basisMatrix : DenseMatrix[Float])
+case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp : DiscreteLowRankGaussianProcess[_3D, _3D])
 {
 
-  val gp = new DiscreteLowRankGaussianProcess[_3D, _3D](referenceMesh, meanVector, lambdas, basisMatrix)
+  def mean : TriangleMesh = warpReference(gp.mean)
 
-  def mean : TriangleMesh = {
-    val newPoints = gp.mean.pointsWithValues.map{case (pt, v) => pt + v}
-    TriangleMesh(newPoints.toIndexedSeq, referenceMesh.cells)
-  }
+  def cov(ptId1 : Int, ptId2 : Int) = gp.cov(ptId1, ptId2)
 
+  def sample = warpReference(gp.sample)
 
-  def sample = {
-    val newPoints = gp.sample.pointsWithValues.map{case (pt, v) => pt + v}
-    TriangleMesh(newPoints.toIndexedSeq, referenceMesh.cells)
-
-  }
-
-  def instance(c : DenseVector[Float]) : TriangleMesh = {
-    val newPoints = gp.instance(c).pointsWithValues.map{case (pt, v) => pt + v}
-    TriangleMesh(newPoints.toIndexedSeq, referenceMesh.cells)
-  }
+  def instance(c : DenseVector[Float]) : TriangleMesh = warpReference(gp.instance(c))
 
   def marginal(ptId : Int)  = gp.marginal(ptId)
 
-  def coefficients(trainingData : IndexedSeq[(Int, Point[_3D])], sigma2 : Double) : DenseVector[Float] = ??? /*{
-    val d = referenceMesh(3)
-    val tdWithVectors = trainingData.map{case (ptId, pt) => (ptId, pt - referenceMesh(ptId))}
-    coefficients(tdWithVectors, sigma2)
+  def coefficients(trainingData : IndexedSeq[(Int, Point[_3D])], sigma2 : Double) : DenseVector[Float] = {
+    val trainingDataWithDisplacements = trainingData.map{case (id, targetPoint) => (id, targetPoint - referenceMesh(id))}
+    gp.coefficients(trainingDataWithDisplacements, sigma2)
   }
-*/
-  def posterior(trainingData: IndexedSeq[(Point[_3D], Vector[_3D])], sigma2: Double, meanOnly: Boolean = false): StatisticalMeshModel = ??? /*{
-    val posteriorGP = GaussianProcess.regression(gp, trainingData, sigma2, meanOnly)
-    new StatisticalMeshModel(mesh, posteriorGP)
+
+  def posterior(trainingData: IndexedSeq[(Int, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
+    val trainingDataWithDisplacements = trainingData.map{case (id, targetPoint) => (id, targetPoint - referenceMesh(id))}
+    val posteriorGp = gp.posterior(trainingDataWithDisplacements, sigma2)
+    new StatisticalMeshModel(referenceMesh, posteriorGp)
   }
-  */
+
+
+  def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel =  {
+    val newRef = referenceMesh.warp(rigidTransform)
+
+    val newMean : DenseVector[Float] = {
+      val newMeanVecs = for ((pt, meanAtPoint) <- gp.mean.pointsWithValues) yield {
+        rigidTransform(pt + meanAtPoint) - rigidTransform(pt)
+      }
+      val data = newMeanVecs.map(_.data).flatten.toArray
+      DenseVector(data)
+    }
+
+    val newBasisMat = DenseMatrix.zeros[Float](gp.basisMatrix.rows, gp.basisMatrix.cols)
+
+    for (i <- 0 until gp.rank) {
+      val newithBaiss = for ((pt, basisAtPoint) <- gp.basis(i).pointsWithValues) yield {
+        rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
+      }
+      val data = newithBaiss.map(_.data).flatten.toArray
+      newBasisMat(::, i) := DenseVector(data)
+    }
+    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain, newMean, gp.variance, newBasisMat)
+
+    new StatisticalMeshModel(newRef, newGp)
+
+  }
+
+  /** Changes the reference using the given transform
+    */
+  def changeReference(t : Point[_3D] => Point[_3D]): StatisticalMeshModel = {
+
+    val newRef = referenceMesh.warp(t)
+    val newMean = gp.mean.pointsWithValues.map{case(refPt, meanVec) => (t(refPt) - refPt) + meanVec}
+    val newMeanVec = DenseVector(newMean.map(_.data).flatten.toArray)
+    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](newRef, newMeanVec, gp.variance, gp.basisMatrix)
+    new StatisticalMeshModel(newRef, newGp)
+  }
+
+
+
+
+  private def warpReference(vectorPointData: VectorPointData[_3D, _3D]) = {
+    val newPoints = vectorPointData.pointsWithValues.map{case (pt, v) => pt + v}
+    new TriangleMesh(newPoints.toIndexedSeq, referenceMesh.cells, Some(referenceMesh.cellMap))
+  }
+
 
 }
 
@@ -63,77 +98,26 @@ object StatisticalMeshModel {
       }
 
       val U = DenseMatrix.zeros[Float](points.size * gp.outputDimensionality, gp.rank)
-j      for (xWithIndex <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
+      for (xWithIndex <- points.zipWithIndex.par; (phi_j, j) <- gpPhis.zipWithIndex) {
         val (x, i) = xWithIndex
         val v = phi_j(x)
         U(i * gp.outputDimensionality until (i + 1) * gp.outputDimensionality, j) := phi_j(x).toBreezeVector
       }
 
       val lambdas = new DenseVector[Float](gpLambdas.toArray)
-      new StatisticalMeshModel(referenceMesh, m, lambdas, U)
+      val discreteGp = new DiscreteLowRankGaussianProcess[_3D, _3D](referenceMesh, m, lambdas, U)
+      new StatisticalMeshModel(referenceMesh, discreteGp)
     }
 
 
-
-
-  /**
-   * create a statisticalMeshModel which is transformed by the given rigid transform
-   * TODO - Part of this functionality should be moved into the GP. But for this we would have to define
-   * a proper domain-warp concept!
-   */
-
-
-  def transform(model: StatisticalMeshModel, rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel =  ??? /*{
-    val invTransform = rigidTransform.inverse
-    val gp = model.gp
-
-    val newRef = model.mesh.warp(rigidTransform)
-
-    def newMean(pt: Point[_3D]): Vector[_3D] = {
-      val ptOrigGp = invTransform(pt)
-      rigidTransform(ptOrigGp + gp.mean(ptOrigGp)) - rigidTransform(ptOrigGp)
-    }
-
-    val newPhis = phis.map(phi => {
-      def newPhi(pt: Point[_3D]): Vector[_3D] = {
-        val ptOrigGp = invTransform(pt)
-        rigidTransform(ptOrigGp + phi(ptOrigGp)) - pt
-      }
-      newPhi _
-    })
-
-    val newEigenpairs = lambdas.zip(newPhis)
-    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](newRef, newMean, newEigenpairs)
-
-    new StatisticalMeshModel(newRef, newGp)
+  def apply(referenceMesh : TriangleMesh, meanVector : DenseVector[Float], lambdas : DenseVector[Float], basisMatrix : DenseMatrix[Float]) = {
+    val gp = new DiscreteLowRankGaussianProcess[_3D, _3D](referenceMesh, meanVector, lambdas, basisMatrix)
+    new StatisticalMeshModel(referenceMesh, gp)
   }
-  */
 
-  def changeMesh(model: StatisticalMeshModel, newRef: TriangleMesh): StatisticalMeshModel = ??? /*{
-    val gp = model.gp
-    val (lambdas, phis) = gp.eigenPairs.unzip
 
-    def correspondingPointOnOldMesh(newMeshPt: Point[_3D]): Point[_3D] = {
-      val ptId = newRef.findClosestPoint(newMeshPt)._2
-      model.mesh.points(ptId)
-    }
 
-    def newMean(pt: Point[_3D]): Vector[_3D] = {
-      val ptOnOldRef = correspondingPointOnOldMesh(pt)
-      ptOnOldRef + gp.mean(ptOnOldRef) - pt
-    }
 
-    val newPhis = phis.map(phi => {
-      def newPhi(pt: Point[_3D]): Vector[_3D] = {
-        val ptOnOldRef = correspondingPointOnOldMesh(pt)
-        phi(ptOnOldRef)
-      }
-      newPhi _
-    })
 
-    val newEigenpairs = lambdas.zip(newPhis)
-    val newGp = new LowRankGaussianProcess3D(newRef.boundingBox, newMean, newEigenpairs)
-    new StatisticalMeshModel(newRef, newGp)
-  } */
 }
 

@@ -22,7 +22,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
   describe("samples from a gaussian process") {
 
-    def testVarianceForGP(gp : GaussianProcess[_1D], domain : BoxDomain[_1D]): Unit = {
+    def testVarianceForGP(gp : GaussianProcess[_1D, _1D], domain : BoxDomain[_1D]): Unit = {
       val numPoints = 3
       val sampler = UniformSampler(domain, numPoints)
       val (pts, _) = sampler.sample.unzip
@@ -50,7 +50,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val domain = BoxDomain[_1D](Point(-1.0), Point(1.0))
       val m = (_ : Point[_1D]) => Vector(0)
       val k = UncorrelatedKernel[_1D](GaussianKernel[_1D](2.0))
-      val gp = GaussianProcess[_1D](domain, m, k)
+      val gp = GaussianProcess[_1D, _1D](domain, m, k)
       testVarianceForGP(gp, domain)
     }
 
@@ -88,7 +88,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess(domain, UniformSampler(domain, 500), (_ : Point[_1D]) => Vector(0f), kernel, 100)
 
       val trainingData = IndexedSeq((-3.0, 1.0), (-1.0, 3.0), (0.0, -1.0), (1.0, -1.0), (3.0, 0.0)).map(t => (Point(t._1), Vector(t._2)))
-      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-8)
+      val posteriorGP = gp.posterior(trainingData, 1e-8)
 
       for ((x, y) <- trainingData) {
         posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 1e-1)
@@ -106,7 +106,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val pt2 = 1.0f
       val val2 = -1.0
       val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0)).map(t => (Point(t._1), Vector(t._2), t._3))
-      val posteriorGP = GaussianProcess.regression(gp, trainingData)
+      val posteriorGP = gp.posterior(trainingData)
 
 
       posteriorGP.cov(pt1, pt1)(0, 0) should be < posteriorGP.cov(pt2, pt2)(0, 0)
@@ -118,7 +118,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess[_2D](domain, UniformSampler(domain, 400), _ => Vector(0.0, 0.0), UncorrelatedKernel[_2D](GaussianKernel[_2D](5)), 100)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0), Vector(1.0, 1.0)), (Point(-1.0, 3.0), Vector(0.0, -1.0)))
-      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
+      val posteriorGP = gp.posterior(trainingData, 1e-5)
 
       for ((x, y) <- trainingData) {
         posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001)
@@ -131,7 +131,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val gp = LowRankGaussianProcess.createLowRankGaussianProcess[_3D](domain, UniformSampler(domain, 6 * 6 * 6), _ => Vector(0.0, 0.0, 0.0), UncorrelatedKernel[_3D](GaussianKernel[_3D](5)), 50)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), Vector(1.0, 1.0, 2.0)), (Point(-1.0, 3.0, 0.0), Vector(0.0, -1.0, 0.0)))
-      val posteriorGP = GaussianProcess.regression(gp, trainingData, 1e-5)
+      val posteriorGP = gp.posterior(trainingData, 1e-5)
 
       for ((x, y) <- trainingData) {
         posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001)

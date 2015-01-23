@@ -8,16 +8,18 @@ import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.common.Domain
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
+import org.statismo.stk.core.registration.RigidTransformation
 
 
+class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val domain : Domain[D],
+                                                                          val mean : Point[D] => Vector[DO],
+                                                                          val cov : MatrixValuedPDKernel[D, DO]) {
 
-class GaussianProcess[D <: Dim : NDSpace] protected (val domain : Domain[D], val mean : Point[D] => Vector[D], val cov : MatrixValuedPDKernel[D, D]) {
-
-  protected[this] val dimOps : NDSpace[D] = implicitly[NDSpace[D]]
+  protected[this] val dimOps : NDSpace[DO] = implicitly[NDSpace[DO]]
 
   def outputDimensionality = dimOps.dimensionality
 
-  def sampleAtPoints(pts : Seq[Point[D]]) : Seq[(Point[D], Vector[D])] = {
+  def sampleAtPoints(pts : Seq[Point[D]]) : Seq[(Point[D], Vector[DO])] = {
     val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
 
 
@@ -32,7 +34,7 @@ class GaussianProcess[D <: Dim : NDSpace] protected (val domain : Domain[D], val
     val v =DenseVector(nGaussians.toArray)
     val sampleVec = L * v
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
-      .map(data => Vector[D](data.map(_.toFloat)))
+      .map(data => Vector[DO](data.map(_.toFloat)))
       .toSeq
     pts zip vecs
   }
@@ -40,7 +42,7 @@ class GaussianProcess[D <: Dim : NDSpace] protected (val domain : Domain[D], val
   /**
    * Compute the marginal distribution for the given point
    */
-  def marginal(pt: Point[D]): NDimensionalNormalDistribution[D] = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
+  def marginal(pt: Point[D]): NDimensionalNormalDistribution[DO] = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
 }
 
 
@@ -48,94 +50,11 @@ class GaussianProcess[D <: Dim : NDSpace] protected (val domain : Domain[D], val
 
 object GaussianProcess {
 
-  def apply[D <: Dim : NDSpace](domain : Domain[D],  mean : Point[D] => Vector[D], cov : MatrixValuedPDKernel[D, D]) = {
-    new GaussianProcess[D](domain, mean, cov)
+  def apply[D <: Dim : NDSpace, DO <: Dim : NDSpace](domain : Domain[D],  mean : Point[D] => Vector[DO], cov : MatrixValuedPDKernel[D, DO]) = {
+    new GaussianProcess[D, DO](domain, mean, cov)
   }
 
-  // Gaussian process regression for a low rank gaussian process
-  // Note that this implementation is literally the same as the one for the specializedLowRankGaussian process. The difference is just the return type. 
-  // TODO maybe the implementations can be joined.
-  def regression[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, D], trainingData: IndexedSeq[(Point[D], Vector[D])], sigma2: Double, meanOnly: Boolean = false): LowRankGaussianProcess[D, D] = {
-    val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2)}
-    regression(gp, trainingDataWithNoise, meanOnly)
-  }
 
-  def regression[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, D], trainingData: IndexedSeq[(Point[D], Vector[D], Double)], meanOnly: Boolean = false): LowRankGaussianProcess[D, D] = {
-    val (lambdas, phis) = gp.eigenPairs.unzip
-    val outputDim = gp.outputDimensionality
-
-
-    val dim = implicitly[NDSpace[D]].dimensionality
-    def flatten(v: IndexedSeq[Vector[D]]) = DenseVector(v.flatten(_.data).toArray)
-
-    val (xs, ys, sigma2s) = trainingData.unzip3
-
-    val yVec = flatten(ys)
-    val meanValues = xs.map(gp.mean)
-    val mVec = flatten(meanValues)
-
-    val Q = DenseMatrix.zeros[Double](trainingData.size * dim, phis.size)
-    for ((x_i, i) <- xs.zipWithIndex; (phi_j, j) <- phis.zipWithIndex) {
-      Q(i * dim until i * dim + dim, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
-    }
-
-    // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
-    // As there is only one sigma for each point (but the point has dim components) we need
-    // to correct the index for sigma
-    val QtL = Q.t.copy
-    val sigma2sInv = sigma2s.map { sigma2 =>
-      val divisor = math.max(1e-8, sigma2)
-      1.0 / divisor
-    }
-    for (i <- 0 until QtL.cols) {
-      QtL(::, i) *= sigma2sInv(i / dim)
-    }
-
-    val M = QtL * Q + DenseMatrix.eye[Double](phis.size)
-    val Minv = breeze.linalg.pinv(M)
-
-
-    val mean_coeffs = (Minv * QtL).map(_.toFloat) * (yVec - mVec)
-
-    val mean_p = gp.instance(mean_coeffs)
-
-    if (meanOnly == true) {
-      val emptyEigenPairs = IndexedSeq[(Float, Point[D] => Vector[D])]()
-      new LowRankGaussianProcess[D, D](gp.domain, mean_p, emptyEigenPairs)
-
-    } else {
-      val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * Minv * D
-      val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
-      val innerU = innerUDbl.map(_.toFloat)
-      @volatile
-      var phisAtXCache = ImmutableLRU[Point[D], DenseMatrix[Float]](1000)
-
-      def phip(i: Int)(x: Point[D]): Vector[D] = { // should be phi_p but _ is treated as partial function
-        val (maybePhisAtX, newPhisAtXCache) = phisAtXCache.get(x)
-        val phisAtX = maybePhisAtX.getOrElse {
-          val newPhisAtX = {
-            val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
-            var j = 0;
-            while (j < phis.size) {
-              val phi_j = phis(j)
-              innerPhisAtx(0 until outputDim, j) := phi_j(x).toBreezeVector
-              j += 1
-            }
-            innerPhisAtx
-          }
-          phisAtXCache = (phisAtXCache + ((x, newPhisAtX)))._2 // ignore evicted key
-          newPhisAtX
-        }
-        val vec = phisAtX * innerU(::, i)
-        Vector[D](vec.data)
-      }
-
-      val phis_p = for (i <- 0 until phis.size) yield ((x : Point[D]) => phip(i)(x))
-      val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
-      new LowRankGaussianProcess[D, D](gp.domain, mean_p, lambdas_p.zip(phis_p))
-    }
-  }
 
 
 
