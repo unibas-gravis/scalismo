@@ -19,7 +19,6 @@ case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDom
   def apply(i : Int) = data(i)
   def isDefinedAt(i : Int) = data.isDefinedAt(i)
   def values = data.iterator
-
 }
 
 case class ActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor](shapeModel: StatisticalMeshModel,
@@ -32,7 +31,6 @@ case class ActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor](shapeModel:
 
     distAtPoint.mahalanobisDistance(featureVec)
   }
-
 }
 
 object ActiveShapeModel {

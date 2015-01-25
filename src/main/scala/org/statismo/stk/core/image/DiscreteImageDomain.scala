@@ -18,7 +18,7 @@ import org.statismo.stk.core.registration.AnisotropicSimilarityTransformation
  *
  * @tparam D The dimensionality of the domain
  */
-abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDomain[D]  {
+abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDomain[D]  with Equals {
 
   /** the first point (lower-left corner in 2D) of the grid */
   def origin : Point[D]
@@ -95,7 +95,28 @@ abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDom
   private[core] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
 
 
+
+  // define the canEqual method
+  override def canEqual(a: Any) = a.isInstanceOf[DiscreteImageDomain[D]]
+
+  override def equals(a: Any) = {
+    a match {
+      // make sure we can compare the 2 objects
+      case c: DiscreteImageDomain[D] => {
+        c.canEqual(this) &&
+        origin == c.origin &&
+        spacing == c.spacing &&
+        size == c.size
+       //directions == c.directions //TODO we should add it once diections are used and correctly implemented
+      }
+      case other => false
+    }
+  }
+
+  override def hashCode() = origin.hashCode + spacing.hashCode + size.hashCode
 }
+
+
 
 /**
  * Factory methods for creating DiscreteImageDomain objects
