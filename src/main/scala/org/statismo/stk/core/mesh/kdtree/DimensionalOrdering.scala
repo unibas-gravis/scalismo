@@ -14,7 +14,7 @@ import org.statismo.stk.core.geometry._
  * DimensionalOrdering is a trait whose instances each represent a strategy for ordering instances
  * of a multidimensional type by a projection on a given dimension.
  */
-trait DimensionalOrdering[A] {
+private [core] trait DimensionalOrdering[A] {
   /** How many dimensions type A has. */
   def dimensions: Int
 
@@ -56,7 +56,7 @@ trait DimensionalOrdering[A] {
   }
 }
 
-object DimensionalOrdering {
+private [core] object DimensionalOrdering {
   def dimensionalOrderingForTuple[T <: Product, A](dim: Int)(implicit ord: Ordering[A]) =
     new DimensionalOrdering[T] {
       val dimensions = dim

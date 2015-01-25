@@ -15,7 +15,7 @@ import org.statismo.stk.core.geometry._
  *
  * `A` represents the type of the points and `R` represents the metric value.
  */
-trait Metric[A, R] {
+private [core] trait Metric[A, R] {
   /** Returns the distance between two points. */
   def distance(x: A, y: A): R
 
@@ -26,7 +26,7 @@ trait Metric[A, R] {
   def planarDistance(dimension: Int)(x: A, y: A): R
 }
 
-object Metric {
+private [core] object Metric {
   implicit def metricFromTuple2[A](implicit n: Numeric[A]) = new Metric[(A, A), A] {
     def distance(x: (A, A), y: (A, A)): A = {
       val dx = (x._1 - y._1)

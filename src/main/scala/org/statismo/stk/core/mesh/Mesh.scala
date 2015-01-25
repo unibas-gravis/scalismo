@@ -4,10 +4,13 @@ import org.statismo.stk.core.common.RealSpace
 import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage}
 import org.statismo.stk.core.geometry.{ Point, _3D, Vector }
 
+/**
+ * Defines utility functions on [[TriangleMesh]] instances
+ * */
 object Mesh {
 
   /**
-   * Creates a new ContinuousScalarImage  defined on R^^3, which is the distance transform of the mesh
+   * Returns a new continuous [[ScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
   def meshToDistanceImage(mesh: TriangleMesh): ScalarImage[_3D] = {
 
@@ -23,6 +26,12 @@ object Mesh {
     DifferentiableScalarImage(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
   }
 
+  /**
+   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[RealSpace]] , where the mesh surface is used to split the image domain.
+   * Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
+   * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
+   * 
+   * */  
   def meshToBinaryImage(mesh: TriangleMesh): ScalarImage[_3D] = {
     def inside(pt: Point[_3D]): Short = {
       val closestMeshPt = mesh.findClosestPoint(pt)._1
@@ -34,7 +43,9 @@ object Mesh {
   }
 
   /**
-   * Clip all the points in a mesh that satisfy the given predicate
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
+   * All cells containing deleted points are also deleted.
+   * 
    */
 
   def clipMesh(mesh: TriangleMesh, clipPointPredicate: Point[_3D] => Boolean) : TriangleMesh = {

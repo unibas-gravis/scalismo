@@ -13,7 +13,7 @@ import scala.collection.{ IterableLike, MapLike }
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ ArrayBuffer, Builder }
 
-class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends IterableLike[A, KDTree[A]] {
+private [core] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends IterableLike[A, KDTree[A]] {
   override def seq = this
 
   override def size: Int = root.size
@@ -30,7 +30,7 @@ class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: Dimensional
   def newBuilder: Builder[A, KDTree[A]] = KDTree.newBuilder
 }
 
-class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implicit ord: DimensionalOrdering[A])
+private [core] class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implicit ord: DimensionalOrdering[A])
   extends Map[A, B] with MapLike[A, B, KDTreeMap[A, B]] {
 
   override def empty: KDTreeMap[A, B] = KDTreeMap.empty[A, B](ord)
@@ -50,7 +50,7 @@ class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implicit ord: Dimensional
   def -(key: A): KDTreeMap[A, B] = KDTreeMap.fromSeq(toSeq.filter(_._1 != key))
 }
 
-sealed trait KDTreeNode[A, B] {
+private [core] sealed trait KDTreeNode[A, B] {
   override def toString = toStringSeq(0) mkString "\n"
   def toStringSeq(indent: Int): Seq[String]
   def size: Int
@@ -71,7 +71,7 @@ sealed trait KDTreeNode[A, B] {
   }
 }
 
-case class KDTreeInnerNode[A, B](
+private [core] case class KDTreeInnerNode[A, B](
   dim: Int, key: A, value: B, below: KDTreeNode[A, B], above: KDTreeNode[A, B])(
     ordering: Ordering[A]) extends KDTreeNode[A, B] {
   def toStringSeq(indent: Int) = {
@@ -141,7 +141,7 @@ case class KDTreeInnerNode[A, B](
   def toSeq: Seq[(A, B)] = below.toSeq ++ Seq((key, value)) ++ above.toSeq
 }
 
-case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
+private [core] case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
   def toStringSeq(indent: Int) = Seq(("  " * indent) + "[Empty]")
   def size = 0
   def isEmpty = true
@@ -182,7 +182,7 @@ object KDTreeNode {
   }
 }
 
-object KDTree {
+private [core] object KDTree {
   def apply[A](points: A*)(implicit ord: DimensionalOrdering[A]) = fromSeq(points)
 
   def fromSeq[A](points: Seq[A])(implicit ord: DimensionalOrdering[A]) = {
@@ -199,7 +199,7 @@ object KDTree {
   }
 }
 
-object KDTreeMap {
+private [core] object KDTreeMap {
   def empty[A, B](implicit ord: DimensionalOrdering[A]): KDTreeMap[A, B] = KDTreeMap()
 
   def apply[A, B](points: (A, B)*)(implicit ord: DimensionalOrdering[A]) = fromSeq(points)
