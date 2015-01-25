@@ -26,7 +26,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
  * Triangle meshes are currently the only supported representation of 3-dimensional meshes in the library.
  * 
  * */
-class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]]) 
+case class TriangleMesh private[core] (meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
 	extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
@@ -41,21 +41,6 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
     for (cell <- cells) {
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
- 
-   /**
-   * Returns the smallest continuous box domain that fully contains the triangle mesh.
-   * 
-   * The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes) 
-   * */
-  def boundingBox: BoxDomain[_3D] = {
-    val minx = points.map(_(0)).min
-    val miny = points.map(_(1)).min
-    val minz = points.map(_(2)).min
-    val maxx = points.map(_(0)).max
-    val maxy = points.map(_(1)).max
-    val maxz = points.map(_(2)).max
-    BoxDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
-  }
 
   /**
    *  Returns a triangle mesh that is the image of this mesh by the given transform.
@@ -64,6 +49,8 @@ class TriangleMesh private (meshPoints: IndexedSeq[Point[_3D]], val cells: Index
    *  
    *  @param transform A function that maps a given point to a new position. All instances of [[Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D]]</code> are valid arguments. 
    *  */
+  def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
+
   override def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
    /**

@@ -1,10 +1,9 @@
 package org.statismo.stk.core
 package common
 
-import scala.collection.SeqView
+import org.statismo.stk.core.common.FiniteDiscreteDomain.CanBound
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.mesh.kdtree.KDTreeMap
-import com.sun.xml.internal.bind.annotation.OverrideAnnotationOf
 
 trait Cell {
   def pointIds: IndexedSeq[Int]
@@ -26,13 +25,39 @@ object DiscreteDomain {
   }
 }
 
-trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] { self =>
+trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] with Equals { self =>
+
+  implicit def canBound : CanBound[D] = implicitly[CanBound[D]]
+
   def numberOfPoints: Int
   def pointId(pt : Point[D]) : Option[Int]
   def pointsWithId : Iterator[(Point[D], Int)] = points.zipWithIndex
   def warp(t : Point[D] => Point[D]) : FiniteDiscreteDomain[D] = {
     FiniteDiscreteDomain.fromSeq(self.points.map(t).toIndexedSeq)
   }
+
+
+  /**
+   * Returns the smallest continuous box domain that fully contains all the domain points.
+   *
+   * The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes)
+   * */
+  def boundingBox : BoxDomain[D] = {
+    canBound.boundingBox(this)
+  }
+
+
+
+  override def equals(that : Any) = {
+    that match {
+      case d: SpatiallyIndexedFiniteDiscreteDomain[D] => d.canEqual(this) && points.toSeq == d.points.toSeq
+      case _ => false
+    }
+  }
+
+  override def canEqual(that : Any) = that.isInstanceOf[SpatiallyIndexedFiniteDiscreteDomain[D]]
+  override def hashCode() = points.hashCode()
+
 }
 
 object FiniteDiscreteDomain {
@@ -40,26 +65,69 @@ object FiniteDiscreteDomain {
   def fromSeq[D <: Dim](_points: IndexedSeq[Point[D]]) =
     new FiniteDiscreteDomain[D] {
       override def points = _points.toIterator
+
       override def isDefinedAt(p: Point[D]) = _points.contains(p)
+
       override def numberOfPoints = _points.size
-      override def pointId(pt : Point[D]) = {
+
+      override def pointId(pt: Point[D]) = {
         val idx = _points.indexOf(pt)
         if (idx == -1) None else Some(idx)
       }
     }
 
-  def fromPredicateAndGenerator[D <: Dim: NDSpace](generator: PointGenerator[D], _isDefinedAt: Point[D] => Boolean, _numberOfPoints: Int) = new FiniteDiscreteDomain[D] {
+  def fromPredicateAndGenerator[D <: Dim : NDSpace](generator: PointGenerator[D], _isDefinedAt: Point[D] => Boolean, _numberOfPoints: Int) = new FiniteDiscreteDomain[D] {
     override def points = Iterator.continually(generator()).take(_numberOfPoints)
+
     override def numberOfPoints = _numberOfPoints
+
     override def isDefinedAt(pt: Point[D]) = _isDefinedAt(pt) && points.contains(pt)
-    override def pointId(pt : Point[D]) = {
+
+    override def pointId(pt: Point[D]) = {
       val idx = points.indexOf(pt)
       if (idx == -1) None else Some(idx)
     }
   }
+
+  trait CanBound[D <: Dim] {
+    def boundingBox(domain : FiniteDiscreteDomain[D]) : BoxDomain[D]
+  }
+
+  implicit object CanBound1D extends CanBound[_1D] {
+    def boundingBox(domain: FiniteDiscreteDomain[_1D]): BoxDomain[_1D] = {
+      val minx = domain.points.map(_(0)).min
+      val maxx = domain.points.map(_(0)).max
+      BoxDomain[_1D](Point(minx), Point(maxx))
+    }
+  }
+
+  implicit object CanBound2D extends CanBound[_2D] {
+      def boundingBox(domain : FiniteDiscreteDomain[_2D]) : BoxDomain[_2D] = {
+        val minx = domain.points.map(_(0)).min
+        val miny = domain.points.map(_(1)).min
+        val maxx = domain.points.map(_(0)).max
+        val maxy = domain.points.map(_(1)).max
+        BoxDomain[_2D](Point(minx, miny), Point(maxx, maxy))
+      }
+    }
+
+  implicit object CanBound3D extends CanBound[_3D] {
+    def boundingBox(domain : FiniteDiscreteDomain[_3D]): BoxDomain[_3D] = {
+      val minx = domain.points.map(_(0)).min
+      val miny = domain.points.map(_(1)).min
+      val minz = domain.points.map(_(2)).min
+      val maxx = domain.points.map(_(0)).max
+      val maxy = domain.points.map(_(1)).max
+      val maxz = domain.points.map(_(2)).max
+      BoxDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
+    }
+  }
+
 }
 
-case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (pointSeq: IndexedSeq[Point[D]], numberOfPoints: Int) extends FiniteDiscreteDomain[D] {
+
+class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (val pointSeq: IndexedSeq[Point[D]],
+                                                                val numberOfPoints: Int) extends FiniteDiscreteDomain[D] {
 
   override def points = pointSeq.toIterator
   def points(id : Int) = pointSeq(id)
@@ -83,6 +151,11 @@ case class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (pointSeq: I
 }
 
 object SpatiallyIndexedFiniteDiscreteDomain {
+
+  def apply[D <: Dim : NDSpace](pointSeq: IndexedSeq[Point[D]], numberOfPoints: Int) = {
+    new SpatiallyIndexedFiniteDiscreteDomain[D](pointSeq, numberOfPoints)
+  }
+
   def fromSeq[D <: Dim: NDSpace](_points: IndexedSeq[Point[D]]) = SpatiallyIndexedFiniteDiscreteDomain[D](_points, _points.size)
   def fromGenereator[D <: Dim: NDSpace](generator: PointGenerator[D], _numberOfPoitns: Int) = {
     val _points = Iterator.continually(generator()).take(_numberOfPoitns).toIndexedSeq

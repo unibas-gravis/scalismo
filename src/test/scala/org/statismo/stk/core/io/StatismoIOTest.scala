@@ -15,19 +15,13 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
 
   describe("a Statismo Mesh Model") {
 
-    def assertModelEqual(model1 : StatisticalMeshModel, model2 : StatisticalMeshModel) : Unit = {
-      assert(model1.mean == model2.mean && model1.gp == model2.gp)
+    def assertModelAlmostEqual(model1 : StatisticalMeshModel, model2 : StatisticalMeshModel) : Unit = {
+      assert(model1.mean == model2.mean)
+      assert(breeze.linalg.norm(model1.gp.variance -model2.gp.variance) < 1e-5)
+      assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
     }
 
-
-
-    it("two copied models are equal") {
-      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
-      val model = StatismoIO.readStatismoMeshModel(statismoFile).get
-      val model2 = StatisticalMeshModel(model.referenceMesh, model.gp.meanVector, model.gp.variance.copy, model.gp.basisMatrix)
-      assertModelEqual(model, model2)
-    }
-
+    
     it("can be written and read again") {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
       val dummyFile = File.createTempFile("dummy", "h5")
@@ -38,7 +32,7 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
         _ <- writeStatismoMeshModel(model, dummyFile)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
-        assertModelEqual(model, readModel)
+        assertModelAlmostEqual(model, readModel)
       }
       t.get
 
@@ -56,7 +50,7 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
         _ <- writeStatismoMeshModel(model, dummyFile, "/someLocation")
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile, "/someLocation")
       } yield {
-        assertModelEqual(model, readModel)
+        assertModelAlmostEqual(model, readModel)
       }
       t.get
 
@@ -73,11 +67,10 @@ class StatismoIOTest extends FunSpec with ShouldMatchers {
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
-
         _ <- writeStatismoMeshModel(model, dummyFile, statismoVersion = v081)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
-        assertModelEqual(model, readModel)
+        assertModelAlmostEqual(model, readModel)
       }
       t.get
 

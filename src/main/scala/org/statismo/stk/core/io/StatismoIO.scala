@@ -166,14 +166,13 @@ object StatismoIO {
     val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.data)
     val variance = model.gp.variance
 
-    val pcaBasis = model.gp.basisMatrix
+    val pcaBasis = model.gp.basisMatrix.copy
     if (statismoVersion == v081) {
       // statismo 081 has the variance included in the pcaBasis
       for (i <- 0 until variance.length) {
         pcaBasis(::, i) *= math.sqrt(variance(i)).toFloat
       }
     }
-
     val maybeError = for {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeArray(s"$modelPath/model/mean", discretizedMean.toArray)
