@@ -9,17 +9,17 @@ import scala.language.implicitConversions
 
 import scala.math.Ordering.Implicits._
 
-sealed trait Region[A] {
+private [core] sealed trait Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean
 }
 
-case class EntireSpace[A]() extends Region[A] {
+private [core] case class EntireSpace[A]() extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = true
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean = true
 }
 
-case class AboveHyperplane[A](a: A, dim: Int) extends Region[A] {
+private [core] case class AboveHyperplane[A](a: A, dim: Int) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = other match {
     case EntireSpace() => true
     case AboveHyperplane(b, bdim) => true
@@ -30,7 +30,7 @@ case class AboveHyperplane[A](a: A, dim: Int) extends Region[A] {
       ord.compareProjection(dim)(p, a) >= 0
 }
 
-case class BelowHyperplane[A](a: A, dim: Int) extends Region[A] {
+private [core] case class BelowHyperplane[A](a: A, dim: Int) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = other match {
     case EntireSpace() => true
     case AboveHyperplane(b, bdim) => (dim != bdim) || (ord.compareProjection(dim)(b, a) <= 0)
@@ -41,7 +41,7 @@ case class BelowHyperplane[A](a: A, dim: Int) extends Region[A] {
       ord.compareProjection(dim)(p, a) <= 0
 }
 
-case class RegionIntersection[A](regions: Seq[Region[A]]) extends Region[A] {
+private [core] case class RegionIntersection[A](regions: Seq[Region[A]]) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = {
     regions.forall(_.overlapsWith(other))
   }
@@ -49,7 +49,7 @@ case class RegionIntersection[A](regions: Seq[Region[A]]) extends Region[A] {
     regions.forall(_.contains(p))
 }
 
-class RegionBuilder[A] {
+private [core] class RegionBuilder[A] {
   var regions = new scala.collection.mutable.ArrayBuffer[Region[A]]
 
   def addRegion(region: Region[A]) = {
@@ -73,7 +73,7 @@ class RegionBuilder[A] {
   }
 }
 
-object Region {
+private [core] object Region {
   implicit def fromBuilder[A](builder: RegionBuilder[A]): Region[A] = builder.build
   def from[A](a: A, dim: Int): RegionBuilder[A] = (new RegionBuilder).from(a, dim)
   def to[A](a: A, dim: Int): RegionBuilder[A] = (new RegionBuilder).to(a, dim)
