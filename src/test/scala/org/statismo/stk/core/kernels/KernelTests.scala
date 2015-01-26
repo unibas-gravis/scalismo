@@ -5,7 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.geometry.{_1D, Point, _3D, Vector}
 import Point.implicits._
-import org.statismo.stk.core.statisticalmodel.{LowRankGaussianProcess}
+import org.statismo.stk.core.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import org.statismo.stk.core.numerics.UniformSampler
 import org.statismo.stk.core.common.BoxDomain
 
@@ -50,7 +50,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
 
       val k = UncorrelatedKernel[_3D](GaussianKernel[_3D](100.0))
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
-      val gp = LowRankGaussianProcess.createLowRankGaussianProcess(domain, samplerForNystromApprox, mu, k, 500)
+      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(domain, mu, k), samplerForNystromApprox, 500)
 
       val sampleTransformations = for (i <- (0 until 5000).par) yield {
         // TODO: gp.sample() should (arguably) accept seed.

@@ -51,8 +51,8 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 
     val newBasisMat = DenseMatrix.zeros[Float](gp.basisMatrix.rows, gp.basisMatrix.cols)
 
-    for (i <- 0 until gp.rank) {
-      val newIthBasis = for ((pt, basisAtPoint) <- gp.basis(i).pointsWithValues) yield {
+    for (((_, ithKlBasis), i) <- gp.klBasis.zipWithIndex) {
+      val newIthBasis = for ((pt, basisAtPoint) <- ithKlBasis.pointsWithValues) yield {
         rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
       }
       val data = newIthBasis.map(_.data).flatten.toArray
