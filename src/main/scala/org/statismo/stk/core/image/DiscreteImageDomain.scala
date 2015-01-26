@@ -107,7 +107,7 @@ abstract class DiscreteImageDomain[D <: Dim : NDSpace] extends FiniteDiscreteDom
         origin == c.origin &&
         spacing == c.spacing &&
         size == c.size
-       //directions == c.directions //TODO we should add it once diections are used and correctly implemented
+       directions == c.directions
       }
       case other => false
     }

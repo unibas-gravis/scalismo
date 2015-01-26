@@ -7,7 +7,7 @@ import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.statisticalmodel.GaussianProcess
 import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
 
-import breeze.linalg.DenseVector
+import breeze.linalg.{DenseMatrix, DenseVector}
 
 
 class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
@@ -20,8 +20,23 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
 
   override def transformForParameters(p: ParameterVector) = GaussianProcessTransformation[D](gp, p)
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
-    x: Point[D] => gp.jacobian(p)(x)
+
+    /**
+     * The jacobian matrix of a sample, with respect to the given parameteers.
+     * @param p
+     * @return
+     */
+    (x: Point[D]) => {
+      val dim = x.dimensionality
+      val J = DenseMatrix.zeros[Float](dim, gp.klBasis.size)
+      (0 until gp.rank).map(i => {
+        val (lambda_i, phi_i) = gp.klBasis(i)
+        J(::, i) := (phi_i(x) * math.sqrt(lambda_i).toFloat).toBreezeVector
+      })
+      J
+    }
   }
+
 }
 
 class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, D], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {

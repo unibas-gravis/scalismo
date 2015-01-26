@@ -4,22 +4,34 @@ package statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{*, DenseVector, DenseMatrix}
 import org.statismo.stk.core.kernels._
-import org.statismo.stk.core.common.ImmutableLRU
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.Domain
+import org.statismo.stk.core.common.{FiniteDiscreteDomain, VectorPointData, Domain}
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
-import org.statismo.stk.core.registration.RigidTransformation
 
 
+/**
+ * A gaussian process from a D dimensional input space, whose input values are points,
+ * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
+ *
+ * @param domain defines the set of points on which the GP is defined
+ * @param mean The mean function
+ * @param cov  The covariance function. Needs to be positive definite
+ * @tparam D The dimensionality of the input space
+ * @tparam DO The dimensionality of the output space
+ */
 class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val domain : Domain[D],
                                                                           val mean : Point[D] => Vector[DO],
                                                                           val cov : MatrixValuedPDKernel[D, DO]) {
 
   protected[this] val dimOps : NDSpace[DO] = implicitly[NDSpace[DO]]
 
-  def outputDimensionality = dimOps.dimensionality
+  private[this] def outputDimensionality = dimOps.dimensionality
 
-  def sampleAtPoints(pts : Seq[Point[D]]) : Seq[(Point[D], Vector[DO])] = {
+  /**
+   *
+   * Sample values of the GAussian process evaluated at the given points.
+   */
+  def sampleAtPoints(pts : IndexedSeq[Point[D]]) : VectorPointData[D, DO] = {
     val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
 
 
@@ -35,8 +47,9 @@ class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val do
     val sampleVec = L * v
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
       .map(data => Vector[DO](data.map(_.toFloat)))
-      .toSeq
-    pts zip vecs
+      .toIndexedSeq
+    val domain = FiniteDiscreteDomain.fromSeq(pts.toIndexedSeq)
+    VectorPointData(domain, vecs)
   }
 
   /**
@@ -46,10 +59,14 @@ class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val do
 }
 
 
-
-
+/**
+ * Factory methods for createing Gaussian processes
+ */
 object GaussianProcess {
 
+  /**
+   * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
+   */
   def apply[D <: Dim : NDSpace, DO <: Dim : NDSpace](domain : Domain[D],  mean : Point[D] => Vector[DO], cov : MatrixValuedPDKernel[D, DO]) = {
     new GaussianProcess[D, DO](domain, mean, cov)
   }

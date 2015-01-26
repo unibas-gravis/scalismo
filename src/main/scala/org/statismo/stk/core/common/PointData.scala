@@ -1,6 +1,6 @@
 package org.statismo.stk.core.common
 
-import org.statismo.stk.core.geometry.{Dim, Point, Vector}
+import org.statismo.stk.core.geometry.{NDSpace, Dim, Point, Vector}
 import scala.reflect.ClassTag
 import spire.math.Numeric
 
@@ -60,7 +60,7 @@ class ScalarPointData[D <: Dim, A : Numeric](val domain : FiniteDiscreteDomain[D
 
 }
 
-class VectorPointData[D <: Dim, DO <: Dim](val domain : FiniteDiscreteDomain[D], val data : IndexedSeq[Vector[DO]]) extends PointData[D, Vector[DO]] {
+class VectorPointData[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDomain[D], val data : IndexedSeq[Vector[DO]]) extends PointData[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId : Int) = data(ptId)
@@ -73,3 +73,9 @@ class VectorPointData[D <: Dim, DO <: Dim](val domain : FiniteDiscreteDomain[D],
 }
 
 
+object VectorPointData {
+
+  def apply[D <: Dim, DO <: Dim](domain : FiniteDiscreteDomain[D], data : IndexedSeq[Vector[DO]]) = {
+    new VectorPointData(domain, data)
+  }
+}
