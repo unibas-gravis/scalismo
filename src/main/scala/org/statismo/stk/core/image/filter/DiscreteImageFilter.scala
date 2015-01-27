@@ -45,7 +45,7 @@ object DiscreteImageFilter {
 
       val dtvtk = caster.GetOutput()
       val dt = ImageConversion.vtkStructuredPointsToScalarImage[D, Float](dtvtk)
-          .map { dt => dt.mapScalar(v => math.sqrt(v).toFloat) }
+          .map { dt => dt.map(v => math.sqrt(v).toFloat) }
           .get // this is safe here, as it can never fail since we converted back and forth
 
       caster.Delete()
@@ -59,7 +59,7 @@ object DiscreteImageFilter {
 
     val dt1 = doDistanceTransformVTK(img)
 
-    val invImg = img.mapScalar[A](v => if (v == 0) numeric.fromShort(1) else numeric.fromShort(0))
+    val invImg = img.map[A](v => if (v == 0) numeric.fromShort(1) else numeric.fromShort(0))
     val dt2 = doDistanceTransformVTK(invImg)
 
     val newPixelValues = dt1.values.zip(dt2.values).map { case (p1, p2) => p1 - p2}.toArray

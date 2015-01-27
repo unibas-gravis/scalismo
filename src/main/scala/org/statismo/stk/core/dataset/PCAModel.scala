@@ -3,7 +3,6 @@ package org.statismo.stk.core.dataset
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-
 import org.statismo.stk.core.geometry.Point
 import org.statismo.stk.core.geometry._3D
 import org.statismo.stk.core.mesh.TriangleMesh
@@ -11,8 +10,10 @@ import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
-import org.statismo.stk.core.statisticalmodel.SpecializedLowRankGaussianProcess
 import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
+import org.statismo.stk.core.statisticalmodel.DiscreteLowRankGaussianProcess
+import org.statismo.stk.core.statisticalmodel.GaussianProcess
+import org.statismo.stk.core.kernels.MatrixValuedPDKernel
 
 /**
  * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence 
@@ -25,25 +26,15 @@ object PCAModel {
   /**
    *  Adds a bias model to the given pca model
    */
-  private [dataset] def augmentModel(pcaModel: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D]): StatisticalMeshModel = {
-    // TODO, this method could be generally useful.
-
-    val pcaModelSpec = pcaModel.gp match {
-      case specializedGp: SpecializedLowRankGaussianProcess[_3D] => pcaModel
-      case gp => new StatisticalMeshModel(pcaModel.mesh, gp.specializeForPoints(pcaModel.mesh.points.toIndexedSeq))
-    }
-    val biasModelSpec = biasModel match {
-      case specializedGp: SpecializedLowRankGaussianProcess[_3D] => biasModel
-      case gp => gp.specializeForPoints(pcaModel.mesh.points.toIndexedSeq)
-
-    }
-
-    val newMean = (x: Point[_3D]) => pcaModelSpec.gp.mean(x) + biasModelSpec.mean(x)
-    val newCov = pcaModelSpec.gp.cov + biasModelSpec.cov
-    val numBasisFunctions = pcaModelSpec.gp.rank + biasModelSpec.rank
-    val nystromSampler = FixedPointsUniformMeshSampler3D(pcaModelSpec.mesh, 2 * numBasisFunctions, 42)  
-    val newGP = LowRankGaussianProcess.createLowRankGaussianProcess(pcaModelSpec.gp.domain, nystromSampler, newMean, newCov, numBasisFunctions)
-    new StatisticalMeshModel(pcaModelSpec.mesh, newGP)
+  private [dataset] def augmentModel(pcaModel: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D, _3D]): StatisticalMeshModel = {
+    
+    val modelGP = pcaModel.gp.interpolate(500)          
+    val newMean = (x: Point[_3D]) => modelGP.mean(x) + biasModel.mean(x)     
+    val newKLBasis = modelGP.klBasis ++ biasModel.klBasis
+    val newGP = new LowRankGaussianProcess(pcaModel.referenceMesh.boundingBox, newMean, newKLBasis)   
+    val newDiscreteGP = newGP.discretize(pcaModel.referenceMesh.points.toIndexedSeq)
+     
+    StatisticalMeshModel(pcaModel.referenceMesh, newDiscreteGP)
   }
   
   /**
