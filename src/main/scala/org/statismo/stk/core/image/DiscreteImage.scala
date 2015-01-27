@@ -51,7 +51,7 @@ class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (ov
 
 
   /** returns a new image whose whose pixel values have been mapped using the function f */
-  override def mapScalar[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
+  override def map[B: Numeric: ClassTag] (f: A => B): DiscreteScalarImage[D, B] = {
     new DiscreteScalarImage (domain, data.map (f) )
   }
 

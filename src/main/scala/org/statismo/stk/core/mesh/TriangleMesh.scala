@@ -162,7 +162,7 @@ case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val
   override def apply(ptId : Int) = data(ptId)
   override def isDefinedAt(ptId : Int) = data.isDefinedAt(ptId)
 
-  override def mapScalar[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
+  override def map[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
     ScalarMeshData(mesh, data.map(f))
   }
 }

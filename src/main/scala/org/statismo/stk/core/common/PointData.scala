@@ -15,26 +15,23 @@ trait PointData[D <: Dim, A] extends PartialFunction[Int, A] { self =>
   def pointsWithValues = domain.points zip values
   def pointsWithIds = domain.points.zipWithIndex
 
-  def foreach(f: A => A): Unit = values.foreach(f)
+  def foreach(f: A => Unit): Unit = values.foreach(f)
 
-  def map[B](f: A => B): PointData[D, B] = new PointData[D, B] {
-    override def domain = self.domain
-    override def values = self.values.map(f)
-    override def apply(i : Int) = f(self(i))
-    override def isDefinedAt(i : Int) = self.isDefinedAt(i : Int)
-  }
-
+  // TODO conceptually, we should have a map here too, but it becomes tricky to
+  // do since the overloaded functions will all require their own version of map
+  // Maybe a trick with CanBuildFrom and Builder, similar to the scala collectiosn would be required.
 }
 
 /**
  *
  */
-class ScalarPointData[D <: Dim, A : Numeric](val domain : FiniteDiscreteDomain[D], val data : Array[A]) extends PointData[D, A] {
+class ScalarPointData[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscreteDomain[D], val data : Array[A]) extends PointData[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def mapScalar[B: Numeric : ClassTag](f: A => B): ScalarPointData[D, B] = {
+  def map[B: Numeric : ClassTag](f: A => B): ScalarPointData[D, B] = {
     new ScalarPointData(domain, data.map(f))
   }
+
 
   override def values = data.iterator
   override def apply(ptId : Int) = data(ptId)
@@ -60,6 +57,9 @@ class ScalarPointData[D <: Dim, A : Numeric](val domain : FiniteDiscreteDomain[D
 
 }
 
+/**
+ *
+ */
 class VectorPointData[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDomain[D], val data : IndexedSeq[Vector[DO]]) extends PointData[D, Vector[DO]] {
 
   override def values = data.iterator
@@ -68,7 +68,7 @@ class VectorPointData[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDo
 
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def mapVector(f: Vector[DO] => Vector[DO]): VectorPointData[D, DO] = new VectorPointData(domain, data.map(f))
+  def map(f: Vector[DO] => Vector[DO]): VectorPointData[D, DO] = new VectorPointData(domain, data.map(f))
 
 }
 
