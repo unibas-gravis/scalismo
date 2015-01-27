@@ -9,6 +9,9 @@ import org.statismo.stk.core.statisticalmodel.GaussianProcess
 import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess3D
 import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 
+/**
+ * Implements utility functions for evaluating the quality of a registered dataset
+ * */
 object Crossvalidation {
 
   type EvaluationFunction[A] = (StatisticalMeshModel, TriangleMesh) => A
@@ -31,8 +34,14 @@ object Crossvalidation {
   }
 
   /**
-   * Perform an n-fold crossvalidation. For each testing dataset in a fold, the evalFun is called to evaluate the result.
-   * In case a biasModel is provided, this model is always added to the model built from the training data.
+   * Perform an n-fold crossvalidation. Given the chosen number of folds, this method will repeatedly split the data collection
+   * into a training and and a test set. 
+   * A [[StatisticalMeshModel]] is then built from the training set of each fold. In case a biasModel is provided, this model is always added to the model built from the training data.
+   * 
+   * For each testing dataset in a fold, the evalFun is called to evaluate the quality of the model built from the training set.
+   * 
+   * @returns a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set, 
+   * or an error if the model building for a fold failed.
    */
   def nFoldCrossvalidation[A](numFolds: Int, dc: DataCollection, evalFun: EvaluationFunction[A], biasModel: Option[LowRankGaussianProcess3D] = None): Seq[Try[Seq[A]]] = {
 

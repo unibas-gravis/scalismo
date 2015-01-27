@@ -15,13 +15,31 @@ import org.statismo.stk.core.registration.LandmarkRegistration
 import org.statismo.stk.core.registration.Transformation
 
 private [dataset] case class CrossvalidationFold(val trainingData: DataCollection, val testingData: DataCollection)
+
+/** A registered item in a dataset. 
+ *  
+ *  @param info A human-readable description of the processing the data item went through. Current implemented methods on data collections,
+ *  such as [[DataCollection.gpa]] will increment this description
+ *  
+ *  @param transformation Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
+ *  This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item. 
+ * */
 case class DataItem[D <: Dim](val info: String, val transformation: Transformation[D])
 
+
+/**
+ * Data-structure for handling a dataset of registered 3D meshes. All pre-implemeted operations such as building a 
+ * PCA model or performing a Generalized Procrustes Analysis require a DataColection as input
+ *    
+ * @param reference The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.
+ * @param dataItems Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
+ * other elements of the dataset.
+ */
 case class DataCollection(reference: TriangleMesh, dataItems: Seq[DataItem[_3D]]) {
 
   val size: Int = dataItems.size
 
-  def createCrossValidationFolds(nFolds: Int): Seq[CrossvalidationFold] = {
+  private [dataset] def createCrossValidationFolds(nFolds: Int): Seq[CrossvalidationFold] = {
 
     val shuffledDataItems = Random.shuffle(dataItems)
     val foldSize = shuffledDataItems.size / nFolds
@@ -38,28 +56,53 @@ case class DataCollection(reference: TriangleMesh, dataItems: Seq[DataItem[_3D]]
     folds
   }
 
-  def createLeaveOneOutFolds = createCrossValidationFolds(dataItems.size)
+  private [dataset] def createLeaveOneOutFolds = createCrossValidationFolds(dataItems.size)
 
+  /**
+   * Returns a new DataCollection where the given function was applied to all data items
+   * */
   def mapItems(f: DataItem[_3D] => DataItem[_3D]): DataCollection = {
     new DataCollection(reference, dataItems.map(f))
   }
 }
 
+/**
+ * Implements utility functions on [[DataCollection]] instances
+ * */
 object DataCollection {
 
+  
+  /**
+   * Builds a [[DataCollection]] instance from a reference mesh and a sequence of meshes in correspondence.
+   * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
+   * */
   def fromMeshSequence(referenceMesh: TriangleMesh, registeredMeshes : Seq[TriangleMesh]) : (Option[DataCollection], Seq[Throwable]) = {   
     val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map (DataUtils.meshToTransformation(referenceMesh, _)))
     val dc = DataCollection(referenceMesh,transformations.map(DataItem("from mesh", _)))
     if(dc.size > 0) (Some(dc), errors) else (None, errors)    
   }
   
-  def fromMeshDirectory(referenceMesh: TriangleMesh, meshDirectory : File) :  (Option[DataCollection], Seq[Throwable]) = { 
+  /**
+   * Builds a [[DataCollection]] instance from a reference mesh and a directory containing meshes in correspondence with the reference.
+   * Only vtk and stl meshes are currently supported.
+   * @return a data collection containing the valid elements as well as the list of errors for invalid items.
+   * */
+  def fromMeshDirectory(referenceMesh: TriangleMesh, meshDirectory : File) :  (Option[DataCollection], Seq[
+    Throwable]) = { 
     val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath().endsWith(".vtk") || fn.getAbsolutePath() .endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries( for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })    
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
     (dc, ioErrors ++ meshErrors)
   }
   
+  
+  /**
+   * Performs a Generalized Procrustes Analysis on the data collection. 
+   * This is done by repeatedly computing a new reference mesh that is the mean of all meshes in the dataset and 
+   * aligining all items rigidly to the mean.  
+   * The final mean mesh will be the reference of the new data collection. 
+   * 
+   * */
   @tailrec
   def gpa(dc: DataCollection, maxIteration: Int = 3, haltDistance:Double = 1.0): DataCollection = {
 
@@ -81,7 +124,7 @@ object DataCollection {
     }
     else {
       // align all shape to it and create a transformation from the mean to the aligned shape 
-      val alignedShapesTransformations = allShapesPoints.par.map { points =>
+      val alignedShapesTransformations = dc.dataItems.toSeq.zip(allShapesPoints).par.map { case (item, points) =>
         val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints).toIndexedSeq).transform
         val alignedPoints = points.map(transform)
 
@@ -90,7 +133,7 @@ object DataCollection {
           def apply(x: Point[_3D]) = t(x)
           def takeDerivative(x: Point[_3D]) = ???
         }
-        DataItem("gpa", returnedTrans)
+        DataItem("gpa -> "+ item.info, returnedTrans)
       }
 
       val newdc = DataCollection(newMeanMesh, alignedShapesTransformations.toIndexedSeq)

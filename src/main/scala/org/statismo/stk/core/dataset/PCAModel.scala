@@ -14,6 +14,9 @@ import org.statismo.stk.core.statisticalmodel.LowRankGaussianProcess
 import org.statismo.stk.core.statisticalmodel.SpecializedLowRankGaussianProcess
 import org.statismo.stk.core.statisticalmodel.StatisticalMeshModel
 
+/**
+ * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence 
+ * */
 object PCAModel {
 
   type MeshSampler = Sampler[_3D]
@@ -56,14 +59,18 @@ object PCAModel {
 
   
   /**
-   * Computes a PCA model with given reference mesh from a set of transformations
+   * Returns a PCA model with given reference mesh and a set of items in correspondence
+   * 
+   * @param dc DataCollection containing registered dataset
+   * @param sampler A sampler to select points to be considered for computing the PCA 
    */
   def buildModelFromDataCollection(dc: DataCollection, sampler: MeshSampler): Try[StatisticalMeshModel] = {
     buildModelFromTransformations(dc.reference, dc.dataItems.map(_.transformation), Some(sampler))
   }
 
   /**
-   * Computes a PCA model with given reference mesh from a set of transformations
+   * Returns a PCA model with given reference mesh and a set of items in correspondence.  
+   * All points of the reference mesh are considered for computing the PCA 
    */
   def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = {
     buildModelFromTransformations(dc.reference, dc.dataItems.map(_.transformation), None)
