@@ -1,7 +1,7 @@
 package org.statismo.stk.core.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{*, DenseMatrix, DenseVector}
+import breeze.linalg.{ *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import org.statismo.stk.core.common._
 
@@ -9,8 +9,7 @@ import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.kernels.MatrixValuedPDKernel
 import org.statismo.stk.core.mesh.kdtree.KDTreeMap
 import org.statismo.stk.core.numerics.Sampler
-import org.statismo.stk.core.registration.{Transformation, RigidTransformation}
-
+import org.statismo.stk.core.registration.{ Transformation, RigidTransformation }
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -25,10 +24,10 @@ import org.statismo.stk.core.registration.{Transformation, RigidTransformation}
  * @see [[VectorPointData]]
  * @see [[DiscreteLowRankGaussianProcess]]
  */
-case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] private[core] (val domain : FiniteDiscreteDomain[D],
-                                                                                       val meanVector : DenseVector[Float],
-                                                                                       val variance : DenseVector[Float],
-                                                                                       val basisMatrix : DenseMatrix[Float]) {
+case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[core] (val domain: FiniteDiscreteDomain[D],
+                                                                                                val meanVector: DenseVector[Float],
+                                                                                                val variance: DenseVector[Float],
+                                                                                                val basisMatrix: DenseMatrix[Float]) {
 
   /** See [[DiscreteLowRankGaussianProcess.rank]] */
   val rank: Int = basisMatrix.cols
@@ -39,7 +38,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
   /**
    * A function, which returns for two given points, defined by their pointId, the covariance.
    */
-  val cov: (Int, Int) => SquareMatrix[DO] =  (ptId1, ptId2) => {
+  val cov: (Int, Int) => SquareMatrix[DO] = (ptId1, ptId2) => {
     val eigenMatrixForPtId1 = basisMatrix(ptId1 * outputDimensionality until (ptId1 + 1) * outputDimensionality, ::)
     val eigenMatrixForPtId2 = basisMatrix(ptId2 * outputDimensionality until (ptId2 + 1) * outputDimensionality, ::)
     //val covValue = eigenMatrixForPtId1 * breeze.linalg.diag(stddev :* stddev) * eigenMatrixForPtId2.t
@@ -67,10 +66,9 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
     SquareMatrix[DO](covValue.data)
   }
 
-
   /**
-    * Discrete version of [[DiscreteLowRankGaussianProcess.instance]]
-    */
+   * Discrete version of [[DiscreteLowRankGaussianProcess.instance]]
+   */
   def instance(c: DenseVector[Float]): VectorPointData[D, DO] = {
     require(rank == c.size)
     val instVal = instanceVector(c)
@@ -89,11 +87,25 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
    * Returns the variance and associated basis function that defines the process.
    * The basis is the (discretized) Karhunen Loeve basis (e.g. it is obtained from a Mercer's decomposition of the covariance function
    */
-  def klBasis : IndexedSeq[(Float, VectorPointData[D, DO])] = {
-    for (i <- 0 until rank) yield
-      (variance(i), vectorToVectorPoindData(basisMatrix(::,i).toDenseVector))
+  def klBasis: IndexedSeq[(Float, VectorPointData[D, DO])] = {
+    for (i <- 0 until rank) yield (variance(i), vectorToVectorPoindData(basisMatrix(::, i).toDenseVector))
   }
 
+  /**
+   * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
+   */
+  def project(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double = 1e-6): VectorPointData[D, DO] = {
+    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
+    project(newtd)
+  }
+
+  /**
+   * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO], Double)])]]
+   */
+  def project(trainingData: IndexedSeq[(Int, Vector[DO], Double)]): VectorPointData[D, DO] = {
+    val c = coefficients(trainingData)
+    instance(c)
+  }
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.coefficients(IndexedSeq[(Point[D], Vector[DO], Double)])]]
@@ -105,15 +117,13 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
     mean_coeffs
   }
 
-
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.coefficients(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
   def coefficients(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double): DenseVector[Float] = {
-    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2)}
+    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
     coefficients(newtd)
   }
-
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
@@ -128,8 +138,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
    * data are defined by the pointId. The returned posterior process is defined at the same points.
    *
    */
-  def posterior(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double) : DiscreteLowRankGaussianProcess[D, DO] = {
-    val newtd = trainingData.map { case (ptId, df) => (ptId, df, sigma2)}
+  def posterior(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double): DiscreteLowRankGaussianProcess[D, DO] = {
+    val newtd = trainingData.map { case (ptId, df) => (ptId, df, sigma2) }
     posterior(newtd)
   }
 
@@ -138,7 +148,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
    * data are defined by the pointId. The returned posterior process is defined at the same points.
    *
    */
-  def posterior(trainingData: IndexedSeq[(Int, Vector[DO], Double)]) : DiscreteLowRankGaussianProcess[D, DO] = {
+  def posterior(trainingData: IndexedSeq[(Int, Vector[DO], Double)]): DiscreteLowRankGaussianProcess[D, DO] = {
     DiscreteLowRankGaussianProcess.regression(this, trainingData, false)
   }
 
@@ -148,7 +158,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
    * @param nNystromPoints determines how many points of the domain are used to estimate the full
    *                       kl basis.
    */
-  def interpolate(nNystromPoints : Int = 2 * rank) : LowRankGaussianProcess[D, DO] = {
+  def interpolate(nNystromPoints: Int = 2 * rank): LowRankGaussianProcess[D, DO] = {
 
     val sampler = new Sampler[D] {
       override def volumeOfSampleRegion = numberOfPoints.toDouble
@@ -165,13 +175,13 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
     // TODO, here we could do something smarter, such as e.g. b-spline interpolation
     val meanPD = this.mean
     val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
-    def meanFun(pt : Point[D]) : Vector[DO] = {
+    def meanFun(pt: Point[D]): Vector[DO] = {
       val closestPts = (kdTreeMap.findNearest(pt, n = 1))
       val (closestPt, closestPtId) = closestPts(0)
       meanPD(closestPtId)
     }
 
-    val covFun : MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
+    val covFun: MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
       override def apply(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
         val closestPtsX = kdTreeMap.findNearest(x, n = 1)
         val (closestX, xId) = closestPtsX(0)
@@ -184,18 +194,16 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
     LowRankGaussianProcess.approximateGP[D, DO](gp, sampler, rank)
   }
 
-
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
     require(rank == alpha.size)
 
     basisMatrix * (stddev :* alpha) + meanVector
   }
 
-
   protected def vectorToVectorPoindData(vec: DenseVector[Float]): VectorPointData[D, DO] = {
     val vectors =
       for (v <- vec.toArray.grouped(3))
-      yield Vector[DO](v)
+        yield Vector[DO](v)
 
     VectorPointData[D, DO](domain, vectors.toIndexedSeq)
   }
@@ -204,16 +212,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpac
 
   private[this] val stddev = variance.map(x => math.sqrt(x).toFloat)
 
-
 }
-
 
 object DiscreteLowRankGaussianProcess {
 
   /**
    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
    */
-  def apply[D <: Dim : NDSpace, DO <: Dim : NDSpace](domain : FiniteDiscreteDomain[D], gp : LowRankGaussianProcess[D, DO]) : DiscreteLowRankGaussianProcess[D, DO] = {
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: FiniteDiscreteDomain[D], gp: LowRankGaussianProcess[D, DO]): DiscreteLowRankGaussianProcess[D, DO] = {
     val points = domain.points.toSeq
 
     val outputDimensionality = implicitly[NDSpace[DO]].dimensionality
@@ -240,26 +246,25 @@ object DiscreteLowRankGaussianProcess {
   /**
    * Discrete implementation of [[DiscreteLowRankGaussianProcess.regression]]
    */
-  def regression[D <: Dim : NDSpace, DO <: Dim : NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
-                                     trainingData: IndexedSeq[(Int, Vector[DO])],
-                                     sigma2 : Double,
-                                     meanOnly: Boolean = false): DiscreteLowRankGaussianProcess[D, DO] = {
-    val tdWithWithPointwiseSigma2 = trainingData.map{case(ptId, v) => (ptId, v, sigma2)}
+  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
+                                                        trainingData: IndexedSeq[(Int, Vector[DO])],
+                                                        sigma2: Double,
+                                                        meanOnly: Boolean = false): DiscreteLowRankGaussianProcess[D, DO] = {
+    val tdWithWithPointwiseSigma2 = trainingData.map { case (ptId, v) => (ptId, v, sigma2) }
     regression(gp, tdWithWithPointwiseSigma2, meanOnly)
   }
 
   /**
    * Discrete implementation of [[DiscreteLowRankGaussianProcess.regression]]
    */
-  def regression[D <: Dim : NDSpace, DO <: Dim : NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
-                                     trainingData: IndexedSeq[(Int, Vector[DO], Double)],
-                                     meanOnly: Boolean = false): DiscreteLowRankGaussianProcess[D, DO] = {
+  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
+                                                        trainingData: IndexedSeq[(Int, Vector[DO], Double)],
+                                                        meanOnly: Boolean = false): DiscreteLowRankGaussianProcess[D, DO] = {
 
     val dim = implicitly[NDSpace[DO]].dimensionality
 
     val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
     val mean_coeffs = (_Minv * _QtL).map(_.toFloat) * (yVec - mVec)
-
 
     //val mean_p = gp.instance(mean_coeffs)
     val mean_pVector = gp.instanceVector(mean_coeffs)
@@ -292,12 +297,11 @@ object DiscreteLowRankGaussianProcess {
     }
   }
 
-
   /**
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
    *
    */
-  def createDiscreteLowRankGPFromTransformations[D <: Dim : NDSpace](domain: FiniteDiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
+  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace](domain: FiniteDiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
     val n = transformations.size
@@ -321,36 +325,32 @@ object DiscreteLowRankGaussianProcess {
       (X0, m)
     }
 
-
     val (x0, meanVec) = demean(X)
     val SVD(u, d2, vt) = breeze.linalg.svd(x0 * x0.t * (1.0 / (n - 1)))
 
     val D = d2.map(v => Math.sqrt(v))
-        val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)
+    val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)
 
     // a Matrix with the eigenvectors
-    val U : DenseMatrix[Float] = x0.map(_.toFloat).t * vt.map(_.toFloat).t * breeze.linalg.diag(Dinv).map(_.toFloat) / Math.sqrt(n - 1).toFloat
+    val U: DenseMatrix[Float] = x0.map(_.toFloat).t * vt.map(_.toFloat).t * breeze.linalg.diag(Dinv).map(_.toFloat) / Math.sqrt(n - 1).toFloat
 
     new DiscreteLowRankGaussianProcess(domain, meanVec.map(_.toFloat), d2.map(_.toFloat), U)
 
   }
 
-
-
-  private def genericRegressionComputations[D <: Dim : NDSpace, DO <: Dim : NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
-                                                                                     trainingData: IndexedSeq[(Int, Vector[DO], Double)])  = {
+  private def genericRegressionComputations[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
+                                                                                   trainingData: IndexedSeq[(Int, Vector[DO], Double)]) = {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val (ptIds, ys, sigma2s) = trainingData.unzip3
 
-
     def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.data).toArray)
 
-
     val yVec = flatten(ys)
-    val meanValues = ptIds.map { ptId => {
-      val v = gp.meanVector(ptId * dim until (ptId+ 1) * dim).copy
-      Vector[DO](v.data)
-    }
+    val meanValues = ptIds.map { ptId =>
+      {
+        val v = gp.meanVector(ptId * dim until (ptId + 1) * dim).copy
+        Vector[DO](v.data)
+      }
     }
     val mVec = flatten(meanValues)
 
@@ -377,7 +377,6 @@ object DiscreteLowRankGaussianProcess {
 
     (Minv, QtL, yVec, mVec)
   }
-
 
 }
 
