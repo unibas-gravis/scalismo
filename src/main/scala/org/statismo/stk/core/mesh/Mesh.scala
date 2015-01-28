@@ -12,7 +12,7 @@ object Mesh {
   /**
    * Returns a new continuous [[ScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
-  def meshToDistanceImage(mesh: TriangleMesh): ScalarImage[_3D] = {
+  def meshToDistanceImage(mesh: TriangleMesh): DifferentiableScalarImage[_3D] = {
 
     def dist(pt: Point[_3D]): Float = {
       val (closestPt, _) = mesh.findClosestPoint(pt)
