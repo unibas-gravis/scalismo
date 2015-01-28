@@ -1,5 +1,5 @@
-package org.statismo.stk.core.dataset
-
+package org.statismo.stk.core.statisticalmodel
+package dataset
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -29,7 +29,6 @@ object PCAModel {
 
     val modelGP = pcaModel.gp.interpolate(500)
     val newMean = (x: Point[_3D]) => modelGP.mean(x) + biasModel.mean(x)
-    //val newKLBasis = modelGP.klBasis ++ biasModel.klBasis
     val newCov = modelGP.cov + biasModel.cov
     val newGP = GaussianProcess(pcaModel.gp.domain.boundingBox, newMean, newCov)
     val sampler = FixedPointsUniformMeshSampler3D(pcaModel.referenceMesh, 2 * numBasisFunctions, 42)

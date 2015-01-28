@@ -1,4 +1,5 @@
-package org.statismo.stk.core.dataset
+package org.statismo.stk.core.statisticalmodel
+package dataset
 
 import java.io.File
 

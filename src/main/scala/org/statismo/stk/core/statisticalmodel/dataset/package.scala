@@ -1,4 +1,4 @@
-package org.statismo.stk.core
+package org.statismo.stk.core.statisticalmodel.dataset
 
 
 /**
