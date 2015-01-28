@@ -6,20 +6,17 @@ import org.statismo.stk.core.geometry._3D
 import org.statismo.stk.core.numerics.UniformSampler
 import org.statismo.stk.core.registration.LandmarkRegistration
 
+/**
+ * Implements utility methods for evaluating similarity of [[TriangleMesh]] instances  
+ * 
+ * */
 object MeshMetrics {
-
-  def procrustesDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
-    require(m1.numberOfPoints == m2.numberOfPoints)
-
-    val landmarks = m1.points.toIndexedSeq zip m2.points.toIndexedSeq
-    val x = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
-    val m1w = m1.warp(x.transform)
-    val dists = for ((ptM1, ptM2) <- m1w.points zip m2.points) yield {
-      (ptM1 - ptM2).norm
-    }
-    dists.sum / m1.numberOfPoints
-  }
-
+ 
+  /**
+   * For each point of the first mesh, this method computes the distance to the closest point on the 
+   * second mesh and returns the average over all points 
+   * */
+  
   def avgDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
 
     val dists = for (ptM1 <- m1.points) yield {
@@ -28,7 +25,25 @@ object MeshMetrics {
     }
     dists.sum / m1.numberOfPoints
   }
+  
+  
+  /**
+   * Returns the average mesh distance after performing a rigid alignment between the two meshes.
+   * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence  
+   * */
+  def procrustesDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
+    require(m1.numberOfPoints == m2.numberOfPoints)
 
+    val landmarks = m1.points.toIndexedSeq zip m2.points.toIndexedSeq
+    val x = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
+    val m1w = m1.warp(x.transform)    
+    avgDistance(m1w, m2)
+  }
+
+
+ /**
+   * Returns the Hausdorff distance between the two meshes
+   * */
   def hausdorffDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
     def allDistsBetweenMeshes(mm1: TriangleMesh, mm2: TriangleMesh): Iterator[Double] = {
       for (ptM1 <- mm1.points) yield {
@@ -44,7 +59,9 @@ object MeshMetrics {
     
   }
 
-  
+  /**
+   * Computes a binary image for each mesh and returns the Dice Coefficient between the two images 
+   * */
   def diceCoefficient(m1: TriangleMesh, m2 : TriangleMesh) : Double = { 
     val imgA = Mesh.meshToBinaryImage(m1)
     val imgB = Mesh.meshToBinaryImage(m2)

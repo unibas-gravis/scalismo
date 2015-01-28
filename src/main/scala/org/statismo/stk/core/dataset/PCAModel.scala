@@ -25,14 +25,16 @@ object PCAModel {
   /**
    *  Adds a bias model to the given pca model
    */
-  private[dataset] def augmentModel(pcaModel: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D, _3D]): StatisticalMeshModel = {
+  def augmentModel(pcaModel: StatisticalMeshModel, biasModel: GaussianProcess[_3D, _3D], numBasisFunctions: Int): StatisticalMeshModel = {
 
     val modelGP = pcaModel.gp.interpolate(500)
     val newMean = (x: Point[_3D]) => modelGP.mean(x) + biasModel.mean(x)
-    val newKLBasis = modelGP.klBasis ++ biasModel.klBasis
-    val newGP = new LowRankGaussianProcess(pcaModel.referenceMesh.boundingBox, newMean, newKLBasis)
-
-    StatisticalMeshModel(pcaModel.referenceMesh, newGP)
+    //val newKLBasis = modelGP.klBasis ++ biasModel.klBasis
+    val newCov = modelGP.cov + biasModel.cov
+    val newGP = GaussianProcess(pcaModel.gp.domain.boundingBox, newMean, newCov)
+    val sampler = FixedPointsUniformMeshSampler3D(pcaModel.referenceMesh, 2 * numBasisFunctions, 42)
+    val newLowRankGP = LowRankGaussianProcess.approximateGP(newGP, sampler, numBasisFunctions)
+    StatisticalMeshModel(pcaModel.referenceMesh, newLowRankGP)
   }
 
   /**
