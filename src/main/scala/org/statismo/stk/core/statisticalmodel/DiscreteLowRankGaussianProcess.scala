@@ -12,6 +12,7 @@ import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.registration.{ Transformation, RigidTransformation }
 import org.statismo.stk.core.common.FiniteDiscreteDomain._
 
+
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
  * It supports the same operations as the LowRankGaussianProcess class, but always returns instead a
@@ -159,6 +160,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
    * @param nNystromPoints determines how many points of the domain are used to estimate the full
    *                       kl basis.
    */
+
   def interpolate(nNystromPoints: Int = 2 * rank)(implicit e : CanBound[D]): LowRankGaussianProcess[D, DO] = {
 
     val sampler = new Sampler[D] {

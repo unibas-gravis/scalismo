@@ -27,7 +27,9 @@ object DiscreteDomain {
 
 trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] with Equals { self =>
 
-   def numberOfPoints: Int
+
+  def numberOfPoints: Int
+
   def pointId(pt : Point[D]) : Option[Int]
   def pointsWithId : Iterator[(Point[D], Int)] = points.zipWithIndex
   def warp(t : Point[D] => Point[D]) : FiniteDiscreteDomain[D] = {
@@ -40,6 +42,7 @@ trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] with Equals { sel
    *
    * The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes)
    * */
+
   def boundingBox(implicit canBound : CanBound[D]) : BoxDomain[D] = {
     canBound.boundingBox(this)
   }
