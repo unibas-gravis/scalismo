@@ -43,7 +43,10 @@ class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProces
 
   val instance = gp.instance(alpha)
   val parameters = alpha
-  override def apply(x: Point[D]): Point[D] = {
+
+  override val domain = gp.domain
+
+  override val  f = (x: Point[D]) => {
     val newPointAsVector = instance(x)
     x + newPointAsVector
   }

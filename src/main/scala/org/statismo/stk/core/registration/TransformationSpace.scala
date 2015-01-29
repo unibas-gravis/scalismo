@@ -5,11 +5,13 @@ import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import org.statismo.stk.core.geometry._
+import org.statismo.stk.core.common.RealSpace
+import org.statismo.stk.core.common.Field
 import java.util.Arrays
 import scala.annotation._
 
 /** Trait for D-dimensional transformation that maps a D-dimensional Point to another */
-trait Transformation[D <: Dim] extends (Point[D] => Point[D]) {}
+trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 /** Trait for parametric D-dimensional transformation */
 trait ParametricTransformation[D <: Dim] extends Transformation[D] {
   /** the parameters defining the transform*/
@@ -118,7 +120,8 @@ class ProductTransformationSpace[D <: Dim, OT <: ParametricTransformation[D] wit
  */
 case class ProductTransformation[D <: Dim](outerTransform: ParametricTransformation[D] with CanDifferentiate[D], innerTransform: ParametricTransformation[D] with CanDifferentiate[D]) extends ParametricTransformation[D] with CanDifferentiate[D] {
 
-  override def apply(x: Point[D]) = {
+  override val domain = innerTransform.domain
+  override val f = (x: Point[D]) => {
     (outerTransform compose innerTransform)(x)
   }
 
@@ -156,7 +159,8 @@ object TranslationSpace {
  *  @param t Translation vector
  */
 case class TranslationTransform[D <: Dim: NDSpace](t: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
-  def apply(pt: Point[D]): Point[D] = pt + t
+  override val f = (pt : Point[D]) => pt + t
+  override val domain = RealSpace[D]
   override def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix.eye[D]
   override def inverse: TranslationTransform[D] = new TranslationTransform(t * (-1f))
   /**parameters are the coordinates of the translation vector*/
@@ -324,11 +328,13 @@ abstract class RotationTransform[D <: Dim: NDSpace] extends ParametricTransforma
 }
 
 private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
-  def apply(pt: Point[_3D]): Point[_3D] = {
+  override val f = (pt : Point[_3D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
     centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat, rotCentered(2).toFloat)
   }
+
+  override val domain = RealSpace[_3D]
 
   val parameters = LandmarkRegistration.rotMatrixToEulerAngles(rotMatrix.toBreezeMatrix.map(_.toDouble)).map(_.toFloat)
 
@@ -342,12 +348,13 @@ private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Poi
 }
 
 private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Point[_2D] = Point(0, 0)) extends RotationTransform[_2D] {
-  def apply(pt: Point[_2D]): Point[_2D] = {
+  override val f = (pt: Point[_2D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
     centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat)
-
   }
+  override def domain = RealSpace[_2D]
+
   val parameters = DenseVector(LandmarkRegistration.rotationMatrixToAngle2D(rotMatrix.toBreezeMatrix.map(_.toDouble)).toFloat)
   def takeDerivative(x: Point[_2D]): SquareMatrix[_2D] = {
     rotMatrix
@@ -451,7 +458,9 @@ object ScalingSpace {
  *  @param s Scalar by which to scale each dimension
  */
 class ScalingTransformation[D <: Dim: NDSpace] private (s: Float) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
-  def apply(x: Point[D]): Point[D] = (x.toVector * s).toPoint
+  override val f = (x: Point[D]) =>  (x.toVector * s).toPoint
+  override val domain = RealSpace[D]
+
   val parameters = DenseVector(s)
   def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix.eye[D] * s
 
@@ -537,8 +546,8 @@ private class RigidTransformationTransThenRot[D <: Dim: NDSpace](rotationTransfo
  *  @param s Vector of the same dimensionality as the space indicating for each dimension the scaling factor
  */
 case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
-
-  def apply(x: Point[D]): Point[D] = Point((x.toBreezeVector :* s.toBreezeVector).data)
+  override val domain = RealSpace[D]
+  override val f = (x: Point[D]) => Point((x.toBreezeVector :* s.toBreezeVector).data)
 
   val parameters = s.toBreezeVector
   def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix[D](breeze.linalg.diag(s.toBreezeVector).data)

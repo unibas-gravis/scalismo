@@ -1,6 +1,6 @@
 package org.statismo.stk.core.kernels
 
-import org.statismo.stk.core.common.ImmutableLRU
+import org.statismo.stk.core.common.{RealSpace, ImmutableLRU}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.numerics.BSpline
 import org.statismo.stk.core.registration.Transformation
@@ -14,6 +14,8 @@ import org.statismo.stk.core.utils.Memoize
 case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
   val sigma2 = sigma * sigma
 
+  override def domain = RealSpace[D]
+
   def apply(x: Point[D], y: Point[D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
@@ -22,6 +24,8 @@ case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
 
 
 case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
+
+  override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
@@ -57,7 +61,10 @@ case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transfo
 
 
 
-abstract case class BSplineKernel[D <: Dim ](order : Int, scale : Int) extends PDKernel[D]
+abstract case class BSplineKernel[D <: Dim ](order : Int, scale : Int) extends PDKernel[D] {
+  override def domain = RealSpace[D]
+
+}
 
 object BSplineKernel {
 

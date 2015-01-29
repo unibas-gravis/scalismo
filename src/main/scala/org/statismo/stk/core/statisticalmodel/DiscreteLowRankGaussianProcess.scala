@@ -11,7 +11,7 @@ import org.statismo.stk.core.mesh.kdtree.KDTreeMap
 import org.statismo.stk.core.numerics.Sampler
 import org.statismo.stk.core.registration.{ Transformation, RigidTransformation }
 import org.statismo.stk.core.common.FiniteDiscreteDomain._
-
+import org.statismo.stk.core.common.VectorField
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -29,7 +29,8 @@ import org.statismo.stk.core.common.FiniteDiscreteDomain._
 case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[core] (val domain: FiniteDiscreteDomain[D],
                                                                                                 val meanVector: DenseVector[Float],
                                                                                                 val variance: DenseVector[Float],
-                                                                                                val basisMatrix: DenseMatrix[Float]) {
+                                                                                                val basisMatrix: DenseMatrix[Float]) { self =>
+
 
   /** See [[DiscreteLowRankGaussianProcess.rank]] */
   val rank: Int = basisMatrix.cols
@@ -178,13 +179,15 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     // TODO, here we could do something smarter, such as e.g. b-spline interpolation
     val meanPD = this.mean
     val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
-    def meanFun(pt: Point[D]): Vector[DO] = {
+
+    def meanFun(pt : Point[D]) : Vector[DO] = {
       val closestPts = (kdTreeMap.findNearest(pt, n = 1))
       val (closestPt, closestPtId) = closestPts(0)
       meanPD(closestPtId)
     }
 
     val covFun: MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
+      override val domain = self.domain.boundingBox
       override def apply(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
         val closestPtsX = kdTreeMap.findNearest(x, n = 1)
         val (closestX, xId) = closestPtsX(0)
@@ -193,7 +196,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
         cov(xId, yId)
       }
     }
-    val gp = GaussianProcess(domain.boundingBox, meanFun _, covFun)
+    val gp = GaussianProcess(VectorField(domain.boundingBox, meanFun _), covFun)
     LowRankGaussianProcess.approximateGP[D, DO](gp, sampler, rank)
   }
 

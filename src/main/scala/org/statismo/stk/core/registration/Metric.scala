@@ -6,7 +6,7 @@ import scala.language.higherKinds
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.image.{Image, DifferentiableScalarImage, ScalarImage, DiscreteImageDomain}
+import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage, DiscreteImageDomain}
 import org.statismo.stk.core.numerics.Integrator
 import org.statismo.stk.core.common.BoxDomain
 import org.statismo.stk.core.common.Domain

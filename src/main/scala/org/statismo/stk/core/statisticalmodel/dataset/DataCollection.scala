@@ -14,6 +14,7 @@ import org.statismo.stk.core.mesh.MeshMetrics
 import org.statismo.stk.core.mesh.TriangleMesh
 import org.statismo.stk.core.registration.LandmarkRegistration
 import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.common.RealSpace
 
 private [dataset] case class CrossvalidationFold(val trainingData: DataCollection, val testingData: DataCollection)
 
@@ -131,8 +132,8 @@ object DataCollection {
 
         val t = meanShapePoints.zip(alignedPoints).toMap
         val returnedTrans = new Transformation[_3D] {
-          def apply(x: Point[_3D]) = t(x)
-          def takeDerivative(x: Point[_3D]) = ???
+          override val domain = dc.dataItems.headOption.map(d => d.transformation.domain).getOrElse(RealSpace[_3D])
+          override val f = (x: Point[_3D]) => t(x)
         }
         DataItem("gpa -> "+ item.info, returnedTrans)
       }

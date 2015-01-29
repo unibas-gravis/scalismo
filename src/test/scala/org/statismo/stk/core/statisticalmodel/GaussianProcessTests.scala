@@ -12,9 +12,8 @@ import breeze.linalg.DenseVector
 import java.io.File
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.common.BoxDomain
-
-import org.statismo.stk.core.io.StatismoIO
-import org.statismo.stk.core.registration.Transformation
+import org.statismo.stk.core.common.VectorField
+import org.statismo.stk.core.common.RealSpace
 
 class GaussianProcessTests extends FunSpec with ShouldMatchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
@@ -25,6 +24,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     def testVarianceForGP(gp : GaussianProcess[_1D, _1D], domain : BoxDomain[_1D]): Unit = {
       val numPoints = 3
       val sampler = UniformSampler(domain, numPoints)
+
       val (pts, _) = sampler.sample.unzip
 
       val numSamples = 500
@@ -48,18 +48,18 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
     it("have the correct mean and variance for a full gp") {
       val domain = BoxDomain[_1D](Point(-1.0), Point(1.0))
-      val m = (_ : Point[_1D]) => Vector(0)
+      val m = VectorField(domain, (_ : Point[_1D]) => Vector(0))
       val k = UncorrelatedKernel[_1D](GaussianKernel[_1D](2.0))
-      val gp = GaussianProcess[_1D, _1D](domain, m, k)
+      val gp = GaussianProcess[_1D, _1D](m, k)
       testVarianceForGP(gp, domain)
     }
 
     it("have the correct mean and variance for a low-rank gp") {
       val domain = BoxDomain[_1D](Point(-1.0), Point(1.0))
-      val m = (_ : Point[_1D]) => Vector(0)
+      val m = VectorField(domain, (_ : Point[_1D]) => Vector(0))
       val k = UncorrelatedKernel[_1D](GaussianKernel[_1D](2.0))
       val sampler = UniformSampler(domain, 500)
-      val lgp = LowRankGaussianProcess.approximateGP(GaussianProcess(domain, m, k), sampler, 100)
+      val lgp = LowRankGaussianProcess.approximateGP(GaussianProcess(m, k), sampler, 100)
 
       testVarianceForGP(lgp, domain)
     }
@@ -71,7 +71,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     it("keeps the landmark points fixed for a 1D case") {
       val domain = BoxDomain[_1D](-5.0f, 5f)
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](5))
-      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(domain, (_ : Point[_1D]) => Vector(0f), kernel), UniformSampler(domain, 500),  100)
+      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, (_ : Point[_1D]) => Vector(0f)), kernel), UniformSampler(domain, 500),  100)
 
       val trainingData = IndexedSeq((-3.0, 1.0), (-1.0, 3.0), (0.0, -1.0), (1.0, -1.0), (3.0, 0.0)).map(t => (Point(t._1), Vector(t._2)))
       val posteriorGP = gp.posterior(trainingData, 1e-8)
@@ -85,7 +85,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
     it("yields a larger posterior variance for points that are less strongly constrained") {
       val domain = BoxDomain[_1D](-5.0f, 5f)
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
-      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(domain, (_ : Point[_1D]) => Vector(0f), kernel), UniformSampler(domain, 500), 100)
+      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, (_ : Point[_1D]) => Vector(0f)), kernel), UniformSampler(domain, 500), 100)
 
       val pt1 = -3.0f
       val val1 = 1.0
@@ -101,7 +101,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
     it("keeps the landmark points fixed for a 2D case") {
       val domain = BoxDomain[_2D]((-5.0f, -5.0f), (5.0f, 5.0f))
-      val gp = LowRankGaussianProcess.approximateGP[_2D, _2D](GaussianProcess(domain, _ => Vector(0.0, 0.0), UncorrelatedKernel[_2D](GaussianKernel[_2D](5))), UniformSampler(domain, 400), 100)
+      val gp = LowRankGaussianProcess.approximateGP[_2D, _2D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0)), UncorrelatedKernel[_2D](GaussianKernel[_2D](5))), UniformSampler(domain, 400), 100)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0), Vector(1.0, 1.0)), (Point(-1.0, 3.0), Vector(0.0, -1.0)))
       val posteriorGP = gp.posterior(trainingData, 1e-5)
@@ -114,7 +114,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 
     it("keeps the landmark points fixed for a 3D case") {
       val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
-      val gp = LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(domain, _ => Vector(0.0, 0.0, 0.0), UncorrelatedKernel[_3D](GaussianKernel[_3D](5))), UniformSampler(domain, 6 * 6 * 6), 50)
+      val gp = LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), UncorrelatedKernel[_3D](GaussianKernel[_3D](5))), UniformSampler(domain, 6 * 6 * 6), 50)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), Vector(1.0, 1.0, 2.0)), (Point(-1.0, 3.0, 0.0), Vector(0.0, -1.0, 0.0)))
       val posteriorGP = gp.posterior(trainingData, 1e-5)
@@ -136,7 +136,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), Index(7, 7, 7)))
       val kernel = UncorrelatedKernel[_3D](GaussianKernel[_3D](10))
       val gp = {
-       LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(domain, _ => Vector(0.0, 0.0, 0.0), kernel),  sampler, 200)
+       LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), kernel),  sampler, 200)
       }
     }
 
@@ -195,6 +195,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
           f0(pt1).asDenseMatrix.t * f0(pt2).asDenseMatrix + f1(pt1).asDenseMatrix.t * f1(pt2).asDenseMatrix
         }
 
+        override val domain = RealSpace[_3D]
         def apply(x: Point[_3D], y: Point[_3D]) = {
           SquareMatrix[_3D](f(x, y).data)
         }
@@ -204,7 +205,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val sampler = UniformSampler(domain, 7 * 7 * 7)
       val kernel = covKernel
       val gp = {
-        LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(domain, _ => Vector(0.0, 0.0, 0.0), kernel), sampler, 5)
+        LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 5)
       }
       val fewPointsSampler = UniformSampler(domain, 2 * 2 * 2)
       val pts = fewPointsSampler.sample.map(_._1)
