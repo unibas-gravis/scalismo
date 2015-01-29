@@ -32,7 +32,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
         mu(i) should be(estimatedMVN.mean(i) plusOrMinus 0.1f)
       }
       for (i <- 0 until cov.rows; j <- 0 until cov.cols) {
-        cov(i,j) should be(estimatedMVN.cov(i,j) plusOrMinus 0.1f)
+        cov(i,j) should be(estimatedMVN.cov(i,j) plusOrMinus 0.15f)
       }
     }
 
