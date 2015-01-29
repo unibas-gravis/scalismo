@@ -166,7 +166,7 @@ object LowRankGaussianProcess {
       override val domain = eigenPairs.headOption
         .map{case (_, eigenPair) => eigenPair.domain}.getOrElse(RealSpace[D])
 
-      def apply(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
+      override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
         val ptDim = dimOps.dimensionality
         val phis = eigenPairs.map(_._2)
 

@@ -196,7 +196,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         }
 
         override val domain = RealSpace[_3D]
-        def apply(x: Point[_3D], y: Point[_3D]) = {
+        override def k(x: Point[_3D], y: Point[_3D]) = {
           SquareMatrix[_3D](f(x, y).data)
         }
       }

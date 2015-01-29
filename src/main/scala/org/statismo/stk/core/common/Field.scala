@@ -1,6 +1,7 @@
 package org.statismo.stk.core.common
 
-import org.statismo.stk.core.geometry.{Vector, Point, Dim}
+import org.statismo.stk.core.geometry.{NDSpace, Vector, Point, Dim}
+import org.statismo.stk.core.registration.Transformation
 
 /**
  * Utility functions to create and manipulate images
@@ -45,7 +46,7 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
   /** The value of the image at a given point.
    * if an image is accessed outside of its definition, an exception is thrown */
   override def apply(x: Point[D]): A = {
-    if (!isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
+    if (!isDefinedAt(x)) throw new IllegalArgumentException(s"Point $x is outside the domain")
     f(x)
   }
 
@@ -64,7 +65,7 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
 }
 
 
-/**
+  /**
  * An vector valued image.
  */
 case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => Vector[DO]) extends Field[D, Vector[DO]] {

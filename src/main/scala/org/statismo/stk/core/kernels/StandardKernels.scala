@@ -16,7 +16,7 @@ case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
 
   override def domain = RealSpace[D]
 
-  def apply(x: Point[D], y: Point[D]) = {
+  override def k(x: Point[D], y: Point[D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
@@ -43,7 +43,7 @@ case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transfo
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  def apply(x: Point[D], y: Point[D]): SquareMatrix[D] = {
+  override def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
     var ms = SquareMatrix.zeros[D]
     var i = 0;
     while (i < ts.size) {
@@ -102,7 +102,7 @@ object BSplineKernel {
     val O: Double = 0.5 * (order + 1)
     val two_j: Float = c.toFloat
 
-    def apply(x: Point[_3D], y: Point[_3D]) = {
+    override def k(x: Point[_3D], y: Point[_3D]) = {
 
       // Sum over all j from low to up
 
@@ -158,7 +158,7 @@ object BSplineKernel {
     val O: Double = 0.5 * (order + 1)
     val two_j: Float = c.toFloat
 
-    def apply(x: Point[_2D], y: Point[_2D]) = {
+    override def k(x: Point[_2D], y: Point[_2D]) = {
 
       // Sum over all j from low to up
 
@@ -204,7 +204,7 @@ object BSplineKernel {
     val O: Double = 0.5 * (order + 1)
     val two_j: Float = c.toFloat
 
-    def apply(x: Point[_1D], y: Point[_1D]) = {
+    override def k(x: Point[_1D], y: Point[_1D]) = {
 
       // Sum over all j from low to up
 
