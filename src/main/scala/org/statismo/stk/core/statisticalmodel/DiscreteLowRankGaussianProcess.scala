@@ -23,7 +23,7 @@ import org.statismo.stk.core.common.VectorField
  *
  * It is possible to convert a DiscreteLowRankGaussianProcess to a LowRankGaussianProcess by calling the interpolation method.
  *
- * @see [[VectorPointData]]
+ * @see [[DiscreteVectorField]]
  * @see [[DiscreteLowRankGaussianProcess]]
  */
 case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[core] (val domain: FiniteDiscreteDomain[D],
@@ -36,7 +36,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   val rank: Int = basisMatrix.cols
 
   /** Discrete version of [[DiscreteLowRankGaussianProcess.mean]]*/
-  def mean: VectorPointData[D, DO] = vectorToVectorPoindData(meanVector)
+  def mean: DiscreteVectorField[D, DO] = vectorToVectorPoindData(meanVector)
 
   /**
    * A function, which returns for two given points, defined by their pointId, the covariance.
@@ -72,7 +72,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.instance]]
    */
-  def instance(c: DenseVector[Float]): VectorPointData[D, DO] = {
+  def instance(c: DenseVector[Float]): DiscreteVectorField[D, DO] = {
     require(rank == c.size)
     val instVal = instanceVector(c)
     vectorToVectorPoindData(instVal)
@@ -81,7 +81,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
    */
-  def sample: VectorPointData[D, DO] = {
+  def sample: DiscreteVectorField[D, DO] = {
     val coeffs = for (_ <- 0 until rank) yield Gaussian(0, 1).draw().toFloat
     instance(DenseVector(coeffs.toArray))
   }
@@ -90,14 +90,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
    * Returns the variance and associated basis function that defines the process.
    * The basis is the (discretized) Karhunen Loeve basis (e.g. it is obtained from a Mercer's decomposition of the covariance function
    */
-  def klBasis: IndexedSeq[(Float, VectorPointData[D, DO])] = {
+  def klBasis: IndexedSeq[(Float, DiscreteVectorField[D, DO])] = {
     for (i <- 0 until rank) yield (variance(i), vectorToVectorPoindData(basisMatrix(::, i).toDenseVector))
   }
 
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
-  def project(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double = 1e-6): VectorPointData[D, DO] = {
+  def project(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double = 1e-6): DiscreteVectorField[D, DO] = {
     val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
     project(newtd)
   }
@@ -105,7 +105,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO], Double)])]]
    */
-  def project(trainingData: IndexedSeq[(Int, Vector[DO], Double)]): VectorPointData[D, DO] = {
+  def project(trainingData: IndexedSeq[(Int, Vector[DO], Double)]): DiscreteVectorField[D, DO] = {
     val c = coefficients(trainingData)
     instance(c)
   }
@@ -206,12 +206,12 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     basisMatrix * (stddev :* alpha) + meanVector
   }
 
-  protected def vectorToVectorPoindData(vec: DenseVector[Float]): VectorPointData[D, DO] = {
+  protected def vectorToVectorPoindData(vec: DenseVector[Float]): DiscreteVectorField[D, DO] = {
     val vectors =
       for (v <- vec.toArray.grouped(3))
         yield Vector[DO](v)
 
-    VectorPointData[D, DO](domain, vectors.toIndexedSeq)
+    DiscreteVectorField[D, DO](domain, vectors.toIndexedSeq)
   }
 
   private[this] val outputDimensionality = implicitly[NDSpace[DO]].dimensionality

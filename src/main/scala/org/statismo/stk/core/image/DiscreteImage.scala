@@ -8,7 +8,7 @@ import org.statismo.stk.core.numerics.BSpline._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.{PointData, ScalarPointData}
+import org.statismo.stk.core.common.{DiscreteField, DiscreteScalarField}
 import spire.math.Numeric
 
 /**
@@ -17,7 +17,7 @@ import spire.math.Numeric
  * @tparam D  The dimensionality of the image
  * @tparam Pixel The type of the pixel (usually a scalar or a vector)
  */
-trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
+trait DiscreteImage[D <: Dim, Pixel] extends DiscreteField[D, Pixel] {
 
   protected[this] def ndSpace: NDSpace[D]
 
@@ -43,7 +43,7 @@ trait DiscreteImage[D <: Dim, Pixel] extends PointData[D, Pixel] {
  * @tparam A The type of the pixel (needs to implement Numeric).
  */
 class DiscreteScalarImage[D <: Dim : NDSpace, A: Numeric : ClassTag] private (override val domain: DiscreteImageDomain[D], data: Array[A] )
-  extends ScalarPointData[D, A](domain, data) with DiscreteImage[D, A]  {
+  extends DiscreteScalarField[D, A](domain, data) with DiscreteImage[D, A]  {
 
   require (domain.numberOfPoints == data.size)
 

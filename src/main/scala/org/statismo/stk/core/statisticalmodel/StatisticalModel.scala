@@ -3,7 +3,7 @@ package statisticalmodel
 
 import org.statismo.stk.core.mesh.TriangleMesh
 import breeze.linalg.{ DenseVector, DenseMatrix }
-import org.statismo.stk.core.common.{ VectorPointData, PointData, FiniteDiscreteDomain, ImmutableLRU }
+import org.statismo.stk.core.common.{ DiscreteVectorField, DiscreteField, FiniteDiscreteDomain, ImmutableLRU }
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.registration.{ Transformation, RigidTransformation }
 
@@ -130,7 +130,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
     new StatisticalMeshModel(newRef, newGp)
   }
 
-  private def warpReference(vectorPointData: VectorPointData[_3D, _3D]) = {
+  private def warpReference(vectorPointData: DiscreteVectorField[_3D, _3D]) = {
     val newPoints = vectorPointData.pointsWithValues.map { case (pt, v) => pt + v }
     new TriangleMesh(newPoints.toIndexedSeq, referenceMesh.cells, Some(referenceMesh.cellMap))
   }

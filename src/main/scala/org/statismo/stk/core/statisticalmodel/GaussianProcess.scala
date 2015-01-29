@@ -5,7 +5,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{*, DenseVector, DenseMatrix}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.{FiniteDiscreteDomain, VectorPointData, Domain}
+import org.statismo.stk.core.common.{FiniteDiscreteDomain, DiscreteVectorField, Domain}
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
 import org.statismo.stk.core.common.VectorField
 
@@ -32,7 +32,7 @@ class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val me
    *
    * Sample values of the GAussian process evaluated at the given points.
    */
-  def sampleAtPoints(pts : IndexedSeq[Point[D]]) : VectorPointData[D, DO] = {
+  def sampleAtPoints(pts : IndexedSeq[Point[D]]) : DiscreteVectorField[D, DO] = {
     val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
 
     // TODO check that all points are part of the domain
@@ -52,7 +52,7 @@ class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val me
       .map(data => Vector[DO](data.map(_.toFloat)))
       .toIndexedSeq
     val domain = FiniteDiscreteDomain.fromSeq(pts.toIndexedSeq)
-    VectorPointData(domain, vecs)
+    DiscreteVectorField(domain, vecs)
   }
 
   /**

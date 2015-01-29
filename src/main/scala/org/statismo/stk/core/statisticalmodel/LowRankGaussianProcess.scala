@@ -59,12 +59,12 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace](mean: Vect
   /**
    * A random sample evaluated at the given points
    */
-  override def sampleAtPoints(pts: IndexedSeq[Point[D]]): VectorPointData[D, DO] = {
+  override def sampleAtPoints(pts: IndexedSeq[Point[D]]): DiscreteVectorField[D, DO] = {
     // TODO check that points are part of the domain
     val aSample = sample
     val values = pts.map(pt => aSample(pt))
     val domain = SpatiallyIndexedFiniteDiscreteDomain.fromSeq(pts)
-    VectorPointData(domain, values)
+    DiscreteVectorField(domain, values)
   }
 
 
