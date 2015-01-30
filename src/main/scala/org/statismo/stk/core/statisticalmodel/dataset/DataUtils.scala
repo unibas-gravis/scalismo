@@ -39,8 +39,9 @@ private object DataUtils {
       Failure(new Throwable(s"reference and target mesh do not have the same number of points (${refMesh.numberOfPoints} != ${targetMesh.numberOfPoints}"))
     else {
       val t = new Transformation[_3D] {
+        override val domain = refMesh.boundingBox
         val targetPts = targetMesh.points.toIndexedSeq
-        override def apply(x: Point[_3D]): Point[_3D] = {
+        override val f = (x: Point[_3D]) => {
           val (_, ptId) = refMesh.findClosestPoint(x)
           targetPts(ptId)
         }

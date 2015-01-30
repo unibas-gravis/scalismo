@@ -1,6 +1,7 @@
 package org.statismo.stk.core.numerics
 
 import org.statismo.stk.core.image._
+import org.statismo.stk.core.common.VectorField
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.geometry._
 
@@ -19,14 +20,14 @@ case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
     sum / samples.size
   }
 
-  def integrateVector(img: VectorImage[D]): Vector[D] = {
+  def integrateVector[DO <: Dim : NDSpace](img: VectorField[D, DO]): Vector[DO] = {
     integrateVector(img.liftValues)
   }
 
-  def integrateVector(f: Function1[Point[D], Option[Vector[D]]]): Vector[D] = {
+  def integrateVector[DO <: Dim : NDSpace](f: Function1[Point[D], Option[Vector[DO]]]): Vector[DO] = {
     val samples = sampler.sample
 
-    val zeroVector = Vector.zeros[D]
+    val zeroVector = Vector.zeros[DO]
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1f / p.toFloat) }.foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1f / (sampler.numberOfPoints - 1).toFloat)
   }

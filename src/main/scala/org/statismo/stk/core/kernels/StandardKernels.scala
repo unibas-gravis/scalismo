@@ -1,6 +1,6 @@
 package org.statismo.stk.core.kernels
 
-import org.statismo.stk.core.common.ImmutableLRU
+import org.statismo.stk.core.common.{RealSpace, ImmutableLRU}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.numerics.BSpline
 import org.statismo.stk.core.registration.Transformation
@@ -14,7 +14,9 @@ import org.statismo.stk.core.utils.Memoize
 case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
   val sigma2 = sigma * sigma
 
-  def apply(x: Point[D], y: Point[D]) = {
+  override def domain = RealSpace[D]
+
+  override def k(x: Point[D], y: Point[D]) = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
@@ -22,6 +24,8 @@ case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
 
 
 case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
+
+  override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
@@ -39,7 +43,7 @@ case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transfo
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  def apply(x: Point[D], y: Point[D]): SquareMatrix[D] = {
+  override def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
     var ms = SquareMatrix.zeros[D]
     var i = 0;
     while (i < ts.size) {
@@ -57,7 +61,10 @@ case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transfo
 
 
 
-abstract case class BSplineKernel[D <: Dim ](order : Int, scale : Int) extends PDKernel[D]
+abstract case class BSplineKernel[D <: Dim ](order : Int, scale : Int) extends PDKernel[D] {
+  override def domain = RealSpace[D]
+
+}
 
 object BSplineKernel {
 
@@ -95,7 +102,7 @@ object BSplineKernel {
     val O: Double = 0.5 * (order + 1)
     val two_j: Float = c.toFloat
 
-    def apply(x: Point[_3D], y: Point[_3D]) = {
+    override def k(x: Point[_3D], y: Point[_3D]) = {
 
       // Sum over all j from low to up
 
@@ -151,7 +158,7 @@ object BSplineKernel {
     val O: Double = 0.5 * (order + 1)
     val two_j: Float = c.toFloat
 
-    def apply(x: Point[_2D], y: Point[_2D]) = {
+    override def k(x: Point[_2D], y: Point[_2D]) = {
 
       // Sum over all j from low to up
 
@@ -197,7 +204,7 @@ object BSplineKernel {
     val O: Double = 0.5 * (order + 1)
     val two_j: Float = c.toFloat
 
-    def apply(x: Point[_1D], y: Point[_1D]) = {
+    override def k(x: Point[_1D], y: Point[_1D]) = {
 
       // Sum over all j from low to up
 

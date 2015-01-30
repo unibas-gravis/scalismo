@@ -7,7 +7,7 @@ import spire.math.Numeric
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
  */
-trait PointData[D <: Dim, A] extends PartialFunction[Int, A] { self =>
+trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 
   def domain: FiniteDiscreteDomain[D]
 
@@ -25,11 +25,11 @@ trait PointData[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 /**
  *
  */
-class ScalarPointData[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscreteDomain[D], val data : Array[A]) extends PointData[D, A] {
+class DiscreteScalarField[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscreteDomain[D], val data : Array[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def map[B: Numeric : ClassTag](f: A => B): ScalarPointData[D, B] = {
-    new ScalarPointData(domain, data.map(f))
+  def map[B: Numeric : ClassTag](f: A => B): DiscreteScalarField[D, B] = {
+    new DiscreteScalarField(domain, data.map(f))
   }
 
 
@@ -41,7 +41,7 @@ class ScalarPointData[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscr
   override def equals(other: Any): Boolean =
     other match {
 
-      case that: ScalarPointData[D, A]  =>
+      case that: DiscreteScalarField[D, A]  =>
         (that canEqual this) &&
           data.deep == that.data.deep &&
           domain == that.domain
@@ -50,7 +50,7 @@ class ScalarPointData[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscr
     }
 
   def canEqual(other: Any): Boolean =
-    other.isInstanceOf[PointData[D, A]]
+    other.isInstanceOf[DiscreteField[D, A]]
 
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 
@@ -60,7 +60,7 @@ class ScalarPointData[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscr
 /**
  *
  */
-class VectorPointData[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDomain[D], val data : IndexedSeq[Vector[DO]]) extends PointData[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDomain[D], val data : IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId : Int) = data(ptId)
@@ -68,14 +68,14 @@ class VectorPointData[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDo
 
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def map(f: Vector[DO] => Vector[DO]): VectorPointData[D, DO] = new VectorPointData(domain, data.map(f))
+  def map(f: Vector[DO] => Vector[DO]): DiscreteVectorField[D, DO] = new DiscreteVectorField(domain, data.map(f))
 
 }
 
 
-object VectorPointData {
+object DiscreteVectorField {
 
   def apply[D <: Dim, DO <: Dim](domain : FiniteDiscreteDomain[D], data : IndexedSeq[Vector[DO]]) = {
-    new VectorPointData(domain, data)
+    new DiscreteVectorField(domain, data)
   }
 }

@@ -43,7 +43,7 @@ case class UniformSampler[D <: Dim : NDSpace](domain: BoxDomain[D], numberOfPoin
   val ndSpace = implicitly[NDSpace[D]]
 
   val randGens = for (i <- (0 until ndSpace.dimensionality)) yield {
-    breeze.stats.distributions.Uniform(domain.origin(i), domain.extent(i))
+    breeze.stats.distributions.Uniform(domain.origin(i), domain.oppositeCorner(i))
   }
 
   override def sample = {

@@ -5,7 +5,7 @@ import org.statismo.stk.core.mesh.{ ScalarMeshData, TriangleMesh }
 import breeze.linalg.DenseVector
 import org.statismo.stk.core.geometry.{ Point, Vector }
 import org.statismo.stk.core.image.{DifferentiableScalarImage, ScalarImage}
-import org.statismo.stk.core.common.{DiscreteDomain, PointData, SpatiallyIndexedFiniteDiscreteDomain}
+import org.statismo.stk.core.common.{DiscreteDomain, DiscreteField, SpatiallyIndexedFiniteDiscreteDomain}
 import org.statismo.stk.core.registration.Transformation
 import org.statismo.stk.core.numerics.FixedPointsUniformMeshSampler3D
 import org.statismo.stk.core.io.{ HDF5File, HDF5ReadWrite }
@@ -13,7 +13,7 @@ import ncsa.hdf.`object`.Group
 import scala.util.Try
 
 case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDomain[_3D], val data: IndexedSeq[MultivariateNormalDistribution])
-  extends PointData[_3D, MultivariateNormalDistribution]  {
+  extends DiscreteField[_3D, MultivariateNormalDistribution]  {
   require(domain.numberOfPoints == data.size)
 
   def apply(i : Int) = data(i)

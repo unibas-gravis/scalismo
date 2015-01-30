@@ -26,6 +26,7 @@ import org.statismo.stk.core.registration.AnisotropicSimilarityTransformationSpa
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import org.statismo.stk.core.registration.AnisotropicScalingSpace
 import spire.math.Numeric
+import org.statismo.stk.core.common.RealSpace
 
 /**
  * WARNING! WE ARE USING RAS COORDINATE SYSTEM
@@ -243,7 +244,8 @@ object ImageIO {
     affineTransMatrix(1, 3) = -affineTransMatrix(1, 3)
 
     val t = new Transformation[_3D] {
-      def apply(x: Point[_3D]) = {
+      override val domain = RealSpace[_3D]
+      override val f = (x: Point[_3D]) => {
         val xh = DenseVector(x(0), x(1), x(2), 1.0)
         val t: DenseVector[Double] = affineTransMatrix * xh
         Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
@@ -253,11 +255,12 @@ object ImageIO {
 
     val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
     val tinv = new Transformation[_3D] {
-      def apply(x: Point[_3D]) = {
+      override val f = (x: Point[_3D]) => {
         val xh: DenseVector[Double] = DenseVector(x(0), x(1), x(2), 1.0)
         val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
         Point(t(0), t(1), t(2))
       }
+      override val domain = RealSpace[_3D]
     }
 
     Success((t, tinv))

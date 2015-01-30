@@ -153,7 +153,7 @@ object TriangleMesh {
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values. 
  * The number of values and mesh points must be equal.
  * */
-case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val data: Array[S]) extends ScalarPointData[_3D, S](mesh, data) {
+case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val data: Array[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
   require(mesh.numberOfPoints == data.size)
 
   override def values = data.iterator

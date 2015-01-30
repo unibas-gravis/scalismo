@@ -8,6 +8,8 @@ import Point.implicits._
 import org.statismo.stk.core.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import org.statismo.stk.core.numerics.UniformSampler
 import org.statismo.stk.core.common.BoxDomain
+import org.statismo.stk.core.common.VectorField
+import org.statismo.stk.core.common.RealSpace
 
 class KernelTests extends FunSpec with ShouldMatchers {
   org.statismo.stk.core.initialize()
@@ -50,14 +52,14 @@ class KernelTests extends FunSpec with ShouldMatchers {
 
       val k = UncorrelatedKernel[_3D](GaussianKernel[_3D](100.0))
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
-      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(domain, mu, k), samplerForNystromApprox, 500)
+      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, mu), k), samplerForNystromApprox, 500)
 
       val sampleTransformations = for (i <- (0 until 5000).par) yield {
         // TODO: gp.sample() should (arguably) accept seed.
         val sample: (Point[_3D] => Vector[_3D]) = gp.sample
         new Transformation[_3D] {
-          def apply(x: Point[_3D]) = x + sample(x)
-          def takeDerivative(x: Point[_3D]) = throw new UnsupportedOperationException
+          override val domain = RealSpace[_3D]
+          override val f = (x: Point[_3D]) => x + sample(x)
         }
       }
 

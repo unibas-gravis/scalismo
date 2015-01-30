@@ -5,74 +5,24 @@ import org.statismo.stk.core.image.filter.Filter
 import spire.math.Numeric
 
 import scala.language.implicitConversions
-import org.statismo.stk.core.common.{RealSpace, Domain}
+import org.statismo.stk.core.common.{RealSpace, Domain, Field, VectorField}
 import org.statismo.stk.core.geometry._
 import org.statismo.stk.core.numerics.{UniformSampler, Integrator}
 import org.statismo.stk.core.registration.CanDifferentiate
 import org.statismo.stk.core.registration.Transformation
 import scala.reflect.ClassTag
 
-/**
- * An image is simply a function from points to values, together with a domain on which the
- * function is defined.
- */
-trait Image[D <: Dim, A] extends Function1[Point[D], A] { self =>
 
-  /** a function that defines the image values. It must be defined on the full domain */
-  protected[Image] val f: Point[D] => A
 
-  /** The domain on which the image is defined */
-  def domain: Domain[D]
 
-  /** True if the image is defined at the given point */
-  def isDefinedAt(pt: Point[D]): Boolean = domain.isDefinedAt(pt)
 
-  /** The value of the image at a given point.
-   * if an image is accessed outside of its definition, an exception is thrown */
-  override def apply(x: Point[D]): A = {
-    if (!isDefinedAt(x)) throw new Exception(s"Point $x is outside the domain")
-    f(x)
-  }
 
-  /**
-   * Lifts the definition of the value function such that it is defined everywhere,
-   * but yields none if the value is outside of the domain
-   */
-  def liftValues: (Point[D] => Option[A]) = new Image[D, Option[A]] {
-    override val f = { (x : Point[D]) =>
-      if (self.isDefinedAt(x)) Some(self.f(x))
-      else None
-    }
-    override def domain = RealSpace[D]
-  }
-
-}
-
-/**
- * Utility functions to create and manipulate images
- */
-object Image {
-
-  /**
-   * Lifts a function between pixel values such that it acts on image intensities.
-   * This is useful to write functions that manipulate the image intensities.
-   */
-  def lift[D <: Dim, A](fl: A => A): Image[D, A] => Image[D, A] = {
-    img: Image[D, A] =>
-      new Image[D, A] {
-        override def apply(x: Point[D]) = fl(img.apply(x))
-        override val f = img.f
-        def domain = img.domain
-      }
-  }
-
-}
 
 
 /**
   * An image whose values are scalar.
   */
-class ScalarImage[D <: Dim : NDSpace] protected (val domain: Domain[D], val f: Point[D] => Float) extends Image[D, Float] {
+class ScalarImage[D <: Dim : NDSpace] protected (val domain: Domain[D], val f: Point[D] => Float) extends Field[D, Float] {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarImage[D]): ScalarImage[D] = {
@@ -178,7 +128,7 @@ object ScalarImage {
  */
 class DifferentiableScalarImage[D <: Dim : NDSpace] (_domain: Domain[D], _f: Point[D] => Float, val df : Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
 
-  def differentiate : VectorImage[D] = VectorImage(domain, df)
+  def differentiate : VectorField[D, D] = VectorField(domain, df)
 
   def +(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
     def f(x: Point[D]): Float = this.f(x) + that.f(x)
@@ -234,7 +184,7 @@ class DifferentiableScalarImage[D <: Dim : NDSpace] (_domain: Domain[D], _f: Poi
         val support = filter.support
         val integrator = Integrator[D](UniformSampler(support, numberOfPoints))
 
-        val intermediateContinuousImage = VectorImage(filter.support, intermediateDF)
+        val intermediateContinuousImage = VectorField(filter.support, intermediateDF)
         integrator.integrateVector(intermediateContinuousImage)
       }
     }
@@ -260,10 +210,5 @@ object DifferentiableScalarImage {
 
 }
 
-
-/**
- * An vector valued image.
- */
-case class VectorImage[D <: Dim](domain: Domain[D], f: Point[D] => Vector[D]) extends Image[D, Vector[D]]
 
 

@@ -5,9 +5,9 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{*, DenseVector, DenseMatrix}
 import org.statismo.stk.core.kernels._
 import org.statismo.stk.core.geometry._
-import org.statismo.stk.core.common.{FiniteDiscreteDomain, VectorPointData, Domain}
+import org.statismo.stk.core.common.{FiniteDiscreteDomain, DiscreteVectorField, Domain}
 import org.statismo.stk.core.geometry.{Point, Vector, Dim}
-
+import org.statismo.stk.core.common.VectorField
 
 /**
  * A gaussian process from a D dimensional input space, whose input values are points,
@@ -19,20 +19,23 @@ import org.statismo.stk.core.geometry.{Point, Vector, Dim}
  * @tparam D The dimensionality of the input space
  * @tparam DO The dimensionality of the output space
  */
-class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val domain : Domain[D],
-                                                                          val mean : Point[D] => Vector[DO],
+class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val mean : VectorField[D, DO],
                                                                           val cov : MatrixValuedPDKernel[D, DO]) {
 
   protected[this] val dimOps : NDSpace[DO] = implicitly[NDSpace[DO]]
 
   private[this] def outputDimensionality = dimOps.dimensionality
 
+  def domain = Domain.intersection(mean.domain, cov.domain)
+
   /**
    *
    * Sample values of the GAussian process evaluated at the given points.
    */
-  def sampleAtPoints(pts : IndexedSeq[Point[D]]) : VectorPointData[D, DO] = {
+  def sampleAtPoints(pts : IndexedSeq[Point[D]]) : DiscreteVectorField[D, DO] = {
     val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
+
+    // TODO check that all points are part of the domain
 
 
     // TODO using the svd is slightly inefficient, but with the current version of breeze, the cholesky decomposition does not seem to work
@@ -49,7 +52,7 @@ class GaussianProcess[D <: Dim : NDSpace, DO <: Dim : NDSpace] protected (val do
       .map(data => Vector[DO](data.map(_.toFloat)))
       .toIndexedSeq
     val domain = FiniteDiscreteDomain.fromSeq(pts.toIndexedSeq)
-    VectorPointData(domain, vecs)
+    DiscreteVectorField(domain, vecs)
   }
 
   /**
@@ -67,8 +70,8 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim : NDSpace, DO <: Dim : NDSpace](domain : Domain[D],  mean : Point[D] => Vector[DO], cov : MatrixValuedPDKernel[D, DO]) = {
-    new GaussianProcess[D, DO](domain, mean, cov)
+  def apply[D <: Dim : NDSpace, DO <: Dim : NDSpace](mean : VectorField[D, DO], cov : MatrixValuedPDKernel[D, DO]) = {
+    new GaussianProcess[D, DO](mean, cov)
   }
 
 
