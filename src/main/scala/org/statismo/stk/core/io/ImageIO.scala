@@ -34,14 +34,12 @@ import org.statismo.stk.core.common.RealSpace
 
 object ImageIO {
 
-
   trait WriteNifty[D <: Dim] {
-    def write[A : Numeric : TypeTag : ClassTag] (img : DiscreteScalarImage[D, A], f : File) : Try[Unit]
+    def write[A: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, A], f: File): Try[Unit]
   }
 
-
   implicit object DiscreteScalarImage3DNifty extends WriteNifty[_3D] {
-    def write[A : Numeric :  TypeTag : ClassTag] (img : DiscreteScalarImage[_3D, A], f : File) : Try[Unit] = {
+    def write[A: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, A], f: File): Try[Unit] = {
       writeNifti[A](img, f)
     }
   }
@@ -62,7 +60,7 @@ object ImageIO {
     }
   }
 
-  def read1DScalarImage[Scalar: Numeric: TypeTag : ClassTag](file: File): Try[DiscreteScalarImage[_1D, Scalar]] = {
+  def read1DScalarImage[Scalar: Numeric: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_1D, Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
@@ -132,7 +130,7 @@ object ImageIO {
     }
   }
 
-  def read2DScalarImage[Scalar: Numeric: ClassTag : TypeTag](file: File): Try[DiscreteScalarImage[_2D, Scalar]] = {
+  def read2DScalarImage[Scalar: Numeric: ClassTag: TypeTag](file: File): Try[DiscreteScalarImage[_2D, Scalar]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
@@ -196,7 +194,15 @@ object ImageIO {
 
       /* figure out the anisotropic scaling factor */
       val s = volume.header.pixdim
-      val spacing = DenseVector(s(1), s(2), s(3))
+
+      // figure out if the ijk to xyz_RAS transform does mirror: determinant of the linear transform
+
+      val augmentedMatrix = transformMatrixFromNifti(volume).get // get is safe in here 
+      val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
+
+      val mirrorScale = (breeze.linalg.det(linearTransMatrix)).signum.toFloat
+
+      val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
 
       val anisotropicScaling = new AnisotropicScalingSpace[_3D].transformForParameters(spacing)
 
@@ -208,9 +214,26 @@ object ImageIO {
       val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq)
       val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
-      val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-      DiscreteScalarImage(newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
+      /* Test that were able to reconstruct the transform */
+      val approxErros = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
+      if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
+      else {
+        val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
+        DiscreteScalarImage(newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
+      }
+    }
+  }
 
+  /** returns the augmented matrix of the affine transform from ijk to xyz_RAS */
+
+  private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume): Try[DenseMatrix[Double]] = {
+    if (volume.header.sform_code == 0 && volume.header.qform_code == 0)
+      Failure(new IOException("cannot read nifti with both qform and sform codes set to 0"))
+    else {
+      if (volume.header.sform_code == 0 && volume.header.qform_code > 0)
+        Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
+      else
+        Success(DenseMatrix.create(4, 4, volume.header.sformArray).t)
     }
   }
 
@@ -230,40 +253,38 @@ object ImageIO {
     if (volume.header.sform_code == 0 && volume.header.qform_code == 0)
       return Failure(new IOException("cannot read nifti with both qform and sform codes set to 0"))
 
-    val affineTransMatrix = if (volume.header.sform_code == 0 && volume.header.qform_code > 0)
-      DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t
-    else
-      DenseMatrix.create(4, 4, volume.header.sformArray).t
+    transformMatrixFromNifti(volume).map { affineTransMatrix =>
 
-    // flip scaling to account for RAS coordinates 
-    affineTransMatrix(0, 0) = -affineTransMatrix(0, 0)
-    affineTransMatrix(1, 1) = -affineTransMatrix(1, 1)
+      // flip scaling to account for RAS coordinates 
+      affineTransMatrix(0, 0) = -affineTransMatrix(0, 0)
+      affineTransMatrix(1, 1) = -affineTransMatrix(1, 1)
 
-    //also flip origin (translation params) 
-    affineTransMatrix(0, 3) = -affineTransMatrix(0, 3)
-    affineTransMatrix(1, 3) = -affineTransMatrix(1, 3)
+      //also flip origin (translation params) 
+      affineTransMatrix(0, 3) = -affineTransMatrix(0, 3)
+      affineTransMatrix(1, 3) = -affineTransMatrix(1, 3)
 
-    val t = new Transformation[_3D] {
-      override val domain = RealSpace[_3D]
-      override val f = (x: Point[_3D]) => {
-        val xh = DenseVector(x(0), x(1), x(2), 1.0)
-        val t: DenseVector[Double] = affineTransMatrix * xh
-        Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+      val t = new Transformation[_3D] {
+        override val domain = RealSpace[_3D]
+        override val f = (x: Point[_3D]) => {
+          val xh = DenseVector(x(0), x(1), x(2), 1.0)
+          val t: DenseVector[Double] = affineTransMatrix * xh
+          Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+        }
+        //override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
       }
-      //override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
-    }
 
-    val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
-    val tinv = new Transformation[_3D] {
-      override val f = (x: Point[_3D]) => {
-        val xh: DenseVector[Double] = DenseVector(x(0), x(1), x(2), 1.0)
-        val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
-        Point(t(0), t(1), t(2))
+      val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
+      val tinv = new Transformation[_3D] {
+        override val f = (x: Point[_3D]) => {
+          val xh: DenseVector[Double] = DenseVector(x(0), x(1), x(2), 1.0)
+          val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
+          Point(t(0), t(1), t(2))
+        }
+        override val domain = RealSpace[_3D]
       }
-      override val domain = RealSpace[_3D]
-    }
 
-    Success((t, tinv))
+      (t, tinv)
+    }
   }
 
   /**
@@ -294,9 +315,7 @@ object ImageIO {
     genericImageData
   }
 
-
   def writeNifti[Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, Scalar], file: File): Try[Unit] = {
-
 
     val scalarConv = implicitly[Numeric[Scalar]]
 
@@ -363,21 +382,20 @@ object ImageIO {
   private[this] def niftyDataTypeFromScalar[Scalar: Numeric: TypeTag: ClassTag]: Short = {
 
     typeOf[Scalar] match {
-      case t if t =:= typeOf[Char] => 2
-      case t if t <:< typeOf[Short] => 4
-      case t if t <:< typeOf[Int] => 8
-      case t if t <:< typeOf[Float] => 16
+      case t if t =:= typeOf[Char]   => 2
+      case t if t <:< typeOf[Short]  => 4
+      case t if t <:< typeOf[Int]    => 8
+      case t if t <:< typeOf[Float]  => 16
       case t if t <:< typeOf[Double] => 64
-      case _ => throw new Throwable(s"Unsupported datatype ${typeOf[Scalar]}")
+      case _                         => throw new Throwable(s"Unsupported datatype ${typeOf[Scalar]}")
     }
   }
 
-  def writeVTK[D <: Dim : NDSpace : CanConvertToVTK, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
+  def writeVTK[D <: Dim: NDSpace: CanConvertToVTK, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
 
-      val imgVtk = ImageConversion.imageTovtkStructuredPoints(img)
-      writeVTKInternal(imgVtk, file)
+    val imgVtk = ImageConversion.imageTovtkStructuredPoints(img)
+    writeVTKInternal(imgVtk, file)
   }
-
 
   private def writeVTKInternal(imgVtk: vtkStructuredPoints, file: File): Try[Unit] = {
     val writer = new vtkStructuredPointsWriter()
@@ -435,10 +453,10 @@ object ImageIO {
 
   private def scalarTypeToString[Scalar: TypeTag](): Option[String] = {
     typeOf[Scalar] match {
-      case t if t =:= typeOf[Float] => Some("FLOAT")
-      case t if t =:= typeOf[Short] => Some("SHORT")
+      case t if t =:= typeOf[Float]  => Some("FLOAT")
+      case t if t =:= typeOf[Short]  => Some("SHORT")
       case t if t =:= typeOf[Double] => Some("DOUBLE")
-      case _ => None
+      case _                         => None
     }
   }
 
