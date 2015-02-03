@@ -334,32 +334,11 @@ object ImageIO {
 
       }
 
-      // params : (Translation++rotation++anisScaling)
-      val anisotropicTransformParams = img.domain.indexToPhysicalCoordinateTransform.parameters.data
-      val translationParams = anisotropicTransformParams.take(3)
-      val rotationParams = anisotropicTransformParams.drop(3).take(3)
-      val scalingParams = anisotropicTransformParams.drop(6).take(3)
-
-      if (breeze.linalg.norm(DenseVector(scalingParams.map(Math.abs)) - domain.spacing.toBreezeVector) > 0.01f || breeze.linalg.norm(DenseVector(translationParams) - domain.origin.toBreezeVector) > 0.01f)
-        return Failure(new Exception("NiftiIO: indicated anistotropic similarity transform parameters mismatch with the image domain. params : " + scalingParams.deep + " domain spacing : " + domain.spacing))
-
-      val alpha = rotationParams(0)
-      val beta = rotationParams(1)
-      val gamma = rotationParams(2)
-
-      val ca = Math.cos(alpha); val sa = Math.sin(alpha);
-      val cb = Math.cos(beta); val sb = Math.sin(beta);
-      val cg = Math.cos(gamma); val sg = Math.sin(gamma);
-
-      /**
-       * Here to force the RAS view, we invert the first and second component of the anisotropic scaling
-       * We also flip the first two components of the translation to the origin
-       */
-
+      
       val M = DenseMatrix.zeros[Double](4, 4)
-      M(0, 0) = cb * cg * (domain.spacing(0) * -1f); M(0, 1) = -cb * sg; M(0, 2) = sb; M(0, 3) = -domain.origin(0)
-      M(1, 0) = ca * sg + sa * sb * cg; M(1, 1) = -1f * (ca * cg - (sa * sb * sg)) * domain.spacing(1); M(1, 2) = -sa * cb; M(1, 3) = -domain.origin(1)
-      M(2, 0) = sa * sg - ca * sb * cg; M(2, 1) = (sa * cg + (ca * sb * sg)); M(2, 2) = domain.spacing(2) * (ca * cb); M(2, 3) = domain.origin(2)
+      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0,0); M(0, 1) = 0; M(0, 2) = 0; M(0, 3) = -domain.origin(0)
+      M(1, 0) = 0; M(1, 1) = -1f * domain.spacing(1) * domain.directions(1,1); M(1, 2) = 0; M(1, 3) = -domain.origin(1)
+      M(2, 0) = 0; M(2, 1) = 0; M(2, 2) = domain.spacing(2) * domain.directions(2,2); M(2, 3) = domain.origin(2)
       M(3, 3) = 1
 
       // the header
