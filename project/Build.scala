@@ -3,7 +3,7 @@ import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 
 object BuildSettings {
-  val buildOrganization = "org.statismo"
+  val buildOrganization = "ch.unibas.cs.gravis"
   val buildVersion = "develop-SNAPSHOT"
   val buildScalaVersion = "2.10.4"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
@@ -66,7 +66,7 @@ object STKBuild extends Build {
   import BuildSettings._
 
   lazy val cdap2 = Project(
-    "stkcore",
+    "scalismo",
     file("."),
     settings = buildSettings ++ Seq(
       libraryDependencies ++= commonDeps,
