@@ -26,12 +26,12 @@ abstract class PDKernel[D <: Dim] { self =>
 
   def +(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     override def k(x: Point[D], y: Point[D]) = self.k(x, y) + that.k(x, y)
-    override def domain = Domain.intersection(domain, that.domain)
+    override def domain = Domain.intersection(self.domain, that.domain)
   }
 
   def *(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     override def k(x: Point[D], y: Point[D]) = self.k(x, y) * that.k(x, y)
-    override def domain = Domain.intersection(domain, that.domain)
+    override def domain = Domain.intersection(self.domain, that.domain)
   }
 
   def *(s: Double): PDKernel[D] = new PDKernel[D] {
