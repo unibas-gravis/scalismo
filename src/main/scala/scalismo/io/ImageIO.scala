@@ -23,7 +23,35 @@ import reflect.runtime.universe.{ TypeTag, typeOf }
 import spire.math.Numeric
 
 /**
- * WARNING! WE ARE USING RAS COORDINATE SYSTEM
+ * Implements methods for reading and writing D-dimensional images  
+ * 
+ * WARNING! WE ARE USING an LPS COORDINATE SYSTEM
+ * 
+ * VTK file format does not indicate the orientation of the image. 
+ * Therefore, when reading from VTK, we assume that it is in LPS world coordinates. 
+ * Hence, no magic is done, the same information (coordinates) present in the 
+ * VTK file header are directly mapped to our coordinate system. 
+ * 
+ * This is also the case when writing VTK. Our image domain information (origin, spacing ..) is mapped 
+ * directly into the written VTK file header.
+ *   
+ * This is however not the case for Nifti files! Nifti file headers contain an affine transform from the ijk 
+ * image coordinates to an RAS World Coordinate System (therefore supporting different image orientations).
+ * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :  
+ * 
+ * This is done by :    
+ *    * mirroring the first two dimensions of the scaling parameters of the affine transform
+ *    * mirroring the first two dimensions of the image origin (translation parameters)
+ *   
+ * The same mirroring is done again when writing an image to the Nifti format.      
+ * 
+ * 
+ * Documentation on orientation :
+ * 
+ * http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
+ * http://www.slicer.org/slicerWiki/index.php/Coordinate_systems
+ * http://brainder.org/2012/09/23/the-nifti-file-format/ 
+ * 
  */
 
 object ImageIO {
