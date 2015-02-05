@@ -1,4 +1,4 @@
-import org.statismo.support.nativelibs._
+import scalismo.support.nativelibs._
 
 package object scalismo {
 
@@ -11,7 +11,7 @@ package object scalismo {
    */
   def initialize(ignoreErrors: Boolean = false) = initialized.synchronized {
     if (!initialized(0)) {
-      val mode = if (ignoreErrors) NativeLibraryBundles.InitializationMode.WARN_ON_FAIL else NativeLibraryBundles.InitializationMode.TERMINATE_ON_FAIL
+      val mode = if (ignoreErrors) InitializationMode.WARN_ON_FAIL else InitializationMode.TERMINATE_ON_FAIL
       NativeLibraryBundles.initialize(mode)
       initialized(0) = true
     }
