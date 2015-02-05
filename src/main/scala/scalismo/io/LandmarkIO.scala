@@ -2,7 +2,6 @@ package scalismo.io
 
 import java.io._
 
-import jdk.nashorn.internal.parser.JSONParser
 import scalismo.geometry._
 import scalismo.statisticalmodel.NDimensionalNormalDistribution
 import spray.json.DefaultJsonProtocol._
