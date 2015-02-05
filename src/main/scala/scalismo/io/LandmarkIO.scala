@@ -2,6 +2,7 @@ package scalismo.io
 
 import java.io._
 
+import jdk.nashorn.internal.parser.JSONParser
 import scalismo.geometry._
 import scalismo.statisticalmodel.NDimensionalNormalDistribution
 import spray.json.DefaultJsonProtocol._
@@ -130,7 +131,7 @@ object LandmarkIO {
     for {
       result <- Try {
         val stringData = source.getLines().mkString("\n")
-        val extLms = stringData.parseJson.convertTo[List[ExtLandmark[D]]]
+        val extLms = JsonParser(stringData).convertTo[List[ExtLandmark[D]]]
         extLms.map(e => extDecode(e.lm, e.exts))
       }
       d <- Try {
