@@ -44,9 +44,9 @@ object Resolvers {
   private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
   private val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   private val twitter = "twitter" at "http://maven.twttr.com/"
-  private val statismoPublic = "statismo" at "http://statismo.cs.unibas.ch/repository/public"
+  private val scalismoPublic = "scalismo" at "http://statismo.cs.unibas.ch/repository/public"
 
-  val stkResolvers = Seq(statismoPublic, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
+  val stkResolvers = Seq(scalismoPublic, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
 }
 
 object Dependencies {
@@ -54,8 +54,9 @@ object Dependencies {
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.10"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.10"
-  val statismoNativelibs = "org.statismo" %% "nativelibs" % "1.5.0"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.5"
+  val scalismoNativeStub = "ch.unibas.cs.gravis" %% "scalismo-native-stub" % "2.0.+"
+  val scalismoNativeImpl = "ch.unibas.cs.gravis" %% "scalismo-native-all" % "2.0.+" % "test"
   val spire = "org.spire-math" %% "spire" % "0.9.0"
 }
 
@@ -65,7 +66,7 @@ object STKBuild extends Build {
   import Dependencies._
   import BuildSettings._
 
-  lazy val cdap2 = Project(
+  lazy val scalismo = Project(
     "scalismo",
     file("."),
     settings = buildSettings ++ Seq(
@@ -78,7 +79,8 @@ object STKBuild extends Build {
     scalatest,
     breezeMath,
     breezeNative,
-    statismoNativelibs,
+    scalismoNativeStub,
+    scalismoNativeImpl,
     sprayJson,
     commonsio,
     spire
