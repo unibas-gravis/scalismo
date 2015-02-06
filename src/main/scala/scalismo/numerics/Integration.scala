@@ -14,9 +14,7 @@ case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
 
   def integrateScalar(f: Function1[Point[D], Option[Float]]): Float = {
     val samples = sampler.sample
-
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * (1f / p.toFloat)}.sum
-
     sum / samples.size
   }
 
