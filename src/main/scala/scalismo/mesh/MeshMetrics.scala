@@ -35,7 +35,7 @@ object MeshMetrics {
 
     val landmarks = m1.points.toIndexedSeq zip m2.points.toIndexedSeq
     val x = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
-    val m1w = m1.warp(x.transform)    
+    val m1w = m1.transform(x.transform)
     avgDistance(m1w, m2)
   }
 

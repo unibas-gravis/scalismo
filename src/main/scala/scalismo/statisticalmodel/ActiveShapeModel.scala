@@ -124,7 +124,7 @@ object ActiveShapeModel {
     val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, config.numberOfSamplingPoints, config.randomSeed)
     val profilePts = sampler.samplePoints
 
-    val trainingDataSurfaces = for ((image, transform) <- trainingData) yield (image, model.referenceMesh.warp(transform))
+    val trainingDataSurfaces = for ((image, transform) <- trainingData) yield (image, model.referenceMesh.transform(transform))
 
     // create for each point a multivariate normal distribution, which is estimated frm the
     // features extrated by the feature extractor

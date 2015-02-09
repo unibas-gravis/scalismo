@@ -16,7 +16,7 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
   val path = getClass().getResource("/facemesh.h5").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
   val translationLength = 1.0f
-  val translatedMesh = mesh.warp((pt: Point[_3D]) => pt + Vector(translationLength, 0.0f, 0.0f))
+  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0f, 0.0f))
   
   describe("The ProcrustesDistanceMetric") {
 
@@ -48,7 +48,7 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
     
     it ("returns the max distance") {
       // create a mesh where the first vector is displaced by a value of 1
-      val newMesh = mesh.warp((pt : Point[_3D]) => if(mesh.findClosestPoint(pt)._2 == 0) pt + Vector(1,0,0) else pt)
+      val newMesh = mesh.transform((pt : Point[_3D]) => if(mesh.findClosestPoint(pt)._2 == 0) pt + Vector(1,0,0) else pt)
       MeshMetrics.hausdorffDistance(mesh, newMesh) should be(1)
     }
     
@@ -67,7 +67,7 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
     }
 
     it("computes the right value for an unit sphere that is shrunk by 0.5 ") {
-      val spheremeshScaled = spheremesh.warp(pt => (pt.toVector * 0.5).toPoint)
+      val spheremeshScaled = spheremesh.transform(pt => (pt.toVector * 0.5).toPoint)
       val smallSphereVolume = 0.5 * 0.5 * 0.5 * 4.0 / 3.0 * math.Pi
       val unitSphereVolume =  4.0/ 3.0 * math.Pi
       val intersectionVolume = smallSphereVolume
@@ -77,7 +77,7 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
     }
 
     it("yields 0 if the volumes don't overlap") { 
-      val spheremeshTranslated = spheremesh.warp(pt => pt + Vector(10, 0, 0))
+      val spheremeshTranslated = spheremesh.transform(pt => pt + Vector(10, 0, 0))
       MeshMetrics.diceCoefficient(spheremesh, spheremeshTranslated) should be(0.0)
     }
 
