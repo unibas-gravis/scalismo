@@ -10,7 +10,9 @@ import scalismo.common._
 
 import scala.annotation._
 
-/** Trait for D-dimensional transformation that maps a D-dimensional Point to another */
+/** Trait for D-dimensional transformation that maps a D-dimensional Point to another. 
+ *  A transformation in our library is seen as a particular type of Field (or image)  mapping points
+ *  to values that are also of type [[scalismo.geometry.Point]]*/
 trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 /** Trait for parametric D-dimensional transformation */
 trait ParametricTransformation[D <: Dim] extends Transformation[D] {
