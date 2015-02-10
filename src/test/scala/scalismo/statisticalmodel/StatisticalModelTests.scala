@@ -2,7 +2,7 @@ package scalismo.statisticalmodel
 
 import scalismo.geometry._
 import scalismo.io.StatismoIO
-import scalismo.registration.{RigidTransformation, RigidTransformationSpace}
+import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 
 import scala.language.implicitConversions
 import breeze.linalg.{ DenseVector, DenseMatrix }
@@ -11,7 +11,7 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import breeze.stats.distributions.RandBasis
 import org.apache.commons.math3.random.MersenneTwister
-
+import scalismo.io.MeshIO
 class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
@@ -20,19 +20,20 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
   describe("A statistical model") {
 
-
     def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel) {
 
       for (i <- 0 until 10) {
-        val coeffsData = (0 until oldModel.rank).map {_ =>
-          breeze.stats.distributions.Gaussian(0,1).draw().toFloat
+        val coeffsData = (0 until oldModel.rank).map { _ =>
+          breeze.stats.distributions.Gaussian(0, 1).draw().toFloat
         }
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)
         val instNew = newModel.instance(coeffs)
         inst.points.zip(instNew.points)
-        .foreach{case (pt1, pt2) =>
-          (pt1.toVector - pt2.toVector).norm should be (0.0 plusOrMinus(0.1))}
+          .foreach {
+            case (pt1, pt2) =>
+              (pt1.toVector - pt2.toVector).norm should be(0.0 plusOrMinus (0.1))
+          }
       }
     }
 
@@ -43,12 +44,10 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
       val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
-
       val transformedModel = model.transform(rigidTransform)
       val newModel = transformedModel.transform(inverseTransform)
       compareModels(model, newModel)
     }
-
 
     it("can change the mean shape and still yield the same shape space") {
       scalismo.initialize()
@@ -57,8 +56,8 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
 
       val newMesh = model.sample
 
-      def t(pt : Point[_3D]) : Point[_3D] = {
-        val(refPt, ptId) = model.referenceMesh.findClosestPoint(pt)
+      def t(pt: Point[_3D]): Point[_3D] = {
+        val (refPt, ptId) = model.referenceMesh.findClosestPoint(pt)
         newMesh(ptId)
       }
 
@@ -67,14 +66,14 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
       compareModels(model, newModel)
     }
 
-//    it("can write a changed mean statistical mode, read it and still yield the same space") {
-//      val tmpStatismoFile = File.createTempFile("statModel", ".h5")
-//      tmpStatismoFile.deleteOnExit()
-//
-//      StatismoIO.writeStatismoMeshModel(newModel, tmpStatismoFile)
-//      val readModel = StatismoIO.readStatismoMeshModel(tmpStatismoFile).get
-//      compareModels(model, readModel)
-//    }
+    //    it("can write a changed mean statistical mode, read it and still yield the same space") {
+    //      val tmpStatismoFile = File.createTempFile("statModel", ".h5")
+    //      tmpStatismoFile.deleteOnExit()
+    //
+    //      StatismoIO.writeStatismoMeshModel(newModel, tmpStatismoFile)
+    //      val readModel = StatismoIO.readStatismoMeshModel(tmpStatismoFile).get
+    //      compareModels(model, readModel)
+    //    }
 
   }
 
