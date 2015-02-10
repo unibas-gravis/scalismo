@@ -38,16 +38,16 @@ case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], v
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
 
-  /**
-   *  Returns a triangle mesh that is the image of this mesh by the given transform.
-   *  
-   *  This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
-   *  
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D]]</code> are valid arguments.
-   *  */
   def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
 
-  override def warp(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
+  /**
+   *  Returns a triangle mesh that is the image of this mesh by the given transform.
+   *
+   *  This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
+   *
+   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D]]</code> are valid arguments.
+   *  */
+  override def transform(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
    /**
    * Returns the identifiers of the mesh cells to which the given point identifier belongs */

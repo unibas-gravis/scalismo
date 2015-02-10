@@ -92,7 +92,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * The spanned shape space is not affected by this operations.
    */
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
-    val newRef = referenceMesh.warp(rigidTransform)
+    val newRef = referenceMesh.transform(rigidTransform)
 
     val newMean: DenseVector[Float] = {
       val newMeanVecs = for ((pt, meanAtPoint) <- gp.mean.pointsWithValues) yield {
@@ -122,7 +122,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    */
   def changeReference(t: Point[_3D] => Point[_3D]): StatisticalMeshModel = {
 
-    val newRef = referenceMesh.warp(t)
+    val newRef = referenceMesh.transform(t)
     val newMean = gp.mean.pointsWithValues.map { case (refPt, meanVec) => (refPt - t(refPt)) + meanVec }
     val newMeanVec = DenseVector(newMean.map(_.data).flatten.toArray)
     val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](newRef, newMeanVec, gp.variance, gp.basisMatrix)

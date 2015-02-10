@@ -48,7 +48,7 @@ object Crossvalidation {
       PCAModel.buildModelFromDataCollection(td).map { pcaModel =>
         val model = if (biasModelAndRank.isDefined) PCAModel.augmentModel(pcaModel, biasModelAndRank.get._1, biasModelAndRank.get._2) else pcaModel
         val evalResults = for (testingItem <- fold.testingData.dataItems) yield {
-          val testMesh = dc.reference.warp(testingItem.transformation)
+          val testMesh = dc.reference.transform(testingItem.transformation)
           evalFun(model, testMesh)
         }
         evalResults

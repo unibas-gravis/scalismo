@@ -167,7 +167,7 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)
       val inverseRotation = rotation.inverse
 
-      val rotRotMesh = mesh.warp(rotation).warp(inverseRotation)
+      val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
       rotRotMesh.points.zipWithIndex.foreach {
         case (p, i) =>
           p(0) should be(mesh.points(i)(0) plusOrMinus 0.000001)
@@ -186,8 +186,8 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val composed = translation compose rotation
       val rigid = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
 
-      val transformedRigid = mesh.warp(rigid)
-      val transformedComposed = mesh.warp(rigid)
+      val transformedRigid = mesh.transform(rigid)
+      val transformedComposed = mesh.transform(rigid)
 
       val diffNormMax = transformedRigid.points.zip(transformedComposed.points).map { case (p1, p2) => (p1 - p2).norm }.max
       assert(diffNormMax < 0.00001)

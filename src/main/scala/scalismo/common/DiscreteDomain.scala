@@ -31,7 +31,7 @@ trait FiniteDiscreteDomain[D <: Dim] extends DiscreteDomain[D] with Equals { sel
 
   def pointId(pt : Point[D]) : Option[Int]
   def pointsWithId : Iterator[(Point[D], Int)] = points.zipWithIndex
-  def warp(t : Point[D] => Point[D]) : FiniteDiscreteDomain[D] = {
+  def transform(t : Point[D] => Point[D]) : FiniteDiscreteDomain[D] = {
     FiniteDiscreteDomain.fromSeq(self.points.map(t).toIndexedSeq)
   }
 
