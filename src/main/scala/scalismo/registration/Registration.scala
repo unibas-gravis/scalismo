@@ -89,16 +89,7 @@ object Registration {
 
     val numberOfPoints = sampler.numberOfPoints
     def volumeOfSampleRegion = sampler.volumeOfSampleRegion
-    var sampleValues: IndexedSeq[(Point[D], Double)] = IndexedSeq()
-    override def sample: IndexedSeq[(Point[D], Double)] = {
-
-      if (sampleValues.size != 0) {
-        sampleValues
-      } else {
-        sampleValues = sampler.sample
-        sampleValues
-      }
-    }
+    override lazy val sample: IndexedSeq[(Point[D], Double)] = sampler.sample
   }
 
 
