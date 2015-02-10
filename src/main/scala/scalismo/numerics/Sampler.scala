@@ -51,21 +51,6 @@ case class UniformSampler[D <: Dim : NDSpace](domain: BoxDomain[D], numberOfPoin
 }
 
 
-case class SampleOnceSampler[D <: Dim](sampler: Sampler[D]) extends Sampler[D] {
-
-  val numberOfPoints = sampler.numberOfPoints
-  def volumeOfSampleRegion = sampler.volumeOfSampleRegion
-  var sampleValues: IndexedSeq[(Point[D], Double)] = IndexedSeq()
-  override def sample: IndexedSeq[(Point[D], Double)] = {
-
-    if (sampleValues.size != 0) {
-      sampleValues
-    } else {
-      sampleValues = sampler.sample
-      sampleValues
-    }
-  }
-}
 
 case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
