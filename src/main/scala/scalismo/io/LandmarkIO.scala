@@ -68,19 +68,15 @@ object LandmarkIO {
     readLandmarksJson[D, Landmark[D]](file)
   }
 
-  def readLandmarksJsonFrom[D <: Dim : NDSpace, I: ToSource](input: I): Try[List[Landmark[D]]] = {
-    readLandmarksJsonFrom[D, Landmark[D], I](input)
+  def readLandmarksJsonFromSource[D <: Dim : NDSpace](source: Source): Try[List[Landmark[D]]] = {
+    readLandmarksJsonFromSource[D, Landmark[D]](source)
   }
 
   def readLandmarksJson[D <: Dim : NDSpace, A](file: File)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
-    readLandmarksJsonFrom(file)
+    readLandmarksJsonFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksJsonFrom[D <: Dim : NDSpace, A, I: ToSource](input: I)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
-    readLandmarksJsonFromSource(implicitly[ToSource[I]].toSource(input))
-  }
-
-  private def readLandmarksJsonFromSource[D <: Dim : NDSpace, A](source: Source)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
+  def readLandmarksJsonFromSource[D <: Dim : NDSpace, A](source: Source)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
       result <- Try {
@@ -95,13 +91,13 @@ object LandmarkIO {
   }
 
   def writeLandmarksJson[D <: Dim : NDSpace](file: File, landmarks: List[Landmark[D]]) = {
-    writeLandmarksJsonTo[D, Landmark[D], File](file, landmarks)
+    writeLandmarksJsonToStream[D, Landmark[D]](new FileOutputStream(file), landmarks)
   }
 
-  def writeLandmarksJsonTo[D <: Dim, A, O: ToOutputStream](output: O, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
+  def writeLandmarksJsonToStream[D <: Dim, A](stream: OutputStream, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
     val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext)}
     implicit val e = LandmarkJsonFormat[D]()
-    writeLandmarksJsonToStream(implicitly[ToOutputStream[O]].toOutputStream(output), lms)
+    writeLandmarksJsonToStream(stream, lms)
   }.flatten
 
   private def writeLandmarksJsonToStream[D <: Dim : NDSpace](stream: OutputStream, landmarks: List[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
@@ -125,17 +121,17 @@ object LandmarkIO {
    */
 
   def readLandmarksCsv[D <: Dim : NDSpace](file: File): Try[immutable.IndexedSeq[Landmark[D]]] = {
-    readLandmarksCsvFrom(file)
+    readLandmarksCsvFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksCsvFrom[D <: Dim : NDSpace, I: ToSource](input: I): Try[immutable.IndexedSeq[Landmark[D]]] = {
+  def readLandmarksCsvFromSource[D <: Dim : NDSpace](source: Source): Try[immutable.IndexedSeq[Landmark[D]]] = {
     val items = implicitly[NDSpace[D]].dimensionality
-    for (landmarks <- readLandmarksCsvFromSource(implicitly[ToSource[I]].toSource(input))) yield {
+    for (landmarks <- readLandmarksCsvRaw(source)) yield {
       for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
     }
   }
 
-  private def readLandmarksCsvFromSource(source: Source): Try[immutable.IndexedSeq[(String, Array[Float])]] = {
+  private def readLandmarksCsvRaw(source: Source): Try[immutable.IndexedSeq[(String, Array[Float])]] = {
     val result = Try {
       val landmarks = for (line <- source.getLines() if line.nonEmpty && line(0) != '#') yield {
         val elements = line.split(',')
@@ -150,12 +146,12 @@ object LandmarkIO {
   }
 
   def writeLandmarksCsv[D <: Dim](file: File, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
-    writeLandmarksCsvTo(file, landmarks)
+    writeLandmarksCsvToStream(new FileOutputStream(file), landmarks)
   }
 
-  def writeLandmarksCsvTo[D <: Dim, O: ToOutputStream](output: O, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
+  def writeLandmarksCsvToStream[D <: Dim](stream: OutputStream, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
     Try {
-      val out = new PrintWriter(implicitly[ToOutputStream[O]].toOutputStream(output), true)
+      val out = new PrintWriter(stream, true)
       for (landmark <- landmarks) {
         val line = landmark.point.dimensionality match {
           case 1 => landmark.id.trim + "," + landmark.point(0) + ",0,0"
