@@ -57,75 +57,30 @@ object LandmarkIO {
       val description = value.asJsObject.getFields("description").headOption.map(_.convertTo[String])
       val extensions = value.asJsObject.getFields("extensions").headOption.map(_.convertTo[Map[String, JsValue]])
       val uncertainty = value.asJsObject.getFields("uncertainty").headOption.map(_.convertTo[Uncertainty])
-      ExtLandmark(Landmark[D](id, Point[D](coordinates), description, uncertainty.map(u2m(_))), extensions)
+      ExtLandmark(Landmark[D](id, Point[D](coordinates), description, uncertainty.map(u => u2m(u))), extensions)
     }
   }
 
-  object Sourceable {
-    def create(asSourceFunction: () => Source): Sourceable = new Sourceable {
-      override def asSource(): Source = asSourceFunction()
-    }
-
-    implicit def sourceAsSource(s: Source): Sourceable = create(() => s)
-
-    implicit def fileAsSource(s: File): Sourceable = create(() => Source.fromFile(s))
-
-    implicit def stringAsSource(s: String): Sourceable = create(() => Source.fromString(s))
-
-    implicit def byteArrayAsSource(s: Array[Byte]): Sourceable = create(() => Source.fromBytes(s))
-
-    implicit def inputStreamAsSource(s: InputStream): Sourceable = create(() => Source.fromInputStream(s))
-  }
-
-  trait Sourceable {
-    def asSource(): Source
-  }
-
-  object Sinkable {
-    def create(asSinkFunction: () => OutputStream): Sinkable = new Sinkable {
-      override def asOutputStream(): OutputStream = asSinkFunction()
-    }
-
-    implicit def streamAsSink(stream: OutputStream): Sinkable = create(() => stream)
-
-    implicit def fileAsSink(file: File): Sinkable = create(() => new FileOutputStream(file))
-  }
-
-  trait Sinkable {
-    def asOutputStream(): OutputStream
-  }
-
-  def writeLandmarksJson[D <: Dim : NDSpace](output: Sinkable, landmarks: List[Landmark[D]]) = {
-    writeLandmarksJson[D, Landmark[D]](output: Sinkable, landmarks)
-  }
-
-  def writeLandmarksJson[D <: Dim, A](output: Sinkable, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
-    val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext)}
-    implicit val e = LandmarkJsonFormat[D]()
-    writeLandmarksJsonRaw(output, lms)
-  }.flatten
-
-  private def writeLandmarksJsonRaw[D <: Dim : NDSpace](output: Sinkable, landmarks: List[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
-    val writer = new PrintWriter(output.asOutputStream(), true)
-    val result = Try {
-      writer.println(landmarks.toJson.toString())
-    }
-    try {
-      writer.close()
-    }
-    result
-  }
-
-  /* Convenience method if the "standard" landmarks are used.
+  /* Convenience methods if the "standard" landmarks are used.
    * This simply avoids having to specify the Landmark[D] type all the time.
    */
-  def readLandmarksJson[D <: Dim : NDSpace](source: Sourceable) = {
-    implicit val noextDecode: LandmarkIO.ExtensionDecodeFunction[D, Landmark[D]] = { (lm, json) => lm}
-    readLandmarksJson[D, Landmark[D]](source)
+  def readLandmarksJson[D <: Dim : NDSpace](file: File): Try[List[Landmark[D]]] = {
+    readLandmarksJson[D, Landmark[D]](file)
   }
 
-  def readLandmarksJson[D <: Dim : NDSpace, A](sourceable: Sourceable)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
-    val source = sourceable.asSource()
+  def readLandmarksJsonFrom[D <: Dim : NDSpace, I: ToSource](input: I): Try[List[Landmark[D]]] = {
+    readLandmarksJsonFrom[D, Landmark[D], I](input)
+  }
+
+  def readLandmarksJson[D <: Dim : NDSpace, A](file: File)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
+    readLandmarksJsonFrom(file)
+  }
+
+  def readLandmarksJsonFrom[D <: Dim : NDSpace, A, I: ToSource](input: I)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
+    readLandmarksJsonFromSource(implicitly[ToSource[I]].toSource(input))
+  }
+
+  private def readLandmarksJsonFromSource[D <: Dim : NDSpace, A](source: Source)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
       result <- Try {
@@ -139,6 +94,28 @@ object LandmarkIO {
     } yield result
   }
 
+  def writeLandmarksJson[D <: Dim : NDSpace](file: File, landmarks: List[Landmark[D]]) = {
+    writeLandmarksJsonTo[D, Landmark[D], File](file, landmarks)
+  }
+
+  def writeLandmarksJsonTo[D <: Dim, A, O: ToOutputStream](output: O, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
+    val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext)}
+    implicit val e = LandmarkJsonFormat[D]()
+    writeLandmarksJsonToStream(implicitly[ToOutputStream[O]].toOutputStream(output), lms)
+  }.flatten
+
+  private def writeLandmarksJsonToStream[D <: Dim : NDSpace](stream: OutputStream, landmarks: List[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
+    val writer = new PrintWriter(stream, true)
+    val result = Try {
+      writer.println(landmarks.toJson.toString())
+    }
+    try {
+      writer.close()
+    }
+    result
+  }
+
+
   /**
    * ******************************************************************************************************************
    * Legacy file format (.csv) support:
@@ -147,31 +124,38 @@ object LandmarkIO {
    * ****************************************************************************************************************
    */
 
-  private def readLandmarksCsvRaw(source: Sourceable): Try[immutable.IndexedSeq[(String, Array[Float])]] = {
-    val src = source.asSource()
+  def readLandmarksCsv[D <: Dim : NDSpace](file: File): Try[immutable.IndexedSeq[Landmark[D]]] = {
+    readLandmarksCsvFrom(file)
+  }
+
+  def readLandmarksCsvFrom[D <: Dim : NDSpace, I: ToSource](input: I): Try[immutable.IndexedSeq[Landmark[D]]] = {
+    val items = implicitly[NDSpace[D]].dimensionality
+    for (landmarks <- readLandmarksCsvFromSource(implicitly[ToSource[I]].toSource(input))) yield {
+      for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
+    }
+  }
+
+  private def readLandmarksCsvFromSource(source: Source): Try[immutable.IndexedSeq[(String, Array[Float])]] = {
     val result = Try {
-      val landmarks = for (line <- src.getLines() if line.nonEmpty && line(0) != '#') yield {
+      val landmarks = for (line <- source.getLines() if line.nonEmpty && line(0) != '#') yield {
         val elements = line.split(',')
         (elements(0).trim, elements.drop(1).take(3).map(_.toFloat))
       }
       landmarks.toIndexedSeq
     }
     try {
-      src.close()
+      source.close()
     }
     result
   }
 
-  def readLandmarksCsv[D <: Dim : NDSpace](source: Sourceable): Try[immutable.IndexedSeq[Landmark[D]]] = {
-    val items = implicitly[NDSpace[D]].dimensionality
-    for (landmarks <- readLandmarksCsvRaw(source)) yield {
-      for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
-    }
+  def writeLandmarksCsv[D <: Dim](file: File, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
+    writeLandmarksCsvTo(file, landmarks)
   }
 
-  def writeLandmarksCsv[D <: Dim](sink: Sinkable, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
+  def writeLandmarksCsvTo[D <: Dim, O: ToOutputStream](output: O, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
     Try {
-      val out = new PrintWriter(sink.asOutputStream(), true)
+      val out = new PrintWriter(implicitly[ToOutputStream[O]].toOutputStream(output), true)
       for (landmark <- landmarks) {
         val line = landmark.point.dimensionality match {
           case 1 => landmark.id.trim + "," + landmark.point(0) + ",0,0"

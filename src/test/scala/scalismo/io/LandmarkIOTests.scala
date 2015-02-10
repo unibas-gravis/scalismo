@@ -1,9 +1,10 @@
 package scalismo.io
 
-import java.io.{ByteArrayOutputStream, File}
-import scalismo.geometry._
+import java.io.{ByteArrayOutputStream, File, InputStream, OutputStream}
+
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
+import scalismo.geometry._
 import scalismo.statisticalmodel.NDimensionalNormalDistribution
 
 import scala.language.implicitConversions
@@ -37,7 +38,7 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
     }
 
     it("can read 3D landmarks in CSV format from a stream") {
-      val landmarksTry = LandmarkIO.readLandmarksCsv[_3D](csvStream())
+      val landmarksTry = LandmarkIO.readLandmarksCsvFrom[_3D, InputStream](csvStream())
       landmarksTry should be a 'Success
 
       val landmarks = landmarksTry.get
@@ -58,7 +59,7 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
       val tmpFile = File.createTempFile("landmark", "txt")
       tmpFile.deleteOnExit()
 
-      val landmarks: IndexedSeq[Landmark[_3D]] = IndexedSeq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0)))
+      val landmarks = IndexedSeq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t=> Landmark(t._1, t._2))
       LandmarkIO.writeLandmarksCsv(tmpFile, landmarks) should be a 'Success
 
       val restoredLandmarksTry = LandmarkIO.readLandmarksCsv[_3D](tmpFile)
@@ -88,14 +89,14 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
 
     it("can serialize and deserialize simple landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJson(out, jsonLms)
+      LandmarkIO.writeLandmarksJsonTo(out:OutputStream, jsonLms)
       val written = new String(out.toByteArray)
-      val read = LandmarkIO.readLandmarksJson[_3D](written).get
+      val read = LandmarkIO.readLandmarksJsonFrom[_3D, String](written).get
       read should equal(jsonLms)
     }
 
     it("can read simple landmarks from a JSON Stream") {
-      val read = LandmarkIO.readLandmarksJson[_3D](jsonStream()).get
+      val read = LandmarkIO.readLandmarksJsonFrom[_3D, InputStream](jsonStream()).get
       read should equal(jsonLms)
     }
 
@@ -128,20 +129,20 @@ class LandmarkIOTests extends FunSpec with ShouldMatchers {
 
     it("can serialize and deserialize complex landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJson(out, extLms)
-      val read = LandmarkIO.readLandmarksJson[_3D, TestLandmark](out.toByteArray).get
+      LandmarkIO.writeLandmarksJsonTo(out: OutputStream, extLms)
+      val read = LandmarkIO.readLandmarksJsonFrom[_3D, TestLandmark, Array[Byte]](out.toByteArray).get
       read should equal(extLms)
     }
 
     it("can read complex landmarks from a JSON Stream") {
-      val read = LandmarkIO.readLandmarksJson[_3D, TestLandmark](jsonComplexStream()).get
+      val read = LandmarkIO.readLandmarksJsonFrom[_3D, TestLandmark, InputStream](jsonComplexStream()).get
       read should equal(extLms)
     }
 
-    it("can handle unexpected or missing extensions in JSON landmarks") {
-      val cs = LandmarkIO.readLandmarksJson[_3D, TestLandmark](jsonStream()).get
+    it("can handle unexpected and missing extensions in JSON landmarks") {
+      val cs = LandmarkIO.readLandmarksJsonFrom[_3D, TestLandmark, InputStream](jsonStream()).get
       cs should equal(extLmsE)
-      val sc = LandmarkIO.readLandmarksJson[_3D](jsonComplexStream()).get
+      val sc = LandmarkIO.readLandmarksJsonFrom[_3D, InputStream](jsonComplexStream()).get
       sc should equal(jsonLms)
     }
   }
