@@ -5,13 +5,12 @@ import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import scalismo.geometry.{Point, NDSpace, Dim}
 import scalismo.image.{DifferentiableScalarImage, ScalarImage}
-import scalismo.numerics.{SampleOnceSampler, CostFunction, Integrator, Optimizer}
+import scalismo.numerics._
 
 case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
 
 case class RegistrationConfiguration[D <: Dim : NDSpace](
                                                          optimizer: Optimizer,
-                                                         integrator: Integrator[D],
                                                          metric: ImageMetric[D],
                                                          transformationSpace: TransformationSpace[D] with DifferentiableTransforms[D],
                                                          regularizer: Regularizer,
@@ -35,19 +34,19 @@ object Registration {
       def onlyValue(params: ParameterVector): Double = {
         val transformation = transformationSpace.transformForParameters(params)
 
-        config.metric(movingImage, fixedImage, transformation) + config.regularizationWeight * regularizer(params)
+        config.metric.value(movingImage, fixedImage, transformation) + config.regularizationWeight * regularizer(params)
       }
       def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
 
         // create a new sampler, that simply caches the points and returns the same points in every call
         // this means, we are always using the same samples for computing the integral over the values
         // and the gradient
-        val sampleStrategy = new SampleOnceSampler(config.integrator.sampler)
+        val sampleStrategy = new SampleOnceSampler(config.metric.sampler)
         val integrationStrategy = Integrator[D](sampleStrategy)
 
         // compute the value of the cost function
         val transformation = transformationSpace.transformForParameters(params)
-        val errorVal = config.metric(movingImage, fixedImage, transformation)
+        val errorVal = config.metric.value(movingImage, fixedImage, transformation)
         val value = errorVal + config.regularizationWeight * regularizer(params)
 
         // compute the derivative of the cost function
@@ -82,4 +81,16 @@ object Registration {
     val regStates = iterations(configuration)(fixedImage, movingImage)
     regStates.toSeq.last.registrationResult
   }
+
+  // This class ensures that we are always getting the same points when we call sample.
+  // This is important because we want the derivative to be evaluated at the same points as the
+  // value of the metric, in our registration code.
+  private case class SampleOnceSampler[D <: Dim](sampler: Sampler[D]) extends Sampler[D] {
+
+    val numberOfPoints = sampler.numberOfPoints
+    def volumeOfSampleRegion = sampler.volumeOfSampleRegion
+    override lazy val sample: IndexedSeq[(Point[D], Double)] = sampler.sample
+  }
+
+
 }

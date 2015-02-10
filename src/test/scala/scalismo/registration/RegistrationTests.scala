@@ -145,12 +145,10 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
       val domain = discreteFixedImage.domain
 
-      val integr = Integrator[_2D](UniformSampler(domain.imageBox, 4000))
       val regConf = RegistrationConfiguration[_2D](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(numIterations = 300),
-        integrator = integr,
-        metric = MeanSquaresMetric2D(integr),
+        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
         transformationSpace = TranslationSpace[_2D],
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
@@ -172,12 +170,10 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
-      val integr = Integrator[_2D](UniformSampler(domain.imageBox, 4000))
       val regConf = RegistrationConfiguration[_2D](
 
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
-        integrator = integr,
-        metric = MeanSquaresMetric2D(integr),
+        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
         transformationSpace = RotationSpace[_2D](center),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
@@ -207,11 +203,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val integr = Integrator[_3D](UniformSampler(domain.imageBox, 20000))
       val regConf = RegistrationConfiguration[_3D](
         optimizer = LBFGSOptimizer(numIterations = 300),
-        integrator = integr,
-        metric = MeanSquaresMetric3D(integr),
+        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
@@ -228,11 +222,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
-      val integr = Integrator(UniformSampler(domain.imageBox, 10000))
       val regConf = RegistrationConfiguration[_3D](
         optimizer = GradientDescentOptimizer(numIterations = 400, stepLength = 2e-12),
-        integrator = integr,
-        metric = MeanSquaresMetric3D(integr),
+        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 10000)),
         transformationSpace = RotationSpace[_3D](center),
         regularizer = RKHSNormRegularizer,
         regularizationWeight = 0.0)
