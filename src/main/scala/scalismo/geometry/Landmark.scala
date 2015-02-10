@@ -12,9 +12,12 @@ import scalismo.statisticalmodel.NDimensionalNormalDistribution
 final case class Landmark[D <: Dim : NDSpace](id: String, point: Point[D], description: Option[String] = None, uncertainty: Option[NDimensionalNormalDistribution[D]] = None)
 
 object Landmark {
-  import scala.language.implicitConversions
-  implicit def legacyTupleAsLandmark[D <: Dim: NDSpace](tuple: (String, Point[D])) : Landmark[D] = Landmark(tuple._1, tuple._2)
 
-  implicit def extensionEncodeFunction[D <: Dim: NDSpace]: LandmarkIO.ExtensionEncodeFunction[D, Landmark[D]] = { lm => (lm, None) }
-  implicit def extensionDecodeFunction[D <: Dim: NDSpace]: LandmarkIO.ExtensionDecodeFunction[D, Landmark[D]] = { case (lm, _) => lm }
+  import scala.language.implicitConversions
+
+  implicit def noExtensionsEncodeFunction[D <: Dim : NDSpace]: LandmarkIO.ExtensionEncodeFunction[D, Landmark[D]] = { lm => (lm, None) }
+
+  implicit def noExtensionsDecodeFunction[D <: Dim : NDSpace]: LandmarkIO.ExtensionDecodeFunction[D, Landmark[D]] = {
+    case (lm, _) => lm
+  }
 }
