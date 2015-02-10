@@ -111,7 +111,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
       val data = newIthBasis.map(_.data).flatten.toArray
       newBasisMat(::, i) := DenseVector(data)
     }
-    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain, newMean, gp.variance, newBasisMat)
+    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain.transform (rigidTransform), newMean, gp.variance, newBasisMat)
 
     new StatisticalMeshModel(newRef, newGp)
 
