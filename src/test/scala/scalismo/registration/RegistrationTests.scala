@@ -5,7 +5,7 @@ import scalismo.io.{ImageIO, MeshIO}
 import scalismo.numerics.{GradientDescentOptimizer, LBFGSOptimizer, UniformSampler, Integrator}
 
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import java.io.File
 import scalismo.geometry._
 import breeze.linalg.DenseVector
@@ -13,7 +13,7 @@ import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
 
 
-class RegistrationTests extends FunSpec with ShouldMatchers {
+class RegistrationTests extends FunSpec with Matchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
@@ -36,12 +36,12 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
         val alignedPoints = points.map((pt: Point[_2D]) => regResult.transform(pt))
 
-        transformedPoints(0)(0) should be(alignedPoints(0)(0) plusOrMinus 0.0001)
-        transformedPoints(0)(1) should be(alignedPoints(0)(1) plusOrMinus 0.0001)
-        transformedPoints(1)(0) should be(alignedPoints(1)(0) plusOrMinus 0.0001)
-        transformedPoints(1)(1) should be(alignedPoints(1)(1) plusOrMinus 0.0001)
-        transformedPoints(2)(0) should be(alignedPoints(2)(0) plusOrMinus 0.0001)
-        transformedPoints(2)(1) should be(alignedPoints(2)(1) plusOrMinus 0.0001)
+        transformedPoints(0)(0) should be(alignedPoints(0)(0) +- 0.0001)
+        transformedPoints(0)(1) should be(alignedPoints(0)(1) +- 0.0001)
+        transformedPoints(1)(0) should be(alignedPoints(1)(0) +- 0.0001)
+        transformedPoints(1)(1) should be(alignedPoints(1)(1) +- 0.0001)
+        transformedPoints(2)(0) should be(alignedPoints(2)(0) +- 0.0001)
+        transformedPoints(2)(1) should be(alignedPoints(2)(1) +- 0.0001)
       }
     }
   }
@@ -63,9 +63,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     it("can retrieve correct parameters") {
 
       for ((p, i) <- rigidRegTransformed.points.zipWithIndex) {
-        p(0) should be(rigidTransformed.points(i)(0) plusOrMinus 0.0001)
-        p(1) should be(rigidTransformed.points(i)(1) plusOrMinus 0.0001)
-        p(2) should be(rigidTransformed.points(i)(2) plusOrMinus 0.0001)
+        p(0) should be(rigidTransformed.points(i)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.points(i)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.points(i)(2) +- 0.0001)
       }
     }
 
@@ -74,9 +74,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val tranformed = mesh.transform(regResult.transform).transform(inverseTrans)
 
       for ((p, i) <- tranformed.points.zipWithIndex) {
-        p(0) should be(mesh.points(i)(0) plusOrMinus 0.0001)
-        p(1) should be(mesh.points(i)(1) plusOrMinus 0.0001)
-        p(2) should be(mesh.points(i)(2) plusOrMinus 0.0001)
+        p(0) should be(mesh.points(i)(0) +- 0.0001)
+        p(1) should be(mesh.points(i)(1) +- 0.0001)
+        p(2) should be(mesh.points(i)(2) +- 0.0001)
       }
     }
   }
@@ -100,12 +100,12 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
         val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints))
 
         val alignedPoints = points.map(regResult.transform)
-        transformedPoints(0)(0) should be(alignedPoints(0)(0) plusOrMinus 0.0001)
-        transformedPoints(0)(1) should be(alignedPoints(0)(1) plusOrMinus 0.0001)
-        transformedPoints(1)(0) should be(alignedPoints(1)(0) plusOrMinus 0.0001)
-        transformedPoints(1)(1) should be(alignedPoints(1)(1) plusOrMinus 0.0001)
-        transformedPoints(2)(0) should be(alignedPoints(2)(0) plusOrMinus 0.0001)
-        transformedPoints(2)(1) should be(alignedPoints(2)(1) plusOrMinus 0.0001)
+        transformedPoints(0)(0) should be(alignedPoints(0)(0) +- 0.0001)
+        transformedPoints(0)(1) should be(alignedPoints(0)(1) +- 0.0001)
+        transformedPoints(1)(0) should be(alignedPoints(1)(0) +- 0.0001)
+        transformedPoints(1)(1) should be(alignedPoints(1)(1) +- 0.0001)
+        transformedPoints(2)(0) should be(alignedPoints(2)(0) +- 0.0001)
+        transformedPoints(2)(1) should be(alignedPoints(2)(1) +- 0.0001)
       }
     }
   }
@@ -127,9 +127,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val regSim = mesh transform regResult.transform
 
       for ((p, i) <- regSim.points.zipWithIndex.take(100)) {
-        p(0) should be(translatedRotatedScaled.points(i)(0) plusOrMinus 0.0001)
-        p(1) should be(translatedRotatedScaled.points(i)(1) plusOrMinus 0.0001)
-        p(2) should be(translatedRotatedScaled.points(i)(2) plusOrMinus 0.0001)
+        p(0) should be(translatedRotatedScaled.points(i)(0) +- 0.0001)
+        p(1) should be(translatedRotatedScaled.points(i)(1) +- 0.0001)
+        p(2) should be(translatedRotatedScaled.points(i)(2) +- 0.0001)
       }
     }
   }
@@ -158,8 +158,8 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val transformedLena = fixedImage compose translationTransform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
 
-      regResult.parameters(0) should be(translationParams(0) plusOrMinus 0.01)
-      regResult.parameters(1) should be(translationParams(1) plusOrMinus 0.01)
+      regResult.parameters(0) should be(translationParams(0) +- 0.01)
+      regResult.parameters(1) should be(translationParams(1) +- 0.01)
     }
 
     it("Recovers the correct parameters for a rotation transfrom") {
@@ -183,7 +183,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val transformedLena = fixedImage compose transform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
 
-      regResult.parameters(0) should be(rotationParams(0) plusOrMinus 0.01)
+      regResult.parameters(0) should be(rotationParams(0) +- 0.01)
     }
   }
 
@@ -211,9 +211,9 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
         regularizationWeight = 0.0)
 
       val regResult = Registration.registration(regConf)(transformed, fixedImage)
-      regResult.parameters(0) should be(translationParams(0) plusOrMinus 0.01)
-      regResult.parameters(1) should be(translationParams(1) plusOrMinus 0.01)
-      regResult.parameters(2) should be(translationParams(2) plusOrMinus 0.01)
+      regResult.parameters(0) should be(translationParams(0) +- 0.01)
+      regResult.parameters(1) should be(translationParams(1) +- 0.01)
+      regResult.parameters(2) should be(translationParams(2) +- 0.01)
     }
 
     ignore("Recovers the correct parameters for a SMALL rotation transform") {
@@ -233,7 +233,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
       val regParams: DenseVector[Float] = regResult.parameters
       for (i <- 0 until rotationParams.size) {
-        regParams(i) should be(rotationParams(i) plusOrMinus 0.01)
+        regParams(i) should be(rotationParams(i) +- 0.01)
       }
 
       // here we verify that the angles give similar rotation matrices 
@@ -258,7 +258,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val rotMat2 = computeRotMatrix(regResult.parameters)
 
       for (i <- 0 until 3; j <- 0 until 3)
-        rotMat1(i, j) should be(rotMat2(i, j) plusOrMinus 0.001)
+        rotMat1(i, j) should be(rotMat2(i, j) +- 0.001)
     }
   }
 }

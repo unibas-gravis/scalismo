@@ -1,6 +1,6 @@
 package scalismo.kernels
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.common.{RealSpace, VectorField, BoxDomain}
 import scalismo.geometry.{_3D, _1D, Point, Vector}
@@ -10,7 +10,7 @@ import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 
-class KernelTests extends FunSpec with ShouldMatchers {
+class KernelTests extends FunSpec with Matchers {
   scalismo.initialize()
 
   describe("a Kernel") {
@@ -33,12 +33,12 @@ class KernelTests extends FunSpec with ShouldMatchers {
   describe("A scalar valued Gaussian kernel") {
     it("evaluated with twice the same argument yields 1") {
       val gk = GaussianKernel[_1D](3.5)
-      gk(0.1f, 0.1f) should be(1.0 plusOrMinus 1e-8)
+      gk(0.1f, 0.1f) should be(1.0 +- 1e-8)
     }
 
     it("given two arguments far apart yields almost 0") {
       val gk = GaussianKernel[_1D](1.0)
-      gk(0.1f, 100) should be(0.0 plusOrMinus 1e-8)
+      gk(0.1f, 100) should be(0.0 +- 1e-8)
     }
   }
 
@@ -74,7 +74,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
       for (x <- pts.par) {
         val mu2 = sampleCovKernel.mu(x)
         for (d <- 0 until 3) {
-          mu2(d) should be(mux(d) plusOrMinus 0.2f)
+          mu2(d) should be(mux(d) +- 0.2f)
         }
       }
 
@@ -82,7 +82,7 @@ class KernelTests extends FunSpec with ShouldMatchers {
         val gpxy = gp.cov(x, y)
         val sampleCovxy = sampleCovKernel(x, y)
         for (d1 <- 0 until 3; d2 <- 0 until 3) {
-          sampleCovxy(d1, d2) should be(gpxy(d1, d2) plusOrMinus 0.2f)
+          sampleCovxy(d1, d2) should be(gpxy(d1, d2) +- 0.2f)
         }
       }
     }

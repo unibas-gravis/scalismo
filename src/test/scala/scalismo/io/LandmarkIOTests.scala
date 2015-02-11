@@ -2,7 +2,7 @@ package scalismo.io
 
 import java.io.{ByteArrayOutputStream, File, InputStream}
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry._
 import scalismo.statisticalmodel.NDimensionalNormalDistribution
@@ -10,7 +10,7 @@ import scalismo.statisticalmodel.NDimensionalNormalDistribution
 import scala.io.Source
 import scala.language.implicitConversions
 
-class LandmarkIOTests extends FunSpec with ShouldMatchers {
+class LandmarkIOTests extends FunSpec with Matchers {
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 

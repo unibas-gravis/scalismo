@@ -1,6 +1,6 @@
 package scalismo.io
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, DiscreteImageDomain3D}
@@ -12,7 +12,7 @@ import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
 import org.apache.commons.math3.exception.ZeroException
 
-class ImageIOTests extends FunSpec with ShouldMatchers {
+class ImageIOTests extends FunSpec with Matchers {
 
   scalismo.initialize()
 
@@ -137,9 +137,9 @@ class ImageIOTests extends FunSpec with ShouldMatchers {
 
         val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
 
-        (origImg.domain.origin - (rereadImg.domain.origin)).norm should be(0.0 plusOrMinus 1e-2)
+        (origImg.domain.origin - (rereadImg.domain.origin)).norm should be(0.0 +- 1e-2)
 
-        (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 plusOrMinus 1e-2)
+        (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 +- 1e-2)
         origImg.domain.size should equal(rereadImg.domain.size)
         for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
           origImg(i) should equal(rereadImg(i))

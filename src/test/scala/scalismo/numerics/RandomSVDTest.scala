@@ -1,12 +1,12 @@
 package scalismo.numerics
 
 import breeze.linalg.svd.SVD
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry.{Point, _1D}
 import scalismo.kernels.{GaussianKernel, UncorrelatedKernel, Kernel}
 
-class RandomSVDTest extends FunSpec with ShouldMatchers {
+class RandomSVDTest extends FunSpec with Matchers {
 
   describe("The random svd") {
 
@@ -26,7 +26,7 @@ class RandomSVDTest extends FunSpec with ShouldMatchers {
 
       for (j <- 0 until 10; i <- 0 until mr.rows) {
         val factor = Math.max(1e-5, mr(i, j)) / Math.max(1e-5, mb(i, j))
-        factor should be(1.0 plusOrMinus 0.01)
+        factor should be(1.0 +- 0.01)
       }
     }
   }

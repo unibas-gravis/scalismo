@@ -8,11 +8,11 @@ import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Vector.implicits._
 
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 
 
-class IntegrationTest extends FunSpec with ShouldMatchers {
+class IntegrationTest extends FunSpec with Matchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
@@ -26,7 +26,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val integrator = Integrator[_1D](GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
-      res should be((1.0 / 3.0).toFloat plusOrMinus 0.01)
+      res should be((1.0 / 3.0).toFloat +- 0.01)
     }
 
     it("Correctly integrates sin(x) on interval [-Pi, Pi]") {
@@ -42,7 +42,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
-      res should be(0.0f plusOrMinus 0.01)
+      res should be(0.0f +- 0.01)
 
     }
 
@@ -62,7 +62,7 @@ class IntegrationTest extends FunSpec with ShouldMatchers {
       val res2 = integrator2.integrateScalar(img)
 
 
-      res1 should be(res2 plusOrMinus 0.01)
+      res1 should be(res2 +- 0.01)
 
     }
 

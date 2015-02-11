@@ -1,18 +1,18 @@
 package scalismo.statisticalmodel
 
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import scalismo.geometry._
 
-class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
+class MultivariateNormalDistributionTests extends FunSpec with Matchers {
   describe("A 1D Multivariate normal") {
     it("should give the same pdf values as breeze Gaussian with the same parameters") {
       val mvn = new MultivariateNormalDistribution(DenseVector(2f), DenseMatrix(3f))
       val n = breeze.stats.distributions.Gaussian(2, Math.sqrt(3f))
       for (pt <- Seq(0, 0.1, -2, 3.1)) {
-        n.pdf(pt) should be(mvn.pdf(DenseVector(pt.toFloat)) plusOrMinus 1e-5)
+        n.pdf(pt) should be(mvn.pdf(DenseVector(pt.toFloat)) +- 1e-5)
       }
     }
 
@@ -30,10 +30,10 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       val samples = for (i <- 0 until 2000) yield mvn.drawSample()
       val estimatedMVN = MultivariateNormalDistribution.estimateFromData(samples)
       for (i <- 0 until mu.length) {
-        mu(i) should be(estimatedMVN.mean(i) plusOrMinus 0.1f)
+        mu(i) should be(estimatedMVN.mean(i) +- 0.1f)
       }
       for (i <- 0 until cov.rows; j <- 0 until cov.cols) {
-        cov(i,j) should be(estimatedMVN.cov(i,j) plusOrMinus 0.15f)
+        cov(i,j) should be(estimatedMVN.cov(i,j) +- 0.15f)
       }
     }
 
@@ -47,7 +47,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       }
       val covRec = uMat * breeze.linalg.diag(sigma2Vec) * uMat.t
       for (i <- 0 until mvn.dim; j <- 0 until mvn.dim) {
-        covRec(i,j) should be (mvn.cov(i,j) plusOrMinus 1e-5f)
+        covRec(i,j) should be (mvn.cov(i,j) +- 1e-5f)
       }
     }
   }
@@ -69,7 +69,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       val mu = DenseVector(2f, 1.0f)
       val cov = DenseMatrix.create[Float](2,2, Array(1, 0, 0, 1))
       val mvn = new MultivariateNormalDistribution(mu, cov)
-      mvn.mahalanobisDistance(mu) should be(0.0 plusOrMinus 1e-5)
+      mvn.mahalanobisDistance(mu) should be(0.0 +- 1e-5)
     }
 
     it("yields the same as the squared norm if mean 0 and identity cov is used") {
@@ -93,7 +93,7 @@ class MultivariateNormalDistributionTests extends FunSpec with ShouldMatchers {
       val variance = 5f
       val stddev = math.sqrt(variance)
       val mvn = new MultivariateNormalDistribution(DenseVector(0f), DenseMatrix.create[Float](1, 1, Array(variance)))
-      mvn.mahalanobisDistance(DenseVector(math.sqrt(variance).toFloat)) should be(1.0 plusOrMinus 1e-5)
+      mvn.mahalanobisDistance(DenseVector(math.sqrt(variance).toFloat)) should be(1.0 +- 1e-5)
     }
   }
 

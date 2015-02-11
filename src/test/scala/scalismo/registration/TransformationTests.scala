@@ -6,13 +6,13 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Vector.implicits._
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import breeze.linalg.DenseVector
 import scalismo.geometry._
 
-class TransformationTests extends FunSpec with ShouldMatchers {
+class TransformationTests extends FunSpec with Matchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
@@ -25,14 +25,14 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val pt = Point(2.0, 1.0)
     val scaledPt = scale(pt)
     it("scales a point correctly") {
-      scaledPt(0) should be(6f plusOrMinus 0.0001)
-      scaledPt(1) should be(3f plusOrMinus 0.0001)
+      scaledPt(0) should be(6f +- 0.0001)
+      scaledPt(1) should be(3f +- 0.0001)
     }
 
     it("can be inverted") {
       val identitiyTransform = ss.transformForParameters(params).inverse compose scale
-      identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001)
-      identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001)
+      identitiyTransform(pt)(0) should be(pt(0) +- 0.00001)
+      identitiyTransform(pt)(1) should be(pt(1) +- 0.00001)
     }
   }
 
@@ -44,15 +44,15 @@ class TransformationTests extends FunSpec with ShouldMatchers {
     val pt = Point(2.0, 2.0)
     val rotatedPt = rotate(pt)
     it("rotates a point correctly") {
-      rotatedPt(0) should be(3.5f plusOrMinus 0.0001)
-      rotatedPt(1) should be(3.5f plusOrMinus 0.0001)
+      rotatedPt(0) should be(3.5f +- 0.0001)
+      rotatedPt(1) should be(3.5f +- 0.0001)
     }
 
     it("can be inverted") {
 
       val identitiyTransform = rs.transformForParameters(DenseVector(phi.toFloat)).inverse compose rotate
-      identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001)
-      identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001)
+      identitiyTransform(pt)(0) should be(pt(0) +- 0.00001)
+      identitiyTransform(pt)(1) should be(pt(1) +- 0.00001)
     }
   }
 
@@ -112,8 +112,8 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       // FIXME: either fix, or remove.
       //      it("can be inverted") {
       //        val identitiyTransform = (productSpace.transformForParameters(productParams).inverse) compose productTransform
-      //        (identitiyTransform(pt)(0) should be(pt(0) plusOrMinus 0.00001f))
-      //        (identitiyTransform(pt)(1) should be(pt(1) plusOrMinus 0.00001f))
+      //        (identitiyTransform(pt)(0) should be(pt(0) +- 0.00001f))
+      //        (identitiyTransform(pt)(1) should be(pt(1) +- 0.00001f))
       //      }
     }
 
@@ -170,9 +170,9 @@ class TransformationTests extends FunSpec with ShouldMatchers {
       val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
       rotRotMesh.points.zipWithIndex.foreach {
         case (p, i) =>
-          p(0) should be(mesh.points(i)(0) plusOrMinus 0.000001)
-          p(1) should be(mesh.points(i)(1) plusOrMinus 0.000001)
-          p(2) should be(mesh.points(i)(2) plusOrMinus 0.000001)
+          p(0) should be(mesh.points(i)(0) +- 0.000001)
+          p(1) should be(mesh.points(i)(1) +- 0.000001)
+          p(2) should be(mesh.points(i)(2) +- 0.000001)
       }
     }
 

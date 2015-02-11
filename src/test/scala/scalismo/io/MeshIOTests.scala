@@ -1,16 +1,15 @@
 package scalismo.io
 
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec, FailureMessages}
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
-import org.scalatest.FailureMessages
 import scala.util.Failure
 import scala.util.Success
 import org.scalatest.exceptions.TestFailedException
 
 
-class MeshIOTests extends FunSpec with ShouldMatchers {
+class MeshIOTests extends FunSpec with Matchers {
 
   scalismo.initialize()
   

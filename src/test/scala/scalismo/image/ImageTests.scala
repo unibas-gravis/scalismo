@@ -1,6 +1,6 @@
 package scalismo.image
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
 import scalismo.common.BoxDomain
@@ -15,7 +15,7 @@ import scalismo.geometry.Index.implicits._
 
 import spire.math.Numeric._
 
-class ImageTests extends FunSpec with ShouldMatchers {
+class ImageTests extends FunSpec with Matchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   describe("A discrete 1D image") {
@@ -55,7 +55,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
       assert(composedImage.isDefinedAt(5f) === true)
       assert(composedImage.isDefinedAt(-4.5f) === true)
       assert(composedImage.isDefinedAt(5.5f) === false)
-      composedImage(0) should be(image(1) plusOrMinus 1e-5f)
+      composedImage(0) should be(image(1) +- 1e-5f)
     }
 
     it("yields the right values after warping with a translation") {
@@ -76,7 +76,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
       warpedImage.isDefinedAt(6.5f) should equal(true)
       warpedImage.isDefinedAt(7f) should equal(true)
 
-      warpedImage(0) should be(image(-1) plusOrMinus 1e-5f)
+      warpedImage(0) should be(image(-1) +- 1e-5f)
     }
   }
 
@@ -96,7 +96,7 @@ class ImageTests extends FunSpec with ShouldMatchers {
   }
 }
 
-class DomainTest extends FunSpec with ShouldMatchers {
+class DomainTest extends FunSpec with Matchers {
   describe("a domain") {
     it("correctly reports the number of points") {
       val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))

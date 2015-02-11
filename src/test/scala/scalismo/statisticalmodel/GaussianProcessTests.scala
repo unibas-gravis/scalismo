@@ -10,12 +10,12 @@ import scalismo.geometry.Index.implicits._
 import scalismo.kernels.{MatrixValuedPDKernel, GaussianKernel, UncorrelatedKernel}
 import scalismo.numerics.{GridSampler, UniformSampler}
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
 import java.io.File
 
-class GaussianProcessTests extends FunSpec with ShouldMatchers {
+class GaussianProcessTests extends FunSpec with Matchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
 
@@ -40,8 +40,8 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         val meanAtPt= sampleValuesAtPt.sum / numSamples
         val varAtPt = (sampleValuesAtPt.foldLeft(0.0f)((acc, e) => acc + (e - meanAtPt) * (e - meanAtPt))) / numSamples
 
-        meanAtPt should be(0.0f plusOrMinus (3e-1f))
-        varAtPt should be(1.0f plusOrMinus (3e-1f))
+        meanAtPt should be(0.0f +- (3e-1f))
+        varAtPt should be(1.0f +- (3e-1f))
       }
       for (i <- 0 until numPoints) testAtIthPoint(i)
     }
@@ -77,7 +77,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val posteriorGP = gp.posterior(trainingData, 1e-8)
 
       for ((x, y) <- trainingData) {
-        posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 1e-1)
+        posteriorGP.mean(x)(0) should be(y(0) +- 1e-1)
       }
 
     }
@@ -107,8 +107,8 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val posteriorGP = gp.posterior(trainingData, 1e-5)
 
       for ((x, y) <- trainingData) {
-        posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001)
-        posteriorGP.mean(x)(1) should be(y(1) plusOrMinus 0.0001)
+        posteriorGP.mean(x)(0) should be(y(0) +- 0.0001)
+        posteriorGP.mean(x)(1) should be(y(1) +- 0.0001)
       }
     }
 
@@ -120,9 +120,9 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       val posteriorGP = gp.posterior(trainingData, 1e-5)
 
       for ((x, y) <- trainingData) {
-        posteriorGP.mean(x)(0) should be(y(0) plusOrMinus 0.0001)
-        posteriorGP.mean(x)(1) should be(y(1) plusOrMinus 0.0001)
-        posteriorGP.mean(x)(2) should be(y(2) plusOrMinus 0.0001)
+        posteriorGP.mean(x)(0) should be(y(0) +- 0.0001)
+        posteriorGP.mean(x)(1) should be(y(1) +- 0.0001)
+        posteriorGP.mean(x)(2) should be(y(2) +- 0.0001)
       }
 
     }
@@ -150,7 +150,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
       computedCoeffs.size should equal(coeffs.size)
 
       for (i <- 0 until coeffs.size) {
-        computedCoeffs(i) should be(coeffs(i) plusOrMinus 1e-2)
+        computedCoeffs(i) should be(coeffs(i) +- 1e-2)
       }
     }
 
@@ -167,7 +167,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         val sampleDf = sample(pt)
         val projectedDf = projection(pt)
         for (i <- 0 until 3) {
-          sampleDf(i) should be(projectedDf(i) plusOrMinus 1e-2)
+          sampleDf(i) should be(projectedDf(i) +- 1e-2)
         }
       }
     }
@@ -181,7 +181,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         val covGP = f.gp.cov(pt1, pt2)
         val covKernel = f.kernel(pt1, pt2)
         for (i <- 0 until 3; j <- 0 until 3) {
-          covGP(i, j) should be(covKernel(i, j) plusOrMinus 1e-2f)
+          covGP(i, j) should be(covKernel(i, j) +- 1e-2f)
         }
       }
     }
@@ -214,7 +214,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
         val covGP = gp.cov(pt1, pt2)
         val covKernel = kernel(pt1, pt2)
         for (i <- 0 until 3; j <- 0 until 3) {
-          covGP(i, j) should be(covKernel(i, j) plusOrMinus 1e-2)
+          covGP(i, j) should be(covKernel(i, j) +- 1e-2)
         }
       }
     }
@@ -268,8 +268,8 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 //      // both posterior processes should give the same values at the specialized points
 //      for (pt <- f.specializedPoints.par) {
 //        for (d <- 0 until 3) {
-//          meanPosterior(pt)(d) should be(meanPosteriorSpecialized(pt)(d) plusOrMinus 1e-5)
-//          phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(pt)(d) plusOrMinus 1e-5)
+//          meanPosterior(pt)(d) should be(meanPosteriorSpecialized(pt)(d) +- 1e-5)
+//          phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(pt)(d) +- 1e-5)
 //        }
 //      }
 //    }
@@ -285,7 +285,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 //        val covGp = cov(pt1, pt2)
 //        val covDiscrete = discreteGPCov(PointId(ptId1), PointId(ptId2))
 //        for (i <- 0 until 3; j <- 0 until 3) {
-//          covGp(i, j) should be(covDiscrete(i, j) plusOrMinus 1e-5)
+//          covGp(i, j) should be(covDiscrete(i, j) +- 1e-5)
 //        }
 //      }
 //    }
@@ -321,7 +321,7 @@ class GaussianProcessTests extends FunSpec with ShouldMatchers {
 //      val (lambdas1, _) = gp1.kltBasis.unzip
 //      val (lambdas2, _) = gp2.kltBasis.unzip
 //      for ((l1, l2) <- lambdas1 zip lambdas2 if l1 > 1e-5 && l2 > 1e-5) {
-//        l1 should be(l2 plusOrMinus (l1 * 0.05))
+//        l1 should be(l2 +- (l1 * 0.05))
 //      }
 //    }
 //  }
