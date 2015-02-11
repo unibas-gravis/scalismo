@@ -1,5 +1,5 @@
 /*
- * This code just canibalized the code by Philippe Thevenaz, made publically available. 
+ * This code adapted the code by Philippe Thevenaz, made publically available. 
  * See copyright information below
  */
 

@@ -69,7 +69,7 @@ object STKBuild extends Build {
   import Dependencies._
   import BuildSettings._
 
-  lazy val lic = com.banno.license.Plugin.licenseSettings ++ Seq(license := apache2("Copyright 2015 University of Basel"), removeExistingHeaderBlock := true)
+  lazy val lic = com.banno.license.Plugin.licenseSettings ++ Seq(license := apache2("Copyright 2015 University of Basel, Graphics and Vision Research Group"), removeExistingHeaderBlock := false)
   
   lazy val scalismo = Project(
     "scalismo",
