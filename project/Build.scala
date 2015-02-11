@@ -5,13 +5,14 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
   val buildVersion = "develop-SNAPSHOT"
-  val buildScalaVersion = "2.10.4"
+  val buildScalaVersion = "2.11.4"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
+    crossScalaVersions := Seq("2.10.4", "2.11.4"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
     shellPrompt := ShellPrompt.buildShellPrompt)
@@ -44,19 +45,19 @@ object Resolvers {
   private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
   private val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
   private val twitter = "twitter" at "http://maven.twttr.com/"
-  private val scalismoPublic = "scalismo" at "http://statismo.cs.unibas.ch/repository/public"
+  private val scalismoPublic = "scalismo" at "http://shapemodelling.cs.unibas.ch/repository/public"
 
   val stkResolvers = Seq(scalismoPublic, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
 }
 
 object Dependencies {
   val commonsio = "org.apache.commons" % "commons-io" % "1.3.2"
-  val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
+  val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.10"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.10"
-  val sprayJson = "io.spray" %% "spray-json" % "1.2.5"
-  val scalismoNativeStub = "ch.unibas.cs.gravis" %% "scalismo-native-stub" % "2.0.+"
-  val scalismoNativeImpl = "ch.unibas.cs.gravis" %% "scalismo-native-all" % "2.0.+" % "test"
+  val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
+  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "2.0.+"
+  val scalismoNativeImpl = "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.+" % "test"
   val spire = "org.spire-math" %% "spire" % "0.9.0"
 }
 
