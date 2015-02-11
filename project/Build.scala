@@ -2,6 +2,9 @@ import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 
+import com.banno.license.Plugin.LicenseKeys._
+import com.banno.license.Licenses._
+
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
   val buildVersion = "develop-SNAPSHOT"
@@ -21,15 +24,16 @@ object BuildSettings {
 // git branch and build version
 object ShellPrompt {
   val buildShellPrompt = {
-    (state: State) => {
-      val currProject = Project.extract(state).currentProject.id
-      "%s:%s:%s> ".format(
-        currProject, currBranch, BuildSettings.buildVersion)
-    }
+    (state: State) =>
+      {
+        val currProject = Project.extract(state).currentProject.id
+        "%s:%s:%s> ".format(
+          currProject, currBranch, BuildSettings.buildVersion)
+      }
   }
   def currBranch = (
     ("git status -sb" lines_! devnull headOption)
-      getOrElse "-" stripPrefix "## ")
+    getOrElse "-" stripPrefix "## ")
 
   object devnull extends ProcessLogger {
     def info(s: => String) {}
@@ -37,7 +41,6 @@ object ShellPrompt {
     def buffer[T](f: => T): T = f
   }
 }
-
 
 object Resolvers {
   private val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -66,6 +69,8 @@ object STKBuild extends Build {
   import Dependencies._
   import BuildSettings._
 
+  lazy val lic = com.banno.license.Plugin.licenseSettings ++ Seq(license := apache2("Copyright 2015 University of Basel"), removeExistingHeaderBlock := true)
+  
   lazy val scalismo = Project(
     "scalismo",
     file("."),
@@ -83,6 +88,5 @@ object STKBuild extends Build {
     scalismoNativeImpl,
     sprayJson,
     commonsio,
-    spire
-  )
+    spire)
 }
