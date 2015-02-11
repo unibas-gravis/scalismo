@@ -34,8 +34,8 @@ object MeshMetrics {
     require(m1.numberOfPoints == m2.numberOfPoints)
 
     val landmarks = m1.points.toIndexedSeq zip m2.points.toIndexedSeq
-    val x = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
-    val m1w = m1.transform(x.transform)
+    val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
+    val m1w = m1.transform(t)
     avgDistance(m1w, m2)
   }
 
