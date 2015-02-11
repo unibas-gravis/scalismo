@@ -145,7 +145,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
       val domain = discreteFixedImage.domain
 
-      val regConf = RegistrationConfiguration[_2D](
+      val regConf = RegistrationConfiguration[_2D,TranslationSpace[_2D]](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
@@ -170,7 +170,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
-      val regConf = RegistrationConfiguration[_2D](
+      val regConf = RegistrationConfiguration[_2D,RotationSpace[_2D]](
 
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
@@ -203,7 +203,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val regConf = RegistrationConfiguration[_3D](
+      val regConf = RegistrationConfiguration[_3D, TranslationSpace[_3D]](
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
@@ -222,7 +222,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
-      val regConf = RegistrationConfiguration[_3D](
+      val regConf = RegistrationConfiguration[_3D,RotationSpace[_3D]](
         optimizer = GradientDescentOptimizer(numIterations = 400, stepLength = 2e-12),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 10000)),
         transformationSpace = RotationSpace[_3D](center),
