@@ -106,7 +106,7 @@ object MeshIO {
     writer.SetFileTypeToBinary()
     writer.Update()
     val succOrFailure = if (writer.GetErrorCode() != 0) {
-      Failure(new IOException("could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+      Failure(new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
     } else {
       Success(())
     }
@@ -122,7 +122,7 @@ object MeshIO {
     writer.SetFileTypeToBinary()
     writer.Update()
     val succOrFailure = if (writer.GetErrorCode() != 0) {
-      Failure(new IOException("could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+      Failure(new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
     } else {
       Success(())
     }
