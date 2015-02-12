@@ -53,7 +53,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       for ((x, _) <- sampler.sample; (y,_) <- sampler.sample) {
         val v1 = kernel(x, y)(0, 0)
         val v2 = approxKernel(x, y)
-        v2.toFloat should be(v1 plusOrMinus 0.001f)
+        v2.toFloat should be(v1 plusOrMinus 0.01f)
 
       }
     }
