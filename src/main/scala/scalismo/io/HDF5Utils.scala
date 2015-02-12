@@ -58,7 +58,7 @@ class HDF5File(h5file: FileFormat) {
           case Some(a) => {
             Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[String]](0))
           }
-          case None => Failure(new Exception("Attribute $attrName not found"))
+          case None => Failure(new Exception(s"Attribute $attrName not found"))
         }
       }
 

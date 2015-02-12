@@ -22,12 +22,12 @@ import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scala.language.implicitConversions
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import breeze.stats.distributions.RandBasis
 import org.apache.commons.math3.random.MersenneTwister
 import scalismo.io.MeshIO
-class StatisticalModelTests extends FunSpec with ShouldMatchers {
+class StatisticalModelTests extends FunSpec with Matchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
@@ -47,7 +47,7 @@ class StatisticalModelTests extends FunSpec with ShouldMatchers {
         inst.points.zip(instNew.points)
           .foreach {
             case (pt1, pt2) =>
-              (pt1.toVector - pt2.toVector).norm should be(0.0 plusOrMinus (0.1))
+              (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
           }
       }
     }

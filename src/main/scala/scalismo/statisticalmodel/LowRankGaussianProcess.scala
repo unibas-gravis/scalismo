@@ -208,12 +208,30 @@ object LowRankGaussianProcess {
   def regression[D <: Dim : NDSpace, DO <: Dim : NDSpace](gp: LowRankGaussianProcess[D, DO],
                                                           trainingData: IndexedSeq[(Point[D], Vector[DO])],
                                                           sigma2: Double,
-                                                          meanOnly: Boolean = false)
+                                                          meanOnly: Boolean)
   : LowRankGaussianProcess[D, DO] = {
 
     val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2)}
     regression(gp, trainingDataWithNoise, meanOnly)
   }
+
+
+  /**
+   ** Performs a Gaussian process regression, where we assume that all training points (vectors) are subject to the same zero-mean Gaussian noise with variance simga2.
+   *
+   * @param gp  The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate
+   * @param sigma2 The variance of the noise model
+   */
+  def regression[D <: Dim : NDSpace, DO <: Dim : NDSpace](gp: LowRankGaussianProcess[D, DO],
+                                                          trainingData: IndexedSeq[(Point[D], Vector[DO])],
+                                                          sigma2: Double)
+  : LowRankGaussianProcess[D, DO] = {
+
+    val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2)}
+    regression(gp, trainingDataWithNoise, false)
+  }
+
 
   /**
    ** Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.

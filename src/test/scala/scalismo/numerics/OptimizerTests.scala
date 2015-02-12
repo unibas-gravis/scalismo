@@ -15,13 +15,13 @@
  */
 package scalismo.numerics
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
 import scala.collection.mutable.Subscriber
 import scala.collection.mutable.Publisher
 
-class OptimizerTests extends FunSpec with ShouldMatchers {
+class OptimizerTests extends FunSpec with Matchers {
 
   describe("The GradientDescentOptimizer") {
 
@@ -37,7 +37,7 @@ class OptimizerTests extends FunSpec with ShouldMatchers {
       val optimizer = GradientDescentOptimizer(numIterations =  100, stepLength = 0.1)
       val param = optimizer.minimize(DenseVector(1f), c)
       val value = c(param)._1 
-      value should be(0f plusOrMinus 1e-5f)
+      value should be(0f +- 1e-5f)
 
     }
 
@@ -50,7 +50,7 @@ class OptimizerTests extends FunSpec with ShouldMatchers {
 //          case IterationEvent(s, it, params, v, gradients) => println(s"value $v at iteration $it")
 //        }
 //        val res = optimizer.minimize(DenseVector(1.0), c)
-//        res(0) should be(0.0 plusOrMinus (1e-4))
+//        res(0) should be(0.0 +- (1e-4))
 //      }
 //      }
 //          OptimizationProcedure.optimize()

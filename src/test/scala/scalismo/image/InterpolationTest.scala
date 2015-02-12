@@ -23,14 +23,13 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec, PrivateMethodTester}
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.PrivateMethodTester
 import java.io.File
 
 import spire.math.Numeric._
 
-class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTester {
+class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
@@ -42,7 +41,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       val discreteImage = DiscreteScalarImage(domain, Array[Float](1.4, 2.1, 7.5, 9.0, 8.0, 0.0, 2.1))
       val continuousImg = discreteImage.interpolate(0)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-        continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+        continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
       }
     }
   }
@@ -54,7 +53,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
       val discreteImage = DiscreteScalarImage[_1D, Float](domain, Array[Float](1.4, 2.1, 7.5, 9, 8, 0, 2.1))
       val continuousImg = discreteImage.interpolate(1)
       for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-        continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+        continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
       }
     }
 
@@ -79,7 +78,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val discreteCosImage = DiscreteScalarImage(domain, domain.points.map(x => math.Pi * math.cos(x * math.Pi)).toArray)
 
         for ((pt, idx) <- domain.points.zipWithIndex.filter(x => math.abs(x._1) < 1.90)) {
-          derivativeImage(pt)(0).toDouble should be(discreteCosImage(idx) plusOrMinus 0.0001f)
+          derivativeImage(pt)(0).toDouble should be(discreteCosImage(idx) +- 0.0001f)
         }
       }
     }
@@ -97,7 +96,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImg = discreteImage.interpolate(0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
         }
       }
 
@@ -108,7 +107,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImg = discreteImage.interpolate(0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
         }
       }
     }
@@ -120,7 +119,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImg = discreteImage.interpolate(3)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
         }
       }
 
@@ -130,7 +129,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val interpolatedImage = discreteFixedImage.interpolate(2)
 
         for ((p, i) <- discreteFixedImage.domain.points.zipWithIndex) {
-          interpolatedImage(p).toShort should be(discreteFixedImage(i) plusOrMinus 30)
+          interpolatedImage(p).toShort should be(discreteFixedImage(i) +- 30)
         }
       }
 
@@ -142,8 +141,8 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val derivativeImage = interpolatedFImage.differentiate
 
         for ((pt, idx) <- domain.points.zipWithIndex.filter(x => math.abs(x._1(0)) < 1.90 && math.abs(x._1(1)) < 1.90)) {
-          derivativeImage(pt)(0) should be((2 * pt(0)) plusOrMinus 0.001f)
-          derivativeImage(pt)(1) should be((2 * pt(1)) plusOrMinus 0.001f)
+          derivativeImage(pt)(0) should be((2 * pt(0)) +- 0.001f)
+          derivativeImage(pt)(1) should be((2 * pt(1)) +- 0.001f)
         }
       }
     }
@@ -159,7 +158,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImg = discreteImage.interpolate(0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
         }
       }
     }
@@ -172,7 +171,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImg = discreteImage.interpolate(1)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
         }
       }
     }
@@ -185,7 +184,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImg = discreteImage.interpolate(3)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) plusOrMinus 0.0001f)
+          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
         }
       }
 
@@ -197,9 +196,9 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val derivativeImage = interpolatedFImage.differentiate
 
         for ((pt, idx) <- domain.points.zipWithIndex.filter(x => math.abs(x._1(0)) < 1.0 && math.abs(x._1(1)) < 1.0 && math.abs(x._1(2)) < 1.0)) {
-          derivativeImage(pt)(0) should be((2 * pt(0)) plusOrMinus 0.0001)
-          derivativeImage(pt)(1) should be((2 * pt(1)) plusOrMinus 0.0001)
-          derivativeImage(pt)(2) should be((2 * pt(2)) plusOrMinus 0.0001)
+          derivativeImage(pt)(0) should be((2 * pt(0)) +- 0.0001)
+          derivativeImage(pt)(1) should be((2 * pt(1)) +- 0.0001)
+          derivativeImage(pt)(2) should be((2 * pt(2)) +- 0.0001)
         }
       }
 
@@ -209,7 +208,7 @@ class InterpolationTest extends FunSpec with ShouldMatchers with PrivateMethodTe
         val continuousImage = discreteImage.interpolate(1)
 
         for ((p, i) <- discreteImage.domain.points.zipWithIndex.filter(p => p._2 % 100 == 0))
-          discreteImage(i) should be(continuousImage(p).toShort plusOrMinus 1.toShort)
+          discreteImage(i) should be(continuousImage(p).toShort +- 1.toShort)
       }
     }
   }

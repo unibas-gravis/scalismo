@@ -22,12 +22,12 @@ import scalismo.registration.{ScalingSpace, RotationSpace}
 import scala.language.implicitConversions
 import scalismo.geometry.Point.implicits._
 import java.io.File
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
 
 
-class MeshTests extends FunSpec with ShouldMatchers {
+class MeshTests extends FunSpec with Matchers {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
@@ -63,8 +63,8 @@ class MeshTests extends FunSpec with ShouldMatchers {
       val R = RotationSpace[_3D]((0.0f, 0.0f, 0.0f)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
       val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
       val transformedMesh = mesh.transform(R).transform(s)
-      mesh.area should be(0.5 plusOrMinus 1e-8)
-      transformedMesh.area should be(4.0f * mesh.area plusOrMinus 1e-5) // scaling by two gives 4 times the area 
+      mesh.area should be(0.5 +- 1e-8)
+      transformedMesh.area should be(4.0f * mesh.area +- 1e-5) // scaling by two gives 4 times the area 
     }
 
     // ignored until more meaningful test (It's normal that more points are deleted)

@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel.dataset
 
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import java.io.File
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
@@ -24,7 +24,7 @@ import scalismo.io.MeshIO
 import scalismo.registration.TranslationTransform
 import scalismo.geometry._
 
-class DataCollectionTests extends FunSpec with ShouldMatchers {
+class DataCollectionTests extends FunSpec with Matchers {
    scalismo.initialize()
 
   describe("A datacollection") {

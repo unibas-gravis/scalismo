@@ -16,10 +16,10 @@
 package scalismo.utils
 
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 
-class MemoizationTests extends FunSpec with ShouldMatchers {
+class MemoizationTests extends FunSpec with Matchers {
   describe("a Function ") {
 
     def testFun(x: Double) = {

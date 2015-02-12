@@ -15,7 +15,7 @@
  */
 package scalismo.io
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import breeze.linalg.{DenseMatrix, DenseVector}
@@ -30,7 +30,7 @@ import ncsa.hdf.`object`.Group
 /**
  * Created by Luethi on 09.03.14.
  */
-class ActiveShapeModelIOTests  extends FunSpec with ShouldMatchers {
+class ActiveShapeModelIOTests  extends FunSpec with Matchers {
 
   scalismo.initialize()
 

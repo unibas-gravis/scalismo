@@ -24,11 +24,11 @@ import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
 import scalismo.numerics.{Integrator, GridSampler, RandomSVD, UniformSampler}
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
 
-class KernelTransformationTests extends FunSpec with ShouldMatchers {
+class KernelTransformationTests extends FunSpec with Matchers {
 
     implicit def doubleToFloat(d : Double) = d.toFloat
   
@@ -54,7 +54,6 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
         val v1 = kernel(x, y)(0, 0)
         val v2 = approxKernel(x, y)
         v2.toFloat should be(v1 plusOrMinus 0.01f)
-
       }
     }
 
@@ -79,7 +78,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
       val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix  * (1.0 / numPoints), eigPairsApprox.size)
 
       for (l <- approxLambdas.zipWithIndex)
-        l._1 should be(realLambdas(l._2).toFloat plusOrMinus 0.1f)
+        l._1 should be(realLambdas(l._2).toFloat +- 0.1f)
 
     }
 
@@ -105,7 +104,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
  
       val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (1.0 / pts.size), eigPairsApprox.size)
       for (l <- approxLambdas.zipWithIndex)
-        l._1 should be(realLambdas(l._2).toFloat plusOrMinus 0.1)
+        l._1 should be(realLambdas(l._2).toFloat +- 0.1)
 
     }
 
@@ -129,7 +128,7 @@ class KernelTransformationTests extends FunSpec with ShouldMatchers {
 
 
         val v = integrator.integrateScalar(phiImg)
-        v should be(1f plusOrMinus 0.1)
+        v should be(1f +- 0.1)
       }
     }
   }

@@ -120,7 +120,7 @@ object LandmarkIO {
     val result = Try {
       writer.println(landmarks.toJson.toString())
     }
-    try {
+    Try {
       writer.close()
     }
     result
@@ -154,7 +154,7 @@ object LandmarkIO {
       }
       landmarks.toIndexedSeq
     }
-    try {
+    Try {
       source.close()
     }
     result

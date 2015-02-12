@@ -15,14 +15,14 @@
  */
 package scalismo.image
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 
 import scalismo.io.ImageIO
 
 
-class ResampleTests extends FunSpec with ShouldMatchers {
+class ResampleTests extends FunSpec with Matchers {
   scalismo.initialize()
 
   describe("Resampling a 2D image") {

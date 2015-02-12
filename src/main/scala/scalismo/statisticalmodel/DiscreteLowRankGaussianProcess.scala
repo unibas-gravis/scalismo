@@ -268,10 +268,21 @@ object DiscreteLowRankGaussianProcess {
   def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
                                                         trainingData: IndexedSeq[(Int, Vector[DO])],
                                                         sigma2: Double,
-                                                        meanOnly: Boolean = false): DiscreteLowRankGaussianProcess[D, DO] = {
+                                                        meanOnly: Boolean): DiscreteLowRankGaussianProcess[D, DO] = {
     val tdWithWithPointwiseSigma2 = trainingData.map { case (ptId, v) => (ptId, v, sigma2) }
     regression(gp, tdWithWithPointwiseSigma2, meanOnly)
   }
+
+  /**
+   * Discrete implementation of [[DiscreteLowRankGaussianProcess.regression]]
+   */
+  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
+                                                        trainingData: IndexedSeq[(Int, Vector[DO])],
+                                                        sigma2: Double): DiscreteLowRankGaussianProcess[D, DO] = {
+    val tdWithWithPointwiseSigma2 = trainingData.map { case (ptId, v) => (ptId, v, sigma2) }
+    regression(gp, tdWithWithPointwiseSigma2, false)
+  }
+
 
   /**
    * Discrete implementation of [[DiscreteLowRankGaussianProcess.regression]]

@@ -17,14 +17,14 @@ package scalismo.mesh
 
 import java.io.File
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry.{_3D, Point, Vector}
 import scalismo.io.MeshIO
 
 
-class MeshMetricsTests extends FunSpec with ShouldMatchers {
+class MeshMetricsTests extends FunSpec with Matchers {
 
   scalismo.initialize()
 
@@ -40,7 +40,7 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
     }
 
     it("should be 0 for a translated mesh") {
-      MeshMetrics.procrustesDistance(mesh, translatedMesh) should be(0.0 plusOrMinus 1e-5)
+      MeshMetrics.procrustesDistance(mesh, translatedMesh) should be(0.0 +- 1e-5)
     }
 
   }
@@ -52,13 +52,13 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
     
     it("should be (slightly) lower than the average translation applied to each vertex") {
       MeshMetrics.avgDistance(mesh, translatedMesh) should be < (translationLength.toDouble)
-      MeshMetrics.avgDistance(mesh, translatedMesh) should be(translationLength.toDouble plusOrMinus(translationLength * 0.2))
+      MeshMetrics.avgDistance(mesh, translatedMesh) should be(translationLength.toDouble +-(translationLength * 0.2))
     }
   }
 
   describe("The Haussdorf distance") {
     it("yields the value of the fixed translation transform") {
-      MeshMetrics.hausdorffDistance(mesh, translatedMesh) should be(translationLength.toDouble plusOrMinus 1e-5)
+      MeshMetrics.hausdorffDistance(mesh, translatedMesh) should be(translationLength.toDouble +- 1e-5)
     } 
     
     it ("returns the max distance") {
@@ -87,7 +87,7 @@ class MeshMetricsTests extends FunSpec with ShouldMatchers {
       val unitSphereVolume =  4.0/ 3.0 * math.Pi
       val intersectionVolume = smallSphereVolume
       val dc = 2.0 * intersectionVolume / (smallSphereVolume + unitSphereVolume)
-      MeshMetrics.diceCoefficient(spheremesh, spheremeshScaled) should be(dc plusOrMinus 1e-1)
+      MeshMetrics.diceCoefficient(spheremesh, spheremeshScaled) should be(dc +- 1e-1)
                
     }
 

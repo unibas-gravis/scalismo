@@ -17,7 +17,7 @@ package scalismo.numerics
 
 import java.io.File
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry._
 import scalismo.io.MeshIO
@@ -26,7 +26,7 @@ import scalismo.utils.Memoize
 
 import scala.util.Random
 
-class SamplerTests extends FunSpec with ShouldMatchers {
+class SamplerTests extends FunSpec with Matchers {
   scalismo.initialize()
 
   val facepath = getClass.getResource("/facemesh.h5").getPath
@@ -124,7 +124,7 @@ class SamplerTests extends FunSpec with ShouldMatchers {
         //        println(s"expecting ~ ${expectedNumberOfPointsInArea.round} points to be found in randomly selected cells, actual found = $numSampledPointsInArea")
         //        println(f"ratio of points found vs expected = ${numSampledPointsInArea / expectedNumberOfPointsInArea}%1.3f")
         //        println()
-        numSampledPointsInArea / expectedNumberOfPointsInArea should be(1.0 plusOrMinus 0.1)
+        numSampledPointsInArea / expectedNumberOfPointsInArea should be(1.0 +- 0.1)
 
       }
 

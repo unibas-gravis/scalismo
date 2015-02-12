@@ -15,14 +15,14 @@
  */
 package scalismo.io
 
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 
 /**
  * Created by luethi on 2/19/14.
  */
-class HDF5UtilsTests extends FunSpec with ShouldMatchers {
+class HDF5UtilsTests extends FunSpec with Matchers {
 
   scalismo.initialize()
 

@@ -20,10 +20,10 @@ import scalismo.geometry._2D
 import scalismo.io.{ImageIO, MeshIO}
 
 import scala.language.implicitConversions
-import org.scalatest.FunSpec
+import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.matchers.ShouldMatchers
 
-class ConversionTests extends FunSpec with ShouldMatchers {
+class ConversionTests extends FunSpec with Matchers {
   scalismo.initialize()
 
   describe("a Mesh ") {

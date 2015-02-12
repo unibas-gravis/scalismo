@@ -154,7 +154,7 @@ object ImageIO {
         val errCode = reader.GetErrorCode()
         if (errCode != 0) {
           return Failure(new IOException(s"Failed to read vtk file ${f.getAbsolutePath}. " +
-            "(error code from vtkReader = $errCode"))
+            s"(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
         val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, Scalar](sp)
@@ -198,7 +198,7 @@ object ImageIO {
         val errCode = reader.GetErrorCode()
         if (errCode != 0) {
           return Failure(new IOException(s"Failed to read vtk file ${file.getAbsolutePath()}. " +
-            "(error code from vtkReader = $errCode"))
+            s"(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
         val img = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Scalar](sp)
