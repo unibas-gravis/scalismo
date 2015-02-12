@@ -46,15 +46,12 @@ object ShellPrompt {
 object Resolvers {
   private val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
   private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-  private val imagej = "imagej.releases" at "http://maven.imagej.net/content/repositories/releases"
-  private val twitter = "twitter" at "http://maven.twttr.com/"
   private val scalismoPublic = "scalismo" at "http://shapemodelling.cs.unibas.ch/repository/public"
 
-  val stkResolvers = Seq(scalismoPublic, sonatypeSnapshots, sonatypeRelease, imagej, twitter)
+  val stkResolvers = Seq(scalismoPublic, sonatypeSnapshots, sonatypeRelease)
 }
 
 object Dependencies {
-  val commonsio = "org.apache.commons" % "commons-io" % "1.3.2"
   val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.10"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.10"
@@ -88,6 +85,5 @@ object STKBuild extends Build {
     scalismoNativeStub,
     scalismoNativeImpl,
     sprayJson,
-    commonsio,
     spire)
 }
