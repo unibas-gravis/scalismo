@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseVector, DenseMatrix }
-import scalismo.common.{ FiniteDiscreteDomain, DiscreteVectorField, Domain, VectorField }
+import scalismo.common.{ DiscreteDomain, DiscreteVectorField, Domain, VectorField }
 import scalismo.geometry._
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 
@@ -62,7 +62,7 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
       .map(data => Vector[DO](data.map(_.toFloat)))
       .toIndexedSeq
-    val domain = FiniteDiscreteDomain.fromSeq(pts.toIndexedSeq)
+    val domain = DiscreteDomain.fromSeq(pts.toIndexedSeq)
     DiscreteVectorField(domain, vecs)
   }
 

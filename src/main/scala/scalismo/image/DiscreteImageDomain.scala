@@ -16,7 +16,7 @@
 package scalismo.image
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ BoxDomain, FiniteDiscreteDomain }
+import scalismo.common.{ BoxDomain, DiscreteDomain }
 import scalismo.geometry._
 import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, SimilarityTransformationSpace1D, AnisotropicSimilarityTransformation }
 
@@ -30,7 +30,7 @@ import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, Similar
  *
  * @tparam D The dimensionality of the domain
  */
-abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends FiniteDiscreteDomain[D] with Equals {
+abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] with Equals {
 
   /** the first point (lower-left corner in 2D) of the grid */
   def origin: Point[D]

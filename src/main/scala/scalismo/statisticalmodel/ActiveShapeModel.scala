@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.common.{ DiscreteField, SpatiallyIndexedFiniteDiscreteDomain }
+import scalismo.common.{ DiscreteField, SpatiallyIndexedDiscreteDomain }
 import scalismo.geometry.{ Point, _3D, Vector }
 import scalismo.image.DifferentiableScalarImage
 import scalismo.io.{ HDF5File, HDF5ReadWrite }
@@ -26,7 +26,7 @@ import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.registration.Transformation
 import scala.util.Try
 
-case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDomain[_3D], val data: IndexedSeq[MultivariateNormalDistribution])
+case class ASMProfileDistributions(val domain: SpatiallyIndexedDiscreteDomain[_3D], val data: IndexedSeq[MultivariateNormalDistribution])
     extends DiscreteField[_3D, MultivariateNormalDistribution] {
   require(domain.numberOfPoints == data.size)
 
@@ -153,7 +153,7 @@ object ActiveShapeModel {
       }
       MultivariateNormalDistribution.estimateFromData(featureVectorsAtPt)
     }
-    val pointData = new ASMProfileDistributions(SpatiallyIndexedFiniteDiscreteDomain.fromSeq[_3D](profilePts), featureDistributions)
+    val pointData = new ASMProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](profilePts), featureDistributions)
     new ActiveShapeModel(model, pointData, featureExtractor)
   }
 

@@ -15,7 +15,7 @@
  */
 package scalismo.io
 
-import scalismo.common.SpatiallyIndexedFiniteDiscreteDomain
+import scalismo.common.SpatiallyIndexedDiscreteDomain
 import scalismo.geometry.{ _3D, Point }
 import scalismo.statisticalmodel.{ MultivariateNormalDistribution, ASMProfileDistributions, ActiveShapeModel }
 
@@ -66,7 +66,7 @@ object ActiveShapeModelIO {
       meanVecs = meanArray.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.toArray
-      ASMProfileDistributions(SpatiallyIndexedFiniteDiscreteDomain.fromSeq[_3D](pts), dists)
+      ASMProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists)
     }
 
   }

@@ -76,7 +76,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
     // TODO check that points are part of the domain
     val aSample = sample
     val values = pts.map(pt => aSample(pt))
-    val domain = SpatiallyIndexedFiniteDiscreteDomain.fromSeq(pts)
+    val domain = SpatiallyIndexedDiscreteDomain.fromSeq(pts)
     DiscreteVectorField(domain, values)
   }
 
@@ -142,7 +142,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * Discretize the gaussian process on the given points.
    */
   def discretize(points: Seq[Point[D]]): DiscreteLowRankGaussianProcess[D, DO] = {
-    val domain = FiniteDiscreteDomain.fromSeq(points.toIndexedSeq)
+    val domain = DiscreteDomain.fromSeq(points.toIndexedSeq)
     DiscreteLowRankGaussianProcess(domain, this)
   }
 

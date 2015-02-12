@@ -19,7 +19,7 @@ import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.SpatiallyIndexedFiniteDiscreteDomain
+import scalismo.common.SpatiallyIndexedDiscreteDomain
 import scalismo.image.ScalarImage
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.statisticalmodel.{ ASMProfileDistributions, MultivariateNormalDistribution, ActiveShapeModel }
@@ -45,7 +45,7 @@ class ActiveShapeModelIOTests extends FunSpec with Matchers {
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
     val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42)).sample.unzip
-    val ptDomain = SpatiallyIndexedFiniteDiscreteDomain.fromSeq(profilePoints)
+    val ptDomain = SpatiallyIndexedDiscreteDomain.fromSeq(profilePoints)
     val dists = for (i <- 0 until ptDomain.numberOfPoints) yield (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat, DenseMatrix.eye[Float](3) * i.toFloat))
     val profileDists = ASMProfileDistributions(ptDomain, dists)
     new ActiveShapeModel(shapeModel, profileDists, new NormalDirectionFeatureExtractor(5, 10))
