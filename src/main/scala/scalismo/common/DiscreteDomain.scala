@@ -141,7 +141,7 @@ object FiniteDiscreteDomain {
 }
 
 
-class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (val pointSeq: IndexedSeq[Point[D]],
+class SpatiallyIndexedFiniteDiscreteDomain[D <: Dim: NDSpace]  (private val pointSeq: IndexedSeq[Point[D]],
                                                                 val numberOfPoints: Int) extends FiniteDiscreteDomain[D] {
 
   override def points = pointSeq.toIterator
