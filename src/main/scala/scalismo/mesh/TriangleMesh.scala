@@ -17,13 +17,13 @@ package scalismo.mesh
 
 import scala.reflect.ClassTag
 import scala.collection.mutable
-import scalismo.common.{DiscreteScalarField, SpatiallyIndexedFiniteDiscreteDomain, Cell}
+import scalismo.common.{ DiscreteScalarField, SpatiallyIndexedFiniteDiscreteDomain, Cell }
 import scalismo.geometry._
 import spire.math.Numeric
 
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
-  
+
   /** Identifiers of the points belonging to the cell*/
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
 
@@ -32,13 +32,13 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
 }
 
 /**
- * 3-dimensional triangle mesh. 
- * 
+ * 3-dimensional triangle mesh.
+ *
  * Triangle meshes are currently the only supported representation of 3-dimensional meshes in the library.
- * 
- * */
-case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
-	extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
+ *
+ */
+case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
+  extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
   private[scalismo] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
@@ -53,22 +53,21 @@ case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], v
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
 
-  def cellsWithPt(ptId: Int) = cells.filter(_.containsPoint(ptId))
-
   /**
    *  Returns a triangle mesh that is the image of this mesh by the given transform.
    *
    *  This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
    *
    *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D]]</code> are valid arguments.
-   *  */
+   */
   override def transform(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
-   /**
-   * Returns the identifiers of the mesh cells to which the given point identifier belongs */
+  /**
+   * Returns the identifiers of the mesh cells to which the given point identifier belongs
+   */
   def cellsWithPointId(id: Int): Seq[TriangleCell] = cellMap(id)
 
-  /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/  
+  /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
   def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
     val pt1 = meshPoints(cell.ptId1)
     val pt2 = meshPoints(cell.ptId2)
@@ -78,14 +77,13 @@ case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], v
     val v = pt3 - pt1
     Vector.crossproduct(u, v)
   }
-  
-  
-  /** 
+
+  /**
    *  Returns surface normal at the closest mesh point to the indicated argument point.
-   *  
+   *
    *  @param pt Point at which to evaluate the surface normal. Note that it does not need to be one of the mesh points.
-   *  The returned vector is the normal at the closest mesh point to this point.  
-   *  */
+   *  The returned vector is the normal at the closest mesh point to this point.
+   */
   def normalAtPoint(pt: Point[_3D]): Vector[_3D] = {
     val closestMeshPtId = findClosestPoint(pt)._2
     val neigborCells = cellsWithPointId(closestMeshPtId)
@@ -93,16 +91,16 @@ case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], v
     normalUnnormalized * (1.0 / normalUnnormalized.norm)
   }
 
-  /** Area of the mesh surface.
-   *  
+  /**
+   * Area of the mesh surface.
+   *
    *  The computed area is the sum of all the triangle cell areas.
-   *  */
+   */
   lazy val area = cells.map(triangle => computeTriangleArea(triangle)).sum
 
-  
-  /** 
+  /**
    *  Returns the area of the indicated triangle cell.
-   *  */
+   */
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
     val A = meshPoints(t.ptId1)
@@ -117,15 +115,14 @@ case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], v
     if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
   }
 
-  
-  /** 
+  /**
    *  Returns a random point lying within the triangle defined by the indicated cell.
-   *  
+   *
    *  A uniform distribution is used for sampling points.
-   *  
+   *
    *  @param t Triangle cell in which to draw a random point
-   *  @param seed Seed value for the random generator 
-   *  */
+   *  @param seed Seed value for the random generator
+   */
   def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
     val A = meshPoints(t.ptId1).toVector
     val B = meshPoints(t.ptId2).toVector
@@ -145,33 +142,33 @@ case class TriangleMesh private[scalismo] (meshPoints: IndexedSeq[Point[_3D]], v
 
 /**
  * Factory for [[TriangleMesh]] instances.
- * */
+ */
 object TriangleMesh {
   /**
    * Returns a 3D triangle mesh defined by the indicated points and cells
-   * 
+   *
    * @param meshPoints Sequence of points defining the triangle mesh.
-   * @param cells Sequence of the triangle cells defined over the mesh points. 
-   * The identifiers used for defining the cells are the indices of points in meshPoints.    
-   * */
+   * @param cells Sequence of the triangle cells defined over the mesh points.
+   * The identifiers used for defining the cells are the indices of points in meshPoints.
+   */
   def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
 }
 
 /**
  * 3-dimensional triangle mesh with scalar values associated to mesh points.
  * @tparam S type of the scalar values defined over the mesh (Short, Int, Float, Double)
- * 
- * @constructor Returns a scalar mesh data given a triangle mesh and an array of values. 
+ *
+ * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
  * The number of values and mesh points must be equal.
- * */
+ */
 case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val data: Array[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
   require(mesh.numberOfPoints == data.size)
 
   override def values = data.iterator
   override val domain = mesh
 
-  override def apply(ptId : Int) = data(ptId)
-  override def isDefinedAt(ptId : Int) = data.isDefinedAt(ptId)
+  override def apply(ptId: Int) = data(ptId)
+  override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
   override def map[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
     ScalarMeshData(mesh, data.map(f))
