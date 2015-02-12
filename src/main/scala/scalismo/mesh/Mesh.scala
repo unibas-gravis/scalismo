@@ -17,11 +17,11 @@ package scalismo.mesh
 
 import scalismo.common.RealSpace
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, ScalarImage}
+import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 
 /**
  * Defines utility functions on [[TriangleMesh]] instances
- * */
+ */
 object Mesh {
 
   /**
@@ -45,8 +45,8 @@ object Mesh {
    * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[RealSpace]] , where the mesh surface is used to split the image domain.
    * Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
    * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
-   * 
-   * */  
+   *
+   */
   def meshToBinaryImage(mesh: TriangleMesh): ScalarImage[_3D] = {
     def inside(pt: Point[_3D]): Short = {
       val closestMeshPt = mesh.findClosestPoint(pt)._1
@@ -60,21 +60,20 @@ object Mesh {
   /**
    * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
    * All cells containing deleted points are also deleted.
-   * 
+   *
    */
 
-  def clipMesh(mesh: TriangleMesh, clipPointPredicate: Point[_3D] => Boolean) : TriangleMesh = {
+  def clipMesh(mesh: TriangleMesh, clipPointPredicate: Point[_3D] => Boolean): TriangleMesh = {
 
     // predicate tested at the beginning, once.
-    val remainingPoints =  mesh.points.toIndexedSeq.par.filter{ !clipPointPredicate(_)}.zipWithIndex.toMap
+    val remainingPoints = mesh.points.toIndexedSeq.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
     val pts = mesh.points.toIndexedSeq
-    
+
     val remainingPointTriplet = mesh.cells.par.map {
-      cell => 
+      cell =>
         val points = cell.pointIds.map(pts)
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
     }.filter(_._2).map(_._1)
-    
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap

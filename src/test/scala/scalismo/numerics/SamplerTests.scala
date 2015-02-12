@@ -17,7 +17,7 @@ package scalismo.numerics
 
 import java.io.File
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry._
 import scalismo.io.MeshIO
@@ -89,7 +89,6 @@ class SamplerTests extends FunSpec with Matchers {
             diff < 0.01
           } else false
         }
-
 
         val sampler = FixedPointsUniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.nextInt())
         val (samplePoints, _) = sampler.sample.unzip

@@ -15,15 +15,15 @@
  */
 package scalismo.kernels
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
-import scalismo.common.{RealSpace, VectorField, BoxDomain}
-import scalismo.geometry.{_3D, _1D, Point, Vector}
+import scalismo.common.{ RealSpace, VectorField, BoxDomain }
+import scalismo.geometry.{ _3D, _1D, Point, Vector }
 import Point.implicits._
 import scalismo.geometry
 import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
-import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 
 class KernelTests extends FunSpec with Matchers {
   scalismo.initialize()
@@ -77,10 +77,8 @@ class KernelTests extends FunSpec with Matchers {
         }
       }
 
-
       val testPtSampler = UniformSampler(domain, 1)
       val pts = testPtSampler.sample.map(_._1)
-
 
       val sampleCovKernel = SampleCovarianceKernel[_3D](sampleTransformations.toIndexedSeq, pts.size)
 

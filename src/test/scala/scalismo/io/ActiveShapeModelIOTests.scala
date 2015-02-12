@@ -15,43 +15,40 @@
  */
 package scalismo.io
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common.SpatiallyIndexedFiniteDiscreteDomain
 import scalismo.image.ScalarImage
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
-import scalismo.statisticalmodel.{ASMProfileDistributions, MultivariateNormalDistribution, ActiveShapeModel}
+import scalismo.statisticalmodel.{ ASMProfileDistributions, MultivariateNormalDistribution, ActiveShapeModel }
 import scalismo.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
-import scala.util.{Try, Success}
+import scala.util.{ Try, Success }
 import ncsa.hdf.`object`.Group
 
 /**
  * Created by Luethi on 09.03.14.
  */
-class ActiveShapeModelIOTests  extends FunSpec with Matchers {
+class ActiveShapeModelIOTests extends FunSpec with Matchers {
 
   scalismo.initialize()
 
-  private def createTmpH5File() : File = {
-    val f= File.createTempFile("hdf5file", ".h5")
+  private def createTmpH5File(): File = {
+    val f = File.createTempFile("hdf5file", ".h5")
     f.deleteOnExit()
     f
   }
 
-
-
-  private def createASM : ActiveShapeModel[NormalDirectionFeatureExtractor] = {
+  private def createASM: ActiveShapeModel[NormalDirectionFeatureExtractor] = {
     val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
     val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42)).sample.unzip
     val ptDomain = SpatiallyIndexedFiniteDiscreteDomain.fromSeq(profilePoints)
-    val dists = for (i <- 0 until ptDomain.numberOfPoints) yield
-      (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat , DenseMatrix.eye[Float](3) * i.toFloat))
+    val dists = for (i <- 0 until ptDomain.numberOfPoints) yield (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat, DenseMatrix.eye[Float](3) * i.toFloat))
     val profileDists = ASMProfileDistributions(ptDomain, dists)
-    new ActiveShapeModel(shapeModel,  profileDists, new NormalDirectionFeatureExtractor(5, 10))
+    new ActiveShapeModel(shapeModel, profileDists, new NormalDirectionFeatureExtractor(5, 10))
   }
 
   describe("An active shape model") {

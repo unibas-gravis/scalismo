@@ -24,8 +24,6 @@ import scala.util.Success
 import scala.collection.JavaConversions._
 import java.io.IOException
 
-
-
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.reduce(_ * _) == data.length)
 }
@@ -47,8 +45,6 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
-
-
   def readStringAttribute(path: String, attrName: String): Try[String] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
@@ -67,9 +63,6 @@ class HDF5File(h5file: FileFormat) {
       }
     }
   }
-
-
-
 
   def writeIntAttribute(path: String, attrName: String, attrValue: Int) = {
     Try {
@@ -167,17 +160,16 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
-
-  def getGroup(groupName : String) : Try[Group] = {
+  def getGroup(groupName: String): Try[Group] = {
     if (exists(groupName))
       h5file.get(groupName) match {
-        case g : Group => Success(g)
+        case g: Group => Success(g)
         case _ => Failure(new Throwable(s"object $groupName is not a group"))
       }
     else {
-       Failure(new Throwable(s"group with name $groupName does not exist"))
-      }
+      Failure(new Throwable(s"group with name $groupName does not exist"))
     }
+  }
 
   def writeArray[T](path: String, data: Array[T]): Try[Unit] = {
     writeNDArray[T](path, NDArray(Vector[Long](data.length), data))
@@ -199,7 +191,7 @@ class HDF5File(h5file: FileFormat) {
 
     h5file.get(path) match {
       case s: H5ScalarDS => {
-        Try{s.read().asInstanceOf[Array[Int]](0)}
+        Try { s.read().asInstanceOf[Array[Int]](0) }
       }
       case _ => {
         Failure(new Exception("Expected H5ScalarDS when reading Int " + path))
@@ -207,8 +199,7 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
-
-  def writeInt(path : String, value : Int) : Try[Unit] = {
+  def writeInt(path: String, value: Int): Try[Unit] = {
     val (groupname, datasetname) = splitpath(path)
     val groupOrFailure = createGroup(groupname)
 
@@ -216,7 +207,7 @@ class HDF5File(h5file: FileFormat) {
 
       val fileFormat: FileFormat = group.getFileFormat()
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE);
-      Try{h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
+      Try { h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
 
     }
 
@@ -226,7 +217,7 @@ class HDF5File(h5file: FileFormat) {
 
     h5file.get(path) match {
       case s: H5ScalarDS => {
-        Try{s.read().asInstanceOf[Array[Float]](0)}
+        Try { s.read().asInstanceOf[Array[Float]](0) }
       }
       case _ => {
         Failure(new Exception("Expected H5ScalarDS when reading Float " + path))
@@ -234,8 +225,7 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
-
-  def writeFloat(path : String, value : Float) : Try[Unit] = {
+  def writeFloat(path: String, value: Float): Try[Unit] = {
     val (groupname, datasetname) = splitpath(path)
     val groupOrFailure = createGroup(groupname)
 
@@ -243,11 +233,10 @@ class HDF5File(h5file: FileFormat) {
 
       val fileFormat: FileFormat = group.getFileFormat()
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE);
-      Try{h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
+      Try { h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
     }
 
   }
-
 
   private def createGroup(parent: Group, relativePath: String): Try[Group] = {
 
@@ -285,7 +274,7 @@ class HDF5File(h5file: FileFormat) {
 
     val normalizedPath = absolutePath.replaceAll("//*", "/")
 
-    val root = if (h5file.getRootNode() == null) 
+    val root = if (h5file.getRootNode() == null)
       return Failure(new Throwable("file not correctly opened"))
     else {
       h5file.getRootNode()
@@ -312,7 +301,7 @@ class HDF5File(h5file: FileFormat) {
 }
 
 // make it a proper class and wrapper around the object
-object  HDF5Utils {
+object HDF5Utils {
 
   // map untyped FileAccessModel of HDF5 (which is just a string)
   // to typed values
@@ -347,18 +336,17 @@ object  HDF5Utils {
 
 }
 
-
 /**
-  Typeclasses for reading, writing to hdf5 file
-  */
+ * Typeclasses for reading, writing to hdf5 file
+ */
 
 trait HDF5ReadWrite[A] extends HDF5Read[A] with HDF5Write[A]
 
 trait HDF5Read[A] {
-  def read(h5file : HDF5File, group : Group) : Try[A]
+  def read(h5file: HDF5File, group: Group): Try[A]
 }
 
 trait HDF5Write[A] {
-  def write(value : A, h5file : HDF5File,  group : Group) : Try[Unit]
+  def write(value: A, h5file: HDF5File, group: Group): Try[Unit]
 }
 

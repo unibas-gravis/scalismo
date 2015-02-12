@@ -17,10 +17,9 @@ package scalismo.statisticalmodel.dataset
 
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
-import scalismo.statisticalmodel.{GaussianProcess, StatisticalMeshModel}
+import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 
 import scala.util.Try
-
 
 /**
  * Implements utility functions for evaluating the quality of a registered dataset
@@ -41,7 +40,7 @@ object Crossvalidation {
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
-  def leaveOneOutCrossvalidation[A](dataCollection: DataCollection, evalFun: EvaluationFunction[A], biasModelAndRank: Option[(GaussianProcess[_3D, _3D],Int)] = None) = {
+  def leaveOneOutCrossvalidation[A](dataCollection: DataCollection, evalFun: EvaluationFunction[A], biasModelAndRank: Option[(GaussianProcess[_3D, _3D], Int)] = None) = {
     nFoldCrossvalidation(dataCollection.size, dataCollection, evalFun, biasModelAndRank)
   }
 

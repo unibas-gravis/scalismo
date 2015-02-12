@@ -16,8 +16,8 @@
 package scalismo.kernels
 
 /**
-* Created by luetma00 on 15.01.15.
-*/
+ * Created by luetma00 on 15.01.15.
+ */
 
 import scalismo.common.RealSpace
 import scalismo.geometry._
@@ -36,8 +36,7 @@ case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
   }
 }
 
-
-case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
+case class SampleCovarianceKernel[D <: Dim: NDSpace](val ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
 
   override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
@@ -53,7 +52,6 @@ case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transfo
     }
     meanDisplacement * (1.0 / ts.size)
   }
-
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
@@ -72,17 +70,14 @@ case class SampleCovarianceKernel[D <: Dim : NDSpace](val ts: IndexedSeq[Transfo
 
 }
 
-
-
-
-abstract case class BSplineKernel[D <: Dim ](order : Int, scale : Int) extends PDKernel[D] {
+abstract case class BSplineKernel[D <: Dim](order: Int, scale: Int) extends PDKernel[D] {
   override def domain = RealSpace[D]
 
 }
 
 object BSplineKernel {
 
-  def apply[D <: Dim : CanCreate](order: Int, scale: Int) : BSplineKernel[D] = {
+  def apply[D <: Dim: CanCreate](order: Int, scale: Int): BSplineKernel[D] = {
     implicitly[CanCreate[D]].create(order, scale)
   }
 
@@ -90,26 +85,24 @@ object BSplineKernel {
     def create(order: Int, j: Int): BSplineKernel[D]
   }
 
-
   implicit object CanCreateBSplineKernel1D extends CanCreate[_1D] {
-    def create(order: Int, j: Int) : BSplineKernel[_1D] = new BSplineKernel1D(order, j)
+    def create(order: Int, j: Int): BSplineKernel[_1D] = new BSplineKernel1D(order, j)
   }
 
   implicit object CanCreateBSplineKernel2D extends CanCreate[_2D] {
-    def create(order: Int, j: Int) : BSplineKernel[_2D] = new BSplineKernel2D(order, j)
+    def create(order: Int, j: Int): BSplineKernel[_2D] = new BSplineKernel2D(order, j)
   }
 
   implicit object CanCreateBSplineKernel3D extends CanCreate[_3D] {
-    def create(order: Int, j: Int) : BSplineKernel[_3D] = new BSplineKernel3D(order, j)
+    def create(order: Int, j: Int): BSplineKernel[_3D] = new BSplineKernel3D(order, j)
   }
-
 
   private class BSplineKernel3D(order: Int, scale: Int) extends BSplineKernel[_3D](order, scale) {
 
     val spline = BSpline.nthOrderBSpline(order) _
 
     def bspline3D(x1: Float, x2: Float, x3: Float) = {
-        spline(x1) * spline(x2) * spline(x3)
+      spline(x1) * spline(x2) * spline(x3)
     }
 
     val c: Double = scala.math.pow(2.0, scale)
@@ -209,10 +202,9 @@ object BSplineKernel {
     }
   }
 
-
   private class BSplineKernel1D(order: Int, scale: Int) extends BSplineKernel[_1D](order, scale) {
 
-    val bspline1D =  BSpline.nthOrderBSpline(order) _
+    val bspline1D = BSpline.nthOrderBSpline(order) _
 
     val c: Double = scala.math.pow(2.0, scale)
     val O: Double = 0.5 * (order + 1)
@@ -249,5 +241,4 @@ object BSplineKernel {
   }
 
 }
-
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package scalismo.mesh.kdtree
 
 import scala.annotation.tailrec
@@ -24,7 +23,7 @@ import scala.collection.{ IterableLike, MapLike }
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ ArrayBuffer, Builder }
 
-private [scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends IterableLike[A, KDTree[A]] {
+private[scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends IterableLike[A, KDTree[A]] {
   override def seq = this
 
   override def size: Int = root.size
@@ -41,8 +40,8 @@ private [scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implic
   def newBuilder: Builder[A, KDTree[A]] = KDTree.newBuilder
 }
 
-private [scalismo] class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implicit ord: DimensionalOrdering[A])
-  extends Map[A, B] with MapLike[A, B, KDTreeMap[A, B]] {
+private[scalismo] class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implicit ord: DimensionalOrdering[A])
+    extends Map[A, B] with MapLike[A, B, KDTreeMap[A, B]] {
 
   override def empty: KDTreeMap[A, B] = KDTreeMap.empty[A, B](ord)
 
@@ -61,7 +60,7 @@ private [scalismo] class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implic
   def -(key: A): KDTreeMap[A, B] = KDTreeMap.fromSeq(toSeq.filter(_._1 != key))
 }
 
-private [scalismo] sealed trait KDTreeNode[A, B] {
+private[scalismo] sealed trait KDTreeNode[A, B] {
   override def toString = toStringSeq(0) mkString "\n"
   def toStringSeq(indent: Int): Seq[String]
   def size: Int
@@ -82,9 +81,9 @@ private [scalismo] sealed trait KDTreeNode[A, B] {
   }
 }
 
-private [scalismo] case class KDTreeInnerNode[A, B](
-  dim: Int, key: A, value: B, below: KDTreeNode[A, B], above: KDTreeNode[A, B])(
-    ordering: Ordering[A]) extends KDTreeNode[A, B] {
+private[scalismo] case class KDTreeInnerNode[A, B](
+    dim: Int, key: A, value: B, below: KDTreeNode[A, B], above: KDTreeNode[A, B])(
+        ordering: Ordering[A]) extends KDTreeNode[A, B] {
   def toStringSeq(indent: Int) = {
     val i = "  " * indent
 
@@ -152,7 +151,7 @@ private [scalismo] case class KDTreeInnerNode[A, B](
   def toSeq: Seq[(A, B)] = below.toSeq ++ Seq((key, value)) ++ above.toSeq
 }
 
-private [scalismo] case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
+private[scalismo] case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
   def toStringSeq(indent: Int) = Seq(("  " * indent) + "[Empty]")
   def size = 0
   def isEmpty = true
@@ -193,7 +192,7 @@ object KDTreeNode {
   }
 }
 
-private [scalismo] object KDTree {
+private[scalismo] object KDTree {
   def apply[A](points: A*)(implicit ord: DimensionalOrdering[A]) = fromSeq(points)
 
   def fromSeq[A](points: Seq[A])(implicit ord: DimensionalOrdering[A]) = {
@@ -210,7 +209,7 @@ private [scalismo] object KDTree {
   }
 }
 
-private [scalismo] object KDTreeMap {
+private[scalismo] object KDTreeMap {
   def empty[A, B](implicit ord: DimensionalOrdering[A]): KDTreeMap[A, B] = KDTreeMap()
 
   def apply[A, B](points: (A, B)*)(implicit ord: DimensionalOrdering[A]) = fromSeq(points)

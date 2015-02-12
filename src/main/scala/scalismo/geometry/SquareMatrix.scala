@@ -17,11 +17,10 @@ package scalismo.geometry
 
 import breeze.linalg.DenseMatrix
 
-
 /**
  * Simple square matrix class of dimension D x D. The data is stored in column major ordering
  */
-class SquareMatrix[D <: Dim : NDSpace] private (private[scalismo] val data: Array[Float]) {
+class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array[Float]) {
 
   val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
@@ -122,7 +121,6 @@ class SquareMatrix[D <: Dim : NDSpace] private (private[scalismo] val data: Arra
     SquareMatrix[D](this.toBreezeMatrix.t.data)
   }
 
-
   override def hashCode = data.deep.hashCode()
 
   override def equals(other: Any): Boolean = other match {
@@ -149,9 +147,7 @@ class SquareMatrix[D <: Dim : NDSpace] private (private[scalismo] val data: Arra
   }
 }
 
-
 object SquareMatrix {
-
 
   def apply(f: Float): SquareMatrix[_1D] = new SquareMatrix[_1D](Array(f))
   def apply(row1: (Float, Float), row2: (Float, Float)): SquareMatrix[_2D] = {
@@ -163,7 +159,7 @@ object SquareMatrix {
     new SquareMatrix[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
-  def apply[D <: Dim : NDSpace](d: Array[Float]) = new SquareMatrix[D](d)
+  def apply[D <: Dim: NDSpace](d: Array[Float]) = new SquareMatrix[D](d)
 
   def eye[D <: Dim](implicit ev: NDSpace[D]): SquareMatrix[D] = {
     val dim = ev.dimensionality
@@ -174,16 +170,16 @@ object SquareMatrix {
     new SquareMatrix[D](data)
   }
 
-  def zeros[D <: Dim : NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](0)
-  def ones[D <: Dim : NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](1)
+  def zeros[D <: Dim: NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](0)
+  def ones[D <: Dim: NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](1)
 
-  def fill[D <: Dim : NDSpace](elem: => Float): SquareMatrix[D] = {
+  def fill[D <: Dim: NDSpace](elem: => Float): SquareMatrix[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     val data = Array.fill[Float](dim * dim)(elem)
     new SquareMatrix[D](data)
   }
 
-  def inv[D <: Dim : NDSpace](m: SquareMatrix[D]): SquareMatrix[D] = {
+  def inv[D <: Dim: NDSpace](m: SquareMatrix[D]): SquareMatrix[D] = {
     val bm = m.toBreezeMatrix
     val bmInv: DenseMatrix[Double] = breeze.linalg.inv(bm)
     new SquareMatrix[D](bmInv.data.map(_.toFloat))

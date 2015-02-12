@@ -15,9 +15,9 @@
  */
 package scalismo.io
 
-import java.io.{ByteArrayOutputStream, File, InputStream}
+import java.io.{ ByteArrayOutputStream, File, InputStream }
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry._
 import scalismo.statisticalmodel.NDimensionalNormalDistribution
@@ -139,7 +139,7 @@ class LandmarkIOTests extends FunSpec with Matchers {
     val extLms = List(extLm1, extLm2)
     val extLmsE = List(extLm1, extLm2E)
 
-    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = { tlm => (tlm.lm, Some(Map("test.ext" -> tlm.data.toJson)))}
+    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = { tlm => (tlm.lm, Some(Map("test.ext" -> tlm.data.toJson))) }
     implicit val extDecode: LandmarkIO.ExtensionDecodeFunction[_3D, TestLandmark] = { (lm, json) =>
       val data = json.map(_.get("test.ext")).flatMap(_.map(_.convertTo[LMData]))
       TestLandmark(lm, data.getOrElse(LMData(None, visible = false)))

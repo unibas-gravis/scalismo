@@ -23,7 +23,7 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
 
-import org.scalatest.{Matchers, FunSpec, PrivateMethodTester}
+import org.scalatest.{ Matchers, FunSpec, PrivateMethodTester }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 
@@ -88,7 +88,6 @@ class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
 
     describe("of degree 0") {
 
-
       it("Interpolates the values for a simple domain") {
         val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f), (2, 3))
         val discreteImage = DiscreteScalarImage(domain, Array(1f, 2f, 3f, 4f, 5f, 6f))
@@ -149,7 +148,6 @@ class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
   }
   describe("A 3D interpolation  Spline") {
     describe("of degree 0") {
-
 
       it("Interpolates the values for origin (2,3,0) and spacing (1.5, 1.3, 2)") {
         val domain = DiscreteImageDomain[_3D]((2.0f, 3.0f, 0.0f), (1.5f, 1.3f, 2.0f), (2, 3, 2))

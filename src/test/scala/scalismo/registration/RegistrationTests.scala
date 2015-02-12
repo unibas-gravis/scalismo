@@ -16,17 +16,16 @@
 package scalismo.registration
 
 import scalismo.image.DiscreteScalarImage
-import scalismo.io.{ImageIO, MeshIO}
-import scalismo.numerics.{GradientDescentOptimizer, LBFGSOptimizer, UniformSampler, Integrator}
+import scalismo.io.{ ImageIO, MeshIO }
+import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler, Integrator }
 
 import scala.language.implicitConversions
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import java.io.File
 import scalismo.geometry._
 import breeze.linalg.DenseVector
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
-
 
 class RegistrationTests extends FunSpec with Matchers {
 
@@ -114,7 +113,7 @@ class RegistrationTests extends FunSpec with Matchers {
 
         val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints))
 
-        val alignedPoints = points.map(regResult.transform)
+        val alignedPoints = points.map(regResult)
         transformedPoints(0)(0) should be(alignedPoints(0)(0) +- 0.0001)
         transformedPoints(0)(1) should be(alignedPoints(0)(1) +- 0.0001)
         transformedPoints(1)(0) should be(alignedPoints(1)(0) +- 0.0001)
@@ -160,7 +159,7 @@ class RegistrationTests extends FunSpec with Matchers {
 
       val domain = discreteFixedImage.domain
 
-      val regConf = RegistrationConfiguration[_2D,TranslationSpace[_2D]](
+      val regConf = RegistrationConfiguration[_2D, TranslationSpace[_2D]](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
@@ -180,12 +179,12 @@ class RegistrationTests extends FunSpec with Matchers {
     it("Recovers the correct parameters for a rotation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.h5").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage =discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
       val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
-      val regConf = RegistrationConfiguration[_2D,RotationSpace[_2D]](
+      val regConf = RegistrationConfiguration[_2D, RotationSpace[_2D]](
 
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
@@ -237,7 +236,7 @@ class RegistrationTests extends FunSpec with Matchers {
       val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
-      val regConf = RegistrationConfiguration[_3D,RotationSpace[_3D]](
+      val regConf = RegistrationConfiguration[_3D, RotationSpace[_3D]](
         optimizer = GradientDescentOptimizer(numIterations = 400, stepLength = 2e-12),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 10000)),
         transformationSpace = RotationSpace[_3D](center),

@@ -15,7 +15,7 @@
  */
 package scalismo.geometry
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector

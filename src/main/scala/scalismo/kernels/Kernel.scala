@@ -16,18 +16,18 @@
 package scalismo.kernels
 
 import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
-import scalismo.common.{VectorField, Domain}
+import scalismo.common.{ VectorField, Domain }
 import scalismo.geometry._
-import scalismo.numerics.{RandomSVD, Sampler}
+import scalismo.numerics.{ RandomSVD, Sampler }
 import scalismo.utils.Memoize
 
 abstract class PDKernel[D <: Dim] { self =>
-  
-  protected def k(x : Point[D], y : Point[D]) : Double
+
+  protected def k(x: Point[D], y: Point[D]): Double
 
   def apply(x: Point[D], y: Point[D]): Double = {
     if (this.domain.isDefinedAt(x) && this.domain.isDefinedAt(y))
-      k(x,y)
+      k(x, y)
     else {
       if (!this.domain.isDefinedAt(x)) {
         throw new IllegalArgumentException((s"$x is outside of the domain"))
@@ -37,7 +37,7 @@ abstract class PDKernel[D <: Dim] { self =>
     }
   }
 
-  def domain : Domain[D]
+  def domain: Domain[D]
 
   def +(that: PDKernel[D]): PDKernel[D] = new PDKernel[D] {
     override def k(x: Point[D], y: Point[D]) = self.k(x, y) + that.k(x, y)
@@ -66,7 +66,7 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
 
   def apply(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
     if (this.domain.isDefinedAt(x) && this.domain.isDefinedAt(y))
-      k(x,y)
+      k(x, y)
     else {
       if (!this.domain.isDefinedAt(x)) {
         throw new IllegalArgumentException((s"$x is outside of the domain"))
@@ -80,8 +80,7 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
 
   def outputDim = implicitly[NDSpace[DO]].dimensionality
 
-  def domain : Domain[D]
-
+  def domain: Domain[D]
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def k(x: Point[D], y: Point[D]) = self.k(x, y) + that.k(x, y)
@@ -106,18 +105,16 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
 
 }
 
-case class UncorrelatedKernel[D <: Dim : NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
+case class UncorrelatedKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
   val I = SquareMatrix.eye[D]
   def k(x: Point[D], y: Point[D]) = I * (kernel(x, y)) // k is scalar valued
   override def domain = kernel.domain
 }
 
-
-
-case class MultiScaleKernel[D <: Dim : NDSpace](kernel : MatrixValuedPDKernel[D, D],
-                                                min: Int,
-                                                max: Int,
-                                                scale : Int => Double = i => scala.math.pow(2.0, -2.0 * i)) extends MatrixValuedPDKernel[D, D] {
+case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, D],
+    min: Int,
+    max: Int,
+    scale: Int => Double = i => scala.math.pow(2.0, -2.0 * i)) extends MatrixValuedPDKernel[D, D] {
 
   def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
     var sum = SquareMatrix.zeros[D]
@@ -131,7 +128,6 @@ case class MultiScaleKernel[D <: Dim : NDSpace](kernel : MatrixValuedPDKernel[D,
   override def domain = kernel.domain
 }
 
-
 object Kernel {
 
   def computeKernelMatrix[D <: Dim, DO <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, DO]): DenseMatrix[Float] = {
@@ -140,7 +136,7 @@ object Kernel {
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
-    for { p1 <- xiWithIndex;  (xi, i) = p1; p2 <- xjWithIndex.drop(i) } {
+    for { p1 <- xiWithIndex; (xi, i) = p1; p2 <- xjWithIndex.drop(i) } {
       val (xj, j) = p2
       val kxixj = k(xi, xj);
       var di = 0;
@@ -188,10 +184,9 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: NDSpace, DO <: Dim : NDSpace](k: MatrixValuedPDKernel[D, DO],
-                                                                          numBasisFunctions: Int,
-                                                                          sampler: Sampler[D])
-  : IndexedSeq[(Float, VectorField[D, DO])] = {
+  def computeNystromApproximation[D <: Dim: NDSpace, DO <: Dim: NDSpace](k: MatrixValuedPDKernel[D, DO],
+    numBasisFunctions: Int,
+    sampler: Sampler[D]): IndexedSeq[(Float, VectorField[D, DO])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -204,8 +199,7 @@ object Kernel {
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)
     val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
 
-
-    val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble) )
+    val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
 
     val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled) * pinv(diag(lambdaMat(0 until numParams)))

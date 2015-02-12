@@ -20,7 +20,6 @@ import scalismo.common.VectorField
 import scalismo.image.ScalarImage
 import scalismo.geometry._
 
-
 case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
 
   def integrateScalar(img: ScalarImage[D]): Float = {
@@ -29,15 +28,15 @@ case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
 
   def integrateScalar(f: Function1[Point[D], Option[Float]]): Float = {
     val samples = sampler.sample
-    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * (1f / p.toFloat)}.sum
+    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(0f) * (1f / p.toFloat) }.sum
     sum / samples.size
   }
 
-  def integrateVector[DO <: Dim : NDSpace](img: VectorField[D, DO]): Vector[DO] = {
+  def integrateVector[DO <: Dim: NDSpace](img: VectorField[D, DO]): Vector[DO] = {
     integrateVector(img.liftValues)
   }
 
-  def integrateVector[DO <: Dim : NDSpace](f: Function1[Point[D], Option[Vector[DO]]]): Vector[DO] = {
+  def integrateVector[DO <: Dim: NDSpace](f: Function1[Point[D], Option[Vector[DO]]]): Vector[DO] = {
     val samples = sampler.sample
 
     val zeroVector = Vector.zeros[DO]
@@ -54,5 +53,4 @@ case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
   }
 
 }
-
 

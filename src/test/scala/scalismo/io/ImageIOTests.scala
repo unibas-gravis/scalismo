@@ -15,10 +15,10 @@
  */
 package scalismo.io
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, DiscreteImageDomain3D}
+import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage, DiscreteImageDomain3D }
 import scalismo.geometry._
 import scala.util.Success
 import scala.util.Failure

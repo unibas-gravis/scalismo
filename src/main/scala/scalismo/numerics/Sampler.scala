@@ -38,18 +38,17 @@ trait Sampler[D <: Dim] {
   def volumeOfSampleRegion: Double
 }
 
-
-case class GridSampler[D <: Dim : NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
+case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
   override def volumeOfSampleRegion = domain.imageBox.volume
   override val numberOfPoints = domain.numberOfPoints
-  
-  val p = 1.0 / volumeOfSampleRegion 
+
+  val p = 1.0 / volumeOfSampleRegion
   override def sample = {
     domain.points.toIndexedSeq.map(pt => (pt, p))
   }
 }
 
-case class UniformSampler[D <: Dim : NDSpace](domain: BoxDomain[D], numberOfPoints: Int) extends Sampler[D] {
+case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoints: Int) extends Sampler[D] {
 
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
@@ -61,11 +60,9 @@ case class UniformSampler[D <: Dim : NDSpace](domain: BoxDomain[D], numberOfPoin
   }
 
   override def sample = {
-    for (_ <- 0 until numberOfPoints) yield (Point.apply[D](randGens.map(r => r.draw().toFloat).toArray) ,p)
+    for (_ <- 0 until numberOfPoints) yield (Point.apply[D](randGens.map(r => r.draw().toFloat).toArray), p)
   }
 }
-
-
 
 case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
@@ -90,21 +87,21 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
   }
   val ptsWithDist = refmesh.points.toIndexedSeq.zipWithIndex.par
     .map {
-    case (refPt, refPtId) =>
-      val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId))
-      (refPt, gp.marginal(refPt).mahalanobisDistance(closestTgtPt - refPt))
-  }
+      case (refPt, refPtId) =>
+        val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId))
+        (refPt, gp.marginal(refPt).mahalanobisDistance(closestTgtPt - refPt))
+    }
 
   val pts = ptsWithDist
     .filter {
-    case (refPt, dist) => dist < maxMd
-  }
+      case (refPt, dist) => dist < maxMd
+    }
     .map {
-    case (refPt, dist) => (refPt, 1.0)
-  }
+      case (refPt, dist) => (refPt, 1.0)
+    }
     .map {
-    case (refPt, dist) => (refPt, 1.0)
-  }
+      case (refPt, dist) => (refPt, 1.0)
+    }
     .toIndexedSeq
 
   override val volumeOfSampleRegion = 1.0
@@ -162,6 +159,5 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, see
     samplePoints.map(pt => (pt, p))
   }
 }
-
 
 //}

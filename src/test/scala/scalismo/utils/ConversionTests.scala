@@ -17,10 +17,10 @@
 package scalismo.utils
 
 import scalismo.geometry._2D
-import scalismo.io.{ImageIO, MeshIO}
+import scalismo.io.{ ImageIO, MeshIO }
 
 import scala.language.implicitConversions
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 
 class ConversionTests extends FunSpec with Matchers {

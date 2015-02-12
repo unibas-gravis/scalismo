@@ -15,7 +15,7 @@
  */
 package scalismo.io
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import scalismo.io.StatismoIO.writeStatismoMeshModel
@@ -28,13 +28,12 @@ class StatismoIOTest extends FunSpec with Matchers {
 
   describe("a Statismo Mesh Model") {
 
-    def assertModelAlmostEqual(model1 : StatisticalMeshModel, model2 : StatisticalMeshModel) : Unit = {
+    def assertModelAlmostEqual(model1: StatisticalMeshModel, model2: StatisticalMeshModel): Unit = {
       assert(model1.mean == model2.mean)
-      assert(breeze.linalg.norm(model1.gp.variance -model2.gp.variance) < 1e-5)
+      assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
       assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
     }
 
-    
     it("can be written and read again") {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
       val dummyFile = File.createTempFile("dummy", "h5")
@@ -50,8 +49,6 @@ class StatismoIOTest extends FunSpec with Matchers {
       t.get
 
     }
-
-
 
     it("can be written and read again in non-standard location") {
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
@@ -69,11 +66,9 @@ class StatismoIOTest extends FunSpec with Matchers {
 
     }
 
-
-
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
-      
+
       val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit

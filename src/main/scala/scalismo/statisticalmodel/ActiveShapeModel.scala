@@ -17,27 +17,27 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.common.{DiscreteField, SpatiallyIndexedFiniteDiscreteDomain}
-import scalismo.geometry.{Point, _3D, Vector}
+import scalismo.common.{ DiscreteField, SpatiallyIndexedFiniteDiscreteDomain }
+import scalismo.geometry.{ Point, _3D, Vector }
 import scalismo.image.DifferentiableScalarImage
-import scalismo.io.{HDF5File, HDF5ReadWrite}
+import scalismo.io.{ HDF5File, HDF5ReadWrite }
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.registration.Transformation
 import scala.util.Try
 
 case class ASMProfileDistributions(val domain: SpatiallyIndexedFiniteDiscreteDomain[_3D], val data: IndexedSeq[MultivariateNormalDistribution])
-  extends DiscreteField[_3D, MultivariateNormalDistribution]  {
+    extends DiscreteField[_3D, MultivariateNormalDistribution] {
   require(domain.numberOfPoints == data.size)
 
-  def apply(i : Int) = data(i)
-  def isDefinedAt(i : Int) = data.isDefinedAt(i)
+  def apply(i: Int) = data(i)
+  def isDefinedAt(i: Int) = data.isDefinedAt(i)
   def values = data.iterator
 }
 
 case class ActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor](shapeModel: StatisticalMeshModel,
-  val intensityDistributions: ASMProfileDistributions,
-  val featureExtractor: FE) {
+    val intensityDistributions: ASMProfileDistributions,
+    val featureExtractor: FE) {
 
   def featureDistance(pt: Point[_3D], featureVec: DenseVector[Float]): Double = {
     val (_, ptId) = intensityDistributions.domain.findClosestPoint(pt)

@@ -25,10 +25,8 @@ import breeze.linalg._
 
 object LandmarkRegistration {
 
-
   private val origin2D = Point(0f, 0f)
   private val origin3D = Point(0f, 0f, 0f)
-
 
   def rotMatrixToEulerAngles(rotMat: DenseMatrix[Double]) = {
     // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix
@@ -82,7 +80,6 @@ object LandmarkRegistration {
     similritySpace.transformForParameters(optimalParameters)
   }
 
-
   def rotationMatrixToAngle2D(rotMat: DenseMatrix[Double]) = {
     // we can compute the angle from the form of the rotation matrix
     // the acos cannot distinguish between angles in the interval [0,pi] and [-pi, 0]. We double
@@ -95,8 +92,8 @@ object LandmarkRegistration {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, similarityFlag)
     assert(t.size == 2)
     assert(rotMat.rows == 2 && rotMat.cols == 2)
-   
-    val phi =rotationMatrixToAngle2D(rotMat)
+
+    val phi = rotationMatrixToAngle2D(rotMat)
     (t, phi, s)
   }
 

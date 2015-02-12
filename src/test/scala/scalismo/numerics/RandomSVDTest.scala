@@ -16,10 +16,10 @@
 package scalismo.numerics
 
 import breeze.linalg.svd.SVD
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
-import scalismo.geometry.{Point, _1D}
-import scalismo.kernels.{GaussianKernel, UncorrelatedKernel, Kernel}
+import scalismo.geometry.{ Point, _1D }
+import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel, Kernel }
 
 class RandomSVDTest extends FunSpec with Matchers {
 
@@ -34,7 +34,6 @@ class RandomSVDTest extends FunSpec with Matchers {
       val Kdouble = K.map(_.toDouble)
       val (ur, lr, vrt) = RandomSVD.computeSVD(Kdouble, 10)
       val SVD(ub, lb, vbt) = breeze.linalg.svd(Kdouble)
-
 
       val mr = ur(::, 0 until 10) * breeze.linalg.diag(lr(0 until 10)) * vrt(0 until 10, 0 until 10)
       val mb = ub(::, 0 until 10) * breeze.linalg.diag(lb(0 until 10)) * vbt(0 until 10, 0 until 10)

@@ -51,15 +51,15 @@ case class LBFGSOptimizer(numIterations: Int, m: Int = 10, tolerance: Double = 1
     }
     val lbfgs = new LBFGS[DenseVector[Double]](maxIter = numIterations, m = m, tolerance = tolerance)
     for (it <- lbfgs.iterations(f, x0.map(_.toDouble)))
-    yield State(it.iter, it.value, it.grad.map(_.toFloat), it.x.map(_.toFloat), 0)
+      yield State(it.iter, it.value, it.grad.map(_.toFloat), it.x.map(_.toFloat), 0)
   }
 }
 
 case class GradientDescentOptimizer(numIterations: Int,
-                                    stepLength: Double,
-                                    withLineSearch: Boolean = false,
-                                    robinsMonroe: Boolean = false,
-                                    stepDecreaseCoeff: Double = 0.0) extends Optimizer {
+    stepLength: Double,
+    withLineSearch: Boolean = false,
+    robinsMonroe: Boolean = false,
+    stepDecreaseCoeff: Double = 0.0) extends Optimizer {
 
   private def goldenSectionLineSearch(nbPoints: Int, xk: ParameterVector, lowerLimit: Double, upperLimit: Double, normalizedGradient: DenseVector[Float], f: CostFunction): Double = {
     val r = 0.618
@@ -120,7 +120,6 @@ case class GradientDescentOptimizer(numIterations: Int,
   private def optimize(x: ParameterVector, c: CostFunction, it: Int): Iterator[State] = {
     val (newValue, gradient) = c(x)
 
-
     if (it >= numIterations) Iterator(State(it, newValue, gradient, x, stepLength))
     else {
 
@@ -128,7 +127,7 @@ case class GradientDescentOptimizer(numIterations: Int,
         val step = goldenSectionLineSearch(8, x, 0, stepLength, gradient, c)
         val newParam = x - gradient * step.toFloat
 
-	Iterator(State(it, newValue, gradient, newParam, step))  ++ optimize(newParam, c, it + 1) 
+        Iterator(State(it, newValue, gradient, newParam, step)) ++ optimize(newParam, c, it + 1)
 
       } else if (robinsMonroe) {
         val step = stepLength / Math.pow(it + (numIterations * 0.1), stepDecreaseCoeff)

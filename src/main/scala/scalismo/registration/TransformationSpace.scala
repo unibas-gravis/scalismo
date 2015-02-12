@@ -25,9 +25,11 @@ import scalismo.common._
 
 import scala.annotation._
 
-/** Trait for D-dimensional transformation that maps a D-dimensional Point to another. 
+/**
+ * Trait for D-dimensional transformation that maps a D-dimensional Point to another.
  *  A transformation in our library is seen as a particular type of Field (or image)  mapping points
- *  to values that are also of type [[scalismo.geometry.Point]]*/
+ *  to values that are also of type [[scalismo.geometry.Point]]
+ */
 trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 /** Trait for parametric D-dimensional transformation */
 trait ParametricTransformation[D <: Dim] extends Transformation[D] {
@@ -176,7 +178,7 @@ object TranslationSpace {
  *  @param t Translation vector
  */
 case class TranslationTransform[D <: Dim: NDSpace](t: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
-  override val f = (pt : Point[D]) => pt + t
+  override val f = (pt: Point[D]) => pt + t
   override val domain = RealSpace[D]
   override def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix.eye[D]
   override def inverse: TranslationTransform[D] = new TranslationTransform(t * (-1f))
@@ -345,7 +347,7 @@ abstract class RotationTransform[D <: Dim: NDSpace] extends ParametricTransforma
 }
 
 private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
-  override val f = (pt : Point[_3D]) => {
+  override val f = (pt: Point[_3D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
     centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat, rotCentered(2).toFloat)
@@ -475,7 +477,7 @@ object ScalingSpace {
  *  @param s Scalar by which to scale each dimension
  */
 class ScalingTransformation[D <: Dim: NDSpace] private (s: Float) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
-  override val f = (x: Point[D]) =>  (x.toVector * s).toPoint
+  override val f = (x: Point[D]) => (x.toVector * s).toPoint
   override val domain = RealSpace[D]
 
   val parameters = DenseVector(s)
@@ -498,7 +500,7 @@ object ScalingTransformation {
  * Parametric transformation space producing rigid transforms.
  */
 class RigidTransformationSpace[D <: Dim: NDSpace: RotationSpace.Create] private (center: Point[D])
-  extends ProductTransformationSpace[D, TranslationTransform[D], RotationTransform[D]](TranslationSpace[D], RotationSpace[D](center)) {
+    extends ProductTransformationSpace[D, TranslationTransform[D], RotationTransform[D]](TranslationSpace[D], RotationSpace[D](center)) {
 
   /**
    * Returns a rigid transform that rotates first then translates.
@@ -546,13 +548,13 @@ object RigidTransformation {
 }
 
 private class RigidTransformationRotThenTrans[D <: Dim: NDSpace](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D])
-  extends ProductTransformation[D](translationTransform, rotationTransform) with RigidTransformation[D] {
+    extends ProductTransformation[D](translationTransform, rotationTransform) with RigidTransformation[D] {
 
   def inverse = new RigidTransformationTransThenRot[D](rotationTransform.inverse, translationTransform.inverse)
 }
 
 private class RigidTransformationTransThenRot[D <: Dim: NDSpace](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D])
-  extends ProductTransformation[D](rotationTransform, translationTransform) with RigidTransformation[D] {
+    extends ProductTransformation[D](rotationTransform, translationTransform) with RigidTransformation[D] {
   def inverse = new RigidTransformationRotThenTrans[D](translationTransform.inverse, rotationTransform.inverse)
 
 }
@@ -601,41 +603,42 @@ case class AnisotropicScalingSpace[D <: Dim: NDSpace]() extends TransformationSp
  * Trait for D-dimensional anisotropic similarity transform that is a combination of a rigid transform and anisotropic scaling.
  *
  * There are different possibilities to define such a similarity transform. Either we first do a rigid transform and then scaling,
- * or vice versa. We support only one way where we scale first, then transform rigidly. 
- * 
- * The order of the rigid transform in this case is also fixed : first rotate then translate. 
- * 
+ * or vice versa. We support only one way where we scale first, then transform rigidly.
+ *
+ * The order of the rigid transform in this case is also fixed : first rotate then translate.
+ *
  */
 trait AnisotropicSimilarityTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D]
 
 private class RigidTransformationThenAnisotropicScaling[D <: Dim: NDSpace](anisotropicScaling: AnisotropicScalingTransformation[D], rigidTransform: RigidTransformationTransThenRot[D])
-  extends ProductTransformation[D](anisotropicScaling, rigidTransform) with AnisotropicSimilarityTransformation[D] {
+    extends ProductTransformation[D](anisotropicScaling, rigidTransform) with AnisotropicSimilarityTransformation[D] {
 
   def inverse: AnisotropicScalingThenRigidTransformation[D] = new AnisotropicScalingThenRigidTransformation[D](rigidTransform.inverse, anisotropicScaling.inverse)
 }
 
 private class AnisotropicScalingThenRigidTransformation[D <: Dim: NDSpace](rigidTransform: RigidTransformationRotThenTrans[D], anisotropicScaling: AnisotropicScalingTransformation[D])
-  extends ProductTransformation[D](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation[D] {
+    extends ProductTransformation[D](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation[D] {
 
   def inverse: RigidTransformationThenAnisotropicScaling[D] = new RigidTransformationThenAnisotropicScaling[D](anisotropicScaling.inverse, rigidTransform.inverse)
 }
 
-/** 
+/**
  * Parametric transformation space producing anisotropic similarity transforms.
- * @constructor Returns a parametric space generating anisotropic similarity transforms 
- * @param center : center of rotation used in the rigid transform   
- * */
+ * @constructor Returns a parametric space generating anisotropic similarity transforms
+ * @param center : center of rotation used in the rigid transform
+ */
 case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: RotationSpace.Create](center: Point[D])
-  extends ProductTransformationSpace[D, RigidTransformation[D], AnisotropicScalingTransformation[D]](RigidTransformationSpace[D](center), AnisotropicScalingSpace[D]()) {
+    extends ProductTransformationSpace[D, RigidTransformation[D], AnisotropicScalingTransformation[D]](RigidTransformationSpace[D](center), AnisotropicScalingSpace[D]()) {
 
-  /** Returns a D-dimensional anisotropic similarity transform that performs scaling first, then a rigid transformation. 
+  /**
+   * Returns a D-dimensional anisotropic similarity transform that performs scaling first, then a rigid transformation.
    *  Currently, this is the only way to create an anisotropic similarity transform as [[AnisotropicSimilarityTransformation]] does not expose
    *  constructors or factory methods.
-   *  
+   *
    *  The order of operations in the rigid transformation is first rotation, then translation.
    *  @param : p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
-   * 
-   * */
+   *
+   */
   override def transformForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[D] = {
     val (rigidP, scalingP) = splitProductParameterVector(p)
     val rigid = RigidTransformationSpace[D](center).transformForParameters(rigidP).asInstanceOf[RigidTransformationRotThenTrans[D]]
@@ -644,12 +647,14 @@ case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: RotationS
   }
 }
 
-/** Parametric transformation space producing similarity transforms for 1-dimensional space that is a combination 
+/**
+ * Parametric transformation space producing similarity transforms for 1-dimensional space that is a combination
  *  of scaling and translation. In [[_1D]] such a transform is equivalent to an anisotropic similarity transform
- *   
- *  **/
+ *
+ *  *
+ */
 private[scalismo] case class SimilarityTransformationSpace1D()
-  extends ProductTransformationSpace[_1D, TranslationTransform[_1D], ScalingTransformation[_1D]](TranslationSpace[_1D], ScalingSpace[_1D]()) {
+    extends ProductTransformationSpace[_1D, TranslationTransform[_1D], ScalingTransformation[_1D]](TranslationSpace[_1D], ScalingSpace[_1D]()) {
 
   /** Returns a one-dimensional [[AnisotropicSimilarityTransformation]] transform that */
   override def transformForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[_1D] = {
@@ -663,15 +668,14 @@ private[scalismo] case class SimilarityTransformationSpace1D()
 //trait SimilarityTransform1D extends ProductTransformation[_1D] with CanInvert[_1D]
 
 private class ScalingThenTranslation1D(translation: TranslationTransform[_1D], scaling: ScalingTransformation[_1D])
-  extends ProductTransformation[_1D](translation, scaling) with AnisotropicSimilarityTransformation[_1D] {
+    extends ProductTransformation[_1D](translation, scaling) with AnisotropicSimilarityTransformation[_1D] {
 
   def inverse: TranslationThenScaling1D = new TranslationThenScaling1D(scaling.inverse, translation.inverse)
 }
 
 private class TranslationThenScaling1D(scaling: ScalingTransformation[_1D], translation: TranslationTransform[_1D])
-  extends ProductTransformation[_1D](scaling, translation) with AnisotropicSimilarityTransformation[_1D] {
+    extends ProductTransformation[_1D](scaling, translation) with AnisotropicSimilarityTransformation[_1D] {
 
   def inverse: ScalingThenTranslation1D = new ScalingThenTranslation1D(translation.inverse, scaling.inverse)
 }
-
 

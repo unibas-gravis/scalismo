@@ -17,15 +17,14 @@ package scalismo.numerics
 
 import scalismo.common.BoxDomain
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, ScalarImage, DiscreteImageDomain}
+import scalismo.image.{ DifferentiableScalarImage, ScalarImage, DiscreteImageDomain }
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Vector.implicits._
 
 import scala.language.implicitConversions
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
-
 
 class IntegrationTest extends FunSpec with Matchers {
 
@@ -76,11 +75,9 @@ class IntegrationTest extends FunSpec with Matchers {
       val res1 = integrator1.integrateScalar(img)
       val res2 = integrator2.integrateScalar(img)
 
-
       res1 should be(res2 +- 0.01)
 
     }
-
 
   }
 

@@ -16,7 +16,7 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{Dim, NDSpace, Point}
+import scalismo.geometry.{ Dim, NDSpace, Point }
 
 import scala.math.Numeric.Implicits._
 
@@ -26,7 +26,7 @@ import scala.math.Numeric.Implicits._
  *
  * `A` represents the type of the points and `R` represents the metric value.
  */
-private [scalismo] trait Metric[A, R] {
+private[scalismo] trait Metric[A, R] {
   /** Returns the distance between two points. */
   def distance(x: A, y: A): R
 
@@ -37,7 +37,7 @@ private [scalismo] trait Metric[A, R] {
   def planarDistance(dimension: Int)(x: A, y: A): R
 }
 
-private [scalismo] object Metric {
+private[scalismo] object Metric {
   implicit def metricFromTuple2[A](implicit n: Numeric[A]) = new Metric[(A, A), A] {
     def distance(x: (A, A), y: (A, A)): A = {
       val dx = (x._1 - y._1)
@@ -85,5 +85,4 @@ private [scalismo] object Metric {
     }
   }
 
- 
 }

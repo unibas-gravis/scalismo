@@ -15,7 +15,7 @@
  */
 package scalismo.image
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
 import scalismo.common.BoxDomain
@@ -98,7 +98,7 @@ class ImageTests extends FunSpec with Matchers {
   describe("A continuous 2Dimage") {
     it("can be translated to a new place") {
 
-      val cImg = ScalarImage(BoxDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), (_ : Point[_2D]) => 1.0)
+      val cImg = ScalarImage(BoxDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), (_: Point[_2D]) => 1.0)
 
       def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
       val warpedImg = cImg.compose(t)
@@ -180,8 +180,8 @@ class DomainTest extends FunSpec with Matchers {
       assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
       assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
 
-      (trans(Point(origImg.domain.size(0) , origImg.domain.size(1) , origImg.domain.size(2) )) - origImg.domain.imageBox.oppositeCorner).norm should be <(0.1)
-      (inverseTrans(origImg.domain.imageBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1) , origImg.domain.size(2) )).norm should be <(0.1)
+      (trans(Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))) - origImg.domain.imageBox.oppositeCorner).norm should be < (0.1)
+      (inverseTrans(origImg.domain.imageBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))).norm should be < (0.1)
     }
 
   }

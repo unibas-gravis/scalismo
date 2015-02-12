@@ -15,13 +15,13 @@
  */
 package scalismo.registration
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.common.BoxDomain
 import scalismo.image.DifferentiableScalarImage
 import scalismo.geometry._
 import scalismo.geometry.Point.implicits._
-import scalismo.numerics.{UniformSampler, Integrator}
+import scalismo.numerics.{ UniformSampler, Integrator }
 
 class MetricTests extends FunSpec with Matchers {
 

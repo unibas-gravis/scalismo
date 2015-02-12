@@ -74,10 +74,10 @@ class ScalarImage[D <: Dim: NDSpace] protected (val domain: Domain[D], val f: Po
   /**
    * Convolution of an image with a given filter. The convolution is carried out by
    * numerical integration, using the given number of points elevated to the power of dimensionality as an approximation.
-   * 
-   * @param filter Filter to be used in the convolution. 
+   *
+   * @param filter Filter to be used in the convolution.
    * @param  numberOfPointsPerDim Number of points to be used to approximate the filter. Depending on the
-   * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation) 
+   * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation)
    */
   def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CanCreate[D]): ScalarImage[D] = {
 
@@ -187,7 +187,7 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
     val supportSize = Index[D](((0 until dim).map(_ => numberOfPointsPerDim)).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
-   
+
     val integrator = Integrator[D](GridSampler(support))
 
     def intermediateDF(imageX: Point[D])(t: Point[D]): Option[Vector[D]] = {
@@ -195,8 +195,8 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
       if (this.isDefinedAt(p)) Some(df(p) * filter(t)) else None
     }
 
-    def convolvedImgDerivative(imageX: Point[D]) : Vector[D] = {
-      integrator.integrateVector(intermediateDF(imageX) _)      
+    def convolvedImgDerivative(imageX: Point[D]): Vector[D] = {
+      integrator.integrateVector(intermediateDF(imageX) _)
     }
 
     new DifferentiableScalarImage(domain, convolvedImage.f, convolvedImgDerivative)
@@ -219,6 +219,4 @@ object DifferentiableScalarImage {
   def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
 
 }
-
-
 

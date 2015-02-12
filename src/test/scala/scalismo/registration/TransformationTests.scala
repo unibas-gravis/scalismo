@@ -15,13 +15,13 @@
  */
 package scalismo.registration
 
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
-import scalismo.io.{MeshIO, ImageIO}
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
+import scalismo.io.{ MeshIO, ImageIO }
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Vector.implicits._
 import scala.language.implicitConversions
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 import breeze.linalg.DenseVector
@@ -228,7 +228,7 @@ class TransformationTests extends FunSpec with Matchers {
 
     val composedTrans = translation compose rotation compose anisotropicScaling
     val combinedParams = DenseVector(translationParams.data ++ rotationParams.data ++ anisotropScalingParams.data)
-    val anisotropicSimTrans = AnisotropicSimilarityTransformationSpace[_3D](Point(0,0,0)).transformForParameters(combinedParams)
+    val anisotropicSimTrans = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(combinedParams)
 
     val rigidTransformation = RigidTransformationSpace[_3D]().transformForParameters(DenseVector(translationParams.data ++ rotationParams.data))
 

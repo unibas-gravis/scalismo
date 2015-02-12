@@ -17,7 +17,7 @@ package scalismo.io
 
 import java.io.File
 import scalismo.utils.MeshConversion
-import scalismo.mesh.{TriangleCell, ScalarMeshData, TriangleMesh}
+import scalismo.mesh.{ TriangleCell, ScalarMeshData, TriangleMesh }
 import scalismo.geometry._
 import scala.util.Try
 import java.io.IOException
@@ -26,7 +26,6 @@ import reflect.runtime.universe.TypeTag
 import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
-
 
 import spire.math.Numeric
 
@@ -63,7 +62,7 @@ object MeshIO {
     }
   }
 
-  def writeMeshData[Scalar: Numeric : TypeTag : ClassTag](meshData: ScalarMeshData[Scalar], file: File): Try[Unit] = {
+  def writeMeshData[Scalar: Numeric: TypeTag: ClassTag](meshData: ScalarMeshData[Scalar], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeVTK(meshData, file)
@@ -91,8 +90,7 @@ object MeshIO {
     maybeError
   }
 
-
-  def writeVTK[S: Numeric : TypeTag : ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
+  def writeVTK[S: Numeric: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()
@@ -113,7 +111,6 @@ object MeshIO {
     err
   }
 
-
   private def writeVTKPdasVTK(vtkPd: vtkPolyData, file: File): Try[Unit] = {
     val writer = new vtkPolyDataWriter()
     writer.SetFileName(file.getAbsolutePath)
@@ -129,7 +126,6 @@ object MeshIO {
     succOrFailure
   }
 
-
   private def writeVTKPdAsSTL(vtkPd: vtkPolyData, file: File): Try[Unit] = {
     val writer = new vtkSTLWriter()
     writer.SetFileName(file.getAbsolutePath)
@@ -144,7 +140,6 @@ object MeshIO {
     writer.Delete()
     succOrFailure
   }
-
 
   private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
     val vtkReader = new vtkPolyDataReader()
@@ -164,7 +159,6 @@ object MeshIO {
     mesh
   }
 
-
   private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
     val stlReader = new vtkSTLReader()
     stlReader.SetFileName(file.getAbsolutePath)
@@ -182,7 +176,6 @@ object MeshIO {
     vtkPd.Delete()
     mesh
   }
-
 
   def readHDF5(file: File): Try[TriangleMesh] = {
 
@@ -214,6 +207,4 @@ object MeshIO {
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)
 }
-
-
 

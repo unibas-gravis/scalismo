@@ -16,16 +16,15 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{Point, Dim, NDSpace}
+import scalismo.geometry.{ Point, Dim, NDSpace }
 
 import scala.annotation.tailrec
-
 
 /**
  * DimensionalOrdering is a trait whose instances each represent a strategy for ordering instances
  * of a multidimensional type by a projection on a given dimension.
  */
-private [scalismo] trait DimensionalOrdering[A] {
+private[scalismo] trait DimensionalOrdering[A] {
   /** How many dimensions type A has. */
   def dimensions: Int
 
@@ -67,7 +66,7 @@ private [scalismo] trait DimensionalOrdering[A] {
   }
 }
 
-private [scalismo] object DimensionalOrdering {
+private[scalismo] object DimensionalOrdering {
   def dimensionalOrderingForTuple[T <: Product, A](dim: Int)(implicit ord: Ordering[A]) =
     new DimensionalOrdering[T] {
       val dimensions = dim
@@ -75,7 +74,7 @@ private [scalismo] object DimensionalOrdering {
         x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
     }
 
-  implicit def dimensionalOrderingForPoint[D <: Dim : NDSpace] = new DimensionalOrdering[Point[D]] {
+  implicit def dimensionalOrderingForPoint[D <: Dim: NDSpace] = new DimensionalOrdering[Point[D]] {
     val dimensions = implicitly[NDSpace[D]].dimensionality
     def compareProjection(d: Int)(x: Point[D], y: Point[D]) =
       Ordering[Double].compare(x(d), y(d))

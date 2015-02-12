@@ -15,12 +15,11 @@
  */
 package scalismo.image
 
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 
 import scalismo.io.ImageIO
-
 
 class ResampleTests extends FunSpec with Matchers {
   scalismo.initialize()
@@ -42,7 +41,6 @@ class ResampleTests extends FunSpec with Matchers {
       }
     }
   }
-
 
   describe("Resampling a 3D image") {
     val path = getClass.getResource("/3dimage.h5").getPath

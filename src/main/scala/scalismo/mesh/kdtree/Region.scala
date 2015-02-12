@@ -20,17 +20,17 @@ import scala.language.implicitConversions
 
 import scala.math.Ordering.Implicits._
 
-private [scalismo] sealed trait Region[A] {
+private[scalismo] sealed trait Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean
 }
 
-private [scalismo] case class EntireSpace[A]() extends Region[A] {
+private[scalismo] case class EntireSpace[A]() extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = true
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean = true
 }
 
-private [scalismo] case class AboveHyperplane[A](a: A, dim: Int) extends Region[A] {
+private[scalismo] case class AboveHyperplane[A](a: A, dim: Int) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = other match {
     case EntireSpace() => true
     case AboveHyperplane(b, bdim) => true
@@ -38,10 +38,10 @@ private [scalismo] case class AboveHyperplane[A](a: A, dim: Int) extends Region[
     case RegionIntersection(regions) => regions.forall(overlapsWith _)
   }
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean =
-      ord.compareProjection(dim)(p, a) >= 0
+    ord.compareProjection(dim)(p, a) >= 0
 }
 
-private [scalismo] case class BelowHyperplane[A](a: A, dim: Int) extends Region[A] {
+private[scalismo] case class BelowHyperplane[A](a: A, dim: Int) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = other match {
     case EntireSpace() => true
     case AboveHyperplane(b, bdim) => (dim != bdim) || (ord.compareProjection(dim)(b, a) <= 0)
@@ -49,10 +49,10 @@ private [scalismo] case class BelowHyperplane[A](a: A, dim: Int) extends Region[
     case RegionIntersection(regions) => regions.forall(overlapsWith)
   }
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean =
-      ord.compareProjection(dim)(p, a) <= 0
+    ord.compareProjection(dim)(p, a) <= 0
 }
 
-private [scalismo] case class RegionIntersection[A](regions: Seq[Region[A]]) extends Region[A] {
+private[scalismo] case class RegionIntersection[A](regions: Seq[Region[A]]) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = {
     regions.forall(_.overlapsWith(other))
   }
@@ -60,7 +60,7 @@ private [scalismo] case class RegionIntersection[A](regions: Seq[Region[A]]) ext
     regions.forall(_.contains(p))
 }
 
-private [scalismo] class RegionBuilder[A] {
+private[scalismo] class RegionBuilder[A] {
   var regions = new scala.collection.mutable.ArrayBuffer[Region[A]]
 
   def addRegion(region: Region[A]) = {
@@ -84,7 +84,7 @@ private [scalismo] class RegionBuilder[A] {
   }
 }
 
-private [scalismo] object Region {
+private[scalismo] object Region {
   implicit def fromBuilder[A](builder: RegionBuilder[A]): Region[A] = builder.build
   def from[A](a: A, dim: Int): RegionBuilder[A] = (new RegionBuilder).from(a, dim)
   def to[A](a: A, dim: Int): RegionBuilder[A] = (new RegionBuilder).to(a, dim)

@@ -17,9 +17,9 @@ package scalismo.io
 
 import java.io.File
 
-import scalismo.geometry.{_3D, Point}
+import scalismo.geometry.{ _3D, Point }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
-import scalismo.mesh.{TriangleCell, TriangleMesh}
+import scalismo.mesh.{ TriangleCell, TriangleMesh }
 import scalismo.statisticalmodel.StatisticalMeshModel
 
 import scala.util.Try
@@ -53,7 +53,6 @@ object StatismoIO {
 
   case class CatalogEntry(name: String, modelType: StatismoModelType, modelPath: String)
   object NoCatalogPresentException extends Exception
-
 
   /**
    * List all models that are stored in the given hdf5 file.
@@ -131,14 +130,12 @@ object StatismoIO {
       meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
       meanVector = DenseVector(meanArray.data)
       pcaBasisArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaBasis")
-      majorVersion <-
-      if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion")
+      majorVersion <- if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion")
       else {
         if (representerName == "vtkPolyDataRepresenter" || representerName == "itkMeshRepresenter") Success(0)
         else Failure(new Throwable(s"no entry /version/majorVersion provided in statismo file."))
       }
-      minorVersion <-
-      if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion")
+      minorVersion <- if (h5file.exists("/version/minorVersion")) h5file.readInt("/version/minorVersion")
       else {
         if (representerName == "vtkPolyDataRepresenter" || representerName == "itkMeshRepresenter") Success(8)
         else Failure(new Throwable(s"no entry /version/minorVersion provided in statismo file."))
@@ -202,14 +199,12 @@ object StatismoIO {
           _ <- h5file.writeInt("/version/majorVersion", 0)
           _ <- h5file.writeInt("/version/minorVersion", 9)
         } yield Success(())
-      }
-      else {
+      } else {
         for {
           _ <- writeRepresenterStatismov081(h5file, group, model, modelPath)
           _ <- h5file.writeInt("/version/majorVersion", 0)
           _ <- h5file.writeInt("/version/minorVersion", 8)
-        }
-        yield Success(())
+        } yield Success(())
       }
       _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
       _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
@@ -239,7 +234,6 @@ object StatismoIO {
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.points.size), pointArray.toArray))
     } yield Success(())
   }
-
 
   private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
@@ -331,7 +325,6 @@ object StatismoIO {
       stream.close()
     } map (_ => tmpfile)
   }
-
 
   //  def main(args: Array[String]): Unit = {
   //    org.statismo.stk.core.initialize

@@ -22,7 +22,7 @@ import scalismo.geometry._
  */
 object Field {
 
-  def apply[D <: Dim, A](dom : Domain[D], fun : Point[D] => A) = new Field[D, A] {
+  def apply[D <: Dim, A](dom: Domain[D], fun: Point[D] => A) = new Field[D, A] {
     override def domain = dom
     override val f = fun
   }
@@ -57,8 +57,10 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
   /** True if the image is defined at the given point */
   def isDefinedAt(pt: Point[D]): Boolean = domain.isDefinedAt(pt)
 
-  /** The value of the image at a given point.
-   * if an image is accessed outside of its definition, an exception is thrown */
+  /**
+   * The value of the image at a given point.
+   * if an image is accessed outside of its definition, an exception is thrown
+   */
   override def apply(x: Point[D]): A = {
     if (!isDefinedAt(x)) throw new IllegalArgumentException(s"Point $x is outside the domain")
     f(x)
@@ -69,7 +71,7 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
    * but yields none if the value is outside of the domain
    */
   def liftValues: (Point[D] => Option[A]) = new Field[D, Option[A]] {
-    override val f = { (x : Point[D]) =>
+    override val f = { (x: Point[D]) =>
       if (self.isDefinedAt(x)) Some(self.f(x))
       else None
     }
@@ -78,8 +80,7 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
 
 }
 
-
-  /**
+/**
  * An vector valued image.
  */
 case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => Vector[DO]) extends Field[D, Vector[DO]] {
@@ -87,7 +88,7 @@ case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => Ve
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: VectorField[D, DO]): VectorField[D, DO] = {
     def f(x: Point[D]): Vector[DO] = this.f(x) + that.f(x)
-    new VectorField(Domain.intersection[D](domain,that.domain), f)
+    new VectorField(Domain.intersection[D](domain, that.domain), f)
   }
 
   /** subtract two images. The domain of the new image is the intersection of the domains of the individual images*/
@@ -96,7 +97,6 @@ case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => Ve
     val newDomain = Domain.intersection[D](domain, that.domain)
     new VectorField(newDomain, f)
   }
-
 
   /** scalar multiplication of a vector field */
   def *(s: Double): VectorField[D, DO] = {

@@ -15,8 +15,8 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.numerics.{Sampler, FixedPointsUniformMeshSampler3D}
-import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.numerics.{ Sampler, FixedPointsUniformMeshSampler3D }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
 import scalismo.geometry._
 
 import scala.util.Failure

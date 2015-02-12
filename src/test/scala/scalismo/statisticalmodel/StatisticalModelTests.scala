@@ -22,7 +22,7 @@ import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scala.language.implicitConversions
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import java.io.File
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import breeze.stats.distributions.RandBasis
 import org.apache.commons.math3.random.MersenneTwister

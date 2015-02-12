@@ -16,7 +16,7 @@
 package scalismo.utils
 
 import scala.language.implicitConversions
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 
 class MemoizationTests extends FunSpec with Matchers {
@@ -45,13 +45,13 @@ class MemoizationTests extends FunSpec with Matchers {
       }
 
       val slowFunMemoized = Memoize(slowTestFun, 10)
-      val timeSlowFun = time { 
+      val timeSlowFun = time {
         for (i <- 0 until 10) slowTestFun(0)
       }
-      val timeMemoFun = time { 
+      val timeMemoFun = time {
         for (i <- 0 until 10) slowFunMemoized
       }
-      timeSlowFun should be > timeMemoFun 
+      timeSlowFun should be > timeMemoFun
     }
   }
 

@@ -17,9 +17,9 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import scalismo.common.DiscreteVectorField
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.TriangleMesh
-import scalismo.registration.{Transformation, RigidTransformation}
+import scalismo.registration.{ Transformation, RigidTransformation }
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -126,7 +126,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
       val data = newIthBasis.map(_.data).flatten.toArray
       newBasisMat(::, i) := DenseVector(data)
     }
-    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain.transform (rigidTransform), newMean, gp.variance, newBasisMat)
+    val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain.transform(rigidTransform), newMean, gp.variance, newBasisMat)
 
     new StatisticalMeshModel(newRef, newGp)
 

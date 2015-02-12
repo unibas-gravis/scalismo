@@ -24,12 +24,12 @@ object BSpline {
 
   /**
    * The bspline basis function for degrees 0 to 3
-   **/
+   */
   def nthOrderBSpline(n: Int)(x: Double): Double = {
-    val absX : Double = scala.math.abs(x)
-    val absXSquared : Double = absX * absX
-    val absXCube : Double = absXSquared * absX
-    val twoMinAbsX : Double = 2.0 - absX
+    val absX: Double = scala.math.abs(x)
+    val absXSquared: Double = absX * absX
+    val absXCube: Double = absXSquared * absX
+    val twoMinAbsX: Double = 2.0 - absX
 
     n match {
       case 0 => {
@@ -44,9 +44,9 @@ object BSpline {
         else 0
       }
       case 2 => {
-        if (-1.5 <= x && x < -0.5) 0.5 * (x + 1.5)*(x + 1.5)
-        else if  (-0.5 <= x && x < 0.5) -(x + 0.5)*(x + 0.5) + (x - 0.5) + 1.5
-        else if (x >= 0.5 && x < 1.5) 0.5 * (1 - (x - 0.5))*(1 - (x - 0.5))
+        if (-1.5 <= x && x < -0.5) 0.5 * (x + 1.5) * (x + 1.5)
+        else if (-0.5 <= x && x < 0.5) -(x + 0.5) * (x + 0.5) + (x - 0.5) + 1.5
+        else if (x >= 0.5 && x < 1.5) 0.5 * (1 - (x - 0.5)) * (1 - (x - 0.5))
         else 0
 
       }
@@ -55,14 +55,11 @@ object BSpline {
         if (absX >= 0 && absX < 1)
           twoByThree - absXSquared + 0.5 * absXCube
         else if (absX >= 1 && absX < 2)
-          twoMinAbsX * twoMinAbsX *  twoMinAbsX / 6.0
+          twoMinAbsX * twoMinAbsX * twoMinAbsX / 6.0
         else 0
       }
       case _ => throw new NotImplementedError("Bspline of order " + n + " is not implemented yet")
     }
   }
-
-
-
 
 }

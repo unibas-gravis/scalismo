@@ -16,9 +16,9 @@
 package scalismo.io
 
 import scalismo.common.RealSpace
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
+import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.geometry._
-import scalismo.registration.{AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation}
+import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation }
 import scalismo.utils.ImageConversion
 import scalismo.utils.ImageConversion.CanConvertToVTK
 import scala.util.Try
@@ -38,35 +38,35 @@ import reflect.runtime.universe.{ TypeTag, typeOf }
 import spire.math.Numeric
 
 /**
- * Implements methods for reading and writing D-dimensional images  
- * 
+ * Implements methods for reading and writing D-dimensional images
+ *
  * WARNING! WE ARE USING an LPS COORDINATE SYSTEM
- * 
- * VTK file format does not indicate the orientation of the image. 
- * Therefore, when reading from VTK, we assume that it is in LPS world coordinates. 
- * Hence, no magic is done, the same information (coordinates) present in the 
- * VTK file header are directly mapped to our coordinate system. 
- * 
- * This is also the case when writing VTK. Our image domain information (origin, spacing ..) is mapped 
+ *
+ * VTK file format does not indicate the orientation of the image.
+ * Therefore, when reading from VTK, we assume that it is in LPS world coordinates.
+ * Hence, no magic is done, the same information (coordinates) present in the
+ * VTK file header are directly mapped to our coordinate system.
+ *
+ * This is also the case when writing VTK. Our image domain information (origin, spacing ..) is mapped
  * directly into the written VTK file header.
- *   
- * This is however not the case for Nifti files! Nifti file headers contain an affine transform from the ijk 
+ *
+ * This is however not the case for Nifti files! Nifti file headers contain an affine transform from the ijk
  * image coordinates to an RAS World Coordinate System (therefore supporting different image orientations).
- * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :  
- * 
- * This is done by :    
+ * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :
+ *
+ * This is done by :
  *    * mirroring the first two dimensions of the scaling parameters of the affine transform
  *    * mirroring the first two dimensions of the image origin (translation parameters)
- *   
- * The same mirroring is done again when writing an image to the Nifti format.      
- * 
- * 
+ *
+ * The same mirroring is done again when writing an image to the Nifti format.
+ *
+ *
  * Documentation on orientation :
- * 
+ *
  * http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
  * http://www.slicer.org/slicerWiki/index.php/Coordinate_systems
- * http://brainder.org/2012/09/23/the-nifti-file-format/ 
- * 
+ * http://brainder.org/2012/09/23/the-nifti-file-format/
+ *
  */
 
 object ImageIO {
@@ -83,12 +83,12 @@ object ImageIO {
 
   private case class GenericImageData[Scalar](
 
-    origin: Array[Double],
-    spacing: Array[Double],
-    size: Array[Long],
-    pixelDimensionality: Int,
-    voxelType: String,
-    data: Array[Scalar]) {
+      origin: Array[Double],
+      spacing: Array[Double],
+      size: Array[Long],
+      pixelDimensionality: Int,
+      voxelType: String,
+      data: Array[Scalar]) {
 
     def hasDimensionality(dim: Int): Boolean = {
       origin.size == dim &&
@@ -371,11 +371,10 @@ object ImageIO {
 
       }
 
-      
       val M = DenseMatrix.zeros[Double](4, 4)
-      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0,0); M(0, 1) = 0; M(0, 2) = 0; M(0, 3) = -domain.origin(0)
-      M(1, 0) = 0; M(1, 1) = -1f * domain.spacing(1) * domain.directions(1,1); M(1, 2) = 0; M(1, 3) = -domain.origin(1)
-      M(2, 0) = 0; M(2, 1) = 0; M(2, 2) = domain.spacing(2) * domain.directions(2,2); M(2, 3) = domain.origin(2)
+      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0, 0); M(0, 1) = 0; M(0, 2) = 0; M(0, 3) = -domain.origin(0)
+      M(1, 0) = 0; M(1, 1) = -1f * domain.spacing(1) * domain.directions(1, 1); M(1, 2) = 0; M(1, 3) = -domain.origin(1)
+      M(2, 0) = 0; M(2, 1) = 0; M(2, 2) = domain.spacing(2) * domain.directions(2, 2); M(2, 3) = domain.origin(2)
       M(3, 3) = 1
 
       // the header
@@ -398,12 +397,12 @@ object ImageIO {
   private[this] def niftyDataTypeFromScalar[Scalar: Numeric: TypeTag: ClassTag]: Short = {
 
     typeOf[Scalar] match {
-      case t if t =:= typeOf[Char]   => 2
-      case t if t <:< typeOf[Short]  => 4
-      case t if t <:< typeOf[Int]    => 8
-      case t if t <:< typeOf[Float]  => 16
+      case t if t =:= typeOf[Char] => 2
+      case t if t <:< typeOf[Short] => 4
+      case t if t <:< typeOf[Int] => 8
+      case t if t <:< typeOf[Float] => 16
       case t if t <:< typeOf[Double] => 64
-      case _                         => throw new Throwable(s"Unsupported datatype ${typeOf[Scalar]}")
+      case _ => throw new Throwable(s"Unsupported datatype ${typeOf[Scalar]}")
     }
   }
 
@@ -469,10 +468,10 @@ object ImageIO {
 
   private def scalarTypeToString[Scalar: TypeTag](): Option[String] = {
     typeOf[Scalar] match {
-      case t if t =:= typeOf[Float]  => Some("FLOAT")
-      case t if t =:= typeOf[Short]  => Some("SHORT")
+      case t if t =:= typeOf[Float] => Some("FLOAT")
+      case t if t =:= typeOf[Short] => Some("SHORT")
       case t if t =:= typeOf[Double] => Some("DOUBLE")
-      case _                         => None
+      case _ => None
     }
   }
 

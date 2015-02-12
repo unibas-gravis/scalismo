@@ -17,8 +17,8 @@ package scalismo.io
 
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
-import java.lang.{Short => JShort, Float => JFloat, Long => JLong, Double => JDouble}
-import reflect.runtime.universe.{TypeTag, typeOf}
+import java.lang.{ Short => JShort, Float => JFloat, Long => JLong, Double => JDouble }
+import reflect.runtime.universe.{ TypeTag, typeOf }
 import java.nio.channels.FileChannel
 import scala.util.Try
 
@@ -47,7 +47,7 @@ import scala.util.Try
  *
  * @param file the RandomAccessFile in Nifti format (read only)
  */
-class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
+class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
   lazy val header: NiftiHeader = {
     val buf = ByteBuffer.allocate(348)
     file.readFully(buf.array())
@@ -254,7 +254,7 @@ class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
       val dz: Double = this.pixdim(3)
       val qfac: Double = this.pixdim(0)
 
-      val R: Array[Array[Double]] = Array.ofDim[Double](4,4)
+      val R: Array[Array[Double]] = Array.ofDim[Double](4, 4)
 
       /* last row is always [ 0 0 0 1 ] */
       R(3)(0) = 0.0
@@ -271,8 +271,7 @@ class FastReadOnlyNiftiVolume private(private val file: RandomAccessFile) {
         c *= a
         d *= a
         a = 0.0
-      }
-      else {
+      } else {
         a = Math.sqrt(a)
       }
       val xd: Double = if (dx > 0.0) dx else 1.0

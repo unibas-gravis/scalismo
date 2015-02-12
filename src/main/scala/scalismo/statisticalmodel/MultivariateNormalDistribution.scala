@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{DenseMatrix, DenseVector, det}
+import breeze.linalg.{ DenseMatrix, DenseVector, det }
 import scalismo.geometry._
 
 private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
@@ -38,16 +38,14 @@ private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
 }
 
 case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMatrix[Float])
-  extends MultivariateNormalDistributionLike[DenseVector[Float], DenseMatrix[Float]] {
+    extends MultivariateNormalDistributionLike[DenseVector[Float], DenseMatrix[Float]] {
 
   require(cov.rows == cov.cols)
   require(mean.size == cov.rows)
 
   override val dim = mean.size
 
-
   private val covDouble = cov.map(_.toDouble)
-
 
   //private val covInvFloat = covInv.map(_.toFloat)
   private val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd(covDouble)
@@ -55,7 +53,6 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
   private val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
   private val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
   private val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
-
 
   /**
    * Returns a seq with the principal components and associated variance
@@ -125,14 +122,14 @@ object MultivariateNormalDistribution {
 }
 
 object NDimensionalNormalDistribution {
-  def apply[D<: Dim : NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Float)]): NDimensionalNormalDistribution[D] = {
+  def apply[D <: Dim: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Float)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
     val cov: SquareMatrix[D] = {
       val d2 = {
-        val data = Array.fill(dim*dim)(0.0f)
-        for (i <- 0 until dim) data(i* dim + i) = principalComponents(i)._2
+        val data = Array.fill(dim * dim)(0.0f)
+        for (i <- 0 until dim) data(i * dim + i) = principalComponents(i)._2
         SquareMatrix[D](data)
       }
       val u = SquareMatrix[D](principalComponents.map(_._1.data).flatten.toArray)
@@ -142,8 +139,8 @@ object NDimensionalNormalDistribution {
   }
 }
 
-case class NDimensionalNormalDistribution[D <: Dim : NDSpace](mean: Vector[D], cov: SquareMatrix[D])
-  extends MultivariateNormalDistributionLike[Vector[D], SquareMatrix[D]] {
+case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], cov: SquareMatrix[D])
+    extends MultivariateNormalDistributionLike[Vector[D], SquareMatrix[D]] {
 
   private val impl = MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix)
 
@@ -155,7 +152,7 @@ case class NDimensionalNormalDistribution[D <: Dim : NDSpace](mean: Vector[D], c
 
   override def drawSample(): Vector[D] = Vector.fromBreezeVector(impl.drawSample())
 
-  override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d)}
+  override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d) }
 
   override def mahalanobisDistance(x: Vector[D]): Double = impl.mahalanobisDistance(x.toBreezeVector)
 }

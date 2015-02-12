@@ -17,14 +17,13 @@ package scalismo.statisticalmodel.dataset
 
 import java.io.File
 
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.Transformation
 
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-
 
 private object DataUtils {
   /**
@@ -42,7 +41,6 @@ private object DataUtils {
     (transforms, throwables)
   }
 
- 
   /**
    * Create a transformation from a mesh. The transformation maps from the reference mesh to the corresponding target point.
    */

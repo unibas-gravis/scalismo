@@ -20,7 +20,7 @@ import scala.language.implicitConversions
 /**
  * An n-dimensional Point
  */
-class Point[D <: Dim : NDSpace] private(private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] {
+class Point[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] {
 
   def +(that: Vector[D]): Point[D] = {
     val newData = new Array[Float](dimensionality)
@@ -57,10 +57,9 @@ class Point[D <: Dim : NDSpace] private(private[scalismo] override val data: Arr
   protected override def canEqual(other: Any): Boolean = other.isInstanceOf[Point[D]]
 }
 
-
 object Point {
 
-  def apply[D <: Dim : NDSpace](d: Array[Float]) = new Point[D](d)
+  def apply[D <: Dim: NDSpace](d: Array[Float]) = new Point[D](d)
   def apply(x: Float): Point[_1D] = new Point[_1D](Array(x))
   def apply(x: Float, y: Float): Point[_2D] = new Point[_2D](Array(x, y))
   def apply(x: Float, y: Float, z: Float): Point[_3D] = new Point[_3D](Array(x, y, z))

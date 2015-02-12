@@ -15,7 +15,7 @@
  */
 package scalismo.common
 
-import scalismo.geometry.{Dim, Vector}
+import scalismo.geometry.{ Dim, Vector }
 import scala.reflect.ClassTag
 import spire.math.Numeric
 
@@ -40,23 +40,21 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 /**
  *
  */
-class DiscreteScalarField[D <: Dim, A : Numeric : ClassTag](val domain : FiniteDiscreteDomain[D], private[scalismo] val data : Array[A]) extends DiscreteField[D, A] {
+class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: FiniteDiscreteDomain[D], private[scalismo] val data: Array[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def map[B: Numeric : ClassTag](f: A => B): DiscreteScalarField[D, B] = {
+  def map[B: Numeric: ClassTag](f: A => B): DiscreteScalarField[D, B] = {
     new DiscreteScalarField(domain, data.map(f))
   }
 
-
   override def values = data.iterator
-  override def apply(ptId : Int) = data(ptId)
-  override def isDefinedAt(ptId : Int) = data.isDefinedAt(ptId)
-
+  override def apply(ptId: Int) = data(ptId)
+  override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
   override def equals(other: Any): Boolean =
     other match {
 
-      case that: DiscreteScalarField[D, A]  =>
+      case that: DiscreteScalarField[D, A] =>
         (that canEqual this) &&
           data.deep == that.data.deep &&
           domain == that.domain
@@ -69,28 +67,25 @@ class DiscreteScalarField[D <: Dim, A : Numeric : ClassTag](val domain : FiniteD
 
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 
-
 }
 
 /**
  *
  */
-class DiscreteVectorField[D <: Dim, DO <: Dim]private (val domain : FiniteDiscreteDomain[D], private[scalismo] val data : IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: FiniteDiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
-  override def apply(ptId : Int) = data(ptId)
-  override def isDefinedAt(ptId : Int) = data.isDefinedAt(ptId)
-
+  override def apply(ptId: Int) = data(ptId)
+  override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map(f: Vector[DO] => Vector[DO]): DiscreteVectorField[D, DO] = new DiscreteVectorField(domain, data.map(f))
 
 }
 
-
 object DiscreteVectorField {
 
-  def apply[D <: Dim, DO <: Dim](domain : FiniteDiscreteDomain[D], data : IndexedSeq[Vector[DO]]) = {
+  def apply[D <: Dim, DO <: Dim](domain: FiniteDiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
     new DiscreteVectorField(domain, data)
   }
 }

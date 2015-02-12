@@ -15,17 +15,16 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{_3D, Point}
+import scalismo.geometry.{ _3D, Point }
 import scalismo.io.MeshIO
-import scalismo.registration.{ScalingSpace, RotationSpace}
+import scalismo.registration.{ ScalingSpace, RotationSpace }
 
 import scala.language.implicitConversions
 import scalismo.geometry.Point.implicits._
 import java.io.File
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
-
 
 class MeshTests extends FunSpec with Matchers {
 
