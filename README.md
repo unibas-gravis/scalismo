@@ -34,7 +34,7 @@ libraryDependencies  ++= Seq(
             // other dependencies here
             "ch.unibas.cs.gravis" %% "scalismo" % "0.7.0"
             // scalismo depends on some native libraries, which must be added explicitly for your system
-            "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.1" 
+            "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.+" 
 )
 ```
 
