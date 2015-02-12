@@ -15,6 +15,7 @@ We aim to achieve these properties by leveraging two core technologies:
 * The Scala and Java ecosystem for reducing the software complexity. 
 
 ## Documentation
+
 * [Quickstart](shapemodelling.cs.unibas.ch/quickstart)
 * [Graphical Tutorial](shapemodelling.cs.unibas.ch/tutorial)
 * [API Doc](shapemodelling.cs.unibas.ch/scalismo-api/latest)
@@ -26,14 +27,14 @@ There is also a [scalismo google group](https://groups.google.com/forum/#!forum/
 To use scalismo in your own project, add the following lines to your build.sbt
 ```
 resolvers ++= Seq(
-	  "shapemodelling unibas" at "http://shapemodelling.cs.unibas.ch/repository/public"
-	  )
+          "shapemodelling unibas" at "http://shapemodelling.cs.unibas.ch/repository/public"
+          )
 
 libraryDependencies  ++= Seq(
             // other dependencies here
- 	    "ch.unibas.cs.gravis" %% "scalismo" % "0.7.0"
-	    // scalismo depends on some native libraries, which must be added explicitly for your system
-	    "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.1" 
+            "ch.unibas.cs.gravis" %% "scalismo" % "0.7.0"
+            // scalismo depends on some native libraries, which must be added explicitly for your system
+            "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.1" 
 )
 ```
 
@@ -42,7 +43,7 @@ To use scalismo-ui (which is currently not open source) also add the following d
 
 ```
 libraryDependencies  ++= Seq(
-	    "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.7.0"
+            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.7.0"
 )
 ```
 
@@ -81,7 +82,7 @@ and some of the scalismo developers are also actively working on statismo.
 In fact, scalismo had been started as an attempt to provide the core functionality of Statismo and the ITK registration toolkit, but without
 the complexity that is induced by these toolkits. 
 
-The design of the registration approach used in scalismo is strongly influenced by [ITK](www.itk.org) and [Elastix](elastix.isi.uu.nl).
+The design of the registration approach used in scalismo is strongly influenced by [ITK](http://www.itk.org) and [Elastix](http://elastix.isi.uu.nl).
 
 
 ## Copyright and License
