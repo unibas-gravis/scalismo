@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import scala.reflect.ClassTag
 import scala.collection.mutable
-import scalismo.common.{ DiscreteScalarField, SpatiallyIndexedFiniteDiscreteDomain, Cell }
+import scalismo.common.{ DiscreteScalarField, SpatiallyIndexedDiscreteDomain, Cell }
 import scalismo.geometry._
 import spire.math.Numeric
 
@@ -38,7 +38,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
  *
  */
 case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
-    extends SpatiallyIndexedFiniteDiscreteDomain[_3D](meshPoints, meshPoints.size) {
+    extends SpatiallyIndexedDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
   private[scalismo] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())

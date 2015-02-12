@@ -18,8 +18,8 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
-import scalismo.common.FiniteDiscreteDomain.CanBound
-import scalismo.common.{ VectorField, DiscreteVectorField, FiniteDiscreteDomain }
+import scalismo.common.DiscreteDomain.CanBound
+import scalismo.common.{ VectorField, DiscreteVectorField, DiscreteDomain }
 import scalismo.geometry._
 import scalismo.kernels.MatrixValuedPDKernel
 import scalismo.mesh.kdtree.KDTreeMap
@@ -39,7 +39,7 @@ import scalismo.registration.Transformation
  * @see [[scalismo.common.DiscreteVectorField]]
  * @see [[DiscreteLowRankGaussianProcess]]
  */
-case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val domain: FiniteDiscreteDomain[D],
+case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val domain: DiscreteDomain[D],
     val meanVector: DenseVector[Float],
     val variance: DenseVector[Float],
     val basisMatrix: DenseMatrix[Float]) { self =>
@@ -237,7 +237,7 @@ object DiscreteLowRankGaussianProcess {
   /**
    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
    */
-  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: FiniteDiscreteDomain[D], gp: LowRankGaussianProcess[D, DO]): DiscreteLowRankGaussianProcess[D, DO] = {
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], gp: LowRankGaussianProcess[D, DO]): DiscreteLowRankGaussianProcess[D, DO] = {
     val points = domain.points.toSeq
 
     val outputDimensionality = implicitly[NDSpace[DO]].dimensionality
@@ -329,7 +329,7 @@ object DiscreteLowRankGaussianProcess {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
    *
    */
-  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace](domain: FiniteDiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
+  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace](domain: DiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
     val n = transformations.size

@@ -24,7 +24,7 @@ import spire.math.Numeric
  */
 trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 
-  def domain: FiniteDiscreteDomain[D]
+  def domain: DiscreteDomain[D]
 
   def values: Iterator[A]
   def pointsWithValues = domain.points zip values
@@ -40,7 +40,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 /**
  *
  */
-class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: FiniteDiscreteDomain[D], private[scalismo] val data: Array[A]) extends DiscreteField[D, A] {
+class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: Array[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map[B: Numeric: ClassTag](f: A => B): DiscreteScalarField[D, B] = {
@@ -72,7 +72,7 @@ class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: FiniteDisc
 /**
  *
  */
-class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: FiniteDiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId: Int) = data(ptId)
@@ -85,7 +85,7 @@ class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: FiniteDiscre
 
 object DiscreteVectorField {
 
-  def apply[D <: Dim, DO <: Dim](domain: FiniteDiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
+  def apply[D <: Dim, DO <: Dim](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
     new DiscreteVectorField(domain, data)
   }
 }
