@@ -2,7 +2,10 @@ resolvers += Resolver.url("bintray-sbt-plugin-releases", url("http://dl.bintray.
  
 addSbtPlugin("com.banno" % "sbt-license-plugin" % "0.1.4")
 
+addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.3.0")
+
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.3.0")
+
 
 
 
