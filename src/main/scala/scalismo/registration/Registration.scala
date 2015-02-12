@@ -22,24 +22,23 @@ import scalismo.geometry.{Point, NDSpace, Dim}
 import scalismo.image.{DifferentiableScalarImage, ScalarImage}
 import scalismo.numerics._
 
-case class RegistrationResult[D <: Dim](transform: Transformation[D], parameters: ParameterVector) {}
 
-case class RegistrationConfiguration[D <: Dim : NDSpace](
+case class RegistrationConfiguration[D <: Dim : NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](
                                                          optimizer: Optimizer,
                                                          metric: ImageMetric[D],
-                                                         transformationSpace: TransformationSpace[D] with DifferentiableTransforms[D],
+                                                         transformationSpace: TS,
                                                          regularizer: Regularizer,
                                                          regularizationWeight: Double)
 
 
 object Registration {
 
-  case class RegistrationState[D <: Dim](registrationResult: RegistrationResult[D], optimizerState: Optimizer#State)
+  case class RegistrationState[D <: Dim, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](registrationResult: TS#T, optimizerState: Optimizer#State)
 
-  def iterations[D <: Dim : NDSpace](config: RegistrationConfiguration[D])(
+  def iterations[D <: Dim : NDSpace,TS <: TransformationSpace[D] with DifferentiableTransforms[D]](config: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
-    initialParameters: DenseVector[Float] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D]] =
+    initialParameters: DenseVector[Float] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D,TS]] =
   {
     val regularizer = config.regularizer
 
@@ -85,14 +84,14 @@ object Registration {
         val optParams = optimizerState.parameters
         val transformation = transformationSpace.transformForParameters(optParams)
 
-        val regRes = RegistrationResult(transformation, optParams)
+        val regRes = transformation
         RegistrationState(regRes, optimizerState)
     }
   }
 
-  def registration[D <: Dim : NDSpace](configuration: RegistrationConfiguration[D])(
+  def registration[D <: Dim : NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](configuration: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D]): RegistrationResult[D] = {
+    movingImage: DifferentiableScalarImage[D]): TS#T = {
     val regStates = iterations(configuration)(fixedImage, movingImage)
     regStates.toSeq.last.registrationResult
   }

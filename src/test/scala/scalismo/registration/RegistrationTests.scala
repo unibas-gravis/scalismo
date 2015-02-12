@@ -49,7 +49,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
         val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints))
 
-        val alignedPoints = points.map((pt: Point[_2D]) => regResult.transform(pt))
+        val alignedPoints = points.map((pt: Point[_2D]) => regResult(pt))
 
         transformedPoints(0)(0) should be(alignedPoints(0)(0) plusOrMinus 0.0001)
         transformedPoints(0)(1) should be(alignedPoints(0)(1) plusOrMinus 0.0001)
@@ -74,7 +74,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.points.zip(rigidTransformed.points).toIndexedSeq)
 
     //should not test on parameters here since many euler angles can lead to the same rotation matrix
-    val rigidRegTransformed = mesh transform regResult.transform
+    val rigidRegTransformed = mesh transform regResult
     it("can retrieve correct parameters") {
 
       for ((p, i) <- rigidRegTransformed.points.zipWithIndex) {
@@ -85,8 +85,8 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
     }
 
     it("Rigid Transformation forth and back of a mesh gives the same points ") {
-      val inverseTrans = regResult.transform.asInstanceOf[RigidTransformation[_3D]].inverse
-      val tranformed = mesh.transform(regResult.transform).transform(inverseTrans)
+      val inverseTrans = regResult.asInstanceOf[RigidTransformation[_3D]].inverse
+      val tranformed = mesh.transform(regResult).transform(inverseTrans)
 
       for ((p, i) <- tranformed.points.zipWithIndex) {
         p(0) should be(mesh.points(i)(0) plusOrMinus 0.0001)
@@ -114,7 +114,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
         val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints))
 
-        val alignedPoints = points.map(regResult.transform)
+        val alignedPoints = points.map(regResult)
         transformedPoints(0)(0) should be(alignedPoints(0)(0) plusOrMinus 0.0001)
         transformedPoints(0)(1) should be(alignedPoints(0)(1) plusOrMinus 0.0001)
         transformedPoints(1)(0) should be(alignedPoints(1)(0) plusOrMinus 0.0001)
@@ -139,7 +139,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.points.zip(translatedRotatedScaled.points).toIndexedSeq)
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
-      val regSim = mesh transform regResult.transform
+      val regSim = mesh transform regResult
 
       for ((p, i) <- regSim.points.zipWithIndex.take(100)) {
         p(0) should be(translatedRotatedScaled.points(i)(0) plusOrMinus 0.0001)
@@ -160,7 +160,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
 
       val domain = discreteFixedImage.domain
 
-      val regConf = RegistrationConfiguration[_2D](
+      val regConf = RegistrationConfiguration[_2D,TranslationSpace[_2D]](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
@@ -185,7 +185,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val domain = discreteFixedImage.domain
       val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
-      val regConf = RegistrationConfiguration[_2D](
+      val regConf = RegistrationConfiguration[_2D,RotationSpace[_2D]](
 
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
@@ -218,7 +218,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val regConf = RegistrationConfiguration[_3D](
+      val regConf = RegistrationConfiguration[_3D, TranslationSpace[_3D]](
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
@@ -237,7 +237,7 @@ class RegistrationTests extends FunSpec with ShouldMatchers {
       val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
       val transformed = fixedImage.compose(rotationTransform)
 
-      val regConf = RegistrationConfiguration[_3D](
+      val regConf = RegistrationConfiguration[_3D,RotationSpace[_3D]](
         optimizer = GradientDescentOptimizer(numIterations = 400, stepLength = 2e-12),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 10000)),
         transformationSpace = RotationSpace[_3D](center),
