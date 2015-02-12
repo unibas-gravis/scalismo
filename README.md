@@ -69,10 +69,10 @@ We are also always grateful if you report bugs or if give us feedback on how you
 The project is currently developed and maintained by the Graphics and Vision Research group, University of Basel. 
 The current maintainers of the project (people who can merge pull requests) are: 
 
-* Ghazi Bouabene ghazi.bouabene@unibas.ch
-* Thomas Gerig thomas.gerig@unibas.ch
-* Christoph Langguth christoph.langguth@unibas.ch
-* Marcel Luethi marcel.luethi@unibas.ch
+* [Ghazi Bouabene](https://github.com/ghazi-bouabene)
+* [Thomas Gerig](https://github.com/gerith)
+* [Christoph Langguth](https://github.com/clangguth)
+* [Marcel Luethi](https://github.com/marcelluethi)
 
 ## Related Projects
 Scalismo is closely related to the 
