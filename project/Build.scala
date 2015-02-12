@@ -54,7 +54,7 @@ object Dependencies {
   val scalatest = "org.scalatest" %% "scalatest" % "1.9" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.10"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.10"
-  val sprayJson = "io.spray" %% "spray-json" % "1.2.5"
+  val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "2.0.+"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.+" % "test"
   val spire = "org.spire-math" %% "spire" % "0.9.0"
