@@ -16,9 +16,9 @@ We aim to achieve these properties by leveraging two core technologies:
 
 ## Documentation
 
-* [Quickstart](shapemodelling.cs.unibas.ch/quickstart)
-* [Graphical Tutorial](shapemodelling.cs.unibas.ch/tutorial)
-* [API Doc](shapemodelling.cs.unibas.ch/scalismo-api/latest)
+* [Quickstart](http://shapemodelling.cs.unibas.ch/quickstart)
+* [Graphical Tutorial](http://shapemodelling.cs.unibas.ch/tutorial)
+* [API Doc](http://shapemodelling.cs.unibas.ch/scalismo-api/latest)
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
 
