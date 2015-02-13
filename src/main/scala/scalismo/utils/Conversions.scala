@@ -18,26 +18,10 @@ package scalismo.utils
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.mesh.{ TriangleCell, ScalarMeshData, TriangleMesh }
-import vtk.vtkPolyData
-import vtk.vtkCellArray
-import vtk.vtkTriangle
-import vtk.vtkPoints
-import vtk.vtkStructuredPoints
-import vtk.vtkInformation
+import vtk._
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.reflect.ClassTag
 import scala.util.{ Success, Try, Failure }
-import vtk.vtkCharArray
-import vtk.vtkShortArray
-import vtk.vtkIntArray
-import vtk.vtkLongArray
-import vtk.vtkFloatArray
-import vtk.vtkDoubleArray
-import vtk.vtkIdList
-import vtk.vtkDataArray
-import vtk.vtkImageData
-
-import vtk.vtkTriangleFilter
 
 import spire.math.Numeric
 
@@ -46,8 +30,9 @@ object VTKHelpers {
   val VTK_SIGNED_CHAR = 15
   val VTK_UNSIGNED_CHAR = 3
   val VTK_SHORT = 4
+  val VTK_UNSIGNED_SHORT = 5
   val VTK_INT = 6
-  val VTK_UNSIGNED_INT = 6
+  val VTK_UNSIGNED_INT = 7
   val VTK_LONG = 8
   val VTK_UNSIGNED_LONG = 9
   val VTK_FLOAT = 10
@@ -115,13 +100,25 @@ object VTKHelpers {
         Try {
           arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray().asInstanceOf[Array[A]]
         }
+      case VTK_UNSIGNED_CHAR =>
+        Try {
+          arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray().asInstanceOf[Array[A]]
+        }
       case VTK_SHORT =>
         Try {
           arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray().asInstanceOf[Array[A]]
         }
+      case VTK_UNSIGNED_SHORT =>
+        Try {
+          arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray().asInstanceOf[Array[A]]
+        }
       case VTK_INT =>
         Try {
           arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray().asInstanceOf[Array[A]]
+        }
+      case VTK_UNSIGNED_INT =>
+        Try {
+          arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray().asInstanceOf[Array[A]]
         }
       case VTK_FLOAT =>
         Try {
