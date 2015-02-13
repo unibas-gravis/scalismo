@@ -1,4 +1,4 @@
-# Scalismo - Scalable Image Analysis and Shape Modelling
+# Scalismo - Scalable Image Analysis and Shape Modelling [![Build Status](https://travis-ci.org/unibas-gravis/scalismo.svg?branch=develop)](https://travis-ci.org/unibas-gravis/scalismo)
 
 Scalismo is a library for statistical shape modeling and model-based image analysis in Scala. 
 It has its origin in the research done at the [Graphics and Vision Research Group](gravis.cs.unibas.ch) at the [University of Basel](www.unibas.ch). 
