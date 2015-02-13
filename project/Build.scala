@@ -2,6 +2,8 @@ import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.SbtGhPages._
+import com.typesafe.sbt.SbtGit.git
 
 import com.banno.license.Plugin.LicenseKeys._
 import com.banno.license.Licenses._
@@ -80,7 +82,12 @@ object STKBuild extends Build {
       fork in Test := true,
       publishTo := Some(publishURL),
       EclipseKeys.withSource := true)
-      ++ site.settings ++  site.includeScaladoc()
+      ++ site.settings 
+      ++ site.includeScaladoc()
+      ++ ghpages.settings ++
+      Seq(
+        git.remoteRepo := "git@github.com:unibas-gravis/scalismo.git"
+      )
 )
   // Sub-project specific dependencies
   val commonDeps = Seq(
