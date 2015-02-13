@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
+import com.typesafe.sbt.SbtSite.site
 
 import com.banno.license.Plugin.LicenseKeys._
 import com.banno.license.Licenses._
@@ -78,7 +79,9 @@ object STKBuild extends Build {
       javaOptions in Test += "-Djava.awt.headless=true",
       fork in Test := true,
       publishTo := Some(publishURL),
-      EclipseKeys.withSource := true))
+      EclipseKeys.withSource := true)
+      ++ site.settings ++  site.includeScaladoc()
+)
   // Sub-project specific dependencies
   val commonDeps = Seq(
     scalatest,
