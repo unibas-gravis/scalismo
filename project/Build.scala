@@ -17,7 +17,6 @@ object BuildSettings {
     scalaVersion := buildScalaVersion,
     crossScalaVersions := Seq("2.10.4", "2.11.4"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
-    javaOptions in test += "-Djava.awt.headless=true",
     scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
     shellPrompt := ShellPrompt.buildShellPrompt)
 }
@@ -76,6 +75,8 @@ object STKBuild extends Build {
     settings = buildSettings ++ Seq(
       libraryDependencies ++= commonDeps,
       resolvers ++= stkResolvers,
+      javaOptions in Test += "-Djava.awt.headless=true",
+      fork in Test := true,
       publishTo := Some(publishURL),
       EclipseKeys.withSource := true))
   // Sub-project specific dependencies
