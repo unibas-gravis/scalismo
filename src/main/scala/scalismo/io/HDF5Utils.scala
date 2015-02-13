@@ -24,8 +24,6 @@ import scala.util.Success
 import scala.collection.JavaConversions._
 import java.io.IOException
 
-
-
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.reduce(_ * _) == data.length)
 }
@@ -47,8 +45,6 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
-
-
   def readStringAttribute(path: String, attrName: String): Try[String] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
@@ -67,9 +63,6 @@ class HDF5File(h5file: FileFormat) {
       }
     }
   }
-
-
-
 
   def writeIntAttribute(path: String, attrName: String, attrValue: Int) = {
     Try {
@@ -308,7 +301,7 @@ class HDF5File(h5file: FileFormat) {
 }
 
 // make it a proper class and wrapper around the object
-object  HDF5Utils {
+object HDF5Utils {
 
   // map untyped FileAccessModel of HDF5 (which is just a string)
   // to typed values
