@@ -29,8 +29,8 @@ class ConversionTests extends FunSpec with Matchers {
   describe("a Mesh ") {
 
     it("can be converted to and from vtk") {
-      val path = getClass().getResource("/facemesh.h5").getPath
-      val origmesh = MeshIO.readHDF5(new java.io.File(path)).get
+      val path = getClass().getResource("/facemesh.stl").getPath
+      val origmesh = MeshIO.readMesh(new java.io.File(path)).get
       val vtkpd = MeshConversion.meshToVTKPolyData(origmesh)
       val restoredMesh = MeshConversion.vtkPolyDataToTriangleMesh(vtkpd).get
       origmesh should equal(restoredMesh)
@@ -44,7 +44,7 @@ class ConversionTests extends FunSpec with Matchers {
   }
   describe("an 2D image") {
     it("can be converted to and from vtk") {
-      val path = getClass().getResource("/lena.h5").getPath
+      val path = getClass().getResource("/lena.vtk").getPath
       val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(path)).get
       val vtksp = ImageConversion.imageTovtkStructuredPoints(origimg)
       val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get

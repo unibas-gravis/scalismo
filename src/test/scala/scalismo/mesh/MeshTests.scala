@@ -33,8 +33,8 @@ class MeshTests extends FunSpec with Matchers {
   scalismo.initialize()
 
   describe("a mesh") {
-    val path = getClass.getResource("/facemesh.h5").getPath
-    val facemesh = MeshIO.readHDF5(new File(path)).get
+    val path = getClass.getResource("/facemesh.stl").getPath
+    val facemesh = MeshIO.readMesh(new File(path)).get
 
     it("finds the right closest points for all the points that define the mesh") {
 
@@ -66,16 +66,8 @@ class MeshTests extends FunSpec with Matchers {
       transformedMesh.area should be(4.0f * mesh.area +- 1e-5) // scaling by two gives 4 times the area 
     }
 
-    // ignored until more meaningful test (It's normal that more points are deleted)
-    ignore("can be clipped") {
-      def ptIdSmallerThan100(pt: Point[_3D]) = facemesh.findClosestPoint(pt)._2 < 100
-      val clippedMesh = Mesh.clipMesh(facemesh, ptIdSmallerThan100)
-
-      clippedMesh.numberOfPoints should be(facemesh.numberOfPoints - 100)
-    }
-
     it("computes the right binary image for the unit sphere") {
-      val path = getClass.getResource("/unit-sphere.vtk").getPath
+      val path = getClass.getResource("/unit-sphere.stl").getPath
       val spheremesh = MeshIO.readMesh(new File(path)).get
       val binaryImg = Mesh.meshToBinaryImage(spheremesh)
       binaryImg(Point(0, 0, 0)) should be(1)

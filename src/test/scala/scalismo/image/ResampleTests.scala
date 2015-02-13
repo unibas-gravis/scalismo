@@ -26,7 +26,7 @@ class ResampleTests extends FunSpec with Matchers {
 
   describe("Resampling a 2D image") {
 
-    val testImgUrl = getClass.getResource("/lena.h5").getPath
+    val testImgUrl = getClass.getResource("/lena.vtk").getPath
     val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
 
     // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the
@@ -43,7 +43,7 @@ class ResampleTests extends FunSpec with Matchers {
   }
 
   describe("Resampling a 3D image") {
-    val path = getClass.getResource("/3dimage.h5").getPath
+    val path = getClass.getResource("/3dimage.nii").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
     val continuousImage = discreteImage.interpolate(0)
 

@@ -123,7 +123,7 @@ class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
       }
 
       it("Interpolates the values correctly for a test dataset") {
-        val testImgUrl = getClass.getResource("/lena256.h5").getPath
+        val testImgUrl = getClass.getResource("/lena256.vtk").getPath
         val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
         val interpolatedImage = discreteFixedImage.interpolate(2)
 
@@ -201,7 +201,7 @@ class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
       }
 
       it("Interpolates a real dataset correctly") {
-        val path = getClass.getResource("/3dimage.h5").getPath
+        val path = getClass.getResource("/3dimage.nii").getPath
         val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
         val continuousImage = discreteImage.interpolate(1)
 

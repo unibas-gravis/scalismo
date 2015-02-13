@@ -27,7 +27,7 @@ class MeshMetricsTests extends FunSpec with Matchers {
 
   scalismo.initialize()
 
-  val path = getClass().getResource("/facemesh.h5").getPath
+  val path = getClass().getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
   val translationLength = 1.0f
   val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0f, 0.0f))
@@ -72,7 +72,7 @@ class MeshMetricsTests extends FunSpec with Matchers {
   }
 
   describe("the dice coefficient") {
-    val path = getClass().getResource("/unit-sphere.vtk").getPath
+    val path = getClass().getResource("/unit-sphere.stl").getPath
     val spheremesh = MeshIO.readMesh(new File(path)).get
 
     it("computes the right value for an unit sphere that compeltely overlaps itself") {

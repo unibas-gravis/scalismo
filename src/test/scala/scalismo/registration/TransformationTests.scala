@@ -72,16 +72,6 @@ class TransformationTests extends FunSpec with Matchers {
   }
 
   describe("A translation in 2D") {
-    ignore("translates an image") {
-      //FIXME: this test is incomplete
-      val testImgUrl = getClass.getResource("/lena.h5").getPath
-      val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
-      val continuousImage = discreteImage.interpolate(3)
-
-      val translation = TranslationSpace[_2D].transformForParameters(DenseVector[Float](10, 0))
-      val translatedImg = continuousImage.compose(translation)
-      val resampledImage = translatedImg.sample[Short](discreteImage.domain, 0)
-    }
 
     describe("composed with a rotation") {
 
@@ -124,12 +114,6 @@ class TransformationTests extends FunSpec with Matchers {
         productTransform.takeDerivative(pt) should equal(translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt))
       }
 
-      // FIXME: either fix, or remove.
-      //      it("can be inverted") {
-      //        val identitiyTransform = (productSpace.transformForParameters(productParams).inverse) compose productTransform
-      //        (identitiyTransform(pt)(0) should be(pt(0) +- 0.00001f))
-      //        (identitiyTransform(pt)(1) should be(pt(1) +- 0.00001f))
-      //      }
     }
 
     it("translates a 1D image") {
@@ -145,7 +129,7 @@ class TransformationTests extends FunSpec with Matchers {
 
   describe("In 3D") {
 
-    val path = getClass.getResource("/3dimage.h5").getPath
+    val path = getClass.getResource("/3dimage.nii").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
     val continuousImage = discreteImage.interpolate(0)
 
@@ -173,7 +157,7 @@ class TransformationTests extends FunSpec with Matchers {
       for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) rotatedImage(p) should equal(continuousImage(p))
     }
 
-    val mesh = MeshIO.readHDF5(new File(getClass.getResource("/facemesh.h5").getPath)).get
+    val mesh = MeshIO.readMesh(new File(getClass.getResource("/facemesh.stl").getPath)).get
 
     it("rotation is invertible on meshes") {
 

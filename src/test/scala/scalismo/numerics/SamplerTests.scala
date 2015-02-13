@@ -29,7 +29,7 @@ import scala.util.Random
 class SamplerTests extends FunSpec with Matchers {
   scalismo.initialize()
 
-  val facepath = getClass.getResource("/facemesh.h5").getPath
+  val facepath = getClass.getResource("/facemesh.stl").getPath
   val facemesh = MeshIO.readMesh(new File(facepath)).get
 
   describe("A fixed point uniform sampler") {

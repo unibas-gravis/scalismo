@@ -39,8 +39,8 @@ class MeshIOTests extends FunSpec with Matchers {
     //
 
     it("yields the original mesh when readeing  and writing") {
-      val path = getClass().getResource("/facemesh.h5").getPath
-      val origMesh = MeshIO.readHDF5(new File(path)).get
+      val path = getClass().getResource("/facemesh.stl").getPath
+      val origMesh = MeshIO.readMesh(new File(path)).get
 
       def testWriteRead(extension: String): Unit = {
         val tmpFile = File.createTempFile("mesh", ".vtk")

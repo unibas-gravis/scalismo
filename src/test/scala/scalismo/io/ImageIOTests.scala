@@ -62,7 +62,7 @@ class ImageIOTests extends FunSpec with Matchers {
 
   describe("A 2D scalar image") {
     it("can be converted to vtk and back and yields the same image") {
-      val path = getClass.getResource("/lena.h5").getPath
+      val path = getClass.getResource("/lena.vtk").getPath
       val lena = ImageIO.read2DScalarImage[Short](new File(path)).get
       val tmpImgFile = File.createTempFile("image2D", ".vtk")
       ImageIO.writeVTK(lena, tmpImgFile) match {
@@ -92,7 +92,7 @@ class ImageIOTests extends FunSpec with Matchers {
     }
 
     it("can be converted to vtk and back and yields the same image") {
-      val path = getClass.getResource("/3dimage.h5").getPath
+      val path = getClass.getResource("/3dimage.nii").getPath
       val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
       val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()

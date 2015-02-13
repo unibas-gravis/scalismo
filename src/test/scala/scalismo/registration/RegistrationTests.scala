@@ -62,8 +62,8 @@ class RegistrationTests extends FunSpec with Matchers {
 
   describe("A 3D rigid landmark based registration") {
 
-    val path = getClass.getResource("/facemesh.h5").getPath
-    val mesh = MeshIO.readHDF5(new File(path)).get
+    val path = getClass.getResource("/facemesh.stl").getPath
+    val mesh = MeshIO.readMesh(new File(path)).get
 
     val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
     val trans = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
@@ -127,8 +127,8 @@ class RegistrationTests extends FunSpec with Matchers {
   describe("A 3D similarity landmark based registration") {
     it("can transform the mesh appropriately") {
 
-      val path = getClass.getResource("/facemesh.h5").getPath
-      val mesh = MeshIO.readHDF5(new File(path)).get
+      val path = getClass.getResource("/facemesh.stl").getPath
+      val mesh = MeshIO.readMesh(new File(path)).get
 
       val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2f)
       val trans = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D]).transformForParameters(parameterVector)
@@ -150,7 +150,7 @@ class RegistrationTests extends FunSpec with Matchers {
 
   describe("A 2D image registration") {
     it("Recovers the correct parameters for a translation transfrom") {
-      val testImgUrl = getClass.getResource("/dm128.h5").getPath
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       import DiscreteScalarImage.CanInterpolate._
 
@@ -177,7 +177,7 @@ class RegistrationTests extends FunSpec with Matchers {
     }
 
     it("Recovers the correct parameters for a rotation transfrom") {
-      val testImgUrl = getClass.getResource("/dm128.h5").getPath
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
       val fixedImage = discreteFixedImage.interpolate(3)
 
@@ -202,7 +202,7 @@ class RegistrationTests extends FunSpec with Matchers {
   }
 
   describe("A 3D image registration") {
-    val testImgUrl = getClass.getResource("/3ddm.h5").getPath
+    val testImgUrl = getClass.getResource("/3ddm.nii").getPath
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(testImgUrl)).get
     val fixedImage = discreteFixedImage.interpolate(3)
 
@@ -230,49 +230,5 @@ class RegistrationTests extends FunSpec with Matchers {
       regResult.parameters(2) should be(translationParams(2) +- 0.01)
     }
 
-    ignore("Recovers the correct parameters for a SMALL rotation transform") {
-      val pi = Math.PI
-      val rotationParams = DenseVector[Float](-pi / 10, 0, 0)
-      val rotationTransform = RotationSpace[_3D](center).transformForParameters(rotationParams)
-      val transformed = fixedImage.compose(rotationTransform)
-
-      val regConf = RegistrationConfiguration[_3D, RotationSpace[_3D]](
-        optimizer = GradientDescentOptimizer(numIterations = 400, stepLength = 2e-12),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 10000)),
-        transformationSpace = RotationSpace[_3D](center),
-        regularizer = RKHSNormRegularizer,
-        regularizationWeight = 0.0)
-
-      val regResult = Registration.registration(regConf)(transformed, fixedImage)
-
-      val regParams: DenseVector[Float] = regResult.parameters
-      for (i <- 0 until rotationParams.size) {
-        regParams(i) should be(rotationParams(i) +- 0.01)
-      }
-
-      // here we verify that the angles give similar rotation matrices 
-
-      def computeRotMatrix(p: DenseVector[Float]): DenseMatrix[Float] = {
-        val cospsi = Math.cos(p(2))
-        val sinpsi = Math.sin(p(2))
-
-        val costh = Math.cos(p(1))
-        val sinth = Math.sin(p(1))
-
-        val cosphi = Math.cos(p(0))
-        val sinphi = Math.sin(p(0))
-
-        DenseMatrix(
-          (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
-          (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
-          (-sinth, sinpsi * costh, cospsi * costh)).map(_.toFloat)
-      }
-
-      val rotMat1 = computeRotMatrix(rotationParams)
-      val rotMat2 = computeRotMatrix(regResult.parameters)
-
-      for (i <- 0 until 3; j <- 0 until 3)
-        rotMat1(i, j) should be(rotMat2(i, j) +- 0.001)
-    }
   }
 }
