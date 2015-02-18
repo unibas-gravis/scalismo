@@ -43,7 +43,7 @@ To use scalismo-ui (which is currently not open source) also add the following d
 
 ```
 libraryDependencies  ++= Seq(
-            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.7.0"
+            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.3.0"
 )
 ```
 
