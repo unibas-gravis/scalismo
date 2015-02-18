@@ -126,14 +126,14 @@ object Scalar {
     override def fromFloat(n: Float): ULong = {
       val l = n.toLong
       l match {
-        case Long.MaxValue => ULong(BigDecimal.exact(n).toLong)
+        case Long.MaxValue => ULong(BigDecimal(n.toDouble).toLong)
         case _ => ULong(l)
       }
     }
     override def fromDouble(n: Double): ULong = {
       val l = n.toLong
       l match {
-        case Long.MaxValue => ULong(BigDecimal.exact(n).toLong)
+        case Long.MaxValue => ULong(BigDecimal(n).toLong)
         case _ => ULong(l)
       }
     }
