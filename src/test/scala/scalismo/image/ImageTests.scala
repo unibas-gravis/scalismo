@@ -28,8 +28,6 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
 
-import spire.math.Numeric._
-
 class ImageTests extends FunSpec with Matchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
 

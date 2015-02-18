@@ -16,6 +16,7 @@
 package scalismo.io
 
 import java.io.File
+import scalismo.common.Scalar
 import scalismo.utils.MeshConversion
 import scalismo.mesh.{ TriangleCell, ScalarMeshData, TriangleMesh }
 import scalismo.geometry._
@@ -26,8 +27,6 @@ import reflect.runtime.universe.TypeTag
 import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
-
-import spire.math.Numeric
 
 object MeshIO {
 
@@ -62,7 +61,7 @@ object MeshIO {
     }
   }
 
-  def writeMeshData[Scalar: Numeric: TypeTag: ClassTag](meshData: ScalarMeshData[Scalar], file: File): Try[Unit] = {
+  def writeMeshData[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeVTK(meshData, file)
@@ -90,7 +89,7 @@ object MeshIO {
     maybeError
   }
 
-  def writeVTK[S: Numeric: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
+  def writeVTK[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()
@@ -98,14 +97,14 @@ object MeshIO {
   }
 
   def writeVTK(surface: TriangleMesh, file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
+    val vtkPd = MeshConversion.meshToVtkPolyData(surface)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()
     err
   }
 
   def writeSTL(surface: TriangleMesh, file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshToVTKPolyData(surface)
+    val vtkPd = MeshConversion.meshToVtkPolyData(surface)
     val err = writeVTKPdAsSTL(vtkPd, file)
     vtkPd.Delete()
     err

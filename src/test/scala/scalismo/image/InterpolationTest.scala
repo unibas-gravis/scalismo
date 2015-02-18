@@ -27,8 +27,6 @@ import org.scalatest.{ Matchers, FunSpec, PrivateMethodTester }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
 
-import spire.math.Numeric._
-
 class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
