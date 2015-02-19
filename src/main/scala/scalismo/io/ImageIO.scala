@@ -396,15 +396,15 @@ object ImageIO {
 
     typeOf[S] match {
       case t if t =:= typeOf[Byte] => NiftiHeader.NIFTI_TYPE_INT8
-      case t if t <:< typeOf[Short] => NiftiHeader.NIFTI_TYPE_INT16
-      case t if t <:< typeOf[Int] => NiftiHeader.NIFTI_TYPE_INT32
-      case t if t <:< typeOf[Long] => NiftiHeader.NIFTI_TYPE_INT64
-      case t if t <:< typeOf[Float] => NiftiHeader.NIFTI_TYPE_FLOAT32
-      case t if t <:< typeOf[Double] => NiftiHeader.NIFTI_TYPE_FLOAT64
+      case t if t =:= typeOf[Short] => NiftiHeader.NIFTI_TYPE_INT16
+      case t if t =:= typeOf[Int] => NiftiHeader.NIFTI_TYPE_INT32
+      case t if t =:= typeOf[Long] => NiftiHeader.NIFTI_TYPE_INT64
+      case t if t =:= typeOf[Float] => NiftiHeader.NIFTI_TYPE_FLOAT32
+      case t if t =:= typeOf[Double] => NiftiHeader.NIFTI_TYPE_FLOAT64
       case t if t =:= typeOf[UByte] => NiftiHeader.NIFTI_TYPE_UINT8
-      case t if t <:< typeOf[UShort] => NiftiHeader.NIFTI_TYPE_UINT16
-      case t if t <:< typeOf[UInt] => NiftiHeader.NIFTI_TYPE_UINT32
-      case t if t <:< typeOf[ULong] => NiftiHeader.NIFTI_TYPE_UINT64
+      case t if t =:= typeOf[UShort] => NiftiHeader.NIFTI_TYPE_UINT16
+      case t if t =:= typeOf[UInt] => NiftiHeader.NIFTI_TYPE_UINT32
+      case t if t =:= typeOf[ULong] => NiftiHeader.NIFTI_TYPE_UINT64
       case _ => throw new Throwable(s"Unsupported datatype ${typeOf[S]}")
     }
   }
