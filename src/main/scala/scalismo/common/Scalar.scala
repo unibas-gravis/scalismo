@@ -35,7 +35,7 @@ object Scalar {
   implicit final lazy val UIntIsScalar: Scalar[UInt] = new UIntIsScalar
   implicit final lazy val ULongIsScalar: Scalar[ULong] = new ULongIsScalar
 
-  implicit private class ScalarFromSpireNumeric[A](num: Numeric[A]) extends Scalar[A] {
+  implicit class ScalarFromSpireNumeric[A](num: Numeric[A]) extends Scalar[A] {
     override def toByte(a: A): Byte = num.toByte(a)
     override def toShort(a: A): Short = num.toShort(a)
     override def toInt(a: A): Int = num.toInt(a)
@@ -52,7 +52,7 @@ object Scalar {
 
   }
 
-  private class UByteIsScalar extends Scalar[UByte] {
+  class UByteIsScalar extends Scalar[UByte] {
     override def toByte(a: UByte): Byte = a.toByte
     override def toShort(a: UByte): Short = a.toShort
     override def toInt(a: UByte): Int = a.toInt
@@ -68,7 +68,7 @@ object Scalar {
     override def fromDouble(n: Double): UByte = UByte(n.toByte)
   }
 
-  private class UShortIsScalar extends Scalar[UShort] {
+  class UShortIsScalar extends Scalar[UShort] {
     override def toByte(a: UShort): Byte = a.toByte
     override def toShort(a: UShort): Short = a.toShort
     override def toInt(a: UShort): Int = a.toInt
@@ -84,7 +84,7 @@ object Scalar {
     override def fromDouble(n: Double): UShort = UShort(n.toShort)
   }
 
-  private class UIntIsScalar extends Scalar[UInt] {
+  class UIntIsScalar extends Scalar[UInt] {
     override def toByte(a: UInt): Byte = a.toByte
     override def toShort(a: UInt): Short = a.toShort
     override def toInt(a: UInt): Int = a.toInt
