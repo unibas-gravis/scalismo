@@ -15,7 +15,7 @@
  */
 package scalismo.io
 
-import scalismo.common.{ Scalar, RealSpace }
+import scalismo.common.{ ScalarArray, Scalar, RealSpace }
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation }
@@ -113,7 +113,7 @@ object ImageIO {
               } else {
 
                 val domain = DiscreteImageDomain[_1D](Point(imageData.origin(0).toFloat), Vector(imageData.spacing(0).toFloat), Index(imageData.size(0).toInt))
-                Success(DiscreteScalarImage(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, ScalarArray(imageData.data)))
               }
             }
         }
@@ -141,7 +141,7 @@ object ImageIO {
                   Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
                   Index(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
-                Success(DiscreteScalarImage(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, ScalarArray(imageData.data)))
 
               }
             }
@@ -185,7 +185,7 @@ object ImageIO {
                   Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
                   Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
                   Index(imageData.size(0).toInt, imageData.size(1).toInt))
-                Success(DiscreteScalarImage(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, ScalarArray(imageData.data)))
               }
 
             }
@@ -255,7 +255,7 @@ object ImageIO {
       if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-        DiscreteScalarImage(newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
+        DiscreteScalarImage(newDomain, ScalarArray(volume.dataArray.map(v => scalarConv.fromDouble(v))))
       }
     }
   }

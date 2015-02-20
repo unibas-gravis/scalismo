@@ -39,7 +39,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 /**
  *
  */
-class DiscreteScalarField[D <: Dim, A: Scalar: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: Array[A]) extends DiscreteField[D, A] {
+class DiscreteScalarField[D <: Dim, A: Scalar: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: ScalarArray[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map[B: Scalar: ClassTag](f: A => B): DiscreteScalarField[D, B] = {

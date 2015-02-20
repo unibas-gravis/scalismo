@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import scala.reflect.ClassTag
 import scala.collection.mutable
-import scalismo.common.{ Scalar, DiscreteScalarField, SpatiallyIndexedDiscreteDomain, Cell }
+import scalismo.common._
 import scalismo.geometry._
 
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
@@ -160,7 +160,7 @@ object TriangleMesh {
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
  * The number of values and mesh points must be equal.
  */
-case class ScalarMeshData[S: Scalar: ClassTag](mesh: TriangleMesh, override val data: Array[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
+case class ScalarMeshData[S: Scalar: ClassTag](mesh: TriangleMesh, override val data: ScalarArray[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
   require(mesh.numberOfPoints == data.size)
 
   override def values = data.iterator

@@ -15,7 +15,7 @@
  */
 package scalismo.image.filter
 
-import scalismo.common.Scalar
+import scalismo.common.{ ScalarArray, Scalar }
 import scalismo.image.DiscreteScalarImage
 import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage.CanInterpolate
@@ -76,7 +76,7 @@ object DiscreteImageFilter {
 
     val newPixelValues = dt1.values.zip(dt2.values).map { case (p1, p2) => p1 - p2 }.toArray
 
-    DiscreteScalarImage(dt1.domain, newPixelValues)
+    DiscreteScalarImage(dt1.domain, ScalarArray(newPixelValues))
 
   }
 

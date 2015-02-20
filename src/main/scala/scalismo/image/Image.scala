@@ -16,7 +16,7 @@
 package scalismo.image
 
 import scalismo.image.filter.Filter
-import scalismo.common.{ Scalar, VectorField, Domain, Field }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.numerics.Integrator
 import scalismo.registration.{ CanDifferentiate, Transformation }
@@ -115,7 +115,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (val domain: Domain[D], val f: Po
       else numeric.fromFloat(outsideValue)
     })
 
-    DiscreteScalarImage(domain, sampledValues.toArray)
+    DiscreteScalarImage(domain, ScalarArray(sampledValues.toArray))
   }
 
 }
