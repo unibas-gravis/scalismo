@@ -104,7 +104,7 @@ object VtkHelpers {
         a
       case t if t =:= typeOf[UShort] =>
         val a = init(new vtkUnsignedShortArray())
-        scalismo.utils.Benchmark.benchmark(a.SetJavaArray(data.asInstanceOf[Array[UShort]].map(_.toShort)), "map from ushort")
+        a.SetJavaArray(data.asInstanceOf[Array[UShort]].map(_.toShort))
         a
       case t if t =:= typeOf[UInt] =>
         val a = init(new vtkUnsignedIntArray())
@@ -141,12 +141,9 @@ object VtkHelpers {
         val out: Array[UByte] = in.map(s => UByte(s))
         out.asInstanceOf[Array[A]]
       case VTK_UNSIGNED_SHORT =>
-        scalismo.utils.Benchmark.benchmark({
-          val in = arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray()
-          val out: Array[UShort] = Array.ofDim[UShort](in.length)
-          for (i <- 0 until in.length) out(i) = UShort(in(i))
-          out.asInstanceOf[Array[A]]
-        }, "map to ushort")
+        val in = arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray()
+        val out: Array[UShort] = in.map(s => UShort(s))
+        out.asInstanceOf[Array[A]]
       case VTK_UNSIGNED_INT =>
         val in = arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray()
         val out: Array[UInt] = in.map(s => UInt(s))
