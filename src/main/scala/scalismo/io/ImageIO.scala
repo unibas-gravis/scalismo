@@ -27,6 +27,7 @@ import java.io.File
 import scala.util.Success
 import java.io.IOException
 import scala.reflect.ClassTag
+import vtk.vtkObjectBase
 import vtk.vtkStructuredPointsReader
 import vtk.vtkStructuredPointsWriter
 import vtk.vtkStructuredPoints
@@ -159,6 +160,8 @@ object ImageIO {
         val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp)
         reader.Delete()
         sp.Delete()
+        // unfortunately, there may still be VTK leftovers, so run garbage collection
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
         readNifti[S](f)
@@ -203,6 +206,8 @@ object ImageIO {
         val img = ImageConversion.vtkStructuredPointsToScalarImage[_2D, S](sp)
         reader.Delete()
         sp.Delete()
+        // unfortunately, there may still be VTK leftovers, so run garbage collection
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
 
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
@@ -419,7 +424,10 @@ object ImageIO {
       case t if t =:= typeOf[ULong] => true
       case _ => false
     }
-    writeVTKInternal(imgVtk, file, useAscii = needAscii)
+    val result = writeVTKInternal(imgVtk, file, useAscii = needAscii)
+    imgVtk.Delete()
+    //vtk.vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
+    result
   }
 
   private def writeVTKInternal(imgVtk: vtkStructuredPoints, file: File, useAscii: Boolean): Try[Unit] = {
@@ -433,6 +441,9 @@ object ImageIO {
     }
     writer.Update()
     val errorCode = writer.GetErrorCode()
+    writer.Delete()
+    // unfortunately, there may still be VTK leftovers, so run garbage collection
+    vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
     if (errorCode != 0) {
       Failure(new IOException(s"Error writing vtk file ${file.getAbsolutePath} (error code $errorCode"))
     } else {
