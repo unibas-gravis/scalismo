@@ -76,7 +76,9 @@ public class BSplineCoefficients {
 	} /* end getInitialCausalCoefficientMirrorOnBounds */
 
 
-	
+    // TODO: not actually deprecated, but should be renamed to something that makes it clear that
+    // TODO: the method modifies data in place.
+    @Deprecated
 	static public void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
 		
 		float z[] = null;

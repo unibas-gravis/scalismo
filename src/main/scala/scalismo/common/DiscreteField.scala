@@ -55,8 +55,8 @@ class DiscreteScalarField[D <: Dim, A: Scalar: ClassTag](val domain: DiscreteDom
 
       case that: DiscreteScalarField[D, A] =>
         (that canEqual this) &&
-          data.deep == that.data.deep &&
-          domain == that.domain
+          domain == that.domain &&
+          data == that.data
 
       case _ => false
     }

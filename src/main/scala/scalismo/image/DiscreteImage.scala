@@ -146,13 +146,14 @@ object DiscreteScalarImage {
       }
 
       /* determine the b-spline coefficients for a 1D image */
-      private def determineCoefficients1D[Pixel: Scalar](degree: Int, img: DiscreteScalarImage[_1D, Pixel]): ScalarArray[Float] = {
+      private def determineCoefficients1D[Pixel: Scalar](degree: Int, img: DiscreteScalarImage[_1D, Pixel]): Array[Float] = {
         val numeric = implicitly[Scalar[Pixel]]
 
         // the c is an input-output argument here
         val c = img.data.map(numeric.toFloat)
-        BSplineCoefficients.getSplineInterpolationCoefficients(degree, c.toArray)
-        c
+        val floats: Array[Float] = ??? //Scalar.FloatIsScalar.rawData
+        BSplineCoefficients.getSplineInterpolationCoefficients(degree, floats)
+        floats
       }
     }
 

@@ -5,7 +5,8 @@ import spire.math._
 
 import scala.reflect.ClassTag
 
-trait Scalar[@specialized(Short, Int, Long, Float, Double) S] extends Any {
+// TODO: see the comment on ValueClassScalar below.
+trait Scalar[@specialized(Byte, Short, Int, Long, Float, Double) S] extends Any {
   def fromByte(n: Byte): S
   def fromShort(n: Short): S
   def fromInt(n: Int): S
@@ -21,37 +22,43 @@ trait Scalar[@specialized(Short, Int, Long, Float, Double) S] extends Any {
   def toDouble(a: S): Double
 }
 
-abstract class DirectScalar[S: ClassTag] extends Scalar[S] {
-  def createArray(data: Array[S]): DirectScalarArray[S] = new DirectScalarArray[S](data)
+abstract class PrimitiveScalar[S <: AnyVal: ClassTag] extends Scalar[S] {
+  def createArray(data: Array[S]): PrimitiveScalarArray[S] = new PrimitiveScalarArray[S](data)
 }
 
-abstract class IndirectScalar[S, U: ClassTag] extends Scalar[S] {
-  protected[scalismo] def convertArray[C](data: Array[C], f: C => S): IndirectScalarArray[S, U] = {
+/* TODO:    we need to discuss if we want to (at least theoretically) allow for
+ * TODO:    "non-value-class" scalars. It's possible in theory, but may be a huge performance
+ * TODO:    problem if we allow it.
+ */
+abstract class ValueClassScalar[S <: AnyVal, U <: AnyVal: ClassTag] extends Scalar[S] {
+
+  protected[scalismo] def convertArray[C](data: Array[C], f: C => S): ValueClassScalarArray[S, U] = {
     createArray(ArrayUtils.fastMap[C, U](data, { c => toUnderlying(f(c)) }))
   }
-  def createArray(data: Array[U]): IndirectScalarArray[S, U]
-  protected def toUnderlying(s: S): U
+  def createArray(data: Array[U]): ValueClassScalarArray[S, U]
+
+  protected[common] def toUnderlying(s: S): U
   protected[common] def fromUnderlying(u: U): S
 }
 
 object Scalar {
   // Not exactly sure what this is good for, but spire seems to do it everywhere
   // for performance reasons. So we just do it as well.
-  @inline final def apply[A](implicit ev: Scalar[A]): Scalar[A] = ev
+  @inline final def apply[A <: AnyVal](implicit ev: Scalar[A]): Scalar[A] = ev
 
-  implicit final lazy val ByteIsScalar: DirectScalar[Byte] = Numeric.ByteIsNumeric
-  implicit final lazy val ShortIsScalar: DirectScalar[Short] = Numeric.ShortIsNumeric
-  implicit final lazy val IntIsScalar: DirectScalar[Int] = Numeric.IntIsNumeric
-  implicit final lazy val LongIsScalar: DirectScalar[Long] = Numeric.LongIsNumeric
-  implicit final lazy val FloatIsScalar: DirectScalar[Float] = Numeric.FloatIsNumeric
-  implicit final lazy val DoubleIsScalar: DirectScalar[Double] = Numeric.DoubleIsNumeric
+  implicit final lazy val ByteIsScalar: PrimitiveScalar[Byte] = Numeric.ByteIsNumeric
+  implicit final lazy val ShortIsScalar: PrimitiveScalar[Short] = Numeric.ShortIsNumeric
+  implicit final lazy val IntIsScalar: PrimitiveScalar[Int] = Numeric.IntIsNumeric
+  implicit final lazy val LongIsScalar: PrimitiveScalar[Long] = Numeric.LongIsNumeric
+  implicit final lazy val FloatIsScalar: PrimitiveScalar[Float] = Numeric.FloatIsNumeric
+  implicit final lazy val DoubleIsScalar: PrimitiveScalar[Double] = Numeric.DoubleIsNumeric
 
-  implicit final lazy val UByteIsScalar: IndirectScalar[UByte, Byte] = new UByteIsScalar
-  implicit final lazy val UShortIsScalar: IndirectScalar[UShort, Char] = new UShortIsScalar
-  implicit final lazy val UIntIsScalar: IndirectScalar[UInt, Int] = new UIntIsScalar
-  implicit final lazy val ULongIsScalar: IndirectScalar[ULong, Long] = new ULongIsScalar
+  implicit final lazy val UByteIsScalar: ValueClassScalar[UByte, Byte] = new UByteIsScalar
+  implicit final lazy val UShortIsScalar: ValueClassScalar[UShort, Char] = new UShortIsScalar
+  implicit final lazy val UIntIsScalar: ValueClassScalar[UInt, Int] = new UIntIsScalar
+  implicit final lazy val ULongIsScalar: ValueClassScalar[ULong, Long] = new ULongIsScalar
 
-  implicit class DirectScalarFromSpireNumeric[A: ClassTag](num: Numeric[A]) extends DirectScalar[A] {
+  implicit class PrimitiveScalarFromSpireNumeric[A <: AnyVal: ClassTag](num: Numeric[A]) extends PrimitiveScalar[A] {
     override def toByte(a: A): Byte = num.toByte(a)
     override def toShort(a: A): Short = num.toShort(a)
     override def toInt(a: A): Int = num.toInt(a)
@@ -68,7 +75,7 @@ object Scalar {
 
   }
 
-  class UByteIsScalar extends IndirectScalar[UByte, Byte] {
+  class UByteIsScalar extends ValueClassScalar[UByte, Byte] {
     override def toByte(a: UByte): Byte = a.toByte
     override def toShort(a: UByte): Short = a.toShort
     override def toInt(a: UByte): Int = a.toInt
@@ -83,13 +90,12 @@ object Scalar {
     override def fromFloat(n: Float): UByte = UByte(n.toByte)
     override def fromDouble(n: Double): UByte = UByte(n.toByte)
 
-    override def createArray(data: Array[Byte]): IndirectScalarArray[UByte, Byte] = IndirectScalarArray(data)(this)
-    //override def createEmptyArray(length: Int): IndirectScalarArray[UByte, Byte] = IndirectScalarArray(Array.ofDim(length), toPrimitive, fromPrimitive)(this)
+    override def createArray(data: Array[Byte]): ValueClassScalarArray[UByte, Byte] = ValueClassScalarArray(data)(this)
     override def toUnderlying(u: UByte): Byte = u.toByte
     override def fromUnderlying(p: Byte): UByte = UByte(p)
   }
 
-  class UShortIsScalar extends IndirectScalar[UShort, Char] {
+  class UShortIsScalar extends ValueClassScalar[UShort, Char] {
     override def toByte(a: UShort): Byte = a.toByte
     override def toShort(a: UShort): Short = a.toShort
     override def toInt(a: UShort): Int = a.toInt
@@ -104,13 +110,12 @@ object Scalar {
     override def fromFloat(n: Float): UShort = UShort(n.toShort)
     override def fromDouble(n: Double): UShort = UShort(n.toShort)
 
-    override def createArray(data: Array[Char]): IndirectScalarArray[UShort, Char] = IndirectScalarArray(data)(this)
-    //override def createEmptyArray(length: Int): IndirectScalarArray[UShort, Char] = IndirectScalarArray(Array.ofDim(length), toPrimitive, fromPrimitive)(this)
+    override def createArray(data: Array[Char]): ValueClassScalarArray[UShort, Char] = ValueClassScalarArray(data)(this)
     override def toUnderlying(u: UShort): Char = u.toChar
     override def fromUnderlying(p: Char): UShort = UShort(p)
   }
 
-  class UIntIsScalar extends IndirectScalar[UInt, Int] {
+  class UIntIsScalar extends ValueClassScalar[UInt, Int] {
     override def toByte(a: UInt): Byte = a.toByte
     override def toShort(a: UInt): Short = a.toShort
     override def toInt(a: UInt): Int = a.toInt
@@ -125,14 +130,13 @@ object Scalar {
     override def fromFloat(n: Float): UInt = UInt(n.toLong.toInt)
     override def fromDouble(n: Double): UInt = UInt(n.toLong.toInt)
 
-    override def createArray(data: Array[Int]): IndirectScalarArray[UInt, Int] = IndirectScalarArray(data)(this)
-    //override def createEmptyArray(length: Int): IndirectScalarArray[UInt, Int] = IndirectScalarArray(Array.ofDim(length), toPrimitive, fromPrimitive)(this)
+    override def createArray(data: Array[Int]): ValueClassScalarArray[UInt, Int] = ValueClassScalarArray(data)(this)
     override def toUnderlying(u: UInt): Int = u.toInt
     override def fromUnderlying(p: Int): UInt = UInt(p)
 
   }
 
-  class ULongIsScalar extends IndirectScalar[ULong, Long] {
+  class ULongIsScalar extends ValueClassScalar[ULong, Long] {
     override def toByte(a: ULong): Byte = a.toByte
     override def toShort(a: ULong): Short = a.toShort
     override def toInt(a: ULong): Int = a.toInt
@@ -170,8 +174,7 @@ object Scalar {
       }
     }
 
-    override def createArray(data: Array[Long]): IndirectScalarArray[ULong, Long] = IndirectScalarArray(data)(this)
-    //override def createEmptyArray(length: Int): IndirectScalarArray[ULong, Long] = IndirectScalarArray(Array.ofDim(length), toPrimitive, fromPrimitive)(this)
+    override def createArray(data: Array[Long]): ValueClassScalarArray[ULong, Long] = ValueClassScalarArray(data)(this)
     override def toUnderlying(u: ULong): Long = u.toLong
     override def fromUnderlying(p: Long): ULong = ULong(p)
   }
@@ -180,60 +183,73 @@ object Scalar {
 sealed trait ScalarArray[S] {
   def apply(index: Int): S
   def length: Int
-  def size = length
+  final lazy val size = length
+  final def isDefinedAt(index: Int): Boolean = index < size && index >= 0
 
   def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T]
 
-  def iterator: Iterator[S] = ???
-  def isDefinedAt(i: Int): Boolean = ???
-
-  def toArray: Array[S] = ???
-  def toSeq: Seq[S] = toArray.toSeq
-  def deep: Object = ???
+  //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
+  def iterator: Iterator[S]
 }
 
-abstract case class AbstractScalarArray[S, U](protected val data: Array[U]) extends ScalarArray[S] {
-  override def apply(index: Int): S = fromUnderlying(data(index))
-  override def length: Int = data.length
+abstract case class AbstractScalarArray[S, U](protected val rawData: Array[U]) extends ScalarArray[S] {
+  override final def length: Int = rawData.length
 
   protected def fromUnderlying(u: U): S
 
   override def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T] = {
     val toScalar = implicitly[Scalar[T]]
     toScalar match {
-      case s: DirectScalar[T] => s.createArray(data.map { u => f(fromUnderlying(u)) })
-      case s: IndirectScalar[T, _] => s.convertArray[U](data, { u => f(fromUnderlying(u)) })
+      case s: PrimitiveScalar[T] => s.createArray(rawData.map { u => f(fromUnderlying(u)) })
+      case s: ValueClassScalar[T, _] => s.convertArray[U](rawData, { u => f(fromUnderlying(u)) })
     }
   }
 
 }
 
-class DirectScalarArray[S: ClassTag](data: Array[S]) extends AbstractScalarArray[S, S](data) {
+final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) extends AbstractScalarArray[S, S](rawData) {
+  // FIXME: need to implement hashCode, equals etc.?
+
   override protected def fromUnderlying(u: S): S = u
+  override def apply(index: Int): S = rawData(index)
+
+  //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
+  override def iterator: Iterator[S] = rawData.iterator
 }
 
-class IndirectScalarArray[S, U](data: Array[U])(implicit scalar: IndirectScalar[S, U]) extends AbstractScalarArray[S, U](data) {
+final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(implicit scalar: ValueClassScalar[S, U]) extends AbstractScalarArray[S, U](rawData) {
+  // FIXME: need to implement hashCode, equals etc.?
+
   override protected def fromUnderlying(u: U): S = scalar.fromUnderlying(u)
+  override def apply(index: Int): S = fromUnderlying(rawData(index))
+
+  //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
+  override def iterator: Iterator[S] = rawData.iterator.map(scalar.fromUnderlying)
 }
 
-object IndirectScalarArray {
-  def apply[A, B](array: Array[B])(implicit s: IndirectScalar[A, B]): IndirectScalarArray[A, B] = new IndirectScalarArray[A, B](array)(s)
+object ValueClassScalarArray {
+  def apply[S <: AnyVal, U <: AnyVal](array: Array[U])(implicit s: ValueClassScalar[S, U]): ValueClassScalarArray[S, U] = new ValueClassScalarArray[S, U](array)(s)
 }
 
 object ScalarArray {
-  def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = ???
 
-  //  def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
-  //    val toScalar = implicitly[Scalar[T]]
-  //    toScalar match {
-  //      case s: DirectScalar[T] => s.createArray(array)
-  //      case s: IndirectScalar[T, _] =>
-  //        val newArray = s.createEmptyArray(array.length)
-  //        for (i <- 0 until newArray.length) { newArray(i) = array(i) }
-  //        newArray
-  //    }
-  //  }
+  @deprecated("THIS METHOD *** WILL *** BE REMOVED BECAUSE IT FORCES INSTANTIATION OF VALUE CLASSES", "always")
+  def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
+    val scalar = implicitly[Scalar[T]]
+    scalar match {
+      case p: PrimitiveScalar[T] => p.createArray(array)
+      case v: ValueClassScalar[T, _] => v.convertArray[T](array, { t => t })
+    }
+  }
 
-  // FIXME: THIS MUST GO AWAY
-  implicit def arrayToScalarArray[A: Scalar: ClassTag](a: Array[A]): ScalarArray[A] = ??? //ScalarArray(a)
+  object implicits {
+    import Scalar._
+    import scala.language.implicitConversions
+    implicit def byteArray(data: Array[Byte]): ScalarArray[Byte] = ByteIsScalar.createArray(data)
+    implicit def shortArray(data: Array[Short]): ScalarArray[Short] = ShortIsScalar.createArray(data)
+    implicit def intArray(data: Array[Int]): ScalarArray[Int] = IntIsScalar.createArray(data)
+    implicit def longArray(data: Array[Long]): ScalarArray[Long] = LongIsScalar.createArray(data)
+    implicit def floatArray(data: Array[Float]): ScalarArray[Float] = FloatIsScalar.createArray(data)
+    implicit def doubleArray(data: Array[Double]): ScalarArray[Double] = DoubleIsScalar.createArray(data)
+  }
 }
