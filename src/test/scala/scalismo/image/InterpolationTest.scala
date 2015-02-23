@@ -26,11 +26,11 @@ import scalismo.geometry.Index.implicits._
 import org.scalatest.{ Matchers, FunSpec, PrivateMethodTester }
 import org.scalatest.matchers.ShouldMatchers
 import java.io.File
+import scalismo.common.ScalarArray.implicits._
 
 class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
-
   scalismo.initialize()
   describe("A 1D Interpolation with 0rd order bspline") {
 

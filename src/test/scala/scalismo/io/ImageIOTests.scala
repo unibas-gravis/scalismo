@@ -46,6 +46,7 @@ class ImageIOTests extends FunSpec with Matchers {
 
   describe("A 1D scalar image") {
     it("can be stored and read again") {
+      import scalismo.common.ScalarArray.implicits._
       val domain = DiscreteImageDomain[_1D](Point(0), Vector(0.02f), Index(50))
       val values = domain.points.map(x => math.sin(2 * math.Pi * x(0))).map(_.toFloat).toArray
       val discreteImage = DiscreteScalarImage[_1D, Float](domain, values)
@@ -97,7 +98,7 @@ class ImageIOTests extends FunSpec with Matchers {
       read match {
         case Failure(e) => e.printStackTrace()
         case Success(img) =>
-          val doubles = img.data.toSeq.map(v => implicitly[Scalar[T]].toDouble(v))
+          val doubles = img.data.map(v => implicitly[Scalar[T]].toDouble(v)).iterator.toArray
           (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
         //println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
 
@@ -113,7 +114,7 @@ class ImageIOTests extends FunSpec with Matchers {
       reread match {
         case Failure(e) => e.printStackTrace()
         case Success(img) =>
-          val doubles = img.data.toSeq.map(v => implicitly[Scalar[T]].toDouble(v))
+          val doubles = img.data.map(v => implicitly[Scalar[T]].toDouble(v)).iterator.toArray
           (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
         //println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
       }
@@ -129,7 +130,7 @@ class ImageIOTests extends FunSpec with Matchers {
         reread match {
           case Failure(e) => e.printStackTrace()
           case Success(img) =>
-            val doubles = img.data.toSeq.map(v => implicitly[Scalar[T]].toDouble(v))
+            val doubles = img.data.map(v => implicitly[Scalar[T]].toDouble(v)).iterator.toArray
             (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
           //println("nii " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
         }
@@ -178,6 +179,7 @@ class ImageIOTests extends FunSpec with Matchers {
     }
 
     it("can be stored to VTK and re-read in right precision") {
+      import scalismo.common.ScalarArray.implicits._
       val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), Index(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
       val discreteImage = DiscreteScalarImage(domain, values)
