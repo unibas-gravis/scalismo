@@ -1,5 +1,7 @@
 package scalismo.common
 
+import java.util
+
 import scalismo.utils.ArrayUtils
 import spire.math._
 
@@ -192,7 +194,7 @@ sealed trait ScalarArray[S] {
   def iterator: Iterator[S]
 }
 
-abstract case class AbstractScalarArray[S, U](protected val rawData: Array[U]) extends ScalarArray[S] {
+abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: Array[U]) extends ScalarArray[S] {
   override final def length: Int = rawData.length
 
   protected def fromUnderlying(u: U): S
@@ -215,6 +217,18 @@ final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) exten
 
   //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
   override def iterator: Iterator[S] = rawData.iterator
+
+  override lazy val hashCode: Int = rawData.deep.hashCode()
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[PrimitiveScalarArray[_]]
+
+  override def equals(that: Any) = {
+    that match {
+      case a: PrimitiveScalarArray[_] => (this canEqual that) && this.rawData.deep == a.rawData.deep
+      case _ => false
+    }
+  }
+
 }
 
 final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(implicit scalar: ValueClassScalar[S, U]) extends AbstractScalarArray[S, U](rawData) {
@@ -225,6 +239,18 @@ final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(i
 
   //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
   override def iterator: Iterator[S] = rawData.iterator.map(scalar.fromUnderlying)
+
+  override lazy val hashCode: Int = rawData.deep.hashCode()
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[ValueClassScalarArray[_, _]]
+
+  override def equals(that: Any) = {
+    that match {
+      case a: ValueClassScalarArray[_, _] => (this canEqual that) && this.rawData.deep == a.rawData.deep
+      case _ => false
+    }
+  }
+
 }
 
 object ValueClassScalarArray {

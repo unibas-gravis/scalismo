@@ -16,7 +16,7 @@
 package scalismo.image
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ ScalarArray, DiscreteScalarField, DiscreteField, Scalar }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.numerics.BSpline
 
@@ -151,7 +151,7 @@ object DiscreteScalarImage {
 
         // the c is an input-output argument here
         val c = img.data.map(numeric.toFloat)
-        val floats: Array[Float] = ??? //Scalar.FloatIsScalar.rawData
+        val floats: Array[Float] = c.asInstanceOf[PrimitiveScalarArray[Float]].rawData
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, floats)
         floats
       }
