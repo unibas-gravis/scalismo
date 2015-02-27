@@ -55,6 +55,16 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   /** The index for the given point id */
   def index(pointId: Int): Index[D]
 
+  /**
+   * This was added for the course purposes and should be refactored properly
+   */
+  def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
+    // safer to use this than the pointToContinuousIndex as it kicks out any image direction problem 
+    val idxC = indexToPhysicalCoordinateTransform.inverse(pt).data.map(math.round(_).toInt)
+    val idx = Index[D](idxC.zip(size.data).map { case (i, sp) => math.min(math.max(i, 0), sp) })
+    (indexToPoint(idx), pointId(idx))
+  }
+
   /** the point corresponding to the given index */
   //def indexToPoint(i: Index[D]): Point[D]
 
