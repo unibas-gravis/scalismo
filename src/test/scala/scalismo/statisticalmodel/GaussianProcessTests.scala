@@ -15,15 +15,17 @@
  */
 package scalismo.statisticalmodel
 
-import scalismo.common.{ RealSpace, VectorField, BoxDomain }
+import scalismo.common.{ DiscreteDomain, RealSpace, VectorField, BoxDomain }
 import scalismo.image.DiscreteImageDomain
 import scalismo.geometry._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
+import scalismo.io.StatismoIO
 
 import scalismo.kernels.{ MatrixValuedPDKernel, GaussianKernel, UncorrelatedKernel }
-import scalismo.numerics.{ GridSampler, UniformSampler }
+import scalismo.numerics.{ FixedPointsUniformMeshSampler3D, GridSampler, UniformSampler }
+import scalismo.registration.Transformation
 import scala.language.implicitConversions
 import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
@@ -228,110 +230,104 @@ class GaussianProcessTests extends FunSpec with Matchers {
     }
 
   }
-  //
-  //  describe("a discrete Gaussian process") {
-  //
-  //
-  //    object Fixture {
-  //      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
-  //      val sampler = UniformSampler(domain, 6 * 6 * 6)
-  //      val gp = {
-  //        LowRankGaussianProcess.createLowRankGaussianProcess[_3D](domain, sampler, _ => Vector(0.0, 0.0, 0.0), UncorrelatedKernel[_3D](GaussianKernel[_3D](5)), 100)
-  //      }
-  //      val discretizationPoints = sampler.sample.map(_._1)
-  //      val discreteGP = DiscreteLowRankGaussianProcess(discretizationPoints, gp)
-  //    }
-  //
-  //    it("yields the same deformations at the specialized points") {
-  //      val f = Fixture
-  //
-  //      val coeffs = DenseVector.zeros[Float](f.gp.eigenPairs.size)
-  //      val gpInstance = f.gp.instance(coeffs)
-  //      val discreteInstance = f.discreteGP.instance(coeffs)
-  //      for ((pt, df) <- discreteInstance) {
-  //        gpInstance(pt) should equal(df)
-  //      }
-  //
-  //      for ((pt, df) <- f.discreteGP.instance(coeffs)) {
-  //        df should equal(gpInstance(pt))
-  //      }
-  //    }
-  //
-  //
-  //    it("yields the same result for gp regression as a normal gp") {
-  //      val f = Fixture
-  //
-  //      //val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), Vector(1.0, 1.0, 2.0)), (Point(-1.0, 3.0, 0.0), Vector(0.0, -1.0, 0.0)))
-  //      val trainingDataDiscreteGp = IndexedSeq(PointId(f.discretizationPoints(0)), PointId(f.discretizationPoints.size / 2), PointId(f.discretizationPoints.size - 1))
-  //      val trainingDataGP = trainingDataDiscreteGp.map(ptId => f.discretizationPoints(ptId.id))
-  //
-  //      val posteriorGP = GaussianProcess.regression(f.gp, trainingDataGP, 1e-5)
-  //      val discretePosteriorGP =  DiscreteLowRankGaussianProcess.regression(f.discreteGP, trainingDataDiscreteGp, 1e-5, meanOnly = false)
-  //
-  //      val meanPosterior = posteriorGP.mean
-  //      val meanPosteriorSpecialized = discretePosteriorGP.mean
-  //      val phi1Posterior = posteriorGP.eigenPairs(0)._2
-  //      val phi1PosteriorSpezialized = discretePosteriorGP.eigenPairs(0)._2
-  //
-  //      // both posterior processes should give the same values at the specialized points
-  //      for (pt <- f.specializedPoints.par) {
-  //        for (d <- 0 until 3) {
-  //          meanPosterior(pt)(d) should be(meanPosteriorSpecialized(pt)(d) +- 1e-5)
-  //          phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(pt)(d) +- 1e-5)
-  //        }
-  //      }
-  //    }
-  //
-  //
-  //    it("yields the same covariance function as a normal gp") {
-  //      val f = Fixture
-  //
-  //      val discreteGPCov = f.discreteGP.cov
-  //      val cov = f.gp.cov
-  //
-  //      for ((pt1, ptId1) <- f.discretizationPoints.zipWithIndex.par; (pt2, ptId2) <- f.discretizationPoints.zipWithIndex) {
-  //        val covGp = cov(pt1, pt2)
-  //        val covDiscrete = discreteGPCov(PointId(ptId1), PointId(ptId2))
-  //        for (i <- 0 until 3; j <- 0 until 3) {
-  //          covGp(i, j) should be(covDiscrete(i, j) +- 1e-5)
-  //        }
-  //      }
-  //    }
-  //
-  //  }
 
-  //  describe("a pca model, estimates the first eigenvalue from the samples") {
-  //    it("estimates the same variance for the first eigenmode independent of the discretization") {
-  //      org.statismo.stk.core.initialize()
-  //
-  //      // we create artifical samples from an existing model
-  //      val path = getClass.getResource("/facemodel.h5").getPath
-  //      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
-  //
-  //      val samples = for (i <- 0 until 10) yield model.sample
-  //      val transforms = for (s <- samples) yield new Transformation[_3D] {
-  //        val samplePts = s.points.toIndexedSeq
-  //
-  //        override def apply(x: Point[_3D]): Point[_3D] = {
-  //          val (_, ptId) = model.referenceMesh.findClosestPoint(x)
-  //          samplePts(ptId)
-  //        }
-  //
-  //      }
-  //
-  //      // model building
-  //      val sampler1 = FixedPointsUniformMeshSampler3D(model.referenceMesh, 50000, 42)
-  //      val gp1 = LowRankGaussianProcess.createLowRankGPFromTransformations(model.referenceMesh.boundingBox, transforms, sampler1)
-  //
-  //      val sampler2 = FixedPointsUniformMeshSampler3D(model.referenceMesh, 100000, 42)
-  //      val gp2 = LowRankGaussianProcess.createLowRankGPFromTransformations(model.referenceMesh.boundingBox, transforms, sampler2)
-  //
-  //      val (lambdas1, _) = gp1.kltBasis.unzip
-  //      val (lambdas2, _) = gp2.kltBasis.unzip
-  //      for ((l1, l2) <- lambdas1 zip lambdas2 if l1 > 1e-5 && l2 > 1e-5) {
-  //        l1 should be(l2 +- (l1 * 0.05))
-  //      }
-  //    }
-  //  }
+  describe("a discrete Gaussian process") {
+
+    object Fixture {
+      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val sampler = UniformSampler(domain, 6 * 6 * 6)
+      val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
+      val gp = GaussianProcess(mean, UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))
+
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 100)
+
+      val discretizationPoints = sampler.sample.map(_._1)
+      val discreteGP = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
+    }
+
+    it("can be interpolated") {
+      val f = Fixture
+      val gp = f.discreteGP.interpolateNystrom(100)
+      val discreteGp = gp.discretize(f.discretizationPoints)
+
+      val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
+      val coeffs = DenseVector.rand(gp.rank, gaussRNG).map(_.toFloat)
+
+      val sample = gp.instance(coeffs)
+      val discreteSample = discreteGp.instance(coeffs)
+      for ((pt, vec) <- discreteSample.pointsWithValues) {
+        (sample(pt) - vec).norm should be(0.0 +- 1e-5)
+      }
+    }
+
+    it("can interpolate a statismo model") {
+      scalismo.initialize()
+      val path = getClass.getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val gp = model.gp.interpolateNearestNeighbor
+      val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
+      val coeffs = DenseVector.rand(gp.rank, gaussRNG).map(_.toFloat)
+
+      val sampleModel1 = model.instance(coeffs)
+      val model2 = StatisticalMeshModel(model.referenceMesh, gp)
+      val sampleModel2 = model2.instance(coeffs)
+
+      sampleModel1 should equal(sampleModel2)
+    }
+
+    it("yields the same deformations at the specialized points") {
+      val f = Fixture
+
+      val coeffs = DenseVector.zeros[Float](f.lowRankGp.klBasis.size)
+      val gpInstance = f.lowRankGp.instance(coeffs)
+      val discreteInstance = f.discreteGP.instance(coeffs)
+      for ((pt, df) <- discreteInstance.pointsWithValues) {
+        gpInstance(pt) should equal(df)
+      }
+
+      for ((pt, df) <- f.discreteGP.instance(coeffs).pointsWithValues) {
+        df should equal(gpInstance(pt))
+      }
+    }
+
+    it("yields the same result for gp regression as a normal gp") {
+      val f = Fixture
+
+      val trainingDataDiscreteGp = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D]))
+      val trainingDataGP = trainingDataDiscreteGp.map { case (ptId, v) => (f.discretizationPoints(ptId), v) }
+
+      val posteriorGP = f.lowRankGp.posterior(trainingDataGP, 1e-5)
+      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteGP, trainingDataDiscreteGp, 1e-5)
+
+      val meanPosterior = posteriorGP.mean
+      val meanPosteriorSpecialized = discretePosteriorGP.mean
+      val phi1Posterior = posteriorGP.klBasis(0)._2
+      val phi1PosteriorSpezialized = discretePosteriorGP.klBasis(0)._2
+
+      // both posterior processes should give the same values at the specialized points
+      for ((pt, id) <- f.discretizationPoints.zipWithIndex.par) {
+        for (d <- 0 until 3) {
+          meanPosterior(pt)(d) should be(meanPosteriorSpecialized(id)(d) +- 1e-5)
+          phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(id)(d) +- 1e-5)
+        }
+      }
+    }
+
+    it("yields the same covariance function as a normal gp") {
+      val f = Fixture
+
+      val discreteGPCov = f.discreteGP.cov
+      val cov = f.lowRankGp.cov
+
+      for ((pt1, ptId1) <- f.discretizationPoints.zipWithIndex.par; (pt2, ptId2) <- f.discretizationPoints.zipWithIndex) {
+        val covGp = cov(pt1, pt2)
+        val covDiscrete = discreteGPCov(ptId1, ptId2)
+        for (i <- 0 until 3; j <- 0 until 3) {
+          covGp(i, j) should be(covDiscrete(i, j) +- 1e-5)
+        }
+      }
+    }
+
+  }
 
 }
