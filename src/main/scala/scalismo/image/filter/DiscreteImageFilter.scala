@@ -15,11 +15,9 @@
  */
 package scalismo.image.filter
 
-import scalismo.image.DiscreteScalarImage
+import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage.CanInterpolate
-import scalismo.utils.ImageConversion
-import scalismo.utils.ImageConversion.CanConvertToVTK
+import scalismo.utils.{ CanConvertToVTK, ImageConversion }
 import spire.math.Numeric
 import vtk.{ vtkImageCast, vtkImageEuclideanDistance }
 
