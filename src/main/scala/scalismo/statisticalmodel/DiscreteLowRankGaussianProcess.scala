@@ -169,12 +169,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
   /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]].
-   * This is achieved by using a nearest neigbor interpolation of the mean function and a Nystrom for computing the kl basis
+   * This is achieved by using a  Nystrom method for computing the kl basis.
+   * The mean function is currently interpolated using a nearest neighbor approach.
+   *
    * @param nNystromPoints determines how many points of the domain are used to estimate the full
    *                       kl basis.
    */
 
-  def interpolate(nNystromPoints: Int = 2 * rank)(implicit e: CanBound[D]): LowRankGaussianProcess[D, DO] = {
+  def interpolateNystrom(nNystromPoints: Int = 2 * rank)(implicit e: CanBound[D]): LowRankGaussianProcess[D, DO] = {
 
     val sampler = new Sampler[D] {
       override def volumeOfSampleRegion = numberOfPoints.toDouble
@@ -183,7 +185,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
       val randGen = new util.Random()
       val domainPoints = domain.points.toIndexedSeq
       override def sample = {
-        val sampledPtIds = for (_ <- 0 until domain.numberOfPoints) yield randGen.nextInt(domain.numberOfPoints)
+        val sampledPtIds = for (_ <- 0 until nNystromPoints) yield randGen.nextInt(domain.numberOfPoints)
         sampledPtIds.toIndexedSeq.map(ptId => (domainPoints(ptId), p))
       }
     }
@@ -210,6 +212,31 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     }
     val gp = GaussianProcess(VectorField(domain.boundingBox, meanFun _), covFun)
     LowRankGaussianProcess.approximateGP[D, DO](gp, sampler, rank)
+  }
+
+  /**
+   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
+   * using nearest neigbor interpolation (for both mean and covariance function)
+   */
+  def interpolateNearestNeighbor(implicit e: CanBound[D]): LowRankGaussianProcess[D, DO] = {
+
+    val meanPD = this.mean
+    val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
+
+    def meanFun(pt: Point[D]): Vector[DO] = {
+      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
+      val (closestPt, closestPtId) = closestPts(0)
+      meanPD(closestPtId)
+    }
+
+    def phi(i: Int)(pt: Point[D]): Vector[DO] = {
+      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
+      val (_, closestPtId) = closestPts(0)
+      Vector[DO](basisMatrix(closestPtId * outputDimensionality until (closestPtId + 1) * outputDimensionality, i).toArray)
+    }
+
+    val interpolatedKLBasis = (0 until rank) map (i => (variance(i), VectorField(domain.boundingBox, phi(i)_)))
+    new LowRankGaussianProcess(VectorField(domain.boundingBox, meanFun), interpolatedKLBasis)
   }
 
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {

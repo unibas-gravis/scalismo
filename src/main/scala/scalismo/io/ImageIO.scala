@@ -19,8 +19,7 @@ import scalismo.common.RealSpace
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation }
-import scalismo.utils.ImageConversion
-import scalismo.utils.ImageConversion.CanConvertToVTK
+import scalismo.utils.{ CanConvertToVTK, ImageConversion }
 import scala.util.Try
 import scala.util.Failure
 import java.io.File
