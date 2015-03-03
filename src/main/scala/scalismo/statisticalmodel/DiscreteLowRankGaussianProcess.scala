@@ -169,7 +169,9 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
   /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]].
-   * This is achieved by using a nearest neigbor interpolation of the mean function and a Nystrom for computing the kl basis
+   * This is achieved by using a  Nystrom method for computing the kl basis.
+   * The mean function is currently interpolated using a nearest neighbor approach.
+   *
    * @param nNystromPoints determines how many points of the domain are used to estimate the full
    *                       kl basis.
    */
@@ -213,12 +215,11 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   }
 
   /**
-   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]].
-   * This is achieved by using a nearest neigbor interpolation of the mean function and for computing the kl basis
+   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
+   * using nearest neigbor interpolation (for both mean and covariance function)
    */
   def interpolateNearestNeighbor(implicit e: CanBound[D]): LowRankGaussianProcess[D, DO] = {
 
-    // TODO, here we could do something smarter, such as e.g. b-spline interpolation
     val meanPD = this.mean
     val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
 

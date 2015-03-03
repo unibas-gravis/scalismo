@@ -229,6 +229,29 @@ class GaussianProcessTests extends FunSpec with Matchers {
       }
     }
 
+    it("can be discretized and yields the correct values at the discretization points") {
+
+      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val sampler = UniformSampler(domain, 6 * 6 * 6)
+      val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
+      val gp = GaussianProcess(mean, UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 100)
+
+      val discretizationPoints = sampler.sample.map(_._1)
+      val discreteGP = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
+
+      val coeffs = DenseVector.zeros[Float](lowRankGp.klBasis.size)
+      val gpInstance = lowRankGp.instance(coeffs)
+      val discreteInstance = discreteGP.instance(coeffs)
+      for ((pt, df) <- discreteInstance.pointsWithValues) {
+        gpInstance(pt) should equal(df)
+      }
+
+      for ((pt, df) <- discreteGP.instance(coeffs).pointsWithValues) {
+        df should equal(gpInstance(pt))
+      }
+    }
+
   }
 
   describe("a discrete Gaussian process") {
@@ -245,7 +268,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val discreteGP = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
     }
 
-    it("can be interpolated") {
+    it("will yield the correct values at the interpolation points when it is interpolated") {
       val f = Fixture
       val gp = f.discreteGP.interpolateNystrom(100)
       val discreteGp = gp.discretize(f.discretizationPoints)
@@ -260,37 +283,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
       }
     }
 
-    it("can interpolate a statismo model") {
-      scalismo.initialize()
-      val path = getClass.getResource("/facemodel.h5").getPath
-      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
-      val gp = model.gp.interpolateNearestNeighbor
-      val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
-      val coeffs = DenseVector.rand(gp.rank, gaussRNG).map(_.toFloat)
-
-      val sampleModel1 = model.instance(coeffs)
-      val model2 = StatisticalMeshModel(model.referenceMesh, gp)
-      val sampleModel2 = model2.instance(coeffs)
-
-      sampleModel1 should equal(sampleModel2)
-    }
-
-    it("yields the same deformations at the specialized points") {
-      val f = Fixture
-
-      val coeffs = DenseVector.zeros[Float](f.lowRankGp.klBasis.size)
-      val gpInstance = f.lowRankGp.instance(coeffs)
-      val discreteInstance = f.discreteGP.instance(coeffs)
-      for ((pt, df) <- discreteInstance.pointsWithValues) {
-        gpInstance(pt) should equal(df)
-      }
-
-      for ((pt, df) <- f.discreteGP.instance(coeffs).pointsWithValues) {
-        df should equal(gpInstance(pt))
-      }
-    }
-
-    it("yields the same result for gp regression as a normal gp") {
+    it("yields the same result for gp regression as a LowRankGaussianProcess") {
       val f = Fixture
 
       val trainingDataDiscreteGp = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D]))
