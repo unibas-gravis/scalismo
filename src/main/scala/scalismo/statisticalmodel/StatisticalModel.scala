@@ -103,6 +103,15 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   }
 
   /**
+   * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
+   */
+  def posterior(trainingData: IndexedSeq[(Int, Point[_3D], Double)]): StatisticalMeshModel = {
+    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, sigma) => (id, targetPoint - referenceMesh(id), sigma) }
+    val posteriorGp = gp.posterior(trainingDataWithDisplacements)
+    new StatisticalMeshModel(referenceMesh, posteriorGp)
+  }
+
+  /**
    * transform the statistical mesh model using the given rigid transform.
    * The spanned shape space is not affected by this operations.
    */
