@@ -186,7 +186,7 @@ object Kernel {
 
   def computeNystromApproximation[D <: Dim: NDSpace, DO <: Dim: NDSpace](k: MatrixValuedPDKernel[D, DO],
     numBasisFunctions: Int,
-    sampler: Sampler[D]): IndexedSeq[(Float, VectorField[D, DO])] = {
+    sampler: Sampler[D], seed: Int = 42): IndexedSeq[(Float, VectorField[D, DO])] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -197,7 +197,7 @@ object Kernel {
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)
-    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
+    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions, seed)
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size

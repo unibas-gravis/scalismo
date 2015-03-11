@@ -18,6 +18,8 @@ package scalismo.numerics
 import breeze.linalg.qr.QR
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ diag, DenseMatrix, DenseVector }
+import org.apache.commons.math3.random.MersenneTwister
+import breeze.stats.distributions.RandBasis
 
 /**
  * Implementation of a Randomized approach for SVD,
@@ -27,11 +29,13 @@ import breeze.linalg.{ diag, DenseMatrix, DenseVector }
  */
 object RandomSVD {
 
-  def computeSVD(A: DenseMatrix[Double], k: Int, p: Int = 10): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
+  def computeSVD(A: DenseMatrix[Double], k: Int, p: Int = 10, seed: Int = 42): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
     require(A.rows == A.cols) // might be removed later (check in Halko paper)
     val m = A.rows
 
-    val standardNormal = breeze.stats.distributions.Gaussian(0, 1)
+    val mt = new MersenneTwister()
+    mt.setSeed(seed)
+    val standardNormal = breeze.stats.distributions.Gaussian(0, 1)(new RandBasis(mt))
 
     // create a gaussian random matrix
     val Omega = DenseMatrix.zeros[Double](m, k + p).map(_ => standardNormal.draw)
