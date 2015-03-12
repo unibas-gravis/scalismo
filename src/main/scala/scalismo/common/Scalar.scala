@@ -7,7 +7,16 @@ import spire.math._
 
 import scala.reflect.ClassTag
 
-// TODO: see the comment on ValueClassScalar below.
+/**
+ * Trait signifying that the data is scalar (i.e., numeric).
+ *
+ * Note that while unsigned integral types (UByte, UShort, UInt, ULong) are supported,
+ * some operations may be significantly slower than when using the built-in primitive
+ * (signed) data types. In other words, it may be worthwile to directly map the
+ * data to a signed type after reading, then working with the signed data.
+ *
+ * @tparam S the type of the actual scalar data.
+ */
 trait Scalar[@specialized(Byte, Short, Int, Long, Float, Double) S] extends Any {
   def fromByte(n: Byte): S
   def fromShort(n: Short): S
@@ -28,10 +37,6 @@ abstract class PrimitiveScalar[S <: AnyVal: ClassTag] extends Scalar[S] {
   def createArray(data: Array[S]): PrimitiveScalarArray[S] = new PrimitiveScalarArray[S](data)
 }
 
-/* TODO:    we need to discuss if we want to (at least theoretically) allow for
- * TODO:    "non-value-class" scalars. It's possible in theory, but may be a huge performance
- * TODO:    problem if we allow it.
- */
 abstract class ValueClassScalar[S <: AnyVal, U <: AnyVal: ClassTag] extends Scalar[S] {
 
   protected[scalismo] def convertArray[C](data: Array[C], f: C => S): ValueClassScalarArray[S, U] = {
@@ -186,11 +191,11 @@ sealed trait ScalarArray[S] {
   def apply(index: Int): S
   def length: Int
   final lazy val size = length
+
   final def isDefinedAt(index: Int): Boolean = index < size && index >= 0
 
   def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T]
 
-  //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
   def iterator: Iterator[S]
 }
 
@@ -210,12 +215,11 @@ abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: A
 }
 
 final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) extends AbstractScalarArray[S, S](rawData) {
-  // FIXME: need to implement hashCode, equals etc.?
 
   override protected def fromUnderlying(u: S): S = u
+
   override def apply(index: Int): S = rawData(index)
 
-  //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
   override def iterator: Iterator[S] = rawData.iterator
 
   override lazy val hashCode: Int = rawData.deep.hashCode()
@@ -232,12 +236,11 @@ final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) exten
 }
 
 final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(implicit scalar: ValueClassScalar[S, U]) extends AbstractScalarArray[S, U](rawData) {
-  // FIXME: need to implement hashCode, equals etc.?
 
   override protected def fromUnderlying(u: U): S = scalar.fromUnderlying(u)
+
   override def apply(index: Int): S = fromUnderlying(rawData(index))
 
-  //  @deprecated("discouraged - you may be instantiating value classes if constructing collections from the iterator", "always")
   override def iterator: Iterator[S] = rawData.iterator.map(scalar.fromUnderlying)
 
   override lazy val hashCode: Int = rawData.deep.hashCode()
@@ -259,7 +262,6 @@ object ValueClassScalarArray {
 
 object ScalarArray {
 
-  @deprecated("THIS METHOD *** WILL *** BE REMOVED BECAUSE IT FORCES INSTANTIATION OF VALUE CLASSES", "always")
   def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
     val scalar = implicitly[Scalar[T]]
     scalar match {
