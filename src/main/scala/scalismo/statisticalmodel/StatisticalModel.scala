@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import scalismo.common.DiscreteVectorField
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{SquareMatrix, Vector, Point, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.{ Transformation, RigidTransformation }
 
@@ -78,7 +78,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * displacement vector. Different uncertainties can be attributed to each point.
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
-  def project(trainingData: IndexedSeq[(Int, Point[_3D], Double)]) = {
+  def project(trainingData: IndexedSeq[(Int, Point[_3D], NDimensionalNormalDistribution[_3D])]) = {
     val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, d) => (id, targetPoint - referenceMesh(id), d) }
     warpReference(gp.project(trainingDataWithDisplacements))
   }
@@ -99,6 +99,15 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   def posterior(trainingData: IndexedSeq[(Int, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
     val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint) => (id, targetPoint - referenceMesh(id)) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements, sigma2)
+    new StatisticalMeshModel(referenceMesh, posteriorGp)
+  }
+
+  /**
+   * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
+   */
+  def posterior(trainingData: IndexedSeq[(Int, Point[_3D], NDimensionalNormalDistribution[_3D])]): StatisticalMeshModel = {
+    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, cov) => (id, targetPoint - referenceMesh(id), cov) }
+    val posteriorGp = gp.posterior(trainingDataWithDisplacements)
     new StatisticalMeshModel(referenceMesh, posteriorGp)
   }
 
