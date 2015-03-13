@@ -106,7 +106,11 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val val1 = 1.0
       val pt2 = 1.0f
       val val2 = -1.0
-      val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0)).map(t => (Point(t._1), Vector(t._2), t._3))
+      def errorForSigma(sigma2 : Double) = {
+        NDimensionalNormalDistribution(Vector(0.0), SquareMatrix.eye[_1D] * sigma2)
+      }
+      val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2,2.0))
+        .map(t => (Point(t._1), Vector(t._2), errorForSigma(t._3)))
       val posteriorGP = gp.posterior(trainingData)
 
       posteriorGP.cov(pt1, pt1)(0, 0) should be < posteriorGP.cov(pt2, pt2)(0, 0)
@@ -286,11 +290,13 @@ class GaussianProcessTests extends FunSpec with Matchers {
     it("yields the same result for gp regression as a LowRankGaussianProcess") {
       val f = Fixture
 
-      val trainingDataDiscreteGp = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D]))
-      val trainingDataGP = trainingDataDiscreteGp.map { case (ptId, v) => (f.discretizationPoints(ptId), v) }
+      val trainingData = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D]))
+      val cov = NDimensionalNormalDistribution(Vector.zeros[_3D], SquareMatrix.eye[_3D] * 1e-5)
+      val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
+      val trainingDataGP = trainingData.map { case (ptId, v) => (f.discretizationPoints(ptId), v) }
 
       val posteriorGP = f.lowRankGp.posterior(trainingDataGP, 1e-5)
-      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteGP, trainingDataDiscreteGp, 1e-5)
+      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteGP, trainingDataDiscreteGP)
 
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = discretePosteriorGP.mean
