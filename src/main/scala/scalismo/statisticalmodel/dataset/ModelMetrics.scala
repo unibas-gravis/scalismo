@@ -47,7 +47,6 @@ object ModelMetrics {
    *
    * @param pcaModel Statistical Mesh Model to be evaluated
    * @param dc test data collection that is in correspondence with the model reference
-   * @param globalUncertainty point uncertainty to be used for the projection. Default is 0.2 mm
    *
    * The implementation of this metric is inspired from :
    * Styner, Martin A., et al. "Evaluation of 3D correspondence methods for model building." Information processing in medical imaging. Springer Berlin Heidelberg, 2003.
@@ -57,13 +56,13 @@ object ModelMetrics {
    * The returned value is a scala.util.Try containing the average over all test data in case of success, or an Exception otherwise
    */
 
-  def generalization(pcaModel: StatisticalMeshModel, dc: DataCollection, globalUncertainty: Double = 0.2): Try[Double] = {
+  def generalization(pcaModel: StatisticalMeshModel, dc: DataCollection): Try[Double] = {
 
     if (pcaModel.referenceMesh == dc.reference) Success {
       dc.dataItems.par.map { item =>
         val mesh = dc.reference.transform(item.transformation)
         val trainingData = (0 until pcaModel.referenceMesh.numberOfPoints) zip mesh.points.toIndexedSeq
-        val projection = pcaModel.project(trainingData, globalUncertainty)
+        val projection = pcaModel.project(trainingData, 1e-6)
         MeshMetrics.avgDistance(projection, mesh)
       }.sum / dc.size.toDouble
     }
