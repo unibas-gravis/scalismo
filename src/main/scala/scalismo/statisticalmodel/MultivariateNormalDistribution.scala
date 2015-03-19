@@ -18,6 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector, det }
 import scalismo.geometry._
+import scalismo.numerics.RandomSVD
 
 private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
   def mean: V
@@ -45,20 +46,19 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
   override val dim = mean.size
 
-  private val covDouble = cov.map(_.toDouble)
-
-  //private val covInvFloat = covInv.map(_.toFloat)
-  private val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd(covDouble)
-  private val covDet = det(covDouble)
-  private val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
-  private val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
-  private val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
+  private lazy val covInv = breeze.linalg.pinv(cov.map(_.toDouble))
+  private lazy val covDet = det(cov.map(_.toDouble))
 
   /**
    * Returns a seq with the principal components and associated variance
    * @return
    */
   override def principalComponents: Seq[(DenseVector[Float], Double)] = {
+    val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd.reduced(cov.map(_.toDouble))
+    val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
+    val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
+    val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
+
     for (i <- 0 until uMat.cols) yield {
       (uMat(::, i).toDenseVector.map(_.toFloat), sigma2s(i))
     }
@@ -92,9 +92,21 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
     val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
-    //mean + (L * u).map(_.toFloat) // a random sample
 
-    mean + (uMat * (sigmaMat * u)).map(_.toFloat)
+    // find the smallest variance, which we need to regularize the covariance matrix
+    val minCov = (0 until cov.cols).map { i =>
+      cov(i, i)
+    }.min
+
+    // we choose something that is 5 orders of magnitude smaller than the minimal variance for the regularization.
+    // this should not have a negligible effect on the sample, but stabilize the cholesky computation
+    val covReg = cov.map(_.toDouble)
+    for (i <- 0 until cov.cols) {
+      covReg(i, i) += minCov * 1e-5f
+    }
+
+    val L = breeze.linalg.cholesky(covReg)
+    mean + (L * u).map(_.toFloat) // a random sample
   }
 
 }
