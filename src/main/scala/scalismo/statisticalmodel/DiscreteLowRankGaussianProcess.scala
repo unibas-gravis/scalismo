@@ -397,7 +397,7 @@ object DiscreteLowRankGaussianProcess {
     assert(QtL.cols == errorDistributions.size * dim)
     assert(QtL.rows == gp.rank)
     for ((errDist, i) <- errorDistributions.zipWithIndex) {
-        QtL(::, i * dim until (i + 1) * dim) := QtL(::, i * dim until (i + 1) * dim) * breeze.linalg.inv(errDist.cov.toBreezeMatrix)
+      QtL(::, i * dim until (i + 1) * dim) := QtL(::, i * dim until (i + 1) * dim) * breeze.linalg.inv(errDist.cov.toBreezeMatrix)
     }
 
     val M = QtL * Q + DenseMatrix.eye[Double](gp.rank)
