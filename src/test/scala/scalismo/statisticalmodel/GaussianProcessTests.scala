@@ -106,10 +106,10 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val val1 = 1.0
       val pt2 = 1.0f
       val val2 = -1.0
-      def errorForSigma(sigma2 : Double) = {
+      def errorForSigma(sigma2: Double) = {
         NDimensionalNormalDistribution(Vector(0.0), SquareMatrix.eye[_1D] * sigma2)
       }
-      val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2,2.0))
+      val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0))
         .map(t => (Point(t._1), Vector(t._2), errorForSigma(t._3)))
       val posteriorGP = gp.posterior(trainingData)
 

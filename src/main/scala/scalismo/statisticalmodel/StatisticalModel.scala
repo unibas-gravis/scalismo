@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import scalismo.common.DiscreteVectorField
-import scalismo.geometry.{SquareMatrix, Vector, Point, _3D}
+import scalismo.geometry.{ SquareMatrix, Vector, Point, _3D }
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.{ Transformation, RigidTransformation }
 
