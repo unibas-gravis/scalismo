@@ -45,20 +45,21 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * Sample values of the GAussian process evaluated at the given points.
    */
   def sampleAtPoints(pts: IndexedSeq[Point[D]]): DiscreteVectorField[D, DO] = {
-    val K = Kernel.computeKernelMatrix(pts, cov).map(_.toDouble)
 
-    // TODO check that all points are part of the domain
+    // define the mean and kernel matrix for the given points and construct the
+    // corresponding MV Normal distribution, from which we then sample
 
-    // TODO using the svd is slightly inefficient, but with the current version of breeze, the cholesky decomposition does not seem to work
-    val SVD(u, s, _) = breeze.linalg.svd(K)
-    val L = u.copy
-    for (i <- 0 until s.size) {
-      L(::, i) := u(::, i) * Math.sqrt(s(i))
+    val mu = DenseVector.zeros[Float](pts.size * outputDimensionality)
+    for ((pt, i) <- pts.zipWithIndex) {
+      mu(i * outputDimensionality until (i + 1) * outputDimensionality) := mean(pt).toBreezeVector
     }
-    val r = breeze.stats.distributions.Gaussian(0, 1)
-    val nGaussians = for (i <- 0 until pts.size * outputDimensionality) yield r.draw()
-    val v = DenseVector(nGaussians.toArray)
-    val sampleVec = L * v
+
+    val K = Kernel.computeKernelMatrix(pts, cov)
+    val mvNormal = MultivariateNormalDistribution(mu, K)
+
+    val sampleVec = mvNormal.drawSample()
+
+    // The sample is a vector. We convert it back to a discreteVectorField.
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
       .map(data => Vector[DO](data.map(_.toFloat)))
       .toIndexedSeq
@@ -83,5 +84,4 @@ object GaussianProcess {
   def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: VectorField[D, DO], cov: MatrixValuedPDKernel[D, DO]) = {
     new GaussianProcess[D, DO](mean, cov)
   }
-
 }
