@@ -16,9 +16,11 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector, det }
+import breeze.linalg.{ NotConvergedException, DenseMatrix, DenseVector, det }
 import scalismo.geometry._
 import scalismo.numerics.RandomSVD
+
+import scala.util.Try
 
 private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
   def mean: V
@@ -48,6 +50,18 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
   private lazy val covInv = breeze.linalg.pinv(cov.map(_.toDouble))
   private lazy val covDet = det(cov.map(_.toDouble))
+
+  // The root is precomputed for efficient sampling. Note that for very large covariance matrices, we do a
+  // low-rank approximation in order to keep computation time reasonable, making sure that
+  // we cover 99 % of the variance.
+  private lazy val root = {
+    rootCholesky(regWeight = 0.0) // try a pure cholesky
+      .getOrElse(rootCholesky(regWeight = 1e-5) // if it fails, try it regularized
+        .getOrElse(rootRandomSVD(rank = Math.min(700, cov.cols), approxAmountTotalVariance = 0.99) // if this fails, try randomSVD with fixed rank
+          .getOrElse(rootFullSVD)
+        )
+      )
+  }
 
   /**
    * Returns a seq with the principal components and associated variance
@@ -93,21 +107,46 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
     val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
 
-    // find the smallest variance, which we need to regularize the covariance matrix
-    val minCov = (0 until cov.cols).map { i =>
-      cov(i, i)
-    }.min
+    mean + (root * u).map(_.toFloat) // a random sample
+  }
 
-    // we choose something that is 5 orders of magnitude smaller than the minimal variance for the regularization.
-    // this should not have a negligible effect on the sample, but stabilize the cholesky computation
+  private def rootCholesky(regWeight: Double): Option[DenseMatrix[Double]] = {
+
+    // we slighly regularize the covariance matrix before doing a cholesky decomposition
+    // to avoid numerical errors
     val covReg = cov.map(_.toDouble)
     for (i <- 0 until cov.cols) {
-      covReg(i, i) += minCov * 1e-5f
+      covReg(i, i) += regWeight
     }
-
-    val L = breeze.linalg.cholesky(covReg)
-    mean + (L * u).map(_.toFloat) // a random sample
+    val L = Try {
+      breeze.linalg.cholesky(covReg)
+    }
+    L.toOption
   }
+
+  private def rootRandomSVD(rank: Int, approxAmountTotalVariance: Double): Option[DenseMatrix[Double]] = {
+
+    val covDouble = cov.map(_.toDouble)
+    val (uMat, sigma2s, utMat) = RandomSVD.computeSVD(covDouble, Math.min(cov.cols, rank))
+    val D = uMat * breeze.linalg.diag(sigma2s) * utMat - covDouble
+    if (breeze.linalg.sum(sigma2s / breeze.linalg.trace(covDouble)) > approxAmountTotalVariance) {
+
+      val L = DenseMatrix.zeros[Double](uMat.rows, cov.cols)
+      L(::, 0 until uMat.cols) := uMat
+      for (i <- 0 until sigma2s.size) {
+        L(::, i) *= Math.sqrt(sigma2s(i))
+      }
+      Some(L)
+    } else {
+      None
+    }
+  }
+
+  private def rootFullSVD: DenseMatrix[Double] =
+    {
+      val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd.reduced(cov.map(_.toDouble))
+      uMat * breeze.linalg.diag(sigma2s.map(Math.sqrt))
+    }
 
 }
 
