@@ -59,5 +59,4 @@ object RandomSVD {
     (U(::, 0 until k), sigma(0 until k), vt(0 until k, 0 until k))
   }
 
-
 }
