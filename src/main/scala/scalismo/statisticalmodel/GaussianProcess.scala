@@ -78,9 +78,9 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * It is computed using Gaussian process regression.
    * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
    */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2 : Double) : GaussianProcess[D, DO] = {
+  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): GaussianProcess[D, DO] = {
     val cov = NDimensionalNormalDistribution[DO](Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
-    val fullTrainingData = trainingData.map{case (p,v) => (p, v, cov)}
+    val fullTrainingData = trainingData.map { case (p, v) => (p, v, cov) }
     GaussianProcess.regression(this, fullTrainingData)
   }
 
@@ -88,7 +88,7 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * The posterior distribution of the gaussian process, with respect to the given trainingData.
    * It is computed using Gaussian process regression.
    */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO]  = {
+  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO] = {
     GaussianProcess.regression(this, trainingData)
   }
 }

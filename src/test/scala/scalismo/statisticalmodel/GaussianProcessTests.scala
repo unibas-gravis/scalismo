@@ -91,7 +91,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
 
       val trainingData = IndexedSeq((-3.0, 1.0), (-1.0, 3.0), (0.0, -1.0), (1.0, -1.0), (3.0, 0.0)).map(t => (Point(t._1), Vector(t._2)))
       val posteriorGP = gp.posterior(trainingData, 1e-8)
-      val posteriorGPLowRank  = gpLowRank.posterior(trainingData, 1e-8)
+      val posteriorGPLowRank = gpLowRank.posterior(trainingData, 1e-8)
       for ((x, y) <- trainingData) {
         posteriorGP.mean(x)(0) should be(y(0) +- 1e-1)
         posteriorGPLowRank.mean(x)(0) should be(y(0) +- 1e-1)
