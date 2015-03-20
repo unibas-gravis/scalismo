@@ -86,13 +86,15 @@ class GaussianProcessTests extends FunSpec with Matchers {
     it("keeps the landmark points fixed for a 1D case") {
       val domain = BoxDomain[_1D](-5.0f, 5f)
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](5))
-      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel), UniformSampler(domain, 500), 100)
+      val gp = GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel)
+      val gpLowRank = LowRankGaussianProcess.approximateGP(gp, UniformSampler(domain, 500), 100)
 
       val trainingData = IndexedSeq((-3.0, 1.0), (-1.0, 3.0), (0.0, -1.0), (1.0, -1.0), (3.0, 0.0)).map(t => (Point(t._1), Vector(t._2)))
       val posteriorGP = gp.posterior(trainingData, 1e-8)
-
+      val posteriorGPLowRank  = gpLowRank.posterior(trainingData, 1e-8)
       for ((x, y) <- trainingData) {
         posteriorGP.mean(x)(0) should be(y(0) +- 1e-1)
+        posteriorGPLowRank.mean(x)(0) should be(y(0) +- 1e-1)
       }
 
     }
@@ -100,7 +102,8 @@ class GaussianProcessTests extends FunSpec with Matchers {
     it("yields a larger posterior variance for points that are less strongly constrained") {
       val domain = BoxDomain[_1D](-5.0f, 5f)
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
-      val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel), UniformSampler(domain, 500), 100)
+      val gp = GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel)
+      val gpLowRank = LowRankGaussianProcess.approximateGP(gp, UniformSampler(domain, 500), 100)
 
       val pt1 = -3.0f
       val val1 = 1.0
@@ -111,35 +114,51 @@ class GaussianProcessTests extends FunSpec with Matchers {
       }
       val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0))
         .map(t => (Point(t._1), Vector(t._2), errorForSigma(t._3)))
+      val posteriorGPLowRank = gpLowRank.posterior(trainingData)
       val posteriorGP = gp.posterior(trainingData)
 
+      posteriorGPLowRank.cov(pt1, pt1)(0, 0) should be < posteriorGPLowRank.cov(pt2, pt2)(0, 0)
       posteriorGP.cov(pt1, pt1)(0, 0) should be < posteriorGP.cov(pt2, pt2)(0, 0)
     }
 
     it("keeps the landmark points fixed for a 2D case") {
       val domain = BoxDomain[_2D]((-5.0f, -5.0f), (5.0f, 5.0f))
-      val gp = LowRankGaussianProcess.approximateGP[_2D, _2D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0)), UncorrelatedKernel[_2D](GaussianKernel[_2D](5))), UniformSampler(domain, 400), 100)
+      val gp = GaussianProcess[_2D, _2D](VectorField(domain, _ => Vector(0.0, 0.0)),
+        UncorrelatedKernel[_2D](GaussianKernel[_2D](5)))
+      val gpLowRank = LowRankGaussianProcess.approximateGP[_2D, _2D](gp, UniformSampler(domain, 400), 100)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0), Vector(1.0, 1.0)), (Point(-1.0, 3.0), Vector(0.0, -1.0)))
+
       val posteriorGP = gp.posterior(trainingData, 1e-5)
+      val posteriorGPLowRank = gpLowRank.posterior(trainingData, 1e-5)
 
       for ((x, y) <- trainingData) {
+        posteriorGPLowRank.mean(x)(0) should be(y(0) +- 0.0001)
+        posteriorGPLowRank.mean(x)(1) should be(y(1) +- 0.0001)
         posteriorGP.mean(x)(0) should be(y(0) +- 0.0001)
         posteriorGP.mean(x)(1) should be(y(1) +- 0.0001)
+
       }
     }
 
     it("keeps the landmark points fixed for a 3D case") {
       val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
-      val gp = LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), UncorrelatedKernel[_3D](GaussianKernel[_3D](5))), UniformSampler(domain, 6 * 6 * 6), 50)
+      val gp = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
+        UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))
+      val gpLowRank = LowRankGaussianProcess.approximateGP[_3D, _3D](gp, UniformSampler(domain, 6 * 6 * 6), 50)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), Vector(1.0, 1.0, 2.0)), (Point(-1.0, 3.0, 0.0), Vector(0.0, -1.0, 0.0)))
+      val posteriorGPLowRank = gpLowRank.posterior(trainingData, 1e-5)
       val posteriorGP = gp.posterior(trainingData, 1e-5)
 
       for ((x, y) <- trainingData) {
         posteriorGP.mean(x)(0) should be(y(0) +- 0.0001)
         posteriorGP.mean(x)(1) should be(y(1) +- 0.0001)
         posteriorGP.mean(x)(2) should be(y(2) +- 0.0001)
+        posteriorGPLowRank.mean(x)(0) should be(y(0) +- 0.0001)
+        posteriorGPLowRank.mean(x)(1) should be(y(1) +- 0.0001)
+        posteriorGPLowRank.mean(x)(2) should be(y(2) +- 0.0001)
+
       }
 
     }
