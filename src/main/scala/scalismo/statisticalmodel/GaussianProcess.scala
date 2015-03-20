@@ -72,6 +72,25 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * Compute the marginal distribution for the given point
    */
   def marginal(pt: Point[D]): NDimensionalNormalDistribution[DO] = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
+
+  /**
+   * The posterior distribution of the gaussian process, with respect to the given trainingData.
+   * It is computed using Gaussian process regression.
+   * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
+   */
+  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2 : Double) : GaussianProcess[D, DO] = {
+    val cov = NDimensionalNormalDistribution[DO](Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
+    val fullTrainingData = trainingData.map{case (p,v) => (p, v, cov)}
+    GaussianProcess.regression(this, fullTrainingData)
+  }
+
+  /**
+   * The posterior distribution of the gaussian process, with respect to the given trainingData.
+   * It is computed using Gaussian process regression.
+   */
+  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO]  = {
+    GaussianProcess.regression(this, trainingData)
+  }
 }
 
 /**
@@ -118,15 +137,11 @@ object GaussianProcess {
       Vector[DO](((xstar(x) * K_inv).map(_.toFloat) * fVec).toArray)
     }
 
-    def cov(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-
-      gp.cov(x, y) - SquareMatrix[DO]((xstar(x) * K_inv * xstar(y).t).data.map(_.toFloat))
-
-    }
-
     val posteriorKernel = new MatrixValuedPDKernel[D, DO] {
       override def domain = gp.domain
-      override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = cov(x, y)
+      override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
+        gp.cov(x, y) - SquareMatrix[DO]((xstar(x) * K_inv * xstar(y).t).data.map(_.toFloat))
+      }
     }
 
     new GaussianProcess[D, DO](VectorField(gp.domain, posteriorMean _), posteriorKernel)
