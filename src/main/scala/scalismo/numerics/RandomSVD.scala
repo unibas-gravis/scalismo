@@ -17,7 +17,7 @@ package scalismo.numerics
 
 import breeze.linalg.qr.QR
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ diag, DenseMatrix, DenseVector }
+import breeze.linalg.{ diag, DenseMatrix, DenseVector, norm }
 
 /**
  * Implementation of a Randomized approach for SVD,
@@ -27,24 +27,37 @@ import breeze.linalg.{ diag, DenseMatrix, DenseVector }
  */
 object RandomSVD {
 
-  def computeSVD(A: DenseMatrix[Double], k: Int, p: Int = 10): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
+  def computeSVD(A: DenseMatrix[Double], k: Int): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
+
     require(A.rows == A.cols) // might be removed later (check in Halko paper)
+
+    val q = 5
+
     val m = A.rows
 
     val standardNormal = breeze.stats.distributions.Gaussian(0, 1)
 
     // create a gaussian random matrix
-    val Omega = DenseMatrix.zeros[Double](m, k + p).map(_ => standardNormal.draw)
-    val Y = (A.t * (A * (A.t * (A * Omega))))
+    val Omega = DenseMatrix.zeros[Double](m, 2 * k).map(_ => standardNormal.draw)
 
-    val QR(qfull, _) = breeze.linalg.qr(Y)
+    var Y = A * Omega
 
-    val q = qfull(::, 0 until k + p)
-    val B = q.t * A
+    var QFull = breeze.linalg.qr.reduced.justQ(Y)
+    for (i <- 0 until q) {
 
-    val SVD(uHat, sigma, vt) = breeze.linalg.svd(B)
-    val U = q * uHat
+      Y = A.t * QFull
+      val Qtilde = breeze.linalg.qr(Y).q
+      Y = A * Qtilde
+      QFull = breeze.linalg.qr.reduced.justQ(Y)
+    }
+
+    val Q = QFull(::, 0 until Math.min(2 * k, QFull.cols))
+    val B = Q.t * A
+
+    val SVD(uHat, sigma, vt) = breeze.linalg.svd.reduced(B)
+    val U = Q * uHat
     (U(::, 0 until k), sigma(0 until k), vt(0 until k, 0 until k))
   }
+
 
 }
