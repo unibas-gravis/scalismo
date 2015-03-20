@@ -17,9 +17,10 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseVector, DenseMatrix }
-import scalismo.common.{ DiscreteDomain, DiscreteVectorField, Domain, VectorField }
+import scalismo.common._
 import scalismo.geometry._
-import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
+import scalismo.kernels._
+import scalismo.utils.Memoize
 
 /**
  * A gaussian process from a D dimensional input space, whose input values are points,
@@ -84,4 +85,51 @@ object GaussianProcess {
   def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: VectorField[D, DO], cov: MatrixValuedPDKernel[D, DO]) = {
     new GaussianProcess[D, DO](mean, cov)
   }
+
+  /**
+   * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
+   *
+   * @param gp  The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
+    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO] = {
+
+    val outputDim = implicitly[NDSpace[DO]].dimensionality
+
+    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.data).toArray)
+
+    val (xs, ys, errorDists) = trainingData.unzip3
+
+    val mVec = flatten(xs.map(gp.mean))
+    val yVec = flatten(ys)
+    val fVec = yVec - mVec
+
+    val K = Kernel.computeKernelMatrix(xs, gp.cov)
+    for ((errorDist, i) <- errorDists.zipWithIndex) {
+      K(i * outputDim until (i + 1) * outputDim, i * outputDim until (i + 1) * outputDim) += errorDist.cov.toBreezeMatrix
+    }
+
+    val K_inv = breeze.linalg.inv(K)
+
+    def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D, DO](x, xs, gp.cov) }
+
+    def posteriorMean(x: Point[D]): Vector[DO] = {
+      Vector[DO](((xstar(x) * K_inv).map(_.toFloat) * fVec).toArray)
+    }
+
+    def cov(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
+
+      gp.cov(x, y) - SquareMatrix[DO]((xstar(x) * K_inv * xstar(y).t).data.map(_.toFloat))
+
+    }
+
+    val posteriorKernel = new MatrixValuedPDKernel[D, DO] {
+      override def domain = gp.domain
+      override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = cov(x, y)
+    }
+
+    new GaussianProcess[D, DO](VectorField(gp.domain, posteriorMean _), posteriorKernel)
+  }
+
 }
