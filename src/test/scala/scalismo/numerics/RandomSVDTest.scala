@@ -46,16 +46,14 @@ class RandomSVDTest extends FunSpec with Matchers {
       }
     }
 
-
     it("can accuratly reproduce the original matrix") {
 
       // check that the frobenius norm of the reconstruction is exact
       val R = DenseMatrix.rand(100, 100)
       val (u, d, ut) = RandomSVD.computeSVD(R, 100)
       val D = u * breeze.linalg.diag(d) * ut - R
-      Math.sqrt(breeze.linalg.trace(D * D.t) ) should be <= 1e-5
+      Math.sqrt(breeze.linalg.trace(D * D.t)) should be <= 1e-5
     }
-
 
   }
 }
