@@ -125,19 +125,13 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
     coefficients(newtd)
   }
 
-  /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using Gaussian process regression.
-   */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     posterior(newtd)
   }
 
-  /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using Gaussian process regression.
-   */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
     LowRankGaussianProcess.regression(this, trainingData)
   }
 
