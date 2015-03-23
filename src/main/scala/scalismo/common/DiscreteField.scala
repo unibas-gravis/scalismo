@@ -18,6 +18,9 @@ package scalismo.common
 import scalismo.geometry.{ Dim, Vector }
 import scala.reflect.ClassTag
 import spire.math.Numeric
+import scalismo.geometry.NDSpace
+import scalismo.geometry.Point
+import scalismo.common.DiscreteDomain._
 
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
@@ -77,6 +80,15 @@ class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: DiscreteDoma
   override def values = data.iterator
   override def apply(ptId: Int) = data(ptId)
   override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
+
+  
+  /**
+   * Returns a continuous vector field, where the value at each point is that of the closest point in the discrete set 
+   * **/
+  def interpolateNearestNeighbor()(implicit ev: NDSpace[D], cb: CanBound[D]): VectorField[D, DO] = {
+    val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)(ev)
+    VectorField(domain.boundingBox, (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))
+  }
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map(f: Vector[DO] => Vector[DO]): DiscreteVectorField[D, DO] = new DiscreteVectorField(domain, data.map(f))
