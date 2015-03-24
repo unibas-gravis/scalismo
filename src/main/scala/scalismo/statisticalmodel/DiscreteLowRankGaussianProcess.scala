@@ -19,7 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.common.DiscreteDomain.CanBound
-import scalismo.common.{ VectorField, DiscreteVectorField, DiscreteDomain }
+import scalismo.common.{ RealSpace, VectorField, DiscreteVectorField, DiscreteDomain }
 import scalismo.geometry._
 import scalismo.kernels.MatrixValuedPDKernel
 import scalismo.mesh.kdtree.KDTreeMap
@@ -213,7 +213,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
         cov(xId, yId)
       }
     }
-    val gp = GaussianProcess(VectorField(domain.boundingBox, meanFun _), covFun)
+    val gp = GaussianProcess(VectorField(RealSpace[D], meanFun _), covFun)
     LowRankGaussianProcess.approximateGP[D, DO](gp, sampler, rank)
   }
 
@@ -238,8 +238,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
       Vector[DO](basisMatrix(closestPtId * outputDimensionality until (closestPtId + 1) * outputDimensionality, i).toArray)
     }
 
-    val interpolatedKLBasis = (0 until rank) map (i => (variance(i), VectorField(domain.boundingBox, phi(i)_)))
-    new LowRankGaussianProcess(VectorField(domain.boundingBox, meanFun), interpolatedKLBasis)
+    val interpolatedKLBasis = (0 until rank) map (i => (variance(i), VectorField(RealSpace[D], phi(i)_)))
+    new LowRankGaussianProcess(VectorField(RealSpace[D], meanFun), interpolatedKLBasis)
   }
 
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
