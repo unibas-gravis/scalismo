@@ -84,12 +84,12 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
 
   def +(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def k(x: Point[D], y: Point[D]) = self.k(x, y) + that.k(x, y)
-    override def domain = Domain.intersection(domain, that.domain)
+    override def domain = Domain.intersection(self.domain, that.domain)
   }
 
   def *(that: MatrixValuedPDKernel[D, DO]): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
     override def k(x: Point[D], y: Point[D]) = self.k(x, y) :* that.k(x, y)
-    override def domain = Domain.intersection(domain, that.domain)
+    override def domain = Domain.intersection(self.domain, that.domain)
   }
 
   def *(s: Double): MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
@@ -197,7 +197,7 @@ object Kernel {
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)
-    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions, seed)
+    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size

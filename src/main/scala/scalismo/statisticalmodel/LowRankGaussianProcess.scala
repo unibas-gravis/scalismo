@@ -125,19 +125,13 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
     coefficients(newtd)
   }
 
-  /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using Gaussian process regression.
-   */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     posterior(newtd)
   }
 
-  /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using Gaussian process regression.
-   */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
     LowRankGaussianProcess.regression(this, trainingData)
   }
 
@@ -207,37 +201,37 @@ object LowRankGaussianProcess {
 
     val mean_p = gp.instance(mean_coeffs)
 
-      val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * _Minv * D
-      val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
-      val innerU = innerUDbl.map(_.toFloat)
+    val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
+    val Sigma = D * _Minv * D
+    val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
+    val innerU = innerUDbl.map(_.toFloat)
 
-      def phip(i: Int)(x: Point[D]): Vector[DO] = {
-        // should be phi_p but _ is treated as partial function
-        val phisAtX = {
-          val newPhisAtX = {
-            val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
-            var j = 0;
-            while (j < phis.size) {
-              val phi_j = phis(j)
-              innerPhisAtx(0 until outputDim, j) := phi_j(x).toBreezeVector
-              j += 1
-            }
-            innerPhisAtx
+    def phip(i: Int)(x: Point[D]): Vector[DO] = {
+      // should be phi_p but _ is treated as partial function
+      val phisAtX = {
+        val newPhisAtX = {
+          val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
+          var j = 0;
+          while (j < phis.size) {
+            val phi_j = phis(j)
+            innerPhisAtx(0 until outputDim, j) := phi_j(x).toBreezeVector
+            j += 1
           }
-          newPhisAtX
+          innerPhisAtx
         }
-        val vec = phisAtX * innerU(::, i)
-        Vector[DO](vec.data)
+        newPhisAtX
       }
-
-      val phis_p = for (i <- 0 until phis.size) yield {
-        val phipi_memo = Memoize(phip(i), 1000)
-        (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
-      }
-      val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
-      new LowRankGaussianProcess[D, DO](mean_p, lambdas_p.zip(phis_p))
+      val vec = phisAtX * innerU(::, i)
+      Vector[DO](vec.data)
     }
+
+    val phis_p = for (i <- 0 until phis.size) yield {
+      val phipi_memo = Memoize(phip(i), 1000)
+      (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
+    }
+    val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
+    new LowRankGaussianProcess[D, DO](mean_p, lambdas_p.zip(phis_p))
+  }
 
   /*
   * Internal computations of the regression.
