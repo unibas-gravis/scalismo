@@ -16,11 +16,9 @@
 package scalismo.image.filter
 
 import scalismo.common.{ ScalarArray, Scalar }
-import scalismo.image.DiscreteScalarImage
+import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage.CanInterpolate
-import scalismo.utils.ImageConversion
-import scalismo.utils.ImageConversion.CanConvertToVtk
+import scalismo.utils.{ CanConvertToVtk, ImageConversion }
 import vtk.{ vtkImageCast, vtkImageEuclideanDistance }
 
 import scala.reflect.ClassTag

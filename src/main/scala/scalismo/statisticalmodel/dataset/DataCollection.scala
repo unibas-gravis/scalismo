@@ -117,7 +117,7 @@ object DataCollection {
 
     if (maxIteration == 0) return dc
 
-    val allShapesPoints = dc.dataItems.map { dataitem => dc.reference.points.map(dataitem.transformation) }
+    val allShapesPoints = dc.dataItems.map { dataitem => dc.reference.points.toIndexedSeq.map(dataitem.transformation) }
     val nbShapes = dc.size
 
     // compute mean shape
