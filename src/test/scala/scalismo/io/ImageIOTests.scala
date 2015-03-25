@@ -23,7 +23,7 @@ import org.scalatest.{ FunSpec, Matchers }
 import scalismo.common.Scalar
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.utils.ImageConversion.CanConvertToVtk
+import scalismo.utils.CanConvertToVtk
 import spire.math.{ ULong, UInt, UShort, UByte }
 
 import scala.reflect.ClassTag
