@@ -20,15 +20,15 @@ import java.io.File
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.NiftiVolume
 import org.scalatest.{ FunSpec, Matchers }
-import scalismo.common.Scalar
+import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.utils.CanConvertToVtk
-import spire.math.{ ULong, UInt, UShort, UByte }
+import spire.math.{ UByte, UInt, ULong, UShort }
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
-import scala.util.{ Try, Failure, Success }
+import scala.util.{ Failure, Success, Try }
 
 class ImageIOTests extends FunSpec with Matchers {
 
@@ -263,6 +263,101 @@ class ImageIOTests extends FunSpec with Matchers {
           origImg(i) should equal(rereadImg(i))
         }
       }
+    }
+  }
+
+  describe("ImageIO") {
+    it("is type safe") {
+
+      case class ImageWithType[D <: Dim: NDSpace: CanConvertToVtk, T: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, T], typeName: String) {
+        def writeVtk(file: File) = ImageIO.writeVTK(img, file)
+        def writeNii(file: File) = {
+          if (implicitly[NDSpace[D]].dimensionality == 3) ImageIO.writeNifti(img.asInstanceOf[DiscreteScalarImage[_3D, T]], file)
+          else Failure(new NotImplementedError)
+        }
+      }
+
+      def convertTo[D <: Dim: NDSpace: CanConvertToVtk, OUT: Scalar: TypeTag: ClassTag](in: DiscreteScalarImage[D, Int]): ImageWithType[D, OUT] = {
+        val img = in.map(implicitly[Scalar[OUT]].fromInt)
+        ImageWithType(img, ImageIO.ScalarType.fromType[OUT].toString)
+      }
+
+      val data = (1 to 8).toArray
+      val dom2 = DiscreteImageDomain(Point(0, 0), Vector(1, 1), Index(2, 2))
+      val img2 = DiscreteScalarImage(dom2, ScalarArray(data.take(4)))
+      val dom3 = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), Index(2, 2, 2))
+      val img3 = DiscreteScalarImage(dom3, ScalarArray(data))
+
+      def imageSeq[D <: Dim: NDSpace: CanConvertToVtk](img: DiscreteScalarImage[D, Int]) = Seq(
+        convertTo[D, Byte](img),
+        convertTo[D, Short](img),
+        convertTo[D, Int](img),
+        convertTo[D, Long](img),
+        convertTo[D, Double](img),
+        convertTo[D, Float](img),
+        convertTo[D, UByte](img),
+        convertTo[D, UShort](img),
+        convertTo[D, UInt](img),
+        convertTo[D, ULong](img)
+      )
+
+      def read[D <: Dim: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[D, T]] = {
+        implicitly[NDSpace[D]].dimensionality match {
+          case 3 => ImageIO.read3DScalarImage[T](file).asInstanceOf[Try[DiscreteScalarImage[D, T]]]
+          case 2 => ImageIO.read2DScalarImage[T](file).asInstanceOf[Try[DiscreteScalarImage[D, T]]]
+          case _ => Failure(new NotImplementedError())
+        }
+      }
+
+      def check[D <: Dim: NDSpace, T: Scalar: TypeTag: ClassTag](result: Try[DiscreteScalarImage[D, T]], actualType: String): Unit = {
+        val tryType = ImageIO.ScalarType.fromType[T].toString
+        if (tryType == actualType) {
+          result should be a 'Success
+        } else {
+          result should be a 'Failure
+          result.failed.get.getMessage.contains(s"expected $tryType") should be(true)
+          result.failed.get.getMessage.contains(s"found $actualType") should be(true)
+        }
+      }
+
+      def eval[D <: Dim: NDSpace](data: Seq[ImageWithType[D, _]]): Unit = {
+        for (c <- data) {
+          val vtk = File.createTempFile(c.typeName, ".vtk")
+          vtk.deleteOnExit()
+
+          def checkAll(file: File) = {
+            check(read[D, Byte](file), c.typeName)
+            check(read[D, Short](file), c.typeName)
+            check(read[D, Int](file), c.typeName)
+            check(read[D, Long](file), c.typeName)
+            check(read[D, Float](file), c.typeName)
+            check(read[D, Double](file), c.typeName)
+            check(read[D, UByte](file), c.typeName)
+            check(read[D, UShort](file), c.typeName)
+            check(read[D, UInt](file), c.typeName)
+            check(read[D, ULong](file), c.typeName)
+          }
+
+          c.writeVtk(vtk) should be a 'Success
+          ImageIO.ScalarType.ofFile(vtk).get.toString should equal(c.typeName)
+
+          checkAll(vtk)
+          vtk.delete()
+
+          if (implicitly[NDSpace[D]].dimensionality == 3) {
+            val nii = File.createTempFile(c.typeName, ".nii")
+            nii.deleteOnExit()
+
+            c.writeNii(nii) should be a 'Success
+            ImageIO.ScalarType.ofFile(nii).get.toString should equal(c.typeName)
+            checkAll(nii)
+            nii.delete()
+          }
+        }
+      }
+
+      eval(imageSeq(img2))
+      eval(imageSeq(img3))
     }
   }
 
