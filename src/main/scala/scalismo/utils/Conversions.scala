@@ -42,22 +42,6 @@ object VtkHelpers {
   val VTK_DOUBLE = 11
   val VTK_ID_TYPE = 12
 
-  //  def getVtkScalarType[Pixel: TypeTag]: Int = {
-  //    typeOf[Pixel] match {
-  //      case t if t =:= typeOf[Short] => VTK_SHORT
-  //      case t if t =:= typeOf[Int] => VTK_INT
-  //      case t if t =:= typeOf[Long] => VTK_LONG
-  //      case t if t =:= typeOf[Float] => VTK_FLOAT
-  //      case t if t =:= typeOf[Double] => VTK_DOUBLE
-  //      case t if t =:= typeOf[Byte] => VTK_CHAR
-  //      case t if t =:= typeOf[UByte] => VTK_UNSIGNED_CHAR
-  //      case t if t =:= typeOf[UShort] => VTK_UNSIGNED_SHORT
-  //      case t if t =:= typeOf[UInt] => VTK_UNSIGNED_INT
-  //      case t if t =:= typeOf[ULong] => VTK_UNSIGNED_LONG
-  //      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[Pixel])
-  //    }
-  //  }
-
   // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
   // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
   // This conversion must take place on the vtkStructuredPoints object containing the data, so we leave it to the caller of this method.
