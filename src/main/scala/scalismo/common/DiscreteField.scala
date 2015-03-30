@@ -75,18 +75,18 @@ class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: DiscreteDo
 /**
  *
  */
-class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId: Int) = data(ptId)
   override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
-  
   /**
-   * Returns a continuous vector field, where the value at each point is that of the closest point in the discrete set 
-   * **/
-  def interpolateNearestNeighbor()(implicit ev: NDSpace[D], cb: CanBound[D]): VectorField[D, DO] = {
-    val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)(ev)
+   * Returns a continuous vector field, where the value at each point is that of the closest point in the discrete set
+   * *
+   */
+  def interpolateNearestNeighbor(): VectorField[D, DO] = {
+    val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)
     VectorField(domain.boundingBox, (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))
   }
 
@@ -97,7 +97,7 @@ class DiscreteVectorField[D <: Dim, DO <: Dim] private (val domain: DiscreteDoma
 
 object DiscreteVectorField {
 
-  def apply[D <: Dim, DO <: Dim](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
+  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
     new DiscreteVectorField(domain, data)
   }
 }
