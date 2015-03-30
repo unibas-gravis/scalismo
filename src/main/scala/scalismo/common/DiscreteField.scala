@@ -35,6 +35,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
 
+  def interpolateNearestNeighbor(): Field[D, A]
   // TODO conceptually, we should have a map here too, but it becomes tricky to
   // do since the overloaded functions will all require their own version of map
   // Maybe a trick with CanBuildFrom and Builder, similar to the scala collectiosn would be required.
@@ -67,6 +68,8 @@ class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: DiscreteDo
 
   def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, A]]
+
+  def interpolateNearestNeighbor(): Field[D, A] = ???
 
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 

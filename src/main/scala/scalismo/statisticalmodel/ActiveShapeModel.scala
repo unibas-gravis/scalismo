@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.common.{ DiscreteField, SpatiallyIndexedDiscreteDomain }
+import scalismo.common.{ Field, DiscreteField, SpatiallyIndexedDiscreteDomain }
 import scalismo.geometry.{ Point, _3D, Vector }
 import scalismo.image.DifferentiableScalarImage
 import scalismo.io.{ HDF5File, HDF5ReadWrite }
@@ -33,6 +33,8 @@ case class ASMProfileDistributions(val domain: SpatiallyIndexedDiscreteDomain[_3
   def apply(i: Int) = data(i)
   def isDefinedAt(i: Int) = data.isDefinedAt(i)
   def values = data.iterator
+
+  def interpolateNearestNeighbor(): Field[_3D, MultivariateNormalDistribution] = ???
 }
 
 case class ActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor](shapeModel: StatisticalMeshModel,
