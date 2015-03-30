@@ -44,7 +44,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
 /**
  *
  */
-class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: Array[A]) extends DiscreteField[D, A] {
+class DiscreteScalarField[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: Array[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map[B: Numeric: ClassTag](f: A => B): DiscreteScalarField[D, B] = {
@@ -69,8 +69,10 @@ class DiscreteScalarField[D <: Dim, A: Numeric: ClassTag](val domain: DiscreteDo
   def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, A]]
 
-  def interpolateNearestNeighbor(): Field[D, A] = ???
-
+  def interpolateNearestNeighbor(): ScalarField[D, A] = {
+    val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)
+    ScalarField(domain.boundingBox, (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))
+  }
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 
 }
