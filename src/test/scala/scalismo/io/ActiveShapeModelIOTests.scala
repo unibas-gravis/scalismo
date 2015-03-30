@@ -70,7 +70,7 @@ class ActiveShapeModelIOTests extends FunSpec with Matchers {
       } yield asm
 
       val newASM = newAsmOrError.get
-      newASM.intensityDistributions should equal(originalASM.intensityDistributions)
+      newASM.profileDistributions should equal(originalASM.profileDistributions)
 
     }
 

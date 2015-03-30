@@ -17,16 +17,14 @@ package scalismo.io
 
 import scalismo.common.SpatiallyIndexedDiscreteDomain
 import scalismo.geometry.{ _3D, Point }
-import scalismo.statisticalmodel.{ MultivariateNormalDistribution, ASMProfileDistributions, ActiveShapeModel }
+import scalismo.statisticalmodel.ActiveShapeModel.ProfileDistributions
+import scalismo.statisticalmodel.{ MultivariateNormalDistribution, ActiveShapeModel }
 
 import scala.util.{ Success, Try }
 import java.io.File
 import ncsa.hdf.`object`.Group
 import breeze.linalg.{ DenseMatrix, DenseVector }
 
-/**
- * Created by Luethi on 09.03.14.
- */
 object ActiveShapeModelIO {
 
   def writeASM[FE <: ActiveShapeModel.FeatureExtractor: HDF5Write](asm: ActiveShapeModel[FE], fn: File): Try[Unit] = {
@@ -35,7 +33,7 @@ object ActiveShapeModelIO {
       statismoStatus <- StatismoIO.writeStatismoMeshModel(asm.shapeModel, fn)
       h5file <- HDF5Utils.openFileForWriting(fn)
       asmGroup <- h5file.createGroup("/ASMModel")
-      _ <- writeIntensityDistributions(h5file, asmGroup, asm.intensityDistributions)
+      _ <- writeProfileDistributions(h5file, asmGroup, asm.profileDistributions)
       _ <- featureExtractorWriter.write(asm.featureExtractor, h5file, asmGroup)
     } yield Success(())
   }
@@ -47,13 +45,13 @@ object ActiveShapeModelIO {
       shapeModel <- StatismoIO.readStatismoMeshModel(fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup("/ASMModel")
-      intensityDistributions <- readIntensityDistributions(h5file, asmGroup)
+      profileDistributions <- readProfileDistributions(h5file, asmGroup)
       featureExtractor <- featureExtractorReader.read(h5file, asmGroup)
-    } yield new ActiveShapeModel(shapeModel, intensityDistributions, featureExtractor)
+    } yield new ActiveShapeModel(shapeModel, profileDistributions, featureExtractor)
   }
 
-  private[this] def readIntensityDistributions(h5file: HDF5File, group: Group): Try[ASMProfileDistributions] = {
-    val groupName = group.getName()
+  private[this] def readProfileDistributions(h5file: HDF5File, group: Group): Try[ProfileDistributions] = {
+    val groupName = group.getName
     val ptDim = 3
     for {
       profileDim <- h5file.readInt(s"$groupName/profileDimension")
@@ -66,12 +64,12 @@ object ActiveShapeModelIO {
       meanVecs = meanArray.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.toArray
-      ASMProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists)
+      ProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists)
     }
 
   }
 
-  private[this] def writeIntensityDistributions(h5file: HDF5File, group: Group, distributions: ASMProfileDistributions): Try[Unit] = {
+  private[this] def writeProfileDistributions(h5file: HDF5File, group: Group, distributions: ProfileDistributions): Try[Unit] = {
     val numEntries = distributions.domain.numberOfPoints
     val distDim = if (numEntries > 0) distributions.data(0).mean.size else 0
     val ptArray = distributions.domain.points.toIndexedSeq.flatten(_.data).toArray
