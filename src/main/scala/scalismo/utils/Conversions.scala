@@ -18,6 +18,7 @@ package scalismo.utils
 import scalismo.common.{ ValueClassScalarArray, PrimitiveScalarArray, ScalarArray, Scalar }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
+import scalismo.io.ImageIO
 import scalismo.mesh.{ ScalarMeshData, TriangleCell, TriangleMesh }
 import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
@@ -40,22 +41,6 @@ object VtkHelpers {
   val VTK_FLOAT = 10
   val VTK_DOUBLE = 11
   val VTK_ID_TYPE = 12
-
-  def getVtkScalarType[Pixel: TypeTag]: Int = {
-    typeOf[Pixel] match {
-      case t if t =:= typeOf[Short] => VTK_SHORT
-      case t if t =:= typeOf[Int] => VTK_INT
-      case t if t =:= typeOf[Long] => VTK_LONG
-      case t if t =:= typeOf[Float] => VTK_FLOAT
-      case t if t =:= typeOf[Double] => VTK_DOUBLE
-      case t if t =:= typeOf[Byte] => VTK_CHAR
-      case t if t =:= typeOf[UByte] => VTK_UNSIGNED_CHAR
-      case t if t =:= typeOf[UShort] => VTK_UNSIGNED_SHORT
-      case t if t =:= typeOf[UInt] => VTK_UNSIGNED_INT
-      case t if t =:= typeOf[ULong] => VTK_UNSIGNED_LONG
-      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[Pixel])
-    }
-  }
 
   // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
   // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
@@ -281,15 +266,6 @@ trait CanConvertToVtk[D <: Dim] {
 
   def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]]
 
-  protected def checkScalarTypesMatch(required: Int, found: Int): Boolean = {
-    // special case: there are two values representing signed chars, so this mismatch is acceptable.
-    (required, found) match {
-      case (VtkHelpers.VTK_SIGNED_CHAR, VtkHelpers.VTK_CHAR) => true
-      case (VtkHelpers.VTK_CHAR, VtkHelpers.VTK_SIGNED_CHAR) => true
-      case _ => required == found
-    }
-  }
-
   // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
   // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
   // Also see VtkHelpers.javaArrayToVtkDataArray().
@@ -325,11 +301,11 @@ object CanConvertToVtk {
         return Failure(new Exception(s"The image is a 3D image - require a 2D image"))
       }
 
-      val requiredScalarType = VtkHelpers.getVtkScalarType[Pixel]
-      val spScalarType = sp.GetScalarType()
+      val requiredScalarType = ImageIO.ScalarType.fromType[Pixel]
+      val spScalarType = ImageIO.ScalarType.fromVtkId(sp.GetScalarType())
 
-      if (!checkScalarTypesMatch(requiredScalarType, spScalarType)) {
-        return Failure(new Exception(s"Invalid scalar type (required $requiredScalarType, found $spScalarType)"))
+      if (requiredScalarType != spScalarType) {
+        return Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
       }
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
@@ -361,10 +337,11 @@ object CanConvertToVtk {
         return Failure(new Exception(s"The image is a 2D image - require a 3D image"))
       }
 
-      val requiredScalarType = VtkHelpers.getVtkScalarType[Pixel]
-      val spScalarType = sp.GetScalarType()
-      if (!checkScalarTypesMatch(requiredScalarType, spScalarType)) {
-        return Failure(new Exception(s"Invalid scalar type (required $requiredScalarType, found $spScalarType)"))
+      val requiredScalarType = ImageIO.ScalarType.fromType[Pixel]
+      val spScalarType = ImageIO.ScalarType.fromVtkId(sp.GetScalarType())
+
+      if (requiredScalarType != spScalarType) {
+        return Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
       }
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)

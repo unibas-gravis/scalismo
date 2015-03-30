@@ -15,12 +15,13 @@
  */
 package scalismo.io
 
-import java.io.RandomAccessFile
+import java.io.{ File, RandomAccessFile }
 import java.nio.ByteBuffer
 import java.lang.{ Short => JShort, Float => JFloat, Long => JLong, Double => JDouble }
 import reflect.runtime.universe.{ TypeTag, typeOf }
 import java.nio.channels.FileChannel
 import scala.util.Try
+import FastReadOnlyNiftiVolume.NiftiHeader
 
 /**
  * This class implements a subset of the niftijio.NiftyVolume functionality, maintaining
@@ -52,12 +53,6 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
     val buf = ByteBuffer.allocate(348)
     file.readFully(buf.array())
 
-    // check header size @ offset 0 (must be 348, whether in little- or big endian format is not specified)
-    // and header magic @ offset 344 (the only supported value is "n+1")
-    if ((buf.getInt(0) != 0x5c010000 && buf.getInt(0) != 348) || buf.getInt(344) != 0x6e2b3100) {
-      throw new IllegalArgumentException("This is not a supported Nifti file!")
-    }
-
     new NiftiHeader(buf)
   }
 
@@ -81,7 +76,6 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
    *    of performing back-and-forth transformations to/from a 4-dimensional array.
    */
   def dataArray: Array[Double] = this.synchronized {
-    import NiftiHeader._
     val nx: Int = header.dim(1)
     val ny: Int = header.dim(2)
     var nz: Int = header.dim(3)
@@ -143,6 +137,7 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       }
     }
 
+    import NiftiHeader._
     val load = header.datatype match {
       case NIFTI_TYPE_INT8 => loadBytes(unsigned = false)(_)
       case NIFTI_TYPE_UINT8 => loadBytes(unsigned = true)(_)
@@ -167,6 +162,9 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
     array
   }
 
+}
+
+object FastReadOnlyNiftiVolume {
   object NiftiHeader {
     final val NIFTI_TYPE_UINT8: Short = 2
     final val NIFTI_TYPE_INT16: Short = 4
@@ -186,6 +184,12 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
    * http://brainder.org/2012/09/23/the-nifti-file-format/
    */
   class NiftiHeader(private val buf: ByteBuffer) {
+
+    // check header size @ offset 0 (must be 348, whether in little- or big endian format is not specified)
+    // and header magic @ offset 344 (the only supported value is "n+1")
+    if ((buf.getInt(0) != 0x5c010000 && buf.getInt(0) != 348) || buf.getInt(344) != 0x6e2b3100) {
+      throw new IllegalArgumentException("This is not a supported Nifti file!")
+    }
 
     val isLittleEndian = {
       // according to the documentation, dim(0) (@offset 40) should be between 1 and 7.
@@ -293,10 +297,15 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
       R
     }
   }
-}
 
-object FastReadOnlyNiftiVolume {
   def read(filename: String): Try[FastReadOnlyNiftiVolume] = Try {
     new FastReadOnlyNiftiVolume(new RandomAccessFile(filename, "r"))
+  }
+  def getScalarType(file: File): Try[Short] = Try {
+    val raf = new RandomAccessFile(file, "r")
+    val buf = ByteBuffer.allocate(348)
+    raf.readFully(buf.array())
+    raf.close()
+    new FastReadOnlyNiftiVolume.NiftiHeader(buf).datatype
   }
 }

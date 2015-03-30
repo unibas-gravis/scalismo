@@ -15,26 +15,21 @@
  */
 package scalismo.io
 
-import scalismo.common.{ ScalarArray, Scalar, RealSpace }
-import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.geometry._
-import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation }
-import scalismo.utils.{ CanConvertToVtk, ImageConversion }
-import scala.util.Try
-import scala.util.Failure
-import java.io.File
-import scala.util.Success
-import java.io.IOException
-import scala.reflect.ClassTag
-import vtk.vtkObjectBase
-import vtk.vtkStructuredPointsReader
-import vtk.vtkStructuredPointsWriter
-import vtk.vtkStructuredPoints
+import java.io.{ File, IOException }
+
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.{ NiftiHeader, NiftiVolume }
-import breeze.linalg.DenseMatrix
-import breeze.linalg.DenseVector
-import reflect.runtime.universe.{ TypeTag, typeOf }
-import spire.math.{ UByte, UShort, UInt, ULong }
+import scalismo.common.{ RealSpace, Scalar, ScalarArray }
+import scalismo.geometry._
+import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
+import scalismo.registration.{ AnisotropicScalingSpace, AnisotropicSimilarityTransformationSpace, LandmarkRegistration, Transformation }
+import scalismo.utils.{ CanConvertToVtk, ImageConversion, VtkHelpers }
+import spire.math.{ UByte, UInt, ULong, UShort }
+import vtk._
+
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.{ TypeTag, typeOf }
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Implements methods for reading and writing D-dimensional images
@@ -54,8 +49,8 @@ import spire.math.{ UByte, UShort, UInt, ULong }
  * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :
  *
  * This is done by :
- *    * mirroring the first two dimensions of the scaling parameters of the affine transform
- *    * mirroring the first two dimensions of the image origin (translation parameters)
+ * * mirroring the first two dimensions of the scaling parameters of the affine transform
+ * * mirroring the first two dimensions of the image origin (translation parameters)
  *
  * The same mirroring is done again when writing an image to the Nifti format.
  *
@@ -69,6 +64,105 @@ import spire.math.{ UByte, UShort, UInt, ULong }
  */
 
 object ImageIO {
+
+  /**
+   * An enumeration comprising all the data types that we can read and write, in VTK and Nifti formats.
+   */
+  object ScalarType extends Enumeration {
+
+    import NiftiHeader._
+    import VtkHelpers._
+
+    import scala.language.implicitConversions
+
+    protected case class Val[O: Scalar: ClassTag](vtkId: Int, niftiId: Short) extends super.Val
+
+    implicit def valueToVal[T](x: Value): Val[T] = x.asInstanceOf[Val[T]]
+
+    val Byte = Val[Byte](VTK_CHAR, NIFTI_TYPE_INT8)
+    val Short = Val[Short](VTK_SHORT, NIFTI_TYPE_INT16)
+    val Int = Val[Int](VTK_INT, NIFTI_TYPE_INT32)
+    val Long = Val[Long](VTK_LONG, NIFTI_TYPE_INT64)
+    val Float = Val[Float](VTK_FLOAT, NIFTI_TYPE_FLOAT32)
+    val Double = Val[Double](VTK_DOUBLE, NIFTI_TYPE_FLOAT64)
+    val UByte = Val[UByte](VTK_UNSIGNED_CHAR, NIFTI_TYPE_UINT8)
+    val UShort = Val[UShort](VTK_UNSIGNED_SHORT, NIFTI_TYPE_UINT16)
+    val UInt = Val[UInt](VTK_UNSIGNED_INT, NIFTI_TYPE_UINT32)
+    val ULong = Val[ULong](VTK_UNSIGNED_LONG, NIFTI_TYPE_UINT64)
+
+    /**
+     * Return the ScalarType value corresponding to a given type
+     * @tparam T a scalar type
+     * @return the corresponding ScalarType value
+     * @throws IllegalArgumentException if no corresponding value was found.
+     */
+    def fromType[T: Scalar: TypeTag]: Value = {
+      typeOf[T] match {
+        case t if t =:= typeOf[Byte] => Byte
+        case t if t =:= typeOf[Short] => Short
+        case t if t =:= typeOf[Int] => Int
+        case t if t =:= typeOf[Long] => Long
+        case t if t =:= typeOf[Float] => Float
+        case t if t =:= typeOf[Double] => Double
+        case t if t =:= typeOf[UByte] => UByte
+        case t if t =:= typeOf[UShort] => UShort
+        case t if t =:= typeOf[UInt] => UInt
+        case t if t =:= typeOf[ULong] => ULong
+        case _ => throw new IllegalArgumentException(s"Unsupported datatype ${typeOf[T]}")
+      }
+    }
+
+    /**
+     * Return the ScalarType value corresponding to a given VTK type constant
+     * @param vtkId a VTK type constant
+     * @return the corresponding ScalarType value
+     * @throws IllegalArgumentException if no corresponding value was found.
+     */
+    def fromVtkId(vtkId: Int): Value = {
+      // there are two ways in VTK to represent a (signed) byte.
+      if (vtkId == VTK_SIGNED_CHAR) Byte
+      else values.find(v => v.vtkId == vtkId).getOrElse(throw new IllegalArgumentException(s"Unsupported VTK ID $vtkId"))
+    }
+
+    /**
+     * Return the ScalarType value corresponding to a given Nifti type constant
+     * @param niftiId a Nifti type constant
+     * @return the corresponding ScalarType value
+     * @throws IllegalArgumentException if no corresponding value was found.
+     */
+    def fromNiftiId(niftiId: Short): ScalarType.Value = {
+      values.find(v => v.niftiId == niftiId).getOrElse(throw new IllegalArgumentException(s"Unsupported Nifti ID $niftiId"))
+    }
+
+    /**
+     * Return the ScalarType value corresponding to the data present in a given file. Only .vtk, .nii and .nia files are supported.
+     * @param file the file to check
+     * @return the scalar type present in the given file, wrapped in a [[scala.util.Success]], or a [[scala.util.Failure]] explaining the error.
+     */
+    def ofFile(file: File): Try[ScalarType.Value] = {
+      val fn = file.getName
+      if (fn.endsWith(".nii") || fn.endsWith(".nia")) {
+        FastReadOnlyNiftiVolume.getScalarType(file).map(ScalarType.fromNiftiId)
+      } else if (fn.endsWith(".vtk")) Try {
+        val reader = new vtkStructuredPointsReader
+        reader.SetFileName(file.getAbsolutePath)
+        reader.Update()
+        val errCode = reader.GetErrorCode()
+        if (errCode != 0) {
+          reader.Delete()
+          throw new IOException(s"Failed to read vtk file ${file.getAbsolutePath}. (error code from vtkReader = $errCode)")
+        }
+        val st = reader.GetOutput().GetScalarType()
+        reader.Delete()
+        // prevent memory leaks
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
+        ScalarType.fromVtkId(st)
+      }
+      else {
+        Failure(new Exception(s"File $file: unsupported file extension"))
+      }
+    }
+  }
 
   trait WriteNifti[D <: Dim] {
     def write[A: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, A], f: File): Try[Unit]
@@ -222,6 +316,12 @@ object ImageIO {
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
       pair <- computeNiftiWorldToVoxelTransforms(volume)
     } yield {
+      val expectedScalarType = ScalarType.fromType[S]
+      val foundScalarType = ScalarType.fromNiftiId(volume.header.datatype)
+      if (expectedScalarType != foundScalarType) {
+        throw new IllegalArgumentException(s"Invalid scalar type (expected $expectedScalarType, found $foundScalarType)")
+      }
+
       val (transVoxelToWorld, _) = pair
 
       val nx = volume.header.dim(1)
@@ -375,13 +475,22 @@ object ImageIO {
       }
 
       val M = DenseMatrix.zeros[Double](4, 4)
-      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0, 0); M(0, 1) = 0; M(0, 2) = 0; M(0, 3) = -domain.origin(0)
-      M(1, 0) = 0; M(1, 1) = -1f * domain.spacing(1) * domain.directions(1, 1); M(1, 2) = 0; M(1, 3) = -domain.origin(1)
-      M(2, 0) = 0; M(2, 1) = 0; M(2, 2) = domain.spacing(2) * domain.directions(2, 2); M(2, 3) = domain.origin(2)
+      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0, 0);
+      M(0, 1) = 0;
+      M(0, 2) = 0;
+      M(0, 3) = -domain.origin(0)
+      M(1, 0) = 0;
+      M(1, 1) = -1f * domain.spacing(1) * domain.directions(1, 1);
+      M(1, 2) = 0;
+      M(1, 3) = -domain.origin(1)
+      M(2, 0) = 0;
+      M(2, 1) = 0;
+      M(2, 2) = domain.spacing(2) * domain.directions(2, 2);
+      M(2, 3) = domain.origin(2)
       M(3, 3) = 1
 
       // the header
-      volume.header.setDatatype(niftiDataTypeFromScalar[S])
+      volume.header.setDatatype(ScalarType.fromType[S].niftiId)
       volume.header.qform_code = 0
       volume.header.sform_code = 2 // TODO check me that this is right
 
@@ -393,23 +502,6 @@ object ImageIO {
       volume.header.pixdim(3) = domain.spacing(2)
 
       volume.write(file.getAbsolutePath)
-    }
-  }
-
-  private[this] def niftiDataTypeFromScalar[S: Scalar: TypeTag: ClassTag]: Short = {
-
-    typeOf[S] match {
-      case t if t =:= typeOf[Byte] => NiftiHeader.NIFTI_TYPE_INT8
-      case t if t =:= typeOf[Short] => NiftiHeader.NIFTI_TYPE_INT16
-      case t if t =:= typeOf[Int] => NiftiHeader.NIFTI_TYPE_INT32
-      case t if t =:= typeOf[Long] => NiftiHeader.NIFTI_TYPE_INT64
-      case t if t =:= typeOf[Float] => NiftiHeader.NIFTI_TYPE_FLOAT32
-      case t if t =:= typeOf[Double] => NiftiHeader.NIFTI_TYPE_FLOAT64
-      case t if t =:= typeOf[UByte] => NiftiHeader.NIFTI_TYPE_UINT8
-      case t if t =:= typeOf[UShort] => NiftiHeader.NIFTI_TYPE_UINT16
-      case t if t =:= typeOf[UInt] => NiftiHeader.NIFTI_TYPE_UINT32
-      case t if t =:= typeOf[ULong] => NiftiHeader.NIFTI_TYPE_UINT64
-      case _ => throw new Throwable(s"Unsupported datatype ${typeOf[S]}")
     }
   }
 
