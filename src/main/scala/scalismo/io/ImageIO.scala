@@ -364,16 +364,29 @@ object ImageIO {
     }
   }
 
-  /** returns the augmented matrix of the affine transform from ijk to xyz_RAS */
-
+  /* Returns the augmented matrix of the affine transform from ijk to xyz_RAS
+   * The logic is based on: http://brainder.org/2012/09/23/the-nifti-file-format/
+   * (section "Orientation information").
+   */
   private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume): Try[DenseMatrix[Double]] = {
-    if (volume.header.sform_code == 0 && volume.header.qform_code == 0)
-      Failure(new IOException("cannot read nifti with both qform and sform codes set to 0"))
-    else {
-      if (volume.header.sform_code == 0 && volume.header.qform_code > 0)
+    (volume.header.qform_code, volume.header.sform_code) match {
+      case (0, 0) => // Method 1
+        val data = Array.fill(16)(0.0d)
+        // using homogenous coordinates: set the last matrix element to 1
+        data(15) = 1
+        // diagonal matrix, with the diagonal values initialized to pixdim[i+1]
+        for (i <- 0 until 3) {
+          // shortcut for n*i + i, since we know that n==4
+          data(i * 5) = volume.header.pixdim(i + 1)
+        }
+        Success(DenseMatrix.create(4, 4, data))
+      case (q, 0) if q != 0 => // Method 2
         Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
-      else
+      case (0, s) if s != 0 => // Method 3
         Success(DenseMatrix.create(4, 4, volume.header.sformArray).t)
+      case (q, s)  => // combination of Methods 2 and 3
+        //FIXME: what *is* the correct approach here?
+        Failure(new NotImplementedError)
     }
   }
 
@@ -389,9 +402,6 @@ object ImageIO {
 
     // check this page http://brainder.org/2012/09/23/the-nifti-file-format/
     // for details about the nifti format
-
-    if (volume.header.sform_code == 0 && volume.header.qform_code == 0)
-      return Failure(new IOException("cannot read nifti with both qform and sform codes set to 0"))
 
     transformMatrixFromNifti(volume).map { affineTransMatrix =>
 
