@@ -55,7 +55,7 @@ trait DiscreteImage[D <: Dim, Pixel] extends DiscreteField[D, Pixel] {
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Numeric).
  */
-class DiscreteScalarImage[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag] private (override val domain: DiscreteImageDomain[D], data: Array[A])
+class DiscreteScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Numeric: ClassTag] private (override val domain: DiscreteImageDomain[D], data: Array[A])
     extends DiscreteScalarField[D, A](domain, data) with DiscreteImage[D, A] {
 
   require(domain.numberOfPoints == data.size)
@@ -73,7 +73,7 @@ class DiscreteScalarImage[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag] pri
   }
 
   /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
-  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double)(implicit ev: CanInterpolate[D]): DiscreteScalarImage[D, A] = {
+  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Double): DiscreteScalarImage[D, A] = {
     val contImg = interpolate(interpolationDegree)
     contImg.sample(newDomain, outsideValue)
   }
@@ -86,17 +86,17 @@ class DiscreteScalarImage[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag] pri
 object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
+  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Numeric: ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
     new DiscreteScalarImage[D, A](domain, values)
   }
 
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
-  def apply[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
+  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Numeric: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
     new DiscreteScalarImage[D, A](domain, domain.points.map(f).toArray)
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-  def apply[D <: Dim: NDSpace: CanBound, A: Numeric: ClassTag](domain: DiscreteImageDomain[D])(v: => A) = {
+  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Numeric: ClassTag](domain: DiscreteImageDomain[D])(v: => A) = {
     new DiscreteScalarImage[D, A](domain, Array.fill(domain.numberOfPoints)(v))
   }
 

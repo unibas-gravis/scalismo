@@ -15,6 +15,7 @@
  */
 package scalismo.image.filter
 
+import scalismo.common.DiscreteDomain.CanBound
 import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.utils.{ CanConvertToVTK, ImageConversion }
@@ -30,7 +31,7 @@ object DiscreteImageFilter {
    * Computes a (signed) distance transform of the image.
    * @note The value that is returned is not teh euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
    */
-  def distanceTransform[D <: Dim: NDSpace: CanConvertToVTK: CanInterpolate, A: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
+  def distanceTransform[D <: Dim: NDSpace: CanConvertToVTK: CanInterpolate: CanBound, A: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
 
     val numeric = implicitly[Numeric[A]]
 

@@ -34,7 +34,10 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
   def pointsWithIds = domain.points.zipWithIndex
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
-
+  /**
+   * Returns a continuous field, where the value at each point is that of the closest point in the discrete set
+   * *
+   */
   def interpolateNearestNeighbor(): Field[D, A]
   // TODO conceptually, we should have a map here too, but it becomes tricky to
   // do since the overloaded functions will all require their own version of map
@@ -86,10 +89,6 @@ class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim] private (val d
   override def apply(ptId: Int) = data(ptId)
   override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
-  /**
-   * Returns a continuous vector field, where the value at each point is that of the closest point in the discrete set
-   * *
-   */
   def interpolateNearestNeighbor(): VectorField[D, DO] = {
     val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)
     VectorField(domain.boundingBox, (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))

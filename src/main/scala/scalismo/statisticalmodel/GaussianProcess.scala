@@ -27,7 +27,6 @@ import scalismo.utils.Memoize
  * A gaussian process from a D dimensional input space, whose input values are points,
  * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
  *
- * @param domain defines the set of points on which the GP is defined
  * @param mean The mean function
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
