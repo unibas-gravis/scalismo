@@ -17,7 +17,7 @@ package scalismo.image
 
 import breeze.linalg.DenseVector
 import scalismo.common.DiscreteDomain.CanBound
-import scalismo.common.{ DiscreteScalarField, DiscreteField }
+import scalismo.common.{ RealSpace, ScalarField, DiscreteScalarField, DiscreteField }
 import scalismo.geometry._
 import scalismo.numerics.BSpline
 
@@ -67,9 +67,15 @@ class DiscreteScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Numeri
     new DiscreteScalarImage(domain, data.map(f))
   }
 
-  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpoation of given order */
+  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
   def interpolate(order: Int)(implicit ev: CanInterpolate[D]): DifferentiableScalarImage[D] = {
     ev.interpolate(this, order)
+  }
+
+  /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolate(0)]] instead*/
+  override def interpolateNearestNeighbor(): ScalarField[D, A] = {
+    val ev = implicitly[Numeric[A]]
+    ScalarField(RealSpace[D], this.interpolate(0) andThen ev.fromFloat _)
   }
 
   /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
