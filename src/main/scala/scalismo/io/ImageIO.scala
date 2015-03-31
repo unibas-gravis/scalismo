@@ -359,7 +359,7 @@ object ImageIO {
       if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-        DiscreteScalarImage(newDomain, ScalarArray(volume.dataArray.map(v => scalarConv.fromDouble(v))))
+        DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
       }
     }
   }
