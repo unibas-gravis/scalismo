@@ -383,11 +383,8 @@ object ImageIO {
       case (q, 0) if q != 0 => // Method 2
         Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
       case (q, s) if s != 0 => // Method 3
-        //FIXME: we're ignoring the q value here, and solely basing the decision on s != 0
+        //Attention: we're ignoring the q value here, and solely basing the decision on s != 0
         Success(DenseMatrix.create(4, 4, volume.header.sformArray).t)
-      case (q, s) => // combination of Methods 2 and 3
-        //FIXME: what *is* the correct approach here?
-        Failure(new NotImplementedError(s"Don't know how to handle q=$q, s= $s in a Nifti file"))
     }
   }
 
