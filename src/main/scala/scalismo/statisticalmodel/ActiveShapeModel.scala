@@ -217,7 +217,7 @@ object ActiveShapeModel {
    * for each profile point in the model, get the point in mesh that best fits the corresponding profile.
    */
   private[this] def findBestCorrespondingPoints[FE <: FeatureExtractor](asm: ActiveShapeModel[FE], mesh: TriangleMesh, targetImage: DifferentiableScalarImage[_3D], searchPoints: SearchPoints, searchPointSampler: SearchPointSampler, config: FittingConfiguration): IndexedSeq[(Int, Point[_3D])] = {
-    val matchingPts = searchPoints. /*par.*/ map { sp =>
+    val matchingPts = searchPoints.map { sp =>
       (sp.refId, findBestMatchingPointAtPoint(asm, mesh, sp, targetImage, searchPointSampler, config))
     }
 
@@ -230,7 +230,7 @@ object ActiveShapeModel {
    * Retuns Some(Point) if its feature vector is close to a trained feature in terms of the mahalanobis distance, otherwise None
    */
   private[this] def findBestMatchingPointAtPoint[FE <: FeatureExtractor](asm: ActiveShapeModel[FE], mesh: TriangleMesh, searchPoint: SearchPoint, targetImage: DifferentiableScalarImage[_3D], searchPointSampler: SearchPointSampler, config: FittingConfiguration): Option[Point[_3D]] = {
-    val samplePts = searchPointSampler(asm, mesh, searchPoint.refId).par
+    val samplePts = searchPointSampler(asm, mesh, searchPoint.refId)
 
     val ptsWithDists = for (imgPt <- samplePts) yield {
       val featureVector = asm.featureExtractor(targetImage, mesh, imgPt)
