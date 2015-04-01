@@ -18,7 +18,7 @@ package scalismo.image
 import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
-import scalismo.common.BoxDomain
+import scalismo.common.{ Scalar, ScalarArray, BoxDomain }
 import scalismo.io.ImageIO
 import scalismo.registration.TranslationSpace
 import scala.language.implicitConversions
@@ -28,10 +28,11 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
 
-import spire.math.Numeric._
+import scala.reflect.ClassTag
 
 class ImageTests extends FunSpec with Matchers {
   implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def arrayToScalarArray[A: Scalar: ClassTag](a: Array[A]) = ScalarArray(a)
 
   describe("A discrete 1D image") {
     it("returns the same points for a 1d index and a coordinate index") {

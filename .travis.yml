@@ -1,6 +1,6 @@
 language: scala
 scala:
-- 2.11.4
+- 2.10.4
 script:
   - jdk_switcher use oraclejdk8
   - sbt ++$TRAVIS_SCALA_VERSION compile test 

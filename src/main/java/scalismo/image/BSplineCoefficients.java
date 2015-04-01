@@ -47,7 +47,7 @@
 
 package scalismo.image;
 
-public class BSplineCoefficients {
+class BSplineCoefficients {
 
 	
 	private static float getInitialAntiCausalCoefficientMirrorOnBounds(float[] c,
@@ -56,7 +56,7 @@ public class BSplineCoefficients {
 	} /* end getInitialAntiCausalCoefficientMirrorOnBounds */
 
 	/*------------------------------------------------------------------*/
-	static float getInitialCausalCoefficientMirrorOnBounds(float[] c, float z,
+	private static float getInitialCausalCoefficientMirrorOnBounds(float[] c, float z,
 			float tolerance) {
 		float z1 = z, zn = (float) Math.pow(z, c.length - 1);
 		float sum = c[0] + zn * c[c.length - 1];
@@ -76,8 +76,7 @@ public class BSplineCoefficients {
 	} /* end getInitialCausalCoefficientMirrorOnBounds */
 
 
-	
-	static public void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
+	static void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
 		
 		float z[] = null;
 		if (degree == 0 || degree == 1) { 
