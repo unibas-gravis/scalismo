@@ -84,6 +84,11 @@ class DiscreteScalarImage[D <: Dim: NDSpace, A: Scalar: ClassTag] private (overr
 object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage with given domain and values */
+  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: Array[A]) = {
+    new DiscreteScalarImage[D, A](domain, ScalarArray(values))
+  }
+
+  /** create a new DiscreteScalarImage with given domain and values */
   def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A]) = {
     new DiscreteScalarImage[D, A](domain, values)
   }
