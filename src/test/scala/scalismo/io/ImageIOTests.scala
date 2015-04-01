@@ -23,7 +23,7 @@ import org.scalatest.{ FunSpec, Matchers }
 import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.utils.CanConvertToVtk
+import scalismo.utils.{ Benchmark, CanConvertToVtk }
 import spire.math.{ UByte, UInt, ULong, UShort }
 
 import scala.reflect.ClassTag
@@ -241,7 +241,7 @@ class ImageIOTests extends FunSpec with Matchers {
           val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
           data.hashCode()
         }
-        val nh = n.dataArray.deep.hashCode()
+        val nh = n.dataAsScalarArray[Short].map(_.toDouble).iterator.toArray.deep.hashCode()
         nh should equal(oh)
       }
 
