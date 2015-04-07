@@ -81,6 +81,16 @@ class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Ar
     dotprod
   }
 
+  def mapWithIndexes(f: (Int, Float) => Float): Vector[D] = {
+    val newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = f(i, this.data(i))
+      i += 1
+    }
+    Vector[D](newData)
+  }
+
   def outer(that: Vector[D]): SquareMatrix[D] = {
 
     require(that.dimensionality == dimensionality)
