@@ -19,7 +19,7 @@ import scalismo.common.{ ValueClassScalarArray, PrimitiveScalarArray, ScalarArra
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.io.ImageIO
-import scalismo.mesh.{ ScalarMeshData, TriangleCell, TriangleMesh }
+import scalismo.mesh.{ ScalarMeshField, TriangleCell, TriangleMesh }
 import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
 
@@ -236,7 +236,7 @@ object MeshConversion {
     pd
   }
 
-  def meshDataToVtkPolyData[S: Scalar: ClassTag: TypeTag](meshData: ScalarMeshData[S]): vtkPolyData = {
+  def scalarMeshFieldToVtkPolyData[S: Scalar: ClassTag: TypeTag](meshData: ScalarMeshField[S]): vtkPolyData = {
     val pd = meshToVtkPolyData(meshData.mesh)
     val scalarData = VtkHelpers.scalarArrayToVtkDataArray(meshData.data, 1) // TODO make this more general
     pd.GetPointData().SetScalars(scalarData)
