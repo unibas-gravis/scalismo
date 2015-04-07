@@ -49,7 +49,7 @@ object Field {
 trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
 
   /** a function that defines the image values. It must be defined on the full domain */
-  protected[Field] val f: Point[D] => A
+  protected val f: Point[D] => A
 
   /** The domain on which the image is defined */
   def domain: Domain[D]

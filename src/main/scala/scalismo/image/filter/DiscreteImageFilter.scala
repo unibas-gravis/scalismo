@@ -15,12 +15,10 @@
  */
 package scalismo.image.filter
 
-import scalismo.image.DiscreteScalarImage
+import scalismo.common.{ ScalarArray, Scalar }
+import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage.CanInterpolate
-import scalismo.utils.ImageConversion
-import scalismo.utils.ImageConversion.CanConvertToVTK
-import spire.math.Numeric
+import scalismo.utils.{ CanConvertToVtk, ImageConversion }
 import vtk.{ vtkImageCast, vtkImageEuclideanDistance }
 
 import scala.reflect.ClassTag
@@ -30,16 +28,14 @@ object DiscreteImageFilter {
 
   /**
    * Computes a (signed) distance transform of the image.
-   * @note The value that is returned is not teh euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
+   * @note The value that is returned is not the euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
    */
-  def distanceTransform[D <: Dim: NDSpace: CanConvertToVTK: CanInterpolate, A: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
+  def distanceTransform[D <: Dim: NDSpace: CanConvertToVtk: CanInterpolate, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
 
-    val numeric = implicitly[Numeric[A]]
+    val scalar = implicitly[Scalar[A]]
 
     def doDistanceTransformVTK(img: DiscreteScalarImage[D, A]) = {
-      val dim = implicitly[NDSpace[D]].dimensionality
-
-      val imgvtk = ImageConversion.imageTovtkStructuredPoints(img)
+      val imgvtk = ImageConversion.imageToVtkStructuredPoints(img)
 
       val vtkdistTransform = new vtkImageEuclideanDistance()
 
@@ -73,12 +69,12 @@ object DiscreteImageFilter {
 
     val dt1 = doDistanceTransformVTK(img)
 
-    val invImg = img.map[A](v => if (v == 0) numeric.fromShort(1) else numeric.fromShort(0))
+    val invImg = img.map[A](v => if (v == 0) scalar.fromShort(1) else scalar.fromShort(0))
     val dt2 = doDistanceTransformVTK(invImg)
 
     val newPixelValues = dt1.values.zip(dt2.values).map { case (p1, p2) => p1 - p2 }.toArray
 
-    DiscreteScalarImage(dt1.domain, newPixelValues)
+    DiscreteScalarImage(dt1.domain, ScalarArray(newPixelValues))
 
   }
 

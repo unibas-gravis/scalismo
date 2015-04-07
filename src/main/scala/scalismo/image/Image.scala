@@ -16,11 +16,10 @@
 package scalismo.image
 
 import scalismo.image.filter.Filter
-import scalismo.common.{ VectorField, Domain, Field }
+import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.{ UniformSampler, Integrator }
+import scalismo.numerics.Integrator
 import scalismo.registration.{ CanDifferentiate, Transformation }
-import spire.math.Numeric
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scalismo.numerics.GridSampler
@@ -83,7 +82,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (val domain: Domain[D], val f: Po
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
-    val supportSize = Index[D](((0 until dim).map(_ => numberOfPointsPerDim)).toArray)
+    val supportSize = Index[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
 
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
@@ -108,15 +107,15 @@ class ScalarImage[D <: Dim: NDSpace] protected (val domain: Domain[D], val f: Po
    * Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImge at the domain points.
    * If the image is not defined at a domain point, the outside value is used.
    */
-  def sample[Pixel: Numeric: ClassTag](domain: DiscreteImageDomain[D], outsideValue: Double): DiscreteScalarImage[D, Pixel] = {
-    val numeric = implicitly[Numeric[Pixel]]
+  def sample[Pixel: Scalar: ClassTag](domain: DiscreteImageDomain[D], outsideValue: Float): DiscreteScalarImage[D, Pixel] = {
+    val numeric = implicitly[Scalar[Pixel]]
 
     val sampledValues = domain.points.toIterable.par.map((pt: Point[D]) => {
-      if (isDefinedAt(pt)) numeric.fromDouble(this(pt))
-      else numeric.fromDouble(outsideValue)
+      if (isDefinedAt(pt)) numeric.fromFloat(this(pt))
+      else numeric.fromFloat(outsideValue)
     })
 
-    DiscreteScalarImage(domain, sampledValues.toArray)
+    DiscreteScalarImage(domain, ScalarArray(sampledValues.toArray))
   }
 
 }
@@ -184,7 +183,7 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
-    val supportSize = Index[D](((0 until dim).map(_ => numberOfPointsPerDim)).toArray)
+    val supportSize = Index[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
 

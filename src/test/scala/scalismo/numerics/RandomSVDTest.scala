@@ -15,11 +15,13 @@
  */
 package scalismo.numerics
 
+import breeze.linalg.DenseMatrix
 import breeze.linalg.svd.SVD
 import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
 import scalismo.geometry.{ Point, _1D }
 import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel, Kernel }
+import scalismo.utils.Benchmark
 
 class RandomSVDTest extends FunSpec with Matchers {
 
@@ -43,5 +45,15 @@ class RandomSVDTest extends FunSpec with Matchers {
         factor should be(1.0 +- 0.01)
       }
     }
+
+    it("can accuratly reproduce the original matrix") {
+
+      // check that the frobenius norm of the reconstruction is exact
+      val R = DenseMatrix.rand(100, 100)
+      val (u, d, ut) = RandomSVD.computeSVD(R, 100)
+      val D = u * breeze.linalg.diag(d) * ut - R
+      Math.sqrt(breeze.linalg.trace(D * D.t)) should be <= 1e-5
+    }
+
   }
 }

@@ -88,17 +88,18 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * @param sigma2 variance of a GAussian noise that is assumed on every training point
    */
   def project(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double = 1e-6): VectorField[D, DO] = {
-    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
+    val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
+    val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     project(newtd)
   }
 
   /**
    * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
-   * are subject to 0 mean Gaussian noise
+   * are subject to 0 mean gaussian noise
    *
    * @param trainingData Point/value pairs where that the sample should approximate, together with the variance of the noise model at each point.
    */
-  def project(trainingData: IndexedSeq[(Point[D], Vector[DO], Double)]): VectorField[D, DO] = {
+  def project(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): VectorField[D, DO] = {
     val c = coefficients(trainingData)
     instance(c)
   }
@@ -107,7 +108,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
    * are subject to 0 mean Gaussian noise
    */
-  def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO], Double)]): DenseVector[Float] =
+  def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): DenseVector[Float] =
     {
       val (minv, qtL, yVec, mVec) = LowRankGaussianProcess.genericRegressionComputations(this, trainingData)
       val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
@@ -119,22 +120,18 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * are subject to 0 mean Gaussian noise
    */
   def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): DenseVector[Float] = {
-    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
+    val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
+    val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     coefficients(newtd)
   }
 
-  /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using Gaussian process regression.
-   */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
-    val newtd = trainingData.map { case (pt, df) => (pt, df, sigma2) }
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
+    val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
+    val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     posterior(newtd)
   }
 
-  /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using Gaussian process regression.
-   */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], Double)]): LowRankGaussianProcess[D, DO] = {
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
     LowRankGaussianProcess.regression(this, trainingData)
   }
 
@@ -189,47 +186,13 @@ object LowRankGaussianProcess {
   }
 
   /**
-   * * Performs a Gaussian process regression, where we assume that all training points (vectors) are subject to the same zero-mean Gaussian noise with variance simga2.
-   *
-   * @param gp  The gaussian process
-   * @param trainingData Point/value pairs where that the sample should approximate
-   * @param sigma2 The variance of the noise model
-   * @param meanOnly Computes only the posterior mean and not the full posterior process. Return a Gaussian process of rank 0.
-   */
-  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: LowRankGaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO])],
-    sigma2: Double,
-    meanOnly: Boolean): LowRankGaussianProcess[D, DO] = {
-
-    val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2) }
-    regression(gp, trainingDataWithNoise, meanOnly)
-  }
-
-  /**
-   * * Performs a Gaussian process regression, where we assume that all training points (vectors) are subject to the same zero-mean Gaussian noise with variance simga2.
-   *
-   * @param gp  The gaussian process
-   * @param trainingData Point/value pairs where that the sample should approximate
-   * @param sigma2 The variance of the noise model
-   */
-  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: LowRankGaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO])],
-    sigma2: Double): LowRankGaussianProcess[D, DO] = {
-
-    val trainingDataWithNoise = trainingData.map { case (x, y) => (x, y, sigma2) }
-    regression(gp, trainingDataWithNoise, false)
-  }
-
-  /**
    * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
    *
    * @param gp  The gaussian process
-   * @param trainingData Point/value pairs where that the sample should approximate, together with the variance of the noise model at each point.
-   * @param meanOnly Computes only the posterior mean and not the full posterior process. Return a Gaussian process of rank 0.
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
   def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: LowRankGaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO], Double)],
-    meanOnly: Boolean = false): LowRankGaussianProcess[D, DO] = {
+    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
     val outputDim = implicitly[NDSpace[DO]].dimensionality
 
     val (lambdas, phis) = gp.klBasis.unzip
@@ -238,50 +201,43 @@ object LowRankGaussianProcess {
 
     val mean_p = gp.instance(mean_coeffs)
 
-    if (meanOnly == true) {
-      val emptyEigenPairs = IndexedSeq[(Float, VectorField[D, DO])]()
-      new LowRankGaussianProcess(mean_p, emptyEigenPairs)
+    val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
+    val Sigma = D * _Minv * D
+    val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
+    val innerU = innerUDbl.map(_.toFloat)
 
-    } else {
-      val D = breeze.linalg.diag(DenseVector(lambdas.map(math.sqrt(_)).toArray))
-      val Sigma = D * _Minv * D
-      val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
-      val innerU = innerUDbl.map(_.toFloat)
-
-      def phip(i: Int)(x: Point[D]): Vector[DO] = {
-        // should be phi_p but _ is treated as partial function
-        val phisAtX = {
-          val newPhisAtX = {
-            val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
-            var j = 0;
-            while (j < phis.size) {
-              val phi_j = phis(j)
-              innerPhisAtx(0 until outputDim, j) := phi_j(x).toBreezeVector
-              j += 1
-            }
-            innerPhisAtx
+    def phip(i: Int)(x: Point[D]): Vector[DO] = {
+      // should be phi_p but _ is treated as partial function
+      val phisAtX = {
+        val newPhisAtX = {
+          val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
+          var j = 0;
+          while (j < phis.size) {
+            val phi_j = phis(j)
+            innerPhisAtx(0 until outputDim, j) := phi_j(x).toBreezeVector
+            j += 1
           }
-          newPhisAtX
+          innerPhisAtx
         }
-        val vec = phisAtX * innerU(::, i)
-        Vector[DO](vec.data)
+        newPhisAtX
       }
-
-      val phis_p = for (i <- 0 until phis.size) yield {
-        val phipi_memo = Memoize(phip(i), 1000)
-        (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
-      }
-      val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
-      new LowRankGaussianProcess[D, DO](mean_p, lambdas_p.zip(phis_p))
+      val vec = phisAtX * innerU(::, i)
+      Vector[DO](vec.data)
     }
+
+    val phis_p = for (i <- 0 until phis.size) yield {
+      val phipi_memo = Memoize(phip(i), 1000)
+      (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
+    }
+    val lambdas_p = innerD2.toArray.map(_.toFloat).toIndexedSeq
+    new LowRankGaussianProcess[D, DO](mean_p, lambdas_p.zip(phis_p))
   }
 
   /*
   * Internal computations of the regression.
    */
   private def genericRegressionComputations[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: LowRankGaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO], Double)],
-    meanOnly: Boolean = false) = {
+    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]) = {
 
     val outputDimensionality = implicitly[NDSpace[DO]].dimensionality
 
@@ -291,7 +247,7 @@ object LowRankGaussianProcess {
     val dim = implicitly[NDSpace[DO]].dimensionality
     def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.data).toArray)
 
-    val (xs, ys, sigma2s) = trainingData.unzip3
+    val (xs, ys, errorDistributions) = trainingData.unzip3
 
     val yVec = flatten(ys)
     val meanValues = xs.map(gp.mean)
@@ -302,16 +258,15 @@ object LowRankGaussianProcess {
       Q(i * dim until i * dim + dim, j) := phi_j(x_i).toBreezeVector.map(_.toDouble) * math.sqrt(lambdas(j))
     }
 
-    // compute Q^TL where L is a diagonal matrix that contains the inverse of the sigmas in the diagonal.
-    // As there is only one sigma for each point (but the point has dim components) we need
-    // to correct the index for sigma
+    // What we are actually computing here is the following:
+    // L would be a block diagonal matrix, which contains on the diagonal the blocks that describes the uncertainty
+    // for each point (a d x d) block. We then would compute Q.t * L. For efficiency reasons (L could be large but is sparse)
+    // we avoid ever constructing the matrix L and do the multiplication by hand.
     val QtL = Q.t.copy
-    val sigma2sInv = sigma2s.map { sigma2 =>
-      val divisor = math.max(1e-8, sigma2)
-      1.0 / divisor
-    }
-    for (i <- 0 until QtL.cols) {
-      QtL(::, i) *= sigma2sInv(i / dim)
+    assert(QtL.cols == errorDistributions.size * dim)
+    assert(QtL.rows == gp.rank)
+    for ((errDist, i) <- errorDistributions.zipWithIndex) {
+      QtL(::, i * dim until (i + 1) * dim) := QtL(::, i * dim until (i + 1) * dim) * breeze.linalg.inv(errDist.cov.toBreezeMatrix)
     }
 
     val M = QtL * Q + DenseMatrix.eye[Double](phis.size)

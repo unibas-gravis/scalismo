@@ -15,27 +15,26 @@
  */
 package scalismo.io
 
-import scalismo.common.RealSpace
+import scalismo.common.{ ScalarArray, Scalar, RealSpace }
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation }
-import scalismo.utils.ImageConversion
-import scalismo.utils.ImageConversion.CanConvertToVTK
+import scalismo.utils.{ CanConvertToVtk, ImageConversion }
 import scala.util.Try
 import scala.util.Failure
 import java.io.File
 import scala.util.Success
-import reflect.runtime.universe.{ TypeTag, typeOf }
 import java.io.IOException
 import scala.reflect.ClassTag
+import vtk.vtkObjectBase
 import vtk.vtkStructuredPointsReader
 import vtk.vtkStructuredPointsWriter
 import vtk.vtkStructuredPoints
-import niftijio.NiftiVolume
+import niftijio.{ NiftiHeader, NiftiVolume }
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
 import reflect.runtime.universe.{ TypeTag, typeOf }
-import spire.math.Numeric
+import spire.math.{ UByte, UShort, UInt, ULong }
 
 /**
  * Implements methods for reading and writing D-dimensional images
@@ -71,24 +70,24 @@ import spire.math.Numeric
 
 object ImageIO {
 
-  trait WriteNifty[D <: Dim] {
-    def write[A: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, A], f: File): Try[Unit]
+  trait WriteNifti[D <: Dim] {
+    def write[A: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, A], f: File): Try[Unit]
   }
 
-  implicit object DiscreteScalarImage3DNifty extends WriteNifty[_3D] {
-    def write[A: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, A], f: File): Try[Unit] = {
+  implicit object DiscreteScalarImage3DNifti extends WriteNifti[_3D] {
+    def write[A: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, A], f: File): Try[Unit] = {
       writeNifti[A](img, f)
     }
   }
 
-  private case class GenericImageData[Scalar](
+  private case class GenericImageData[S](
 
       origin: Array[Double],
       spacing: Array[Double],
       size: Array[Long],
       pixelDimensionality: Int,
       voxelType: String,
-      data: Array[Scalar]) {
+      data: Array[S]) {
 
     def hasDimensionality(dim: Int): Boolean = {
       origin.size == dim &&
@@ -97,12 +96,12 @@ object ImageIO {
     }
   }
 
-  def read1DScalarImage[Scalar: Numeric: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_1D, Scalar]] = {
+  def read1DScalarImage[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_1D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
 
-        val imageDataOrFailure = readHDF5[Scalar](f)
+        val imageDataOrFailure = readHDF5[S](f)
         imageDataOrFailure.flatMap {
 
           imageData =>
@@ -114,7 +113,7 @@ object ImageIO {
               } else {
 
                 val domain = DiscreteImageDomain[_1D](Point(imageData.origin(0).toFloat), Vector(imageData.spacing(0).toFloat), Index(imageData.size(0).toInt))
-                Success(DiscreteScalarImage(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, ScalarArray(imageData.data)))
               }
             }
         }
@@ -122,12 +121,12 @@ object ImageIO {
     }
   }
 
-  def read3DScalarImage[Scalar: Numeric: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, Scalar]] = {
+  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
 
-        val imageDataOrFailure = readHDF5[Scalar](f)
+        val imageDataOrFailure = readHDF5[S](f)
         imageDataOrFailure.flatMap {
 
           imageData =>
@@ -142,7 +141,7 @@ object ImageIO {
                   Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat, imageData.spacing(2).toFloat),
                   Index(imageData.size(0).toInt, imageData.size(1).toInt, imageData.size(2).toInt))
 
-                Success(DiscreteScalarImage(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, ScalarArray(imageData.data)))
 
               }
             }
@@ -157,22 +156,24 @@ object ImageIO {
             s"(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
-        val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, Scalar](sp)
+        val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp)
         reader.Delete()
         sp.Delete()
+        // unfortunately, there may still be VTK leftovers, so run garbage collection
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[Scalar](f)
+        readNifti[S](f)
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
 
-  def read2DScalarImage[Scalar: Numeric: ClassTag: TypeTag](file: File): Try[DiscreteScalarImage[_2D, Scalar]] = {
+  def read2DScalarImage[S: Scalar: ClassTag: TypeTag](file: File): Try[DiscreteScalarImage[_2D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
 
-        val imageDataOrFailure = readHDF5[Scalar](f)
+        val imageDataOrFailure = readHDF5[S](f)
         imageDataOrFailure.flatMap {
 
           imageData =>
@@ -186,7 +187,7 @@ object ImageIO {
                   Point(imageData.origin(0).toFloat, imageData.origin(1).toFloat),
                   Vector(imageData.spacing(0).toFloat, imageData.spacing(1).toFloat),
                   Index(imageData.size(0).toInt, imageData.size(1).toInt))
-                Success(DiscreteScalarImage(domain, imageData.data))
+                Success(DiscreteScalarImage(domain, ScalarArray(imageData.data)))
               }
 
             }
@@ -197,29 +198,31 @@ object ImageIO {
         reader.Update()
         val errCode = reader.GetErrorCode()
         if (errCode != 0) {
-          return Failure(new IOException(s"Failed to read vtk file ${file.getAbsolutePath()}. " +
+          return Failure(new IOException(s"Failed to read vtk file ${file.getAbsolutePath}. " +
             s"(error code from vtkReader = $errCode"))
         }
         val sp = reader.GetOutput()
-        val img = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Scalar](sp)
+        val img = ImageConversion.vtkStructuredPointsToScalarImage[_2D, S](sp)
         reader.Delete()
         sp.Delete()
+        // unfortunately, there may still be VTK leftovers, so run garbage collection
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
 
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
 
-  private def readNifti[Scalar: Numeric: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, Scalar]] = {
+  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, S]] = {
 
-    val scalarConv = implicitly[Numeric[Scalar]]
+    val scalarConv = implicitly[Scalar[S]]
 
     for {
 
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
       pair <- computeNiftiWorldToVoxelTransforms(volume)
     } yield {
-      val (transVoxelToWorld, transWorldToVoxel) = pair
+      val (transVoxelToWorld, _) = pair
 
       val nx = volume.header.dim(1)
       val ny = volume.header.dim(2)
@@ -237,7 +240,7 @@ object ImageIO {
       val augmentedMatrix = transformMatrixFromNifti(volume).get // get is safe in here 
       val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
 
-      val mirrorScale = (breeze.linalg.det(linearTransMatrix)).signum.toFloat
+      val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toFloat
 
       val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
 
@@ -256,7 +259,7 @@ object ImageIO {
       if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-        DiscreteScalarImage(newDomain, volume.dataArray.map(v => scalarConv.fromDouble(v)))
+        DiscreteScalarImage(newDomain, ScalarArray(volume.dataArray.map(v => scalarConv.fromDouble(v))))
       }
     }
   }
@@ -285,7 +288,7 @@ object ImageIO {
       dim = 1
 
     // check this page http://brainder.org/2012/09/23/the-nifti-file-format/
-    // for details about the nifty format
+    // for details about the nifti format
 
     if (volume.header.sform_code == 0 && volume.header.qform_code == 0)
       return Failure(new IOException("cannot read nifti with both qform and sform codes set to 0"))
@@ -326,12 +329,12 @@ object ImageIO {
 
   /**
    * read image data in ITK's hdf5 format
-   * @tparam Scalar The type of the Scalar elements in the image
+   * @tparam S The type of the Scalar elements in the image
    * @param file The file name
    *
    */
 
-  private def readHDF5[Scalar: TypeTag](file: File): Try[GenericImageData[Scalar]] = {
+  private def readHDF5[S: TypeTag](file: File): Try[GenericImageData[S]] = {
     def pixelDimensionality(dims: Array[Long], dataDims: IndexedSeq[Long]): Int = {
       if (dims.length == dataDims.length) 1 else dataDims.last.toInt
     }
@@ -343,7 +346,7 @@ object ImageIO {
       dims <- h5file.readArray[Long]("/ITKImage/0/Dimension")
       origin <- h5file.readArray[Double]("/ITKImage/0/Origin")
       spacing <- h5file.readArray[Double]("/ITKImage/0/Spacing")
-      voxelData <- readAndCheckVoxelData[Scalar](h5file, voxelType)
+      voxelData <- readAndCheckVoxelData[S](h5file, voxelType)
       _ <- Try {
         h5file.close()
       }
@@ -352,9 +355,9 @@ object ImageIO {
     genericImageData
   }
 
-  def writeNifti[Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, Scalar], file: File): Try[Unit] = {
+  def writeNifti[S: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[_3D, S], file: File): Try[Unit] = {
 
-    val scalarConv = implicitly[Numeric[Scalar]]
+    val scalarConv = implicitly[Scalar[S]]
 
     val domain = img.domain
     val size = domain.size
@@ -378,8 +381,7 @@ object ImageIO {
       M(3, 3) = 1
 
       // the header
-      //  val header = new NiftiHeader()
-      volume.header.setDatatype(niftyDataTypeFromScalar[Scalar])
+      volume.header.setDatatype(niftiDataTypeFromScalar[S])
       volume.header.qform_code = 0
       volume.header.sform_code = 2 // TODO check me that this is right
 
@@ -394,31 +396,53 @@ object ImageIO {
     }
   }
 
-  private[this] def niftyDataTypeFromScalar[Scalar: Numeric: TypeTag: ClassTag]: Short = {
+  private[this] def niftiDataTypeFromScalar[S: Scalar: TypeTag: ClassTag]: Short = {
 
-    typeOf[Scalar] match {
-      case t if t =:= typeOf[Char] => 2
-      case t if t <:< typeOf[Short] => 4
-      case t if t <:< typeOf[Int] => 8
-      case t if t <:< typeOf[Float] => 16
-      case t if t <:< typeOf[Double] => 64
-      case _ => throw new Throwable(s"Unsupported datatype ${typeOf[Scalar]}")
+    typeOf[S] match {
+      case t if t =:= typeOf[Byte] => NiftiHeader.NIFTI_TYPE_INT8
+      case t if t =:= typeOf[Short] => NiftiHeader.NIFTI_TYPE_INT16
+      case t if t =:= typeOf[Int] => NiftiHeader.NIFTI_TYPE_INT32
+      case t if t =:= typeOf[Long] => NiftiHeader.NIFTI_TYPE_INT64
+      case t if t =:= typeOf[Float] => NiftiHeader.NIFTI_TYPE_FLOAT32
+      case t if t =:= typeOf[Double] => NiftiHeader.NIFTI_TYPE_FLOAT64
+      case t if t =:= typeOf[UByte] => NiftiHeader.NIFTI_TYPE_UINT8
+      case t if t =:= typeOf[UShort] => NiftiHeader.NIFTI_TYPE_UINT16
+      case t if t =:= typeOf[UInt] => NiftiHeader.NIFTI_TYPE_UINT32
+      case t if t =:= typeOf[ULong] => NiftiHeader.NIFTI_TYPE_UINT64
+      case _ => throw new Throwable(s"Unsupported datatype ${typeOf[S]}")
     }
   }
 
-  def writeVTK[D <: Dim: NDSpace: CanConvertToVTK, Scalar: Numeric: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
+  def writeVTK[D <: Dim: NDSpace: CanConvertToVtk, S: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, S], file: File): Try[Unit] = {
 
-    val imgVtk = ImageConversion.imageTovtkStructuredPoints(img)
-    writeVTKInternal(imgVtk, file)
+    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
+
+    // VTK binary writing seems to be horribly broken for long and unsigned long, so we must use ASCII there.
+    val needAscii = typeOf[S] match {
+      case t if t =:= typeOf[Long] => true
+      case t if t =:= typeOf[ULong] => true
+      case _ => false
+    }
+    val result = writeVTKInternal(imgVtk, file, useAscii = needAscii)
+    imgVtk.Delete()
+    //vtk.vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
+    result
   }
 
-  private def writeVTKInternal(imgVtk: vtkStructuredPoints, file: File): Try[Unit] = {
+  private def writeVTKInternal(imgVtk: vtkStructuredPoints, file: File, useAscii: Boolean): Try[Unit] = {
     val writer = new vtkStructuredPointsWriter()
     writer.SetInputData(imgVtk)
     writer.SetFileName(file.getAbsolutePath)
-    writer.SetFileTypeToBinary()
+    if (useAscii) {
+      writer.SetFileTypeToASCII()
+    } else {
+      writer.SetFileTypeToBinary()
+    }
     writer.Update()
     val errorCode = writer.GetErrorCode()
+    writer.Delete()
+    // unfortunately, there may still be VTK leftovers, so run garbage collection
+    vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
     if (errorCode != 0) {
       Failure(new IOException(s"Error writing vtk file ${file.getAbsolutePath} (error code $errorCode"))
     } else {
@@ -426,11 +450,11 @@ object ImageIO {
     }
   }
 
-  def writeHDF5[D <: Dim, Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, Scalar], file: File): Try[Unit] = {
+  def writeHDF5[D <: Dim, S: TypeTag: ClassTag](img: DiscreteScalarImage[D, S], file: File): Try[Unit] = {
 
-    val maybeVoxelType = scalarTypeToString[Scalar]()
+    val maybeVoxelType = scalarTypeToString[S]()
     if (maybeVoxelType.isEmpty) {
-      return Failure(new Exception(s"invalid voxeltype " + typeOf[Scalar]))
+      return Failure(new Exception(s"invalid voxeltype " + typeOf[S]))
     }
     val voxelType = maybeVoxelType.get
 
@@ -440,7 +464,7 @@ object ImageIO {
     // (note that here the dimensions of the voxelArray are reversed compared the the
     // vector dims that is stored in the field Dimensions. This is the convention of the itk implementation
     // which we follow)
-    var voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
+    val voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
 
     val directions = NDArray[Double](
       IndexedSeq[Long](img.domain.size.dimensionality, img.domain.size.dimensionality),
@@ -466,8 +490,8 @@ object ImageIO {
     maybeError
   }
 
-  private def scalarTypeToString[Scalar: TypeTag](): Option[String] = {
-    typeOf[Scalar] match {
+  private def scalarTypeToString[S: TypeTag](): Option[String] = {
+    typeOf[S] match {
       case t if t =:= typeOf[Float] => Some("FLOAT")
       case t if t =:= typeOf[Short] => Some("SHORT")
       case t if t =:= typeOf[Double] => Some("DOUBLE")
@@ -475,15 +499,12 @@ object ImageIO {
     }
   }
 
-  private def readAndCheckVoxelData[Scalar: TypeTag](h5file: HDF5File, voxelType: String): Try[NDArray[Scalar]] = {
-    h5file.readNDArray[Scalar]("/ITKImage/0/VoxelData").flatMap(voxelData => {
-      val typeString = scalarTypeToString[Scalar]().getOrElse("unknown type")
+  private def readAndCheckVoxelData[S: TypeTag](h5file: HDF5File, voxelType: String): Try[NDArray[S]] = {
+    h5file.readNDArray[S]("/ITKImage/0/VoxelData").flatMap(voxelData => {
+      val typeString = scalarTypeToString[S]().getOrElse("unknown type")
       if (typeString == voxelType) Success(voxelData)
       else Failure(
         throw new Exception(s"Specified scalar type ($typeString) does not match voxeltype ($voxelType)"))
     })
   }
 }
-
-// end of enclosing object
-
