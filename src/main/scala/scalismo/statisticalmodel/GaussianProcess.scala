@@ -46,32 +46,29 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * Sample values of the GAussian process evaluated at the given points.
    */
   def sampleAtPoints(pts: IndexedSeq[Point[D]]): DiscreteVectorField[D, DO] = {
-
-    // define the mean and kernel matrix for the given points and construct the
-    // corresponding MV Normal distribution, from which we then sample
-
-    val mu = DenseVector.zeros[Float](pts.size * outputDimensionality)
-    for ((pt, i) <- pts.zipWithIndex) {
-      mu(i * outputDimensionality until (i + 1) * outputDimensionality) := mean(pt).toBreezeVector
-    }
-
-    val K = Kernel.computeKernelMatrix(pts, cov)
-    val mvNormal = MultivariateNormalDistribution(mu, K)
-
-    val sampleVec = mvNormal.drawSample()
-
-    // The sample is a vector. We convert it back to a discreteVectorField.
-    val vecs = sampleVec.toArray.grouped(outputDimensionality)
-      .map(data => Vector[DO](data.map(_.toFloat)))
-      .toIndexedSeq
-    val domain = DiscreteDomain.fromSeq(pts.toIndexedSeq)
-    DiscreteVectorField(domain, vecs)
+    this.marginal(pts).sample
   }
 
   /**
-   * Compute the marginal distribution for the given point
+   * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
+   * is defined by the given points.
    */
-  def marginal(pt: Point[D]): NDimensionalNormalDistribution[DO] = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
+  def marginal(pts: Seq[Point[D]]): DiscreteGaussianProcess[D, DO] = {
+    val theDomain = DiscreteDomain.fromSeq(pts.toIndexedSeq)
+    val meanField = DiscreteVectorField(theDomain, theDomain.points.toIndexedSeq.map(pt => mean(pt)))
+
+    def newCov(i: Int, j: Int): SquareMatrix[DO] = {
+      cov(pts(i), pts(j))
+    }
+
+    val discreteCov = DiscreteMatrixValuedPDKernel[D, DO](theDomain, newCov)
+    new DiscreteGaussianProcess(meanField, discreteCov)
+  }
+
+  /**
+   * Compute the marginal distribution at a single point.
+   */
+  def marginal(pt: Point[D]) = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
 
   /**
    * The posterior distribution of the gaussian process, with respect to the given trainingData.

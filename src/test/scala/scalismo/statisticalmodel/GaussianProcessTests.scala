@@ -80,6 +80,22 @@ class GaussianProcessTests extends FunSpec with Matchers {
       testVarianceForGP(lgp, domain)
     }
 
+    it("yields the same values as the original gp at the given points") {
+      val domain = BoxDomain[_2D](Point(-2.0f, 1.0f), Point(1.0f, 2.0f))
+      val m = VectorField(domain, (_: Point[_2D]) => Vector(0.0f, 0.0f))
+      val gp = GaussianProcess(m, UncorrelatedKernel[_2D](GaussianKernel[_2D](1.0)))
+
+      val testPts = Seq(Point(-1.0f, 1.5f), Point(0.0f, 1.7f))
+      val discreteGP = gp.marginal(testPts)
+
+      for ((testPt, testPtId) <- testPts.zipWithIndex) {
+        discreteGP.mean(testPtId) should equal(gp.mean(testPt))
+        for ((testPt2, testPtId2) <- testPts.zipWithIndex) {
+          discreteGP.cov(testPtId, testPtId2) should equal(gp.cov(testPt, testPt2))
+        }
+      }
+    }
+
   }
 
   describe("A Gaussian process regression") {
@@ -344,6 +360,19 @@ class GaussianProcessTests extends FunSpec with Matchers {
           covGp(i, j) should be(covDiscrete(i, j) +- 1e-5)
         }
       }
+    }
+
+    it("yeilds the same result when marginalized the points in one or two steps") {
+      val f = Fixture
+
+      val pts = f.discretizationPoints
+      val dgp1 = f.discreteGP.marginal(Seq(0, 1, 2))
+      val dgp2 = dgp1.marginal(Seq(1))
+      val dgp3 = f.discreteGP.marginal(Seq(1))
+
+      dgp2.mean.asBreezeVector should equal(dgp3.mean.asBreezeVector)
+      dgp2.cov.asBreezeMatrix should equal(dgp3.cov.asBreezeMatrix)
+      dgp2.domain should equal(dgp3.domain)
     }
 
   }
