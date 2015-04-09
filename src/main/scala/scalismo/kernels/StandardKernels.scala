@@ -77,23 +77,23 @@ abstract case class BSplineKernel[D <: Dim](order: Int, scale: Int) extends PDKe
 
 object BSplineKernel {
 
-  def apply[D <: Dim: CanCreate](order: Int, scale: Int): BSplineKernel[D] = {
-    implicitly[CanCreate[D]].create(order, scale)
+  def apply[D <: Dim: NDCreateBSplineKernel](order: Int, scale: Int): BSplineKernel[D] = {
+    implicitly[NDCreateBSplineKernel[D]].create(order, scale)
   }
 
-  trait CanCreate[D <: Dim] {
+  trait NDCreateBSplineKernel[D <: Dim] {
     def create(order: Int, j: Int): BSplineKernel[D]
   }
 
-  implicit object CanCreateBSplineKernel1D extends CanCreate[_1D] {
+  implicit object _1DCreateBSplineKernelBSplineKernel extends NDCreateBSplineKernel[_1D] {
     def create(order: Int, j: Int): BSplineKernel[_1D] = new BSplineKernel1D(order, j)
   }
 
-  implicit object CanCreateBSplineKernel2D extends CanCreate[_2D] {
+  implicit object _2DCreateBSplineKernelBSplineKernel extends NDCreateBSplineKernel[_2D] {
     def create(order: Int, j: Int): BSplineKernel[_2D] = new BSplineKernel2D(order, j)
   }
 
-  implicit object CanCreateBSplineKernel3D extends CanCreate[_3D] {
+  implicit object _3DCreateBSplineKernelBSplineKernel extends NDCreateBSplineKernel[_3D] {
     def create(order: Int, j: Int): BSplineKernel[_3D] = new BSplineKernel3D(order, j)
   }
 

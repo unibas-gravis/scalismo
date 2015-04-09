@@ -23,7 +23,7 @@ import scalismo.common.{ RealSpace, Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.registration.{ AnisotropicScalingSpace, AnisotropicSimilarityTransformationSpace, LandmarkRegistration, Transformation }
-import scalismo.utils.{ CanConvertToVtk, ImageConversion, VtkHelpers }
+import scalismo.utils.{NDImageToVtkOps, ImageConversion, VtkHelpers}
 import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
 
@@ -513,7 +513,7 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D <: Dim: NDSpace: CanConvertToVtk, S: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, S], file: File): Try[Unit] = {
+  def writeVTK[D <: Dim: NDSpace: NDImageToVtkOps, S: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, S], file: File): Try[Unit] = {
 
     val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
 

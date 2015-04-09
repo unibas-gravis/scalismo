@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseVector, DenseMatrix }
-import scalismo.common.DiscreteDomain.CanBound
+import scalismo.common.DiscreteDomain.NDDomainOps
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels._
@@ -32,7 +32,7 @@ import scalismo.utils.Memoize
  * @tparam D The dimensionality of the input space
  * @tparam DO The dimensionality of the output space
  */
-class GaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] protected (val mean: VectorField[D, DO],
+class GaussianProcess[D <: Dim: NDSpace: NDDomainOps, DO <: Dim: NDSpace] protected (val mean: VectorField[D, DO],
     val cov: MatrixValuedPDKernel[D, DO]) {
 
   protected[this] val dimOps: NDSpace[DO] = implicitly[NDSpace[DO]]
@@ -101,7 +101,7 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: VectorField[D, DO], cov: MatrixValuedPDKernel[D, DO]) = {
+  def apply[D <: Dim: NDSpace: NDDomainOps, DO <: Dim: NDSpace](mean: VectorField[D, DO], cov: MatrixValuedPDKernel[D, DO]) = {
     new GaussianProcess[D, DO](mean, cov)
   }
 
@@ -111,7 +111,7 @@ object GaussianProcess {
    * @param gp  The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
+  def regression[D <: Dim: NDSpace: NDDomainOps, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
     trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO] = {
 
     val outputDim = implicitly[NDSpace[DO]].dimensionality

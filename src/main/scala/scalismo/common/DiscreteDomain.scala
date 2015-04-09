@@ -15,7 +15,7 @@
  */
 package scalismo.common
 
-import scalismo.common.DiscreteDomain.CanBound
+import scalismo.common.DiscreteDomain.NDDomainOps
 import scalismo.geometry._
 import scalismo.mesh.kdtree.KDTreeMap
 
@@ -43,8 +43,8 @@ trait DiscreteDomain[D <: Dim] extends Equals { self =>
    * The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes)
    */
 
-  def boundingBox(implicit canBound: CanBound[D]): BoxDomain[D] = {
-    canBound.boundingBox(this)
+  def boundingBox(implicit domainOps: NDDomainOps[D]): BoxDomain[D] = {
+    domainOps.boundingBox(this)
   }
 
   override def equals(that: Any) = {
@@ -88,11 +88,11 @@ object DiscreteDomain {
     }
   }
 
-  trait CanBound[D <: Dim] {
+  trait NDDomainOps[D <: Dim] {
     def boundingBox(domain: DiscreteDomain[D]): BoxDomain[D]
   }
 
-  implicit object CanBound1D extends CanBound[_1D] {
+  implicit object DomainOps1D extends NDDomainOps[_1D] {
     def boundingBox(domain: DiscreteDomain[_1D]): BoxDomain[_1D] = {
       val minx = domain.points.map(_(0)).min
       val maxx = domain.points.map(_(0)).max
@@ -100,7 +100,7 @@ object DiscreteDomain {
     }
   }
 
-  implicit object CanBound2D extends CanBound[_2D] {
+  implicit object DomainOps2D extends NDDomainOps[_2D] {
     def boundingBox(domain: DiscreteDomain[_2D]): BoxDomain[_2D] = {
       val minx = domain.points.map(_(0)).min
       val miny = domain.points.map(_(1)).min
@@ -110,7 +110,7 @@ object DiscreteDomain {
     }
   }
 
-  implicit object CanBound3D extends CanBound[_3D] {
+  implicit object DomainOps3D extends NDDomainOps[_3D] {
     def boundingBox(domain: DiscreteDomain[_3D]): BoxDomain[_3D] = {
       val minx = domain.points.map(_(0)).min
       val miny = domain.points.map(_(1)).min

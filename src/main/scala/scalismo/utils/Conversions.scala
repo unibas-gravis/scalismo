@@ -244,7 +244,7 @@ object MeshConversion {
   }
 }
 
-trait CanConvertToVtk[D <: Dim] {
+trait NDImageToVtkOps[D <: Dim] {
   def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
@@ -282,9 +282,9 @@ trait CanConvertToVtk[D <: Dim] {
   }
 }
 
-object CanConvertToVtk {
+object NDImageToVtkOps {
 
-  implicit object _2DCanConvertToVtk$ extends CanConvertToVtk[_2D] {
+  implicit object _2DNDImageToVtkOps extends NDImageToVtkOps[_2D] {
 
     override def setDomainInfo(domain: DiscreteImageDomain[_2D], sp: vtkStructuredPoints): Unit = {
       sp.SetDimensions(domain.size(0), domain.size(1), 1)
@@ -321,7 +321,7 @@ object CanConvertToVtk {
     }
   }
 
-  implicit object _3DCanConvertToVtk$ extends CanConvertToVtk[_3D] {
+  implicit object _3DNDImageToVtkOps extends NDImageToVtkOps[_3D] {
     override def setDomainInfo(domain: DiscreteImageDomain[_3D], sp: vtkStructuredPoints): Unit = {
       sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
       sp.SetOrigin(domain.origin(0), domain.origin(1), domain.origin(2))
@@ -360,11 +360,11 @@ object CanConvertToVtk {
 
 object ImageConversion {
 
-  def imageToVtkStructuredPoints[D <: Dim: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
-    implicitly[CanConvertToVtk[D]].toVtk(img)
+  def imageToVtkStructuredPoints[D <: Dim: NDImageToVtkOps, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
+    implicitly[NDImageToVtkOps[D]].toVtk(img)
   }
 
-  def vtkStructuredPointsToScalarImage[D <: Dim: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
-    implicitly[CanConvertToVtk[D]].fromVtk(sp)
+  def vtkStructuredPointsToScalarImage[D <: Dim: NDImageToVtkOps, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
+    implicitly[NDImageToVtkOps[D]].fromVtk(sp)
   }
 }
