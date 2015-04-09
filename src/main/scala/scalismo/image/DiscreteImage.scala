@@ -73,7 +73,7 @@ class DiscreteScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar
 
   /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolate(0)]] instead*/
   override def interpolateNearestNeighbor(): ScalarField[D, A] = {
-    val ev = implicitly[Numeric[A]]
+    val ev = implicitly[Scalar[A]]
     ScalarField(RealSpace[D], this.interpolate(0) andThen ev.fromFloat _)
   }
 
