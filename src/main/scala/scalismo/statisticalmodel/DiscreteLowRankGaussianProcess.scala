@@ -132,6 +132,24 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim
     DiscreteLowRankGaussianProcess.regression(this, trainingData)
   }
 
+  override def marginal(pointIds: Seq[Int]): DiscreteLowRankGaussianProcess[D, DO] = {
+    val domainPts = domain.points.toIndexedSeq
+
+    val newPts = pointIds.map(id => domainPts(id)).toIndexedSeq
+    val newDomain = DiscreteDomain.fromSeq(newPts)
+
+    val newMean = DiscreteVectorField(newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
+    val (lambdas, phis) = klBasis.unzip
+
+    val newPhis = for (phi <- phis) yield {
+      val newValues = pointIds.map(i => phi(i)).toIndexedSeq
+      DiscreteVectorField(newDomain, newValues)
+    }
+    val newKLBasis = lambdas zip newPhis
+
+    DiscreteLowRankGaussianProcess(newMean, newKLBasis)
+  }
+
   /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]].
    * This is achieved by using a  Nystrom method for computing the kl basis.
@@ -247,6 +265,25 @@ object DiscreteLowRankGaussianProcess {
     val lambdas = new DenseVector[Float](gpLambdas.toArray)
     new DiscreteLowRankGaussianProcess[D, DO](domain, m, lambdas, U)
   }
+
+  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO],
+    klBasis: Seq[(Float, DiscreteVectorField[D, DO])]): DiscreteLowRankGaussianProcess[D, DO] =
+    {
+
+      val (variances, basis) = klBasis.unzip
+      for (phi <- basis) {
+        require(phi.domain == mean.domain)
+      }
+
+      val domain = mean.domain
+      val meanVec = mean.asBreezeVector
+      val varianceVec = DenseVector(variances.toArray)
+      val basisMat = DenseMatrix.zeros[Float](meanVec.length, klBasis.size)
+      for ((phi, i) <- basis.zipWithIndex) yield {
+        basisMat(::, i) := phi.asBreezeVector
+      }
+      new DiscreteLowRankGaussianProcess(domain, meanVec, varianceVec, basisMat)
+    }
 
   /**
    * Discrete implementation of [[LowRankGaussianProcess.regression]]

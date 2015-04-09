@@ -17,6 +17,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
+import scalismo.common.DiscreteDomain.CanBound
 import scalismo.common.{ VectorField, DiscreteDomain, DiscreteVectorField }
 import scalismo.geometry.{ SquareMatrix, Vector, Dim, NDSpace }
 import scalismo.kernels.{ MatrixValuedPDKernel, Kernel, DiscreteMatrixValuedPDKernel }
@@ -26,7 +27,7 @@ import scalismo.kernels.{ MatrixValuedPDKernel, Kernel, DiscreteMatrixValuedPDKe
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val mean: DiscreteVectorField[D, DO],
+class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] private[scalismo] (val mean: DiscreteVectorField[D, DO],
     val cov: DiscreteMatrixValuedPDKernel[D, DO]) {
 
   require(mean.domain == cov.domain)
@@ -85,7 +86,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
 object DiscreteGaussianProcess {
 
-  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO], cov: DiscreteMatrixValuedPDKernel[D, DO]) = {
+  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO], cov: DiscreteMatrixValuedPDKernel[D, DO]) = {
     new DiscreteGaussianProcess[D, DO](mean, cov)
   }
 }

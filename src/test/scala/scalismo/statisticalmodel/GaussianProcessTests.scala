@@ -293,7 +293,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
 
   }
 
-  describe("a discrete Gaussian process") {
+  describe("a discrete LowRank Gaussian process") {
 
     object Fixture {
       val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
@@ -301,15 +301,15 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
       val gp = GaussianProcess(mean, UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))
 
-      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 100)
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 200)
 
       val discretizationPoints = sampler.sample.map(_._1)
-      val discreteGP = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
+      val discreteLowRankGp = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
     }
 
     it("will yield the correct values at the interpolation points when it is interpolated") {
       val f = Fixture
-      val gp = f.discreteGP.interpolateNystrom(100)
+      val gp = f.discreteLowRankGp.interpolateNystrom(100)
       val discreteGp = gp.discretize(f.discretizationPoints)
 
       val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
@@ -331,7 +331,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val trainingDataGP = trainingData.map { case (ptId, v) => (f.discretizationPoints(ptId), v) }
 
       val posteriorGP = f.lowRankGp.posterior(trainingDataGP, 1e-5)
-      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteGP, trainingDataDiscreteGP)
+      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteLowRankGp, trainingDataDiscreteGP)
 
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = discretePosteriorGP.mean
@@ -350,7 +350,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
     it("yields the same covariance function as a normal gp") {
       val f = Fixture
 
-      val discreteGPCov = f.discreteGP.cov
+      val discreteGPCov = f.discreteLowRankGp.cov
       val cov = f.lowRankGp.cov
 
       for ((pt1, ptId1) <- f.discretizationPoints.zipWithIndex; (pt2, ptId2) <- f.discretizationPoints.zipWithIndex) {
@@ -366,15 +366,25 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val f = Fixture
 
       val pts = f.discretizationPoints
-      val dgp1 = f.discreteGP.marginal(Seq(0, 1, 2))
+      val dgp1 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
       val dgp2 = dgp1.marginal(Seq(1))
-      val dgp3 = f.discreteGP.marginal(Seq(1))
+      val dgp3 = f.discreteLowRankGp.marginal(Seq(1))
 
       dgp2.mean.asBreezeVector should equal(dgp3.mean.asBreezeVector)
       dgp2.cov.asBreezeMatrix should equal(dgp3.cov.asBreezeMatrix)
       dgp2.domain should equal(dgp3.domain)
     }
 
+    it("yields the same result for the marginal as the discretegp") {
+      val f = Fixture
+
+      val pts = f.discretizationPoints
+      val dgp1 = f.lowRankGp.marginal(pts).marginal(Seq(0, 1, 2))
+      val dgp2 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
+      dgp1.mean.asBreezeVector should equal(dgp2.mean.asBreezeVector)
+      dgp1.cov.asBreezeMatrix should equal(dgp2.cov.asBreezeMatrix)
+      dgp1.domain should equal(dgp2.domain)
+    }
   }
 
 }
