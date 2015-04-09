@@ -86,26 +86,26 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
 /**
  * A scalar valued field.
  */
-case class ScalarField[D <: Dim, A: Numeric: ClassTag](domain: Domain[D], f: Point[D] => A) extends Field[D, A] {
+case class ScalarField[D <: Dim, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A) extends Field[D, A] {
 
-  val ev = implicitly[Numeric[A]]
+  val ev = implicitly[Scalar[A]]
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarField[D, A]): ScalarField[D, A] = {
-    def f(x: Point[D]): A = ev.plus(this.f(x), that.f(x))
+    def f(x: Point[D]): A = ev.fromDouble(ev.toDouble(this.f(x)) + ev.toDouble(that.f(x)))
     new ScalarField(Domain.intersection[D](domain, that.domain), f)
   }
 
   /** subtract two images. The domain of the new image is the intersection of the domains of the individual images*/
   def -(that: ScalarField[D, A]): ScalarField[D, A] = {
-    def f(x: Point[D]): A = ev.minus(this.f(x), that.f(x))
+    def f(x: Point[D]): A = ev.fromDouble(ev.toDouble(this.f(x)) - ev.toDouble(that.f(x)))
     val newDomain = Domain.intersection[D](domain, that.domain)
     new ScalarField(newDomain, f)
   }
 
   /** scalar multiplication of a vector field */
   def *(s: Double): ScalarField[D, A] = {
-    val scalar = ev.fromDouble(s)
-    def f(x: Point[D]): A = ev.times(this.f(x), scalar)
+
+    def f(x: Point[D]): A = ev.fromDouble(ev.toDouble(this.f(x)) * s)
     new ScalarField(domain, f)
   }
 }
