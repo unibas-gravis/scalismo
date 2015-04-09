@@ -17,10 +17,11 @@ package scalismo.image
 
 import breeze.linalg.DenseVector
 import scalismo.common._
+
+import scalismo.common.DiscreteDomain.CanBound
+import scalismo.common.{ RealSpace, ScalarField, DiscreteScalarField, DiscreteField }
 import scalismo.geometry._
 import scalismo.numerics.BSpline
-
-import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 /**
@@ -53,7 +54,7 @@ trait DiscreteImage[D <: Dim, Pixel] extends DiscreteField[D, Pixel] {
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Scalar).
  */
-class DiscreteScalarImage[D <: Dim: NDSpace, A: Scalar: ClassTag] private (override val domain: DiscreteImageDomain[D], data: ScalarArray[A])
+class DiscreteScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag] private (override val domain: DiscreteImageDomain[D], data: ScalarArray[A])
     extends DiscreteScalarField[D, A](domain, data) with DiscreteImage[D, A] {
 
   require(domain.numberOfPoints == data.size)
@@ -65,13 +66,19 @@ class DiscreteScalarImage[D <: Dim: NDSpace, A: Scalar: ClassTag] private (overr
     new DiscreteScalarImage(domain, data.map(f))
   }
 
-  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpoation of given order */
+  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
   def interpolate(order: Int)(implicit ev: CanInterpolate[D]): DifferentiableScalarImage[D] = {
     ev.interpolate(this, order)
   }
 
+  /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolate(0)]] instead*/
+  override def interpolateNearestNeighbor(): ScalarField[D, A] = {
+    val ev = implicitly[Scalar[A]]
+    ScalarField(RealSpace[D], this.interpolate(0) andThen ev.fromFloat _)
+  }
+
   /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
-  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Float)(implicit ev: CanInterpolate[D]): DiscreteScalarImage[D, A] = {
+  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Float): DiscreteScalarImage[D, A] = {
     val contImg = interpolate(interpolationDegree)
     contImg.sample(newDomain, outsideValue)
   }
@@ -84,17 +91,17 @@ class DiscreteScalarImage[D <: Dim: NDSpace, A: Scalar: ClassTag] private (overr
 object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A]) = {
+  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A]) = {
     new DiscreteScalarImage[D, A](domain, values)
   }
 
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
+  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
     new DiscreteScalarImage[D, A](domain, ScalarArray(domain.points.map(f).toArray))
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D])(v: => A) = {
+  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D])(v: => A) = {
     new DiscreteScalarImage[D, A](domain, ScalarArray(Array.fill(domain.numberOfPoints)(v)))
   }
 

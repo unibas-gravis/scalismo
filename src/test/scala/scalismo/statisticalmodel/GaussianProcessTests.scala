@@ -339,7 +339,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val phi1PosteriorSpezialized = discretePosteriorGP.klBasis(0)._2
 
       // both posterior processes should give the same values at the specialized points
-      for ((pt, id) <- f.discretizationPoints.zipWithIndex.par) {
+      for ((pt, id) <- f.discretizationPoints.zipWithIndex) {
         for (d <- 0 until 3) {
           meanPosterior(pt)(d) should be(meanPosteriorSpecialized(id)(d) +- 1e-5)
           phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(id)(d) +- 1e-5)
@@ -353,7 +353,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
       val discreteGPCov = f.discreteGP.cov
       val cov = f.lowRankGp.cov
 
-      for ((pt1, ptId1) <- f.discretizationPoints.zipWithIndex.par; (pt2, ptId2) <- f.discretizationPoints.zipWithIndex) {
+      for ((pt1, ptId1) <- f.discretizationPoints.zipWithIndex; (pt2, ptId2) <- f.discretizationPoints.zipWithIndex) {
         val covGp = cov(pt1, pt2)
         val covDiscrete = discreteGPCov(ptId1, ptId2)
         for (i <- 0 until 3; j <- 0 until 3) {
