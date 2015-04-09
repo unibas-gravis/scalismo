@@ -119,7 +119,7 @@ case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, D
   def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
     var sum = SquareMatrix.zeros[D]
     for (i <- min until max) {
-      sum += kernel((x.toVector * Math.pow(2, -i)).toPoint, (y.toVector * Math.pow(2, -i)).toPoint) * scale(i)
+      sum += kernel((x.toVector * Math.pow(2, i)).toPoint, (y.toVector * Math.pow(2, i)).toPoint) * scale(i)
     }
     sum
   }
