@@ -232,7 +232,7 @@ object ActiveShapeModel {
       case (pt, dist) => dist
     }
 
-    val shapeDistForPt = asm.shapeModel.marginal(ptId).mahalanobisDistance(minPt - refPt)
+    val shapeDistForPt = asm.shapeModel.gp.marginal(ptId).mahalanobisDistance(minPt - refPt)
     if (minIntensityDist < config.maxIntensityStddev && shapeDistForPt < config.maxShapeStddev) Some(minPt) else None
   }
 

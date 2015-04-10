@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import scalismo.common.DiscreteVectorField
 import scalismo.geometry.{ SquareMatrix, Vector, Point, _3D }
-import scalismo.mesh.{Mesh, TriangleMesh}
+import scalismo.mesh.{ Mesh, TriangleMesh }
 import scalismo.registration.{ Transformation, RigidTransformation }
 
 /**
@@ -55,12 +55,11 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * returns the probability density for an instance of the model
    * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
    *
-   **/
-  def pdf(instanceCoefficients : DenseVector[Float]) : Double = {
+   */
+  def pdf(instanceCoefficients: DenseVector[Float]): Double = {
     val disVecField = gp.instance(instanceCoefficients)
     gp.pdf(disVecField)
   }
-
 
   /**
    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
@@ -69,21 +68,14 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   def instance(c: DenseVector[Float]): TriangleMesh = warpReference(gp.instance(c))
 
   /**
-   * The marginal distribution at a given point.
-   * @see [[DiscreteLowRankGaussianProcess.instance]]
-   */
-  def marginal(ptId: Int) = gp.marginal(ptId)
-
-  /**
    *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
-  def marginal(ptIds : IndexedSeq[Int]) = {
-    val clippedReference = Mesh.clipMesh(referenceMesh, p => { ptIds.contains(referenceMesh.findClosestPoint(p)._2) } )
+  def marginal(ptIds: IndexedSeq[Int]) = {
+    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
     val marginalGP = gp.marginal(ptIds)
     StatisticalMeshModel(clippedReference, marginalGP)
   }
-
 
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.project]], but the training data is defined by specifying the target point instead of the
