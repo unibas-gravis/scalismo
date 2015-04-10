@@ -48,7 +48,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
 
     val mvNormal = MultivariateNormalDistribution(mu, K)
 
-    val sampleVec = mvNormal.drawSample()
+    val sampleVec = mvNormal.sample()
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
@@ -106,6 +106,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
 
     val newCov = new MatrixValuedPDKernel[D, DO] {
       override val domain = newDomain
+
       override def k(pt1: Point[D], pt2: Point[D]): SquareMatrix[DO] = {
         val (_, closestPtId1) = closestPt(pt1)
         val (_, closestPtId2) = closestPt(pt2)
@@ -127,6 +128,16 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
     val noiseDist = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
     val td = s.values.zipWithIndex.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
     DiscreteGaussianProcess.regression(this, td).mean
+
+  }
+
+  /**
+   * Returns the probability density of the given instance
+   */
+  def pdf(instance: DiscreteVectorField[D, DO]): Double = {
+    val mvnormal = MultivariateNormalDistribution(mean.asBreezeVector, cov.asBreezeMatrix)
+    val instvec = instance.asBreezeVector
+    mvnormal.pdf(instvec)
   }
 
 }

@@ -18,8 +18,10 @@ package scalismo.statisticalmodel
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import scalismo.common.DiscreteDomain.CanBound
 import scalismo.common.DiscreteVectorField
+import scalismo.geometry.{ SquareMatrix, Vector, Point, _3D }
+import scalismo.mesh.{ Mesh, TriangleMesh }
 import scalismo.geometry._
-import scalismo.mesh.TriangleMesh
+
 import scalismo.registration.{ Transformation, RigidTransformation }
 
 /**
@@ -31,7 +33,7 @@ import scalismo.registration.{ Transformation, RigidTransformation }
  */
 case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp: DiscreteLowRankGaussianProcess[_3D, _3D]) {
 
-  /** @see [[org.statismo.stk.core.statisticalmodel.DiscreteLowRankGaussianProcess.rank]] */
+  /** @see [[scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.rank]] */
   val rank = gp.rank
 
   /**
@@ -53,16 +55,30 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   def sample = warpReference(gp.sample)
 
   /**
+   * returns the probability density for an instance of the model
+   * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
+   *
+   */
+  def pdf(instanceCoefficients: DenseVector[Float]): Double = {
+    val disVecField = gp.instance(instanceCoefficients)
+    gp.pdf(disVecField)
+  }
+
+  /**
    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
    *  @see [[DiscreteLowRankGaussianProcess.instance]]
    */
   def instance(c: DenseVector[Float]): TriangleMesh = warpReference(gp.instance(c))
 
   /**
-   * The marginal distribution at a given point.
-   * @see [[DiscreteLowRankGaussianProcess.instance]]
+   *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
+   * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
-  def marginal(ptId: Int) = gp.marginal(ptId)
+  def marginal(ptIds: IndexedSeq[Int]) = {
+    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
+    val marginalGP = gp.marginal(ptIds)
+    StatisticalMeshModel(clippedReference, marginalGP)
+  }
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.project]]

@@ -41,7 +41,7 @@ class MultivariateNormalDistributionTests extends FunSpec with Matchers {
     val mvn = new MultivariateNormalDistribution(mu, cov)
 
     it("yields the right mean and covariance matrix when we sample from the data") {
-      val samples = for (i <- 0 until 3000) yield mvn.drawSample()
+      val samples = for (i <- 0 until 3000) yield mvn.sample()
       val estimatedMVN = MultivariateNormalDistribution.estimateFromData(samples)
       for (i <- 0 until mu.length) {
         mu(i) should be(estimatedMVN.mean(i) +- 0.15f)

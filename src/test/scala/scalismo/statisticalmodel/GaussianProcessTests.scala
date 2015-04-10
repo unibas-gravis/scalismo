@@ -385,6 +385,20 @@ class GaussianProcessTests extends FunSpec with Matchers {
       dgp1.cov.asBreezeMatrix should equal(dgp2.cov.asBreezeMatrix)
       dgp1.domain should equal(dgp2.domain)
     }
+
+    it("pdf of the mean is higher than 10 random samples") {
+      val f = Fixture
+
+      val discreteGP = f.discreteLowRankGp
+      val pdfmean = discreteGP.pdf(discreteGP.mean)
+      val s = (0 until 10) map { _ =>
+        val pdfSample = discreteGP.pdf(discreteGP.sample)
+        pdfmean >= pdfSample
+      }
+
+      assert(s.forall(e => e))
+    }
+
   }
 
 }

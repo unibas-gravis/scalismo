@@ -36,7 +36,7 @@ private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
 
   def mahalanobisDistance(x: V): Double
 
-  def drawSample(): V
+  def sample(): V
 }
 
 case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMatrix[Float])
@@ -99,7 +99,7 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
     math.sqrt(x0 dot (covInv * x0))
   }
 
-  override def drawSample(): DenseVector[Float] = {
+  override def sample(): DenseVector[Float] = {
 
     val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
@@ -174,7 +174,7 @@ case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], co
 
   override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def drawSample(): Vector[D] = Vector.fromBreezeVector(impl.drawSample())
+  override def sample(): Vector[D] = Vector.fromBreezeVector(impl.sample())
 
   override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d) }
 
