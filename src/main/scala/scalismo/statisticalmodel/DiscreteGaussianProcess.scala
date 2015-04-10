@@ -47,7 +47,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
 
     val mvNormal = MultivariateNormalDistribution(mu, K)
 
-    val sampleVec = mvNormal.drawSample()
+    val sampleVec = mvNormal.sample()
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
