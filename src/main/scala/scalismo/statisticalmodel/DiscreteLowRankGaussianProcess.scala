@@ -79,37 +79,20 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
-  def project(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double = 1e-6): DiscreteVectorField[D, DO] = {
-    val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
-    val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
-    project(newtd)
-  }
-
-  /**
-   * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO], Double)])]]
-   */
-  def project(trainingData: IndexedSeq[(Int, Vector[DO], NDimensionalNormalDistribution[DO])]): DiscreteVectorField[D, DO] = {
-    val c = coefficients(trainingData)
-    instance(c)
+  override def project(s: DiscreteVectorField[D, DO]): DiscreteVectorField[D, DO] = {
+    instance(coefficients(s))
   }
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.coefficients(IndexedSeq[(Point[D], Vector[DO], Double)])]]
    */
-  def coefficients(trainingData: IndexedSeq[(Int, Vector[DO], NDimensionalNormalDistribution[DO])]): DenseVector[Float] = {
-
-    val (minv, qtL, yVec, mVec) = DiscreteLowRankGaussianProcess.genericRegressionComputations(this, trainingData)
+  def coefficients(s: DiscreteVectorField[D, DO]): DenseVector[Float] = {
+    val sigma2 = 1e-5f // regularization weight to avoid numerical problems
+    val noiseDist = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
+    val td = s.values.zipWithIndex.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
+    val (minv, qtL, yVec, mVec) = DiscreteLowRankGaussianProcess.genericRegressionComputations(this, td)
     val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
     mean_coeffs
-  }
-
-  /**
-   * Discrete version of [[DiscreteLowRankGaussianProcess.coefficients(IndexedSeq[(Point[D], Vector[DO])], Double)]]
-   */
-  def coefficients(trainingData: IndexedSeq[(Int, Vector[DO])], sigma2: Double): DenseVector[Float] = {
-    val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
-    val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
-    coefficients(newtd)
   }
 
   /**
@@ -204,7 +187,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
    * using nearest neigbor interpolation (for both mean and covariance function)
    */
-  def interpolateNearestNeighbor(): LowRankGaussianProcess[D, DO] = {
+  override def interpolateNearestNeighbor: LowRankGaussianProcess[D, DO] = {
 
     val meanPD = this.mean
     val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
