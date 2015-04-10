@@ -52,6 +52,17 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   def sample = warpReference(gp.sample)
 
   /**
+   * returns the probability density for an instance of the model
+   * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
+   *
+   **/
+  def pdf(instanceCoefficients : DenseVector[Float]) : Double = {
+    val disVecField = gp.instance(instanceCoefficients)
+    gp.pdf(disVecField)
+  }
+
+
+  /**
    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
    *  @see [[DiscreteLowRankGaussianProcess.instance]]
    */
