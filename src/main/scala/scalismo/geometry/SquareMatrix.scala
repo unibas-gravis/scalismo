@@ -118,7 +118,7 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
   }
 
   def t: SquareMatrix[D] = {
-    SquareMatrix[D](this.toBreezeMatrix.t.data)
+    SquareMatrix[D](this.toBreezeMatrix.t.toArray)
   }
 
   override def hashCode = data.deep.hashCode()
