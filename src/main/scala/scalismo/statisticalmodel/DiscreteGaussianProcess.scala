@@ -82,6 +82,15 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
     new DiscreteGaussianProcess(newMean, newDiscreteCov)
   }
 
+  /**
+   * Returns the probability density of the given instance
+   */
+  def pdf(instance: DiscreteVectorField[D, DO]): Double = {
+    val mvnormal = MultivariateNormalDistribution(mean.asBreezeVector, cov.asBreezeMatrix)
+    val instvec = instance.asBreezeVector
+    mvnormal.pdf(instvec)
+  }
+
 }
 
 object DiscreteGaussianProcess {
