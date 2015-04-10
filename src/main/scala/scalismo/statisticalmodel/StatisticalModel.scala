@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.{ DenseVector, DenseMatrix }
 import scalismo.common.DiscreteVectorField
 import scalismo.geometry.{ SquareMatrix, Vector, Point, _3D }
-import scalismo.mesh.TriangleMesh
+import scalismo.mesh.{Mesh, TriangleMesh}
 import scalismo.registration.{ Transformation, RigidTransformation }
 
 /**
@@ -73,6 +73,17 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * @see [[DiscreteLowRankGaussianProcess.instance]]
    */
   def marginal(ptId: Int) = gp.marginal(ptId)
+
+  /**
+   *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
+   * @see [[DiscreteLowRankGaussianProcess.marginal]]
+   */
+  def marginal(ptIds : IndexedSeq[Int]) = {
+    val clippedReference = Mesh.clipMesh(referenceMesh, p => { ptIds.contains(referenceMesh.findClosestPoint(p)._2) } )
+    val marginalGP = gp.marginal(ptIds)
+    StatisticalMeshModel(clippedReference, marginalGP)
+  }
+
 
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.project]], but the training data is defined by specifying the target point instead of the
