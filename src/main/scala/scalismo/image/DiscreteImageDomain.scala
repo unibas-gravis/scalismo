@@ -130,12 +130,12 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
 object DiscreteImageDomain {
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  sealed trait CanCreate[D <: Dim] {
+  sealed trait NDCreateImageDomain[D <: Dim] {
     def createImageDomain(origin: Point[D], spacing: Vector[D], size: Index[D]): DiscreteImageDomain[D]
     def createWithTransform(size: Index[D], transform: AnisotropicSimilarityTransformation[D]): DiscreteImageDomain[D]
   }
 
-  implicit object canCreateImageDomain2D extends CanCreate[_2D] {
+  implicit object _2DCreateImageDomainImageDomain$ extends NDCreateImageDomain[_2D] {
     override def createImageDomain(origin: Point[_2D], spacing: Vector[_2D], size: Index[_2D]): DiscreteImageDomain[_2D] = {
       val rigidParameters = origin.data ++ Array(0f)
       val anisotropicScalingParmaters = spacing.data
@@ -145,7 +145,7 @@ object DiscreteImageDomain {
     override def createWithTransform(size: Index[_2D], transform: AnisotropicSimilarityTransformation[_2D]): DiscreteImageDomain[_2D] = new DiscreteImageDomain2D(size, transform)
   }
 
-  implicit object canCreateImageDomain3D extends CanCreate[_3D] {
+  implicit object _3DCreateImageDomainImageDomain$ extends NDCreateImageDomain[_3D] {
     override def createImageDomain(origin: Point[_3D], spacing: Vector[_3D], size: Index[_3D]): DiscreteImageDomain[_3D] = {
       val rigidParameters = origin.data ++ Array(0f, 0f, 0f)
       val anisotropicScalingParmaters = spacing.data
@@ -155,7 +155,7 @@ object DiscreteImageDomain {
     override def createWithTransform(size: Index[_3D], transform: AnisotropicSimilarityTransformation[_3D]): DiscreteImageDomain[_3D] = new DiscreteImageDomain3D(size, transform)
   }
 
-  implicit object canCreateImageDomain1D extends CanCreate[_1D] {
+  implicit object _1DNDCreateImageDomainImageDomain$ extends NDCreateImageDomain[_1D] {
     override def createImageDomain(origin: Point[_1D], spacing: Vector[_1D], size: Index[_1D]): DiscreteImageDomain[_1D] = new DiscreteImageDomain1D(origin, spacing, size)
     override def createWithTransform(size: Index[_1D], transform: AnisotropicSimilarityTransformation[_1D]): DiscreteImageDomain[_1D] = {
       val origin = transform(Point(0))
@@ -165,7 +165,7 @@ object DiscreteImageDomain {
   }
 
   /** Create a new discreteImageDomain with given origin, spacing and size*/
-  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: Index[D])(implicit evDim: NDSpace[D], evCreate: CanCreate[D]) = {
+  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: Index[D])(implicit evDim: NDSpace[D], evCreate: NDCreateImageDomain[D]) = {
     evCreate.createImageDomain(origin, spacing, size)
   }
 
@@ -173,7 +173,7 @@ object DiscreteImageDomain {
    * Create a discreteImageDomain where the points are defined as tranformations of the indeces (from (0,0,0) to (size - 1, size - 1 , size -1)
    * This makes it possible to define image regions which are not aligned to the coordinate axis.
    */
-  private[scalismo] def apply[D <: Dim](size: Index[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: NDSpace[D], evCreateRot: CanCreate[D]) = {
+  private[scalismo] def apply[D <: Dim](size: Index[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: NDSpace[D], evCreateRot: NDCreateImageDomain[D]) = {
     evCreateRot.createWithTransform(size, transform)
   }
 

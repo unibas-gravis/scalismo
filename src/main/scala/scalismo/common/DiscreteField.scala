@@ -47,7 +47,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
  *
  */
 
-class DiscreteScalarField[D <: Dim: NDSpace: CanBound, A: Scalar: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: ScalarArray[A]) extends DiscreteField[D, A] {
+class DiscreteScalarField[D <: Dim: NDSpace: NDDomainOps, A: Scalar: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: ScalarArray[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map[B: Scalar: ClassTag](f: A => B): DiscreteScalarField[D, B] = {
@@ -83,7 +83,7 @@ class DiscreteScalarField[D <: Dim: NDSpace: CanBound, A: Scalar: ClassTag](val 
 /**
  *
  */
-class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim: NDSpace: NDDomainOps, DO <: Dim] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId: Int) = data(ptId)
@@ -101,7 +101,7 @@ class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim] private (val d
 
 object DiscreteVectorField {
 
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
+  def apply[D <: Dim: NDSpace: NDDomainOps, DO <: Dim](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
     new DiscreteVectorField(domain, data)
   }
 }

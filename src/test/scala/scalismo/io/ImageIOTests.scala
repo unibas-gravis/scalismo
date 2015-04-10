@@ -23,7 +23,7 @@ import org.scalatest.{ FunSpec, Matchers }
 import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.utils.{ Benchmark, CanConvertToVtk }
+import scalismo.utils.{NDImageToVtkOps, Benchmark, NDImageToVtkOps$}
 import spire.math.{ UByte, UInt, ULong, UShort }
 
 import scala.reflect.ClassTag
@@ -64,7 +64,7 @@ class ImageIOTests extends FunSpec with Matchers {
     }
   }
 
-  private class DataReadWrite[D <: Dim: NDSpace: CanConvertToVtk] {
+  private class DataReadWrite[D <: Dim: NDSpace: NDImageToVtkOps] {
 
     val dim = implicitly[NDSpace[D]].dimensionality
 
@@ -269,7 +269,7 @@ class ImageIOTests extends FunSpec with Matchers {
   describe("ImageIO") {
     it("is type safe") {
 
-      case class ImageWithType[D <: Dim: NDSpace: CanConvertToVtk, T: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, T], typeName: String) {
+      case class ImageWithType[D <: Dim: NDSpace: NDImageToVtkOps, T: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, T], typeName: String) {
         def writeVtk(file: File) = ImageIO.writeVTK(img, file)
         def writeNii(file: File) = {
           if (implicitly[NDSpace[D]].dimensionality == 3) ImageIO.writeNifti(img.asInstanceOf[DiscreteScalarImage[_3D, T]], file)
@@ -277,7 +277,7 @@ class ImageIOTests extends FunSpec with Matchers {
         }
       }
 
-      def convertTo[D <: Dim: NDSpace: CanConvertToVtk, OUT: Scalar: TypeTag: ClassTag](in: DiscreteScalarImage[D, Int]): ImageWithType[D, OUT] = {
+      def convertTo[D <: Dim: NDSpace: NDImageToVtkOps, OUT: Scalar: TypeTag: ClassTag](in: DiscreteScalarImage[D, Int]): ImageWithType[D, OUT] = {
         val img = in.map(implicitly[Scalar[OUT]].fromInt)
         ImageWithType(img, ImageIO.ScalarType.fromType[OUT].toString)
       }
@@ -288,7 +288,7 @@ class ImageIOTests extends FunSpec with Matchers {
       val dom3 = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), Index(2, 2, 2))
       val img3 = DiscreteScalarImage(dom3, ScalarArray(data))
 
-      def imageSeq[D <: Dim: NDSpace: CanConvertToVtk](img: DiscreteScalarImage[D, Int]) = Seq(
+      def imageSeq[D <: Dim: NDSpace: NDImageToVtkOps](img: DiscreteScalarImage[D, Int]) = Seq(
         convertTo[D, Byte](img),
         convertTo[D, Short](img),
         convertTo[D, Int](img),
