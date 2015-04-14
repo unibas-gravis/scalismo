@@ -16,12 +16,17 @@
 package scalismo.io
 
 import java.io.{ File, RandomAccessFile }
-import java.nio.ByteBuffer
-import java.lang.{ Short => JShort, Float => JFloat, Long => JLong, Double => JDouble }
-import reflect.runtime.universe.{ TypeTag, typeOf }
+import java.lang.{ Double => JDouble, Float => JFloat, Long => JLong, Short => JShort }
 import java.nio.channels.FileChannel
+import java.nio.{ ByteBuffer, MappedByteBuffer }
+
+import scalismo.common.{ Scalar, ScalarArray }
+import scalismo.io.FastReadOnlyNiftiVolume.NiftiHeader
+import spire.math.{ UByte, UInt, ULong, UShort }
+
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.util.Try
-import FastReadOnlyNiftiVolume.NiftiHeader
 
 /**
  * This class implements a subset of the niftijio.NiftyVolume functionality, maintaining
@@ -31,7 +36,7 @@ import FastReadOnlyNiftiVolume.NiftiHeader
  *
  * 1. o.header.sform_to_mat44().flatten -> n.header.sformArray
  * 2. for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
- * -> n.dataArray
+ * -> n.dataAsScalarArray
  *
  * This class is optimized to massively outperform the original implementation when reading .nii files,
  * however it only supports the functionality that is absolutely required for our use case
@@ -56,14 +61,15 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
     new NiftiHeader(buf)
   }
 
-  private lazy val transform = {
+  private val hasTransform = {
     // scl_slope == 0 -> no transformation
     // performance optimization: special case of slope=1, inter=0 is also detected and ignored (because a * 1 + 0 == a)
     val notransform = header.scl_slope == 0 || (header.scl_slope == 1.0f && header.scl_inter == 0.0f)
+
     !notransform
   }
 
-  private lazy val doTransform = {
+  private val doTransform = {
     val slope = header.scl_slope
     val inter = header.scl_inter
     def adjust(value: Double): Double = value * slope + inter
@@ -75,96 +81,84 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
    * 2. (more or less) directly copying the flat data array(as present in the file), instead
    *    of performing back-and-forth transformations to/from a 4-dimensional array.
    */
-  def dataArray: Array[Double] = this.synchronized {
+  def dataAsScalarArray[S: Scalar: TypeTag: ClassTag]: ScalarArray[S] = this.synchronized {
+    import NiftiHeader._
+
     val nx: Int = header.dim(1)
     val ny: Int = header.dim(2)
     var nz: Int = header.dim(3)
     var dim: Int = header.dim(4)
     if (header.dim(0) == 2) nz = 1
     if (dim == 0) dim = 1
-    val array = new Array[Double](nx * ny * nz * dim)
 
-    // all these methods do the same thing, they just decode different data representations.
-    def loadBytes(unsigned: Boolean)(array: Array[Double]) = {
-      val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length)
-      for (index <- 0 until array.length) {
-        val value = buf.get.toDouble
-        val fixedValue = if (unsigned && value < 0) value + 256 else value
-        array(index) = if (transform) doTransform(fixedValue) else fixedValue
+    val arrayLength = nx * ny * nz * dim
+
+    def loadArray[U: ClassTag, O](sizeof: Int, load: MappedByteBuffer => U, toDouble: U => Double, fromDouble: Double => O, downcast: O => U, toScalarArray: Array[U] => ScalarArray[O]): ScalarArray[O] = {
+      val mapped = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, arrayLength * sizeof)
+      val data = Array.ofDim[U](arrayLength)
+      var i = 0
+      while (i < arrayLength) {
+        val d = load(mapped)
+        data(i) = if (hasTransform) downcast(fromDouble(doTransform(toDouble(d)))) else d
+        i += 1
       }
+      toScalarArray(data)
     }
 
-    def loadShorts(unsigned: Boolean)(array: Array[Double]) = {
-      val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 2)
-      for (index <- 0 until array.length) {
-        val value = (if (header.isLittleEndian) JShort.reverseBytes(buf.getShort) else buf.getShort).toDouble
-        val fixedValue = if (unsigned && value < 0) Math.abs(value) + (1 << 15) else value
-        array(index) = if (transform) doTransform(fixedValue) else fixedValue
-      }
-    }
+    import Scalar._
 
-    def loadInts(unsigned: Boolean)(array: Array[Double]) = {
-      val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 4)
-      for (index <- 0 until array.length) {
-        val value = (if (header.isLittleEndian) Integer.reverseBytes(buf.getInt) else buf.getInt).toDouble
-        val fixedValue = if (unsigned && value < 0) Math.abs(value) + (1 << 31) else value
-        array(index) = if (transform) doTransform(fixedValue) else fixedValue
-      }
-    }
+    val loadShort = if (header.isLittleEndian) { m: MappedByteBuffer => JShort.reverseBytes(m.getShort) } else { m: MappedByteBuffer => m.getShort }
+    val loadChar = { m: MappedByteBuffer => loadShort(m).toChar }
+    val loadInt = if (header.isLittleEndian) { m: MappedByteBuffer => Integer.reverseBytes(m.getInt) } else { m: MappedByteBuffer => m.getInt }
+    val loadLong = if (header.isLittleEndian) { m: MappedByteBuffer => JLong.reverseBytes(m.getLong) } else { m: MappedByteBuffer => m.getLong }
+    val loadFloat = if (header.isLittleEndian) { m: MappedByteBuffer => JFloat.intBitsToFloat(Integer.reverseBytes(m.getInt)) } else { m: MappedByteBuffer => m.getFloat }
+    val loadDouble = if (header.isLittleEndian) { m: MappedByteBuffer => JDouble.longBitsToDouble(JLong.reverseBytes(m.getLong)) } else { m: MappedByteBuffer => m.getDouble }
 
-    def loadLongs(unsigned: Boolean)(array: Array[Double]) = {
-      val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 8)
-      for (index <- 0 until array.length) {
-        val value = (if (header.isLittleEndian) JLong.reverseBytes(buf.getLong) else buf.getLong).toDouble
-        val fixedValue = if (unsigned && value < 0) Math.abs(value) + (1 << 63) else value
-        array(index) = if (transform) doTransform(fixedValue) else fixedValue
-      }
-    }
+    val out = header.datatype match {
+      case NIFTI_TYPE_INT8 =>
+        loadArray[Byte, Byte](1, _.get, _.toDouble, _.toByte, { x => x }, Scalar.ByteIsScalar.createArray)
 
-    def loadFloats(array: Array[Double]) = {
-      val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 4)
-      for (index <- 0 until array.length) {
-        val value = (if (header.isLittleEndian) JFloat.intBitsToFloat(Integer.reverseBytes(buf.getInt)) else buf.getFloat).toDouble
-        array(index) = if (transform) doTransform(value) else value
-      }
-    }
+      case NIFTI_TYPE_UINT8 =>
+        val toDouble = { x: Byte => if (x >= 0) x.toDouble else x.toDouble + 256.0 }
+        loadArray[Byte, UByte](1, _.get, toDouble, UByteIsScalar.fromDouble, _.toByte, UByteIsScalar.createArray)
 
-    def loadDoubles(array: Array[Double]) = {
-      val buf = file.getChannel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, array.length * 8)
-      for (index <- 0 until array.length) {
-        val value = if (header.isLittleEndian) JDouble.longBitsToDouble(JLong.reverseBytes(buf.getLong)) else buf.getDouble
-        array(index) = if (transform) doTransform(value) else value
-      }
-    }
+      case NIFTI_TYPE_INT16 =>
+        loadArray[Short, Short](2, loadShort, _.toDouble, _.toShort, { x => x }, ShortIsScalar.createArray)
 
-    import NiftiHeader._
-    val load = header.datatype match {
-      case NIFTI_TYPE_INT8 => loadBytes(unsigned = false)(_)
-      case NIFTI_TYPE_UINT8 => loadBytes(unsigned = true)(_)
+      case NIFTI_TYPE_UINT16 =>
+        val toDouble = { x: Short => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 15) }
+        loadArray[Char, UShort](2, loadChar, { x => toDouble(x.toShort) }, UShortIsScalar.fromDouble, _.toChar, UShortIsScalar.createArray)
 
-      case NIFTI_TYPE_INT16 => loadShorts(unsigned = false)(_)
-      case NIFTI_TYPE_UINT16 => loadShorts(unsigned = true)(_)
+      case NIFTI_TYPE_INT32 =>
+        loadArray[Int, Int](4, loadInt, _.toDouble, _.toInt, { x => x }, IntIsScalar.createArray)
 
-      case NIFTI_TYPE_INT32 => loadInts(unsigned = false)(_)
-      case NIFTI_TYPE_UINT32 => loadInts(unsigned = true)(_)
+      case NIFTI_TYPE_UINT32 =>
+        val toDouble = { x: Int => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 31) }
+        loadArray[Int, UInt](4, loadInt, toDouble, UIntIsScalar.fromDouble, _.toInt, UIntIsScalar.createArray)
 
-      case NIFTI_TYPE_INT64 => loadLongs(unsigned = false)(_)
-      case NIFTI_TYPE_UINT64 => loadLongs(unsigned = true)(_)
+      case NIFTI_TYPE_INT64 =>
+        loadArray[Long, Long](8, loadLong, _.toDouble, _.toLong, { x => x }, LongIsScalar.createArray)
 
-      case NIFTI_TYPE_FLOAT32 => loadFloats _
-      case NIFTI_TYPE_FLOAT64 => loadDoubles _
+      case NIFTI_TYPE_UINT64 =>
+        val toDouble = { x: Long => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 63) }
+        loadArray[Long, ULong](8, loadLong, toDouble, ULongIsScalar.fromDouble, _.toLong, ULongIsScalar.createArray)
+
+      case NIFTI_TYPE_FLOAT32 =>
+        loadArray[Float, Float](4, loadFloat, _.toDouble, _.toFloat, { x => x }, FloatIsScalar.createArray)
+
+      case NIFTI_TYPE_FLOAT64 =>
+        loadArray[Double, Double](8, loadDouble, { x => x }, { x => x }, { x => x }, DoubleIsScalar.createArray)
 
       case _ => throw new UnsupportedOperationException(f"Unsupported Nifti data type ${header.datatype}")
     }
 
-    load(array)
-
-    array
+    out.asInstanceOf[ScalarArray[S]]
   }
 
 }
 
 object FastReadOnlyNiftiVolume {
+
   object NiftiHeader {
     final val NIFTI_TYPE_UINT8: Short = 2
     final val NIFTI_TYPE_INT16: Short = 4
@@ -301,6 +295,7 @@ object FastReadOnlyNiftiVolume {
   def read(filename: String): Try[FastReadOnlyNiftiVolume] = Try {
     new FastReadOnlyNiftiVolume(new RandomAccessFile(filename, "r"))
   }
+
   def getScalarType(file: File): Try[Short] = Try {
     val raf = new RandomAccessFile(file, "r")
     val buf = ByteBuffer.allocate(348)

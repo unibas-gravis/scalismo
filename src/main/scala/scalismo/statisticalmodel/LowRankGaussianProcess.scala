@@ -18,6 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, Axis, DenseVector, DenseMatrix }
 import breeze.stats.distributions.Gaussian
+import scalismo.common.DiscreteDomain.CanBound
 import scalismo.common._
 import scalismo.geometry.{ Point, SquareMatrix, NDSpace, Dim, Vector }
 import scalismo.kernels.{ MatrixValuedPDKernel, Kernel }
@@ -36,7 +37,7 @@ import scalismo.utils.Memoize
  * @tparam D The dimensionality of the input space
  * @tparam DO The dimensionality of the output space
  */
-class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: VectorField[D, DO],
+class LowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: VectorField[D, DO],
   val klBasis: IndexedSeq[(Float, VectorField[D, DO])])
     extends GaussianProcess[D, DO](mean, LowRankGaussianProcess.covFromKLTBasis(klBasis)) {
 
@@ -157,14 +158,14 @@ object LowRankGaussianProcess {
    * @param sampler determines which points will be used as samples for the nystrom approximation.
    * @param numBasisFunctions The number of basis functions to approximate.
    */
-  def approximateGP[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
+  def approximateGP[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
     sampler: Sampler[D],
     numBasisFunctions: Int, seed: Int = 42) = {
     val kltBasis = Kernel.computeNystromApproximation(gp.cov, numBasisFunctions, sampler, seed)
     new LowRankGaussianProcess[D, DO](gp.mean, kltBasis)
   }
 
-  private def covFromKLTBasis[D <: Dim: NDSpace, DO <: Dim: NDSpace](eigenPairs: IndexedSeq[(Float, VectorField[D, DO])]): MatrixValuedPDKernel[D, DO] = {
+  private def covFromKLTBasis[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](eigenPairs: IndexedSeq[(Float, VectorField[D, DO])]): MatrixValuedPDKernel[D, DO] = {
     val dimOps = implicitly[NDSpace[DO]]
     val cov: MatrixValuedPDKernel[D, DO] = new MatrixValuedPDKernel[D, DO] {
       override val domain = eigenPairs.headOption
@@ -191,7 +192,7 @@ object LowRankGaussianProcess {
    * @param gp  The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: LowRankGaussianProcess[D, DO],
+  def regression[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](gp: LowRankGaussianProcess[D, DO],
     trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
     val outputDim = implicitly[NDSpace[DO]].dimensionality
 
@@ -279,7 +280,7 @@ object LowRankGaussianProcess {
    * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
    * vectors are transformed along the domain.
    */
-  def transform[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, D], rigidTransform: RigidTransformation[D]): LowRankGaussianProcess[D, D] = {
+  def transform[D <: Dim: NDSpace: CanBound](gp: LowRankGaussianProcess[D, D], rigidTransform: RigidTransformation[D]): LowRankGaussianProcess[D, D] = {
     val invTransform = rigidTransform.inverse
 
     val newDomain = gp.domain.warp(rigidTransform)

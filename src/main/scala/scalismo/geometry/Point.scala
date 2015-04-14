@@ -54,6 +54,20 @@ class Point[D <: Dim: NDSpace] private (private[scalismo] override val data: Arr
 
   def toVector: Vector[D] = Vector[D](data)
 
+  def mapWithIndex(f: (Float, Int) => Float): Point[D] = {
+    val newData = new Array[Float](dimensionality)
+    var i = 0
+    while (i < dimensionality) {
+      newData(i) = f(this.data(i), i)
+      i += 1
+    }
+    Point[D](newData)
+  }
+
+  def map(f: Float => Float): Point[D] = {
+    mapWithIndex({ case (v, _) => f(v) })
+  }
+
   protected override def canEqual(other: Any): Boolean = other.isInstanceOf[Point[D]]
 }
 
