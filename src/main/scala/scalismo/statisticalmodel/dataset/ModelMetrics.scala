@@ -61,8 +61,7 @@ object ModelMetrics {
     if (pcaModel.referenceMesh == dc.reference) Success {
       dc.dataItems.par.map { item =>
         val mesh = dc.reference.transform(item.transformation)
-        val trainingData = (0 until pcaModel.referenceMesh.numberOfPoints) zip mesh.points.toIndexedSeq
-        val projection = pcaModel.project(trainingData, 1e-6)
+        val projection = pcaModel.project(mesh)
         MeshMetrics.avgDistance(projection, mesh)
       }.sum / dc.size.toDouble
     }

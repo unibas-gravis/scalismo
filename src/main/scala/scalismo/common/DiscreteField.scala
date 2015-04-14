@@ -15,7 +15,8 @@
  */
 package scalismo.common
 
-import scalismo.geometry.{ Dim, Vector }
+import breeze.linalg.DenseVector
+import scalismo.geometry.{ NDSpace, Dim, Vector }
 import scala.reflect.ClassTag
 import scalismo.geometry.NDSpace
 import scalismo.geometry.Point
@@ -83,7 +84,7 @@ class DiscreteScalarField[D <: Dim: NDSpace: CanBound, A: Scalar: ClassTag](val 
 /**
  *
  */
-class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId: Int) = data(ptId)
@@ -97,11 +98,35 @@ class DiscreteVectorField[D <: Dim: NDSpace: CanBound, DO <: Dim] private (val d
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map(f: Vector[DO] => Vector[DO]): DiscreteVectorField[D, DO] = new DiscreteVectorField(domain, data.map(f))
 
+  def asBreezeVector: DenseVector[Float] = {
+    val d = implicitly[NDSpace[DO]].dimensionality
+    val v = DenseVector.zeros[Float](domain.numberOfPoints * d)
+    for ((pt, i) <- domain.pointsWithId) {
+      v(i * d until (i + 1) * d) := data(i).toBreezeVector
+    }
+    v
+  }
+
 }
 
 object DiscreteVectorField {
-
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
+  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
     new DiscreteVectorField(domain, data)
   }
+
+  /**
+   * Create a discreteVectorField for the given domain, where the data is represented as a dense vector.
+   * If n is the number o fpoints in the domain and d the dimensionality (DO),
+   * the vector is ordered as (v_11, v_12, ... v_1d, ...v_n1, v_n2, v_nd)
+   */
+  def fromDenseVector[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](domain: DiscreteDomain[D],
+    vec: DenseVector[Float]): DiscreteVectorField[D, DO] = {
+
+    val vectors =
+      for (v <- vec.toArray.grouped(3))
+        yield Vector[DO](v)
+
+    DiscreteVectorField[D, DO](domain, vectors.toIndexedSeq)
+  }
+
 }

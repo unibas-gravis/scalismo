@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.{ VectorField, Field, DiscreteField, SpatiallyIndexedDiscreteDomain }
-import scalismo.geometry.{ Point, _3D, Vector }
+import scalismo.geometry.{ SquareMatrix, Point, _3D, Vector }
 import scalismo.image.DifferentiableScalarImage
 import scalismo.io.{ HDF5File, HDF5ReadWrite }
 import scalismo.mesh.TriangleMesh
@@ -185,7 +185,8 @@ object ActiveShapeModel {
 
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(asm, startingShape, targetImage, ptGenerator, config)
 
-    val coeffs = asm.shapeModel.coefficients(refPtIdsWithTargetPt, sigma2 = 1e-6)
+    val bestReconstruction = asm.shapeModel.posterior(refPtIdsWithTargetPt, 1e-5f).mean
+    val coeffs = asm.shapeModel.coefficients(bestReconstruction)
     val uncorrectedMesh = asm.shapeModel.instance(coeffs)
     val correctedCoeffs = coeffs.map {
       c =>
@@ -232,7 +233,7 @@ object ActiveShapeModel {
       case (pt, dist) => dist
     }
 
-    val shapeDistForPt = asm.shapeModel.marginal(ptId).mahalanobisDistance(minPt - refPt)
+    val shapeDistForPt = asm.shapeModel.gp.marginal(ptId).mahalanobisDistance(minPt - refPt)
     if (minIntensityDist < config.maxIntensityStddev && shapeDistForPt < config.maxShapeStddev) Some(minPt) else None
   }
 

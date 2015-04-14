@@ -16,7 +16,7 @@
 package scalismo.kernels
 
 import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
-import scalismo.common.{ VectorField, Domain }
+import scalismo.common.{ DiscreteDomain, VectorField, Domain }
 import scalismo.geometry._
 import scalismo.numerics.{ RandomSVD, Sampler }
 import scalismo.utils.Memoize
@@ -103,6 +103,16 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
     override def domain = self.domain
   }
 
+  /**
+   * discretize the kernel at the given points
+   */
+  def discretize(pts: Seq[Point[D]]): DiscreteMatrixValuedPDKernel[D, DO] = {
+    def k(i: Int, j: Int): SquareMatrix[DO] = {
+      self.k(pts(i), pts(j))
+    }
+    DiscreteMatrixValuedPDKernel[D, DO](DiscreteDomain.fromSeq(pts.toIndexedSeq), k)
+  }
+
 }
 
 case class UncorrelatedKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
@@ -131,26 +141,7 @@ case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, D
 object Kernel {
 
   def computeKernelMatrix[D <: Dim, DO <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, DO]): DenseMatrix[Float] = {
-    val d = k.outputDim
-
-    val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
-    val xiWithIndex = xs.zipWithIndex.par
-    val xjWithIndex = xs.zipWithIndex
-    for { p1 <- xiWithIndex; (xi, i) = p1; p2 <- xjWithIndex.drop(i) } {
-      val (xj, j) = p2
-      val kxixj = k(xi, xj);
-      var di = 0;
-      while (di < d) {
-        var dj = 0;
-        while (dj < d) {
-          K(i * d + di, j * d + dj) = kxixj(di, dj)
-          K(j * d + dj, i * d + di) = K(i * d + di, j * d + dj)
-          dj += 1
-        }
-        di += 1
-      }
-    }
-    K
+    k.discretize(xs).asBreezeMatrix
   }
 
   /**
