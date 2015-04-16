@@ -1,2 +1,0 @@
-parallelExecution in Test := false
-

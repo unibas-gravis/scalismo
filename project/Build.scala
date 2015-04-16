@@ -78,6 +78,7 @@ object STKBuild extends Build {
     settings = buildSettings ++ Seq(
       libraryDependencies ++= commonDeps,
       resolvers ++= stkResolvers,
+      parallelExecution in Test := false,
       publishTo := Some(publishURL),
       EclipseKeys.withSource := true)
       ++ site.settings 
