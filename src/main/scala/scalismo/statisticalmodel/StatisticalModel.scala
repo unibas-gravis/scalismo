@@ -23,6 +23,7 @@ import scalismo.mesh.{ Mesh, TriangleMesh }
 import scalismo.geometry._
 
 import scalismo.registration.{ Transformation, RigidTransformation }
+import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -133,7 +134,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 
     val newBasisMat = DenseMatrix.zeros[Float](gp.basisMatrix.rows, gp.basisMatrix.cols)
 
-    for (((_, ithKlBasis), i) <- gp.klBasis.zipWithIndex) {
+    for ((Eigenpair(_, ithKlBasis), i) <- gp.klBasis.zipWithIndex) {
       val newIthBasis = for ((pt, basisAtPoint) <- ithKlBasis.pointsWithValues) yield {
         rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
       }
