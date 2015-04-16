@@ -10,7 +10,7 @@ before_cache:
 
 scala:
   - 2.10.4
-  - 2.11.4
+#  - 2.11.4
 
 script:
   - jdk_switcher use oraclejdk8
