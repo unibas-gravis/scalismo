@@ -5,6 +5,9 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
 
+before_cache:
+  - rm -f $HOME/.ivy2/.*.lock $HOME/.ivy2/*.lock
+
 scala:
   - 2.10.4
   - 2.11.4
