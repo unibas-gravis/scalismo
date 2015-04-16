@@ -3,6 +3,7 @@ language: scala
 cache:
   directories:
   - $HOME/.ivy2
+  - $HOME/.sbt
 
 scala:
   - 2.10.4
