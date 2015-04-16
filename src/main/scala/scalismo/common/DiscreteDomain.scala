@@ -49,12 +49,12 @@ trait DiscreteDomain[D <: Dim] extends Equals { self =>
 
   override def equals(that: Any) = {
     that match {
-      case d: SpatiallyIndexedDiscreteDomain[D] => d.canEqual(this) && points.toSeq == d.points.toSeq
+      case d: DiscreteDomain[D] => d.canEqual(this) && points.toSeq == d.points.toSeq
       case _ => false
     }
   }
 
-  override def canEqual(that: Any) = that.isInstanceOf[SpatiallyIndexedDiscreteDomain[D]]
+  override def canEqual(that: Any) = that.isInstanceOf[DiscreteDomain[D]]
   override def hashCode() = points.hashCode()
 
 }

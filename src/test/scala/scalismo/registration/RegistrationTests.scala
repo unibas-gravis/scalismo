@@ -152,8 +152,6 @@ class RegistrationTests extends FunSpec with Matchers {
     it("Recovers the correct parameters for a translation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
-      import DiscreteScalarImage.CanInterpolate._
-
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
       val fixedImage = discreteFixedImage.interpolate(3)
 
