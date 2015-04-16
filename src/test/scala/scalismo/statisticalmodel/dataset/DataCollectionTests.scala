@@ -92,15 +92,20 @@ class DataCollectionTests extends FunSpec with Matchers {
       d.transform(trans)
     }
 
-    val dc = DataCollection.fromMeshSequence(ref, aligendDataset)._1.get
-    val gpaDC = DataCollection.gpa(dc)
-    val pcaModel = PCAModel.buildModelFromDataCollection(gpaDC).get
+    val trainingSet = aligendDataset.drop(3)
+    val testingSet = aligendDataset.take(3)
+
+    val dc = DataCollection.fromMeshSequence(ref, trainingSet)._1.get
+    val pcaModel = PCAModel.buildModelFromDataCollection(dc).get
+    val testDC = DataCollection.fromMeshSequence(pcaModel.referenceMesh, testingSet)._1.get
+
   }
 
   describe("GPA") {
     it("leads to smaller average distances to collection's reference") {
+      val gpaDC = DataCollection.gpa(Fixture.dc)
       val errSumDC = Fixture.dc.dataItems.map(i => MeshMetrics.avgDistance(Fixture.dc.reference, Fixture.dc.reference.transform(i.transformation))).sum
-      val errSumGpaDC = Fixture.gpaDC.dataItems.map(i => MeshMetrics.avgDistance(Fixture.gpaDC.reference, Fixture.gpaDC.reference.transform(i.transformation))).sum
+      val errSumGpaDC = gpaDC.dataItems.map(i => MeshMetrics.avgDistance(gpaDC.reference, gpaDC.reference.transform(i.transformation))).sum
       assert(errSumGpaDC < errSumDC)
     }
 
@@ -109,18 +114,18 @@ class DataCollectionTests extends FunSpec with Matchers {
   describe("Generalization") {
 
     it("gives the same values when evaluated 10 times, with test data used to build the model") {
-      val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.gpaDC).get }
+      val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.dc).get }
       assert(gens.forall(_ == gens(0)))
     }
 
     it("improves when the model is augmented with a Gaussian") {
-      val zeroMean = VectorField(Fixture.gpaDC.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
+      val zeroMean = VectorField(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
       val matrixValuedGaussian = UncorrelatedKernel[_3D](GaussianKernel(0.5) * 20)
       val bias: GaussianProcess[_3D, _3D] = GaussianProcess(zeroMean, matrixValuedGaussian)
-      val augmentedModel = PCAModel.augmentModel(Fixture.pcaModel, bias, 5)
+      val augmentedModel = PCAModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)
 
-      val genAugmented = ModelMetrics.generalization(augmentedModel, Fixture.gpaDC).get
-      val genOriginal = ModelMetrics.generalization(Fixture.pcaModel, Fixture.gpaDC).get
+      val genAugmented = ModelMetrics.generalization(augmentedModel, Fixture.testDC).get
+      val genOriginal = ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get
 
       assert(genAugmented < genOriginal)
     }
