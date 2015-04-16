@@ -139,7 +139,7 @@ object DataCollection {
 
           val t = meanShapePoints.zip(alignedPoints).toMap
           val returnedTrans = new Transformation[_3D] {
-            override val domain = dc.dataItems.headOption.map(d => d.transformation.domain).getOrElse(RealSpace[_3D])
+            override val domain = newMeanMesh.boundingBox
             override val f = (x: Point[_3D]) => t(x)
           }
           DataItem("gpa -> " + item.info, returnedTrans)
