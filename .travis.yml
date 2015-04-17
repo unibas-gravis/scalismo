@@ -19,5 +19,6 @@ scala:
 
 script:
   - jdk_switcher use oraclejdk8
-  - travis_wait sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
+  - travis_wait sbt ++$TRAVIS_SCALA_VERSION update
+  - sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
 
