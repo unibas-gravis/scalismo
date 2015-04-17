@@ -78,8 +78,7 @@ object STKBuild extends Build {
     settings = buildSettings ++ Seq(
       libraryDependencies ++= commonDeps,
       resolvers ++= stkResolvers,
-      javaOptions in Test += "-Djava.awt.headless=true",
-      fork in Test := true,
+      parallelExecution in Test := false,
       publishTo := Some(publishURL),
       EclipseKeys.withSource := true)
       ++ site.settings 
