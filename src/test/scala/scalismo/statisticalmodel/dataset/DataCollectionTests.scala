@@ -114,7 +114,7 @@ class DataCollectionTests extends FunSpec with Matchers {
   describe("Generalization") {
 
     val zeroMean = VectorField(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
-    val matrixValuedGaussian = UncorrelatedKernel[_3D](GaussianKernel(0.5) * 20)
+    val matrixValuedGaussian = UncorrelatedKernel[_3D](GaussianKernel(25) * 20)
     val bias: GaussianProcess[_3D, _3D] = GaussianProcess(zeroMean, matrixValuedGaussian)
     val augmentedModel = PCAModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)
 
@@ -124,16 +124,17 @@ class DataCollectionTests extends FunSpec with Matchers {
     }
 
     it("gives the same values when evaluated 10 times on augmented model") {
-      val gens = (0 until 1) map { _ => ModelMetrics.generalization(augmentedModel, Fixture.testDC).get }
+      val gens = (0 until 10) map { _ => ModelMetrics.generalization(augmentedModel, Fixture.testDC).get }
       assert(gens.forall(_ == gens(0)))
     }
 
     it("improves when the model is augmented with a Gaussian") {
 
-      val genAugmented = ModelMetrics.generalization(augmentedModel, Fixture.testDC).get
-      val genOriginal = ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get
-
-      assert(genAugmented < genOriginal)
+      (0 until 10) foreach { i =>
+        val genAugmented = ModelMetrics.generalization(augmentedModel, Fixture.testDC).get
+        val genOriginal = ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get
+        assert(genAugmented < genOriginal)
+      }
     }
   }
 
