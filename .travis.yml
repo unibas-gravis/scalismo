@@ -1,5 +1,8 @@
 language: scala
 
+env:
+ - SCALISMO_PLATFORM=linux64
+
 cache:
   directories:
   - $HOME/.ivy2
