@@ -74,7 +74,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim
    * Returns the variance and associated basis function that defines the process.
    * The basis is the (discretized) Karhunen Loeve basis (e.g. it is obtained from a Mercer's decomposition of the covariance function
    */
-  def klBasis: DiscreteKLBasis[D, DO] = {
+  def klBasis: KLBasis[D, DO] = {
     for (i <- 0 until rank) yield {
       val eigenValue = variance(i)
       val eigenFunction = DiscreteVectorField.fromDenseVector[D, DO](domain, basisMatrix(::, i).toDenseVector)
@@ -228,7 +228,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim
 object DiscreteLowRankGaussianProcess {
 
   case class Eigenpair[D <: Dim, DO <: Dim](eigenvalue: Float, eigenfunction: DiscreteVectorField[D, DO])
-  type DiscreteKLBasis[D <: Dim, DO <: Dim] = Seq[Eigenpair[D, DO]]
+  type KLBasis[D <: Dim, DO <: Dim] = Seq[Eigenpair[D, DO]]
 
   /**
    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
@@ -260,7 +260,7 @@ object DiscreteLowRankGaussianProcess {
   }
 
   def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO],
-    klBasis: DiscreteKLBasis[D, DO]): DiscreteLowRankGaussianProcess[D, DO] =
+    klBasis: KLBasis[D, DO]): DiscreteLowRankGaussianProcess[D, DO] =
     {
 
       for (Eigenpair(_, phi) <- klBasis) {
