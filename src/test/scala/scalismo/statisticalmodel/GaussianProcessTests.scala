@@ -335,8 +335,8 @@ class GaussianProcessTests extends FunSpec with Matchers {
 
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = discretePosteriorGP.mean
-      val phi1Posterior = posteriorGP.klBasis(0)._2
-      val phi1PosteriorSpezialized = discretePosteriorGP.klBasis(0)._2
+      val phi1Posterior = posteriorGP.klBasis(0).eigenfunction
+      val phi1PosteriorSpezialized = discretePosteriorGP.klBasis(0).eigenfunction
 
       // both posterior processes should give the same values at the specialized points
       for ((pt, id) <- f.discretizationPoints.zipWithIndex) {

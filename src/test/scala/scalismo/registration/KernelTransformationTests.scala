@@ -23,6 +23,7 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry.Index.implicits._
 import scalismo.numerics.{ Integrator, GridSampler, RandomSVD, UniformSampler }
+import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scala.language.implicitConversions
 import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
@@ -45,7 +46,7 @@ class KernelTransformationTests extends FunSpec with Matchers {
 
       def approxKernel(x: Point[_1D], y: Point[_1D]) = {
         (0 until eigPairs.size).foldLeft(0.0)((sum, i) => {
-          val (lambda_i, phi_i) = eigPairs(i)
+          val Eigenpair(lambda_i, phi_i) = eigPairs(i)
           sum + lambda_i * phi_i(x)(0) * phi_i(y)(0)
         })
       }
@@ -65,7 +66,7 @@ class KernelTransformationTests extends FunSpec with Matchers {
       val sampler = UniformSampler(domain, numPoints)
       val (points, _) = sampler.sample.unzip
       val eigPairsApprox = Kernel.computeNystromApproximation(scalarKernel, 10, sampler)
-      val approxLambdas = eigPairsApprox.map(_._1)
+      val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
       val realKernelMatrix = DenseMatrix.zeros[Double](numPoints * kernelDim, numPoints * kernelDim)
 
@@ -91,7 +92,7 @@ class KernelTransformationTests extends FunSpec with Matchers {
       val (pts, _) = sampler.sample.unzip
 
       val eigPairsApprox = Kernel.computeNystromApproximation(ndKernel, 10, sampler)
-      val approxLambdas = eigPairsApprox.map(_._1)
+      val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
       val realKernelMatrix = DenseMatrix.zeros[Double](pts.size * kernelDim, pts.size * kernelDim)
 
@@ -117,7 +118,7 @@ class KernelTransformationTests extends FunSpec with Matchers {
 
       for (i <- 0 until 20) {
 
-        val (lambda_i, phi_i) = eigPairs(i)
+        val Eigenpair(lambda_i, phi_i) = eigPairs(i)
         def p(x: Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
         val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt: Point[_1D]) => Vector(0.0))
 
