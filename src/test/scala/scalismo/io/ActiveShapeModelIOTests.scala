@@ -17,13 +17,15 @@ package scalismo.io
 
 import org.scalatest.{ Matchers, FunSpec }
 import org.scalatest.matchers.ShouldMatchers
-import java.io.File
+import java.io.{ PrintWriter, FileOutputStream, File }
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.SpatiallyIndexedDiscreteDomain
-import scalismo.image.ScalarImage
+import scalismo.common.{ ScalarArray, SpatiallyIndexedDiscreteDomain, VectorField }
+import scalismo.geometry._3D
+import scalismo.image.{ DiscreteScalarImage, DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
-import scalismo.statisticalmodel.{ ASMProfileDistributions, MultivariateNormalDistribution, ActiveShapeModel }
-import scalismo.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
+import scalismo.statisticalmodel.ActiveShapeModel.FeatureExtractor.NormalDirectionFeatureExtractor
+import scalismo.statisticalmodel.{ MultivariateNormalDistribution, ActiveShapeModel }
+import scalismo.statisticalmodel.ActiveShapeModel.{ ProfileDistributions }
 import scala.util.{ Try, Success }
 import ncsa.hdf.`object`.Group
 
@@ -47,7 +49,7 @@ class ActiveShapeModelIOTests extends FunSpec with Matchers {
     val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42)).sample.unzip
     val ptDomain = SpatiallyIndexedDiscreteDomain.fromSeq(profilePoints)
     val dists = for (i <- 0 until ptDomain.numberOfPoints) yield (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat, DenseMatrix.eye[Float](3) * i.toFloat))
-    val profileDists = ASMProfileDistributions(ptDomain, dists)
+    val profileDists = ProfileDistributions(ptDomain, dists)
     new ActiveShapeModel(shapeModel, profileDists, new NormalDirectionFeatureExtractor(5, 10))
   }
 
@@ -59,19 +61,51 @@ class ActiveShapeModelIOTests extends FunSpec with Matchers {
       val h5file = createTmpH5File()
 
       val statusWrite = for {
-        _ <- ActiveShapeModelIO.writeASM(originalASM, h5file)
+        _ <- ActiveShapeModelIO.writeASMOld(originalASM, h5file)
       } yield ()
 
       statusWrite.get // throw error if it occured
 
       // read it again
       val newAsmOrError = for {
-        asm <- ActiveShapeModelIO.readASM[NormalDirectionFeatureExtractor](h5file)
+        asm <- ActiveShapeModelIO.readASMOld[NormalDirectionFeatureExtractor](h5file)
       } yield asm
 
       val newASM = newAsmOrError.get
       newASM.profileDistributions should equal(originalASM.profileDistributions)
 
+    }
+
+    ignore("FIXME: remove") {
+
+      val img = ImageIO.read3DScalarImage[Short](new File("/home/langguth/workspaces/stk.idea/bladderdemo/src/main/resources/volumes/22.vtk")).get
+      def something(in: VectorField[_3D, _3D]): DiscreteScalarImage[_3D, Double] = {
+        val vals = img.domain.points.map(p => in(p).norm).toArray
+        DiscreteScalarImage[_3D, Double](img.domain, ScalarArray(vals))
+      }
+
+      val fe = NormalDirectionFeatureExtractor(7, 1.5)
+      //      ImageIO.writeVTK(something(img.interpolate(1).differentiate), new File("/tmp/22-interpolated-1.vtk")).get
+      //      ImageIO.writeVTK(something(img.interpolate(2).differentiate), new File("/tmp/22-interpolated-2.vtk")).get
+      //      ImageIO.writeVTK(something(img.interpolate(3).differentiate), new File("/tmp/22-interpolated-3.vtk")).get
+      val dimg = img.interpolate(1)
+      val mesh = MeshIO.readMesh(new File("/tmp/bladdermean.vtk")).get
+      val out = new PrintWriter(new FileOutputStream(new File("/tmp/scala.txt")))
+      mesh.points foreach { pt =>
+        val features = fe.apply(dimg, mesh, pt)
+        out.println(s"$pt: $features");
+      }
+      out.flush()
+      out.close()
+    }
+
+    it("FIXME: convert old-style to new style") {
+      val asmIn = ActiveShapeModelIO.readASMOld[NormalDirectionFeatureExtractor](new File("/home/langguth/workspaces/stk.idea/bladderdemo/src/main/resources/asmModels/asmLevel-0.h5")).get
+      val asmOut = ActiveShapeModel.bugfix(asmIn)
+      val tmpFile = new File("/tmp/shinynewasm.h5")
+      ActiveShapeModelIO.writeActiveShapeModel(asmOut, tmpFile).get
+      val asmIn2 = ActiveShapeModelIO.readActiveShapeModel[NormalDirectionFeatureExtractor](tmpFile).get
+      asmIn2 should equal(asmOut)
     }
 
   }
