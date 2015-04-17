@@ -15,23 +15,18 @@
  */
 package scalismo.statisticalmodel
 
+import java.io.File
+
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.StatismoIO
 import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 
 import scala.language.implicitConversions
-import breeze.linalg.{ DenseVector, DenseMatrix }
-import java.io.File
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import breeze.stats.distributions.RandBasis
-import org.apache.commons.math3.random.MersenneTwister
-import scalismo.io.MeshIO
-class StatisticalModelTests extends FunSpec with Matchers {
+class StatisticalModelTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
-
-  scalismo.initialize()
 
   describe("A statistical model") {
 
@@ -65,7 +60,7 @@ class StatisticalModelTests extends FunSpec with Matchers {
     }
 
     it("can change the mean shape and still yield the same shape space") {
-      scalismo.initialize()
+
       val path = getClass().getResource("/facemodel.h5").getPath
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
 

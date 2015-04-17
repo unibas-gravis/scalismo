@@ -15,15 +15,14 @@
  */
 package scalismo.registration
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
+import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.image.DifferentiableScalarImage
-import scalismo.geometry._
 import scalismo.geometry.Point.implicits._
-import scalismo.numerics.{ UniformSampler, Integrator }
+import scalismo.geometry._
+import scalismo.image.DifferentiableScalarImage
+import scalismo.numerics.UniformSampler
 
-class MetricTests extends FunSpec with Matchers {
+class MetricTests extends ScalismoTestSuite {
 
   describe("A mean squares metric (1D)") {
     it("returns 0 if provided twice the same image") {

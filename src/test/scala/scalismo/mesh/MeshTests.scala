@@ -15,22 +15,20 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{ _3D, Point }
+import java.io.File
+
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.{ Point, _3D }
 import scalismo.io.MeshIO
-import scalismo.registration.{ ScalingSpace, RotationSpace }
+import scalismo.registration.{ RotationSpace, ScalingSpace }
 
 import scala.language.implicitConversions
-import scalismo.geometry.Point.implicits._
-import java.io.File
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseVector
 
-class MeshTests extends FunSpec with Matchers {
+class MeshTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
-
-  scalismo.initialize()
 
   describe("a mesh") {
     val path = getClass.getResource("/facemesh.stl").getPath

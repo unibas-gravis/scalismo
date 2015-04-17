@@ -15,20 +15,18 @@
  */
 package scalismo.registration
 
-import scalismo.common.BoxDomain
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
-import scalismo.kernels.{ Kernel, GaussianKernel, UncorrelatedKernel }
-import scalismo.geometry._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
-import scalismo.geometry.Index.implicits._
-import scalismo.numerics.{ Integrator, GridSampler, RandomSVD, UniformSampler }
-import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
+import scalismo.ScalismoTestSuite
+import scalismo.common.BoxDomain
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
+import scalismo.kernels.{ GaussianKernel, Kernel, UncorrelatedKernel }
+import scalismo.numerics.{ GridSampler, Integrator, RandomSVD, UniformSampler }
 
-class KernelTransformationTests extends FunSpec with Matchers {
+import scala.language.implicitConversions
+
+class KernelTransformationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 

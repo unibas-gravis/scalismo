@@ -19,20 +19,18 @@ import java.io.File
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.NiftiVolume
-import org.scalatest.{ FunSpec, Matchers }
+import scalismo.ScalismoTestSuite
 import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.utils.{ Benchmark, CanConvertToVtk }
+import scalismo.utils.CanConvertToVtk
 import spire.math.{ UByte, UInt, ULong, UShort }
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.util.{ Failure, Success, Try }
 
-class ImageIOTests extends FunSpec with Matchers {
-
-  scalismo.initialize()
+class ImageIOTests extends ScalismoTestSuite {
 
   def equalImages(img1: DiscreteScalarImage[_3D, _], img2: DiscreteScalarImage[_3D, _]): Boolean = {
 

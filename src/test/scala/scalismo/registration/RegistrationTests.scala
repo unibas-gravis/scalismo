@@ -15,23 +15,20 @@
  */
 package scalismo.registration
 
-import scalismo.image.DiscreteScalarImage
+import java.io.File
+
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
-import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler, Integrator }
+import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
 
 import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import java.io.File
-import scalismo.geometry._
-import breeze.linalg.DenseVector
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseMatrix
 
-class RegistrationTests extends FunSpec with Matchers {
+class RegistrationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
-  scalismo.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
       val points: IndexedSeq[Point[_2D]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))

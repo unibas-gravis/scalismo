@@ -15,24 +15,18 @@
  */
 package scalismo.statisticalmodel
 
-import scalismo.common.{ DiscreteDomain, RealSpace, VectorField, BoxDomain }
-import scalismo.image.DiscreteImageDomain
-import scalismo.geometry._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
-import scalismo.geometry.Index.implicits._
-import scalismo.io.StatismoIO
-
-import scalismo.kernels.{ MatrixValuedPDKernel, GaussianKernel, UncorrelatedKernel }
-import scalismo.numerics.{ FixedPointsUniformMeshSampler3D, GridSampler, UniformSampler }
-import scalismo.registration.Transformation
-import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
-import java.io.File
+import scalismo.ScalismoTestSuite
+import scalismo.common.{ BoxDomain, DiscreteDomain, RealSpace, VectorField }
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
+import scalismo.image.DiscreteImageDomain
+import scalismo.kernels.{ GaussianKernel, MatrixValuedPDKernel, UncorrelatedKernel }
+import scalismo.numerics.{ GridSampler, UniformSampler }
 
-class GaussianProcessTests extends FunSpec with Matchers {
+import scala.language.implicitConversions
+
+class GaussianProcessTests extends ScalismoTestSuite {
   implicit def doubleToFloat(d: Double) = d.toFloat
 
   describe("samples from a gaussian process") {
@@ -245,6 +239,7 @@ class GaussianProcessTests extends FunSpec with Matchers {
         }
 
         override val domain = RealSpace[_3D]
+
         override def k(x: Point[_3D], y: Point[_3D]) = {
           SquareMatrix[_3D](f(x, y).data)
         }
