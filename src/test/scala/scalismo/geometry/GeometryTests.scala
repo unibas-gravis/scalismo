@@ -42,6 +42,19 @@ class GeometryTests extends FunSpec with Matchers {
     it("can be described as a Vector3D") {
       p.toVector should equal(v)
     }
+
+    it("can be mapped with a function f: (Float) => Float") {
+      val p = Point(6f, 3f, 3f)
+      val pHalf = Point(3f, 1.5f, 1.5f)
+      p should equal(pHalf.map(f => f * 2))
+    }
+
+    it("can be mapped with Index a function f: (Float,Int) => Float") {
+      val p = Point(1f, 1f, 1f)
+      val pRes = Point(0f, 1f, 2f)
+      pRes should equal(p.mapWithIndex({ case (v, i) => i * v }))
+    }
+
   }
 
   describe("A 3D Vector") {
@@ -84,6 +97,18 @@ class GeometryTests extends FunSpec with Matchers {
       val v2 = Vector(3.0, 2.0, 5.0)
       val crossPdBreeze = breeze.linalg.cross(v1.toBreezeVector, v2.toBreezeVector)
       Vector.crossproduct(v1, v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
+    }
+
+    it("can be mapped with a function f: (Float) => Float") {
+      val v = Point(6f, 3f, 3f)
+      val vHalf = Point(3f, 1.5f, 1.5f)
+      v should equal(vHalf.map(f => f * 2))
+    }
+
+    it("can be mapped with Index a function f: (Float,Int) => Float") {
+      val v = Point(1f, 1f, 1f)
+      val vRes = Point(0f, 1f, 2f)
+      vRes should equal(v.mapWithIndex({ case (f, i) => f * i }))
     }
   }
   describe("a 3x3 matrix") {

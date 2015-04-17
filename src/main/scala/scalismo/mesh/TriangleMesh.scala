@@ -17,9 +17,8 @@ package scalismo.mesh
 
 import scala.reflect.ClassTag
 import scala.collection.mutable
-import scalismo.common.{ DiscreteScalarField, SpatiallyIndexedDiscreteDomain, Cell }
+import scalismo.common._
 import scalismo.geometry._
-import spire.math.Numeric
 
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
 case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
@@ -37,7 +36,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
  * Triangle meshes are currently the only supported representation of 3-dimensional meshes in the library.
  *
  */
-case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], val cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
+case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
     extends SpatiallyIndexedDiscreteDomain[_3D](meshPoints, meshPoints.size) {
 
   // a map that has for every point the neighboring cell ids
@@ -58,7 +57,7 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    *
    *  This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
    *
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D]]</code> are valid arguments.
+   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
   override def transform(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
@@ -137,7 +136,7 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
     Point(s(0), s(1), s(2))
   }
 
-  override lazy val hashCode = super.hashCode
+  override lazy val hashCode = super.hashCode()
 }
 
 /**
@@ -161,7 +160,7 @@ object TriangleMesh {
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
  * The number of values and mesh points must be equal.
  */
-case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val data: Array[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
+case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh, override val data: ScalarArray[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
   require(mesh.numberOfPoints == data.size)
 
   override def values = data.iterator
@@ -170,8 +169,8 @@ case class ScalarMeshData[S: Numeric: ClassTag](mesh: TriangleMesh, override val
   override def apply(ptId: Int) = data(ptId)
   override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
-  override def map[S2: Numeric: ClassTag](f: S => S2): ScalarMeshData[S2] = {
-    ScalarMeshData(mesh, data.map(f))
+  override def map[S2: Scalar: ClassTag](f: S => S2): ScalarMeshField[S2] = {
+    ScalarMeshField(mesh, data.map(f))
   }
 }
 

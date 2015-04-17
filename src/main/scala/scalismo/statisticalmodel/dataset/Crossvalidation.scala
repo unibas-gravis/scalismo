@@ -29,12 +29,7 @@ object Crossvalidation {
   type EvaluationFunction[A] = (StatisticalMeshModel, TriangleMesh) => A
 
   private def projectIntoModel(model: StatisticalMeshModel, mesh: TriangleMesh): TriangleMesh = {
-    val ptPairs = model.referenceMesh.points.toIndexedSeq.zip(mesh.points.toIndexedSeq)
-
-    val trainingData = ptPairs.zipWithIndex.map {
-      case ((refPt, targetPt), idx) => (idx, targetPt)
-    }
-    model.project(trainingData, 1e-5)
+    model.project(mesh)
   }
 
   /**
