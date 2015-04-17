@@ -25,13 +25,13 @@ object BuildSettings {
 
   // nativelibs implementation to use (e.g., "linux64"). If not explicitly set, use "all"
   // which contains all supported platforms.
-  val ScalismoPlatform = {
+  val scalismoPlatform = {
     val env = System.getenv("SCALISMO_PLATFORM")
     if (env != null) env else "all"
   }
 }
 
-// Shell prompt which show the current project,
+// Shell prompt which shows the current project,
 // git branch and build version
 object ShellPrompt {
   val buildShellPrompt = {
@@ -62,13 +62,13 @@ object Resolvers {
 }
 
 object Dependencies {
-  import BuildSettings.ScalismoPlatform
+  import BuildSettings.scalismoPlatform
   val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.11+"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.11+"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "2.1.+"
-  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$ScalismoPlatform" % "2.1.+" % "test"
+  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "2.1.+" % "test"
   val spire = "org.spire-math" %% "spire" % "0.9.0"
   val slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
 }
