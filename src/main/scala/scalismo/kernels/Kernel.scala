@@ -19,6 +19,7 @@ import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
 import scalismo.common.{ DiscreteDomain, VectorField, Domain }
 import scalismo.geometry._
 import scalismo.numerics.{ RandomSVD, Sampler }
+import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
 
 abstract class PDKernel[D <: Dim] { self =>
@@ -177,7 +178,7 @@ object Kernel {
 
   def computeNystromApproximation[D <: Dim: NDSpace, DO <: Dim: NDSpace](k: MatrixValuedPDKernel[D, DO],
     numBasisFunctions: Int,
-    sampler: Sampler[D]): IndexedSeq[(Float, VectorField[D, DO])] = {
+    sampler: Sampler[D]): KLBasis[D, DO] = {
 
     // procedure for the nystrom approximation as described in 
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -205,9 +206,9 @@ object Kernel {
 
     }
 
-    val lambdaISeq = lambda(0 until numParams).map(_.toFloat).toArray.toIndexedSeq
-    val phis = (0 until numParams).map(i => VectorField(k.domain, phi(i)_))
-    lambdaISeq.zip(phis)
+    for (i <- 0 until numParams) yield {
+      Eigenpair(lambda(i).toFloat, VectorField(k.domain, phi(i)_))
+    }
   }
 
 }
