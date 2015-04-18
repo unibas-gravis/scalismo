@@ -15,23 +15,21 @@
  */
 package scalismo.registration
 
-import scalismo.common.BoxDomain
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
-import scalismo.kernels.{ Kernel, GaussianKernel, UncorrelatedKernel }
-import scalismo.geometry._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
-import scalismo.geometry.Index.implicits._
-import scalismo.numerics.{ Integrator, GridSampler, RandomSVD, UniformSampler }
-import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
-import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseMatrix
+import scalismo.ScalismoTestSuite
+import scalismo.common.BoxDomain
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
+import scalismo.kernels.{ GaussianKernel, Kernel, UncorrelatedKernel }
+import scalismo.numerics.{ GridSampler, Integrator, RandomSVD, UniformSampler }
+import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 
-class KernelTransformationTests extends FunSpec with Matchers {
+import scala.language.implicitConversions
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+class KernelTransformationTests extends ScalismoTestSuite {
+
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   // TODO add a  test for testing the posterior kernel
 
@@ -118,7 +116,7 @@ class KernelTransformationTests extends FunSpec with Matchers {
 
       for (i <- 0 until 20) {
 
-        val Eigenpair(lambda_i, phi_i) = eigPairs(i)
+        val Eigenpair(_, phi_i) = eigPairs(i)
         def p(x: Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
         val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt: Point[_1D]) => Vector(0.0))
 

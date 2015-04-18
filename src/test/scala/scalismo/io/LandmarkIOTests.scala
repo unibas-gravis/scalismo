@@ -17,15 +17,14 @@ package scalismo.io
 
 import java.io.{ ByteArrayOutputStream, File, InputStream }
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.statisticalmodel.NDimensionalNormalDistribution
 
 import scala.io.Source
 import scala.language.implicitConversions
 
-class LandmarkIOTests extends FunSpec with Matchers {
+class LandmarkIOTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 

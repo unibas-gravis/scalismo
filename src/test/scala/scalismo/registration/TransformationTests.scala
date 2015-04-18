@@ -15,23 +15,22 @@
  */
 package scalismo.registration
 
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
-import scalismo.io.{ MeshIO, ImageIO }
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Index.implicits._
-import scalismo.geometry.Vector.implicits._
-import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import java.io.File
-import breeze.linalg.DenseVector
-import scalismo.geometry._
 
-class TransformationTests extends FunSpec with Matchers {
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.geometry.Index.implicits._
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.Vector.implicits._
+import scalismo.geometry._
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
+import scalismo.io.{ ImageIO, MeshIO }
+
+import scala.language.implicitConversions
+
+class TransformationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
-
-  scalismo.initialize()
 
   describe("A scaling in 2D") {
     val ss = ScalingSpace[_2D]

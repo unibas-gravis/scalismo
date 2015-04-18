@@ -17,15 +17,11 @@ package scalismo.mesh
 
 import java.io.File
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.matchers.ShouldMatchers
-import scalismo.geometry.{ _3D, Point, Vector }
+import scalismo.ScalismoTestSuite
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.io.MeshIO
 
-class MeshMetricsTests extends FunSpec with Matchers {
-
-  scalismo.initialize()
+class MeshMetricsTests extends ScalismoTestSuite {
 
   val path = getClass().getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get

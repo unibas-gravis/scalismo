@@ -1,12 +1,17 @@
 language: scala
 
-cache:
-  directories:
-  - $HOME/.ivy2
-  - $HOME/.sbt
+env:
+ - SCALISMO_PLATFORM=linux64
 
-before_cache:
-  - rm -f $HOME/.ivy2/.*.lock $HOME/.ivy2/*.lock
+## Caching seems to cause problems of its own, so we leave it commented for now.
+## We use travis_wait instead (see below in the script: section) to give the build more time. 
+#cache:
+#  directories:
+#  - $HOME/.ivy2
+#  - $HOME/.sbt
+
+#before_cache:
+#  - rm -f $HOME/.ivy2/.*.lock $HOME/.ivy2/*.lock
 
 scala:
   - 2.10.4
@@ -14,5 +19,6 @@ scala:
 
 script:
   - jdk_switcher use oraclejdk8
+  - travis_wait sbt ++$TRAVIS_SCALA_VERSION update
   - sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
 

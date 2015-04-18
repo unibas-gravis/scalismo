@@ -15,13 +15,10 @@
  */
 package scalismo.numerics
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import breeze.linalg.DenseVector
-import scala.collection.mutable.Subscriber
-import scala.collection.mutable.Publisher
+import scalismo.ScalismoTestSuite
 
-class OptimizerTests extends FunSpec with Matchers {
+class OptimizerTests extends ScalismoTestSuite {
 
   describe("The GradientDescentOptimizer") {
 
