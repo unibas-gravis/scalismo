@@ -17,6 +17,7 @@ package scalismo.registration
 
 import scalismo.geometry.{ Point, Dim }
 import scalismo.statisticalmodel.LowRankGaussianProcess
+import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 
 import scala.NotImplementedError
 import TransformationSpace.ParameterVector
@@ -44,7 +45,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
         val dim = x.dimensionality
         val J = DenseMatrix.zeros[Float](dim, gp.klBasis.size)
         (0 until gp.rank).map(i => {
-          val (lambda_i, phi_i) = gp.klBasis(i)
+          val Eigenpair(lambda_i, phi_i) = gp.klBasis(i)
           J(::, i) := (phi_i(x) * math.sqrt(lambda_i).toFloat).toBreezeVector
         })
         J

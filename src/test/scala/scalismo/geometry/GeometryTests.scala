@@ -15,13 +15,12 @@
  */
 package scalismo.geometry
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseMatrix
-import breeze.linalg.DenseVector
+import breeze.linalg.{ DenseMatrix, DenseVector }
+import scalismo.ScalismoTestSuite
+
 import scala.language.implicitConversions
 
-class GeometryTests extends FunSpec with Matchers {
+class GeometryTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 

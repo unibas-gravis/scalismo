@@ -15,16 +15,14 @@
  */
 package scalismo.io
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import java.io.File
+
+import scalismo.ScalismoTestSuite
 
 /**
  * Created by luethi on 2/19/14.
  */
-class HDF5UtilsTests extends FunSpec with Matchers {
-
-  scalismo.initialize()
+class HDF5UtilsTests extends ScalismoTestSuite {
 
   def createTmpH5File(): File = {
     val f = File.createTempFile("hdf5file", ".h5")

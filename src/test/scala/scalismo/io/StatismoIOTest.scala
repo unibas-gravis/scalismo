@@ -15,16 +15,13 @@
  */
 package scalismo.io
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import java.io.File
+
+import scalismo.ScalismoTestSuite
 import scalismo.io.StatismoIO.writeStatismoMeshModel
-import breeze.linalg.DenseVector
 import scalismo.statisticalmodel.StatisticalMeshModel
 
-class StatismoIOTest extends FunSpec with Matchers {
-
-  scalismo.initialize()
+class StatismoIOTest extends ScalismoTestSuite {
 
   describe("a Statismo Mesh Model") {
 

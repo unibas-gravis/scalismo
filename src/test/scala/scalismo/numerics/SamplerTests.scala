@@ -17,8 +17,7 @@ package scalismo.numerics
 
 import java.io.File
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
@@ -26,8 +25,7 @@ import scalismo.utils.Memoize
 
 import scala.util.Random
 
-class SamplerTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class SamplerTests extends ScalismoTestSuite {
 
   val facepath = getClass.getResource("/facemesh.stl").getPath
   val facemesh = MeshIO.readMesh(new File(facepath)).get

@@ -15,23 +15,24 @@
  */
 package scalismo.image
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseVector
-import scalismo.common.{ Scalar, ScalarArray, BoxDomain }
-import scalismo.io.ImageIO
-import scalismo.registration.TranslationSpace
-import scala.language.implicitConversions
 import java.io.File
-import scalismo.geometry._
+
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.common.{ BoxDomain, Scalar, ScalarArray }
+import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
-import scalismo.geometry.Index.implicits._
+import scalismo.geometry._
+import scalismo.io.ImageIO
+import scalismo.registration.TranslationSpace
 
+import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-class ImageTests extends FunSpec with Matchers {
+class ImageTests extends ScalismoTestSuite {
   implicit def doubleToFloat(d: Double) = d.toFloat
+
   implicit def arrayToScalarArray[A: Scalar: ClassTag](a: Array[A]) = ScalarArray(a)
 
   describe("A discrete 1D image") {
@@ -112,7 +113,7 @@ class ImageTests extends FunSpec with Matchers {
   }
 }
 
-class DomainTest extends FunSpec with Matchers {
+class DomainTest extends ScalismoTestSuite {
   describe("a domain") {
     it("correctly reports the number of points") {
       val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))

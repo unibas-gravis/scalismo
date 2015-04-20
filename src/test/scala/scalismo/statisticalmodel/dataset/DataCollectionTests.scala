@@ -15,21 +15,18 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{ Matchers, FunSpec }
 import java.io.File
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseVector
+
+import scalismo.ScalismoTestSuite
 import scalismo.common.VectorField
+import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel }
 import scalismo.mesh.MeshMetrics
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.geometry._
 import scalismo.statisticalmodel.GaussianProcess
 
-class DataCollectionTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class DataCollectionTests extends ScalismoTestSuite {
 
   describe("A datacollection") {
 
@@ -81,7 +78,6 @@ class DataCollectionTests extends FunSpec with Matchers {
   }
 
   object Fixture {
-    scalismo.initialize()
 
     val nonAlignedFaces = new File(getClass.getResource("/nonAlignedFaces").getPath).listFiles.sortBy(_.getName).map { f => MeshIO.readMesh(f).get }.toIndexedSeq
     val ref = nonAlignedFaces.head

@@ -15,24 +15,19 @@
  */
 package scalismo.io
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import java.io.File
+
 import breeze.linalg.{ DenseMatrix, DenseVector }
+import scalismo.ScalismoTestSuite
 import scalismo.common.SpatiallyIndexedDiscreteDomain
-import scalismo.image.ScalarImage
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
-import scalismo.statisticalmodel.{ ASMProfileDistributions, MultivariateNormalDistribution, ActiveShapeModel }
 import scalismo.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
-import scala.util.{ Try, Success }
-import ncsa.hdf.`object`.Group
+import scalismo.statisticalmodel.{ ASMProfileDistributions, ActiveShapeModel, MultivariateNormalDistribution }
 
 /**
  * Created by Luethi on 09.03.14.
  */
-class ActiveShapeModelIOTests extends FunSpec with Matchers {
-
-  scalismo.initialize()
+class ActiveShapeModelIOTests extends ScalismoTestSuite {
 
   private def createTmpH5File(): File = {
     val f = File.createTempFile("hdf5file", ".h5")
