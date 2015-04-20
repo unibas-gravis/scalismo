@@ -17,17 +17,21 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{ Axis, DenseVector }
 import ncsa.hdf.`object`.Group
-import scalismo.common.{ DiscreteField, SpatiallyIndexedDiscreteDomain }
+import scalismo.common.{ DiscreteField, Scalar, SpatiallyIndexedDiscreteDomain }
 import scalismo.geometry.{ Point, Vector, _3D }
-import scalismo.image.{ DiscreteScalarImage, DifferentiableScalarImage }
-import scalismo.image.filter.{ GaussianFilter3D, BoxedFilter }
+import scalismo.image.DiscreteScalarImage
+import scalismo.image.filter.BoxedFilter
 import scalismo.io.{ ActiveShapeModelIO, HDF5File, HDF5ReadWrite }
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.ActiveShapeModel.FeatureExtractor.NormalDirectionFeatureExtractor
+import scalismo.utils.ImageConversion
+import vtk.{ vtkObjectBase, vtkImageGaussianSmooth }
 
 import scala.collection.parallel.ParSeq
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.TypeTag
 import scala.util.Try
 
 case class ActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor](shapeModel: StatisticalMeshModel,
@@ -108,13 +112,26 @@ object ActiveShapeModel {
 
     val TypeAttributeName = "type"
 
+    private def filterGaussian[T: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[_3D, T], sigma: Double): DiscreteScalarImage[_3D, T] = {
+
+      val vtkImg = ImageConversion.imageToVtkStructuredPoints[_3D, T](img)
+      val gaussianFilter = new vtkImageGaussianSmooth()
+      gaussianFilter.SetInputData(vtkImg)
+      gaussianFilter.SetStandardDeviation(sigma / img.domain.spacing(0), sigma / img.domain.spacing(1), sigma / img.domain.spacing(2))
+      gaussianFilter.Update()
+      val vtkRes = gaussianFilter.GetOutput()
+      val imgRes = ImageConversion.vtkStructuredPointsToScalarImage[_3D, T](vtkRes).get
+      vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
+      imgRes
+    }
+
     /** The classical feature extractor for active shape models */
-    case class NormalDirectionFeatureExtractor(numPointsForProfile: Int, profileSpacing: Double, smoothing: Int, isOldVersionWithRangeBug: Boolean = false) extends ActiveShapeModel.FeatureExtractor {
+    case class NormalDirectionFeatureExtractor(numPointsForProfile: Int, profileSpacing: Double, smoothing: Int = 1, isOldVersionWithRangeBug: Boolean = false) extends ActiveShapeModel.FeatureExtractor {
       override def getInstance(image: DiscreteScalarImage[_3D, Float]): FeatureExtractorInstance = new FeatureExtractorInstance {
         val gradImg = smoothing match {
           case 0 => image.interpolate(1).differentiate
           case 1 => image.interpolate(1).convolve(BoxedFilter(profileSpacing.toFloat), 3).differentiate
-          case 2 => image.interpolate(1).convolve(GaussianFilter3D(profileSpacing), 3).differentiate
+          case 2 => filterGaussian(image, profileSpacing).interpolate(1).differentiate
           case _ => throw new IllegalArgumentException
         }
 

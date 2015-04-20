@@ -15,19 +15,17 @@
  */
 package scalismo.io
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import java.io.{ PrintWriter, FileOutputStream, File }
-import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.{ ScalarArray, SpatiallyIndexedDiscreteDomain, VectorField }
+import java.io.{File, FileOutputStream, PrintWriter}
+
+import breeze.linalg.{DenseMatrix, DenseVector}
+import org.scalatest.{FunSpec, Matchers}
+import scalismo.common.{ScalarArray, SpatiallyIndexedDiscreteDomain, VectorField}
 import scalismo.geometry._3D
-import scalismo.image.{ DiscreteScalarImage, DifferentiableScalarImage, ScalarImage }
+import scalismo.image.DiscreteScalarImage
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.statisticalmodel.ActiveShapeModel.FeatureExtractor.NormalDirectionFeatureExtractor
-import scalismo.statisticalmodel.{ MultivariateNormalDistribution, ActiveShapeModel }
-import scalismo.statisticalmodel.ActiveShapeModel.{ ProfileDistributions }
-import scala.util.{ Try, Success }
-import ncsa.hdf.`object`.Group
+import scalismo.statisticalmodel.ActiveShapeModel.ProfileDistributions
+import scalismo.statisticalmodel.{ActiveShapeModel, MultivariateNormalDistribution}
 
 /**
  * Created by Luethi on 09.03.14.
@@ -91,8 +89,9 @@ class ActiveShapeModelIOTests extends FunSpec with Matchers {
       val dimg = img.interpolate(1)
       val mesh = MeshIO.readMesh(new File("/tmp/bladdermean.vtk")).get
       val out = new PrintWriter(new FileOutputStream(new File("/tmp/scala.txt")))
+      val fei = fe.getInstance(img.map {_.toFloat})
       mesh.points foreach { pt =>
-        val features = fe.apply(dimg, mesh, pt)
+        val features = fei.extractFeatures(mesh, pt)
         out.println(s"$pt: $features");
       }
       out.flush()
