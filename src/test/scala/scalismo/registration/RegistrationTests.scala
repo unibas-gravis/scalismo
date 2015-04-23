@@ -159,7 +159,7 @@ class RegistrationTests extends ScalismoTestSuite {
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
         transformationSpace = TranslationSpace[_2D],
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val translationParams = DenseVector[Float](-10.0, 5.0)
@@ -184,7 +184,7 @@ class RegistrationTests extends ScalismoTestSuite {
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
         transformationSpace = RotationSpace[_2D](center),
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val rotationParams = DenseVector[Float](math.Pi / 8.0)
@@ -216,7 +216,7 @@ class RegistrationTests extends ScalismoTestSuite {
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val regResult = Registration.registration(regConf)(transformed, fixedImage)
