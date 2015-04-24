@@ -73,7 +73,7 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
   def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, A]]
 
-  def interpolateNearestNeighbor(): ScalarField[D, A] = {
+  def interpolateNearestNeighbor: ScalarField[D, A] = {
     val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)
     ScalarField(RealSpace[D], (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))
   }
