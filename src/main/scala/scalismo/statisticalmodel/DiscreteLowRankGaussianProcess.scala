@@ -18,7 +18,6 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
-import scalismo.common.DiscreteDomain.CanBound
 import scalismo.common.{ RealSpace, VectorField, DiscreteVectorField, DiscreteDomain }
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
@@ -43,7 +42,7 @@ import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => D
  * @see [[DiscreteLowRankGaussianProcess]]
  */
 
-case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] private[scalismo] (_domain: DiscreteDomain[D],
+case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (_domain: DiscreteDomain[D],
   val meanVector: DenseVector[Float],
   val variance: DenseVector[Float],
   val basisMatrix: DenseMatrix[Float])
@@ -233,7 +232,7 @@ object DiscreteLowRankGaussianProcess {
   /**
    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
    */
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](domain: DiscreteDomain[D], gp: LowRankGaussianProcess[D, DO]): DiscreteLowRankGaussianProcess[D, DO] = {
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], gp: LowRankGaussianProcess[D, DO]): DiscreteLowRankGaussianProcess[D, DO] = {
     val points = domain.points.toSeq
 
     val outputDimensionality = implicitly[NDSpace[DO]].dimensionality
@@ -259,7 +258,7 @@ object DiscreteLowRankGaussianProcess {
     new DiscreteLowRankGaussianProcess[D, DO](domain, m, lambdas, U)
   }
 
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO],
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO],
     klBasis: KLBasis[D, DO]): DiscreteLowRankGaussianProcess[D, DO] =
     {
 
@@ -282,7 +281,7 @@ object DiscreteLowRankGaussianProcess {
   /**
    * Discrete implementation of [[LowRankGaussianProcess.regression]]
    */
-  def regression[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
+  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
     trainingData: IndexedSeq[(Int, Vector[DO], NDimensionalNormalDistribution[DO])]): DiscreteLowRankGaussianProcess[D, DO] = {
 
     val dim = implicitly[NDSpace[DO]].dimensionality
@@ -318,7 +317,7 @@ object DiscreteLowRankGaussianProcess {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
    *
    */
-  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace: CanBound](domain: DiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
+  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace](domain: DiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
     val n = transformations.size
@@ -355,7 +354,7 @@ object DiscreteLowRankGaussianProcess {
 
   }
 
-  private def genericRegressionComputations[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
+  private def genericRegressionComputations[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: DiscreteLowRankGaussianProcess[D, DO],
     trainingData: IndexedSeq[(Int, Vector[DO], NDimensionalNormalDistribution[DO])]) = {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val (ptIds, ys, errorDistributions) = trainingData.unzip3

@@ -54,7 +54,7 @@ trait DiscreteImage[D <: Dim, Pixel] extends DiscreteField[D, Pixel] {
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Scalar).
  */
-class DiscreteScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag] private (override val domain: DiscreteImageDomain[D], data: ScalarArray[A])
+class DiscreteScalarImage[D <: Dim: NDSpace: CanInterpolate, A: Scalar: ClassTag] private (override val domain: DiscreteImageDomain[D], data: ScalarArray[A])
     extends DiscreteScalarField[D, A](domain, data) with DiscreteImage[D, A] {
 
   require(domain.numberOfPoints == data.size)
@@ -91,17 +91,17 @@ class DiscreteScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar
 object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A]) = {
+  def apply[D <: Dim: NDSpace: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A]) = {
     new DiscreteScalarImage[D, A](domain, values)
   }
 
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
-  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
+  def apply[D <: Dim: NDSpace: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A) = {
     new DiscreteScalarImage[D, A](domain, ScalarArray(domain.points.map(f).toArray))
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D])(v: => A) = {
+  def apply[D <: Dim: NDSpace: CanInterpolate, A: Scalar: ClassTag](domain: DiscreteImageDomain[D])(v: => A) = {
     new DiscreteScalarImage[D, A](domain, ScalarArray(Array.fill(domain.numberOfPoints)(v)))
   }
 

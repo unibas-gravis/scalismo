@@ -29,7 +29,7 @@ import DiscreteImageDomain.CanCreate
 /**
  * An image whose values are scalar.
  */
-class ScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
+class ScalarImage[D <: Dim: NDSpace: CanInterpolate] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarImage[D]): ScalarImage[D] = {
@@ -132,14 +132,14 @@ object ScalarImage {
    * @param domain The domain over which the image is defined
    * @param f A function which yields for each point of the domain its value
    */
-  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
+  def apply[D <: Dim: NDSpace: CanInterpolate](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
 
 }
 
 /**
  * A scalar image that is once differentiable
  */
-class DifferentiableScalarImage[D <: Dim: NDSpace: CanBound: CanInterpolate](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
+class DifferentiableScalarImage[D <: Dim: NDSpace: CanInterpolate](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
 
   def differentiate: VectorField[D, D] = VectorField(domain, df)
 
@@ -216,7 +216,7 @@ object DifferentiableScalarImage {
    * @param f a function that yiels for each point of the domain its intensities
    * @param df the derivative of the function f
    */
-  def apply[D <: Dim: NDSpace: CanBound: CanInterpolate](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
+  def apply[D <: Dim: NDSpace: CanInterpolate](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
 
 }
 

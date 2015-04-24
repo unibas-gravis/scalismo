@@ -31,7 +31,7 @@ object DiscreteImageFilter {
    * Computes a (signed) distance transform of the image.
    * @note The value that is returned is not the euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
    */
-  def distanceTransform[D <: Dim: NDSpace: CanConvertToVtk: CanInterpolate: CanBound, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
+  def distanceTransform[D <: Dim: NDSpace: CanConvertToVtk: CanInterpolate, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
 
     val scalar = implicitly[Scalar[A]]
 
