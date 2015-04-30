@@ -17,6 +17,8 @@ package scalismo.geometry
 
 import breeze.linalg.DenseVector
 
+import scala.reflect.ClassTag
+
 /**
  * The basic n-tuple in R^n^ with scalar type S
  */
@@ -41,3 +43,24 @@ abstract class Coordinate[D <: Dim: NDSpace, @specialized(Int, Float, Double) S]
   override def toString = data.deep.toString()
 }
 
+trait CoordinateOps[D <: Dim, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coordinate[D, Scalar] =>
+
+  implicit val classTagScalar: ClassTag[Scalar]
+
+  protected def createRepr(data: Array[Scalar]): Repr
+
+  def mapWithIndex(f: (Scalar, Int) => Scalar): Repr = {
+    val newData = new Array[Scalar](self.dimensionality)
+    var i = 0
+    while (i < self.dimensionality) {
+      newData(i) = f(self.data(i), i)
+      i += 1
+    }
+    createRepr(newData)
+  }
+
+  def map(f: Scalar => Scalar): Repr = {
+    mapWithIndex({ case (v, _) => f(v) })
+  }
+
+}

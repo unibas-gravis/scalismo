@@ -18,11 +18,15 @@ package scalismo.geometry
 import breeze.linalg.DenseVector
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
  * An n-dimensional Vector
  */
-class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] {
+class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] with CoordinateOps[D, Float, Vector[D]] {
+
+  override val classTagScalar = implicitly[ClassTag[Float]]
+  override def createRepr(data: Array[Float]) = new Vector(data)
 
   def norm: Double = math.sqrt(norm2)
 
@@ -79,20 +83,6 @@ class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Ar
       i += 1
     }
     dotprod
-  }
-
-  def mapWithIndex(f: (Float, Int) => Float): Vector[D] = {
-    val newData = new Array[Float](dimensionality)
-    var i = 0
-    while (i < dimensionality) {
-      newData(i) = f(this.data(i), i)
-      i += 1
-    }
-    Vector[D](newData)
-  }
-
-  def map(f: Float => Float): Vector[D] = {
-    mapWithIndex({ case (v, _) => f(v) })
   }
 
   def outer(that: Vector[D]): SquareMatrix[D] = {
