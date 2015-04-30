@@ -23,8 +23,8 @@ import scala.reflect.ClassTag
  */
 class Point[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] with CoordinateOps[D, Float, Point[D]] {
 
-  override val classTagScalar = implicitly[ClassTag[Float]]
-  override def createRepr(data: Array[Float]) = new Point(data)
+  override val classTagScalar: ClassTag[Float] = implicitly[ClassTag[Float]]
+  override def createConcreteRepresentation(data: Array[Float]): Point[D] = new Point(data)
 
   def +(that: Vector[D]): Point[D] = {
     val newData = new Array[Float](dimensionality)

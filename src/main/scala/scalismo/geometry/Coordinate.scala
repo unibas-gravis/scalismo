@@ -43,11 +43,17 @@ abstract class Coordinate[D <: Dim: NDSpace, @specialized(Int, Float, Double) S]
   override def toString = data.deep.toString()
 }
 
-trait CoordinateOps[D <: Dim, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coordinate[D, Scalar] =>
+/**
+ * Implementation trait for methods that are common to all representation of coordinates
+ * @tparam D Dimension
+ * @tparam Scalar The scalar type of the individual coordinates
+ * @tparam Repr The concrete representation of a Coordinate (e.g. vector, point)
+ */
+private[scalismo] trait CoordinateOps[D <: Dim, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coordinate[D, Scalar] =>
 
   implicit val classTagScalar: ClassTag[Scalar]
 
-  protected def createRepr(data: Array[Scalar]): Repr
+  protected def createConcreteRepresentation(data: Array[Scalar]): Repr
 
   def mapWithIndex(f: (Scalar, Int) => Scalar): Repr = {
     val newData = new Array[Scalar](self.dimensionality)
@@ -56,7 +62,7 @@ trait CoordinateOps[D <: Dim, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coo
       newData(i) = f(self.data(i), i)
       i += 1
     }
-    createRepr(newData)
+    createConcreteRepresentation(newData)
   }
 
   def map(f: Scalar => Scalar): Repr = {
