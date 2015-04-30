@@ -25,8 +25,8 @@ import scala.reflect.ClassTag
  */
 class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] with CoordinateOps[D, Float, Vector[D]] {
 
-  override val classTagScalar = implicitly[ClassTag[Float]]
-  override def createRepr(data: Array[Float]) = new Vector(data)
+  override val classTagScalar : ClassTag[Float] = implicitly[ClassTag[Float]]
+  override def createConcreteRepresentation(data: Array[Float]): Vector[D] = new Vector(data)
 
   def norm: Double = math.sqrt(norm2)
 
