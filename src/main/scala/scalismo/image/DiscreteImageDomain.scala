@@ -169,6 +169,19 @@ object DiscreteImageDomain {
     evCreate.createImageDomain(origin, spacing, size)
   }
 
+  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
+  def apply[D <: Dim](imageBox: BoxDomain[D], size: Index[D])(implicit evDim: NDSpace[D], evCreate: CanCreate[D]): DiscreteImageDomain[D] = {
+    val spacing = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / size(i) })
+    evCreate.createImageDomain(imageBox.origin, spacing, size)
+  }
+
+  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
+  def apply[D <: Dim](imageBox: BoxDomain[D], spacing: Vector[D])(implicit evDim: NDSpace[D], evCreate: CanCreate[D]): DiscreteImageDomain[D] = {
+    val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
+    val size = Index.apply[D](sizeFractional.data.map(s => Math.ceil(s).toInt))
+    evCreate.createImageDomain(imageBox.origin, spacing, size)
+  }
+
   /**
    * Create a discreteImageDomain where the points are defined as tranformations of the indeces (from (0,0,0) to (size - 1, size - 1 , size -1)
    * This makes it possible to define image regions which are not aligned to the coordinate axis.
