@@ -16,9 +16,15 @@
 package scalismo.geometry
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
-class Index[D <: Dim: NDSpace] private (val data: Array[Int]) extends Coordinate[D, Int] {
+class Index[D <: Dim: NDSpace] private (val data: Array[Int]) extends Coordinate[D, Int] with CoordinateOps[D, Int, Index[D]] {
+
+  override val classTagScalar: ClassTag[Int] = implicitly[ClassTag[Int]]
+  override def createConcreteRepresentation(data: Array[Int]): Index[D] = new Index[D](data)
+
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Index[D]]
+
 }
 
 object Index {
