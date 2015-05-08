@@ -10,7 +10,7 @@ import com.banno.license.Licenses._
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildVersion = "0.7.0"
+  val buildVersion = "0.7.1"
   val buildScalaVersion = "2.11.4"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 

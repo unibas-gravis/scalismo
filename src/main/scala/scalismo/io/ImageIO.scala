@@ -15,27 +15,22 @@
  */
 package scalismo.io
 
+import java.io.{ File, IOException }
+
+import breeze.linalg.{ DenseMatrix, DenseVector }
+import niftijio.NiftiVolume
 import scalismo.common.RealSpace
-import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.geometry._
-import scalismo.registration.{ AnisotropicSimilarityTransformationSpace, LandmarkRegistration, AnisotropicScalingSpace, Transformation }
+import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
+import scalismo.registration.{ AnisotropicScalingSpace, AnisotropicSimilarityTransformationSpace, LandmarkRegistration, Transformation }
 import scalismo.utils.ImageConversion
 import scalismo.utils.ImageConversion.CanConvertToVTK
-import scala.util.Try
-import scala.util.Failure
-import java.io.File
-import scala.util.Success
-import reflect.runtime.universe.{ TypeTag, typeOf }
-import java.io.IOException
-import scala.reflect.ClassTag
-import vtk.vtkStructuredPointsReader
-import vtk.vtkStructuredPointsWriter
-import vtk.vtkStructuredPoints
-import niftijio.NiftiVolume
-import breeze.linalg.DenseMatrix
-import breeze.linalg.DenseVector
-import reflect.runtime.universe.{ TypeTag, typeOf }
 import spire.math.Numeric
+import vtk.{ vtkStructuredPoints, vtkStructuredPointsReader, vtkStructuredPointsWriter }
+
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.{ TypeTag, typeOf }
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Implements methods for reading and writing D-dimensional images
@@ -292,20 +287,13 @@ object ImageIO {
 
     transformMatrixFromNifti(volume).map { affineTransMatrix =>
 
-      // flip scaling to account for RAS coordinates 
-      affineTransMatrix(0, 0) = -affineTransMatrix(0, 0)
-      affineTransMatrix(1, 1) = -affineTransMatrix(1, 1)
-
-      //also flip origin (translation params) 
-      affineTransMatrix(0, 3) = -affineTransMatrix(0, 3)
-      affineTransMatrix(1, 3) = -affineTransMatrix(1, 3)
-
       val t = new Transformation[_3D] {
         override val domain = RealSpace[_3D]
         override val f = (x: Point[_3D]) => {
           val xh = DenseVector(x(0), x(1), x(2), 1.0)
           val t: DenseVector[Double] = affineTransMatrix * xh
-          Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+          // We flip after applying the transform as Nifti uses RAS coordinates
+          Point(t(0).toFloat * -1f, t(1).toFloat * -1f, t(2).toFloat)
         }
         //override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
       }
@@ -313,7 +301,8 @@ object ImageIO {
       val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
       val tinv = new Transformation[_3D] {
         override val f = (x: Point[_3D]) => {
-          val xh: DenseVector[Double] = DenseVector(x(0), x(1), x(2), 1.0)
+          // Here as it is the inverse, we flip before applying the affine matrix
+          val xh: DenseVector[Double] = DenseVector(x(0) * -1.0, x(1) * -1, x(2), 1.0)
           val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
           Point(t(0), t(1), t(2))
         }
@@ -370,11 +359,14 @@ object ImageIO {
         volume.data(i)(j)(k)(d) = scalarConv.toDouble(img(Index(i, j, k)))
 
       }
+      /**
+       * To avoid headaches, we always write the image in LPS(world) directions or (RAI in itkSNAP). This means we don't care about image domain directions
+       */
 
       val M = DenseMatrix.zeros[Double](4, 4)
-      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0, 0); M(0, 1) = 0; M(0, 2) = 0; M(0, 3) = -domain.origin(0)
-      M(1, 0) = 0; M(1, 1) = -1f * domain.spacing(1) * domain.directions(1, 1); M(1, 2) = 0; M(1, 3) = -domain.origin(1)
-      M(2, 0) = 0; M(2, 1) = 0; M(2, 2) = domain.spacing(2) * domain.directions(2, 2); M(2, 3) = domain.origin(2)
+      M(0, 0) = -1f * domain.spacing(0); M(0, 1) = 0; M(0, 2) = 0; M(0, 3) = -domain.origin(0)
+      M(1, 0) = 0; M(1, 1) = -1f * domain.spacing(1); M(1, 2) = 0; M(1, 3) = -domain.origin(1)
+      M(2, 0) = 0; M(2, 1) = 0; M(2, 2) = domain.spacing(2); M(2, 3) = domain.origin(2)
       M(3, 3) = 1
 
       // the header
