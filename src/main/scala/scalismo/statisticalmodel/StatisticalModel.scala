@@ -15,11 +15,12 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common.DiscreteVectorField
-import scalismo.geometry.{Point, _3D}
-import scalismo.mesh.{Mesh, TriangleMesh}
-import scalismo.registration.{RigidTransformation, Transformation}
+import scalismo.geometry.{ Point, _3D }
+import scalismo.mesh.{ Mesh, TriangleMesh }
+import scalismo.registration.{ RigidTransformation, Transformation }
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 
 /**
@@ -75,7 +76,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   def marginal(ptIds: IndexedSeq[Int]) = {
     val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
-    val remainingPtIds = clippedReference.points.map(p=> referenceMesh.findClosestPoint(p)._2)
+    val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2)
     val marginalGP = gp.marginal(remainingPtIds.toIndexedSeq)
     StatisticalMeshModel(clippedReference, marginalGP)
   }
