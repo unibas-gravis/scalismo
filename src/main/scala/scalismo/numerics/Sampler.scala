@@ -67,12 +67,12 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
 case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.area
+  val mt = new MersenneTwister()
+  mt.setSeed(seed)
   // should be replaced with real mesh volume
   val volumeOfSampleRegion = mesh.area
   def sample = {
     val points = mesh.points.toIndexedSeq
-    val mt = new MersenneTwister()
-    mt.setSeed(seed)
     val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.numberOfPoints)(new RandBasis(mt))
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
