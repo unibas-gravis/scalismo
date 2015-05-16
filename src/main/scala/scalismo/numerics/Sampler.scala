@@ -111,35 +111,38 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
   }
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class UniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   override val volumeOfSampleRegion = mesh.area
 
   private val p = 1.0 / mesh.area
 
-  val samplePoints = {
+  val accumulatedAreas: Array[Double] = mesh.cells.scanLeft(0.0) {
+    case (sum, cell) =>
+      sum + mesh.computeTriangleArea(cell)
+  }.tail.toArray
 
-    val accumulatedAreas: Array[Double] = mesh.cells.scanLeft(0.0) {
-      case (sum, cell) =>
-        sum + mesh.computeTriangleArea(cell)
-    }.tail.toArray
-
-    val random = new scala.util.Random(seed)
-
-    for (i <- 0 until numberOfPoints) yield {
-      val drawnValue = random.nextDouble() * mesh.area
-
-      val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
-      val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
-      assert(index >= 0 && index < accumulatedAreas.length)
-
-      mesh.samplePointInTriangleCell(mesh.cells(index), random.nextInt())
-    }
-  }
+  val random = new scala.util.Random(seed)
 
   override def sample = {
+    val samplePoints = {
+      for (i <- 0 until numberOfPoints) yield {
+        val drawnValue = random.nextDouble() * mesh.area
+        val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
+        val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
+        assert(index >= 0 && index < accumulatedAreas.length)
+        mesh.samplePointInTriangleCell(mesh.cells(index), random.nextInt())
+      }
+    }
+
     samplePoints.map(pt => (pt, p))
   }
+}
+
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+  override val volumeOfSampleRegion = mesh.area
+  val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints, seed).sample
+  override def sample = samplePoints
 }
 
 case class FixedPointsMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {

@@ -17,13 +17,14 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.common.{ VectorField, Field, DiscreteField, SpatiallyIndexedDiscreteDomain }
-import scalismo.geometry.{ SquareMatrix, Point, _3D, Vector }
+import scalismo.common.{ DiscreteField, Field, SpatiallyIndexedDiscreteDomain }
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.image.DifferentiableScalarImage
 import scalismo.io.{ HDF5File, HDF5ReadWrite }
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.registration.Transformation
+
 import scala.util.Try
 
 case class ASMProfileDistributions(val domain: SpatiallyIndexedDiscreteDomain[_3D], val data: IndexedSeq[MultivariateNormalDistribution])
@@ -142,7 +143,7 @@ object ActiveShapeModel {
   def trainModel[FE <: FeatureExtractor](model: StatisticalMeshModel, trainingData: TrainingData, featureExtractor: FE, config: ASMTrainingConfig): ActiveShapeModel[FE] = {
 
     val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, config.numberOfSamplingPoints, config.randomSeed)
-    val profilePts = sampler.samplePoints
+    val profilePts = sampler.samplePoints.map(_._1)
 
     val trainingDataSurfaces = for ((image, transform) <- trainingData) yield (image, model.referenceMesh.transform(transform))
 
