@@ -17,6 +17,7 @@ package scalismo.numerics
 
 import java.io.File
 
+import breeze.linalg.diff
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
@@ -30,7 +31,7 @@ class SamplerTests extends ScalismoTestSuite {
   val facepath = getClass.getResource("/facemesh.stl").getPath
   val facemesh = MeshIO.readMesh(new File(facepath)).get
 
-  describe("A fixed point uniform sampler") {
+  describe("A uniform sampler") {
     it("yields approximately uniformly spaced points") {
 
       val random = new Random()
@@ -88,7 +89,7 @@ class SamplerTests extends ScalismoTestSuite {
           } else false
         }
 
-        val sampler = FixedPointsUniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.nextInt())
+        val sampler = UniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.nextInt())
         val (samplePoints, _) = sampler.sample.unzip
         //        println(s"total number of points: ${facemesh.numberOfPoints}")
 
@@ -135,5 +136,21 @@ class SamplerTests extends ScalismoTestSuite {
         }
       }
     }
+    it("yields different points when called multiple times") {
+      val sampler = UniformMeshSampler3D(facemesh, 200, seed = 42)
+      val pts1 = sampler.sample.map(_._1)
+      val pts2 = sampler.sample.map(_._1)
+      assert((pts1 diff pts2).size > 0)
+    }
   }
+
+  describe("A fixed point uniform mesh sampler") {
+    it("yields the same points when called multiple times") {
+      val sampler = FixedPointsUniformMeshSampler3D(facemesh, 200, seed = 42)
+      val pts1 = sampler.sample.map(_._1)
+      val pts2 = sampler.sample.map(_._1)
+      assert((pts1 diff pts2).size == 0)
+    }
+  }
+
 }
