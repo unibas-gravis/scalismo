@@ -68,14 +68,14 @@ object ActiveShapeModel {
 
   lazy val DefaultFittingConfig = ASMFittingConfig(maxCoefficientStddev = 3, maxIntensityStddev = 5, maxShapeStddev = 5)
 
-  type FeatureExtractor = (DifferentiableScalarImage[_3D], TriangleMesh, Point[_3D]) => DenseVector[Float]
+  type FeatureExtractor = (DifferentiableScalarImage[_3D], TriangleMesh, Point[_3D]) => Option[DenseVector[Float]]
   type TrainingData = IndexedSeq[(DifferentiableScalarImage[_3D], Transformation[_3D])]
   type SearchPointSampler = (ActiveShapeModel[_], TriangleMesh, Int) => Seq[Point[_3D]]
 
   /** The classical feature extractor for active shape modesl */
   case class NormalDirectionFeatureExtractor(val numPointsForProfile: Int, val profileSpacing: Double) extends ActiveShapeModel.FeatureExtractor {
 
-    def apply(img: DifferentiableScalarImage[_3D], mesh: TriangleMesh, pt: Point[_3D]): DenseVector[Float] = {
+    def apply(img: DifferentiableScalarImage[_3D], mesh: TriangleMesh, pt: Point[_3D]): Option[DenseVector[Float]] = {
       val normal: Vector[_3D] = mesh.normalAtPoint(pt)
       val unitNormal = normal * (1.0 / normal.norm)
       require(math.abs(unitNormal.norm - 1.0) < 1e-5)
@@ -84,16 +84,17 @@ object ActiveShapeModel {
 
       val samples = for (i <- (-1 * numPointsForProfile / 2) until (numPointsForProfile / 2)) yield {
         val samplePt = pt + unitNormal * i * profileSpacing
-        if (gradImg.isDefinedAt(samplePt) == true) {
-          gradImg(samplePt) dot unitNormal
-          //img(samplePt)
-        } else
-          999f // background value
+        if (gradImg.isDefinedAt(samplePt) == true)
+          Some(gradImg(samplePt) dot unitNormal)
+        else None
       }
-
-      val s = samples.map(math.abs).sum
-      val featureVec = if (s == 0) samples else samples.map(d => d / s)
-      DenseVector(featureVec.toArray)
+      // if a single value is out, we drop the point alltogether
+      if (samples.forall(_.isDefined)) {
+        val sf = samples.flatten
+        val s = sf.map(math.abs).sum
+        val featureVec = if (s == 0) sf else sf.map(d => d / s)
+        Some(DenseVector(featureVec.toArray))
+      } else None
 
     }
   }
@@ -153,10 +154,11 @@ object ActiveShapeModel {
       val (_, ptId) = model.referenceMesh.findClosestPoint(pt)
 
       // extract features for the given pointsfrom all training datasets
-      val featureVectorsAtPt = for ((image, targetSurface) <- trainingDataSurfaces) yield {
+      val featureVectorsOptsAtPt = for ((image, targetSurface) <- trainingDataSurfaces) yield {
         val surfacePt = targetSurface.points.toIndexedSeq(ptId)
         featureExtractor(image, targetSurface, surfacePt)
       }
+      val featureVectorsAtPt = featureVectorsOptsAtPt.flatten
       MultivariateNormalDistribution.estimateFromData(featureVectorsAtPt)
     }
     val pointData = new ASMProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](profilePts), featureDistributions)
@@ -225,11 +227,17 @@ object ActiveShapeModel {
     val curPt = curFit.points.toIndexedSeq(ptId)
     val samplePts = ptGenerator(asm, curFit, ptId)
 
-    val ptsWithDists = for (imgPt <- samplePts) yield {
-      val featureVector = asm.featureExtractor(targetImage, curFit, imgPt)
-      val dist = asm.featureDistance(refPt, featureVector)
-      (imgPt, dist)
+    val ptsWithDistsOpts = for (imgPt <- samplePts) yield {
+      val featureVectorOpt = asm.featureExtractor(targetImage, curFit, imgPt)
+
+      featureVectorOpt.map { featureVector =>
+        val dist = asm.featureDistance(refPt, featureVector)
+        (imgPt, dist)
+      }
     }
+
+    val ptsWithDists = ptsWithDistsOpts.flatten
+
     val (minPt, minIntensityDist) = ptsWithDists.minBy {
       case (pt, dist) => dist
     }
