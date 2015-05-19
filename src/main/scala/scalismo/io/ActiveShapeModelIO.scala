@@ -15,70 +15,77 @@
  */
 package scalismo.io
 
-import scalismo.common.SpatiallyIndexedDiscreteDomain
-import scalismo.geometry.{ _3D, Point }
-import scalismo.statisticalmodel.ActiveShapeModel.ProfileDistributions
-import scalismo.statisticalmodel.{ MultivariateNormalDistribution, ActiveShapeModel }
-
-import scala.util.{ Success, Try }
 import java.io.File
-import ncsa.hdf.`object`.Group
+
 import breeze.linalg.{ DenseMatrix, DenseVector }
+import ncsa.hdf.`object`.Group
+import scalismo.common.SpatiallyIndexedDiscreteDomain
+import scalismo.geometry._3D
+import scalismo.mesh.TriangleMesh
+import scalismo.statisticalmodel.MultivariateNormalDistribution
+import scalismo.statisticalmodel.asm.{ ActiveShapeModel, FeatureExtractorSerializer, Profiles }
+
+import scala.collection.immutable
+import scala.util.Try
 
 object ActiveShapeModelIO {
 
   object Names {
+
     object Group {
       val ActiveShapeModel = "/activeShapeModel"
       val FeatureExtractor = "featureExtractor"
       val Profiles = "profiles"
     }
+
     object Attribute {
       val NumberOfPoints = "numberOfPoints"
       val ProfileLength = "profileLength"
       val Comment = "comment"
     }
+
     object Item {
-      val Points = "points"
+      val PointIds = "pointIds"
       val Means = "means"
       val Covariances = "covariances"
     }
+
   }
 
-  def writeActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor: HDF5Write](asm: ActiveShapeModel[FE], file: File): Try[Unit] = {
-    val feWriter = implicitly[HDF5Write[FE]]
+  def writeActiveShapeModel(asm: ActiveShapeModel, file: File): Try[Unit] = {
     for {
-      _ <- StatismoIO.writeStatismoMeshModel(asm.shapeModel, file)
+      feWriter <- FeatureExtractorSerializer.get(asm.featureExtractor.identifier)
+      _ <- StatismoIO.writeStatismoMeshModel(asm.statisticalModel, file)
       h5 <- HDF5Utils.openFileForWriting(file)
       asmGroup <- h5.createGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
       profilesGroup <- h5.createGroup(asmGroup, Names.Group.Profiles)
-      _ <- writeProfiles(asm.profileDistributions, h5, profilesGroup)
-      _ <- feWriter.write(asm.featureExtractor, h5, feGroup)
+      _ <- writeProfiles(h5, profilesGroup, asm.profiles, asm.pointIds)
+      _ <- feWriter.saveHdf5(asm.featureExtractor, h5, feGroup)
 
     } yield ()
   }
 
-  private def writeProfiles(distributions: ProfileDistributions, h5file: HDF5File, group: Group): Try[Unit] = {
-    val numberOfPoints = distributions.domain.numberOfPoints
-    val profileLength = if (numberOfPoints > 0) distributions.data.head.mean.size else 0
-    val points = new NDArray(Array[Long](numberOfPoints, 3), distributions.domain.points.toIndexedSeq.flatten(_.data).toArray)
-    val means = new NDArray(Array[Long](numberOfPoints, profileLength), distributions.data.map(_.mean.toArray).flatten.toArray)
-    val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), distributions.data.map(_.cov.toArray).flatten.toArray)
+  private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles, pointIds: IndexedSeq[Int]): Try[Unit] = Try {
+    val numberOfPoints = profiles.domain.numberOfPoints
+    val profileLength = if (numberOfPoints > 0) profiles.data.head.mean.size else 0
+    val means = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.map(_.mean.toArray).flatten.toArray)
+    val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.map(_.cov.toArray).flatten.toArray)
     val groupName = group.getFullName
 
-    for {
+    val result = for {
       _ <- h5file.writeIntAttribute(groupName, Names.Attribute.NumberOfPoints, numberOfPoints)
       _ <- h5file.writeIntAttribute(groupName, Names.Attribute.ProfileLength, profileLength)
       _ <- h5file.writeStringAttribute(groupName, Names.Attribute.Comment, s"${Names.Item.Covariances} consists of $numberOfPoints concatenated ${profileLength}x$profileLength matrices")
-      _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Points}", points)
+      _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", pointIds.toArray)
       _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Means}", means)
       _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Covariances}", covariances)
     } yield ()
-  }
+    result // this is a Try[Unit], so the return value is a Try[Try[Unit]]
+  }.flatten
 
-  def readActiveShapeModel[FE <: ActiveShapeModel.FeatureExtractor: HDF5Read](fn: File): Try[ActiveShapeModel[FE]] = {
-    val feReader = implicitly[HDF5Read[FE]]
+  def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
+    //val feReader = implicitly[HDF5Read[FE]]
 
     for {
       shapeModel <- StatismoIO.readStatismoMeshModel(fn)
@@ -86,87 +93,28 @@ object ActiveShapeModelIO {
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5file.getGroup(asmGroup, Names.Group.FeatureExtractor)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
-      featureExtractor <- feReader.read(h5file, feGroup)
-      profileDistributions <- readProfiles(h5file, profilesGroup)
-    } yield new ActiveShapeModel(shapeModel, profileDistributions, featureExtractor)
+      feType <- h5file.readStringAttribute(feGroup.getFullName, FeatureExtractorSerializer.IdentifierAttributeName)
+      feSerializer <- FeatureExtractorSerializer.get(feType)
+      featureExtractor <- feSerializer.loadHdf5(h5file, feGroup)
+      (profileDistributions, pointIds) <- readProfiles(h5file, profilesGroup, shapeModel.referenceMesh)
+    } yield ActiveShapeModel(shapeModel, profileDistributions, featureExtractor, pointIds)
   }
 
-  private[this] def readProfiles(h5file: HDF5File, group: Group): Try[ProfileDistributions] = {
+  private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[(Profiles, immutable.IndexedSeq[Int])] = {
     val groupName = group.getFullName
-    val ptDim = 3
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
-      profilePtsArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Points}")
-      pts = profilePtsArray.data.grouped(ptDim).map(data => Point(data(0), data(1), data(2))).toIndexedSeq
+      pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
+      pts = pointIds.map(id => referenceMesh.points(id)).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
       (m, n) = (covArray.dims(0).toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
       meanArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Means}")
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
-      val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.toArray
-      ProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists)
+      val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.to[immutable.IndexedSeq]
+      (Profiles(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists), pointIds.toIndexedSeq)
     }
 
   }
-
-  def readASMOld[FE <: ActiveShapeModel.FeatureExtractor: HDF5Read](fn: File): Try[ActiveShapeModel[FE]] = {
-    val featureExtractorReader = implicitly[HDF5Read[FE]]
-
-    for {
-      shapeModel <- StatismoIO.readStatismoMeshModel(fn)
-      h5file <- HDF5Utils.openFileForReading(fn)
-      asmGroup <- h5file.getGroup("/ASMModel")
-      profileDistributions <- readProfileDistributionsOld(h5file, asmGroup)
-      featureExtractor <- featureExtractorReader.read(h5file, asmGroup)
-    } yield new ActiveShapeModel(shapeModel, profileDistributions, featureExtractor)
-  }
-
-  private[this] def readProfileDistributionsOld(h5file: HDF5File, group: Group): Try[ProfileDistributions] = {
-    val groupName = group.getName
-    val ptDim = 3
-    for {
-      profileDim <- h5file.readInt(s"$groupName/profileDimension")
-      profilePtsArray <- h5file.readArray[Float](s"$groupName/profilePoints")
-      pts = profilePtsArray.grouped(ptDim).map(data => Point(data(0), data(1), data(2))).toIndexedSeq
-      covArray <- h5file.readNDArray[Float](s"$groupName/cov")
-      (m, n) = (covArray.dims(0).toInt, covArray.dims(1).toInt)
-      covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
-      meanArray <- h5file.readArray[Float](s"$groupName/mean")
-      meanVecs = meanArray.grouped(n).map(data => DenseVector(data))
-    } yield {
-      val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.toArray
-      ProfileDistributions(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists)
-    }
-
-  }
-
-  def writeASMOld[FE <: ActiveShapeModel.FeatureExtractor: HDF5Write](asm: ActiveShapeModel[FE], fn: File): Try[Unit] = {
-    val featureExtractorWriter = implicitly[HDF5Write[FE]]
-    for {
-      statismoStatus <- StatismoIO.writeStatismoMeshModel(asm.shapeModel, fn)
-      h5file <- HDF5Utils.openFileForWriting(fn)
-      asmGroup <- h5file.createGroup("/ASMModel")
-      _ <- writeProfileDistributionsOld(h5file, asmGroup, asm.profileDistributions)
-      _ <- featureExtractorWriter.write(asm.featureExtractor, h5file, asmGroup)
-    } yield Success(())
-  }
-
-  private[this] def writeProfileDistributionsOld(h5file: HDF5File, group: Group, distributions: ProfileDistributions): Try[Unit] = {
-    val numEntries = distributions.domain.numberOfPoints
-    val distDim = if (numEntries > 0) distributions.data(0).mean.size else 0
-    val ptArray = distributions.domain.points.toIndexedSeq.flatten(_.data).toArray
-    val meanArray = distributions.data.map(_.mean.data).flatten.toArray
-    val covArray = distributions.data.map(_.cov.data).flatten.toArray
-    val groupName = group.getFullName
-    for {
-      _ <- h5file.writeInt(s"$groupName/numberOfProfilePoints", numEntries)
-      _ <- h5file.writeInt(s"$groupName/profileDimension", distDim)
-      _ <- h5file.writeArray(s"$groupName/profilePoints", ptArray)
-      _ <- h5file.writeArray(s"$groupName/mean", meanArray)
-      covNDArray = new NDArray(Array[Long](numEntries * distDim, distDim), covArray)
-      _ <- h5file.writeNDArray(s"$groupName/cov", covNDArray)
-    } yield ()
-  }
-
 }
