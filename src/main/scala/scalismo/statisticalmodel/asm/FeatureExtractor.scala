@@ -59,11 +59,11 @@ trait FeatureExtractor extends Function1[DiscreteScalarImage[_3D, Float], Featur
   def identifier: String
 }
 trait FeatureImageGenerator extends Function1[TriangleMesh, FeatureImage]
-trait FeatureImage extends Function1[Point[_3D], DenseVector[Float]]
+trait FeatureImage extends Function1[Point[_3D], Option[DenseVector[Float]]]
 
 // TODO
 // an alternative (to be discussed)
-trait FE extends Function1[DiscreteScalarImage[_3D, Float], (TriangleMesh => (Point[_3D] => DenseVector[Float]))] {
+trait FE extends Function1[DiscreteScalarImage[_3D, Float], (TriangleMesh => (Point[_3D] => Option[DenseVector[Float]]))] {
   def identifier: String
 }
 
@@ -73,7 +73,7 @@ trait FE2 extends Function1[DiscreteScalarImage[_3D, Float], FIG] {
 }
 
 object FeatureExtractor {
-  type FI = (Point[_3D] => DenseVector[Float])
+  type FI = (Point[_3D] => Option[DenseVector[Float]])
   type FIG = (TriangleMesh => FI)
 }
 

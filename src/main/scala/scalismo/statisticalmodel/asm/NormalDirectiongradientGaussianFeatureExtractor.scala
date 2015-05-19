@@ -41,14 +41,20 @@ case class NFE(numberOfPoints: Int, spacing: Float, sigma: Float) extends FE {
         val samples = for (i <- range) yield {
           val samplePt = point + unitNormal * i * spacing
           if (gradientImage.isDefinedAt(samplePt)) {
-            gradientImage(samplePt) dot unitNormal
-          } else
-            999f // background value
+            Some(gradientImage(samplePt) dot unitNormal)
+          } else {
+            None
+          }
         }
 
-        val sum = samples.map(math.abs).sum
-        val features = if (sum == 0) samples else samples.map(d => d / sum)
-        DenseVector(features.toArray)
+        if (samples.forall(_.isDefined)) {
+          val sf = samples.flatten
+          val sum = sf.map(math.abs).sum
+          val features = if (sum == 0) sf else sf.map(d => d / sum)
+          Some(DenseVector(features.toArray))
+        } else {
+          None
+        }
       }
     }
   }
@@ -67,7 +73,7 @@ case class NormalDirectionGradientGaussianFeatureExtractor(numberOfPoints: Int, 
     }.interpolate(1).differentiate
 
     override def apply(mesh: TriangleMesh): FeatureImage = new FeatureImage {
-      override def apply(point: Point[_3D]): DenseVector[Float] = {
+      override def apply(point: Point[_3D]): Option[DenseVector[Float]] = {
         val normal: Vector[_3D] = mesh.normalAtPoint(point)
         val unitNormal = normal * (1.0 / normal.norm)
         require(math.abs(unitNormal.norm - 1.0) < 1e-5)
@@ -77,13 +83,15 @@ case class NormalDirectionGradientGaussianFeatureExtractor(numberOfPoints: Int, 
           val samplePt = point + unitNormal * i * spacing
           if (gradientImage.isDefinedAt(samplePt)) {
             gradientImage(samplePt) dot unitNormal
-          } else
-            999f // background value
+          } else {
+            // fail-fast: immediately return, since the entire feature is "useless"
+            return None
+          }
         }
 
         val sum = samples.map(math.abs).sum
         val features = if (sum == 0) samples else samples.map(d => d / sum)
-        DenseVector(features.toArray)
+        Some(DenseVector(features.toArray))
       }
     }
   }

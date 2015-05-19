@@ -39,7 +39,7 @@ object ActiveShapeModel {
     val pointFeatures = (0 until pointsLength).toIndexedSeq.map { pointIndex =>
       val featuresForPoint = imageRange.map { imageIndex =>
         imageFeatures(imageIndex * pointsLength + pointIndex)
-      }
+      }.flatten
       MultivariateNormalDistribution.estimateFromData(featuresForPoint)
     }
 
@@ -128,28 +128,31 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val refId = this.refId(profileIndex)
     val sampledPoints = searchPointSampler(mesh, refId)
 
-    val pointsWithFeatureDistances = for (point <- sampledPoints) yield {
-      val featureVector = featureImage(mesh)(point)
-      val distance = featureDistance(profileIndex, featureVector)
-      (point, distance)
-    }
+    val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
+      val featureVectorOpt = featureImage(mesh)(point)
+      featureVectorOpt.map { fv => (point, featureDistance(profileIndex, fv)) }
+    }).flatten
 
-    val (bestPoint, bestFeatureDistance) = pointsWithFeatureDistances.minBy { case (pt, dist) => dist }
+    if (pointsWithFeatureDistances.isEmpty) {
+      // none of the sampled points return a valid feature vector
+      None
+    } else {
+      val (bestPoint, bestFeatureDistance) = pointsWithFeatureDistances.minBy { case (pt, dist) => dist }
 
-    if (bestFeatureDistance <= config.featureDistanceThreshold) {
-      val refPoint = this.refPoint(profileIndex)
-      val bestPointDistance = statisticalModel.gp.marginal(refId).mahalanobisDistance(bestPoint - refPoint)
-      if (bestPointDistance <= config.pointDistanceThreshold) {
-        Some(bestPoint)
+      if (bestFeatureDistance <= config.featureDistanceThreshold) {
+        val refPoint = this.refPoint(profileIndex)
+        val bestPointDistance = statisticalModel.gp.marginal(refId).mahalanobisDistance(bestPoint - refPoint)
+        if (bestPointDistance <= config.pointDistanceThreshold) {
+          Some(bestPoint)
+        } else {
+          // point distance above user-set threshold
+          None
+        }
       } else {
-        // point distance above user-set threshold
+        // feature distance above user-set threshold
         None
       }
-    } else {
-      // feature distance above user-set threshold
-      None
     }
-
   }
 
 }
