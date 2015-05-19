@@ -2,8 +2,9 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.geometry.{ Vector, Point, _3D }
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.image.DiscreteScalarImage
+import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
 
@@ -13,7 +14,10 @@ object NormalDirectionGradientGaussianFeatureExtractor {
   final val Identifier = "builtin::NormalDirectionGradientGaussian"
 }
 
+//FIXME: This is using the alternative notation (functions instead of traits)
+// Only one of the paradigms should remain in the end.
 case class NFE(numberOfPoints: Int, spacing: Float, sigma: Float) extends FE {
+
   import FeatureExtractor._
 
   override def identifier: String = ???
@@ -21,7 +25,7 @@ case class NFE(numberOfPoints: Int, spacing: Float, sigma: Float) extends FE {
   override def apply(image: DiscreteScalarImage[_3D, Float]): (TriangleMesh => FI) = {
     val gradientImage = {
       if (sigma > 0) {
-        FeatureExtractor.filterGaussian(image, sigma)
+        DiscreteImageFilter.gaussianSmoothing(image, sigma)
       } else {
         image
       }
@@ -56,7 +60,7 @@ case class NormalDirectionGradientGaussianFeatureExtractor(numberOfPoints: Int, 
   override def apply(image: DiscreteScalarImage[_3D, Float]): FeatureImageGenerator = new FeatureImageGenerator {
     val gradientImage = {
       if (sigma > 0) {
-        FeatureExtractor.filterGaussian(image, sigma)
+        DiscreteImageFilter.gaussianSmoothing(image, sigma)
       } else {
         image
       }

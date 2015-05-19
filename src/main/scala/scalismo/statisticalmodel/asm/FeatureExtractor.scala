@@ -75,19 +75,5 @@ trait FE2 extends Function1[DiscreteScalarImage[_3D, Float], FIG] {
 object FeatureExtractor {
   type FI = (Point[_3D] => DenseVector[Float])
   type FIG = (TriangleMesh => FI)
-
-  def filterGaussian[T: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[_3D, T], sigma: Double): DiscreteScalarImage[_3D, T] = {
-
-    val vtkImg = ImageConversion.imageToVtkStructuredPoints[_3D, T](img)
-    val gaussianFilter = new vtkImageGaussianSmooth()
-    gaussianFilter.SetInputData(vtkImg)
-    gaussianFilter.SetStandardDeviation(sigma / img.domain.spacing(0), sigma / img.domain.spacing(1), sigma / img.domain.spacing(2))
-    gaussianFilter.Update()
-    val vtkRes = gaussianFilter.GetOutput()
-    val imgRes = ImageConversion.vtkStructuredPointsToScalarImage[_3D, T](vtkRes).get
-    vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
-    imgRes
-  }
-
 }
 
