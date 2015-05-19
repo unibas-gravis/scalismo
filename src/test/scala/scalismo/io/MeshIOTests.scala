@@ -15,28 +15,15 @@
  */
 package scalismo.io
 
-import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec, FailureMessages }
-import org.scalatest.matchers.ShouldMatchers
 import java.io.File
-import scala.util.Failure
-import scala.util.Success
-import org.scalatest.exceptions.TestFailedException
 
-class MeshIOTests extends FunSpec with Matchers {
+import scalismo.ScalismoTestSuite
 
-  scalismo.initialize()
+import scala.language.implicitConversions
+
+class MeshIOTests extends ScalismoTestSuite {
 
   describe("MeshIO") {
-    //    // TODO add a test to test reading and writing
-    //    it("can write a scalar function pseudo test (TODO do me right)") {
-    //          val path = getClass().getResource("/facemesh.h5").getPath
-    //      val facemesh = MeshIO.readHDF5(new File(path)).get
-    //      val scalars = (0 until facemesh.numberOfPoints).map(id => id).toArray
-    //      val md = ScalarMeshData(facemesh, scalars)
-    //      println(MeshIO.writeMeshData(md, new File("d:\\temp\\x.vtk")))
-    //    }
-    //
 
     it("yields the original mesh when readeing  and writing") {
       val path = getClass().getResource("/facemesh.stl").getPath

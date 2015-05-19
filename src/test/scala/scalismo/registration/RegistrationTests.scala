@@ -15,23 +15,20 @@
  */
 package scalismo.registration
 
-import scalismo.image.DiscreteScalarImage
+import java.io.File
+
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
-import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler, Integrator }
+import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
 
 import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import java.io.File
-import scalismo.geometry._
-import breeze.linalg.DenseVector
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseMatrix
 
-class RegistrationTests extends FunSpec with Matchers {
+class RegistrationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
-  scalismo.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
       val points: IndexedSeq[Point[_2D]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))
@@ -162,7 +159,7 @@ class RegistrationTests extends FunSpec with Matchers {
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
         transformationSpace = TranslationSpace[_2D],
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val translationParams = DenseVector[Float](-10.0, 5.0)
@@ -187,7 +184,7 @@ class RegistrationTests extends FunSpec with Matchers {
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
         transformationSpace = RotationSpace[_2D](center),
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val rotationParams = DenseVector[Float](math.Pi / 8.0)
@@ -219,7 +216,7 @@ class RegistrationTests extends FunSpec with Matchers {
         optimizer = LBFGSOptimizer(numIterations = 300),
         metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val regResult = Registration.registration(regConf)(transformed, fixedImage)

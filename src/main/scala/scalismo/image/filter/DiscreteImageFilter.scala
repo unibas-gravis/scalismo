@@ -16,10 +16,11 @@
 package scalismo.image.filter
 
 import scalismo.common.{ ScalarArray, Scalar }
+import scalismo.common.DiscreteDomain.CanBound
 import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.utils.{ CanConvertToVtk, ImageConversion }
-import vtk.{ vtkImageCast, vtkImageEuclideanDistance }
+import vtk.{ vtkImageGaussianSmooth, vtkImageCast, vtkImageEuclideanDistance }
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
@@ -30,7 +31,7 @@ object DiscreteImageFilter {
    * Computes a (signed) distance transform of the image.
    * @note The value that is returned is not the euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
    */
-  def distanceTransform[D <: Dim: NDSpace: CanConvertToVtk: CanInterpolate, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
+  def distanceTransform[D <: Dim: NDSpace: CanConvertToVtk: CanInterpolate: CanBound, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A]): DiscreteScalarImage[D, Float] = {
 
     val scalar = implicitly[Scalar[A]]
 
@@ -78,4 +79,28 @@ object DiscreteImageFilter {
 
   }
 
+  /**
+   * Smoothing of an image using a Gaussian filter kernel with the given stddev
+   */
+  def gaussianSmoothing[D <: Dim: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A], stddev: Float)(implicit vtkConversion: CanConvertToVtk[D]): DiscreteScalarImage[D, A] = {
+
+    val vtkImg = vtkConversion.toVtk[A](img)
+    val dim = img.dimensionality
+    val gaussianFilter = new vtkImageGaussianSmooth()
+    gaussianFilter.SetInputData(vtkImg)
+    val unitsAdjustedSpacing = img.domain.spacing.map(s => stddev * (1f / s))
+
+    unitsAdjustedSpacing.dimensionality match {
+      case 2 => gaussianFilter.SetStandardDeviation(unitsAdjustedSpacing(0), unitsAdjustedSpacing(1))
+      case 3 => gaussianFilter.SetStandardDeviation(unitsAdjustedSpacing(0), unitsAdjustedSpacing(1), unitsAdjustedSpacing(2))
+      case _ => throw new IllegalArgumentException(s"Bad dimensionality for gaussianSmoothing. Got  $dim encountered but require 2 or 3.")
+    }
+    gaussianFilter.Update()
+    val vtkRes = gaussianFilter.GetOutput()
+    // it is save to call get here, as the error can only encounter when the pixel type is not supported.
+    // But as we converted it ourselves to vtk, conversion is always possible.
+    val imgRes = vtkConversion.fromVtk(vtkRes).get
+    imgRes
+  }
 }
+

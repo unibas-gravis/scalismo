@@ -15,13 +15,11 @@
  */
 package scalismo.statisticalmodel
 
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{ Matchers, FunSpec }
-import breeze.linalg.DenseVector
-import breeze.linalg.DenseMatrix
+import breeze.linalg.{ DenseMatrix, DenseVector }
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 
-class MultivariateNormalDistributionTests extends FunSpec with Matchers {
+class MultivariateNormalDistributionTests extends ScalismoTestSuite {
   describe("A 1D Multivariate normal") {
     it("should give the same pdf values as breeze Gaussian with the same parameters") {
       val mvn = new MultivariateNormalDistribution(DenseVector(2f), DenseMatrix(3f))
@@ -41,7 +39,7 @@ class MultivariateNormalDistributionTests extends FunSpec with Matchers {
     val mvn = new MultivariateNormalDistribution(mu, cov)
 
     it("yields the right mean and covariance matrix when we sample from the data") {
-      val samples = for (i <- 0 until 3000) yield mvn.drawSample()
+      val samples = for (i <- 0 until 3000) yield mvn.sample()
       val estimatedMVN = MultivariateNormalDistribution.estimateFromData(samples)
       for (i <- 0 until mu.length) {
         mu(i) should be(estimatedMVN.mean(i) +- 0.15f)

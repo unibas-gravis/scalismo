@@ -15,18 +15,15 @@
  */
 package scalismo.kernels
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import scalismo.common.{ RealSpace, VectorField, BoxDomain }
-import scalismo.geometry.{ _3D, _1D, Point, Vector }
-import Point.implicits._
-import scalismo.geometry
+import scalismo.common.{ BoxDomain, RealSpace, VectorField }
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.{ Point, Vector, _1D, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
+import scalismo.{ ScalismoTestSuite, geometry }
 
-class KernelTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class KernelTests extends ScalismoTestSuite {
 
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {

@@ -3,18 +3,18 @@ package scalismo.statisticalmodel.asm
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.Scalar
-import scalismo.geometry.{Point, Vector, _3D}
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
-import scalismo.statisticalmodel.asm.FeatureExtractor.{FIG, FI}
+import scalismo.statisticalmodel.asm.FeatureExtractor.{ FIG, FI }
 import scalismo.utils.ImageConversion
-import vtk.{vtkImageGaussianSmooth, vtkObjectBase}
+import vtk.{ vtkImageGaussianSmooth, vtkObjectBase }
 
 import scala.collection.immutable.TreeMap
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{Success, Failure, Try}
+import scala.util.{ Success, Failure, Try }
 
 trait FeatureExtractorSerializer {
   def identifier: String
@@ -76,7 +76,7 @@ object FeatureExtractor {
   type FI = (Point[_3D] => DenseVector[Float])
   type FIG = (TriangleMesh => FI)
 
-  def filterGaussian[T: Scalar : ClassTag : TypeTag](img: DiscreteScalarImage[_3D, T], sigma: Double): DiscreteScalarImage[_3D, T] = {
+  def filterGaussian[T: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[_3D, T], sigma: Double): DiscreteScalarImage[_3D, T] = {
 
     val vtkImg = ImageConversion.imageToVtkStructuredPoints[_3D, T](img)
     val gaussianFilter = new vtkImageGaussianSmooth()

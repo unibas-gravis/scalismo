@@ -103,7 +103,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
       val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (refPtId, bestRigidTransform.inverse(tgtPt)) }
 
-      val coeffs = statisticalModel.coefficients(refPtIdsWithTargetPtAtModelSpace, sigma2 = 1e-6)
+      val bestReconstruction = statisticalModel.posterior(refPtIdsWithTargetPtAtModelSpace, 1e-5f).mean
+      val coeffs = statisticalModel.coefficients(bestReconstruction)
 
       val boundedCoeffs = coeffs.map { c => Math.min(config.modelCoefficientBounds, Math.max(-config.modelCoefficientBounds, c)) }
       val resultMesh = statisticalModel.instance(boundedCoeffs).transform(bestRigidTransform)
@@ -137,7 +138,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
     if (bestFeatureDistance <= config.featureDistanceThreshold) {
       val refPoint = this.refPoint(profileIndex)
-      val bestPointDistance = statisticalModel.marginal(refId).mahalanobisDistance(bestPoint - refPoint)
+      val bestPointDistance = statisticalModel.gp.marginal(refId).mahalanobisDistance(bestPoint - refPoint)
       if (bestPointDistance <= config.pointDistanceThreshold) {
         Some(bestPoint)
       } else {

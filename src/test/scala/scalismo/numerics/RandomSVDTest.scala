@@ -17,13 +17,11 @@ package scalismo.numerics
 
 import breeze.linalg.DenseMatrix
 import breeze.linalg.svd.SVD
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
+import scalismo.ScalismoTestSuite
 import scalismo.geometry.{ Point, _1D }
-import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel, Kernel }
-import scalismo.utils.Benchmark
+import scalismo.kernels.{ GaussianKernel, Kernel, UncorrelatedKernel }
 
-class RandomSVDTest extends FunSpec with Matchers {
+class RandomSVDTest extends ScalismoTestSuite {
 
   describe("The random svd") {
 

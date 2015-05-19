@@ -19,7 +19,7 @@ import java.io.File
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.NiftiVolume
-import org.scalatest.{ FunSpec, Matchers }
+import scalismo.ScalismoTestSuite
 import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
@@ -30,9 +30,7 @@ import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.util.{ Failure, Success, Try }
 
-class ImageIOTests extends FunSpec with Matchers {
-
-  scalismo.initialize()
+class ImageIOTests extends ScalismoTestSuite {
 
   def equalImages(img1: DiscreteScalarImage[_3D, _], img2: DiscreteScalarImage[_3D, _]): Boolean = {
 
@@ -241,7 +239,7 @@ class ImageIOTests extends FunSpec with Matchers {
           val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
           data.hashCode()
         }
-        val nh = n.dataArray.deep.hashCode()
+        val nh = n.dataAsScalarArray[Short].map(_.toDouble).iterator.toArray.deep.hashCode()
         nh should equal(oh)
       }
 

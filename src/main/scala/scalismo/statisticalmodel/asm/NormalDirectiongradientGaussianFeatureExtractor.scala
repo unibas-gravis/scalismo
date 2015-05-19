@@ -2,12 +2,12 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.geometry.{Vector, Point, _3D}
+import scalismo.geometry.{ Vector, Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
 
-import scala.util.{Failure, Try}
+import scala.util.{ Failure, Try }
 
 object NormalDirectionGradientGaussianFeatureExtractor {
   final val Identifier = "builtin::NormalDirectionGradientGaussian"
@@ -102,7 +102,7 @@ object NormalDirectionGradientGaussianFeatureExtractorSerializer extends Feature
 
   override def saveHdf5(featureExtractor: FeatureExtractor, h5File: HDF5File, h5Group: Group): Try[Unit] = {
     featureExtractor match {
-      case fe@NormalDirectionGradientGaussianFeatureExtractor(numberOfPoints, spacing, sigma) =>
+      case fe @ NormalDirectionGradientGaussianFeatureExtractor(numberOfPoints, spacing, sigma) =>
         val groupName = h5Group.getFullName
         for {
           _ <- h5File.writeStringAttribute(groupName, FeatureExtractorSerializer.IdentifierAttributeName, identifier)

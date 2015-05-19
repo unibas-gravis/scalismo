@@ -15,18 +15,15 @@
  */
 package scalismo.numerics
 
+import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage, ScalarImage, DiscreteImageDomain }
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Index.implicits._
-import scalismo.geometry.Vector.implicits._
+import scalismo.geometry._
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain, ScalarImage }
 
 import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 
-class IntegrationTest extends FunSpec with Matchers {
+class IntegrationTest extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 

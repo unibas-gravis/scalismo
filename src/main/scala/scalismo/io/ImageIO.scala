@@ -49,11 +49,11 @@ import scala.util.{ Failure, Success, Try }
  * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :
  *
  * This is done by :
- * * mirroring the first two dimensions of the scaling parameters of the affine transform
- * * mirroring the first two dimensions of the image origin (translation parameters)
+ * * mirroring the first two dimensions of each point after applying the affine transform
  *
  * The same mirroring is done again when writing an image to the Nifti format.
  *
+ * Also notice that only one image orientation is supported when writing Nifti images : RAI
  *
  * Documentation on orientation :
  *
@@ -359,7 +359,7 @@ object ImageIO {
       if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-        DiscreteScalarImage(newDomain, ScalarArray(volume.dataArray.map(v => scalarConv.fromDouble(v))))
+        DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
       }
     }
   }
@@ -403,28 +403,22 @@ object ImageIO {
 
     transformMatrixFromNifti(volume).map { affineTransMatrix =>
 
-      // flip scaling to account for RAS coordinates 
-      affineTransMatrix(0, 0) = -affineTransMatrix(0, 0)
-      affineTransMatrix(1, 1) = -affineTransMatrix(1, 1)
-
-      //also flip origin (translation params) 
-      affineTransMatrix(0, 3) = -affineTransMatrix(0, 3)
-      affineTransMatrix(1, 3) = -affineTransMatrix(1, 3)
-
       val t = new Transformation[_3D] {
         override val domain = RealSpace[_3D]
         override val f = (x: Point[_3D]) => {
           val xh = DenseVector(x(0), x(1), x(2), 1.0)
           val t: DenseVector[Double] = affineTransMatrix * xh
-          Point(t(0).toFloat, t(1).toFloat, t(2).toFloat)
+
+          // We flip after applying the transform as Nifti uses RAS coordinates
+          Point(t(0).toFloat * -1f, t(1).toFloat * -1f, t(2).toFloat)
         }
-        //override def takeDerivative(x: Point[ThreeD]): Matrix3x3 = ???
       }
 
       val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
       val tinv = new Transformation[_3D] {
         override val f = (x: Point[_3D]) => {
-          val xh: DenseVector[Double] = DenseVector(x(0), x(1), x(2), 1.0)
+          // Here as it is the inverse, we flip before applying the affine matrix
+          val xh: DenseVector[Double] = DenseVector(x(0) * -1.0, x(1) * -1, x(2), 1.0)
           val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
           Point(t(0), t(1), t(2))
         }
@@ -482,18 +476,22 @@ object ImageIO {
 
       }
 
+      /**
+       * To avoid headaches, we always write the image in LPS(world) directions or (RAI in itkSNAP). This means we don't care about image domain directions
+       */
+
       val M = DenseMatrix.zeros[Double](4, 4)
-      M(0, 0) = -1f * domain.spacing(0) * domain.directions(0, 0);
+      M(0, 0) = -1f * domain.spacing(0);
       M(0, 1) = 0;
       M(0, 2) = 0;
       M(0, 3) = -domain.origin(0)
       M(1, 0) = 0;
-      M(1, 1) = -1f * domain.spacing(1) * domain.directions(1, 1);
+      M(1, 1) = -1f * domain.spacing(1);
       M(1, 2) = 0;
       M(1, 3) = -domain.origin(1)
       M(2, 0) = 0;
       M(2, 1) = 0;
-      M(2, 2) = domain.spacing(2) * domain.directions(2, 2);
+      M(2, 2) = domain.spacing(2);
       M(2, 3) = domain.origin(2)
       M(3, 3) = 1
 

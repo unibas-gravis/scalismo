@@ -16,15 +16,13 @@
 
 package scalismo.utils
 
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._2D
 import scalismo.io.{ ImageIO, MeshIO }
 
 import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 
-class ConversionTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class ConversionTests extends ScalismoTestSuite {
 
   describe("a Mesh ") {
 

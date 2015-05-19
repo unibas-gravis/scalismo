@@ -18,7 +18,7 @@ package scalismo.io
 import java.io.File
 import scalismo.common.Scalar
 import scalismo.utils.MeshConversion
-import scalismo.mesh.{ TriangleCell, ScalarMeshData, TriangleMesh }
+import scalismo.mesh.{ TriangleCell, ScalarMeshField, TriangleMesh }
 import scalismo.geometry._
 import scala.util.Try
 import java.io.IOException
@@ -61,7 +61,7 @@ object MeshIO {
     }
   }
 
-  def writeMeshData[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
+  def writeScalarMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeVTK(meshData, file)
@@ -89,8 +89,8 @@ object MeshIO {
     maybeError
   }
 
-  def writeVTK[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshData[S], file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshDataToVtkPolyData(meshData)
+  def writeVTK[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.scalarMeshFieldToVtkPolyData(meshData)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()
     err
