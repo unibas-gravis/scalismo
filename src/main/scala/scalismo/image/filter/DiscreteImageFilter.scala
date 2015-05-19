@@ -20,7 +20,7 @@ import scalismo.common.DiscreteDomain.CanBound
 import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.utils.{ CanConvertToVtk, ImageConversion }
-import vtk.{ vtkImageGaussianSmooth, vtkImageCast, vtkImageEuclideanDistance }
+import vtk.{vtkObjectBase, vtkImageGaussianSmooth, vtkImageCast, vtkImageEuclideanDistance}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
@@ -100,6 +100,8 @@ object DiscreteImageFilter {
     // it is save to call get here, as the error can only encounter when the pixel type is not supported.
     // But as we converted it ourselves to vtk, conversion is always possible.
     val imgRes = vtkConversion.fromVtk(vtkRes).get
+    // prevent memory leaks caused by VTK
+    vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
     imgRes
   }
 }
