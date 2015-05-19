@@ -35,7 +35,7 @@ object ActiveShapeModel {
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
     // We merge the corresponding points together, then estimate an MVD.
     val pointsLength = pointIds.length
-    val imageRange = (0 until imageFeatures.length).toIndexedSeq
+    val imageRange = (0 until trainingData.length).toIndexedSeq
     val pointFeatures = (0 until pointsLength).toIndexedSeq.map { pointIndex =>
       val featuresForPoint = imageRange.map { imageIndex =>
         imageFeatures(imageIndex * pointsLength + pointIndex)
