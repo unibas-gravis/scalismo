@@ -20,7 +20,7 @@ import scalismo.common.DiscreteDomain.CanBound
 import scalismo.image.{ CanInterpolate, DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.utils.{ CanConvertToVtk, ImageConversion }
-import vtk.{vtkObjectBase, vtkImageGaussianSmooth, vtkImageCast, vtkImageEuclideanDistance}
+import vtk.{ vtkObjectBase, vtkImageGaussianSmooth, vtkImageCast, vtkImageEuclideanDistance }
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag

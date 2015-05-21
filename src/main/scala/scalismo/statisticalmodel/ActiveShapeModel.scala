@@ -237,13 +237,14 @@ object ActiveShapeModel {
     }
 
     val ptsWithDists = ptsWithDistsOpts.flatten
+    if (ptsWithDists.size > 0) {
+      val (minPt, minIntensityDist) = ptsWithDists.minBy {
+        case (pt, dist) => dist
+      }
 
-    val (minPt, minIntensityDist) = ptsWithDists.minBy {
-      case (pt, dist) => dist
-    }
-
-    val shapeDistForPt = asm.shapeModel.gp.marginal(ptId).mahalanobisDistance(minPt - refPt)
-    if (minIntensityDist < config.maxIntensityStddev && shapeDistForPt < config.maxShapeStddev) Some(minPt) else None
+      val shapeDistForPt = asm.shapeModel.gp.marginal(ptId).mahalanobisDistance(minPt - refPt)
+      if (minIntensityDist < config.maxIntensityStddev && shapeDistForPt < config.maxShapeStddev) Some(minPt) else None
+    } else None
   }
 
 }
