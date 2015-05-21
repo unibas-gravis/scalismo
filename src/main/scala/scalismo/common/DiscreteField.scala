@@ -121,9 +121,9 @@ object DiscreteVectorField {
    */
   def fromDenseVector[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](domain: DiscreteDomain[D],
     vec: DenseVector[Float]): DiscreteVectorField[D, DO] = {
-
+    val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =
-      for (v <- vec.toArray.grouped(3))
+      for (v <- vec.toArray.grouped(dim))
         yield Vector[DO](v)
 
     DiscreteVectorField[D, DO](domain, vectors.toIndexedSeq)
