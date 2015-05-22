@@ -24,7 +24,22 @@ import scalismo.mesh.TriangleMesh
 import scala.collection.immutable
 import scala.util.{ Failure, Try }
 
-trait FeatureExtractor extends Function3[PreprocessedImage, TriangleMesh, Point[_3D], Option[DenseVector[Float]]] with HasIOMetadata
+trait FeatureExtractor extends Function3[PreprocessedImage, TriangleMesh, Point[_3D], Option[DenseVector[Float]]] with HasIOMetadata {
+  /**
+   * Return the points at which feature components are extracted for a given mesh and point.
+   * This is mainly intended for visualization, and only really makes sense if there exists a one-to-one corresponence
+   * between such points and the actual feature components returned by the <code>apply()</code>.
+   *
+   * In other words: if a particular implementation uses a method for determining features where there is no correspondence
+   * between the feature components and particular points, the method should return [[None]]. Otherwise, it should return
+   * Some(IndexedSeq(...)), where the length of the sequence matches the length of the feature vector.
+   *
+   * @param mesh the mesh to determine the feature points for
+   * @param profilePoint the actual profile point to determine the feature points for
+   * @return a sequence of points, or [[None]] if there is no sensible correspondence between feature and points, as outlined above.
+   */
+  def featurePoints(mesh: TriangleMesh, profilePoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]]
+}
 
 trait FeatureExtractorIOHandler extends IOHandler[FeatureExtractor]
 
@@ -43,7 +58,8 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Float, 
     val normal: Vector[_3D] = mesh.normalAtPoint(point)
     val unitNormal = normal * (1.0 / normal.norm)
 
-    val sampledPoints = featurePoints(mesh, point)
+    val sampledPoints = featurePoints(mesh, point).get //.get is safe: we know that the method always returns Some(...)
+
     val samples = for (samplePt <- sampledPoints) yield {
       if (image.isDefinedAt(samplePt)) {
         val gradient = Vector.fromBreezeVector[_3D](image(samplePt))
@@ -59,13 +75,13 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Float, 
     Some(DenseVector(features.toArray))
   }
 
-  def featurePoints(mesh: TriangleMesh, profilePoint: Point[_3D]): immutable.IndexedSeq[Point[_3D]] = {
+  override def featurePoints(mesh: TriangleMesh, profilePoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]] = {
     val normal: Vector[_3D] = mesh.normalAtPoint(profilePoint)
     val unitNormal = normal * (1.0 / normal.norm)
     require(math.abs(unitNormal.norm - 1.0) < 1e-5)
 
     val range = ((-1 * numberOfPoints / 2) to (numberOfPoints / 2)).to[immutable.IndexedSeq]
-    range map { i => profilePoint + unitNormal * i * spacing }
+    Some(range map { i => profilePoint + unitNormal * i * spacing })
   }
 }
 
