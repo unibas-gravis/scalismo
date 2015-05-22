@@ -23,7 +23,7 @@ import scalismo.common.SpatiallyIndexedDiscreteDomain
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.MultivariateNormalDistribution
-import scalismo.statisticalmodel.asm.{ ActiveShapeModel, FeatureExtractorSerializer, Profiles }
+import scalismo.statisticalmodel.asm._
 
 import scala.collection.immutable
 import scala.util.Try
@@ -35,6 +35,7 @@ object ActiveShapeModelIO {
     object Group {
       val ActiveShapeModel = "/activeShapeModel"
       val FeatureExtractor = "featureExtractor"
+      val ImagePreprocessor = "imagePreprocessor"
       val Profiles = "profiles"
     }
 
@@ -54,15 +55,15 @@ object ActiveShapeModelIO {
 
   def writeActiveShapeModel(asm: ActiveShapeModel, file: File): Try[Unit] = {
     for {
-      feWriter <- FeatureExtractorSerializer.get(asm.featureExtractor.identifier)
       _ <- StatismoIO.writeStatismoMeshModel(asm.statisticalModel, file)
       h5 <- HDF5Utils.openFileForWriting(file)
       asmGroup <- h5.createGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
+      ppGroup <- h5.createGroup(asmGroup, Names.Group.ImagePreprocessor)
       profilesGroup <- h5.createGroup(asmGroup, Names.Group.Profiles)
+      _ <- ImagePreprocessorIOHandlers.save(asm.preprocessor, h5, ppGroup)
+      _ <- FeatureExtractorIOHandlers.save(asm.featureExtractor, h5, feGroup)
       _ <- writeProfiles(h5, profilesGroup, asm.profiles, asm.pointIds)
-      _ <- feWriter.saveHdf5(asm.featureExtractor, h5, feGroup)
-
     } yield ()
   }
 
@@ -85,19 +86,17 @@ object ActiveShapeModelIO {
   }.flatten
 
   def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
-    //val feReader = implicitly[HDF5Read[FE]]
-
     for {
       shapeModel <- StatismoIO.readStatismoMeshModel(fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5file.getGroup(asmGroup, Names.Group.FeatureExtractor)
+      ppGroup <- h5file.getGroup(asmGroup, Names.Group.ImagePreprocessor)
+      preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
-      feType <- h5file.readStringAttribute(feGroup.getFullName, FeatureExtractorSerializer.IdentifierAttributeName)
-      feSerializer <- FeatureExtractorSerializer.get(feType)
-      featureExtractor <- feSerializer.loadHdf5(h5file, feGroup)
+      featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
       (profileDistributions, pointIds) <- readProfiles(h5file, profilesGroup, shapeModel.referenceMesh)
-    } yield ActiveShapeModel(shapeModel, profileDistributions, featureExtractor, pointIds)
+    } yield ActiveShapeModel(shapeModel, profileDistributions, preprocessor, featureExtractor, pointIds)
   }
 
   private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[(Profiles, immutable.IndexedSeq[Int])] = {

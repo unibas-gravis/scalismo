@@ -17,12 +17,12 @@ package scalismo.io
 
 import java.io.File
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
 import scalismo.common.SpatiallyIndexedDiscreteDomain
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.statisticalmodel.MultivariateNormalDistribution
-import scalismo.statisticalmodel.asm.{ActiveShapeModel, NormalDirectionGradientGaussianFeatureExtractor, Profiles}
+import scalismo.statisticalmodel.asm.{ GaussianGradientImagePreprocessor, ActiveShapeModel, NormalDirectionFeatureExtractor, Profiles }
 
 import scala.collection.immutable
 
@@ -43,7 +43,7 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
     val ptDomain = SpatiallyIndexedDiscreteDomain.fromSeq(profilePoints)
     val dists = for (i <- 0 until ptDomain.numberOfPoints) yield new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat, DenseMatrix.eye[Float](3) * i.toFloat)
     val profiles = Profiles(ptDomain, dists)
-    new ActiveShapeModel(shapeModel, profiles, NormalDirectionGradientGaussianFeatureExtractor(5, 10, 0), pointIds.to[immutable.IndexedSeq])
+    new ActiveShapeModel(shapeModel, profiles, GaussianGradientImagePreprocessor(1), NormalDirectionFeatureExtractor(1, 1), pointIds.to[immutable.IndexedSeq])
   }
 
   describe("An active shape model") {

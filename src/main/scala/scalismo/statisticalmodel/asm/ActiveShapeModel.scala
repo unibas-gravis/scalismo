@@ -20,7 +20,7 @@ object ActiveShapeModel {
   /**
    * Train an active shape model using an existing PCA model
    */
-  def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, featureExtractor: FeatureExtractor, sampler: TriangleMesh => Sampler[_3D]): ActiveShapeModel = {
+  def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh => Sampler[_3D]): ActiveShapeModel = {
 
     val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
     val (points, pointIds) = sampled.map(statisticalModel.referenceMesh.findClosestPoint).unzip
@@ -28,8 +28,8 @@ object ActiveShapeModel {
     // Feature images can be expensive in terms of memory, so we go through them one at a time.
     val imageFeatures = trainingData.map {
       case (image, transform) =>
-        val (fei, mesh) = (featureExtractor(image), statisticalModel.referenceMesh.transform(transform))
-        pointIds.map { pointId => fei(mesh)(mesh.points(pointId)) }
+        val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
+        pointIds.map { pointId => featureExtractor(pimg, mesh, mesh.points(pointId)) }
     }.flatten
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -44,11 +44,11 @@ object ActiveShapeModel {
     }
 
     val profiles = new Profiles(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](points), pointFeatures)
-    new ActiveShapeModel(statisticalModel, profiles, featureExtractor, pointIds)
+    ActiveShapeModel(statisticalModel, profiles, preprocessor, featureExtractor, pointIds)
   }
 }
 
-case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, featureExtractor: FeatureExtractor, pointIds: immutable.IndexedSeq[Int]) {
+case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, pointIds: immutable.IndexedSeq[Int]) {
   import ActiveShapeModel.PointId
 
   def featureDistance(pointId: PointId, features: DenseVector[Float]): Double = {
@@ -72,10 +72,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
   }
 
   def fitIterator(targetImage: DiscreteScalarImage[_3D, Float], startingMesh: TriangleMesh, searchPointSampler: SearchPointSampler, config: FitConfiguration, iterations: Int): Iterator[Try[FitResult]] = {
-    fitIterator(featureExtractor(targetImage), startingMesh, searchPointSampler, config, iterations)
+    fitIterator(preprocessor(targetImage), startingMesh, searchPointSampler, config, iterations)
   }
 
-  def fitIterator(fe: FeatureImageGenerator, startingMesh: TriangleMesh, searchPointSampler: SearchPointSampler, config: FitConfiguration, iterations: Int): Iterator[Try[FitResult]] = {
+  def fitIterator(image: PreprocessedImage, startingMesh: TriangleMesh, searchPointSampler: SearchPointSampler, config: FitConfiguration, iterations: Int): Iterator[Try[FitResult]] = {
     require(iterations > 0, "number of iterations must be strictly positive")
 
     new Iterator[Try[FitResult]] {
@@ -84,14 +84,14 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
       override def hasNext = nextCount < iterations && (lastResult.isEmpty || lastResult.get.isSuccess)
       override def next() = {
         val mesh = lastResult.map(_.get.mesh).getOrElse(startingMesh)
-        lastResult = Some(fitOnce(fe, mesh, searchPointSampler, config))
+        lastResult = Some(fitOnce(image, mesh, searchPointSampler, config))
         nextCount += 1
         lastResult.get
       }
     }
   }
 
-  private def fitOnce(image: FeatureImageGenerator, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): Try[FitResult] = {
+  private def fitOnce(image: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): Try[FitResult] = {
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config)
 
     if (refPtIdsWithTargetPt.isEmpty) {
@@ -115,21 +115,21 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
   private def refPoint(profileIndex: Int): Point[_3D] = profiles.domain.points(profileIndex)
   private def refId(profileIndex: Int): PointId = pointIds(profileIndex)
 
-  private def findBestCorrespondingPoints(fe: FeatureImageGenerator, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): IndexedSeq[(PointId, Point[_3D])] = {
+  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): IndexedSeq[(PointId, Point[_3D])] = {
     val matchingPts = (0 until pointIds.length).par.map { sp =>
-      (refId(sp), findBestMatchingPointAtPoint(fe, mesh, sp, sampler, config))
+      (refId(sp), findBestMatchingPointAtPoint(img, mesh, sp, sampler, config))
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
     matchingPtsWithinDist.toIndexedSeq
   }
 
-  private def findBestMatchingPointAtPoint(featureImage: FeatureImageGenerator, mesh: TriangleMesh, profileIndex: PointId, searchPointSampler: SearchPointSampler, config: FitConfiguration): Option[Point[_3D]] = {
+  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh, profileIndex: PointId, searchPointSampler: SearchPointSampler, config: FitConfiguration): Option[Point[_3D]] = {
     val refId = this.refId(profileIndex)
     val sampledPoints = searchPointSampler(mesh, refId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
-      val featureVectorOpt = featureImage(mesh)(point)
+      val featureVectorOpt = featureExtractor(image, mesh, point)
       featureVectorOpt.map { fv => (point, featureDistance(profileIndex, fv)) }
     }).flatten
 
