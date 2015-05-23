@@ -1,15 +1,15 @@
 package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
-import scalismo.common.SpatiallyIndexedDiscreteDomain
+import scalismo.common._
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
-import scalismo.numerics.{ Sampler, FixedPointsUniformMeshSampler3D }
+import scalismo.numerics.Sampler
 import scalismo.registration.{ LandmarkRegistration, RigidTransformation, Transformation }
 import scalismo.statisticalmodel.{ MultivariateNormalDistribution, StatisticalMeshModel }
 
-import scala.collection.{ AbstractIterator, immutable }
+import scala.collection.immutable
 import scala.util.{ Failure, Try }
 
 object ActiveShapeModel {
@@ -47,6 +47,13 @@ object ActiveShapeModel {
     ActiveShapeModel(statisticalModel, profiles, preprocessor, featureExtractor, pointIds)
   }
 }
+
+/**
+ * Class of instances sampled from an Active Shape Model. A sample is therefore comprised of both a shape sampled from
+ * the Shape Model, and a set of sample features at the profile points.
+ *
+ */
+case class ASMSample(mesh: TriangleMesh, featureField: DiscreteFeatureField[_3D])
 
 case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, pointIds: immutable.IndexedSeq[Int]) {
   import ActiveShapeModel.PointId
@@ -89,6 +96,39 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
         lastResult.get
       }
     }
+  }
+
+  /**
+   * Returns the mean mesh of the shape model, along with the mean feature profiles at the profile points
+   */
+  def mean(): ASMSample = {
+    val meanProfilePoints = pointIds.map(id => statisticalModel.mean(id))
+    val meanFeatures = profiles.values.map(_.mean).toIndexedSeq
+    val featureField = DiscreteFeatureField(meanProfilePoints zip meanFeatures)
+    ASMSample(statisticalModel.mean, featureField)
+  }
+
+  /**
+   * Returns a random sample mesh from the shape model, along with randomly sampled feature profiles at the profile points
+   */
+  def sample(): ASMSample = {
+    val sampleMesh = statisticalModel.sample
+    val randomProfilePoints = pointIds.map(id => sampleMesh(id))
+    val randomFeatures = profiles.values.map(_.sample).toIndexedSeq
+    val featureField = DiscreteFeatureField(randomProfilePoints zip randomFeatures)
+    ASMSample(sampleMesh, featureField)
+  }
+
+  /**
+   * Utility function that allows to randomly sample different feature profiles, while keeping the profile points
+   * Meant to allow to easily inspect/debug the feature distribution
+   */
+
+  def sampleFeaturesOnly: ASMSample = {
+    val meanProfilePoints = pointIds.map(id => statisticalModel.mean(id))
+    val randomFeatures = profiles.values.map(_.sample).toIndexedSeq
+    val featureField = DiscreteFeatureField(meanProfilePoints zip randomFeatures)
+    ASMSample(statisticalModel.mean, featureField)
   }
 
   private def fitOnce(image: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): Try[FitResult] = {
