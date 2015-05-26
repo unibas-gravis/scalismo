@@ -21,12 +21,11 @@ import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
 import scalismo.common.SpatiallyIndexedDiscreteDomain
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
-import scalismo.statisticalmodel.ActiveShapeModel.NormalDirectionFeatureExtractor
-import scalismo.statisticalmodel.{ ASMProfileDistributions, ActiveShapeModel, MultivariateNormalDistribution }
+import scalismo.statisticalmodel.MultivariateNormalDistribution
+import scalismo.statisticalmodel.asm.{ GaussianGradientImagePreprocessor, ActiveShapeModel, NormalDirectionFeatureExtractor, Profiles }
 
-/**
- * Created by Luethi on 09.03.14.
- */
+import scala.collection.immutable
+
 class ActiveShapeModelIOTests extends ScalismoTestSuite {
 
   private def createTmpH5File(): File = {
@@ -35,40 +34,30 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
     f
   }
 
-  private def createASM: ActiveShapeModel[NormalDirectionFeatureExtractor] = {
-    val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+  private def createAsm(): ActiveShapeModel = {
+    val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
-    val (profilePoints, _) = (new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42)).sample.unzip
+    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42).sample.unzip
+    val (profilePoints, pointIds) = sprofilePoints.map { point => shapeModel.referenceMesh.findClosestPoint(point) }.unzip
     val ptDomain = SpatiallyIndexedDiscreteDomain.fromSeq(profilePoints)
-    val dists = for (i <- 0 until ptDomain.numberOfPoints) yield (new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat, DenseMatrix.eye[Float](3) * i.toFloat))
-    val profileDists = ASMProfileDistributions(ptDomain, dists)
-    new ActiveShapeModel(shapeModel, profileDists, new NormalDirectionFeatureExtractor(5, 10))
+    val dists = for (i <- 0 until ptDomain.numberOfPoints) yield new MultivariateNormalDistribution(DenseVector.ones[Float](3) * i.toFloat, DenseMatrix.eye[Float](3) * i.toFloat)
+    val profiles = Profiles(ptDomain, dists)
+    new ActiveShapeModel(shapeModel, profiles, GaussianGradientImagePreprocessor(1), NormalDirectionFeatureExtractor(1, 1), pointIds.to[immutable.IndexedSeq])
   }
 
   describe("An active shape model") {
 
     it("can be written to disk and read again") {
-      val originalASM = createASM
-
+      val originalAsm = createAsm()
       val h5file = createTmpH5File()
 
-      val statusWrite = for {
-        _ <- ActiveShapeModelIO.writeASM(originalASM, h5file)
-      } yield ()
+      ActiveShapeModelIO.writeActiveShapeModel(originalAsm, h5file).get
+      val newAsm = ActiveShapeModelIO.readActiveShapeModel(h5file).get
 
-      statusWrite.get // throw error if it occured
-
-      // read it again
-      val newAsmOrError = for {
-        asm <- ActiveShapeModelIO.readASM[NormalDirectionFeatureExtractor](h5file)
-      } yield asm
-
-      val newASM = newAsmOrError.get
-      newASM.intensityDistributions should equal(originalASM.intensityDistributions)
-
+      newAsm should equal(originalAsm)
+      h5file.delete()
     }
-
   }
 
 }

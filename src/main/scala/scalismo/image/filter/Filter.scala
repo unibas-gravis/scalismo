@@ -78,7 +78,7 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
  * @param width Defines the width of the filter support
  */
 
-case class BoxedFilter[D <: Dim: NDSpace](width: Int) extends Filter[D] {
+case class BoxedFilter[D <: Dim: NDSpace](width: Float) extends Filter[D] {
   def apply(p: Point[D]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2f
   val v = Vector[D](breeze.linalg.DenseVector.ones[Float](implicitly[NDSpace[D]].dimensionality).data)
