@@ -68,7 +68,7 @@ object ActiveShapeModel {
  * the Shape Model, and a set of sample features at the profile points.
  *
  */
-case class ASMSample(mesh: TriangleMesh, featureField: DiscreteFeatureField[_3D])
+case class ASMSample(mesh: TriangleMesh, featureField: DiscreteFeatureField[_3D], featureExtractor: FeatureExtractor)
 
 case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, pointIds: immutable.IndexedSeq[Int]) {
 
@@ -123,7 +123,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val meanProfilePoints = pointIds.map(id => statisticalModel.mean(id))
     val meanFeatures = profiles.values.map(_.mean).toIndexedSeq
     val featureField = DiscreteFeatureField(meanProfilePoints zip meanFeatures)
-    ASMSample(statisticalModel.mean, featureField)
+    ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
 
   /**
@@ -134,7 +134,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val randomProfilePoints = pointIds.map(id => sampleMesh(id))
     val randomFeatures = profiles.values.map(_.sample()).toIndexedSeq
     val featureField = DiscreteFeatureField(randomProfilePoints zip randomFeatures)
-    ASMSample(sampleMesh, featureField)
+    ASMSample(sampleMesh, featureField, featureExtractor)
   }
 
   /**
@@ -146,7 +146,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val meanProfilePoints = pointIds.map(id => statisticalModel.mean(id))
     val randomFeatures = profiles.values.map(_.sample()).toIndexedSeq
     val featureField = DiscreteFeatureField(meanProfilePoints zip randomFeatures)
-    ASMSample(statisticalModel.mean, featureField)
+    ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
 
   private def fitOnce(image: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): Try[FitResult] = {
