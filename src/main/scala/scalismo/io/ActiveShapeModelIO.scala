@@ -15,7 +15,7 @@
  */
 package scalismo.io
 
-import java.io.File
+import java.io.{ IOException, File }
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`.Group
@@ -26,7 +26,7 @@ import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
 
 import scala.collection.immutable
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 object ActiveShapeModelIO {
 
@@ -43,6 +43,8 @@ object ActiveShapeModelIO {
       val NumberOfPoints = "numberOfPoints"
       val ProfileLength = "profileLength"
       val Comment = "comment"
+      val MajorVersion = "majorVersion"
+      val MinorVersion = "minorVersion"
     }
 
     object Item {
@@ -61,6 +63,9 @@ object ActiveShapeModelIO {
       feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
       ppGroup <- h5.createGroup(asmGroup, Names.Group.ImagePreprocessor)
       profilesGroup <- h5.createGroup(asmGroup, Names.Group.Profiles)
+      // for now, the version information is fixed to 1.0
+      _ <- h5.writeIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion, 1)
+      _ <- h5.writeIntAttribute(asmGroup.getFullName, Names.Attribute.MinorVersion, 0)
       _ <- ImagePreprocessorIOHandlers.save(asm.preprocessor, h5, ppGroup)
       _ <- FeatureExtractorIOHandlers.save(asm.featureExtractor, h5, feGroup)
       _ <- writeProfiles(h5, profilesGroup, asm.profiles, asm.pointIds)
@@ -70,8 +75,8 @@ object ActiveShapeModelIO {
   private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles, pointIds: IndexedSeq[Int]): Try[Unit] = Try {
     val numberOfPoints = profiles.domain.numberOfPoints
     val profileLength = if (numberOfPoints > 0) profiles.data.head.mean.size else 0
-    val means = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.map(_.mean.toArray).flatten.toArray)
-    val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.map(_.cov.toArray).flatten.toArray)
+    val means = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.mean.toArray).toArray)
+    val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.cov.toArray).toArray)
     val groupName = group.getFullName
 
     val result = for {
@@ -90,6 +95,14 @@ object ActiveShapeModelIO {
       shapeModel <- StatismoIO.readStatismoMeshModel(fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
+      asmVersionMajor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion)
+      asmVersionMinor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MinorVersion)
+      _ <- {
+        (asmVersionMajor, asmVersionMinor) match {
+          case (1, 0) => Success(())
+          case _ => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
+        }
+      }
       feGroup <- h5file.getGroup(asmGroup, Names.Group.FeatureExtractor)
       ppGroup <- h5file.getGroup(asmGroup, Names.Group.ImagePreprocessor)
       preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
@@ -106,7 +119,7 @@ object ActiveShapeModelIO {
       pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
       pts = pointIds.map(id => referenceMesh.points(id)).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
-      (m, n) = (covArray.dims(0).toInt, covArray.dims(1).toInt)
+      (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
       meanArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Means}")
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))

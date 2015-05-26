@@ -17,7 +17,7 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.geometry.{ Vector, Point, _3D }
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
 

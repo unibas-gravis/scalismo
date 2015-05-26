@@ -21,7 +21,7 @@ import scalismo.io.HDF5File
 import scala.collection.immutable.TreeMap
 import scala.util.{ Failure, Success, Try }
 
-// FIXME: naming to be discussed (also within the entire project). Right now, I'm using a mix of both styles
+// TODO: naming to be discussed (also within the entire project). Right now, I'm using a mix of both styles
 // ("Hdf5", but "IO"), according to the rule "Camel-case acronyms, but only if they're longer than 2 characters."
 // See for instance http://stackoverflow.com/questions/1176950/acronyms-in-camel-back
 
