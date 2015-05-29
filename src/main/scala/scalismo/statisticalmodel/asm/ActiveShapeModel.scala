@@ -28,7 +28,7 @@ import scala.collection.immutable
 import scala.util.{ Failure, Try }
 
 object ActiveShapeModel {
-  type TrainingData = immutable.IndexedSeq[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]
+  type TrainingData = Iterator[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]
   // just a type alias to clarify intent
   type PointId = Int
 
@@ -45,12 +45,12 @@ object ActiveShapeModel {
       case (image, transform) =>
         val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
         pointIds.map { pointId => featureExtractor(pimg, mesh, mesh.points(pointId)) }
-    }
+    }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
     // We merge the corresponding points together, then estimate an MVD.
     val pointsLength = pointIds.length
-    val imageRange = trainingData.indices.toIndexedSeq
+    val imageRange = (0 until imageFeatures.length / pointsLength).toIndexedSeq
     val pointFeatures = (0 until pointsLength).toIndexedSeq.map { pointIndex =>
       val featuresForPoint = imageRange.flatMap { imageIndex =>
         imageFeatures(imageIndex * pointsLength + pointIndex)
