@@ -149,6 +149,19 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
 
+  /**
+   * Returns an Active Shape Model where both the statisitical shape Model and the profile points distributions are correctly transformed
+   * according to the provided rigid transformation
+   *
+   */
+
+  def transform(rigidTransformation: RigidTransformation[_3D]): ActiveShapeModel = {
+    val transformedModel = statisticalModel.transform(rigidTransformation)
+    val newDomain = SpatiallyIndexedDiscreteDomain(profiles.domain.points.map(rigidTransformation).toIndexedSeq, profiles.domain.numberOfPoints)
+    val transformedProfiles = Profiles(newDomain, profiles.data)
+    this.copy(statisticalModel = transformedModel, profiles = transformedProfiles)
+  }
+
   private def fitOnce(image: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FitConfiguration): Try[FitResult] = {
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config)
 
