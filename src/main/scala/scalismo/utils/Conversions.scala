@@ -148,7 +148,7 @@ object VtkHelpers {
 
 object MeshConversion {
 
-  private def vtkPolyDataToTriangleMeshCommon(pd: vtkPolyData, correctFlag: Boolean = false) = {
+  private def vtkPolyDataToTriangleMeshCommon(pd: vtkPolyData, correctFlag: Boolean = false) = Try {
 
     val newPd = if (correctFlag) {
       val triangleFilter = new vtkTriangleFilter
@@ -160,23 +160,48 @@ object MeshConversion {
     val polys = newPd.GetPolys()
     val numPolys = polys.GetNumberOfCells()
 
-    val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
-    val pointsArray = pointsArrayVtk.GetJavaArray()
+    val vtkType = newPd.GetPoints().GetDataType()
+
+    val pointsArray: Array[Float] = if (vtkType == VtkHelpers.VTK_FLOAT) {
+      // "usual" case: Mesh datatype is Float
+      val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
+      pointsArrayVtk.GetJavaArray()
+    } else {
+      // "unusual" case: any other datatype
+      import ImageIO.ScalarType
+      val sa = VtkHelpers.vtkDataArrayToScalarArray(vtkType, newPd.GetPoints().GetData()).get
+      val fsa: ScalarArray[Float] = ScalarType.fromVtkId(vtkType) match {
+        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map(_.toFloat)
+        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map(_.toFloat)
+        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map(_.toFloat)
+        case ScalarType.Long => sa.asInstanceOf[ScalarArray[Long]].map(_.toFloat)
+        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map(_.toFloat)
+        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map(_.toFloat)
+        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map(_.toFloat)
+        case ScalarType.ULong => sa.asInstanceOf[ScalarArray[ULong]].map(_.toFloat)
+        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map(_.toFloat)
+        case _ => throw new UnsupportedOperationException("Unsupported scalar type")
+      }
+      fsa match {
+        // the first case should always match, but we have a (less efficient) backup strategy just in case
+        case psa: PrimitiveScalarArray[Float] => psa.rawData
+        case _ => fsa.iterator.toArray
+      }
+    }
+
     val points = pointsArray.grouped(3).map(p => Point(p(0), p(1), p(2)))
 
-    Try {
-      val idList = new vtkIdList()
-      val cells = for (i <- 0 until numPolys) yield {
-        newPd.GetCellPoints(i, idList)
-        if (idList.GetNumberOfIds() != 3) {
-          throw new Exception("Not a triangle mesh")
-        }
-
-        TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
+    val idList = new vtkIdList()
+    val cells = for (i <- 0 until numPolys) yield {
+      newPd.GetCellPoints(i, idList)
+      if (idList.GetNumberOfIds() != 3) {
+        throw new Exception("Not a triangle mesh")
       }
-      idList.Delete()
-      (points, cells)
+
+      TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
     }
+    idList.Delete()
+    (points, cells)
   }
 
   def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
