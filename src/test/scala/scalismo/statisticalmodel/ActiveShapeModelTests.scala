@@ -27,7 +27,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val nbFiles = 7
       // use iterators so files are only loaded when required (and memory can be reclaimed after use)
       val meshes = (0 until nbFiles).toIterator map(i => MeshIO.readMesh(new File(getClass.getResource(s"/asmData/$i.stl").getPath)).get)
-      val images = (0 until nbFiles).toIterator map{i => println(s"read $i"); ImageIO.read3DScalarImage[Float](new File(getClass.getResource(s"/asmData/$i.vtk").getPath)).get}
+      val images = (0 until nbFiles).toIterator map(i => ImageIO.read3DScalarImage[Float](new File(getClass.getResource(s"/asmData/$i.vtk").getPath)).get)
 
       val targetImage = images.next()
       val targetMesh = meshes.next()
