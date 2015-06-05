@@ -21,13 +21,13 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val featureExtractor = NormalDirectionFeatureExtractor(11, 1f)
       def samplerPerMesh(mesh: TriangleMesh): Sampler[_3D] = UniformMeshSampler3D(mesh, 1000, 42)
       val searchMethod = NormalDirectionSearchPointSampler(31, 6)
-      val fittingConfig = FitConfiguration(featureDistanceThreshold = 2f, pointDistanceThreshold = 3f, modelCoefficientBounds = 3f)
+      val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2f, pointDistanceThreshold = 3f, modelCoefficientBounds = 3f)
 
       val shapeModel = StatismoIO.readStatismoMeshModel(new File(getClass.getResource(s"/asmData/model.h5").getPath)).get
       val nbFiles = 7
       // use iterators so files are only loaded when required (and memory can be reclaimed after use)
-      val meshes = (0 until nbFiles).toIterator map(i => MeshIO.readMesh(new File(getClass.getResource(s"/asmData/$i.stl").getPath)).get)
-      val images = (0 until nbFiles).toIterator map(i => ImageIO.read3DScalarImage[Float](new File(getClass.getResource(s"/asmData/$i.vtk").getPath)).get)
+      val meshes = (0 until nbFiles).toIterator map (i => MeshIO.readMesh(new File(getClass.getResource(s"/asmData/$i.stl").getPath)).get)
+      val images = (0 until nbFiles).toIterator map (i => ImageIO.read3DScalarImage[Float](new File(getClass.getResource(s"/asmData/$i.vtk").getPath)).get)
 
       val targetImage = images.next()
       val targetMesh = meshes.next()
@@ -44,8 +44,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val alignedASM = asm.transform(alignment)
 
       // fit
-      val fitIterator = alignedASM.fitIterator(targetImage, alignedASM.statisticalModel.mean, searchMethod, fittingConfig, 50)
-      val fit = fitIterator.toSeq.last.get.mesh
+      val fit = alignedASM.fit(targetImage, searchMethod, 20, fittingConfig).get.mesh
 
       assert(MeshMetrics.diceCoefficient(fit, targetMesh) > 0.95)
     }
