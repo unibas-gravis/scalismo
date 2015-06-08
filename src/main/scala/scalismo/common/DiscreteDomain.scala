@@ -31,7 +31,7 @@ trait DiscreteDomain[D <: Dim] extends Equals { self =>
 
   def numberOfPoints: Int
   def points: Iterator[Point[D]]
-  def pointIds: Iterator[Int] = (0 until numberOfPoints).toIterator
+  def pointIds: Iterator[Int] = Iterator.range(0, numberOfPoints)
   def isDefinedAt(pt: Point[D]): Boolean
   def pointId(pt: Point[D]): Option[Int]
   def pointsWithId: Iterator[(Point[D], Int)] = points.zipWithIndex

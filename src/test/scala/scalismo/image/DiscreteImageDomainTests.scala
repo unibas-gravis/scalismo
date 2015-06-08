@@ -34,7 +34,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(domain.numberOfPoints === domain.points.size)
     }
 
-    it("keeps the same imagebox when it is create with a new size") {
+    it("keeps the same boundingbox when it is create with a new size") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
       val newDomain = DiscreteImageDomain(domain.boundingBox, size = domain.size.map(i => (i * 1.5f).toInt))
 
@@ -42,7 +42,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       newDomain.boundingBox.volume should be(domain.boundingBox.volume +- 1e-1f)
     }
 
-    it("keeps the same imagebox approximately the same when it is create with a new spacing") {
+    it("keeps the same boundingbox approximately the same when it is create with a new spacing") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
       val newDomain = DiscreteImageDomain(domain.boundingBox, spacing = domain.spacing.map(i => (i * 1.5f)))
 
@@ -53,6 +53,13 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       // the difference between bounding and image box.
       newDomain.boundingBox.volume should be >= (domain.boundingBox.volume)
       newDomain.boundingBox.volume should be <= BoxDomain(domain.boundingBox.origin, domain.boundingBox.oppositeCorner + Vector(1f, 1f)).volume
+    }
+
+    it("identifies the closest point correctly") {
+      val domain = DiscreteImageDomain[_2D]((0f, 0f), (1.0f, 1.0f), (20, 20))
+      val (closestPt, closestPtId) = domain.findClosestPoint(Point(0.1f, 20.6f))
+      closestPt should equal(Point(0f, 21f))
+      closestPtId should equal(domain.pointId(closestPt).get)
     }
 
   }

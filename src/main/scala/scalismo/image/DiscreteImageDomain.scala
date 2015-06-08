@@ -90,7 +90,7 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   override def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
     val cidx = pointToContinuousIndex(pt)
     val idxClosestPoint = continuousIndextoIndex(cidx)
-    val ptIdClosestPoint = pointId(continuousIndextoIndex(cidx))
+    val ptIdClosestPoint = pointId(idxClosestPoint)
     (indexToPoint(idxClosestPoint), ptIdClosestPoint)
   }
 
