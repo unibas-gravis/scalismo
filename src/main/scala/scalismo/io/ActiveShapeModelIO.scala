@@ -108,8 +108,8 @@ object ActiveShapeModelIO {
       preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
       featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
-      (profiles, pointIds) <- readProfilesAndPointIds(h5file, profilesGroup, shapeModel.referenceMesh)
-    } yield ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor, pointIds)
+      profilesAndPointIds <- readProfilesAndPointIds(h5file, profilesGroup, shapeModel.referenceMesh)
+    } yield ActiveShapeModel(shapeModel, profilesAndPointIds._1, preprocessor, featureExtractor, profilesAndPointIds._2)
   }
 
   private[this] def readProfilesAndPointIds(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[(Profiles, immutable.IndexedSeq[Int])] = {
