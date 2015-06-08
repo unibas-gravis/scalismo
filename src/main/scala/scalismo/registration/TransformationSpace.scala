@@ -22,6 +22,7 @@ import java.util.Arrays
 import scalismo.geometry
 import scalismo.geometry._
 import scalismo.common._
+import scalismo.utils.Memoize
 
 import scala.annotation._
 
@@ -32,6 +33,20 @@ import scala.annotation._
  */
 trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 /** Trait for parametric D-dimensional transformation */
+
+object Transformation {
+
+  /**
+   * Returns a new transformation that memoizes (caches) the values that have already been
+   * computed. The size of the cache used is given by the argument cacheSizeHint.
+   */
+  def memoize[D <: Dim](t: Transformation[D], cacheSizeHint: Int) = new Transformation[D] {
+    override protected[scalismo] val f: (Point[D]) => Point[D] = Memoize(t.f, cacheSizeHint)
+    override def domain: Domain[D] = t.domain
+  }
+
+}
+
 trait ParametricTransformation[D <: Dim] extends Transformation[D] {
   /** the parameters defining the transform*/
   val parameters: TransformationSpace.ParameterVector

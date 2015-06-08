@@ -32,6 +32,17 @@ class TransformationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
+  describe("A Transformation") {
+    it("can be memoized and yields the same results") {
+      val transform = RotationSpace[_2D](Point(0f, 0f)).transformForParameters(DenseVector(0.1f))
+      val transformMemoized = Transformation.memoize(transform, 100)
+      for (x <- 0 until 10; y <- -5 until 5) {
+        val p = Point(x, y)
+        transform(p) should equal(transformMemoized(p))
+      }
+    }
+  }
+
   describe("A scaling in 2D") {
     val ss = ScalingSpace[_2D]
     val params = DenseVector[Float](3.0)

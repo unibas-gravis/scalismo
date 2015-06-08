@@ -169,6 +169,19 @@ object DiscreteImageDomain {
     evCreate.createImageDomain(origin, spacing, size)
   }
 
+  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
+  def apply[D <: Dim](imageBox: BoxDomain[D], size: Index[D])(implicit evDim: NDSpace[D], evCreate: CanCreate[D]): DiscreteImageDomain[D] = {
+    val spacing = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / size(i) })
+    evCreate.createImageDomain(imageBox.origin, spacing, size)
+  }
+
+  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
+  def apply[D <: Dim](imageBox: BoxDomain[D], spacing: Vector[D])(implicit evDim: NDSpace[D], evCreate: CanCreate[D]): DiscreteImageDomain[D] = {
+    val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
+    val size = Index.apply[D](sizeFractional.data.map(s => Math.ceil(s).toInt))
+    evCreate.createImageDomain(imageBox.origin, spacing, size)
+  }
+
   /**
    * Create a discreteImageDomain where the points are defined as tranformations of the indeces (from (0,0,0) to (size - 1, size - 1 , size -1)
    * This makes it possible to define image regions which are not aligned to the coordinate axis.
@@ -196,9 +209,6 @@ private case class DiscreteImageDomain1D(origin: Point[_1D], spacing: Vector[_1D
   private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   private val inverseTransform = transform.inverse
 
-  //  override def indexToPoint(i: Index[_1D]): Point[_1D] = transform(Point(i(0)))
-  //  override def pointToIndex(p: Point[_1D]): Index[_1D] = Index(inverseTransform(p)(0).toInt)
-
 }
 
 private case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D]) extends DiscreteImageDomain[_2D] {
@@ -210,21 +220,10 @@ private case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordi
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
   private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
 
-  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
-  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
-
-  if (Math.abs(nomiVecImage(1)) > 0.001f || Math.abs(nomjVecImage(0)) > 0.001f)
-    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage}")
-
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).data ++ (jVecImage * (1.0 / jVecImage.norm)).data)
   override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
-
-  //  override def pointToIndex(p: Point[_2D]) = {
-  //    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
-  //    Index(t(0), t(1))
-  //  }
 
   override def index(ptId: Int) = (Index(ptId % size(0), ptId / size(0)))
   override def pointId(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
@@ -243,18 +242,6 @@ private case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordi
   private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
   private val kVecImage = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
 
-  private val nomiVecImage = iVecImage * (1.0 / iVecImage.norm)
-  private val nomjVecImage = jVecImage * (1.0 / jVecImage.norm)
-  private val nomkVecImage = kVecImage * (1.0 / kVecImage.norm)
-
-  /**
-   * To be removed after refactoring : we make sure that there is no rotation of the image domain in order to remain coherent with
-   * the BoxedDomain implmentation that is assuming directions along the space axis.
-   */
-
-  if (Math.abs(nomiVecImage(1)) > 0.06f || Math.abs(nomiVecImage(2)) > 0.06f || Math.abs(nomjVecImage(0)) > 0.06f || Math.abs(nomjVecImage(2)) > 0.06f || Math.abs(nomkVecImage(0)) > 0.06f || Math.abs(nomkVecImage(1)) > 0.06f)
-    throw new NotImplementedError(s"DiscreteImageDomain needs to be oriented along the space axis in this version. Image directions : i:${nomiVecImage} j:${nomjVecImage} k:${nomkVecImage}")
-
   val directions = SquareMatrix[_3D](
     ((iVecImage * (1.0 / iVecImage.norm)).data
       ++ (jVecImage * (1.0 / jVecImage.norm)).data
@@ -266,10 +253,6 @@ private case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordi
     yield indexToPhysicalCoordinateTransform(Point(i, j, k))
 
   override def indexToPoint(i: Index[_3D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1), i(2)))
-  //  override def pointToIndex(p: Point[_3D]) = {
-  //    val t = inverseAnisotropicTransform(p).data.map(_.toInt)
-  //      Index(t(0), t(1), t(2))
-  //  }
 
   override def index(pointId: Int) =
     Index(

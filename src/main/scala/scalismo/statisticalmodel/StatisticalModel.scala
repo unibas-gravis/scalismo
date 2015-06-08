@@ -15,15 +15,13 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.{ DenseVector, DenseMatrix }
-import scalismo.common.DiscreteDomain.CanBound
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common.DiscreteVectorField
-import scalismo.geometry.{ SquareMatrix, Vector, Point, _3D }
+import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ Mesh, TriangleMesh }
-import scalismo.geometry._
-
-import scalismo.registration.{ Transformation, RigidTransformation }
+import scalismo.registration.{ RigidTransformation, Transformation }
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
+import scalismo.mesh.TriangleCell
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -73,12 +71,29 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 
   /**
    *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
+   *
+   *  This method proceeds by clipping the reference mesh to keep only the indicated point identifiers, and then marginalizing the
+   *  GP over those points. Notice that when clipping, not all indicated point ids will be part of the clipped mesh, as some points may not belong
+   *  to any cells anymore. Therefore 2 behaviours are supported by this method :
+   *
+   *  1- in case some of the indicated pointIds remain after clipping and do form a mesh, a marginal model is returned only for those points
+   *  2- in case none of the indicated points remain (they are not meshed), a reference mesh with all indicated point Ids and no cells is constructed and a marginal
+   *  over this new reference is returned
+   *
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
   def marginal(ptIds: IndexedSeq[Int]) = {
     val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
-    val marginalGP = gp.marginal(ptIds)
-    StatisticalMeshModel(clippedReference, marginalGP)
+    // not all of the ptIds remain in the reference after clipping, since their cells might disappear
+    val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2).toIndexedSeq
+    if (remainingPtIds.size == 0) {
+      val newRef = TriangleMesh(ptIds.map(id => referenceMesh(id)), IndexedSeq[TriangleCell]())
+      val marginalGP = gp.marginal(ptIds.toIndexedSeq)
+      StatisticalMeshModel(newRef, marginalGP)
+    } else {
+      val marginalGP = gp.marginal(remainingPtIds.toIndexedSeq)
+      StatisticalMeshModel(clippedReference, marginalGP)
+    }
   }
 
   /**
