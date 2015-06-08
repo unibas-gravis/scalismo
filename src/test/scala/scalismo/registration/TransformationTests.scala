@@ -128,7 +128,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain[_1D](-50.0f, 1.0f, 100)
-      val continuousImage = DifferentiableScalarImage(domain.imageBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
+      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)
@@ -157,7 +157,7 @@ class TransformationTests extends ScalismoTestSuite {
 
       val parameterVector = DenseVector[Float](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
       val origin = discreteImage.domain.origin
-      val corner = discreteImage.domain.imageBox.oppositeCorner
+      val corner = discreteImage.domain.boundingBox.oppositeCorner
       val center = ((corner - origin) * 0.5).toPoint
 
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)
@@ -179,9 +179,9 @@ class TransformationTests extends ScalismoTestSuite {
       val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
       rotRotMesh.points.zipWithIndex.foreach {
         case (p, i) =>
-          p(0) should be(mesh.points(i)(0) +- 0.000001)
-          p(1) should be(mesh.points(i)(1) +- 0.000001)
-          p(2) should be(mesh.points(i)(2) +- 0.000001)
+          p(0) should be(mesh.point(i)(0) +- 0.000001)
+          p(1) should be(mesh.point(i)(1) +- 0.000001)
+          p(2) should be(mesh.point(i)(2) +- 0.000001)
       }
     }
 

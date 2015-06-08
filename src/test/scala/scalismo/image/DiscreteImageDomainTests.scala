@@ -18,6 +18,7 @@ package scalismo.image
 
 import java.io.File
 import breeze.linalg.*
+import scalismo.common.BoxDomain
 import scalismo.io.ImageIO
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
@@ -33,25 +34,32 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(domain.numberOfPoints === domain.points.size)
     }
 
-    it("keeps the same imagebox when it is create with a new size") {
+    it("keeps the same boundingbox when it is create with a new size") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
-      val newDomain = DiscreteImageDomain(domain.imageBox, size = domain.size.map(i => (i * 1.5f).toInt))
+      val newDomain = DiscreteImageDomain(domain.boundingBox, size = domain.size.map(i => (i * 1.5f).toInt))
 
-      newDomain.imageBox.origin should equal(domain.imageBox.origin)
-      newDomain.imageBox.volume should be(domain.imageBox.volume +- 1e-1f)
+      newDomain.boundingBox.origin should equal(domain.boundingBox.origin)
+      newDomain.boundingBox.volume should be(domain.boundingBox.volume +- 1e-1f)
     }
 
-    it("keeps the same imagebox approximately the same when it is create with a new spacing") {
+    it("keeps the same boundingbox approximately the same when it is create with a new spacing") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
-      val newDomain = DiscreteImageDomain(domain.imageBox, spacing = domain.spacing.map(i => (i * 1.5f)))
+      val newDomain = DiscreteImageDomain(domain.boundingBox, spacing = domain.spacing.map(i => (i * 1.5f)))
 
-      newDomain.imageBox.origin should equal(domain.imageBox.origin)
+      newDomain.boundingBox.origin should equal(domain.boundingBox.origin)
 
       // as the size needs to be integer, it can be that the imageBox is slightly larger.
       // The difference is, however , guaranteed to be smaller than the spacing in each direction. This is also
       // the difference between bounding and image box.
-      newDomain.imageBox.volume should be >= (domain.imageBox.volume)
-      newDomain.boundingBox.volume should be <= (domain.imageBox.volume)
+      newDomain.boundingBox.volume should be >= (domain.boundingBox.volume)
+      newDomain.boundingBox.volume should be <= BoxDomain(domain.boundingBox.origin, domain.boundingBox.oppositeCorner + Vector(1f, 1f)).volume
+    }
+
+    it("identifies the closest point correctly") {
+      val domain = DiscreteImageDomain[_2D]((0f, 0f), (1.0f, 1.0f), (20, 20))
+      val (closestPt, closestPtId) = domain.findClosestPoint(Point(0.1f, 20.6f))
+      closestPt should equal(Point(0f, 21f))
+      closestPtId should equal(domain.pointId(closestPt).get)
     }
 
   }
@@ -117,8 +125,8 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
       assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
 
-      (trans(Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))) - origImg.domain.imageBox.oppositeCorner).norm should be < (0.1)
-      (inverseTrans(origImg.domain.imageBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))).norm should be < (0.1)
+      (trans(Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))) - origImg.domain.boundingBox.oppositeCorner).norm should be < (0.1)
+      (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))).norm should be < (0.1)
     }
 
   }

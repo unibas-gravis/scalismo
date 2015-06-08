@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ BoxDomain, DiscreteDomain, RealSpace, VectorField }
+import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
@@ -39,7 +39,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val numSamples = 500
       def sampleValueForIthPoint(i: Int) = for (_ <- 0 until numSamples) yield {
-        val ptData = gp.sampleAtPoints(pts)
+        val ptData = gp.sampleAtPoints(UnstructuredPointsDomain(pts))
         ptData(i)(0)
       }
 
@@ -79,8 +79,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val m = VectorField(domain, (_: Point[_2D]) => Vector(0.0f, 0.0f))
       val gp = GaussianProcess(m, UncorrelatedKernel[_2D](GaussianKernel[_2D](1.0)))
 
-      val testPts = Seq(Point(-1.0f, 1.5f), Point(0.0f, 1.7f))
-      val discreteGP = gp.marginal(testPts)
+      val testPts = IndexedSeq(Point(-1.0f, 1.5f), Point(0.0f, 1.7f))
+      val discreteGP = gp.marginal(UnstructuredPointsDomain(testPts))
 
       for ((testPt, testPtId) <- testPts.zipWithIndex) {
         discreteGP.mean(testPtId) should equal(gp.mean(testPt))
@@ -272,7 +272,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 100)
 
       val discretizationPoints = sampler.sample.map(_._1)
-      val discreteGP = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
+      val discreteGP = DiscreteLowRankGaussianProcess(UnstructuredPointsDomain(discretizationPoints), lowRankGp)
 
       val coeffs = DenseVector.zeros[Float](lowRankGp.klBasis.size)
       val gpInstance = lowRankGp.instance(coeffs)
@@ -299,13 +299,13 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 200)
 
       val discretizationPoints = sampler.sample.map(_._1)
-      val discreteLowRankGp = DiscreteLowRankGaussianProcess(DiscreteDomain.fromSeq(discretizationPoints), lowRankGp)
+      val discreteLowRankGp = DiscreteLowRankGaussianProcess(UnstructuredPointsDomain(discretizationPoints), lowRankGp)
     }
 
     it("will yield the correct values at the interpolation points when it is interpolated") {
       val f = Fixture
       val gp = f.discreteLowRankGp.interpolateNystrom(100)
-      val discreteGp = gp.discretize(f.discretizationPoints)
+      val discreteGp = gp.discretize(UnstructuredPointsDomain(f.discretizationPoints))
 
       val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
       val coeffs = DenseVector.rand(gp.rank, gaussRNG).map(_.toFloat)
@@ -373,8 +373,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yields the same result for the marginal as the discretegp") {
       val f = Fixture
 
-      val pts = f.discretizationPoints
-      val dgp1 = f.lowRankGp.marginal(pts).marginal(Seq(0, 1, 2))
+      val domain = UnstructuredPointsDomain(f.discretizationPoints)
+      val dgp1 = f.lowRankGp.marginal(domain).marginal(Seq(0, 1, 2))
       val dgp2 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
       dgp1.mean.asBreezeVector should equal(dgp2.mean.asBreezeVector)
       dgp1.cov.asBreezeMatrix should equal(dgp2.cov.asBreezeMatrix)

@@ -39,7 +39,7 @@ trait Sampler[D <: Dim] {
 }
 
 case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
-  override def volumeOfSampleRegion = domain.imageBox.volume
+  override def volumeOfSampleRegion = domain.boundingBox.volume
   override val numberOfPoints = domain.numberOfPoints
 
   val p = 1.0 / volumeOfSampleRegion

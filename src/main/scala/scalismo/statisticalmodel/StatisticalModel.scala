@@ -87,7 +87,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
     val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2).toIndexedSeq
     if (remainingPtIds.size == 0) {
-      val newRef = TriangleMesh(ptIds.map(id => referenceMesh(id)), IndexedSeq[TriangleCell]())
+      val newRef = TriangleMesh(ptIds.map(id => referenceMesh.point(id)), IndexedSeq[TriangleCell]())
       val marginalGP = gp.marginal(ptIds.toIndexedSeq)
       StatisticalMeshModel(newRef, marginalGP)
     } else {
@@ -118,7 +118,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(trainingData: IndexedSeq[(Int, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
-    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint) => (id, targetPoint - referenceMesh(id)) }
+    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint) => (id, targetPoint - referenceMesh.point(id)) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements, sigma2)
     new StatisticalMeshModel(referenceMesh, posteriorGp)
   }
@@ -127,7 +127,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(trainingData: IndexedSeq[(Int, Point[_3D], NDimensionalNormalDistribution[_3D])]): StatisticalMeshModel = {
-    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, cov) => (id, targetPoint - referenceMesh(id), cov) }
+    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, cov) => (id, targetPoint - referenceMesh.point(id), cov) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements)
     new StatisticalMeshModel(referenceMesh, posteriorGp)
   }
