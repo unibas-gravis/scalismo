@@ -140,8 +140,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](me
   /**
    * Discretize the gaussian process on the given points.
    */
-  def discretize(points: Seq[Point[D]]): DiscreteLowRankGaussianProcess[D, DO] = {
-    val domain = DiscreteDomain.fromSeq(points.toIndexedSeq)
+  def discretize(domain: DiscreteDomain[D]): DiscreteLowRankGaussianProcess[D, DO] = {
     DiscreteLowRankGaussianProcess(domain, this)
   }
 

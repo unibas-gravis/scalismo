@@ -305,7 +305,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("will yield the correct values at the interpolation points when it is interpolated") {
       val f = Fixture
       val gp = f.discreteLowRankGp.interpolateNystrom(100)
-      val discreteGp = gp.discretize(f.discretizationPoints)
+      val discreteGp = gp.discretize(DiscreteDomain.fromSeq(f.discretizationPoints))
 
       val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
       val coeffs = DenseVector.rand(gp.rank, gaussRNG).map(_.toFloat)
