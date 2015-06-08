@@ -27,7 +27,7 @@ trait SearchPointSampler extends Function2[TriangleMesh, Int, immutable.Seq[Poin
 case class NormalDirectionSearchPointSampler(numberOfPoints: Int, searchDistance: Float) extends SearchPointSampler {
 
   override def apply(mesh: TriangleMesh, pointId: Int): immutable.Seq[Point[_3D]] = {
-    val point = mesh.points(pointId)
+    val point = mesh.point(pointId)
     val interval = searchDistance * 2 / numberOfPoints
 
     val normalUnnormalized = mesh.normalAtPoint(point)

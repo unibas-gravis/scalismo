@@ -18,7 +18,6 @@ package scalismo.image
 import breeze.linalg.DenseVector
 import scalismo.common._
 
-import scalismo.common.DiscreteDomain.CanBound
 import scalismo.common.{ RealSpace, ScalarField, DiscreteScalarField, DiscreteField }
 import scalismo.geometry._
 import scalismo.image

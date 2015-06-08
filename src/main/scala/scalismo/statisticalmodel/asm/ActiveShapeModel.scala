@@ -17,6 +17,7 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import scalismo.common._
+import scalismo.common.UnstructuredPointsDomain3D
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
@@ -44,7 +45,7 @@ object ActiveShapeModel {
     val imageFeatures = trainingData.flatMap {
       case (image, transform) =>
         val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
-        pointIds.map { pointId => featureExtractor(pimg, mesh, mesh.points(pointId)) }
+        pointIds.map { pointId => featureExtractor(pimg, mesh, mesh.point(pointId)) }
     }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -58,7 +59,7 @@ object ActiveShapeModel {
       MultivariateNormalDistribution.estimateFromData(featuresForPoint)
     }
 
-    val profiles = new Profiles(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](points), pointFeatures)
+    val profiles = new Profiles(new UnstructuredPointsDomain3D(points), pointFeatures)
     ActiveShapeModel(statisticalModel, profiles, preprocessor, featureExtractor, pointIds)
   }
 }
@@ -120,9 +121,9 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * Returns the mean mesh of the shape model, along with the mean feature profiles at the profile points
    */
   def mean(): ASMSample = {
-    val meanProfilePoints = pointIds.map(id => statisticalModel.mean(id))
+    val meanProfilePoints = pointIds.map(id => statisticalModel.mean.point(id))
     val meanFeatures = profiles.values.map(_.mean).toIndexedSeq
-    val featureField = DiscreteFeatureField(meanProfilePoints zip meanFeatures)
+    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
     ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
 
@@ -131,9 +132,9 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def sample(): ASMSample = {
     val sampleMesh = statisticalModel.sample
-    val randomProfilePoints = pointIds.map(id => sampleMesh(id))
+    val randomProfilePoints = pointIds.map(id => sampleMesh.point(id))
     val randomFeatures = profiles.values.map(_.sample()).toIndexedSeq
-    val featureField = DiscreteFeatureField(randomProfilePoints zip randomFeatures)
+    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
   }
 
@@ -143,9 +144,9 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
 
   def sampleFeaturesOnly(): ASMSample = {
-    val meanProfilePoints = pointIds.map(id => statisticalModel.mean(id))
+    val meanProfilePoints = pointIds.map(id => statisticalModel.mean.point(id))
     val randomFeatures = profiles.values.map(_.sample()).toIndexedSeq
-    val featureField = DiscreteFeatureField(meanProfilePoints zip randomFeatures)
+    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
 
@@ -157,7 +158,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   def transform(rigidTransformation: RigidTransformation[_3D]): ActiveShapeModel = {
     val transformedModel = statisticalModel.transform(rigidTransformation)
-    val newDomain = SpatiallyIndexedDiscreteDomain(profiles.domain.points.map(rigidTransformation).toIndexedSeq, profiles.domain.numberOfPoints)
+    val newDomain = new UnstructuredPointsDomain3D(profiles.domain.points.map(rigidTransformation).toIndexedSeq)
     val transformedProfiles = Profiles(newDomain, profiles.data)
     this.copy(statisticalModel = transformedModel, profiles = transformedProfiles)
   }
@@ -169,7 +170,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
       Failure(new IllegalStateException("No point correspondences found. You may need to relax the configuration thresholds."))
     } else Try {
 
-      val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.points(refPtId), tgtPt) }
+      val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.point(refPtId), tgtPt) }
       val bestRigidTransform = LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts)
 
       val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (refPtId, bestRigidTransform.inverse(tgtPt)) }
@@ -183,7 +184,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     }
   }
 
-  private def refPoint(profileIndex: Int): Point[_3D] = profiles.domain.points(profileIndex)
+  private def refPoint(profileIndex: Int): Point[_3D] = profiles.domain.point(profileIndex)
 
   private def refId(profileIndex: Int): PointId = pointIds(profileIndex)
 

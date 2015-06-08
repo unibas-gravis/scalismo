@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
-import scalismo.common.{ RealSpace, VectorField, DiscreteVectorField, DiscreteDomain }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
 import scalismo.mesh.kdtree.KDTreeMap
@@ -120,11 +120,11 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     DiscreteLowRankGaussianProcess.regression(this, trainingData)
   }
 
-  override def marginal(pointIds: Seq[Int]): DiscreteLowRankGaussianProcess[D, DO] = {
+  override def marginal(pointIds: Seq[Int])(implicit domainCreator: CreateUnstructuredPointsDomain[D]): DiscreteLowRankGaussianProcess[D, DO] = {
     val domainPts = domain.points.toIndexedSeq
 
     val newPts = pointIds.map(id => domainPts(id)).toIndexedSeq
-    val newDomain = DiscreteDomain.fromSeq(newPts)
+    val newDomain = domainCreator.create(newPts)
 
     val newMean = DiscreteVectorField(newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
 

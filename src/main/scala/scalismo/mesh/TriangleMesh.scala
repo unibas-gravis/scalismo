@@ -37,7 +37,7 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
  *
  */
 case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
-    extends SpatiallyIndexedDiscreteDomain[_3D](meshPoints, meshPoints.size) {
+    extends UnstructuredPointsDomain3D(meshPoints) {
 
   // a map that has for every point the neighboring cell ids
   private[scalismo] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
@@ -59,7 +59,7 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    *
    *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
-  override def transform(transform: Point[_3D] => Point[_3D]) = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
+  override def transform(transform: Point[_3D] => Point[_3D]): TriangleMesh = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
 
   /**
    * Returns the identifiers of the mesh cells to which the given point identifier belongs

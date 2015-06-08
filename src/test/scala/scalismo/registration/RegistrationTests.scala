@@ -74,9 +74,9 @@ class RegistrationTests extends ScalismoTestSuite {
     it("can retrieve correct parameters") {
 
       for ((p, i) <- rigidRegTransformed.points.zipWithIndex) {
-        p(0) should be(rigidTransformed.points(i)(0) +- 0.0001)
-        p(1) should be(rigidTransformed.points(i)(1) +- 0.0001)
-        p(2) should be(rigidTransformed.points(i)(2) +- 0.0001)
+        p(0) should be(rigidTransformed.point(i)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.point(i)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.point(i)(2) +- 0.0001)
       }
     }
 
@@ -85,9 +85,9 @@ class RegistrationTests extends ScalismoTestSuite {
       val tranformed = mesh.transform(regResult).transform(inverseTrans)
 
       for ((p, i) <- tranformed.points.zipWithIndex) {
-        p(0) should be(mesh.points(i)(0) +- 0.0001)
-        p(1) should be(mesh.points(i)(1) +- 0.0001)
-        p(2) should be(mesh.points(i)(2) +- 0.0001)
+        p(0) should be(mesh.point(i)(0) +- 0.0001)
+        p(1) should be(mesh.point(i)(1) +- 0.0001)
+        p(2) should be(mesh.point(i)(2) +- 0.0001)
       }
     }
   }
@@ -138,9 +138,9 @@ class RegistrationTests extends ScalismoTestSuite {
       val regSim = mesh transform regResult
 
       for ((p, i) <- regSim.points.zipWithIndex.take(100)) {
-        p(0) should be(translatedRotatedScaled.points(i)(0) +- 0.0001)
-        p(1) should be(translatedRotatedScaled.points(i)(1) +- 0.0001)
-        p(2) should be(translatedRotatedScaled.points(i)(2) +- 0.0001)
+        p(0) should be(translatedRotatedScaled.point(i)(0) +- 0.0001)
+        p(1) should be(translatedRotatedScaled.point(i)(1) +- 0.0001)
+        p(2) should be(translatedRotatedScaled.point(i)(2) +- 0.0001)
       }
     }
   }
@@ -157,7 +157,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val regConf = RegistrationConfiguration[_2D, TranslationSpace[_2D]](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(numIterations = 300),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
         transformationSpace = TranslationSpace[_2D],
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)
@@ -177,12 +177,12 @@ class RegistrationTests extends ScalismoTestSuite {
       val fixedImage = discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
-      val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
+      val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
       val regConf = RegistrationConfiguration[_2D, RotationSpace[_2D]](
 
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
         transformationSpace = RotationSpace[_2D](center),
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)
@@ -203,7 +203,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
     val domain = discreteFixedImage.domain
     val origin = domain.origin
-    val corener = domain.imageBox.oppositeCorner
+    val corener = domain.boundingBox.oppositeCorner
     val center = ((corener - origin) * 0.5).toPoint
 
     it("Recovers the correct parameters for a translation transfrom") {
@@ -214,7 +214,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val regConf = RegistrationConfiguration[_3D, TranslationSpace[_3D]](
         optimizer = LBFGSOptimizer(numIterations = 300),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)

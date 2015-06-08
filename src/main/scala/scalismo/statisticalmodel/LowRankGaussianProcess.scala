@@ -18,7 +18,6 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, Axis, DenseVector, DenseMatrix }
 import breeze.stats.distributions.Gaussian
-import scalismo.common.DiscreteDomain.CanBound
 import scalismo.common._
 import scalismo.geometry.{ Point, SquareMatrix, NDSpace, Dim, Vector }
 import scalismo.kernels.{ MatrixValuedPDKernel, Kernel }
@@ -74,12 +73,11 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
   /**
    * A random sample evaluated at the given points
    */
-  override def sampleAtPoints(pts: IndexedSeq[Point[D]]): DiscreteVectorField[D, DO] = {
+  override def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteVectorField[D, DO] = {
     // TODO check that points are part of the domain
     val aSample = sample
-    val values = pts.map(pt => aSample(pt))
-    val domain = SpatiallyIndexedDiscreteDomain.fromSeq(pts)
-    DiscreteVectorField(domain, values)
+    val values = domain.points.map(pt => aSample(pt))
+    DiscreteVectorField(domain, values.toIndexedSeq)
   }
 
   /**
@@ -140,8 +138,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
   /**
    * Discretize the gaussian process on the given points.
    */
-  def discretize(points: Seq[Point[D]]): DiscreteLowRankGaussianProcess[D, DO] = {
-    val domain = DiscreteDomain.fromSeq(points.toIndexedSeq)
+  def discretize(domain: DiscreteDomain[D]): DiscreteLowRankGaussianProcess[D, DO] = {
     DiscreteLowRankGaussianProcess(domain, this)
   }
 

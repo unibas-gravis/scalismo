@@ -17,8 +17,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.DiscreteDomain.CanBound
-import scalismo.common.{ RealSpace, VectorField, DiscreteDomain, DiscreteVectorField }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels.{ MatrixValuedPDKernel, Kernel, DiscreteMatrixValuedPDKernel }
 import scalismo.mesh.kdtree.KDTreeMap
@@ -68,11 +67,11 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
    * The marginal distribution for the points specified by the given point ids.
    * Note that this is again a DiscreteGaussianProcess.
    */
-  def marginal(pointIds: Seq[Int]): DiscreteGaussianProcess[D, DO] = {
+  def marginal(pointIds: Seq[Int])(implicit domainCreator: CreateUnstructuredPointsDomain[D]): DiscreteGaussianProcess[D, DO] = {
     val domainPts = domain.points.toIndexedSeq
 
     val newPts = pointIds.map(id => domainPts(id)).toIndexedSeq
-    val newDomain = DiscreteDomain.fromSeq(newPts)
+    val newDomain = domainCreator.create(newPts)
 
     val newMean = DiscreteVectorField(newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
     val newCov = (i: Int, j: Int) => {

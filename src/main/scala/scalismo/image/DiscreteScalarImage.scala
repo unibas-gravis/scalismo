@@ -62,8 +62,6 @@ abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTa
 
 }
 
-
-
 /**
  * Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.
  */
@@ -118,8 +116,6 @@ object DiscreteScalarImage {
 
 }
 
-
-
 private class DiscreteScalarImage1D[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D], data: ScalarArray[A]) extends DiscreteScalarImage[_1D, A](domain, data) {
 
   def interpolate(degree: Int): DifferentiableScalarImage[_1D] = {
@@ -156,7 +152,7 @@ private class DiscreteScalarImage1D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val splineBasisD1: (Double => Double) = { x => (BSpline.nthOrderBSpline(degree - 1)(x + 0.5f) - BSpline.nthOrderBSpline(degree - 1)(x - 0.5f)) * (1 / domain.spacing(0)) }
       Vector(iterateOnPoints(x, splineBasisD1).toFloat)
     }
-    DifferentiableScalarImage(domain.imageBox, f, df)
+    DifferentiableScalarImage(domain.boundingBox, f, df)
   }
 
   /* determine the b-spline coefficients for a 1D image */
@@ -217,7 +213,7 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
       Vector(dfx, dfy)
     }
 
-    DifferentiableScalarImage(domain.imageBox, f, df)
+    DifferentiableScalarImage(domain.boundingBox, f, df)
 
   }
 
@@ -297,7 +293,7 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val dfz = (iterateOnPoints(x, splineBasisD3) * (1 / domain.spacing(2))).toFloat
       Vector(dfx, dfy, dfz)
     }
-    DifferentiableScalarImage(domain.imageBox, f, df)
+    DifferentiableScalarImage(domain.boundingBox, f, df)
 
   }
 

@@ -16,7 +16,6 @@
 package scalismo.image.filter
 
 import scalismo.common.{ ScalarArray, Scalar }
-import scalismo.common.DiscreteDomain.CanBound
 import scalismo.image.{ DiscreteScalarImage }
 import scalismo.geometry._
 import scalismo.utils.{ CanConvertToVtk, ImageConversion }

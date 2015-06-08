@@ -68,7 +68,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       def t(pt: Point[_3D]): Point[_3D] = {
         val (refPt, ptId) = model.referenceMesh.findClosestPoint(pt)
-        newMesh(ptId)
+        newMesh.point(ptId)
       }
 
       val newModel = model.changeReference(t)

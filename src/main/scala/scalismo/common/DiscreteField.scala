@@ -20,7 +20,6 @@ import scalismo.geometry.{ NDSpace, Dim, Vector }
 import scala.reflect.ClassTag
 import scalismo.geometry.NDSpace
 import scalismo.geometry.Point
-import scalismo.common.DiscreteDomain._
 
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
@@ -74,8 +73,7 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
     other.isInstanceOf[DiscreteField[D, A]]
 
   def interpolateNearestNeighbor: ScalarField[D, A] = {
-    val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)
-    ScalarField(RealSpace[D], (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))
+    ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
   }
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 
@@ -91,8 +89,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace] private (val do
   override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
 
   def interpolateNearestNeighbor(): VectorField[D, DO] = {
-    val indexedDomain = SpatiallyIndexedDiscreteDomain(domain.points.toIndexedSeq, domain.numberOfPoints)
-    VectorField(RealSpace[D], (p: Point[D]) => apply(indexedDomain.findClosestPoint(p)._2))
+    VectorField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
   }
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
