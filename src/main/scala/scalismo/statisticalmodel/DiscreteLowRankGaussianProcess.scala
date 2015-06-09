@@ -164,11 +164,9 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
     // TODO, here we could do something smarter, such as e.g. b-spline interpolation
     val meanPD = this.mean
-    val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
 
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
-      val (closestPt, closestPtId) = closestPts(0)
+      val (closestPt, closestPtId) = self.domain.findClosestPoint(pt)
       meanPD(closestPtId)
     }
 
@@ -176,10 +174,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
       override val domain = RealSpace[D]
 
       override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-        val closestPtsX = kdTreeMap.findNearest(x, n = 1)
-        val (closestX, xId) = closestPtsX(0)
-        val closestPtsY = kdTreeMap.findNearest(y, n = 1)
-        val (closestY, yId) = closestPtsY(0)
+        val (closestX, xId) = self.domain.findClosestPoint(x)
+        val (closestY, yId) = self.domain.findClosestPoint(y)
         cov(xId, yId)
       }
     }
@@ -194,17 +190,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   override def interpolateNearestNeighbor: LowRankGaussianProcess[D, DO] = {
 
     val meanPD = this.mean
-    val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
 
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
-      val (closestPt, closestPtId) = closestPts(0)
+      val (closestPt, closestPtId) = domain.findClosestPoint(pt)
       meanPD(closestPtId)
     }
 
     def phi(i: Int)(pt: Point[D]): Vector[DO] = {
-      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
-      val (_, closestPtId) = closestPts(0)
+      val (_, closestPtId) = domain.findClosestPoint(pt)
       Vector[DO](basisMatrix(closestPtId * outputDimensionality until (closestPtId + 1) * outputDimensionality, i).toArray)
     }
 

@@ -28,7 +28,7 @@ import scalismo.mesh.kdtree.KDTreeMap
  * class that we represent (discrete) functions, defined on the given domain.
  */
 class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val mean: DiscreteVectorField[D, DO],
-    val cov: DiscreteMatrixValuedPDKernel[D, DO]) {
+    val cov: DiscreteMatrixValuedPDKernel[D, DO]) { self =>
 
   require(mean.domain == cov.domain)
 
@@ -89,17 +89,10 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
   def interpolateNearestNeighbor: GaussianProcess[D, DO] = {
 
     val meanDiscreteGp = this.mean
-    val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
-
-    def closestPt(pt: Point[D]): (Point[D], Int) = {
-      val closestPts = kdTreeMap.findNearest(pt, n = 1)
-      val (closestPt, closestPtId) = closestPts(0)
-      (closestPt, closestPtId)
-    }
 
     val newDomain = RealSpace[D]
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val (_, closestPtId) = closestPt(pt)
+      val (_, closestPtId) = domain.findClosestPoint(pt)
       meanDiscreteGp(closestPtId)
     }
 
@@ -107,8 +100,8 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
       override val domain = newDomain
 
       override def k(pt1: Point[D], pt2: Point[D]): SquareMatrix[DO] = {
-        val (_, closestPtId1) = closestPt(pt1)
-        val (_, closestPtId2) = closestPt(pt2)
+        val (_, closestPtId1) = self.domain.findClosestPoint(pt1)
+        val (_, closestPtId2) = self.domain.findClosestPoint(pt2)
         cov(closestPtId1, closestPtId2)
       }
     }
