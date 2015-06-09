@@ -57,7 +57,7 @@ object Registration {
           val integrationStrategy = Integrator[D](sampleStrategy)
 
           // compute the value of the cost function
-          val transformation = transformationSpace.transformForParameters(params)
+          val transformation = Transformation.memoize(transformationSpace.transformForParameters(params), 100000)
           val errorVal = config.metric.value(movingImage, fixedImage, transformation)
           val value = errorVal + config.regularizationWeight * regularizer(params)
 
