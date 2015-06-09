@@ -97,9 +97,15 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)] = ???
 
   private def continuousIndextoIndex(cidx: Vector[D]): Index[D] = {
-    val data = cidx.data.map(Math.round)
-    Index[D](data)
+    var d = 0;
+    val indexData = new Array[Int](dimensionality)
+    while (d < dimensionality) {
+      indexData(d) = Math.min(Math.round(cidx(d)), size(d) - 1)
+      d += 1
+    }
+    Index[D](indexData)
   }
+
   private def pointToContinuousIndex(pt: Point[D]): Vector[D] = {
     val data = (0 until dimensionality).map(i => (pt(i) - origin(i)) / spacing(i))
     Vector[D](data.toArray)
