@@ -27,6 +27,7 @@ import scalismo.registration.Transformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess._
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => DiscreteEigenpair }
+import scalismo.utils.Memoize
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -191,18 +192,25 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
     val meanPD = this.mean
 
-    def meanFun(pt: Point[D]): Vector[DO] = {
-      val (closestPt, closestPtId) = domain.findClosestPoint(pt)
+    // we cache the closest point computation, as it might be heavy for general domains, and we know that
+    // we will have the same oints for all the eigenfunctions
+    val findClosestPointMemo = Memoize((pt: Point[D]) => domain.findClosestPoint(pt)._2, cacheSizeHint = 1000000)
+
+    def meanFun(closestPointFun: Point[D] => Int)(pt: Point[D]): Vector[DO] = {
+      val closestPtId = closestPointFun(pt)
       meanPD(closestPtId)
     }
 
-    def phi(i: Int)(pt: Point[D]): Vector[DO] = {
-      val (_, closestPtId) = domain.findClosestPoint(pt)
+    def phi(i: Int, closetPointFun: Point[D] => Int)(pt: Point[D]): Vector[DO] = {
+      val closestPtId = closetPointFun(pt)
       Vector[DO](basisMatrix(closestPtId * outputDimensionality until (closestPtId + 1) * outputDimensionality, i).toArray)
     }
 
-    val interpolatedKLBasis = (0 until rank) map (i => Eigenpair(variance(i), VectorField(RealSpace[D], phi(i) _)))
-    new LowRankGaussianProcess(VectorField(RealSpace[D], meanFun), interpolatedKLBasis)
+    val interpolatedKLBasis = {
+
+      (0 until rank) map (i => Eigenpair(variance(i), VectorField(RealSpace[D], phi(i, findClosestPointMemo))))
+    }
+    new LowRankGaussianProcess(VectorField(RealSpace[D], meanFun(findClosestPointMemo)), interpolatedKLBasis)
   }
 
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
