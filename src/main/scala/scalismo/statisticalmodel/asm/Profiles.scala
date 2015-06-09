@@ -22,7 +22,7 @@ import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 import scala.collection.immutable
 
-case class Profiles(domain: SpatiallyIndexedDiscreteDomain[_3D], data: immutable.IndexedSeq[MultivariateNormalDistribution])
+case class Profiles(domain: UnstructuredPointsDomain[_3D], data: immutable.IndexedSeq[MultivariateNormalDistribution])
     extends DiscreteField[_3D, MultivariateNormalDistribution] {
   require(domain.numberOfPoints == data.size)
 
@@ -45,19 +45,16 @@ case class Profiles(domain: SpatiallyIndexedDiscreteDomain[_3D], data: immutable
  *
  */
 
-case class DiscreteFeatureField[D <: Dim: NDSpace](private val pointsAndValues: IndexedSeq[(Point[D], DenseVector[Float])]) extends DiscreteField[D, DenseVector[Float]] {
+case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: DiscreteDomain[D], val _values: IndexedSeq[DenseVector[Float]]) extends DiscreteField[D, DenseVector[Float]] {
 
-  override def apply(i: Int) = pointsAndValues(i)._2
+  override def apply(i: Int) = _values(i)
 
-  override def isDefinedAt(i: Int) = i >= 0 && i < pointsAndValues.size
+  override def isDefinedAt(i: Int) = i < domain.numberOfPoints
 
-  override def domain = DiscreteDomain.fromSeq[D](pointsAndValues.map(_._1))
-
-  override def values = pointsAndValues.map(_._2).toIterator
+  override def values = _values.toIterator
 
   override def interpolateNearestNeighbor(): Field[D, DenseVector[Float]] = {
-    val indexedDom = SpatiallyIndexedDiscreteDomain.fromSeq[D](pointsAndValues.map(_._1))
-    Field(RealSpace[D], (p: Point[D]) => apply(indexedDom.findClosestPoint(p)._2))
+    Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
   }
 }
 

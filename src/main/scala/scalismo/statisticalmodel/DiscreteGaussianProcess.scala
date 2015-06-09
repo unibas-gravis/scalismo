@@ -17,8 +17,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.DiscreteDomain.CanBound
-import scalismo.common.{ RealSpace, VectorField, DiscreteDomain, DiscreteVectorField }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels.{ MatrixValuedPDKernel, Kernel, DiscreteMatrixValuedPDKernel }
 import scalismo.mesh.kdtree.KDTreeMap
@@ -28,7 +27,7 @@ import scalismo.mesh.kdtree.KDTreeMap
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] private[scalismo] (val mean: DiscreteVectorField[D, DO],
+class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val mean: DiscreteVectorField[D, DO],
     val cov: DiscreteMatrixValuedPDKernel[D, DO]) {
 
   require(mean.domain == cov.domain)
@@ -68,11 +67,11 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
    * The marginal distribution for the points specified by the given point ids.
    * Note that this is again a DiscreteGaussianProcess.
    */
-  def marginal(pointIds: Seq[Int]): DiscreteGaussianProcess[D, DO] = {
+  def marginal(pointIds: Seq[Int])(implicit domainCreator: CreateUnstructuredPointsDomain[D]): DiscreteGaussianProcess[D, DO] = {
     val domainPts = domain.points.toIndexedSeq
 
     val newPts = pointIds.map(id => domainPts(id)).toIndexedSeq
-    val newDomain = DiscreteDomain.fromSeq(newPts)
+    val newDomain = domainCreator.create(newPts)
 
     val newMean = DiscreteVectorField(newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
     val newCov = (i: Int, j: Int) => {
@@ -144,11 +143,11 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace] p
 
 object DiscreteGaussianProcess {
 
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO], cov: DiscreteMatrixValuedPDKernel[D, DO]) = {
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: DiscreteVectorField[D, DO], cov: DiscreteMatrixValuedPDKernel[D, DO]) = {
     new DiscreteGaussianProcess[D, DO](mean, cov)
   }
 
-  def apply[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](domain: DiscreteDomain[D], gp: GaussianProcess[D, DO]) = {
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], gp: GaussianProcess[D, DO]) = {
     val domainPoints = domain.points.toIndexedSeq
 
     val discreteMean = DiscreteVectorField[D, DO](domain, domainPoints.map(pt => gp.mean(pt)))
@@ -159,7 +158,7 @@ object DiscreteGaussianProcess {
     new DiscreteGaussianProcess[D, DO](discreteMean, discreteCov)
   }
 
-  def regression[D <: Dim: NDSpace: CanBound, DO <: Dim: NDSpace](discreteGp: DiscreteGaussianProcess[D, DO],
+  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](discreteGp: DiscreteGaussianProcess[D, DO],
     trainingData: IndexedSeq[(Int, Vector[DO], NDimensionalNormalDistribution[DO])]): DiscreteGaussianProcess[D, DO] = {
 
     // TODO, this is somehow a hack to reuse the code written for the general GP regression. We should think if that has disadvantages

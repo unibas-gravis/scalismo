@@ -19,7 +19,7 @@ import java.io.{ IOException, File }
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`.Group
-import scalismo.common.SpatiallyIndexedDiscreteDomain
+import scalismo.common.UnstructuredPointsDomain
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.MultivariateNormalDistribution
@@ -108,8 +108,8 @@ object ActiveShapeModelIO {
       preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
       featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
-      (profiles, pointIds) <- readProfilesAndPointIds(h5file, profilesGroup, shapeModel.referenceMesh)
-    } yield ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor, pointIds)
+      profilesAndPointIds <- readProfilesAndPointIds(h5file, profilesGroup, shapeModel.referenceMesh)
+    } yield ActiveShapeModel(shapeModel, profilesAndPointIds._1, preprocessor, featureExtractor, profilesAndPointIds._2)
   }
 
   private[this] def readProfilesAndPointIds(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[(Profiles, immutable.IndexedSeq[Int])] = {
@@ -117,7 +117,7 @@ object ActiveShapeModelIO {
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
       pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
-      pts = pointIds.map(id => referenceMesh.points(id)).toIndexedSeq
+      pts = pointIds.map(id => referenceMesh.point(id)).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
       (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
@@ -125,7 +125,7 @@ object ActiveShapeModelIO {
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.to[immutable.IndexedSeq]
-      (Profiles(SpatiallyIndexedDiscreteDomain.fromSeq[_3D](pts), dists), pointIds.toIndexedSeq)
+      (Profiles(UnstructuredPointsDomain[_3D](pts), dists), pointIds.toIndexedSeq)
     }
 
   }

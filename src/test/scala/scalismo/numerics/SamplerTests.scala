@@ -41,7 +41,7 @@ class SamplerTests extends ScalismoTestSuite {
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
-        val vec = cell.pointIds.map(facemesh.points).map(_.toVector)
+        val vec = cell.pointIds.map(facemesh.point).map(_.toVector)
         val (a, b, c) = (vec(0), vec(1), vec(2))
         val v0 = c - a
         val v1 = b - a
