@@ -34,7 +34,7 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
 
   override def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
 
-    def kdtreeLookup(pt : Point[D]) = {
+    def kdtreeLookup(pt: Point[D]) = {
       val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
       nearestPtsAndIndices(0)
     }
