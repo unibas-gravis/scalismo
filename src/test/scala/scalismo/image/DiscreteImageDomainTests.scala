@@ -34,6 +34,14 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(domain.numberOfPoints === domain.points.size)
     }
 
+    it("yields valid point ids") {
+      val domain = DiscreteImageDomain[_2D]((0f, 0f), (1.0f, 1.0f), (20, 20))
+      for (pt <- domain.points) {
+        val ptId = domain.pointId(pt).get
+        ptId should be < domain.numberOfPoints
+      }
+    }
+
     it("keeps the same boundingbox when it is create with a new size") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
       val newDomain = DiscreteImageDomain(domain.boundingBox, size = domain.size.map(i => (i * 1.5f).toInt))
@@ -57,9 +65,20 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
 
     it("identifies the closest point correctly") {
       val domain = DiscreteImageDomain[_2D]((0f, 0f), (1.0f, 1.0f), (20, 20))
-      val (closestPt, closestPtId) = domain.findClosestPoint(Point(0.1f, 20.6f))
-      closestPt should equal(Point(0f, 21f))
-      closestPtId should equal(domain.pointId(closestPt).get)
+      def testPoint(pt: Point[_2D], correctClosestPoint: Point[_2D]) = {
+        val (closestPt, closestPtId) = domain.findClosestPoint(pt)
+        closestPt should equal(correctClosestPoint)
+        closestPtId should equal(domain.pointId(closestPt).get)
+        closestPtId should be < domain.numberOfPoints
+      }
+
+      // test all points that are inside the domain
+      for (pt <- domain.points) {
+        testPoint(pt, pt)
+      }
+
+      // test a point that is outside of the domain
+      testPoint(Point(0.1f, 20.6f), Point(0f, 19f))
     }
 
   }
