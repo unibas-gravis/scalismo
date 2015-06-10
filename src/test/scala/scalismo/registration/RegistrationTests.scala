@@ -19,9 +19,12 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
+import scalismo.common.{ VectorField, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
+import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel }
 import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
+import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess }
 
 import scala.language.implicitConversions
 
@@ -194,6 +197,66 @@ class RegistrationTests extends ScalismoTestSuite {
 
       regResult.parameters(0) should be(rotationParams(0) +- 0.01)
     }
+
+    it("Recovers the correct parameters for a gp transfrom") {
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
+
+      val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+      val fixedImage = discreteFixedImage.interpolate(3)
+
+      val domain = discreteFixedImage.domain
+
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
+        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
+        optimizer = LBFGSOptimizer(numIterations = 300),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
+        transformationSpace = GaussianProcessTransformationSpace(lowRankGp),
+        regularizer = L2Regularizer,
+        regularizationWeight = 0.0)
+
+      val gpParams = DenseVector.ones[Float](lowRankGp.rank)
+      val groundTruthTransform = regConf.transformationSpace.transformForParameters(gpParams)
+      val transformedLena = fixedImage compose groundTruthTransform
+      val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
+
+      for (i <- 0 until regResult.parameters.size) {
+        regResult.parameters(i) should be(gpParams(0) +- 0.1)
+      }
+    }
+
+    it("Recovers the correct parameters for a gp transfrom with a nn interpolated gp") {
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
+
+      val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+      val fixedImage = discreteFixedImage.interpolate(3)
+
+      val domain = discreteFixedImage.domain
+
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor
+      val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
+        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
+        optimizer = LBFGSOptimizer(numIterations = 300),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
+        transformationSpace = GaussianProcessTransformationSpace(nnInterpolatedGp),
+        regularizer = L2Regularizer,
+        regularizationWeight = 0.0)
+
+      val gpParams = DenseVector.ones[Float](lowRankGp.rank)
+      val groundTruthTransform = regConf.transformationSpace.transformForParameters(gpParams)
+      val transformedLena = fixedImage compose groundTruthTransform
+      val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
+
+      for (i <- 0 until regResult.parameters.size) {
+        regResult.parameters(i) should be(gpParams(0) +- 0.1)
+      }
+    }
+
   }
 
   describe("A 3D image registration") {

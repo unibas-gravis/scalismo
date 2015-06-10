@@ -33,8 +33,18 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
   override def isDefinedAt(pt: Point[D]) = pointIDMap.contains(pt)
 
   override def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
-    val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
-    nearestPtsAndIndices(0)
+
+    def kdtreeLookup(pt: Point[D]) = {
+      val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
+      nearestPtsAndIndices(0)
+    }
+
+    // first we check if the point is part of the domain (i.e. we get a pointId for the point).
+    // if not, we do a KDtree lookup, which is more expensive
+    pointId(pt) match {
+      case Some(id) => (pt, id)
+      case None => kdtreeLookup(pt)
+    }
   }
 
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)] = kdTreeMap.findNearest(pt, n)

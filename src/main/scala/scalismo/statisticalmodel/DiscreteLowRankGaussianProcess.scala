@@ -27,6 +27,7 @@ import scalismo.registration.Transformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess._
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => DiscreteEigenpair }
+import scalismo.utils.Memoize
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -164,11 +165,9 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
     // TODO, here we could do something smarter, such as e.g. b-spline interpolation
     val meanPD = this.mean
-    val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
 
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
-      val (closestPt, closestPtId) = closestPts(0)
+      val (closestPt, closestPtId) = self.domain.findClosestPoint(pt)
       meanPD(closestPtId)
     }
 
@@ -176,10 +175,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
       override val domain = RealSpace[D]
 
       override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-        val closestPtsX = kdTreeMap.findNearest(x, n = 1)
-        val (closestX, xId) = closestPtsX(0)
-        val closestPtsY = kdTreeMap.findNearest(y, n = 1)
-        val (closestY, yId) = closestPtsY(0)
+        val (closestX, xId) = self.domain.findClosestPoint(x)
+        val (closestY, yId) = self.domain.findClosestPoint(y)
         cov(xId, yId)
       }
     }
@@ -194,22 +191,26 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   override def interpolateNearestNeighbor: LowRankGaussianProcess[D, DO] = {
 
     val meanPD = this.mean
-    val kdTreeMap = KDTreeMap.fromSeq(domain.pointsWithId.toIndexedSeq)
 
-    def meanFun(pt: Point[D]): Vector[DO] = {
-      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
-      val (closestPt, closestPtId) = closestPts(0)
+    // we cache the closest point computation, as it might be heavy for general domains, and we know that
+    // we will have the same oints for all the eigenfunctions
+    val findClosestPointMemo = Memoize((pt: Point[D]) => domain.findClosestPoint(pt)._2, cacheSizeHint = 1000000)
+
+    def meanFun(closestPointFun: Point[D] => Int)(pt: Point[D]): Vector[DO] = {
+      val closestPtId = closestPointFun(pt)
       meanPD(closestPtId)
     }
 
-    def phi(i: Int)(pt: Point[D]): Vector[DO] = {
-      val closestPts = (kdTreeMap.findNearest(pt, n = 1))
-      val (_, closestPtId) = closestPts(0)
+    def phi(i: Int, closetPointFun: Point[D] => Int)(pt: Point[D]): Vector[DO] = {
+      val closestPtId = closetPointFun(pt)
       Vector[DO](basisMatrix(closestPtId * outputDimensionality until (closestPtId + 1) * outputDimensionality, i).toArray)
     }
 
-    val interpolatedKLBasis = (0 until rank) map (i => Eigenpair(variance(i), VectorField(RealSpace[D], phi(i) _)))
-    new LowRankGaussianProcess(VectorField(RealSpace[D], meanFun), interpolatedKLBasis)
+    val interpolatedKLBasis = {
+
+      (0 until rank) map (i => Eigenpair(variance(i), VectorField(RealSpace[D], phi(i, findClosestPointMemo))))
+    }
+    new LowRankGaussianProcess(VectorField(RealSpace[D], meanFun(findClosestPointMemo)), interpolatedKLBasis)
   }
 
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
