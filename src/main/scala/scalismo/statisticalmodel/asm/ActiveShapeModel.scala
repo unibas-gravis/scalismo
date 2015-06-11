@@ -43,7 +43,7 @@ object ActiveShapeModel {
     val imageFeatures = trainingData.flatMap {
       case (image, transform) =>
         val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
-        pointIds.map { pointId => featureExtractor(pimg, mesh, mesh.point(pointId)) }
+        pointIds.map { pointId => featureExtractor(pimg, mesh.point(pointId), mesh, pointId) }
     }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -220,7 +220,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val sampledPoints = searchPointSampler(mesh, refId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
-      val featureVectorOpt = featureExtractor(image, mesh, point)
+      val featureVectorOpt = featureExtractor(image, point, mesh, refId)
       featureVectorOpt.map { fv => (point, featureDistance(profileIndex, fv)) }
     }).flatten
 
