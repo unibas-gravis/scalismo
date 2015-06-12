@@ -16,13 +16,12 @@
 package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
-import scalismo.common._
 import scalismo.common.UnstructuredPointsDomain3D
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
-import scalismo.registration.{ RigidTransformationSpace, LandmarkRegistration, RigidTransformation, Transformation }
+import scalismo.registration.{ LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation }
 import scalismo.statisticalmodel.{ MultivariateNormalDistribution, StatisticalMeshModel }
 
 import scala.collection.immutable
@@ -43,7 +42,7 @@ object ActiveShapeModel {
     val imageFeatures = trainingData.flatMap {
       case (image, transform) =>
         val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
-        pointIds.map { pointId => featureExtractor(pimg, mesh, mesh.point(pointId)) }
+        pointIds.map { pointId => featureExtractor(pimg, mesh.point(pointId), mesh, pointId) }
     }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -57,8 +56,8 @@ object ActiveShapeModel {
       MultivariateNormalDistribution.estimateFromData(featuresForPoint)
     }
 
-    val profiles = new Profiles(new UnstructuredPointsDomain3D(points), pointFeatures)
-    ActiveShapeModel(statisticalModel, profiles, preprocessor, featureExtractor, pointIds)
+    val profiles = new Profiles(new UnstructuredPointsDomain3D(points), pointIds.zip(pointFeatures).map { case (i, d) => Profile(i, d) })
+    ActiveShapeModel(statisticalModel, profiles, preprocessor, featureExtractor)
   }
 }
 
@@ -69,7 +68,7 @@ object ActiveShapeModel {
  */
 case class ASMSample(mesh: TriangleMesh, featureField: DiscreteFeatureField[_3D], featureExtractor: FeatureExtractor)
 
-case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, pointIds: immutable.IndexedSeq[Int]) {
+case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor) {
 
   // type aliases, only to clarify intent:
   /** Index into the mesh's points, i.e. the nth point on a mesh */
@@ -81,8 +80,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * Returns the mean mesh of the shape model, along with the mean feature profiles at the profile points
    */
   def mean(): ASMSample = {
-    val meanProfilePoints = pointIds.map(id => statisticalModel.mean.point(id))
-    val meanFeatures = profiles.values.map(_.mean).toIndexedSeq
+    val meanProfilePoints = profiles.data.map(p => statisticalModel.mean.point(p.pointId))
+    val meanFeatures = profiles.data.map(_.distribution.mean)
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
     ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
@@ -92,8 +91,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def sample(): ASMSample = {
     val sampleMesh = statisticalModel.sample
-    val randomProfilePoints = pointIds.map(id => sampleMesh.point(id))
-    val randomFeatures = profiles.values.map(_.sample()).toIndexedSeq
+    val randomProfilePoints = profiles.data.map(p => sampleMesh.point(p.pointId))
+    val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
   }
@@ -103,8 +102,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * Meant to allow to easily inspect/debug the feature distribution
    */
   def sampleFeaturesOnly(): ASMSample = {
-    val meanProfilePoints = pointIds.map(id => statisticalModel.mean.point(id))
-    val randomFeatures = profiles.values.map(_.sample()).toIndexedSeq
+    val meanProfilePoints = profiles.data.map(p => statisticalModel.mean.point(p.pointId))
+    val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(statisticalModel.mean, featureField, featureExtractor)
   }
@@ -204,23 +203,24 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   private def refPoint(profileIndex: ProfileIndex): Point[_3D] = profiles.domain.point(profileIndex)
 
-  private def refId(profileIndex: ProfileIndex): MeshPointIndex = pointIds(profileIndex)
+  //private def refId(profileIndex: ProfileIndex): MeshPointIndex = pointIds(profileIndex)
 
   private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FittingConfiguration): IndexedSeq[(MeshPointIndex, Point[_3D])] = {
-    val matchingPts = pointIds.indices.par.map { sp =>
-      (refId(sp), findBestMatchingPointAtPoint(img, mesh, sp, sampler, config))
+    val pointIds = profiles.data.map(_.pointId)
+    val matchingPts = pointIds.indices.par.map { index =>
+      (pointIds(index), findBestMatchingPointAtPoint(img, mesh, index, sampler, config, pointIds))
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
     matchingPtsWithinDist.toIndexedSeq
   }
 
-  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh, profileIndex: ProfileIndex, searchPointSampler: SearchPointSampler, config: FittingConfiguration): Option[Point[_3D]] = {
-    val refId = this.refId(profileIndex)
+  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh, profileIndex: ProfileIndex, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointIds: IndexedSeq[Int]): Option[Point[_3D]] = {
+    val refId = pointIds(profileIndex)
     val sampledPoints = searchPointSampler(mesh, refId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
-      val featureVectorOpt = featureExtractor(image, mesh, point)
+      val featureVectorOpt = featureExtractor(image, point, mesh, refId)
       featureVectorOpt.map { fv => (point, featureDistance(profileIndex, fv)) }
     }).flatten
 
@@ -247,7 +247,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
   }
 
   private def featureDistance(index: ProfileIndex, features: DenseVector[Float]): Double = {
-    val mvdAtPoint = profiles(index)
+    val mvdAtPoint = profiles(index).distribution
     mvdAtPoint.mahalanobisDistance(features)
   }
 

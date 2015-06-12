@@ -68,22 +68,22 @@ object ActiveShapeModelIO {
       _ <- h5.writeIntAttribute(asmGroup.getFullName, Names.Attribute.MinorVersion, 0)
       _ <- ImagePreprocessorIOHandlers.save(asm.preprocessor, h5, ppGroup)
       _ <- FeatureExtractorIOHandlers.save(asm.featureExtractor, h5, feGroup)
-      _ <- writeProfilesAndPointIds(h5, profilesGroup, asm.profiles, asm.pointIds)
+      _ <- writeProfiles(h5, profilesGroup, asm.profiles)
     } yield ()
   }
 
-  private def writeProfilesAndPointIds(h5file: HDF5File, group: Group, profiles: Profiles, pointIds: IndexedSeq[Int]): Try[Unit] = Try {
+  private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles): Try[Unit] = Try {
     val numberOfPoints = profiles.domain.numberOfPoints
-    val profileLength = if (numberOfPoints > 0) profiles.data.head.mean.size else 0
-    val means = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.mean.toArray).toArray)
-    val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.cov.toArray).toArray)
+    val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
+    val means = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.distribution.mean.toArray).toArray)
+    val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.distribution.cov.toArray).toArray)
     val groupName = group.getFullName
 
     val result = for {
       _ <- h5file.writeIntAttribute(groupName, Names.Attribute.NumberOfPoints, numberOfPoints)
       _ <- h5file.writeIntAttribute(groupName, Names.Attribute.ProfileLength, profileLength)
       _ <- h5file.writeStringAttribute(groupName, Names.Attribute.Comment, s"${Names.Item.Covariances} consists of $numberOfPoints concatenated ${profileLength}x$profileLength matrices")
-      _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", pointIds.toArray)
+      _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", profiles.data.map(_.pointId).toArray)
       _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Means}", means)
       _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Covariances}", covariances)
     } yield ()
@@ -108,11 +108,11 @@ object ActiveShapeModelIO {
       preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
       featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
-      profilesAndPointIds <- readProfilesAndPointIds(h5file, profilesGroup, shapeModel.referenceMesh)
-    } yield ActiveShapeModel(shapeModel, profilesAndPointIds._1, preprocessor, featureExtractor, profilesAndPointIds._2)
+      profiles <- readProfiles(h5file, profilesGroup, shapeModel.referenceMesh)
+    } yield ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
   }
 
-  private[this] def readProfilesAndPointIds(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[(Profiles, immutable.IndexedSeq[Int])] = {
+  private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[Profiles] = {
     val groupName = group.getFullName
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
@@ -125,8 +125,8 @@ object ActiveShapeModelIO {
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.to[immutable.IndexedSeq]
-      (Profiles(UnstructuredPointsDomain[_3D](pts), dists), pointIds.toIndexedSeq)
+      val profiles = dists.zip(pointIds).map { case (d, p) => Profile(p, d) }
+      Profiles(UnstructuredPointsDomain[_3D](pts), profiles)
     }
-
   }
 }
