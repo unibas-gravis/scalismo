@@ -22,8 +22,10 @@ import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 import scala.collection.immutable
 
-case class Profiles(domain: UnstructuredPointsDomain[_3D], data: immutable.IndexedSeq[MultivariateNormalDistribution])
-    extends DiscreteField[_3D, MultivariateNormalDistribution] {
+case class Profile(pointId: Int, distribution: MultivariateNormalDistribution)
+
+case class Profiles(domain: UnstructuredPointsDomain[_3D], data: immutable.IndexedSeq[Profile])
+    extends DiscreteField[_3D, Profile] {
   require(domain.numberOfPoints == data.size)
 
   override def apply(i: Int) = data(i)
@@ -32,7 +34,7 @@ case class Profiles(domain: UnstructuredPointsDomain[_3D], data: immutable.Index
 
   override def values = data.iterator
 
-  override def interpolateNearestNeighbor(): Field[_3D, MultivariateNormalDistribution] = {
+  override def interpolateNearestNeighbor(): Field[_3D, Profile] = {
     Field(domain.boundingBox, (p: Point[_3D]) => apply(domain.findClosestPoint(p)._2))
   }
 
