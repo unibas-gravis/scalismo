@@ -80,10 +80,11 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * Returns the mean mesh of the shape model, along with the mean feature profiles at the profile points
    */
   def mean(): ASMSample = {
-    val meanProfilePoints = profiles.data.map(p => statisticalModel.mean.point(p.pointId))
+    val smean = statisticalModel.mean
+    val meanProfilePoints = profiles.data.map(p => smean.point(p.pointId))
     val meanFeatures = profiles.data.map(_.distribution.mean)
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
-    ASMSample(statisticalModel.mean, featureField, featureExtractor)
+    ASMSample(smean, featureField, featureExtractor)
   }
 
   /**
@@ -102,10 +103,11 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * Meant to allow to easily inspect/debug the feature distribution
    */
   def sampleFeaturesOnly(): ASMSample = {
-    val meanProfilePoints = profiles.data.map(p => statisticalModel.mean.point(p.pointId))
+    val smean = statisticalModel.mean
+    val meanProfilePoints = profiles.data.map(p => smean.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
-    ASMSample(statisticalModel.mean, featureField, featureExtractor)
+    ASMSample(smean, featureField, featureExtractor)
   }
 
   /**
