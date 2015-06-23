@@ -24,7 +24,8 @@ There is also a [scalismo google group](https://groups.google.com/forum/#!forum/
 
 ## Using scalismo
 
-To use scalismo in your own project, add the following lines to your build.sbt
+To use scalismo in your own project, add the following lines to your ```build.sbt```:
+
 ```
 resolvers ++= Seq(
           "shapemodelling unibas" at "http://shapemodelling.cs.unibas.ch/repository/public"
@@ -32,9 +33,9 @@ resolvers ++= Seq(
 
 libraryDependencies  ++= Seq(
             // other dependencies here
-            "ch.unibas.cs.gravis" %% "scalismo" % "0.7.0"
+            "ch.unibas.cs.gravis" %% "scalismo" % "0.8.+"
             // scalismo depends on some native libraries, which must be added explicitly for your system
-            "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.0.+" 
+            "ch.unibas.cs.gravis" % "scalismo-native-all" % "2.1.+" 
 )
 ```
 
@@ -43,7 +44,7 @@ To use scalismo-ui (which is currently not open source) also add the following d
 
 ```
 libraryDependencies  ++= Seq(
-            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.7.0"
+            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.8.+"
 )
 ```
 
