@@ -132,8 +132,8 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
         c.canEqual(this) &&
           origin == c.origin &&
           spacing == c.spacing &&
-          size == c.size
-        directions == c.directions
+          size == c.size &&
+          directions == c.directions
       }
       case other => false
     }
