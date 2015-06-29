@@ -16,11 +16,15 @@
 package scalismo.geometry
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
  * An n-dimensional Point
  */
-class Point[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] {
+class Point[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] with CoordinateOps[D, Float, Point[D]] {
+
+  override val classTagScalar: ClassTag[Float] = implicitly[ClassTag[Float]]
+  override def createConcreteRepresentation(data: Array[Float]): Point[D] = new Point(data)
 
   def +(that: Vector[D]): Point[D] = {
     val newData = new Array[Float](dimensionality)

@@ -15,17 +15,20 @@
  */
 package scalismo.utils
 
-import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
+import scalismo.common.{ ValueClassScalarArray, PrimitiveScalarArray, ScalarArray, Scalar }
 import scalismo.geometry._
-import scalismo.mesh.{ TriangleCell, ScalarMeshData, TriangleMesh }
+import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
+import scalismo.io.ImageIO
+import scalismo.mesh.{ ScalarMeshField, TriangleCell, TriangleMesh }
+import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
-import reflect.runtime.universe.{ TypeTag, typeOf }
+
 import scala.reflect.ClassTag
-import scala.util.{ Success, Try, Failure }
+import scala.reflect.runtime.universe.{ TypeTag, typeOf }
+import scala.util.{ Failure, Try }
 
-import spire.math.Numeric
+object VtkHelpers {
 
-object VTKHelpers {
   val VTK_CHAR = 2
   val VTK_SIGNED_CHAR = 15
   val VTK_UNSIGNED_CHAR = 3
@@ -39,103 +42,113 @@ object VTKHelpers {
   val VTK_DOUBLE = 11
   val VTK_ID_TYPE = 12
 
-  def getVtkScalarType[Pixel: TypeTag]: Int = {
-    typeOf[Pixel] match {
-      case t if t =:= typeOf[Byte] => VTK_CHAR
-      case t if t =:= typeOf[Short] => VTK_SHORT
-      case t if t =:= typeOf[Int] => VTK_INT
-      case t if t =:= typeOf[Long] => VTK_LONG
-      case t if t =:= typeOf[Float] => VTK_FLOAT
-      case t if t =:= typeOf[Double] => VTK_DOUBLE
-      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[Pixel])
+  // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
+  // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
+  // This conversion must take place on the vtkStructuredPoints object containing the data, so we leave it to the caller of this method.
+  def scalarArrayToVtkDataArray[A: TypeTag](data: ScalarArray[A], numComp: Int): vtkDataArray = {
+    def init[T <: vtkDataArray](a: T): T = {
+      a.SetNumberOfComponents(numComp)
+      a.SetNumberOfTuples(data.length / numComp)
+      a
     }
-  }
-  def createVtkDataArray[A: TypeTag](data: Array[A], numComp: Int) = {
+
     typeOf[A] match {
-      case t if t =:= typeOf[Byte] =>
-        val a = new vtkCharArray()
-        a.SetNumberOfComponents(numComp)
-        a.SetNumberOfTuples(data.size / numComp)
-        a.SetJavaArray(data.asInstanceOf[Array[Char]])
-        a
       case t if t =:= typeOf[Short] =>
-        new vtkShortArray()
-        val a = new vtkShortArray()
-        a.SetNumberOfComponents(numComp)
-        a.SetNumberOfTuples(data.size / numComp)
-        a.SetJavaArray(data.asInstanceOf[Array[Short]])
+        val a = init(new vtkShortArray())
+        a.SetJavaArray(data.asInstanceOf[PrimitiveScalarArray[Short]].rawData)
         a
       case t if t =:= typeOf[Int] =>
-        new vtkIntArray()
-        val a = new vtkIntArray()
-        a.SetNumberOfComponents(numComp)
-        a.SetNumberOfTuples(data.size / numComp)
-        a.SetJavaArray(data.asInstanceOf[Array[Int]])
+        val a = init(new vtkIntArray())
+        a.SetJavaArray(data.asInstanceOf[PrimitiveScalarArray[Int]].rawData)
         a
       case t if t =:= typeOf[Long] =>
-        val a = new vtkLongArray()
-        a.SetNumberOfComponents(numComp)
-        a.SetNumberOfTuples(data.size / numComp)
-        a.SetJavaArray(data.asInstanceOf[Array[Long]])
+        val a = init(new vtkLongArray())
+        a.SetJavaArray(data.asInstanceOf[PrimitiveScalarArray[Long]].rawData)
         a
       case t if t =:= typeOf[Float] =>
-        val a = new vtkFloatArray()
-        a.SetNumberOfComponents(numComp)
-        a.SetNumberOfTuples(data.size / numComp)
-        a.SetJavaArray(data.asInstanceOf[Array[Float]])
+        val a = init(new vtkFloatArray())
+        a.SetJavaArray(data.asInstanceOf[PrimitiveScalarArray[Float]].rawData)
         a
       case t if t =:= typeOf[Double] =>
-        val a = new vtkDoubleArray()
-        a.SetNumberOfComponents(numComp)
-        a.SetNumberOfTuples(data.size / numComp)
-        a.SetJavaArray(data.asInstanceOf[Array[Double]])
+        val a = init(new vtkDoubleArray())
+        a.SetJavaArray(data.asInstanceOf[PrimitiveScalarArray[Double]].rawData)
+        a
+      case t if t =:= typeOf[Byte] =>
+        /* ATTENTION: The following does NOT produce the correct result!
+         * val a = init(new vtkCharArray())
+         * a.SetJavaArray(data.asInstanceOf[Array[Byte]].map(_.toChar))
+         * Here is the workaround:
+         */
+        val a = init(new vtkUnsignedCharArray())
+        a.SetJavaArray(data.asInstanceOf[PrimitiveScalarArray[Byte]].rawData)
+        a
+      case t if t =:= typeOf[UByte] =>
+        val a = init(new vtkUnsignedCharArray())
+        //        a.SetJavaArray(data.asInstanceOf[Array[UByte]].map(_.toByte))
+        a.SetJavaArray(data.asInstanceOf[ValueClassScalarArray[UByte, Byte]].rawData)
+        a
+      case t if t =:= typeOf[UShort] =>
+        val a = init(new vtkUnsignedShortArray())
+        val raw = data.asInstanceOf[ValueClassScalarArray[UShort, Char]].rawData
+        a.SetJavaArray(ArrayUtils.fastMap[Char, Short](raw, _.toShort))
+        a
+      case t if t =:= typeOf[UInt] =>
+        val a = init(new vtkUnsignedIntArray())
+        a.SetJavaArray(data.asInstanceOf[ValueClassScalarArray[UInt, Int]].rawData)
+        a
+      case t if t =:= typeOf[ULong] =>
+        val a = init(new vtkUnsignedLongArray())
+        a.SetJavaArray(data.asInstanceOf[ValueClassScalarArray[ULong, Long]].rawData)
         a
       case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[A])
     }
   }
 
-  def getVTKArrayAsJavaArray[A: TypeTag](vtkType: Int, arrayVTK: vtkDataArray): Try[Array[A]] = {
+  def vtkDataArrayToScalarArray[A: TypeTag](vtkType: Int, arrayVTK: vtkDataArray): Try[ScalarArray[A]] = Try {
     vtkType match {
-      case VTK_CHAR =>
-        Try {
-          arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
-      case VTK_UNSIGNED_CHAR =>
-        Try {
-          arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
+      // simple cases, no magic needed
       case VTK_SHORT =>
-        Try {
-          arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
-      case VTK_UNSIGNED_SHORT =>
-        Try {
-          arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
+        val p = arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray()
+        Scalar.ShortIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
       case VTK_INT =>
-        Try {
-          arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
-      case VTK_UNSIGNED_INT =>
-        Try {
-          arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
+        val p = arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray()
+        Scalar.IntIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
+      case VTK_LONG =>
+        val p = arrayVTK.asInstanceOf[vtkLongArray].GetJavaArray()
+        Scalar.LongIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
       case VTK_FLOAT =>
-        Try {
-          arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
+        val p = arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray()
+        Scalar.FloatIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
       case VTK_DOUBLE =>
-        Try {
-          arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray().asInstanceOf[Array[A]]
-        }
+        val p = arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray()
+        Scalar.DoubleIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
+      // complicated cases, so we're more explicit about what we're doing
+      case VTK_CHAR | VTK_SIGNED_CHAR =>
+        val in = arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray()
+        val out: Array[Byte] = ArrayUtils.fastMap[Char, Byte](in, { c => c.toByte })
+        Scalar.ByteIsScalar.createArray(out).asInstanceOf[ScalarArray[A]]
+      case VTK_UNSIGNED_CHAR =>
+        val in = arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray()
+        Scalar.UByteIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
+      case VTK_UNSIGNED_SHORT =>
+        val in = arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray()
+        val chars = ArrayUtils.fastMap[Short, Char](in, _.toChar)
+        Scalar.UShortIsScalar.createArray(chars).asInstanceOf[ScalarArray[A]]
+      case VTK_UNSIGNED_INT =>
+        val in = arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray()
+        Scalar.UIntIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
+      case VTK_UNSIGNED_LONG =>
+        val in = arrayVTK.asInstanceOf[vtkUnsignedLongArray].GetJavaArray()
+        Scalar.ULongIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
       case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[A])
     }
   }
+
 }
 
 object MeshConversion {
 
-  private def vtkPolyDataToTriangleMeshCommon(pd: vtkPolyData, correctFlag: Boolean = false) = {
+  private def vtkPolyDataToTriangleMeshCommon(pd: vtkPolyData, correctFlag: Boolean = false) = Try {
 
     val newPd = if (correctFlag) {
       val triangleFilter = new vtkTriangleFilter
@@ -147,23 +160,48 @@ object MeshConversion {
     val polys = newPd.GetPolys()
     val numPolys = polys.GetNumberOfCells()
 
-    val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
-    val pointsArray = pointsArrayVtk.GetJavaArray()
+    val vtkType = newPd.GetPoints().GetDataType()
+
+    val pointsArray: Array[Float] = if (vtkType == VtkHelpers.VTK_FLOAT) {
+      // "usual" case: Mesh datatype is Float
+      val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
+      pointsArrayVtk.GetJavaArray()
+    } else {
+      // "unusual" case: any other datatype
+      import ImageIO.ScalarType
+      val sa = VtkHelpers.vtkDataArrayToScalarArray(vtkType, newPd.GetPoints().GetData()).get
+      val fsa: ScalarArray[Float] = ScalarType.fromVtkId(vtkType) match {
+        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map(_.toFloat)
+        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map(_.toFloat)
+        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map(_.toFloat)
+        case ScalarType.Long => sa.asInstanceOf[ScalarArray[Long]].map(_.toFloat)
+        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map(_.toFloat)
+        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map(_.toFloat)
+        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map(_.toFloat)
+        case ScalarType.ULong => sa.asInstanceOf[ScalarArray[ULong]].map(_.toFloat)
+        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map(_.toFloat)
+        case _ => throw new UnsupportedOperationException("Unsupported scalar type")
+      }
+      fsa match {
+        // the first case should always match, but we have a (less efficient) backup strategy just in case
+        case psa: PrimitiveScalarArray[Float] => psa.rawData
+        case _ => fsa.iterator.toArray
+      }
+    }
+
     val points = pointsArray.grouped(3).map(p => Point(p(0), p(1), p(2)))
 
-    Try {
-      val idList = new vtkIdList()
-      val cells = for (i <- 0 until numPolys) yield {
-        newPd.GetCellPoints(i, idList)
-        if (idList.GetNumberOfIds() != 3) {
-          throw new Exception("Not a triangle mesh")
-        }
-
-        TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
+    val idList = new vtkIdList()
+    val cells = for (i <- 0 until numPolys) yield {
+      newPd.GetCellPoints(i, idList)
+      if (idList.GetNumberOfIds() != 3) {
+        throw new Exception("Not a triangle mesh")
       }
-      idList.Delete()
-      (points, cells)
+
+      TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
     }
+    idList.Delete()
+    (points, cells)
   }
 
   def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
@@ -189,7 +227,7 @@ object MeshConversion {
     }
   }
 
-  def meshToVTKPolyData(mesh: TriangleMesh, template: Option[vtkPolyData] = None): vtkPolyData = {
+  def meshToVtkPolyData(mesh: TriangleMesh, template: Option[vtkPolyData] = None): vtkPolyData = {
 
     val pd = new vtkPolyData
 
@@ -215,7 +253,7 @@ object MeshConversion {
 
     // set points
     val pointDataArray = mesh.points.toIndexedSeq.toArray.map(_.data).flatten
-    val pointDataArrayVTK = VTKHelpers.createVtkDataArray(pointDataArray, 3)
+    val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
     pd.SetPoints(pointsVTK)
@@ -223,145 +261,135 @@ object MeshConversion {
     pd
   }
 
-  def meshDataToVtkPolyData[S: Numeric: ClassTag: TypeTag](meshData: ScalarMeshData[S]): vtkPolyData = {
-    val pd = meshToVTKPolyData(meshData.mesh)
-    val scalarData = VTKHelpers.createVtkDataArray(meshData.data, 1) // TODO make this more general
+  def scalarMeshFieldToVtkPolyData[S: Scalar: ClassTag: TypeTag](meshData: ScalarMeshField[S]): vtkPolyData = {
+    val pd = meshToVtkPolyData(meshData.mesh)
+    val scalarData = VtkHelpers.scalarArrayToVtkDataArray(meshData.data, 1) // TODO make this more general
     pd.GetPointData().SetScalars(scalarData)
     pd
   }
 }
 
+trait CanConvertToVtk[D <: Dim] {
+  def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
+    val sp = new vtkStructuredPoints()
+    sp.SetNumberOfScalarComponents(1, new vtkInformation())
+
+    val dataArray = VtkHelpers.scalarArrayToVtkDataArray(img.data, 1)
+    sp.GetPointData().SetScalars(dataArray)
+
+    setDomainInfo(img.domain, sp)
+
+    // for (signed) byte data, we need to work around a bug in VTK
+    if (typeOf[Pixel] =:= typeOf[Byte]) {
+      recastDataToSignedChar(sp)
+    }
+
+    sp
+  }
+
+  def setDomainInfo(domain: DiscreteImageDomain[D], sp: vtkStructuredPoints): Unit
+
+  def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]]
+
+  // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
+  // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
+  // Also see VtkHelpers.javaArrayToVtkDataArray().
+  private def recastDataToSignedChar(sp: vtkStructuredPoints): Unit = {
+    val cast = new vtkImageCast
+    cast.SetInputData(sp)
+    cast.SetOutputScalarTypeToChar()
+    cast.Update()
+    val csp = cast.GetOutput()
+    sp.GetPointData().GetScalars().Delete()
+    sp.GetPointData().SetScalars(csp.GetPointData().GetScalars())
+    cast.Delete()
+    csp.Delete()
+  }
+}
+
+object CanConvertToVtk {
+
+  implicit object _2DCanConvertToVtk$ extends CanConvertToVtk[_2D] {
+
+    override def setDomainInfo(domain: DiscreteImageDomain[_2D], sp: vtkStructuredPoints): Unit = {
+      sp.SetDimensions(domain.size(0), domain.size(1), 1)
+      sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
+      sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
+    }
+
+    override def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[_2D, Pixel]] = {
+      if (sp.GetNumberOfScalarComponents() != 1) {
+        return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
+      }
+
+      if (sp.GetDimensions()(2) != 1 && sp.GetDimensions()(1) != 0) {
+        return Failure(new Exception(s"The image is a 3D image - require a 2D image"))
+      }
+
+      val requiredScalarType = ImageIO.ScalarType.fromType[Pixel]
+      val spScalarType = ImageIO.ScalarType.fromVtkId(sp.GetScalarType())
+
+      if (requiredScalarType != spScalarType) {
+        return Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
+      }
+
+      val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
+      val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
+      val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1))
+
+      val domain = DiscreteImageDomain[_2D](origin, spacing, size)
+      val scalars = sp.GetPointData().GetScalars()
+
+      val pixelArrayOrFailure = VtkHelpers.vtkDataArrayToScalarArray[Pixel](sp.GetScalarType(), scalars)
+      pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage(domain, pixelArray))
+
+    }
+  }
+
+  implicit object _3DCanConvertToVtk$ extends CanConvertToVtk[_3D] {
+    override def setDomainInfo(domain: DiscreteImageDomain[_3D], sp: vtkStructuredPoints): Unit = {
+      sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
+      sp.SetOrigin(domain.origin(0), domain.origin(1), domain.origin(2))
+      sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
+    }
+
+    override def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[_3D, Pixel]] = {
+      if (sp.GetNumberOfScalarComponents() != 1) {
+        return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
+      }
+
+      if (sp.GetDimensions()(2) == 1 || sp.GetDimensions()(2) == 0) {
+        return Failure(new Exception(s"The image is a 2D image - require a 3D image"))
+      }
+
+      val requiredScalarType = ImageIO.ScalarType.fromType[Pixel]
+      val spScalarType = ImageIO.ScalarType.fromVtkId(sp.GetScalarType())
+
+      if (requiredScalarType != spScalarType) {
+        return Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
+      }
+
+      val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
+      val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
+      val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
+
+      val domain = DiscreteImageDomain[_3D](origin, spacing, size)
+      val scalars = sp.GetPointData().GetScalars()
+      val pixelArrayOrFailure = VtkHelpers.vtkDataArrayToScalarArray[Pixel](sp.GetScalarType(), scalars)
+      pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage(domain, pixelArray))
+    }
+
+  }
+
+}
+
 object ImageConversion {
 
-  trait CanConvertToVTK[D <: Dim] {
-    def toVTK[Pixel: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints
-    def fromVTK[Pixel: Numeric: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]]
+  def imageToVtkStructuredPoints[D <: Dim: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
+    implicitly[CanConvertToVtk[D]].toVtk(img)
   }
 
-  object CanConvertToVTK {
-    implicit object _2DCanConvertToVTK extends CanConvertToVTK[_2D] {
-      override def toVTK[Pixel: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[_2D, Pixel]): vtkStructuredPoints = {
-        val sp = new vtkStructuredPoints()
-        val domain = img.domain
-
-        val info = new vtkInformation() // TODO check what to do with the info
-        sp.SetNumberOfScalarComponents(1, info)
-        sp.SetScalarType(VTKHelpers.getVtkScalarType[Pixel], info)
-
-        val dataArray = VTKHelpers.createVtkDataArray(img.values.toArray, 1)
-        sp.GetPointData().SetScalars(dataArray)
-
-        sp.SetDimensions(domain.size(0), domain.size(1), 1)
-        sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
-        sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
-        sp
-      }
-
-      override def fromVTK[Pixel: Numeric: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[_2D, Pixel]] = {
-        if (sp.GetNumberOfScalarComponents() != 1) {
-          return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
-        }
-
-        if (sp.GetDimensions()(2) != 1 && sp.GetDimensions()(1) != 0) {
-          return Failure(new Exception(s"The image is a 3D image - require a 2D image"))
-        }
-
-        val requiredScalarType = VTKHelpers.getVtkScalarType[Pixel]
-        val spScalarType = sp.GetScalarType()
-        if (requiredScalarType != spScalarType) {
-          return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
-        }
-
-        val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
-        val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
-        val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1))
-
-        val domain = DiscreteImageDomain[_2D](origin, spacing, size)
-        val scalars = sp.GetPointData().GetScalars()
-        val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
-        pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage(domain, pixelArray))
-
-      }
-    }
-
-    implicit object _3DCanConvertToVTK extends CanConvertToVTK[_3D] {
-      override def toVTK[Pixel: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[_3D, Pixel]): vtkStructuredPoints = {
-        val sp = new vtkStructuredPoints()
-        val domain = img.domain
-
-        val info = new vtkInformation() // TODO check what to do with the info
-        sp.SetNumberOfScalarComponents(1, info)
-        sp.SetScalarType(VTKHelpers.getVtkScalarType[Pixel], info)
-
-        val dataArray = VTKHelpers.createVtkDataArray(img.values.toArray, 1)
-        sp.GetPointData().SetScalars(dataArray)
-
-        sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
-        sp.SetOrigin(domain.origin(0), domain.origin(1), domain.origin(2))
-        sp.SetSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
-        sp
-      }
-
-      override def fromVTK[Pixel: Numeric: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[_3D, Pixel]] = {
-        if (sp.GetNumberOfScalarComponents() != 1) {
-          return Failure(new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}"))
-        }
-
-        if (sp.GetDimensions()(2) == 1 || sp.GetDimensions()(2) == 0) {
-          return Failure(new Exception(s"The image is a 2D image - require a 3D image"))
-        }
-
-        val requiredScalarType = VTKHelpers.getVtkScalarType[Pixel]
-        val spScalarType = sp.GetScalarType()
-        if (requiredScalarType != spScalarType) {
-          return Failure(new Exception(s"Invalid scalar type ($requiredScalarType != $spScalarType)"))
-        }
-
-        val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
-        val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
-        val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
-
-        val domain = DiscreteImageDomain[_3D](origin, spacing, size)
-        val scalars = sp.GetPointData().GetScalars()
-        val pixelArrayOrFailure = VTKHelpers.getVTKArrayAsJavaArray[Pixel](sp.GetScalarType(), scalars)
-        pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage(domain, pixelArray))
-      }
-
-    }
+  def vtkStructuredPointsToScalarImage[D <: Dim: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
+    implicitly[CanConvertToVtk[D]].fromVtk(sp)
   }
-
-  def imageTovtkStructuredPoints[D <: Dim: CanConvertToVTK, Pixel: Numeric: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
-    implicitly[CanConvertToVTK[D]].toVTK(img)
-  }
-
-  def vtkStructuredPointsToScalarImage[D <: Dim: CanConvertToVTK, Pixel: Numeric: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
-    implicitly[CanConvertToVTK[D]].fromVTK(sp)
-  }
-
-  //  def image3DToImageJImagePlus[Pixel: ScalarValue](img: DiscreteScalarImage[ThreeD, Pixel]) = {
-  //    val pixelConv = implicitly[ScalarValue[Pixel]]
-  //    val domain = img.domain
-  //    val (width, height, size) = (domain.size(0), domain.size(1), domain.size(2))
-  //
-  //    // 	Create 3x3x3 3D stack and fill it with garbage  
-  //    val stack = new ImageStack(width, height)
-  //
-  //    val pixelValues = img.pixelValues.map(pixelConv.toFloat(_))
-  //    for (slice <- 0 until size) {
-  //      val startInd = slice * (width * height)
-  //      val endInd = (slice + 1) * (width * height)
-  //      val pixelForSlice = pixelValues.slice(startInd, endInd).toArray
-  //      val bp = new FloatProcessor(width, height, pixelForSlice)
-  //      stack.addSlice(bp)
-  //
-  //    }
-  //    new ImagePlus("3D image", stack)
-  //  }
-  //
-  //  def image2DToImageJImagePlus[Pixel: ScalarValue](img: DiscreteScalarImage[TwoD, Pixel]) = {
-  //    val pixelConv = implicitly[ScalarValue[Pixel]]
-  //    val domain = img.domain
-  //    val bp = new FloatProcessor(domain.size(0), domain.size(1), img.pixelValues.map(pixelConv.toFloat(_)).toArray)
-  //    new ImagePlus("2D image", bp)
-  //  }
 }

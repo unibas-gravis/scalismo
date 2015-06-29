@@ -16,27 +16,25 @@
 
 package scalismo.utils
 
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._2D
 import scalismo.io.{ ImageIO, MeshIO }
 
 import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 
-class ConversionTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class ConversionTests extends ScalismoTestSuite {
 
   describe("a Mesh ") {
 
     it("can be converted to and from vtk") {
       val path = getClass().getResource("/facemesh.stl").getPath
       val origmesh = MeshIO.readMesh(new java.io.File(path)).get
-      val vtkpd = MeshConversion.meshToVTKPolyData(origmesh)
+      val vtkpd = MeshConversion.meshToVtkPolyData(origmesh)
       val restoredMesh = MeshConversion.vtkPolyDataToTriangleMesh(vtkpd).get
       origmesh should equal(restoredMesh)
 
       // test conversion with template
-      val vtkpd2 = MeshConversion.meshToVTKPolyData(origmesh, Some(vtkpd))
+      val vtkpd2 = MeshConversion.meshToVtkPolyData(origmesh, Some(vtkpd))
       val restoredMesh2 = MeshConversion.vtkPolyDataToTriangleMesh(vtkpd2).get
       origmesh should equal(restoredMesh2)
 
@@ -46,7 +44,7 @@ class ConversionTests extends FunSpec with Matchers {
     it("can be converted to and from vtk") {
       val path = getClass().getResource("/lena.vtk").getPath
       val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(path)).get
-      val vtksp = ImageConversion.imageTovtkStructuredPoints(origimg)
+      val vtksp = ImageConversion.imageToVtkStructuredPoints(origimg)
       val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get
 
       origimg should equal(restoredImg)

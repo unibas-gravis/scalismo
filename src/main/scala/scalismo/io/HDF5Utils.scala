@@ -25,7 +25,7 @@ import scala.collection.JavaConversions._
 import java.io.IOException
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
-  require(dims.reduce(_ * _) == data.length)
+  require(dims.product == data.length, s"${dims.product} != ${data.length}")
 }
 
 class HDF5File(h5file: FileFormat) {
@@ -53,6 +53,25 @@ class HDF5File(h5file: FileFormat) {
         maybeAttr match {
           case Some(a) => {
             Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[String]](0))
+          }
+          case None => Failure(new Exception(s"Attribute $attrName not found"))
+        }
+      }
+
+      case _ => {
+        Failure(new Exception("Expected H5ScalarDS when reading attribute"))
+      }
+    }
+  }
+
+  def readIntAttribute(path: String, attrName: String): Try[Int] = {
+    h5file.get(path) match {
+      case s @ (_: H5Group | _: H5ScalarDS) => {
+        val metadata = s.getMetadata()
+        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName().equals(attrName))
+        maybeAttr match {
+          case Some(a) => {
+            Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[Int]](0))
           }
           case None => Failure(new Exception(s"Attribute $attrName not found"))
         }
@@ -160,6 +179,10 @@ class HDF5File(h5file: FileFormat) {
     }
   }
 
+  def getGroup(parentGroup: Group, childGroupName: String): Try[Group] = {
+    getGroup(parentGroup.getFullName + "/" + childGroupName)
+  }
+
   def getGroup(groupName: String): Try[Group] = {
     if (exists(groupName))
       h5file.get(groupName) match {
@@ -238,7 +261,7 @@ class HDF5File(h5file: FileFormat) {
 
   }
 
-  private def createGroup(parent: Group, relativePath: String): Try[Group] = {
+  def createGroup(parent: Group, relativePath: String): Try[Group] = {
 
     // remove trailing /
     val trimmedPath =

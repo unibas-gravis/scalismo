@@ -39,7 +39,7 @@ trait Sampler[D <: Dim] {
 }
 
 case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
-  override def volumeOfSampleRegion = domain.imageBox.volume
+  override def volumeOfSampleRegion = domain.boundingBox.volume
   override val numberOfPoints = domain.numberOfPoints
 
   val p = 1.0 / volumeOfSampleRegion
@@ -67,12 +67,12 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
 case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.area
+  val mt = new MersenneTwister()
+  mt.setSeed(seed)
   // should be replaced with real mesh volume
   val volumeOfSampleRegion = mesh.area
   def sample = {
     val points = mesh.points.toIndexedSeq
-    val mt = new MersenneTwister()
-    mt.setSeed(seed)
     val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.numberOfPoints)(new RandBasis(mt))
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
@@ -111,35 +111,38 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
   }
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class UniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   override val volumeOfSampleRegion = mesh.area
 
   private val p = 1.0 / mesh.area
 
-  val samplePoints = {
+  val accumulatedAreas: Array[Double] = mesh.cells.scanLeft(0.0) {
+    case (sum, cell) =>
+      sum + mesh.computeTriangleArea(cell)
+  }.tail.toArray
 
-    val accumulatedAreas: Array[Double] = mesh.cells.scanLeft(0.0) {
-      case (sum, cell) =>
-        sum + mesh.computeTriangleArea(cell)
-    }.tail.toArray
-
-    val random = new scala.util.Random(seed)
-
-    for (i <- 0 until numberOfPoints) yield {
-      val drawnValue = random.nextDouble() * mesh.area
-
-      val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
-      val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
-      assert(index >= 0 && index < accumulatedAreas.length)
-
-      mesh.samplePointInTriangleCell(mesh.cells(index), random.nextInt())
-    }
-  }
+  val random = new scala.util.Random(seed)
 
   override def sample = {
+    val samplePoints = {
+      for (i <- 0 until numberOfPoints) yield {
+        val drawnValue = random.nextDouble() * mesh.area
+        val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
+        val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
+        assert(index >= 0 && index < accumulatedAreas.length)
+        mesh.samplePointInTriangleCell(mesh.cells(index), random.nextInt())
+      }
+    }
+
     samplePoints.map(pt => (pt, p))
   }
+}
+
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+  override val volumeOfSampleRegion = mesh.area
+  val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints, seed).sample
+  override def sample = samplePoints
 }
 
 case class FixedPointsMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {

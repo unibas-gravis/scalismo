@@ -22,6 +22,7 @@ import java.util.Arrays
 import scalismo.geometry
 import scalismo.geometry._
 import scalismo.common._
+import scalismo.utils.Memoize
 
 import scala.annotation._
 
@@ -32,6 +33,20 @@ import scala.annotation._
  */
 trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 /** Trait for parametric D-dimensional transformation */
+
+object Transformation {
+
+  /**
+   * Returns a new transformation that memoizes (caches) the values that have already been
+   * computed. The size of the cache used is given by the argument cacheSizeHint.
+   */
+  def memoize[D <: Dim](t: Transformation[D], cacheSizeHint: Int) = new Transformation[D] {
+    override protected[scalismo] val f: (Point[D]) => Point[D] = Memoize(t.f, cacheSizeHint)
+    override def domain: Domain[D] = t.domain
+  }
+
+}
+
 trait ParametricTransformation[D <: Dim] extends Transformation[D] {
   /** the parameters defining the transform*/
   val parameters: TransformationSpace.ParameterVector
@@ -208,6 +223,21 @@ abstract class RotationSpace[D <: Dim: NDSpace] extends TransformationSpace[D] w
   override def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
 }
 
+private class RotationSpace1D extends RotationSpace[_1D] {
+
+  override def centre = Point(0)
+  override def parametersDimensionality: Int = 1
+
+  override def transformForParameters(p: ParameterVector): RotationTransform[_1D] = {
+
+    RotationTransform1D()
+  }
+
+  override def takeDerivativeWRTParameters(p: ParameterVector) = {
+    (x: Point[_1D]) => DenseMatrix.zeros[Float](0, 0)
+  }
+}
+
 private class RotationSpace2D(val centre: Point[_2D]) extends RotationSpace[_2D] {
 
   override def parametersDimensionality: Int = 1
@@ -302,30 +332,11 @@ private class RotationSpace3D(val centre: Point[_3D]) extends RotationSpace[_3D]
 
 /** Factory for [[RotationSpace]] instances. */
 object RotationSpace {
-
-  /**
-   * Type class required for the creation of D-dimensional Rotation spaces
-   *
-   */
-  @implicitNotFound("Rotation for dimensionality ${D} is not supported")
-  trait Create[D <: Dim] {
-    def createRotationSpace(centre: Point[D]): RotationSpace[D]
-  }
-
-  /** Instance of the [[RotationSpace.Create]] type class required for creating a 2-dimensional rotation space */
-  implicit object createRotationSpace2D extends Create[_2D] {
-    override def createRotationSpace(centre: Point[_2D]): RotationSpace[_2D] = new RotationSpace2D(centre)
-  }
-  /** Instance of the [[RotationSpace.Create]]  type class required for creating a 3-dimensional rotation space */
-  implicit object createRotationSpace3D extends Create[_3D] {
-    override def createRotationSpace(centre: Point[_3D]): RotationSpace[_3D] = new RotationSpace3D(centre)
-  }
-
   /**
    * Factory method to create a D dimensional parametric transformation space generating rotations around the indicated centre
    *  Only _2D and _3D dimensions are supported
    */
-  def apply[D <: Dim](centre: Point[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim](centre: Point[D])(implicit evDim: NDSpace[D], evCreateRot: CreateRotationSpace[D]) = {
     evCreateRot.createRotationSpace(centre)
   }
 
@@ -333,12 +344,38 @@ object RotationSpace {
    * Factory method to create a D dimensional parametric transformation space generating rotations around the origin
    *  Only _2D and _3D dimensions are supported
    */
-  def apply[D <: Dim]()(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim]()(implicit evDim: NDSpace[D], evCreateRot: CreateRotationSpace[D]) = {
     val origin = Point[D](DenseVector.zeros[Float](implicitly[NDSpace[D]].dimensionality).data)
     evCreateRot.createRotationSpace(origin)
 
   }
 }
+
+/**
+ * Type class required for the creation of D-dimensional Rotation spaces
+ *
+ */
+@implicitNotFound("Rotation for dimensionality ${D} is not supported")
+trait CreateRotationSpace[D <: Dim] {
+  def createRotationSpace(centre: Point[D]): RotationSpace[D]
+}
+
+object CreateRotationSpace {
+
+  implicit object createRotationSpaceRotationSpace1D extends CreateRotationSpace[_1D] {
+    override def createRotationSpace(centre: Point[_1D]): RotationSpace[_1D] = new RotationSpace1D
+  }
+
+  implicit object createRotationSpaceRotationSpace2D extends CreateRotationSpace[_2D] {
+    override def createRotationSpace(centre: Point[_2D]): RotationSpace[_2D] = new RotationSpace2D(centre)
+  }
+
+  implicit object createRotationSpaceRotationSpace3D extends CreateRotationSpace[_3D] {
+    override def createRotationSpace(centre: Point[_3D]): RotationSpace[_3D] = new RotationSpace3D(centre)
+  }
+
+}
+
 /**
  * D-dimensional Rotation transform that is parametric, invertible and differentiable.
  */
@@ -382,7 +419,25 @@ private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Poi
   override def inverse: RotationTransform2D = {
     new RotationTransform2D(SquareMatrix.inv(rotMatrix), centre)
   }
+
 }
+
+private[scalismo] case class RotationTransform1D() extends RotationTransform[_1D] {
+  override val f = (pt: Point[_1D]) => {
+    pt
+  }
+
+  override def domain = RealSpace[_1D]
+
+  val parameters = DenseVector.zeros[Float](0)
+
+  def takeDerivative(x: Point[_1D]): SquareMatrix[_1D] = ???
+
+  override def inverse: RotationTransform1D = {
+    RotationTransform1D()
+  }
+}
+
 /** Factory for [[RotationTransform]] instances. */
 object RotationTransform {
 
@@ -499,7 +554,7 @@ object ScalingTransformation {
 /**
  * Parametric transformation space producing rigid transforms.
  */
-class RigidTransformationSpace[D <: Dim: NDSpace: RotationSpace.Create] private (center: Point[D])
+class RigidTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace] private (center: Point[D])
     extends ProductTransformationSpace[D, TranslationTransform[D], RotationTransform[D]](TranslationSpace[D], RotationSpace[D](center)) {
 
   /**
@@ -519,10 +574,9 @@ object RigidTransformationSpace {
   /**
    * Returns a D-dimensional Rigid Transformation Space that produces transforms that first rotate around the indicated center, then translate
    *
-   *  Defined only for [[_2D]] and [[_3D]] as rotation is undefined for [[_1D¨]
    */
-  def apply[D <: Dim: NDSpace: RotationSpace.Create](center: Point[D]) = new RigidTransformationSpace[D](center)
-  def apply[D <: Dim: NDSpace: RotationSpace.Create]() = {
+  def apply[D <: Dim: NDSpace: CreateRotationSpace](center: Point[D]) = new RigidTransformationSpace[D](center)
+  def apply[D <: Dim: NDSpace: CreateRotationSpace]() = {
     val origin = Point[D](DenseVector.zeros[Float](implicitly[NDSpace[D]].dimensionality).data)
     new RigidTransformationSpace[D](origin)
   }
@@ -627,7 +681,7 @@ private class AnisotropicScalingThenRigidTransformation[D <: Dim: NDSpace](rigid
  * @constructor Returns a parametric space generating anisotropic similarity transforms
  * @param center : center of rotation used in the rigid transform
  */
-case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: RotationSpace.Create](center: Point[D])
+case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace](center: Point[D])
     extends ProductTransformationSpace[D, RigidTransformation[D], AnisotropicScalingTransformation[D]](RigidTransformationSpace[D](center), AnisotropicScalingSpace[D]()) {
 
   /**

@@ -19,6 +19,8 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector, det }
 import scalismo.geometry._
 
+import scala.util.Try
+
 private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
   def mean: V
 
@@ -34,7 +36,7 @@ private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
 
   def mahalanobisDistance(x: V): Double
 
-  def drawSample(): V
+  def sample(): V
 }
 
 case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMatrix[Float])
@@ -45,20 +47,29 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
   override val dim = mean.size
 
-  private val covDouble = cov.map(_.toDouble)
+  private lazy val covInv = breeze.linalg.pinv(cov.map(_.toDouble))
+  private lazy val covDet = det(cov.map(_.toDouble))
 
-  //private val covInvFloat = covInv.map(_.toFloat)
-  private val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd(covDouble)
-  private val covDet = det(covDouble)
-  private val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
-  private val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
-  private val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
+  // The root of the covariance matrix is precomputed for efficient sampling.
+  // The cholesky sometimes fails for ill conditioned matrices. We increase
+  // the regularization weight until it converges
+  private lazy val root = {
+    Iterator.iterate(1e-10)(w => w * 2)
+      .map(w => regularizedCholesky(w))
+      .dropWhile(_.isFailure) // we drop the result if the cholesky fails
+      .next().get
+  }
 
   /**
    * Returns a seq with the principal components and associated variance
    * @return
    */
   override def principalComponents: Seq[(DenseVector[Float], Double)] = {
+    val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd.reduced(cov.map(_.toDouble))
+    val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
+    val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
+    val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
+
     for (i <- 0 until uMat.cols) yield {
       (uMat(::, i).toDenseVector.map(_.toFloat), sigma2s(i))
     }
@@ -88,13 +99,26 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
     math.sqrt(x0 dot (covInv * x0))
   }
 
-  override def drawSample(): DenseVector[Float] = {
+  override def sample(): DenseVector[Float] = {
 
     val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
-    //mean + (L * u).map(_.toFloat) // a random sample
 
-    mean + (uMat * (sigmaMat * u)).map(_.toFloat)
+    mean + (root * u).map(_.toFloat)
+  }
+
+  private def regularizedCholesky(regWeight: Double): Try[DenseMatrix[Double]] = {
+
+    // we regularize the covariance matrix before doing a cholesky decomposition
+    // to avoid numerical errors
+    val covReg = cov.map(_.toDouble)
+    for (i <- 0 until cov.cols) {
+      covReg(i, i) += regWeight
+    }
+
+    Try {
+      breeze.linalg.cholesky(covReg)
+    }
   }
 
 }
@@ -115,7 +139,8 @@ object MultivariateNormalDistribution {
     val zeroMatrix = DenseMatrix.zeros[Float](sampleDim, sampleDim)
     def outer(v1: DenseVector[Float], v2: DenseVector[Float]) = v1.toDenseMatrix.t * v2.toDenseMatrix
 
-    val cov = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1f / (numSamples - 1))
+    val normalizer = if (numSamples == 1) 1 else numSamples - 1
+    val cov = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1f / normalizer)
     new MultivariateNormalDistribution(mean, cov)
   }
 
@@ -150,7 +175,7 @@ case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], co
 
   override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def drawSample(): Vector[D] = Vector.fromBreezeVector(impl.drawSample())
+  override def sample(): Vector[D] = Vector.fromBreezeVector(impl.sample())
 
   override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d) }
 

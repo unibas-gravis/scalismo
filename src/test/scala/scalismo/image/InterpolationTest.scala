@@ -15,25 +15,23 @@
  */
 package scalismo.image
 
+import java.io.File
+
+import org.scalatest.PrivateMethodTester
+import scalismo.ScalismoTestSuite
+import scalismo.common.ScalarArray.implicits._
+import scalismo.geometry.Index.implicits._
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.Vector.implicits._
+import scalismo.geometry._
 import scalismo.io.ImageIO
 
 import scala.language.implicitConversions
-import scalismo.geometry._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
-import scalismo.geometry.Index.implicits._
 
-import org.scalatest.{ Matchers, FunSpec, PrivateMethodTester }
-import org.scalatest.matchers.ShouldMatchers
-import java.io.File
-
-import spire.math.Numeric._
-
-class InterpolationTest extends FunSpec with Matchers with PrivateMethodTester {
+class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
-  scalismo.initialize()
   describe("A 1D Interpolation with 0rd order bspline") {
 
     it("interpolates the values for origin 2.3 and spacing 1.5") {

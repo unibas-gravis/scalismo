@@ -18,11 +18,15 @@ package scalismo.geometry
 import breeze.linalg.DenseVector
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
  * An n-dimensional Vector
  */
-class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] {
+class Vector[D <: Dim: NDSpace] private (private[scalismo] override val data: Array[Float]) extends Coordinate[D, Float] with CoordinateOps[D, Float, Vector[D]] {
+
+  override val classTagScalar: ClassTag[Float] = implicitly[ClassTag[Float]]
+  override def createConcreteRepresentation(data: Array[Float]): Vector[D] = new Vector(data)
 
   def norm: Double = math.sqrt(norm2)
 

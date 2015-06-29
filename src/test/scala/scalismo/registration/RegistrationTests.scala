@@ -15,23 +15,23 @@
  */
 package scalismo.registration
 
-import scalismo.image.DiscreteScalarImage
+import java.io.File
+
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.common.{ VectorField, RealSpace }
+import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
-import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler, Integrator }
+import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel }
+import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
+import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess }
 
 import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import java.io.File
-import scalismo.geometry._
-import breeze.linalg.DenseVector
-import org.scalatest.matchers.ShouldMatchers
-import breeze.linalg.DenseMatrix
 
-class RegistrationTests extends FunSpec with Matchers {
+class RegistrationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
-  scalismo.initialize()
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
       val points: IndexedSeq[Point[_2D]] = IndexedSeq(Point(0.0, 0.0), Point(1.0, 4.0), Point(2.0, 0.0))
@@ -77,9 +77,9 @@ class RegistrationTests extends FunSpec with Matchers {
     it("can retrieve correct parameters") {
 
       for ((p, i) <- rigidRegTransformed.points.zipWithIndex) {
-        p(0) should be(rigidTransformed.points(i)(0) +- 0.0001)
-        p(1) should be(rigidTransformed.points(i)(1) +- 0.0001)
-        p(2) should be(rigidTransformed.points(i)(2) +- 0.0001)
+        p(0) should be(rigidTransformed.point(i)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.point(i)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.point(i)(2) +- 0.0001)
       }
     }
 
@@ -88,9 +88,9 @@ class RegistrationTests extends FunSpec with Matchers {
       val tranformed = mesh.transform(regResult).transform(inverseTrans)
 
       for ((p, i) <- tranformed.points.zipWithIndex) {
-        p(0) should be(mesh.points(i)(0) +- 0.0001)
-        p(1) should be(mesh.points(i)(1) +- 0.0001)
-        p(2) should be(mesh.points(i)(2) +- 0.0001)
+        p(0) should be(mesh.point(i)(0) +- 0.0001)
+        p(1) should be(mesh.point(i)(1) +- 0.0001)
+        p(2) should be(mesh.point(i)(2) +- 0.0001)
       }
     }
   }
@@ -141,9 +141,9 @@ class RegistrationTests extends FunSpec with Matchers {
       val regSim = mesh transform regResult
 
       for ((p, i) <- regSim.points.zipWithIndex.take(100)) {
-        p(0) should be(translatedRotatedScaled.points(i)(0) +- 0.0001)
-        p(1) should be(translatedRotatedScaled.points(i)(1) +- 0.0001)
-        p(2) should be(translatedRotatedScaled.points(i)(2) +- 0.0001)
+        p(0) should be(translatedRotatedScaled.point(i)(0) +- 0.0001)
+        p(1) should be(translatedRotatedScaled.point(i)(1) +- 0.0001)
+        p(2) should be(translatedRotatedScaled.point(i)(2) +- 0.0001)
       }
     }
   }
@@ -151,8 +151,6 @@ class RegistrationTests extends FunSpec with Matchers {
   describe("A 2D image registration") {
     it("Recovers the correct parameters for a translation transfrom") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
-
-      import DiscreteScalarImage.CanInterpolate._
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
       val fixedImage = discreteFixedImage.interpolate(3)
@@ -162,9 +160,9 @@ class RegistrationTests extends FunSpec with Matchers {
       val regConf = RegistrationConfiguration[_2D, TranslationSpace[_2D]](
         //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
         optimizer = LBFGSOptimizer(numIterations = 300),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
         transformationSpace = TranslationSpace[_2D],
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val translationParams = DenseVector[Float](-10.0, 5.0)
@@ -182,14 +180,14 @@ class RegistrationTests extends FunSpec with Matchers {
       val fixedImage = discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
-      val center = ((domain.imageBox.oppositeCorner - domain.origin) * 0.5).toPoint
+      val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
 
       val regConf = RegistrationConfiguration[_2D, RotationSpace[_2D]](
 
         optimizer = GradientDescentOptimizer(numIterations = 300, stepLength = 1e-4),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 4000)),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
         transformationSpace = RotationSpace[_2D](center),
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val rotationParams = DenseVector[Float](math.Pi / 8.0)
@@ -199,6 +197,66 @@ class RegistrationTests extends FunSpec with Matchers {
 
       regResult.parameters(0) should be(rotationParams(0) +- 0.01)
     }
+
+    it("Recovers the correct parameters for a gp transfrom") {
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
+
+      val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+      val fixedImage = discreteFixedImage.interpolate(3)
+
+      val domain = discreteFixedImage.domain
+
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
+        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
+        optimizer = LBFGSOptimizer(numIterations = 300),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
+        transformationSpace = GaussianProcessTransformationSpace(lowRankGp),
+        regularizer = L2Regularizer,
+        regularizationWeight = 0.0)
+
+      val gpParams = DenseVector.ones[Float](lowRankGp.rank)
+      val groundTruthTransform = regConf.transformationSpace.transformForParameters(gpParams)
+      val transformedLena = fixedImage compose groundTruthTransform
+      val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
+
+      for (i <- 0 until regResult.parameters.size) {
+        regResult.parameters(i) should be(gpParams(0) +- 0.1)
+      }
+    }
+
+    it("Recovers the correct parameters for a gp transfrom with a nn interpolated gp") {
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
+
+      val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+      val fixedImage = discreteFixedImage.interpolate(3)
+
+      val domain = discreteFixedImage.domain
+
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
+      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor
+      val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
+        //optimizer = GradientDescentOptimizer(GradientDescentConfiguration(200, 0.0000001, false)),
+        optimizer = LBFGSOptimizer(numIterations = 300),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 4000)),
+        transformationSpace = GaussianProcessTransformationSpace(nnInterpolatedGp),
+        regularizer = L2Regularizer,
+        regularizationWeight = 0.0)
+
+      val gpParams = DenseVector.ones[Float](lowRankGp.rank)
+      val groundTruthTransform = regConf.transformationSpace.transformForParameters(gpParams)
+      val transformedLena = fixedImage compose groundTruthTransform
+      val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
+
+      for (i <- 0 until regResult.parameters.size) {
+        regResult.parameters(i) should be(gpParams(0) +- 0.1)
+      }
+    }
+
   }
 
   describe("A 3D image registration") {
@@ -208,7 +266,7 @@ class RegistrationTests extends FunSpec with Matchers {
 
     val domain = discreteFixedImage.domain
     val origin = domain.origin
-    val corener = domain.imageBox.oppositeCorner
+    val corener = domain.boundingBox.oppositeCorner
     val center = ((corener - origin) * 0.5).toPoint
 
     it("Recovers the correct parameters for a translation transfrom") {
@@ -219,9 +277,9 @@ class RegistrationTests extends FunSpec with Matchers {
 
       val regConf = RegistrationConfiguration[_3D, TranslationSpace[_3D]](
         optimizer = LBFGSOptimizer(numIterations = 300),
-        metric = MeanSquaresMetric(UniformSampler(domain.imageBox, 20000)),
+        metric = MeanSquaresMetric(UniformSampler(domain.boundingBox, 20000)),
         transformationSpace = TranslationSpace[_3D],
-        regularizer = RKHSNormRegularizer,
+        regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
       val regResult = Registration.registration(regConf)(transformed, fixedImage)

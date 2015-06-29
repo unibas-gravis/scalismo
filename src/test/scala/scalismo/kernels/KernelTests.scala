@@ -15,18 +15,15 @@
  */
 package scalismo.kernels
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
-import scalismo.common.{ RealSpace, VectorField, BoxDomain }
-import scalismo.geometry.{ _3D, _1D, Point, Vector }
-import Point.implicits._
-import scalismo.geometry
+import scalismo.common.{ BoxDomain, RealSpace, VectorField }
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.{ Point, Vector, _1D, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
+import scalismo.{ ScalismoTestSuite, geometry }
 
-class KernelTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class KernelTests extends ScalismoTestSuite {
 
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {
@@ -100,4 +97,39 @@ class KernelTests extends FunSpec with Matchers {
       }
     }
   }
+
+  describe("Two scalar valued kernels") {
+    it("can be added and multiplied") {
+      val k1 = GaussianKernel[_1D](1.0)
+      val k2 = GaussianKernel[_1D](1.0)
+      val ksum = k1 + k2
+      val x = Point(0);
+      val y = Point(1);
+      ksum(x, y) should be(k1(x, y) + k2(x, y) +- 1e-5)
+
+      val kprod = k1 * k2
+      kprod(x, y) should be(k1(x, y) * k2(x, y) +- 1e-5)
+
+      // test scalar multiplication
+      (k1 * 2.0)(x, y) should be(k1(x, y) * 2.0 +- 1e-5)
+    }
+  }
+
+  describe("Two matrix valued kernels") {
+    it("can be added and multiplied") {
+      val k1 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
+      val k2 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
+      val ksum = k1 + k2
+      val x = Point(0);
+      val y = Point(1);
+      ksum(x, y)(0, 0) should be((k1(x, y) + k2(x, y))(0, 0) +- 1e-5f)
+
+      val kprod = k1 * k2
+      kprod(x, y)(0, 0) should be((k1(x, y) * k2(x, y))(0, 0) +- 1e-5f)
+
+      // test scalar multiplication
+      (k1 * 2.0)(x, y)(0, 0) should be(k1(x, y)(0, 0) * 2.0f +- 1e-5f)
+    }
+  }
+
 }

@@ -17,8 +17,8 @@ package scalismo.numerics
 
 import java.io.File
 
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
+import breeze.linalg.diff
+import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
@@ -26,13 +26,12 @@ import scalismo.utils.Memoize
 
 import scala.util.Random
 
-class SamplerTests extends FunSpec with Matchers {
-  scalismo.initialize()
+class SamplerTests extends ScalismoTestSuite {
 
   val facepath = getClass.getResource("/facemesh.stl").getPath
   val facemesh = MeshIO.readMesh(new File(facepath)).get
 
-  describe("A fixed point uniform sampler") {
+  describe("A uniform sampler") {
     it("yields approximately uniformly spaced points") {
 
       val random = new Random()
@@ -42,7 +41,7 @@ class SamplerTests extends FunSpec with Matchers {
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
-        val vec = cell.pointIds.map(facemesh.points).map(_.toVector)
+        val vec = cell.pointIds.map(facemesh.point).map(_.toVector)
         val (a, b, c) = (vec(0), vec(1), vec(2))
         val v0 = c - a
         val v1 = b - a
@@ -90,7 +89,7 @@ class SamplerTests extends FunSpec with Matchers {
           } else false
         }
 
-        val sampler = FixedPointsUniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.nextInt())
+        val sampler = UniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.nextInt())
         val (samplePoints, _) = sampler.sample.unzip
         //        println(s"total number of points: ${facemesh.numberOfPoints}")
 
@@ -137,5 +136,21 @@ class SamplerTests extends FunSpec with Matchers {
         }
       }
     }
+    it("yields different points when called multiple times") {
+      val sampler = UniformMeshSampler3D(facemesh, 200, seed = 42)
+      val pts1 = sampler.sample.map(_._1)
+      val pts2 = sampler.sample.map(_._1)
+      assert((pts1 diff pts2).size > 0)
+    }
   }
+
+  describe("A fixed point uniform mesh sampler") {
+    it("yields the same points when called multiple times") {
+      val sampler = FixedPointsUniformMeshSampler3D(facemesh, 200, seed = 42)
+      val pts1 = sampler.sample.map(_._1)
+      val pts2 = sampler.sample.map(_._1)
+      assert((pts1 diff pts2).size == 0)
+    }
+  }
+
 }

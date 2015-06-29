@@ -35,7 +35,7 @@ object PCAModel {
    */
   def augmentModel(pcaModel: StatisticalMeshModel, biasModel: GaussianProcess[_3D, _3D], numBasisFunctions: Int): StatisticalMeshModel = {
 
-    val modelGP = pcaModel.gp.interpolate(500)
+    val modelGP = pcaModel.gp.interpolateNearestNeighbor
     val newMean = modelGP.mean + biasModel.mean
     val newCov = modelGP.cov + biasModel.cov
     val newGP = GaussianProcess(newMean, newCov)

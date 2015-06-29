@@ -15,23 +15,33 @@
  */
 package scalismo.registration
 
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
-import scalismo.io.{ MeshIO, ImageIO }
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Index.implicits._
-import scalismo.geometry.Vector.implicits._
-import scala.language.implicitConversions
-import org.scalatest.{ Matchers, FunSpec }
-import org.scalatest.matchers.ShouldMatchers
 import java.io.File
-import breeze.linalg.DenseVector
-import scalismo.geometry._
 
-class TransformationTests extends FunSpec with Matchers {
+import breeze.linalg.DenseVector
+import scalismo.ScalismoTestSuite
+import scalismo.geometry.Index.implicits._
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.Vector.implicits._
+import scalismo.geometry._
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
+import scalismo.io.{ ImageIO, MeshIO }
+
+import scala.language.implicitConversions
+
+class TransformationTests extends ScalismoTestSuite {
 
   implicit def doubleToFloat(d: Double) = d.toFloat
 
-  scalismo.initialize()
+  describe("A Transformation") {
+    it("can be memoized and yields the same results") {
+      val transform = RotationSpace[_2D](Point(0f, 0f)).transformForParameters(DenseVector(0.1f))
+      val transformMemoized = Transformation.memoize(transform, 100)
+      for (x <- 0 until 10; y <- -5 until 5) {
+        val p = Point(x, y)
+        transform(p) should equal(transformMemoized(p))
+      }
+    }
+  }
 
   describe("A scaling in 2D") {
     val ss = ScalingSpace[_2D]
@@ -118,7 +128,7 @@ class TransformationTests extends FunSpec with Matchers {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain[_1D](-50.0f, 1.0f, 100)
-      val continuousImage = DifferentiableScalarImage(domain.imageBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
+      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Float](10))
       val translatedImg = continuousImage.compose(translation)
@@ -147,7 +157,7 @@ class TransformationTests extends FunSpec with Matchers {
 
       val parameterVector = DenseVector[Float](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
       val origin = discreteImage.domain.origin
-      val corner = discreteImage.domain.imageBox.oppositeCorner
+      val corner = discreteImage.domain.boundingBox.oppositeCorner
       val center = ((corner - origin) * 0.5).toPoint
 
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)
@@ -169,9 +179,9 @@ class TransformationTests extends FunSpec with Matchers {
       val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
       rotRotMesh.points.zipWithIndex.foreach {
         case (p, i) =>
-          p(0) should be(mesh.points(i)(0) +- 0.000001)
-          p(1) should be(mesh.points(i)(1) +- 0.000001)
-          p(2) should be(mesh.points(i)(2) +- 0.000001)
+          p(0) should be(mesh.point(i)(0) +- 0.000001)
+          p(1) should be(mesh.point(i)(1) +- 0.000001)
+          p(2) should be(mesh.point(i)(2) +- 0.000001)
       }
     }
 
