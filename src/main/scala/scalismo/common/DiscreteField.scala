@@ -79,10 +79,16 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
 
 }
 
+object DiscreteScalarField {
+  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteDomain[D], data: ScalarArray[A]): DiscreteScalarField[D, A] = {
+    new DiscreteScalarField[D, A](domain, data)
+  }
+}
+
 /**
  *
  */
-class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace] private (val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
+class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
   override def apply(ptId: Int) = data(ptId)
