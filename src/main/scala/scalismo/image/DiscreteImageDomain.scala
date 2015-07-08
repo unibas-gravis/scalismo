@@ -199,6 +199,14 @@ case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTran
 
   //override def indexToPhysicalCoordinateTransform = transform
 
+  override def neighbors(id: Int): Set[Int] = {
+    val idx = index(id)
+    Set[Int](
+      pointId(Index(Math.max(idx(0) - 1, 0))),
+      pointId(Index(Math.min(idx(1) + 1, size(1) - 1)))
+    )
+  }
+
   override def index(linearIdx: Int) = Index(linearIdx)
   override def pointId(idx: Index[_1D]) = idx(0)
 
@@ -229,6 +237,16 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
 
   override def index(ptId: Int) = (Index(ptId % size(0), ptId / size(0)))
   override def pointId(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
+
+  override def neighbors(id: Int): Set[Int] = {
+    val idx = index(id)
+    Set[Int](
+      pointId(Index(idx(0), Math.max(idx(1) - 1, 0))),
+      pointId(Index(idx(0), Math.min(idx(1) + 1, size(1) - 1))),
+      pointId(Index(Math.min(idx(0) + 1, size(0) - 1), idx(1))),
+      pointId(Index(Math.max(idx(0) - 1, 0), idx(1)))
+    )
+  }
 
   override def transform(t: Point[_2D] => Point[_2D]): UnstructuredPointsDomain[_2D] = {
     new UnstructuredPointsDomain2D(points.map(t).toIndexedSeq)
@@ -268,6 +286,19 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
 
   override def pointId(idx: Index[_3D]): Int = {
     idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
+  }
+
+  override def neighbors(id: Int): Set[Int] = {
+    val idx = index(id)
+
+    Set[Int](
+      pointId(Index(idx(0), idx(1), Math.max(idx(2) - 1, 0))),
+      pointId(Index(idx(0), idx(1), Math.min(idx(2) + 1, size(1) - 1))),
+      pointId(Index(idx(0), Math.max(idx(1) - 1, 0), idx(2))),
+      pointId(Index(idx(0), Math.min(idx(1) + 1, size(1) - 1), idx(2))),
+      pointId(Index(Math.min(idx(0) + 1, size(0) - 1), idx(1), idx(2))),
+      pointId(Index(Math.max(idx(0) - 1, 0), idx(1), idx(2)))
+    )
   }
 
   override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPointsDomain[_3D] = {

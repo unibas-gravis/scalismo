@@ -84,32 +84,47 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
   }
 
   describe("a discreteImageDomain  in 2d") {
+    val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
+    val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
+
     it("correctly maps a coordinate index to a linearIndex") {
-      val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))
-      assert(domain.pointId((40, 34)) === 40 + 34 * domain.size(0))
+      val domain1 = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))
+      assert(domain1.pointId((40, 34)) === 40 + 34 * domain1.size(0))
     }
 
     it("can correclty map a linear index to an index and back") {
-      val domain = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       val idx = Index(5, 7)
-      val recIdx = domain.index(domain.pointId(idx))
+      val recIdx = domain1.index(domain1.pointId(idx))
       assert(recIdx === idx)
     }
 
     it("domains with same parameters yield to the same anisotropic simlarity transform ") {
-      val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
-      val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
     }
+
     it("equality works for image domains ") {
-      val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
-      val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       assert(domain1 == domain2)
+    }
+
+    it("has 4 neighbors at an inner point") {
+      val innerPtId = domain1.numberOfPoints / 2
+      domain1.neighbors(innerPtId).size == 4
+    }
+
+    it("has 2 neighbors at the origin and oppositeCorner") {
+      domain1.neighbors(0) == 2
+      val indexTopRightCorner = domain1.size.map(v => v - 1)
+      val pointIdTopRightCorner = domain1.pointId(indexTopRightCorner)
+      domain1.neighbors(pointIdTopRightCorner) == 2
     }
 
   }
 
   describe("a discreteImageDomain in 3d") {
+
+    val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 1f), (42, 49, 74))
+    val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 1f), (42, 49, 74))
+
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
       assert(domain.pointId((40, 34, 15)) === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
@@ -124,13 +139,9 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
     }
 
     it("domains with same parameters yield to the same anisotropic simlarity transform ") {
-      val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
-      val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
       assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
     }
     it("equality works for image domains ") {
-      val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 1f), (42, 49, 74))
-      val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 1f), (42, 49, 74))
       assert(domain1 == domain2)
     }
 
@@ -146,6 +157,18 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
 
       (trans(Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))) - origImg.domain.boundingBox.oppositeCorner).norm should be < (0.1)
       (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))).norm should be < (0.1)
+    }
+
+    it("has 6 neighbors at an inner point") {
+      val innerPtId = domain1.numberOfPoints / 2
+      domain1.neighbors(innerPtId).size == 6
+    }
+
+    it("has 3 neighbors at the origin and oppositeCorner") {
+      domain1.neighbors(0) == 3
+      val indexTopRightCorner = domain1.size.map(v => v - 1)
+      val pointIdTopRightCorner = domain1.pointId(indexTopRightCorner)
+      domain1.neighbors(pointIdTopRightCorner) == 3
     }
 
   }

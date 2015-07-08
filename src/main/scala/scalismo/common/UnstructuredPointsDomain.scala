@@ -32,6 +32,8 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
 
   override def isDefinedAt(pt: Point[D]) = pointIDMap.contains(pt)
 
+  override def neighbors(id: Int): Set[Int] = Set[Int]()
+
   override def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
 
     def kdtreeLookup(pt: Point[D]) = {
