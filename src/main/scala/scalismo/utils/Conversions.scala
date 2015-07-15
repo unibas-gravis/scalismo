@@ -113,9 +113,6 @@ object VtkHelpers {
       case VTK_INT =>
         val p = arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray()
         Scalar.IntIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
-      case VTK_LONG =>
-        val p = arrayVTK.asInstanceOf[vtkLongArray].GetJavaArray()
-        Scalar.LongIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
       case VTK_FLOAT =>
         val p = arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray()
         Scalar.FloatIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
@@ -137,10 +134,7 @@ object VtkHelpers {
       case VTK_UNSIGNED_INT =>
         val in = arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray()
         Scalar.UIntIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
-      case VTK_UNSIGNED_LONG =>
-        val in = arrayVTK.asInstanceOf[vtkUnsignedLongArray].GetJavaArray()
-        Scalar.ULongIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
-      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + typeOf[A])
+      case _ => throw new NotImplementedError("Unsupported Scalar Pixel Type " + typeOf[A])
     }
   }
 
@@ -174,11 +168,9 @@ object MeshConversion {
         case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map(_.toFloat)
         case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map(_.toFloat)
         case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map(_.toFloat)
-        case ScalarType.Long => sa.asInstanceOf[ScalarArray[Long]].map(_.toFloat)
         case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map(_.toFloat)
         case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map(_.toFloat)
         case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map(_.toFloat)
-        case ScalarType.ULong => sa.asInstanceOf[ScalarArray[ULong]].map(_.toFloat)
         case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map(_.toFloat)
         case _ => throw new UnsupportedOperationException("Unsupported scalar type")
       }

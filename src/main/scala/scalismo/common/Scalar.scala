@@ -30,7 +30,7 @@ import scala.reflect.ClassTag
  *
  * @tparam S the type of the actual scalar data.
  */
-trait Scalar[@specialized(Byte, Short, Int, Long, Float, Double) S] extends Any {
+trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
   def fromByte(n: Byte): S
   def fromShort(n: Short): S
   def fromInt(n: Int): S
@@ -81,14 +81,12 @@ object Scalar {
   implicit final lazy val ByteIsScalar: PrimitiveScalar[Byte] = Numeric.ByteIsNumeric
   implicit final lazy val ShortIsScalar: PrimitiveScalar[Short] = Numeric.ShortIsNumeric
   implicit final lazy val IntIsScalar: PrimitiveScalar[Int] = Numeric.IntIsNumeric
-  implicit final lazy val LongIsScalar: PrimitiveScalar[Long] = Numeric.LongIsNumeric
   implicit final lazy val FloatIsScalar: PrimitiveScalar[Float] = Numeric.FloatIsNumeric
   implicit final lazy val DoubleIsScalar: PrimitiveScalar[Double] = Numeric.DoubleIsNumeric
 
   implicit final lazy val UByteIsScalar: ValueClassScalar[UByte, Byte] = new UByteIsScalar
   implicit final lazy val UShortIsScalar: ValueClassScalar[UShort, Char] = new UShortIsScalar
   implicit final lazy val UIntIsScalar: ValueClassScalar[UInt, Int] = new UIntIsScalar
-  implicit final lazy val ULongIsScalar: ValueClassScalar[ULong, Long] = new ULongIsScalar
 
   implicit class PrimitiveScalarFromSpireNumeric[A <: AnyVal: ClassTag](num: Numeric[A]) extends PrimitiveScalar[A] {
     override def toByte(a: A): Byte = num.toByte(a)
@@ -168,48 +166,6 @@ object Scalar {
 
   }
 
-  class ULongIsScalar extends ValueClassScalar[ULong, Long] {
-    override def toByte(a: ULong): Byte = a.toByte
-    override def toShort(a: ULong): Short = a.toShort
-    override def toInt(a: ULong): Int = a.toInt
-    override def toLong(a: ULong): Long = a.toLong
-    /* toFloat() and toDouble() seem to be (currently) broken in spire.
-     * Issue is filed here: https://github.com/non/spire/issues/387
-     * For now, we take the detour via BigInt.
-     */
-    override def toFloat(a: ULong): Float = a.toBigInt.toFloat
-    override def toDouble(a: ULong): Double = a.toBigInt.toDouble
-
-    override def fromByte(n: Byte): ULong = ULong(n.toLong)
-    override def fromShort(n: Short): ULong = ULong(n.toLong)
-    override def fromInt(n: Int): ULong = ULong(n.toLong)
-    override def fromLong(n: Long): ULong = ULong(n)
-
-    /* Float.toLong() and Double.toLong() have the annoying habit of
-     * capping their output to the range of Long. This is not an issue
-     * for negative numbers (the result is likely to be wrong anyway,
-     * as we don't expect negative numbers), but the ULong range is
-     * actually twice as large as Long's when it comes to positive values.
-     */
-    override def fromFloat(n: Float): ULong = {
-      val l = n.toLong
-      l match {
-        case Long.MaxValue => ULong(BigDecimal(n.toDouble).toLong)
-        case _ => ULong(l)
-      }
-    }
-    override def fromDouble(n: Double): ULong = {
-      val l = n.toLong
-      l match {
-        case Long.MaxValue => ULong(BigDecimal(n).toLong)
-        case _ => ULong(l)
-      }
-    }
-
-    override def createArray(data: Array[Long]): ValueClassScalarArray[ULong, Long] = ValueClassScalarArray(data)(this)
-    override def toUnderlying(u: ULong): Long = u.toLong
-    override def fromUnderlying(p: Long): ULong = ULong(p)
-  }
 }
 
 /**
@@ -401,7 +357,6 @@ object ScalarArray {
     implicit def scalarArrayFromByteArray(data: Array[Byte]): ScalarArray[Byte] = ByteIsScalar.createArray(data)
     implicit def scalarArrayFromShortArray(data: Array[Short]): ScalarArray[Short] = ShortIsScalar.createArray(data)
     implicit def scalarArrayFromIntArray(data: Array[Int]): ScalarArray[Int] = IntIsScalar.createArray(data)
-    implicit def scalarArrayFromLongArray(data: Array[Long]): ScalarArray[Long] = LongIsScalar.createArray(data)
     implicit def scalarArrayFromFloatArray(data: Array[Float]): ScalarArray[Float] = FloatIsScalar.createArray(data)
     implicit def scalarArrayFromDoubleArray(data: Array[Double]): ScalarArray[Double] = DoubleIsScalar.createArray(data)
   }

@@ -268,8 +268,6 @@ class ImageIOTests extends ScalismoTestSuite {
   describe("ImageIO") {
     it("is type safe") {
 
-      println("Warning : testing Long images has been disabled. This should be re-established once nativelibs ship with VTK_LONG")
-
       case class ImageWithType[D <: Dim: NDSpace: CanConvertToVtk, T: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, T], typeName: String) {
         def writeVtk(file: File) = ImageIO.writeVTK(img, file)
         def writeNii(file: File) = {
@@ -293,13 +291,11 @@ class ImageIOTests extends ScalismoTestSuite {
         convertTo[D, Byte](img),
         convertTo[D, Short](img),
         convertTo[D, Int](img),
-        //convertTo[D, Long](img),
         convertTo[D, Double](img),
         convertTo[D, Float](img),
         convertTo[D, UByte](img),
         convertTo[D, UShort](img),
         convertTo[D, UInt](img)
-      //convertTo[D, ULong](img)
       )
 
       def read[D <: Dim: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[D, T]] = {

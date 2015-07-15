@@ -82,13 +82,11 @@ object ImageIO {
     val Byte = Val[Byte](VTK_CHAR, NIFTI_TYPE_INT8)
     val Short = Val[Short](VTK_SHORT, NIFTI_TYPE_INT16)
     val Int = Val[Int](VTK_INT, NIFTI_TYPE_INT32)
-    val Long = Val[Long](VTK_LONG, NIFTI_TYPE_INT64)
     val Float = Val[Float](VTK_FLOAT, NIFTI_TYPE_FLOAT32)
     val Double = Val[Double](VTK_DOUBLE, NIFTI_TYPE_FLOAT64)
     val UByte = Val[UByte](VTK_UNSIGNED_CHAR, NIFTI_TYPE_UINT8)
     val UShort = Val[UShort](VTK_UNSIGNED_SHORT, NIFTI_TYPE_UINT16)
     val UInt = Val[UInt](VTK_UNSIGNED_INT, NIFTI_TYPE_UINT32)
-    val ULong = Val[ULong](VTK_UNSIGNED_LONG, NIFTI_TYPE_UINT64)
 
     /**
      * Return the ScalarType value corresponding to a given type
@@ -101,13 +99,11 @@ object ImageIO {
         case t if t =:= typeOf[Byte] => Byte
         case t if t =:= typeOf[Short] => Short
         case t if t =:= typeOf[Int] => Int
-        case t if t =:= typeOf[Long] => Long
         case t if t =:= typeOf[Float] => Float
         case t if t =:= typeOf[Double] => Double
         case t if t =:= typeOf[UByte] => UByte
         case t if t =:= typeOf[UShort] => UShort
         case t if t =:= typeOf[UInt] => UInt
-        case t if t =:= typeOf[ULong] => ULong
         case _ => throw new IllegalArgumentException(s"Unsupported datatype ${typeOf[T]}")
       }
     }
