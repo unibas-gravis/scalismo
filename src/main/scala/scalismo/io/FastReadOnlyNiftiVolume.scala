@@ -136,13 +136,6 @@ class FastReadOnlyNiftiVolume private (private val file: RandomAccessFile) {
         val toDouble = { x: Int => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 31) }
         loadArray[Int, UInt](4, loadInt, toDouble, UIntIsScalar.fromDouble, _.toInt, UIntIsScalar.createArray)
 
-      case NIFTI_TYPE_INT64 =>
-        loadArray[Long, Long](8, loadLong, _.toDouble, _.toLong, { x => x }, LongIsScalar.createArray)
-
-      case NIFTI_TYPE_UINT64 =>
-        val toDouble = { x: Long => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 63) }
-        loadArray[Long, ULong](8, loadLong, toDouble, ULongIsScalar.fromDouble, _.toLong, ULongIsScalar.createArray)
-
       case NIFTI_TYPE_FLOAT32 =>
         loadArray[Float, Float](4, loadFloat, _.toDouble, _.toFloat, { x => x }, FloatIsScalar.createArray)
 

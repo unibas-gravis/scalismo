@@ -15,10 +15,11 @@
  */
 package scalismo.image
 
-import breeze.linalg.DenseVector
+import breeze.linalg.{ DenseMatrix, diag, DenseVector }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.registration.{ TranslationTransform, AnisotropicSimilarityTransformationSpace, SimilarityTransformationSpace1D, AnisotropicSimilarityTransformation }
+import scalismo.registration.{ RotationSpace, AnisotropicSimilarityTransformation, AnisotropicSimilarityTransformationSpace }
+
 import scala.language.implicitConversions
 
 /**
@@ -67,13 +68,14 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   /**
    * a rectangular region that represents the area over which an image is defined by the points
    * that represent this image.
+   *
+   * The bounding box origin is always the lower left corner of the image domain, which might be different
+   * from the image domain's origin if it is not RAI oriented.
+   *
+   * An important assumption here is that all images in Scalismo are oriented along the spatial axis (i.e. no oblique images.
+   * These are handled at IO by resampling to axis oriented images).
    */
-  override def boundingBox: BoxDomain[D] = {
-    val extendData = (0 until dimensionality).map(i => size(i) * spacing(i))
-    val extent = Vector[D](extendData.toArray)
-    val oppositeCorner = origin + extent
-    BoxDomain(origin, oppositeCorner)
-  }
+  override def boundingBox: BoxDomain[D]
 
   /** true if the point is part of the grid points */
   override def isDefinedAt(pt: Point[D]): Boolean = {
@@ -185,6 +187,20 @@ object DiscreteImageDomain {
     discreteImageDomain.asInstanceOf[DiscreteImageDomain3D]
   }
 
+  /**
+   * *
+   * internal usage method that returns for an image domain the inner 3 by3 matrix of the affine transform
+   * defining the domain points
+   *
+   */
+  private[scalismo] def computeInnerAffineMatrix(domain: DiscreteImageDomain[_3D]): DenseMatrix[Float] = {
+    val parameters = domain.indexToPhysicalCoordinateTransform.parameters
+    val rotParams = parameters(3 to 5)
+    val scalingParams = parameters(6 to 8)
+    val scalingMatrix = diag(scalingParams)
+    val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
+    innerAffineMatrix
+  }
 }
 
 //
@@ -211,6 +227,8 @@ case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTran
     new UnstructuredPointsDomain1D(points.map(t).toIndexedSeq)
   }
 
+  override def boundingBox: BoxDomain[_1D] = BoxDomain(origin, origin + Vector(size(0) * spacing(0)))
+
 }
 
 case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D]) extends DiscreteImageDomain[_2D] {
@@ -234,6 +252,13 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     new UnstructuredPointsDomain2D(points.map(t).toIndexedSeq)
   }
 
+  override def boundingBox: BoxDomain[_2D] = {
+    val extendData = (0 until 2).map(i => size(i) * spacing(i))
+    val extent = Vector[_2D](extendData.toArray)
+    val oppositeCorner = origin + extent
+    BoxDomain(origin, oppositeCorner)
+  }
+
 }
 
 case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_3D]) extends DiscreteImageDomain[_3D] {
@@ -243,6 +268,25 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
   override def origin = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
 
   override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
+
+  override def boundingBox: BoxDomain[_3D] = {
+
+    val corners = List(
+      Index(0, 0, 0), Index(size(0) - 1, 0, 0), Index(0, size(1) - 1, 0), Index(0, 0, size(2) - 1), Index(size(0) - 1, size(1) - 1, 0),
+      Index(size(0) - 1, 0, size(2) - 1), Index(0, size(1) - 1, size(2) - 1), Index(size(0) - 1, size(1) - 1, size(2) - 1)
+    )
+    val cornerImages = corners.map(i => indexToPoint(i))
+
+    val originX = cornerImages.map(p => p(0)).min
+    val originY = cornerImages.map(p => p(1)).min
+    val originZ = cornerImages.map(p => p(2)).min
+
+    val oppositeX = cornerImages.map(p => p(0)).max
+    val oppositeY = cornerImages.map(p => p(1)).max
+    val oppositeZ = cornerImages.map(p => p(2)).max
+
+    BoxDomain(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
+  }
 
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
   private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))

@@ -139,14 +139,14 @@ class ImageIOTests extends ScalismoTestSuite {
     def run() = {
       testReadWrite[Short]()
       testReadWrite[Int]()
-      testReadWrite[Long]()
+      //testReadWrite[Long]()
       testReadWrite[Float]()
       testReadWrite[Double]()
       testReadWrite[Byte]()
       testReadWrite[UByte]()
       testReadWrite[UShort]()
       testReadWrite[UInt]()
-      testReadWrite[ULong]()
+      //testReadWrite[ULong]()
     }
   }
 
@@ -199,6 +199,7 @@ class ImageIOTests extends ScalismoTestSuite {
       f.deleteOnExit()
       ImageIO.writeVTK(discreteImage, f)
       val readImg = ImageIO.read3DScalarImage[Short](f).get
+
       assert(equalImages(readImg, discreteImage))
     }
 
@@ -290,13 +291,11 @@ class ImageIOTests extends ScalismoTestSuite {
         convertTo[D, Byte](img),
         convertTo[D, Short](img),
         convertTo[D, Int](img),
-        convertTo[D, Long](img),
         convertTo[D, Double](img),
         convertTo[D, Float](img),
         convertTo[D, UByte](img),
         convertTo[D, UShort](img),
-        convertTo[D, UInt](img),
-        convertTo[D, ULong](img)
+        convertTo[D, UInt](img)
       )
 
       def read[D <: Dim: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[D, T]] = {
@@ -327,13 +326,13 @@ class ImageIOTests extends ScalismoTestSuite {
             check(read[D, Byte](file), c.typeName)
             check(read[D, Short](file), c.typeName)
             check(read[D, Int](file), c.typeName)
-            check(read[D, Long](file), c.typeName)
+            //check(read[D, Long](file), c.typeName)
             check(read[D, Float](file), c.typeName)
             check(read[D, Double](file), c.typeName)
             check(read[D, UByte](file), c.typeName)
             check(read[D, UShort](file), c.typeName)
             check(read[D, UInt](file), c.typeName)
-            check(read[D, ULong](file), c.typeName)
+            //check(read[D, ULong](file), c.typeName)
           }
 
           c.writeVtk(vtk) should be a 'Success

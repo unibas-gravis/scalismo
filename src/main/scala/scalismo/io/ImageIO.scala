@@ -22,7 +22,7 @@ import niftijio.{ NiftiHeader, NiftiVolume }
 import scalismo.common.{ RealSpace, Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.registration.{ AnisotropicScalingSpace, AnisotropicSimilarityTransformationSpace, LandmarkRegistration, Transformation }
+import scalismo.registration._
 import scalismo.utils.{ CanConvertToVtk, ImageConversion, VtkHelpers }
 import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
@@ -82,13 +82,11 @@ object ImageIO {
     val Byte = Val[Byte](VTK_CHAR, NIFTI_TYPE_INT8)
     val Short = Val[Short](VTK_SHORT, NIFTI_TYPE_INT16)
     val Int = Val[Int](VTK_INT, NIFTI_TYPE_INT32)
-    val Long = Val[Long](VTK_LONG, NIFTI_TYPE_INT64)
     val Float = Val[Float](VTK_FLOAT, NIFTI_TYPE_FLOAT32)
     val Double = Val[Double](VTK_DOUBLE, NIFTI_TYPE_FLOAT64)
     val UByte = Val[UByte](VTK_UNSIGNED_CHAR, NIFTI_TYPE_UINT8)
     val UShort = Val[UShort](VTK_UNSIGNED_SHORT, NIFTI_TYPE_UINT16)
     val UInt = Val[UInt](VTK_UNSIGNED_INT, NIFTI_TYPE_UINT32)
-    val ULong = Val[ULong](VTK_UNSIGNED_LONG, NIFTI_TYPE_UINT64)
 
     /**
      * Return the ScalarType value corresponding to a given type
@@ -101,13 +99,11 @@ object ImageIO {
         case t if t =:= typeOf[Byte] => Byte
         case t if t =:= typeOf[Short] => Short
         case t if t =:= typeOf[Int] => Int
-        case t if t =:= typeOf[Long] => Long
         case t if t =:= typeOf[Float] => Float
         case t if t =:= typeOf[Double] => Double
         case t if t =:= typeOf[UByte] => UByte
         case t if t =:= typeOf[UShort] => UShort
         case t if t =:= typeOf[UInt] => UInt
-        case t if t =:= typeOf[ULong] => ULong
         case _ => throw new IllegalArgumentException(s"Unsupported datatype ${typeOf[T]}")
       }
     }
@@ -215,7 +211,7 @@ object ImageIO {
     }
   }
 
-  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, S]] = {
+  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean = false): Try[DiscreteScalarImage[_3D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".h5") =>
@@ -257,7 +253,7 @@ object ImageIO {
         vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[S](f)
+        readNifti[S](f, resampleOblique)
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
@@ -307,7 +303,7 @@ object ImageIO {
     }
   }
 
-  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_3D, S]] = {
+  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean): Try[DiscreteScalarImage[_3D, S]] = {
 
     val scalarConv = implicitly[Scalar[S]]
 
@@ -354,12 +350,29 @@ object ImageIO {
       val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq)
       val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
+      val rotationResiduals = rigidReg.parameters(3 to 5).toArray.map { a =>
+        val rest = math.abs(a) % (math.Pi * 0.5)
+        math.min(rest, (math.Pi * 0.5) - rest)
+      }
+
+      // if the image is oblique and the resampling flag unset, throw an exception
+      if (rotationResiduals.forall(_ < 0.001) == false && resampleOblique == false) {
+        throw new Exception("The image orientation seems to be oblique which is not supported by default in Scalismo. To read the image anyway, activate the resampleOblique flag. This will resample the image to an RAI oriented one.")
+      }
+
       /* Test that were able to reconstruct the transform */
       val approxErros = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
       if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
-        DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
+        val im = DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
+
+        // if the domain is rotated, we resample the image to RAI voxel ordering
+        if (rotationResiduals.forall(_ < 0.001) == false) {
+          // using our vtk conversion, we get  resampled structured point data that fully contains the original image and is RAI ordered
+          val sp = ImageConversion.imageToVtkStructuredPoints[_3D, S](im)
+          ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp).get
+        } else im
       }
     }
   }
@@ -476,22 +489,20 @@ object ImageIO {
 
       }
 
-      /**
-       * To avoid headaches, we always write the image in LPS(world) directions or (RAI in itkSNAP). This means we don't care about image domain directions
-       */
-
+      val innerAffineMatrix = DiscreteImageDomain.computeInnerAffineMatrix(img.domain)
       val M = DenseMatrix.zeros[Double](4, 4)
-      M(0, 0) = -1f * domain.spacing(0);
-      M(0, 1) = 0;
-      M(0, 2) = 0;
+
+      M(0, 0) = innerAffineMatrix(0, 0) * -1f
+      M(0, 1) = innerAffineMatrix(0, 1) * -1f
+      M(0, 2) = innerAffineMatrix(0, 2) * -1f
       M(0, 3) = -domain.origin(0)
-      M(1, 0) = 0;
-      M(1, 1) = -1f * domain.spacing(1);
-      M(1, 2) = 0;
+      M(1, 0) = innerAffineMatrix(1, 0) * -1f
+      M(1, 1) = innerAffineMatrix(1, 1) * -1f
+      M(1, 2) = innerAffineMatrix(1, 2) * -1f
       M(1, 3) = -domain.origin(1)
-      M(2, 0) = 0;
-      M(2, 1) = 0;
-      M(2, 2) = domain.spacing(2);
+      M(2, 0) = innerAffineMatrix(2, 0)
+      M(2, 1) = innerAffineMatrix(2, 1)
+      M(2, 2) = innerAffineMatrix(2, 2)
       M(2, 3) = domain.origin(2)
       M(3, 3) = 1
 
@@ -521,6 +532,7 @@ object ImageIO {
       case t if t =:= typeOf[ULong] => true
       case _ => false
     }
+
     val result = writeVTKInternal(imgVtk, file, useAscii = needAscii)
     imgVtk.Delete()
     //vtk.vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
