@@ -273,24 +273,7 @@ private class RotationSpace3D(val centre: Point[_3D]) extends RotationSpace[_3D]
 
   override def transformForParameters(p: ParameterVector): RotationTransform[_3D] = {
     require(p.length == parametersDimensionality)
-
-    val rotMatrix = {
-      // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
-      val cospsi = Math.cos(p(2)).toFloat
-      val sinpsi = Math.sin(p(2)).toFloat
-
-      val costh = Math.cos(p(1)).toFloat
-      val sinth = Math.sin(p(1)).toFloat
-
-      val cosphi = Math.cos(p(0)).toFloat
-      val sinphi = Math.sin(p(0)).toFloat
-
-      SquareMatrix(
-        (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
-        (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
-        (-sinth, sinpsi * costh, cospsi * costh))
-    }
-
+    val rotMatrix = RotationSpace.eulerAnglesToRotMatrix3D(p)
     RotationTransform[_3D](rotMatrix, centre)
   }
 
@@ -348,6 +331,26 @@ object RotationSpace {
     val origin = Point[D](DenseVector.zeros[Float](implicitly[NDSpace[D]].dimensionality).data)
     evCreateRot.createRotationSpace(origin)
 
+  }
+
+  private[scalismo] def eulerAnglesToRotMatrix3D(p: DenseVector[Float]): SquareMatrix[_3D] = {
+    val rotMatrix = {
+      // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
+      val cospsi = Math.cos(p(2)).toFloat
+      val sinpsi = Math.sin(p(2)).toFloat
+
+      val costh = Math.cos(p(1)).toFloat
+      val sinth = Math.sin(p(1)).toFloat
+
+      val cosphi = Math.cos(p(0)).toFloat
+      val sinphi = Math.sin(p(0)).toFloat
+
+      SquareMatrix(
+        (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
+        (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
+        (-sinth, sinpsi * costh, cospsi * costh))
+    }
+    rotMatrix
   }
 }
 

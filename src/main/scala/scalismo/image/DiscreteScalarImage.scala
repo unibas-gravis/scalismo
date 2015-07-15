@@ -241,11 +241,14 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
 private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D], data: ScalarArray[A]) extends DiscreteScalarImage[_3D, A](domain, data) {
   def interpolate(degree: Int): DifferentiableScalarImage[_3D] = {
     val ck = determineCoefficients3D(degree, this)
+    val pointToIdx = domain.indexToPhysicalCoordinateTransform.inverse
 
     def iterateOnPoints(x: Point[_3D], splineBasis: ((Double, Double, Double) => Double)): Double = {
-      val xUnit = (x(0) - domain.origin(0)) / domain.spacing(0)
-      val yUnit = (x(1) - domain.origin(1)) / domain.spacing(1)
-      val zUnit = (x(2) - domain.origin(2)) / domain.spacing(2)
+
+      val unitCoords = pointToIdx(x)
+      val xUnit = unitCoords(0)
+      val yUnit = unitCoords(1)
+      val zUnit = unitCoords(2)
 
       val k1 = scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt
       val l1 = scala.math.ceil(yUnit - 0.5f * (degree + 1)).toInt
