@@ -117,11 +117,11 @@ object DiscreteVectorField {
    * the vector is ordered as (v_11, v_12, ... v_1d, ...v_n1, v_n2, v_nd)
    */
   def fromDenseVector[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D],
-    vec: DenseVector[Float]): DiscreteVectorField[D, DO] = {
+    vec: DenseVector[Float])(implicit vectorBuilder: Vector.Create[DO]): DiscreteVectorField[D, DO] = {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =
       for (v <- vec.toArray.grouped(dim))
-        yield Vector[DO](v)
+        yield Vector.apply[DO](v)
 
     DiscreteVectorField[D, DO](domain, vectors.toIndexedSeq)
   }
