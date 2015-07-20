@@ -362,7 +362,7 @@ object ImageIO {
 
       /* Test that were able to reconstruct the transform */
       val approxErros = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
-      if (approxErros.max > 0.001f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
+      if (approxErros.max > 0.01f) throw new Exception("Unable to approximate nifti affine transform wiht anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
         val im = DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
