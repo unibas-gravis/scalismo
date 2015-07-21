@@ -38,7 +38,7 @@ sealed abstract class Point[D <: Dim: NDSpace] {
 
   def toArray: Array[Float]
 
-  @deprecated("real data is now private, use toArray")
+  @deprecated("real data is now private, use toArray", "")
   def data = toArray
 
   def toBreezeVector = DenseVector(toArray)

@@ -175,7 +175,7 @@ object StatismoIO {
 
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
-    val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.data)
+    val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
 
     val pcaBasis = model.gp.basisMatrix.copy
@@ -221,7 +221,7 @@ object StatismoIO {
   private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
     val cellArray = model.referenceMesh.cells.map(_.ptId1) ++ model.referenceMesh.cells.map(_.ptId2) ++ model.referenceMesh.cells.map(_.ptId3)
-    val pts = model.referenceMesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
+    val pts = model.referenceMesh.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
 
     for {

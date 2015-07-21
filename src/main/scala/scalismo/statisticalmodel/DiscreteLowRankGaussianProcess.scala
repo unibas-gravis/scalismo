@@ -360,7 +360,7 @@ object DiscreteLowRankGaussianProcess {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
 
-    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.data).toArray)
+    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
 
     val yVec = flatten(ys)
     val meanValues = ptIds.map { ptId =>

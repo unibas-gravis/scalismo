@@ -136,16 +136,51 @@ class GeometryTests extends ScalismoTestSuite {
         v.toPoint.toVector should be(v)
       }
 
+      it("inner product probably (1 example) fulfills dot(v,v) >= 0") {
+        v.dot(v) should be >= 0f
+      }
+
+      it("inner product probably (1 example) fulfills dot(a*v,w) == a*dot(v,w)") {
+        val a = scala.util.Random.nextFloat()
+        val w = randomVector()
+        (v * a).dot(w) - a * v.dot(w) should be < 1.0e-4.toFloat
+      }
+
+      it("inner product probably (1 example) fulfills dot(v+a,w) == dot(v,w)+dot(a,w)") {
+        val w = randomVector()
+        val a = randomVector()
+        (v + a).dot(w) - (v.dot(w) + a.dot(w)) should be < 1.0e-4.toFloat
+      }
+
+      it("inner product is probably (1 example) symmetric") {
+        val w = randomVector()
+        v.dot(w) - w.dot(v) should be < 1.0e-4.toFloat
+      }
+
       it("has the proper relation between norm and norm2") {
         math.sqrt(v.norm2) should be(v.norm +- 1e-5)
       }
 
-      it("probably has a positive norm") {
+      it("probably (1 example) has a positive norm") {
         v.norm should be > 0.0
       }
 
       it("provides a zero norm for zero vectors") {
         Vector.zeros[D].norm should be(0.0 +- 1e-10)
+      }
+
+      it("has norm which probably (1 example) fulfills the triangle equality") {
+        val w = randomVector()
+        (v + w).norm should be <= (v.norm + w.norm + 1e-6)
+      }
+
+      it("has norm which probably (1 example) fulfills (a*v).norm == |a|*v.norm(v)") {
+        val a = scala.util.Random.nextFloat()
+        (v * a).norm - math.abs(a) * v.norm should be <= 1e-6
+      }
+
+      it("has a norm which is derived from the inner product: dot(v,v)==v.norm2") {
+        v.norm2 should be(v.dot(v))
       }
 
       val f = math.max(1e-10, scala.util.Random.nextFloat())
