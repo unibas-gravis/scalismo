@@ -124,8 +124,8 @@ object Index {
   }
 
   object implicits {
-    implicit def point1DToInt(ind: Index[_1D]): Int = ind.i
-    implicit def floatToIndex1D(f: Int): Index1D = Index1D(f)
+    implicit def index1DToInt(ind: Index[_1D]): Int = ind.i
+    implicit def intToIndex1D(f: Int): Index1D = Index1D(f)
     implicit def tupleOfIntToIndex2D(t: (Int, Int)): Index2D = Index2D(t._1, t._2)
     implicit def tupleOfIntToIndex3D(t: (Int, Int, Int)): Index3D = Index3D(t._1.toInt, t._2.toInt, t._3.toInt)
   }
