@@ -120,9 +120,21 @@ object VtkHelpers {
         val p = arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray()
         Scalar.DoubleIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
       // complicated cases, so we're more explicit about what we're doing
-      case VTK_CHAR | VTK_SIGNED_CHAR =>
+      case VTK_CHAR =>
         val in = arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray()
         val out: Array[Byte] = ArrayUtils.fastMap[Char, Byte](in, { c => c.toByte })
+        Scalar.ByteIsScalar.createArray(out).asInstanceOf[ScalarArray[A]]
+      case VTK_SIGNED_CHAR =>
+        val in = arrayVTK.asInstanceOf[vtkSignedCharArray]
+
+        // vtkSignedCharArray does not seem to have a GetJavaArray method.
+        // We therefore need to copy it manually
+        val out: Array[Byte] = new Array[Byte](in.GetNumberOfTuples() * in.GetNumberOfComponents())
+        var i = 0
+        while (i < out.length) {
+          out(i) = in.GetValue(i).toByte
+          i += 1
+        }
         Scalar.ByteIsScalar.createArray(out).asInstanceOf[ScalarArray[A]]
       case VTK_UNSIGNED_CHAR =>
         val in = arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray()
