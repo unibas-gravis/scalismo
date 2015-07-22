@@ -623,13 +623,13 @@ private class RigidTransformationTransThenRot[D <: Dim: NDSpace](rotationTransfo
  */
 case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: geometry.Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override val domain = RealSpace[D]
-  override val f = (x: Point[D]) => Point((x.toBreezeVector :* s.toBreezeVector).data)
+  override val f = (x: Point[D]) => Point((x.toVector.toBreezeVector :* s.toBreezeVector).data)
 
   val parameters = s.toBreezeVector
   def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix[D](breeze.linalg.diag(s.toBreezeVector).data)
 
   override def inverse: AnisotropicScalingTransformation[D] = {
-    val sinv = s.data.map(v => if (v == 0) 0 else 1.0 / v) map (_.toFloat)
+    val sinv = s.toArray.map(v => if (v == 0) 0 else 1.0 / v) map (_.toFloat)
     new AnisotropicScalingTransformation[D](Vector[D](sinv))
   }
 }
@@ -653,7 +653,7 @@ case class AnisotropicScalingSpace[D <: Dim: NDSpace]() extends TransformationSp
   }
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
-    x: Point[D] => new DenseMatrix(parametersDimensionality, 1, x.data)
+    x: Point[D] => new DenseMatrix(parametersDimensionality, 1, x.toArray)
   }
 }
 /**

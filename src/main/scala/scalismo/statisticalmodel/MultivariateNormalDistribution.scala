@@ -157,7 +157,7 @@ object NDimensionalNormalDistribution {
         for (i <- 0 until dim) data(i * dim + i) = principalComponents(i)._2
         SquareMatrix[D](data)
       }
-      val u = SquareMatrix[D](principalComponents.map(_._1.data).flatten.toArray)
+      val u = SquareMatrix[D](principalComponents.map(_._1.toArray).flatten.toArray)
       u * d2 * u.t
     }
     NDimensionalNormalDistribution(mean, cov)

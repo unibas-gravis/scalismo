@@ -143,7 +143,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
       val newMeanVecs = for ((pt, meanAtPoint) <- gp.mean.pointsWithValues) yield {
         rigidTransform(pt + meanAtPoint) - rigidTransform(pt)
       }
-      val data = newMeanVecs.map(_.data).flatten.toArray
+      val data = newMeanVecs.map(_.toArray).flatten.toArray
       DenseVector(data)
     }
 
@@ -153,7 +153,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
       val newIthBasis = for ((pt, basisAtPoint) <- ithKlBasis.pointsWithValues) yield {
         rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
       }
-      val data = newIthBasis.map(_.data).flatten.toArray
+      val data = newIthBasis.map(_.toArray).flatten.toArray
       newBasisMat(::, i) := DenseVector(data)
     }
     val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](gp.domain.transform(rigidTransform), newMean, gp.variance, newBasisMat)
@@ -169,7 +169,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 
     val newRef = referenceMesh.transform(t)
     val newMean = gp.mean.pointsWithValues.map { case (refPt, meanVec) => (refPt - t(refPt)) + meanVec }
-    val newMeanVec = DenseVector(newMean.map(_.data).flatten.toArray)
+    val newMeanVec = DenseVector(newMean.map(_.toArray).flatten.toArray)
     val newGp = new DiscreteLowRankGaussianProcess[_3D, _3D](newRef, newMeanVec, gp.variance, gp.basisMatrix)
     new StatisticalMeshModel(newRef, newGp)
   }

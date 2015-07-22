@@ -111,7 +111,7 @@ object GaussianProcess {
 
     val outputDim = implicitly[NDSpace[DO]].dimensionality
 
-    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.data).toArray)
+    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
 
     val (xs, ys, errorDists) = trainingData.unzip3
 

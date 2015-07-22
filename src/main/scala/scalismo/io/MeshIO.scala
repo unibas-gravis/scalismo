@@ -201,7 +201,7 @@ object MeshIO {
   }
 
   private def pointSeqToNDArray[T](points: IndexedSeq[Point[_3D]]): NDArray[Double] =
-    NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.data.map(_.toDouble)).toArray)
+    NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.toArray.map(_.toDouble)).toArray)
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)

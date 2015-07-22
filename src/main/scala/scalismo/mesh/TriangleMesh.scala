@@ -74,7 +74,7 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
 
     val u = pt2 - pt1
     val v = pt3 - pt1
-    Vector.crossproduct(u, v)
+    u.crossproduct(v)
   }
 
   /**

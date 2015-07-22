@@ -127,7 +127,7 @@ object DiscreteVectorField {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =
       for (v <- vec.toArray.grouped(dim))
-        yield Vector[DO](v)
+        yield Vector.apply[DO](v)
 
     DiscreteVectorField[D, DO](domain, vectors.toIndexedSeq)
   }

@@ -574,7 +574,7 @@ object ImageIO {
     // (note that here the dimensions of the voxelArray are reversed compared the the
     // vector dims that is stored in the field Dimensions. This is the convention of the itk implementation
     // which we follow)
-    val voxelArrayDim = img.domain.size.data.reverse.map(_.toLong)
+    val voxelArrayDim = img.domain.size.toArray.reverse.map(_.toLong)
 
     val directions = NDArray[Double](
       IndexedSeq[Long](img.domain.size.dimensionality, img.domain.size.dimensionality),
@@ -583,9 +583,9 @@ object ImageIO {
     val maybeError: Try[Unit] = for {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeNDArray("/ITKImage/0/Directions", directions)
-      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.data.map(_.toLong))
-      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.data.map(_.toDouble))
-      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.data.map(_.toDouble))
+      _ <- h5file.writeArray("/ITKImage/0/Dimension", img.domain.size.toArray.map(_.toLong))
+      _ <- h5file.writeArray("/ITKImage/0/Origin", img.domain.origin.toArray.map(_.toDouble))
+      _ <- h5file.writeArray("/ITKImage/0/Spacing", img.domain.spacing.toArray.map(_.toDouble))
       _ <- h5file.writeNDArray("/ITKImage/0/VoxelData", NDArray(voxelArrayDim, img.values.toArray))
       _ <- h5file.createGroup("/ITKImage/0/MetaData")
       _ <- h5file.writeString("/ITKVersion", "4.2.0") // we don't need it - ever

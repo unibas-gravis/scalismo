@@ -22,12 +22,224 @@ import scala.language.implicitConversions
 
 class GeometryTests extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p
   val v = Vector(0.1, 3.0, 1.1)
   val vGeneric: Vector[_3D] = v
+
+  def checkPoint[D <: Dim: NDSpace]() = {
+    def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextFloat()))
+    val pt = randomPoint()
+
+    describe(s"A random nD Point $pt (n=${NDSpace[D].dimensionality})") {
+      it("equals a Point with identical values") {
+        pt should equal(pt.map(v => v))
+      }
+
+      it("fulfills p + (p2 - p) - (p2 - p) == p") {
+        val p2 = randomPoint()
+        pt + (p2 - pt) - (p2 - pt) should equal(pt)
+      }
+
+      it("converts to an Array and back") {
+        Point[D](pt.toArray) should equal(pt)
+      }
+
+      it("converts to a Vector and back") {
+        pt.toVector.toPoint should be(pt)
+      }
+
+      it("converts to an Array of proper length") {
+        pt.toArray should have length NDSpace[D].dimensionality
+      }
+
+      it("converts to a Breeze vector and back") {
+        Point.fromBreezeVector[D](pt.toBreezeVector) should equal(pt)
+      }
+
+      it("can map a constant value p.map(f) == 0 (f: x => 0.0f)") {
+        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        def f(x: Float): Float = 0.0f
+        pt.map(f) should equal(z)
+      }
+
+      it("can map a function p.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
+        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        val f = (x: Float) => 2.0f + x
+        val g = (x: Float) => x - 2.0f
+        (pt.map(f).map(g) - pt).norm should be < 1e-4
+      }
+
+      it("can map a function using its index: p.mapWithIndex(f) == 0 (f: (v,i) => v - p(i))") {
+        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        pt.mapWithIndex((v, i) => v - pt(i)) should equal(z)
+      }
+    }
+  }
+
+  // test all dimensions for Point
+  checkPoint[_1D]()
+  checkPoint[_2D]()
+  checkPoint[_3D]()
+
+  def checkVector[D <: Dim: NDSpace]() = {
+    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextFloat()))
+    val v = randomVector()
+
+    describe(s"A random nD Vector $v (n=${NDSpace[D].dimensionality})") {
+
+      it("equals a Vector with identical values") {
+        v should equal(v.map(f => f))
+      }
+
+      it("fulfills v*(-1) + v*(1) == 0") {
+        v * (-1) + v * 1 should equal(Vector.zeros[D])
+      }
+
+      it("fulfills v - v == 0") {
+        v - v should equal(Vector.zeros[D])
+      }
+
+      it("converts to an Array and back") {
+        Vector[D](v.toArray) should equal(v)
+      }
+
+      it("converts to an Array of proper length") {
+        v.toArray should have length NDSpace[D].dimensionality
+      }
+
+      it("converts to a Breeze vector and back") {
+        Vector.fromBreezeVector[D](v.toBreezeVector) should equal(v)
+      }
+
+      it("can map a constant value v.map(f) == 0 (f: x => 0.0f)") {
+        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        def f(x: Float): Float = 0.0f
+        v.map(f) should equal(z)
+      }
+
+      it("can map a function v.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
+        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        val f = (x: Float) => 2.0f + x
+        val g = (x: Float) => x - 2.0f
+        (v.map(f).map(g) - v).norm should be < 1e-4
+      }
+
+      it("can map a function using its index: v.mapWithIndex(f) == 0 (f: (x,i) => x - v(i))") {
+        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        v.mapWithIndex((x, i) => x - v(i)) should equal(z)
+      }
+
+      it("converts to a Vector and back") {
+        v.toPoint.toVector should be(v)
+      }
+
+      it("inner product probably (1 example) fulfills dot(v,v) >= 0") {
+        v.dot(v) should be >= 0f
+      }
+
+      it("inner product probably (1 example) fulfills dot(a*v,w) == a*dot(v,w)") {
+        val a = scala.util.Random.nextFloat()
+        val w = randomVector()
+        (v * a).dot(w) - a * v.dot(w) should be < 1.0e-4.toFloat
+      }
+
+      it("inner product probably (1 example) fulfills dot(v+a,w) == dot(v,w)+dot(a,w)") {
+        val w = randomVector()
+        val a = randomVector()
+        (v + a).dot(w) - (v.dot(w) + a.dot(w)) should be < 1.0e-4.toFloat
+      }
+
+      it("inner product is probably (1 example) symmetric") {
+        val w = randomVector()
+        v.dot(w) - w.dot(v) should be < 1.0e-4.toFloat
+      }
+
+      it("has the proper relation between norm and norm2") {
+        math.sqrt(v.norm2) should be(v.norm +- 1e-5)
+      }
+
+      it("probably (1 example) has a positive norm") {
+        v.norm should be > 0.0
+      }
+
+      it("provides a zero norm for zero vectors") {
+        Vector.zeros[D].norm should be(0.0 +- 1e-10)
+      }
+
+      it("has norm which probably (1 example) fulfills the triangle equality") {
+        val w = randomVector()
+        (v + w).norm should be <= (v.norm + w.norm + 1e-6)
+      }
+
+      it("has norm which probably (1 example) fulfills (a*v).norm == |a|*v.norm(v)") {
+        val a = scala.util.Random.nextFloat()
+        (v * a).norm - math.abs(a) * v.norm should be <= 1e-6
+      }
+
+      it("has a norm which is derived from the inner product: dot(v,v)==v.norm2") {
+        v.norm2 should be(v.dot(v))
+      }
+
+      val f = math.max(1e-10, scala.util.Random.nextFloat())
+      it(s"fulfills norm((v*f)/f - v) ~ 0 (f=$f)") {
+        ((v * f) / f - v).norm should be(0.0 +- 1e-4)
+      }
+    }
+  }
+
+  // test all dimensions for Vector
+  checkVector[_1D]()
+  checkVector[_2D]()
+  checkVector[_3D]()
+
+  def checkIndex[D <: Dim: NDSpace]() = {
+    def randomIndex(): Index[D] = Index[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextInt()))
+    val ind = randomIndex()
+
+    describe(s"A random nD Index $ind (n=${NDSpace[D].dimensionality})") {
+      it("equals a Index with identical values") {
+        ind should equal(ind.map(v => v))
+      }
+
+      it("converts to an Array and back") {
+        Index[D](ind.toArray) should equal(ind)
+      }
+
+      it("converts to an Array of proper length") {
+        ind.toArray should have length NDSpace[D].dimensionality
+      }
+
+      it("converts to a Breeze vector and back") {
+        Index[D](ind.toBreezeVector.data) should equal(ind)
+      }
+
+      it("can map a constant value p.map(f) == 0 (f: x => 0)") {
+        val z = Index[D](Array.fill(NDSpace[D].dimensionality)(0))
+        def f(x: Int): Int = 0
+        ind.map(f) should equal(z)
+      }
+
+      it("can map a function p.map(f).map(g) == 0 (f: x => 2 + x, g: x => x - 2)") {
+        val z = Index[D](Array.fill(NDSpace[D].dimensionality)(0))
+        val f = (x: Int) => 2 + x
+        val g = (x: Int) => x - 2
+        ind.map(f).map(g) should equal(ind)
+      }
+
+      it("can map a function using its index: p.mapWithIndex(f) == 0 (f: (v,i) => v - p(i))") {
+        val z = Index[D](Array.fill(NDSpace[D].dimensionality)(0))
+        ind.mapWithIndex((v, i) => v - ind(i)) should equal(z)
+      }
+    }
+  }
+
+  // test all dimensions for Index
+  checkIndex[_1D]()
+  checkIndex[_2D]()
+  checkIndex[_3D]()
 
   describe("A 3D Point") {
     it("equals a Point[ThreeD]") {
@@ -95,7 +307,7 @@ class GeometryTests extends ScalismoTestSuite {
       val v1 = Vector(4.0, -3.0, -1.0)
       val v2 = Vector(3.0, 2.0, 5.0)
       val crossPdBreeze = breeze.linalg.cross(v1.toBreezeVector, v2.toBreezeVector)
-      Vector.crossproduct(v1, v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
+      v1.crossproduct(v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
     }
 
     it("can be mapped with a function f: (Float) => Float") {

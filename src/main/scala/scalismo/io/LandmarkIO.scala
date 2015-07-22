@@ -49,14 +49,14 @@ object LandmarkIO {
   private implicit def m2u[D <: Dim: NDSpace](m: NDimensionalNormalDistribution[D]): Uncertainty = {
     val (pcs, variances) = m.principalComponents.unzip
     val stdDevs: List[Float] = variances.map(Math.sqrt(_).toFloat).toList
-    val pcList: List[List[Float]] = pcs.map(v => v.data.toList).toList
+    val pcList: List[List[Float]] = pcs.map(v => v.toArray.toList).toList
     Uncertainty(stdDevs, pcList)
   }
 
   private case class LandmarkJsonFormat[D <: Dim: NDSpace]() extends JsonFormat[ExtLandmark[D]] {
     def write(l: ExtLandmark[D]) = {
       val fixedMap = Map("id" -> JsString(l.lm.id),
-        "coordinates" -> arrayFormat[Float].write(l.lm.point.data))
+        "coordinates" -> arrayFormat[Float].write(l.lm.point.toArray))
       val descriptionMap = l.lm.description.map { d => Map("description" -> JsString(d)) }.getOrElse(Map())
       val uncertaintyMap = l.lm.uncertainty.map { u => Map("uncertainty" -> uncertaintyProtocol.write(u)) }.getOrElse(Map())
       val extensionsMap = l.exts.map(e => Map("extensions" -> JsObject(e))).getOrElse(Map())
