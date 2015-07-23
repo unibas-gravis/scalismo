@@ -20,6 +20,7 @@ import ncsa.hdf.`object`.Group
 import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
+import scalismo.statisticalmodel.asm.PreprocessedImage.{ Gradient, Intensity }
 
 import scala.collection.immutable
 import scala.util.{ Failure, Try }
@@ -79,8 +80,13 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Float, 
 
     val samples = for (samplePt <- sampledPoints) yield {
       if (image.isDefinedAt(samplePt)) {
-        val gradient = Vector.fromBreezeVector[_3D](image(samplePt))
-        gradient dot unitNormal
+        image.valueType match {
+          case Intensity => image(samplePt)(0)
+          case Gradient =>
+            val gradient = Vector.fromBreezeVector[_3D](image(samplePt))
+            gradient dot unitNormal
+          case _ => throw new IllegalStateException(s"The feature extractor cannot handle preprocessed images of type ${image.valueType}")
+        }
       } else {
         // fail-fast: immediately return, since the entire feature is "useless"
         return None

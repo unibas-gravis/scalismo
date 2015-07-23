@@ -23,13 +23,24 @@ import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.HDF5File
+import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
 import scala.util.{ Failure, Success, Try }
 
 /**
  * A preprocessed image, which can be fed to a [[FeatureExtractor]].
  */
-trait PreprocessedImage extends Field[_3D, DenseVector[Float]]
+
+object PreprocessedImage {
+  sealed trait Type
+
+  object Gradient extends Type
+  object Intensity extends Type
+}
+
+trait PreprocessedImage extends Field[_3D, DenseVector[Float]] {
+  def valueType: Type
+}
 
 /**
  * An image preprocessor takes a discrete scalar image, performs any required preprocessing,
@@ -69,6 +80,8 @@ object IdentityImagePreprocessor {
  */
 case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = IdentityImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
+    override val valueType = PreprocessedImage.Intensity
+
     override def domain: Domain[_3D] = new Domain[_3D] {
       override def isDefinedAt(pt: Point[_3D]): Boolean = {
         inputImage.domain.pointId(pt).exists(inputImage.isDefinedAt)
@@ -116,6 +129,8 @@ object GaussianGradientImagePreprocessor {
  */
 case class GaussianGradientImagePreprocessor(stddev: Float, override val ioMetadata: IOMetadata = GaussianGradientImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
+    override val valueType = PreprocessedImage.Gradient
+
     val gradientImage = {
       if (stddev > 0) {
         DiscreteImageFilter.gaussianSmoothing(inputImage, stddev)
