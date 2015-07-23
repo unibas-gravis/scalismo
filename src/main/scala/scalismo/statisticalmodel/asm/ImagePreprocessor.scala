@@ -82,15 +82,12 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Intensity
 
-    override def domain: Domain[_3D] = new Domain[_3D] {
-      override def isDefinedAt(pt: Point[_3D]): Boolean = {
-        inputImage.domain.pointId(pt).exists(inputImage.isDefinedAt)
-      }
-    }
+    val interpolated = inputImage.interpolate(3)
+
+    override def domain: Domain[_3D] = interpolated.domain
 
     override protected[scalismo] val f: (Point[_3D]) => DenseVector[Float] = { point =>
-      val value = inputImage.domain.pointId(point).map(inputImage.apply).get
-      DenseVector(value)
+      DenseVector(interpolated(point))
     }
   }
 }
