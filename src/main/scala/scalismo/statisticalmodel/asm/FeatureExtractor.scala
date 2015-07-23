@@ -94,7 +94,7 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Float, 
     }
 
     val sum = samples.map(math.abs).sum
-    val features = if (sum == 0) samples else samples.map(d => d / sum)
+    val features = if (sum == 0 || image.valueType == Intensity) samples else samples.map(d => d / sum)
     Some(DenseVector(features.toArray))
   }
 
