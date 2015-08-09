@@ -19,7 +19,7 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ VectorField, RealSpace }
+import scalismo.common.{ PointId, VectorField, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
 import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel }
@@ -30,7 +30,7 @@ import scala.language.implicitConversions
 
 class RegistrationTests extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("A 2D rigid landmark based registration") {
     it("can retrieve correct parameters") {
@@ -77,20 +77,22 @@ class RegistrationTests extends ScalismoTestSuite {
     it("can retrieve correct parameters") {
 
       for ((p, i) <- rigidRegTransformed.points.zipWithIndex) {
-        p(0) should be(rigidTransformed.point(i)(0) +- 0.0001)
-        p(1) should be(rigidTransformed.point(i)(1) +- 0.0001)
-        p(2) should be(rigidTransformed.point(i)(2) +- 0.0001)
+        val id = PointId(i)
+        p(0) should be(rigidTransformed.point(id)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.point(id)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.point(id)(2) +- 0.0001)
       }
     }
 
-    it("Rigid Transformation forth and back of a mesh gives the same points ") {
+    it("Rigid Transformation forth and back of a mesh gives the same points") {
       val inverseTrans = regResult.asInstanceOf[RigidTransformation[_3D]].inverse
       val tranformed = mesh.transform(regResult).transform(inverseTrans)
 
       for ((p, i) <- tranformed.points.zipWithIndex) {
-        p(0) should be(mesh.point(i)(0) +- 0.0001)
-        p(1) should be(mesh.point(i)(1) +- 0.0001)
-        p(2) should be(mesh.point(i)(2) +- 0.0001)
+        val id = PointId(i)
+        p(0) should be(mesh.point(id)(0) +- 0.0001)
+        p(1) should be(mesh.point(id)(1) +- 0.0001)
+        p(2) should be(mesh.point(id)(2) +- 0.0001)
       }
     }
   }
@@ -141,15 +143,16 @@ class RegistrationTests extends ScalismoTestSuite {
       val regSim = mesh transform regResult
 
       for ((p, i) <- regSim.points.zipWithIndex.take(100)) {
-        p(0) should be(translatedRotatedScaled.point(i)(0) +- 0.0001)
-        p(1) should be(translatedRotatedScaled.point(i)(1) +- 0.0001)
-        p(2) should be(translatedRotatedScaled.point(i)(2) +- 0.0001)
+        val id = PointId(i)
+        p(0) should be(translatedRotatedScaled.point(id)(0) +- 0.0001)
+        p(1) should be(translatedRotatedScaled.point(id)(1) +- 0.0001)
+        p(2) should be(translatedRotatedScaled.point(id)(2) +- 0.0001)
       }
     }
   }
 
   describe("A 2D image registration") {
-    it("Recovers the correct parameters for a translation transfrom") {
+    it("Recovers the correct parameters for a translation transform") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
@@ -174,7 +177,7 @@ class RegistrationTests extends ScalismoTestSuite {
       regResult.parameters(1) should be(translationParams(1) +- 0.01)
     }
 
-    it("Recovers the correct parameters for a rotation transfrom") {
+    it("Recovers the correct parameters for a rotation transform") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
       val fixedImage = discreteFixedImage.interpolate(3)
@@ -198,7 +201,7 @@ class RegistrationTests extends ScalismoTestSuite {
       regResult.parameters(0) should be(rotationParams(0) +- 0.01)
     }
 
-    it("Recovers the correct parameters for a gp transfrom") {
+    it("Recovers the correct parameters for a gp transform") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
@@ -227,7 +230,7 @@ class RegistrationTests extends ScalismoTestSuite {
       }
     }
 
-    it("Recovers the correct parameters for a gp transfrom with a nn interpolated gp") {
+    it("Recovers the correct parameters for a gp transform with a nn interpolated gp") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
@@ -265,11 +268,8 @@ class RegistrationTests extends ScalismoTestSuite {
     val fixedImage = discreteFixedImage.interpolate(3)
 
     val domain = discreteFixedImage.domain
-    val origin = domain.origin
-    val corener = domain.boundingBox.oppositeCorner
-    val center = ((corener - origin) * 0.5).toPoint
 
-    it("Recovers the correct parameters for a translation transfrom") {
+    it("Recovers the correct parameters for a translation transform") {
 
       val translationParams = DenseVector[Float](-10.0, 0, 0)
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)

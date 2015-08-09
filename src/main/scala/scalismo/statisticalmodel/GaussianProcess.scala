@@ -55,8 +55,8 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
   def marginal(domain: DiscreteDomain[D]): DiscreteGaussianProcess[D, DO] = {
     val meanField = DiscreteVectorField(domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
     val pts = domain.points.toIndexedSeq
-    def newCov(i: Int, j: Int): SquareMatrix[DO] = {
-      cov(pts(i), pts(j))
+    def newCov(i: PointId, j: PointId): SquareMatrix[DO] = {
+      cov(pts(i.id), pts(j.id))
     }
 
     val discreteCov = DiscreteMatrixValuedPDKernel[D, DO](domain, newCov)

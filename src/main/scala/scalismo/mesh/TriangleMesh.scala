@@ -21,13 +21,13 @@ import scalismo.common._
 import scalismo.geometry._
 
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
-case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
+case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends Cell {
 
   /** Identifiers of the points belonging to the cell*/
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
 
   /** Returns true if the given point identifier is part of the triangle cell*/
-  def containsPoint(ptId: Int) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
+  def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 }
 
 /**
@@ -36,18 +36,18 @@ case class TriangleCell(ptId1: Int, ptId2: Int, ptId3: Int) extends Cell {
  * Triangle meshes are currently the only supported representation of 3-dimensional meshes in the library.
  *
  */
-case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[Int, Seq[TriangleCell]]])
+case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[PointId, Seq[TriangleCell]]])
     extends UnstructuredPointsDomain3D(meshPoints) {
 
   // a map that has for every point the neighboring cell ids
-  private[scalismo] val cellMap: mutable.HashMap[Int, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
+  private[scalismo] val cellMap: mutable.HashMap[PointId, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
 
-  private[this] def updateCellMapForPtId(ptId: Int, cell: TriangleCell): Unit = {
+  private[this] def updateCellMapForPtId(ptId: PointId, cell: TriangleCell): Unit = {
     val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
     cellMap.update(ptId, cellsForKey :+ cell)
   }
 
-  if (!cellMapOpt.isDefined)
+  if (cellMapOpt.isEmpty)
     for (cell <- cells) {
       cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
     }
@@ -64,13 +64,13 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
   /**
    * Returns the identifiers of the mesh cells to which the given point identifier belongs
    */
-  def cellsWithPointId(id: Int): Seq[TriangleCell] = cellMap(id)
+  def cellsWithPointId(id: PointId): Seq[TriangleCell] = cellMap(id)
 
   /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
   def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
-    val pt1 = meshPoints(cell.ptId1)
-    val pt2 = meshPoints(cell.ptId2)
-    val pt3 = meshPoints(cell.ptId3)
+    val pt1 = meshPoints(cell.ptId1.id)
+    val pt2 = meshPoints(cell.ptId2.id)
+    val pt3 = meshPoints(cell.ptId3.id)
 
     val u = pt2 - pt1
     val v = pt3 - pt1
@@ -102,9 +102,9 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    */
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
-    val A = meshPoints(t.ptId1)
-    val B = meshPoints(t.ptId2)
-    val C = meshPoints(t.ptId3)
+    val A = meshPoints(t.ptId1.id)
+    val B = meshPoints(t.ptId2.id)
+    val C = meshPoints(t.ptId3.id)
     val a = (B - A).norm
     val b = (C - B).norm
     val c = (C - A).norm
@@ -123,9 +123,9 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    *  @param seed Seed value for the random generator
    */
   def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
-    val A = meshPoints(t.ptId1).toVector
-    val B = meshPoints(t.ptId2).toVector
-    val C = meshPoints(t.ptId3).toVector
+    val A = meshPoints(t.ptId1.id).toVector
+    val B = meshPoints(t.ptId2.id).toVector
+    val C = meshPoints(t.ptId3.id).toVector
 
     val rand = new scala.util.Random(seed)
     val u = rand.nextFloat()
@@ -166,8 +166,8 @@ case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh, override val
   override def values = data.iterator
   override val domain = mesh
 
-  override def apply(ptId: Int) = data(ptId)
-  override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
+  override def apply(ptId: PointId) = data(ptId.id)
+  override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
   override def map[S2: Scalar: ClassTag](f: S => S2): ScalarMeshField[S2] = {
     ScalarMeshField(mesh, data.map(f))

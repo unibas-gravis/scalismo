@@ -16,30 +16,35 @@
 package scalismo.common
 
 import scalismo.geometry._
-import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.mesh.kdtree.KDTreeMap
 
-import scala.reflect.ClassTag
+final case class PointId(id: Int) extends AnyVal
 
 trait Cell {
-  def pointIds: IndexedSeq[Int]
+  def pointIds: IndexedSeq[PointId]
 }
 
 trait PointGenerator[D <: Dim] extends Function0[Point[D]]
 
-trait DiscreteDomain[D <: Dim] extends Equals { self =>
+trait DiscreteDomain[D <: Dim] extends Equals {
+  self =>
 
   def numberOfPoints: Int
+
   def points: Iterator[Point[D]]
-  def pointIds: Iterator[Int] = Iterator.range(0, numberOfPoints)
+
+  def pointIds: Iterator[PointId] = Iterator.range(0, numberOfPoints).map(id => PointId(id))
+
   def isDefinedAt(pt: Point[D]): Boolean
-  def pointId(pt: Point[D]): Option[Int]
-  def pointsWithId: Iterator[(Point[D], Int)] = points.zipWithIndex
 
-  def point(id: Int): Point[D]
+  def pointId(pt: Point[D]): Option[PointId]
 
-  def findClosestPoint(pt: Point[D]): (Point[D], Int)
-  def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)]
+  def pointsWithId: Iterator[(Point[D], PointId)] = points.zipWithIndex.map { case (pt, id) => (pt, PointId(id)) }
+
+  def point(id: PointId): Point[D]
+
+  def findClosestPoint(pt: Point[D]): (Point[D], PointId)
+
+  def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)]
 
   def transform(t: Point[D] => Point[D]): DiscreteDomain[D]
 
@@ -58,6 +63,7 @@ trait DiscreteDomain[D <: Dim] extends Equals { self =>
   }
 
   override def canEqual(that: Any) = that.isInstanceOf[DiscreteDomain[D]]
+
   override def hashCode() = points.hashCode()
 
 }

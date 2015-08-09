@@ -51,13 +51,13 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
 
   override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
 
-  override def point(id: Int): Point[D] = indexToPoint(index(id))
+  override def point(id: PointId): Point[D] = indexToPoint(index(id))
 
   /** converts a grid index into a id that identifies a point */
-  def pointId(idx: Index[D]): Int
+  def pointId(idx: Index[D]): PointId
 
   /** The index for the given point id */
-  def index(pointId: Int): Index[D]
+  def index(pointId: PointId): Index[D]
 
   /** the point corresponding to the given index */
   //def indexToPoint(i: Index[D]): Point[D]
@@ -83,20 +83,20 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   }
 
   /** returns the point id in case it is defined, None otherwise. */
-  override def pointId(pt: Point[D]): Option[Int] = {
+  override def pointId(pt: Point[D]): Option[PointId] = {
     val cidx = pointToContinuousIndex(pt)
     val ptId = pointId(continuousIndextoIndex(cidx))
     if (isIndex(cidx)) Some(ptId) else None
   }
 
-  override def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
+  override def findClosestPoint(pt: Point[D]): (Point[D], PointId) = {
     val cidx = pointToContinuousIndex(pt)
     val idxClosestPoint = continuousIndextoIndex(cidx)
     val ptIdClosestPoint = pointId(idxClosestPoint)
     (indexToPoint(idxClosestPoint), ptIdClosestPoint)
   }
 
-  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)] = ???
+  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)] = ???
 
   private def continuousIndextoIndex(cidx: Vector[D]): Index[D] = {
     var d = 0;
@@ -215,8 +215,8 @@ case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTran
 
   //override def indexToPhysicalCoordinateTransform = transform
 
-  override def index(linearIdx: Int) = Index(linearIdx)
-  override def pointId(idx: Index[_1D]) = idx(0)
+  override def index(linearIdx: PointId) = Index(linearIdx.id)
+  override def pointId(idx: Index[_1D]) = PointId(idx(0))
 
   override val directions = SquareMatrix(1.0f)
 
@@ -245,8 +245,8 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
 
-  override def index(ptId: Int) = (Index(ptId % size(0), ptId / size(0)))
-  override def pointId(idx: Index[_2D]) = idx(0) + idx(1) * size(0)
+  override def index(ptId: PointId) = (Index(ptId.id % size(0), ptId.id / size(0)))
+  override def pointId(idx: Index[_2D]) = PointId(idx(0) + idx(1) * size(0))
 
   override def transform(t: Point[_2D] => Point[_2D]): UnstructuredPointsDomain[_2D] = {
     new UnstructuredPointsDomain2D(points.map(t).toIndexedSeq)
@@ -304,14 +304,14 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
 
   override def indexToPoint(i: Index[_3D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1), i(2)))
 
-  override def index(pointId: Int) =
+  override def index(pointId: PointId) =
     Index(
-      pointId % (size(0) * size(1)) % size(0),
-      pointId % (size(0) * size(1)) / size(0),
-      pointId / (size(0) * size(1)))
+      pointId.id % (size(0) * size(1)) % size(0),
+      pointId.id % (size(0) * size(1)) / size(0),
+      pointId.id / (size(0) * size(1)))
 
-  override def pointId(idx: Index[_3D]): Int = {
-    idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1)
+  override def pointId(idx: Index[_3D]): PointId = {
+    PointId(idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1))
   }
 
   override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPointsDomain[_3D] = {

@@ -19,6 +19,7 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
+import scalismo.common.PointId
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
@@ -30,7 +31,7 @@ import scala.language.implicitConversions
 
 class TransformationTests extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("A Transformation") {
     it("can be memoized and yields the same results") {
@@ -179,9 +180,10 @@ class TransformationTests extends ScalismoTestSuite {
       val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
       rotRotMesh.points.zipWithIndex.foreach {
         case (p, i) =>
-          p(0) should be(mesh.point(i)(0) +- 0.000001)
-          p(1) should be(mesh.point(i)(1) +- 0.000001)
-          p(2) should be(mesh.point(i)(2) +- 0.000001)
+          val id = PointId(i)
+          p(0) should be(mesh.point(id)(0) +- 0.000001)
+          p(1) should be(mesh.point(id)(1) +- 0.000001)
+          p(2) should be(mesh.point(id)(2) +- 0.000001)
       }
     }
 

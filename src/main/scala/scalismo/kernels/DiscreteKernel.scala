@@ -17,7 +17,7 @@
 package scalismo.kernels
 
 import breeze.linalg.DenseMatrix
-import scalismo.common.DiscreteDomain
+import scalismo.common.{ PointId, DiscreteDomain }
 import scalismo.geometry.{ NDSpace, Dim, SquareMatrix }
 
 /**
@@ -26,16 +26,16 @@ import scalismo.geometry.{ NDSpace, Dim, SquareMatrix }
  *  is a matrix. Furthermore, the class has the knowledge about its domain (the point on which it is defined).
  */
 class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val domain: DiscreteDomain[D],
-    val k: (Int, Int) => SquareMatrix[DO]) {
+    val k: (PointId, PointId) => SquareMatrix[DO]) {
   self =>
 
   def outputDim = implicitly[NDSpace[DO]].dimensionality
 
-  def apply(i: Int, j: Int): SquareMatrix[DO] = {
-    if (i < domain.numberOfPoints && j < domain.numberOfPoints)
+  def apply(i: PointId, j: PointId): SquareMatrix[DO] = {
+    if (i.id < domain.numberOfPoints && j.id < domain.numberOfPoints)
       k(i, j)
     else {
-      if (i >= domain.numberOfPoints) {
+      if (i.id >= domain.numberOfPoints) {
         throw new IllegalArgumentException((s"$i is not a valid index"))
       } else {
         throw new IllegalArgumentException((s"$j is not a valid index"))
@@ -55,7 +55,7 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] privat
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
     for { i <- 0 until xs.size; j <- 0 to i } {
-      val kxixj = k(i, j)
+      val kxixj = k(PointId(i), PointId(j))
       var di = 0;
       while (di < d) {
         var dj = 0;
@@ -73,7 +73,7 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] privat
 }
 
 object DiscreteMatrixValuedPDKernel {
-  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], k: (Int, Int) => SquareMatrix[DO]) = {
+  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], k: (PointId, PointId) => SquareMatrix[DO]) = {
     new DiscreteMatrixValuedPDKernel(domain, k)
   }
 }

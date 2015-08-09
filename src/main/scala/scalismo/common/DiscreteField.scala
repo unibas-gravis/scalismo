@@ -24,11 +24,12 @@ import scalismo.geometry.Point
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
  */
-trait DiscreteField[D <: Dim, A] extends PartialFunction[Int, A] { self =>
+trait DiscreteField[D <: Dim, A] extends PartialFunction[PointId, A] { self =>
 
   def domain: DiscreteDomain[D]
 
   def values: Iterator[A]
+  def valuesWithIds = values zip domain.pointIds
   def pointsWithValues = domain.points zip values
   def pointsWithIds = domain.points.zipWithIndex
 
@@ -55,8 +56,8 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
   }
 
   override def values = data.iterator
-  override def apply(ptId: Int) = data(ptId)
-  override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
+  override def apply(ptId: PointId) = data(ptId.id)
+  override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
   override def equals(other: Any): Boolean =
     other match {
@@ -91,8 +92,8 @@ object DiscreteScalarField {
 class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](val domain: DiscreteDomain[D], private[scalismo] val data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]] {
 
   override def values = data.iterator
-  override def apply(ptId: Int) = data(ptId)
-  override def isDefinedAt(ptId: Int) = data.isDefinedAt(ptId)
+  override def apply(ptId: PointId) = data(ptId.id)
+  override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
   def interpolateNearestNeighbor(): VectorField[D, DO] = {
     VectorField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
@@ -105,7 +106,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](val domain: Dis
     val d = implicitly[NDSpace[DO]].dimensionality
     val v = DenseVector.zeros[Float](domain.numberOfPoints * d)
     for ((pt, i) <- domain.pointsWithId) {
-      v(i * d until (i + 1) * d) := data(i).toBreezeVector
+      v(i.id * d until (i.id + 1) * d) := data(i.id).toBreezeVector
     }
     v
   }

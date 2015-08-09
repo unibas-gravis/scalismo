@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.common.RealSpace
+import scalismo.common.{ PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 
@@ -71,13 +71,13 @@ object Mesh {
 
     val remainingPointTriplet = mesh.cells.par.map {
       cell =>
-        val points = cell.pointIds.map(pts)
+        val points = cell.pointIds.map(pointId => pts(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
     }.filter(_._2).map(_._1)
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointTriplet.map { case vec => TriangleCell(pt2Id(vec(0)), pt2Id(vec(1)), pt2Id(vec(2))) }
+    val cells = remainingPointTriplet.map { case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2)))) }
 
     TriangleMesh(points.toIndexedSeq, cells.toIndexedSeq)
   }

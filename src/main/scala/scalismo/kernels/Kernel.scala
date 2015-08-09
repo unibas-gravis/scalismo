@@ -16,7 +16,7 @@
 package scalismo.kernels
 
 import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
-import scalismo.common.{ UnstructuredPointsDomain, DiscreteDomain, VectorField, Domain }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.numerics.{ RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
@@ -109,7 +109,7 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
    */
   def discretize(domain: DiscreteDomain[D]): DiscreteMatrixValuedPDKernel[D, DO] = {
 
-    def k(i: Int, j: Int): SquareMatrix[DO] = {
+    def k(i: PointId, j: PointId): SquareMatrix[DO] = {
       self.k(domain.point(i), domain.point(j))
     }
     DiscreteMatrixValuedPDKernel[D, DO](domain, k)

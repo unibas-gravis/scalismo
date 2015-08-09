@@ -19,6 +19,7 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
+import scalismo.common.PointId
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{ Point, _3D }
 import scalismo.io.MeshIO
@@ -28,7 +29,8 @@ import scala.language.implicitConversions
 
 class MeshTests extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
+  implicit def intToPointId(i: Int): PointId = PointId(i)
 
   describe("a mesh") {
     val path = getClass.getResource("/facemesh.stl").getPath
@@ -39,7 +41,7 @@ class MeshTests extends ScalismoTestSuite {
       for ((pt, id) <- facemesh.points.zipWithIndex) {
         val (closestPt, closestId) = facemesh.findClosestPoint(pt)
         assert(closestPt === pt)
-        assert(closestId === id)
+        assert(closestId.id === id)
       }
     }
     it("finds the right closest point for a point that is not defined on the mesh") {
@@ -49,7 +51,7 @@ class MeshTests extends ScalismoTestSuite {
 
       val newPt = Point(1.1, 1.1, 4)
       val (closestPt, closestPtId) = mesh.findClosestPoint(newPt)
-      assert(closestPtId === 2)
+      assert(closestPtId.id === 2)
       assert(closestPt === pts(2))
     }
     it("computes its area correctly for a triangle") {
