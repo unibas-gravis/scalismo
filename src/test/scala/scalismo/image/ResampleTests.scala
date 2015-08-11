@@ -18,6 +18,7 @@ package scalismo.image
 import java.io.File
 
 import scalismo.ScalismoTestSuite
+import scalismo.common.PointId
 import scalismo.io.ImageIO
 
 class ResampleTests extends ScalismoTestSuite {
@@ -35,7 +36,7 @@ class ResampleTests extends ScalismoTestSuite {
       val resampledImage = continuousImage.sample[Short](discreteImage.domain, 0)
       discreteImage.values.size should equal(resampledImage.values.size)
       for (i <- 0 until discreteImage.values.size) {
-        discreteImage(i) should be(resampledImage(i))
+        discreteImage(PointId(i)) should be(resampledImage(PointId(i)))
       }
     }
   }
@@ -48,7 +49,7 @@ class ResampleTests extends ScalismoTestSuite {
     it("yields the original discrete image") {
       val resampledImage = continuousImage.sample[Short](discreteImage.domain, 0)
       for (i <- 0 until discreteImage.values.size by 100) {
-        discreteImage(i) should be(resampledImage(i))
+        discreteImage(PointId(i)) should be(resampledImage(PointId(i)))
       }
     }
   }

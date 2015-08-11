@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.DiscreteVectorField
+import scalismo.common.{ PointId, DiscreteVectorField }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ Mesh, TriangleMesh }
 import scalismo.registration.{ RigidTransformation, Transformation }
@@ -45,7 +45,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * The covariance between two points of the  mesh with given point id.
    * @see [[DiscreteLowRankGaussianProcess.cov]]
    */
-  def cov(ptId1: Int, ptId2: Int) = gp.cov(ptId1, ptId2)
+  def cov(ptId1: PointId, ptId2: PointId) = gp.cov(ptId1, ptId2)
 
   /**
    * draws a random shape.
@@ -82,7 +82,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    *
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
-  def marginal(ptIds: IndexedSeq[Int]) = {
+  def marginal(ptIds: IndexedSeq[PointId]) = {
     val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
     val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2).toIndexedSeq
@@ -117,7 +117,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
    */
-  def posterior(trainingData: IndexedSeq[(Int, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
+  def posterior(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
     val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint) => (id, targetPoint - referenceMesh.point(id)) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements, sigma2)
     new StatisticalMeshModel(referenceMesh, posteriorGp)
@@ -126,7 +126,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
    */
-  def posterior(trainingData: IndexedSeq[(Int, Point[_3D], NDimensionalNormalDistribution[_3D])]): StatisticalMeshModel = {
+  def posterior(trainingData: IndexedSeq[(PointId, Point[_3D], NDimensionalNormalDistribution[_3D])]): StatisticalMeshModel = {
     val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, cov) => (id, targetPoint - referenceMesh.point(id), cov) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements)
     new StatisticalMeshModel(referenceMesh, posteriorGp)

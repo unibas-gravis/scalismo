@@ -18,12 +18,13 @@ package scalismo.mesh
 import java.io.File
 
 import scalismo.ScalismoTestSuite
+import scalismo.common.PointId
 import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.io.MeshIO
 
 class MeshMetricsTests extends ScalismoTestSuite {
 
-  val path = getClass().getResource("/facemesh.stl").getPath
+  val path = getClass.getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
   val translationLength = 1.0f
   val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0f, 0.0f))
@@ -46,7 +47,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
     }
 
     it("should be (slightly) lower than the average translation applied to each vertex") {
-      MeshMetrics.avgDistance(mesh, translatedMesh) should be < (translationLength.toDouble)
+      MeshMetrics.avgDistance(mesh, translatedMesh) should be < translationLength.toDouble
       MeshMetrics.avgDistance(mesh, translatedMesh) should be(translationLength.toDouble +- (translationLength * 0.2))
     }
   }
@@ -58,7 +59,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("returns the max distance") {
       // create a mesh where the first vector is displaced by a value of 1
-      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.findClosestPoint(pt)._2 == 0) pt + Vector(1, 0, 0) else pt)
+      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.findClosestPoint(pt)._2 == PointId(0)) pt + Vector(1, 0, 0) else pt)
       MeshMetrics.hausdorffDistance(mesh, newMesh) should be(1)
     }
 
@@ -68,7 +69,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
   }
 
   describe("the dice coefficient") {
-    val path = getClass().getResource("/unit-sphere.stl").getPath
+    val path = getClass.getResource("/unit-sphere.stl").getPath
     val spheremesh = MeshIO.readMesh(new File(path)).get
 
     it("computes the right value for an unit sphere that compeltely overlaps itself") {

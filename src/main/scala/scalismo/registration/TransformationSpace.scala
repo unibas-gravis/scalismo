@@ -18,7 +18,6 @@ package scalismo.registration
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import java.util.Arrays
 import scalismo.geometry
 import scalismo.geometry._
 import scalismo.common._
@@ -122,8 +121,6 @@ class ProductTransformationSpace[D <: Dim, OT <: ParametricTransformation[D] wit
   /**Returns a transform belonging to the product space. Parameters should be a concatenation of the outer and inner space parameters*/
   override def transformForParameters(p: ParameterVector) = {
     val (outerParams, innerParams) = splitProductParameterVector(p)
-    val v = outer.transformForParameters(outerParams)
-
     new ProductTransformation(outer.transformForParameters(outerParams), inner.transformForParameters(innerParams))
   }
 
@@ -390,7 +387,7 @@ private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Poi
   override val f = (pt: Point[_3D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat, rotCentered(2).toFloat)
+    centre + Vector(rotCentered(0), rotCentered(1), rotCentered(2))
   }
 
   override val domain = RealSpace[_3D]
@@ -410,7 +407,7 @@ private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Poi
   override val f = (pt: Point[_2D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat)
+    centre + Vector(rotCentered(0), rotCentered(1))
   }
   override def domain = RealSpace[_2D]
 
@@ -434,7 +431,7 @@ private[scalismo] case class RotationTransform1D() extends RotationTransform[_1D
 
   val parameters = DenseVector.zeros[Float](0)
 
-  def takeDerivative(x: Point[_1D]): SquareMatrix[_1D] = ???
+  def takeDerivative(x: Point[_1D]): SquareMatrix[_1D] = throw new UnsupportedOperationException
 
   override def inverse: RotationTransform1D = {
     RotationTransform1D()
@@ -693,7 +690,7 @@ case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: CreateRot
    *  constructors or factory methods.
    *
    *  The order of operations in the rigid transformation is first rotation, then translation.
-   *  @param : p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
+   *  @param p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
    *
    */
   override def transformForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[D] = {

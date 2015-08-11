@@ -15,12 +15,11 @@
  */
 package scalismo.io
 
-import java.io.{ IOException, File }
+import java.io.{ File, IOException }
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`.Group
-import scalismo.common.UnstructuredPointsDomain
-import scalismo.geometry._3D
+import scalismo.common.PointId
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
@@ -73,7 +72,7 @@ object ActiveShapeModelIO {
   }
 
   private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles): Try[Unit] = Try {
-    val numberOfPoints = profiles.domain.numberOfPoints
+    val numberOfPoints = profiles.data.length
     val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
     val means = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.distribution.mean.toArray).toArray)
     val covariances = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.distribution.cov.toArray).toArray)
@@ -83,7 +82,7 @@ object ActiveShapeModelIO {
       _ <- h5file.writeIntAttribute(groupName, Names.Attribute.NumberOfPoints, numberOfPoints)
       _ <- h5file.writeIntAttribute(groupName, Names.Attribute.ProfileLength, profileLength)
       _ <- h5file.writeStringAttribute(groupName, Names.Attribute.Comment, s"${Names.Item.Covariances} consists of $numberOfPoints concatenated ${profileLength}x$profileLength matrices")
-      _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", profiles.data.map(_.pointId).toArray)
+      _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", profiles.data.map(_.pointId.id).toArray)
       _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Means}", means)
       _ <- h5file.writeNDArray(s"$groupName/${Names.Item.Covariances}", covariances)
     } yield ()
@@ -117,7 +116,7 @@ object ActiveShapeModelIO {
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
       pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
-      pts = pointIds.map(id => referenceMesh.point(id)).toIndexedSeq
+      pts = pointIds.map(id => referenceMesh.point(PointId(id))).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
       (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
@@ -125,8 +124,8 @@ object ActiveShapeModelIO {
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m, c) }.to[immutable.IndexedSeq]
-      val profiles = dists.zip(pointIds).map { case (d, p) => Profile(p, d) }
-      Profiles(UnstructuredPointsDomain[_3D](pts), profiles)
+      val profiles = dists.zip(pointIds).map { case (d, id) => Profile(PointId(id), d) }
+      new Profiles(profiles)
     }
   }
 }

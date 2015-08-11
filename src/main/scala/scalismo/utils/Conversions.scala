@@ -15,7 +15,7 @@
  */
 package scalismo.utils
 
-import scalismo.common.{ PrimitiveScalarArray, Scalar, ScalarArray, ValueClassScalarArray }
+import scalismo.common._
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.io.ImageIO
@@ -202,7 +202,7 @@ object MeshConversion {
         throw new Exception("Not a triangle mesh")
       }
 
-      TriangleCell(idList.GetId(0), idList.GetId(1), idList.GetId(2))
+      TriangleCell(PointId(idList.GetId(0)), PointId(idList.GetId(1)), PointId(idList.GetId(2)))
     }
     idList.Delete()
     (points, cells)
@@ -223,10 +223,10 @@ object MeshConversion {
     cellsPointsOrFailure.map {
       case (points, cells) =>
         val cellPointIds = cells.flatMap(_.pointIds).distinct
-        val oldId2newId = cellPointIds.zipWithIndex.toMap
+        val oldId2newId = cellPointIds.zipWithIndex.map { case (id, index) => (id, PointId(index)) }.toMap
         val newCells = cells.map(c => TriangleCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3)))
         val oldPoints = points.toIndexedSeq
-        val newPoints = cellPointIds.map(oldPoints)
+        val newPoints: IndexedSeq[Point[_3D]] = cellPointIds.map(id => oldPoints(id.id))
         TriangleMesh(newPoints, newCells)
     }
   }
@@ -246,9 +246,9 @@ object MeshConversion {
         for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
           val triangle = new vtkTriangle()
 
-          triangle.GetPointIds().SetId(0, cell.ptId1)
-          triangle.GetPointIds().SetId(1, cell.ptId2)
-          triangle.GetPointIds().SetId(2, cell.ptId3)
+          triangle.GetPointIds().SetId(0, cell.ptId1.id)
+          triangle.GetPointIds().SetId(1, cell.ptId2.id)
+          triangle.GetPointIds().SetId(2, cell.ptId3.id)
           triangles.InsertNextCell(triangle)
         }
         triangles.Squeeze()
@@ -256,7 +256,7 @@ object MeshConversion {
     }
 
     // set points
-    val pointDataArray = mesh.points.toIndexedSeq.toArray.map(_.toArray).flatten
+    val pointDataArray = mesh.points.toIndexedSeq.toArray.flatMap(_.toArray)
     val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
@@ -369,15 +369,15 @@ object CanConvertToVtk {
       val newOriginZ = cornerImages.map(p => p(2)).min
 
       val vtkSourceCorners = new vtkPoints()
-      corners.foreach(c => vtkSourceCorners.InsertNextPoint(c.data.map(_.toDouble)))
+      corners.foreach(c => vtkSourceCorners.InsertNextPoint(c.toArray.map(_.toDouble)))
 
       val vtkTargetCorners = new vtkPoints()
-      cornerImages.foreach(c => vtkTargetCorners.InsertNextPoint(c.data.map(_.toDouble)))
+      cornerImages.foreach(c => vtkTargetCorners.InsertNextPoint(c.toArray.map(_.toDouble)))
 
       val landmarkTransform = new vtkLandmarkTransform()
 
-      landmarkTransform.SetSourceLandmarks(vtkTargetCorners);
-      landmarkTransform.SetTargetLandmarks(vtkSourceCorners);
+      landmarkTransform.SetSourceLandmarks(vtkTargetCorners)
+      landmarkTransform.SetTargetLandmarks(vtkSourceCorners)
       landmarkTransform.SetModeToAffine()
       landmarkTransform.Update()
 
@@ -394,9 +394,9 @@ object CanConvertToVtk {
       val newYSpatialSize = cornerImages.map(p => p(1)).max - newOriginY
       val newZSpatialSize = cornerImages.map(p => p(2)).max - newOriginZ
 
-      val newXExtent = math.round(newXSpatialSize / domain.spacing(0)).toInt
-      val newYExtent = math.round(newYSpatialSize / domain.spacing(1)).toInt
-      val newZExtent = math.round(newZSpatialSize / domain.spacing(2)).toInt
+      val newXExtent = math.round(newXSpatialSize / domain.spacing(0))
+      val newYExtent = math.round(newYSpatialSize / domain.spacing(1))
+      val newZExtent = math.round(newZSpatialSize / domain.spacing(2))
 
       reslice.SetOutputExtent(0, newXExtent, 0, newYExtent, 0, newZExtent)
       val conv = new vtkImageToStructuredPoints()

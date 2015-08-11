@@ -27,7 +27,9 @@ import scalismo.numerics.{ GridSampler, UniformSampler }
 import scala.language.implicitConversions
 
 class GaussianProcessTests extends ScalismoTestSuite {
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
+  implicit def intToPointId(i: Int): PointId = PointId(i)
+  implicit def intSeqToPointId(i: Seq[Int]): Seq[PointId] = i.map(PointId)
 
   describe("samples from a gaussian process") {
 
@@ -48,10 +50,10 @@ class GaussianProcessTests extends ScalismoTestSuite {
       def testAtIthPoint(i: Int) {
         val sampleValuesAtPt = sampleValueForIthPoint(i)
         val meanAtPt = sampleValuesAtPt.sum / numSamples
-        val varAtPt = (sampleValuesAtPt.foldLeft(0.0f)((acc, e) => acc + (e - meanAtPt) * (e - meanAtPt))) / numSamples
+        val varAtPt = sampleValuesAtPt.foldLeft(0.0f)((acc, e) => acc + (e - meanAtPt) * (e - meanAtPt)) / numSamples
 
-        meanAtPt should be(0.0f +- (3e-1f))
-        varAtPt should be(1.0f +- (3e-1f))
+        meanAtPt should be(0.0f +- 3e-1f)
+        varAtPt should be(1.0f +- 3e-1f)
       }
       for (i <- 0 until numPoints) testAtIthPoint(i)
     }
@@ -320,10 +322,10 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yields the same result for gp regression as a LowRankGaussianProcess") {
       val f = Fixture
 
-      val trainingData = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D]))
+      val trainingData = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D])).map { case (i, v) => (PointId(i), v) }
       val cov = NDimensionalNormalDistribution(Vector.zeros[_3D], SquareMatrix.eye[_3D] * 1e-5)
       val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
-      val trainingDataGP = trainingData.map { case (ptId, v) => (f.discretizationPoints(ptId), v) }
+      val trainingDataGP = trainingData.map { case (ptId, v) => (f.discretizationPoints(ptId.id), v) }
 
       val posteriorGP = f.lowRankGp.posterior(trainingDataGP, 1e-5)
       val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteLowRankGp, trainingDataDiscreteGP)
@@ -360,7 +362,6 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yeilds the same result when marginalized the points in one or two steps") {
       val f = Fixture
 
-      val pts = f.discretizationPoints
       val dgp1 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
       val dgp2 = dgp1.marginal(Seq(1))
       val dgp3 = f.discreteLowRankGp.marginal(Seq(1))

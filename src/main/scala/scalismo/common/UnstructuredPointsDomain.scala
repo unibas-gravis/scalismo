@@ -25,18 +25,18 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
   override def points: Iterator[Point[D]] = pointSeq.toIterator
   override def numberOfPoints = points.size
 
-  override def point(id: Int) = pointSeq(id)
+  override def point(id: PointId) = pointSeq(id.id)
 
   private[this] val kdTreeMap = KDTreeMap.fromSeq(pointSeq.zipWithIndex)
-  private[this] val pointIDMap = pointSeq.zipWithIndex.toMap
+  private[this] val pointIDMap = pointSeq.zipWithIndex.map { case (pt, id) => (pt, PointId(id)) }.toMap
 
   override def isDefinedAt(pt: Point[D]) = pointIDMap.contains(pt)
 
-  override def findClosestPoint(pt: Point[D]): (Point[D], Int) = {
+  override def findClosestPoint(pt: Point[D]): (Point[D], PointId) = {
 
-    def kdtreeLookup(pt: Point[D]) = {
-      val nearestPtsAndIndices = (kdTreeMap.findNearest(pt, n = 1))
-      nearestPtsAndIndices(0)
+    def kdtreeLookup(pt: Point[D]): (Point[D], PointId) = {
+      val (nearestPt, nearestInd) = kdTreeMap.findNearest(pt, n = 1).head
+      (nearestPt, PointId(nearestInd))
     }
 
     // first we check if the point is part of the domain (i.e. we get a pointId for the point).
@@ -47,9 +47,11 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
     }
   }
 
-  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], Int)] = kdTreeMap.findNearest(pt, n)
+  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)] = {
+    kdTreeMap.findNearest(pt, n).map { case (p, id) => (p, PointId(id)) }
+  }
 
-  override def pointId(pt: Point[D]): Option[Int] = {
+  override def pointId(pt: Point[D]): Option[PointId] = {
     pointIDMap.get(pt)
   }
 

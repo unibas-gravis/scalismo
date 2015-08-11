@@ -20,7 +20,7 @@ import java.io.File
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Scalar, ScalarArray }
+import scalismo.common.{ PointId, Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.utils.CanConvertToVtk
@@ -259,7 +259,7 @@ class ImageIOTests extends ScalismoTestSuite {
         (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 +- 1e-2)
         origImg.domain.size should equal(rereadImg.domain.size)
         for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
-          origImg(i) should equal(rereadImg(i))
+          origImg(PointId(i)) should equal(rereadImg(PointId(i)))
         }
       }
     }
