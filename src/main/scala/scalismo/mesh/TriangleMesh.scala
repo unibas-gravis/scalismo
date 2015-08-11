@@ -77,6 +77,11 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
     u.crossproduct(v)
   }
 
+  override def neighbors(id: Int): Set[Int] = {
+    val neighborCells = cellsWithPointId(id)
+    neighborCells.flatMap(_.pointIds).toSet
+  }
+
   /**
    *  Returns surface normal at the closest mesh point to the indicated argument point.
    *

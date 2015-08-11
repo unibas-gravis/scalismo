@@ -36,6 +36,9 @@ trait DiscreteDomain[D <: Dim] extends Equals { self =>
   def pointId(pt: Point[D]): Option[Int]
   def pointsWithId: Iterator[(Point[D], Int)] = points.zipWithIndex
 
+  /** Returns (the id of) all neighbors of the point with the given id */
+  def neighbors(id: Int): Set[Int]
+
   def point(id: Int): Point[D]
 
   def findClosestPoint(pt: Point[D]): (Point[D], Int)
