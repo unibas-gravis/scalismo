@@ -44,9 +44,9 @@ import scalismo.utils.Memoize
  */
 
 case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (_domain: DiscreteDomain[D],
-  val meanVector: DenseVector[Float],
-  val variance: DenseVector[Float],
-  val basisMatrix: DenseMatrix[Float])
+  meanVector: DenseVector[Float],
+  variance: DenseVector[Float],
+  basisMatrix: DenseMatrix[Float])
     extends DiscreteGaussianProcess[D, DO](DiscreteVectorField.fromDenseVector(_domain, meanVector), basisMatrixToCov(_domain, variance, basisMatrix)) {
   self =>
 

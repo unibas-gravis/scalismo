@@ -30,7 +30,7 @@ import scalismo.mesh.TriangleCell
  *
  * @see [[DiscreteLowRankGaussianProcess]]
  */
-case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp: DiscreteLowRankGaussianProcess[_3D, _3D]) {
+case class StatisticalMeshModel private (referenceMesh: TriangleMesh, gp: DiscreteLowRankGaussianProcess[_3D, _3D]) {
 
   /** @see [[scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.rank]] */
   val rank = gp.rank

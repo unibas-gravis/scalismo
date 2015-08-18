@@ -26,7 +26,7 @@ import scalismo.registration.{ LandmarkRegistration, Transformation }
 import scala.annotation.tailrec
 import scala.util.Random
 
-private[dataset] case class CrossvalidationFold(val trainingData: DataCollection, val testingData: DataCollection)
+private[dataset] case class CrossvalidationFold(trainingData: DataCollection, testingData: DataCollection)
 
 /**
  * A registered item in a dataset.
@@ -37,7 +37,7 @@ private[dataset] case class CrossvalidationFold(val trainingData: DataCollection
  *  @param transformation Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
  *  This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item.
  */
-case class DataItem[D <: Dim](val info: String, val transformation: Transformation[D])
+case class DataItem[D <: Dim](info: String, transformation: Transformation[D])
 
 /**
  * Data-structure for handling a dataset of registered 3D meshes. All pre-implemented operations such as building a
