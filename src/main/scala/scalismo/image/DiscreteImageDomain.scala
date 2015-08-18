@@ -267,7 +267,8 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
 
   override def origin = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
 
-  override def spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat, kVecImage.norm.toFloat)
+  private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
+  override def spacing = Vector(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
 
   override def boundingBox: BoxDomain[_3D] = {
 
