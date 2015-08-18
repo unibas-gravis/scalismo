@@ -52,7 +52,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
     }
   }
 
-  describe("The Haussdorf distance") {
+  describe("The Hausdorff distance") {
     it("yields the value of the fixed translation transform") {
       MeshMetrics.hausdorffDistance(mesh, translatedMesh) should be(translationLength.toDouble +- 1e-5)
     }
@@ -72,12 +72,12 @@ class MeshMetricsTests extends ScalismoTestSuite {
     val path = getClass.getResource("/unit-sphere.stl").getPath
     val spheremesh = MeshIO.readMesh(new File(path)).get
 
-    it("computes the right value for an unit sphere that compeltely overlaps itself") {
+    it("computes the right value for a unit sphere that completely overlaps itself") {
       MeshMetrics.diceCoefficient(spheremesh, spheremesh) should be(1)
 
     }
 
-    it("computes the right value for an unit sphere that is shrunk by 0.5 ") {
+    it("computes the right value for a unit sphere that is shrunk by 0.5 ") {
       val spheremeshScaled = spheremesh.transform(pt => (pt.toVector * 0.5).toPoint)
       val smallSphereVolume = 0.5 * 0.5 * 0.5 * 4.0 / 3.0 * math.Pi
       val unitSphereVolume = 4.0 / 3.0 * math.Pi

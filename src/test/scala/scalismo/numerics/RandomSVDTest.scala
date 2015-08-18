@@ -44,7 +44,7 @@ class RandomSVDTest extends ScalismoTestSuite {
       }
     }
 
-    it("can accuratly reproduce the original matrix") {
+    it("can accurately reproduce the original matrix") {
 
       // check that the frobenius norm of the reconstruction is exact
       val R = DenseMatrix.rand(100, 100)

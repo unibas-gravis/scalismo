@@ -84,7 +84,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
   /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
-   * using nearest neigbor interpolation (for both mean and covariance function)
+   * using nearest neighbor interpolation (for both mean and covariance function)
    */
   def interpolateNearestNeighbor: GaussianProcess[D, DO] = {
 

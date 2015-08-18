@@ -105,7 +105,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
   }
 
   /**
-   * Returns an Active Shape Model where both the statisitical shape Model and the profile points distributions are correctly transformed
+   * Returns an Active Shape Model where both the statistical shape Model and the profile points distributions are correctly transformed
    * according to the provided rigid transformation
    *
    */

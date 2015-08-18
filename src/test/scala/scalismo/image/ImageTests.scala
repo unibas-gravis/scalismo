@@ -94,7 +94,7 @@ class ImageTests extends ScalismoTestSuite {
     }
   }
 
-  describe("A continuous 2Dimage") {
+  describe("A continuous 2D image") {
     it("can be translated to a new place") {
 
       val cImg = ScalarImage(BoxDomain[_2D]((0.0f, 0.0f), (1.0f, 1.0f)), (_: Point[_2D]) => 1.0)

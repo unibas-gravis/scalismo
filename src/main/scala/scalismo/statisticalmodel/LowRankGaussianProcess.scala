@@ -85,7 +85,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * are subject to 0 mean Gaussian noise
    *
    * @param trainingData Point/value pairs where that the sample should approximate.
-   * @param sigma2 variance of a GAussian noise that is assumed on every training point
+   * @param sigma2 variance of a Gaussian noise that is assumed on every training point
    */
   def project(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double = 1e-6): VectorField[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
@@ -145,7 +145,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
 }
 
 /**
- * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian proceses.
+ * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
  */
 object LowRankGaussianProcess {
 

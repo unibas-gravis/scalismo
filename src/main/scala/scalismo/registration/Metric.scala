@@ -30,7 +30,7 @@ trait ImageMetric[D <: Dim] {
   implicit def ndSpace: NDSpace[D]
 
   /**
-   * Implmentations of this method should return the full derivations
+   * Implementations of this method should return the full derivations
    * i.e: (d/dMovingImage M(fixed,moving)(x)) * (d/dx(movingImage(transform(x))))
    */
   def takeDerivativeWRTToTransform(movingImage: DifferentiableScalarImage[D], fixedImage: ScalarImage[D], transform: Transformation[D]): Point[D] => Option[DenseVector[Float]]

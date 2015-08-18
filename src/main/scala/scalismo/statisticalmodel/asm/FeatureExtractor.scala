@@ -44,7 +44,7 @@ trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], Triangle
 
   /**
    * Return the points at which feature components are extracted for a given mesh and point.
-   * This is mainly intended for visualization, and only really makes sense if there exists a one-to-one corresponence
+   * This is mainly intended for visualization, and only really makes sense if there exists a one-to-one correspondence
    * between such points and the actual feature components returned by the <code>apply()</code>.
    *
    * In other words: if a particular implementation uses a method for determining features where there is no correspondence

@@ -184,7 +184,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 object StatisticalMeshModel {
 
   /**
-   * creates a StatisticalMeshModel by discretizign the given Gaussian Process on the points of the reference mesh.
+   * creates a StatisticalMeshModel by discretizing the given Gaussian Process on the points of the reference mesh.
    */
   def apply(referenceMesh: TriangleMesh, gp: LowRankGaussianProcess[_3D, _3D]): StatisticalMeshModel = {
     val discreteGp = DiscreteLowRankGaussianProcess(referenceMesh, gp)

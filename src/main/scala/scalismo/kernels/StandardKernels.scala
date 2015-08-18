@@ -15,10 +15,6 @@
  */
 package scalismo.kernels
 
-/**
- * Created by luetma00 on 15.01.15.
- */
-
 import scalismo.common.RealSpace
 import scalismo.geometry._
 import scalismo.numerics.BSpline

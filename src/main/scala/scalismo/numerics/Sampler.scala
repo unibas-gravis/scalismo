@@ -30,7 +30,7 @@ trait Sampler[D <: Dim] {
 
   val numberOfPoints: Int
   /**
-   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probbility density function
+   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probability density function
    * according to which the points are sampled
    */
   def sample: IndexedSeq[(Point[D], Double)]

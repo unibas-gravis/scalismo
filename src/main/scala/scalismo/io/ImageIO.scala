@@ -271,12 +271,12 @@ object ImageIO {
 
       // if the image is oblique and the resampling flag unset, throw an exception
       if (!resampleOblique && rotationResiduals.exists(_ >= 0.001)) {
-        throw new Exception("The image orientation seems to be oblique which is not supported by default in Scalismo. To read the image anyway, activate the resampleOblique flag. This will resample the image to an RAI oriented one.")
+        throw new Exception("The image orientation seems to be oblique, which is not supported by default in scalismo. To read the image anyway, activate the resampleOblique flag. This will resample the image to an RAI oriented one.")
       }
 
       /* Test that were able to reconstruct the transform */
-      val approxErros = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
-      if (approxErros.max > 0.01f) throw new Exception("Unable to approximate nifti affine transform with anisotropic similarity transform")
+      val approxErrors = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
+      if (approxErrors.max > 0.01f) throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
       else {
         val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
         val im = DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
@@ -299,7 +299,7 @@ object ImageIO {
     (volume.header.qform_code, volume.header.sform_code) match {
       case (0, 0) => // Method 1
         val data = Array.fill(16)(0.0d)
-        // using homogenous coordinates: set the last matrix element to 1
+        // using homogeneous coordinates: set the last matrix element to 1
         data(15) = 1
         // diagonal matrix, with the diagonal values initialized to pixdim[i+1]
         for (i <- 0 until 3) {
