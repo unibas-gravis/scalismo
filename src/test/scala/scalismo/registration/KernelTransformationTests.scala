@@ -43,7 +43,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)
 
       def approxKernel(x: Point[_1D], y: Point[_1D]) = {
-        (0 until eigPairs.size).foldLeft(0.0)((sum, i) => {
+        eigPairs.indices.foldLeft(0.0)((sum, i) => {
           val Eigenpair(lambda_i, phi_i) = eigPairs(i)
           sum + lambda_i * phi_i(x)(0) * phi_i(y)(0)
         })
@@ -94,7 +94,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
 
       val realKernelMatrix = DenseMatrix.zeros[Double](pts.size * kernelDim, pts.size * kernelDim)
 
-      for (i <- 0 until pts.size; j <- 0 until pts.size; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
+      for (i <- pts.indices; j <- pts.indices; di <- 0 until kernelDim; dj <- 0 until kernelDim) {
         realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = ndKernel(pts(i), pts(j))(di, dj)
       }
 

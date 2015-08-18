@@ -86,7 +86,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
     val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
     val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2).toIndexedSeq
-    if (remainingPtIds.size == 0) {
+    if (remainingPtIds.isEmpty) {
       val newRef = TriangleMesh(ptIds.map(id => referenceMesh.point(id)), IndexedSeq[TriangleCell]())
       val marginalGP = gp.marginal(ptIds.toIndexedSeq)
       StatisticalMeshModel(newRef, marginalGP)

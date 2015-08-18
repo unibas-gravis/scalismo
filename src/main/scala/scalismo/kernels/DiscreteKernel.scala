@@ -54,7 +54,7 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] privat
     val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
-    for { i <- 0 until xs.size; j <- 0 to i } {
+    for { i <- xs.indices; j <- 0 to i } {
       val kxixj = k(PointId(i), PointId(j))
       var di = 0
       while (di < d) {
