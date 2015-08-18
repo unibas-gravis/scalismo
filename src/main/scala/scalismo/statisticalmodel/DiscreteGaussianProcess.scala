@@ -51,7 +51,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
-      .map(data => Vector[DO](data.map(_.toFloat)))
+      .map(data => Vector[DO](data))
       .toIndexedSeq
     DiscreteVectorField(domain, vecs)
   }

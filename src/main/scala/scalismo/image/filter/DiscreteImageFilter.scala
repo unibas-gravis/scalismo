@@ -16,7 +16,7 @@
 package scalismo.image.filter
 
 import scalismo.common.{ ScalarArray, Scalar }
-import scalismo.image.{ DiscreteScalarImage }
+import scalismo.image.DiscreteScalarImage
 import scalismo.geometry._
 import scalismo.utils.{ CanConvertToVtk, ImageConversion }
 import vtk.{ vtkObjectBase, vtkImageGaussianSmooth, vtkImageCast, vtkImageEuclideanDistance }

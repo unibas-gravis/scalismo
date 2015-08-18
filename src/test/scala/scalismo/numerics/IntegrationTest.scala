@@ -25,7 +25,7 @@ import scala.language.implicitConversions
 
 class IntegrationTest extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {

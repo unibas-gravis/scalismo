@@ -73,7 +73,7 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
   def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, A]]
 
-  def interpolateNearestNeighbor: ScalarField[D, A] = {
+  def interpolateNearestNeighbor(): ScalarField[D, A] = {
     ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
   }
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()

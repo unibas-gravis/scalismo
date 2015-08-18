@@ -114,9 +114,9 @@ class SamplerTests extends ScalismoTestSuite {
         val actualRatio = (facemesh.area * randomAreaSizeRatio + areaAdjust) / facemesh.area
         //println(s"actual ratio of selected areas = $actualRatio")
 
-        val numSampledPointsInArea = randomAreas.par.map(cellId => {
+        val numSampledPointsInArea = randomAreas.par.flatMap(cellId => {
           samplePoints.filter(sampledPoint => pointInCell(sampledPoint, cellId, facemesh))
-        }).flatten.toSet.size
+        }).toSet.size
 
         val expectedNumberOfPointsInArea = actualRatio * numSamplingPoints
         //        println(s"expecting ~ ${expectedNumberOfPointsInArea.round} points to be found in randomly selected cells, actual found = $numSampledPointsInArea")

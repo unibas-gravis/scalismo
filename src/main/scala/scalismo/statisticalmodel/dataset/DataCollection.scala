@@ -99,7 +99,7 @@ object DataCollection {
    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
    */
   def fromMeshDirectory(referenceMesh: TriangleMesh, meshDirectory: File): (Option[DataCollection], Seq[Throwable]) = {
-    val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath().endsWith(".vtk") || fn.getAbsolutePath().endsWith(".stl"))
+    val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
     (dc, ioErrors ++ meshErrors)
@@ -125,16 +125,16 @@ object DataCollection {
       (points1, points2) => points1.zip(points2).map(a => a._1 + a._2.toVector)
     }.map(Point(0, 0, 0) + _.toVector * (1.0 / nbShapes.toFloat))
 
-    val newMeanMesh = TriangleMesh(meanShapePoints.seq.toIndexedSeq, dc.reference.cells)
+    val newMeanMesh = TriangleMesh(meanShapePoints.seq, dc.reference.cells)
 
     // if the new mean is close enough to the old one return
     if (MeshMetrics.procrustesDistance(newMeanMesh, dc.reference) < haltDistance) {
       dc
     } else {
       // align all shape to it and create a transformation from the mean to the aligned shape 
-      val alignedShapesTransformations = dc.dataItems.toSeq.zip(allShapesPoints).par.map {
+      val alignedShapesTransformations = dc.dataItems.zip(allShapesPoints).par.map {
         case (item, points) =>
-          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints).toIndexedSeq)
+          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints))
           val alignedPoints = points.map(transform)
 
           val t = meanShapePoints.zip(alignedPoints).toMap

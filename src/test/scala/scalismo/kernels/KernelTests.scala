@@ -103,8 +103,8 @@ class KernelTests extends ScalismoTestSuite {
       val k1 = GaussianKernel[_1D](1.0)
       val k2 = GaussianKernel[_1D](1.0)
       val ksum = k1 + k2
-      val x = Point(0);
-      val y = Point(1);
+      val x = Point(0)
+      val y = Point(1)
       ksum(x, y) should be(k1(x, y) + k2(x, y) +- 1e-5)
 
       val kprod = k1 * k2
@@ -120,8 +120,8 @@ class KernelTests extends ScalismoTestSuite {
       val k1 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
       val k2 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
       val ksum = k1 + k2
-      val x = Point(0);
-      val y = Point(1);
+      val x = Point(0)
+      val y = Point(1)
       ksum(x, y)(0, 0) should be((k1(x, y) + k2(x, y))(0, 0) +- 1e-5f)
 
       val kprod = k1 * k2

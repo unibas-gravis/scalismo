@@ -60,7 +60,7 @@ case class BoxDomain[D <: Dim](origin: Point[D], oppositeCorner: Point[D]) exten
   def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
   def isInside(pt: Point[D]): Boolean = {
     def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= oppositeCorner(i)
-    (0 until pt.dimensionality).foldLeft(true)((defined, i) => defined && isInsideAxis(i))
+    (0 until pt.dimensionality).forall(i => isInsideAxis(i))
   }
 }
 

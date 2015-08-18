@@ -40,7 +40,7 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](val ts: IndexedSeq[Transfor
 
   def mu(x: Point[D]): Vector[D] = {
     var meanDisplacement = Vector.zeros[D]
-    var i = 0;
+    var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
       meanDisplacement = meanDisplacement + (t(x) - x)
@@ -53,7 +53,7 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](val ts: IndexedSeq[Transfor
 
   override def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
     var ms = SquareMatrix.zeros[D]
-    var i = 0;
+    var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
       val ux = t(x) - x
