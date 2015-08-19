@@ -10,15 +10,15 @@ import com.banno.license.Licenses._
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildVersion = "0.9.0-RC2"
-  val buildScalaVersion = "2.10.4"
+  val buildVersion = "0.9.0-RC3"
+  val buildScalaVersion = "2.10.5"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.10.4", "2.11.4"),
+    crossScalaVersions := Seq("2.10.5", "2.11.7"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
     shellPrompt := ShellPrompt.buildShellPrompt)
