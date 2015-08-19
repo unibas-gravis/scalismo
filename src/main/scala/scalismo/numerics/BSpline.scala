@@ -15,9 +15,6 @@
  */
 package scalismo.numerics
 
-/**
- * Created by luetma00 on 07.01.15.
- */
 object BSpline {
 
   private val twoByThree = 2.0 / 3.0; // a constant used later on

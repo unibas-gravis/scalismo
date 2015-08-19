@@ -212,7 +212,7 @@ object Kernel {
 
     val (ptsForNystrom, _) = sampler.sample.unzip
 
-    // deppending on the sampler, it may happen that we did not sample all the points we wanted 
+    // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
     val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)

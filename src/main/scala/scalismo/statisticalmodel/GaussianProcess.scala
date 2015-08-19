@@ -42,7 +42,7 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
 
   /**
    *
-   * Sample values of the GAussian process evaluated at the given points.
+   * Sample values of the Gaussian process evaluated at the given points.
    */
   def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteVectorField[D, DO] = {
     this.marginal(domain).sample
@@ -89,7 +89,7 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
 }
 
 /**
- * Factory methods for createing Gaussian processes
+ * Factory methods for creating Gaussian processes
  */
 object GaussianProcess {
 

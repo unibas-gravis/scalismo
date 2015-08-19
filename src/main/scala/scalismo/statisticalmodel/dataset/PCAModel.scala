@@ -49,7 +49,7 @@ object PCAModel {
    * All points of the reference mesh are considered for computing the PCA
    */
   def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = {
-    if (dc.size < 3) return Failure(new Throwable(s"We need to have at least 3 transformations to build a PCA Model (${dc.size} provied"))
+    if (dc.size < 3) return Failure(new Throwable(s"A data collection with at least 3 transformations is required to build a PCA Model (only ${dc.size} were provided)"))
     Success(StatisticalMeshModel.createStatisticalMeshModelFromTransformations(dc.reference, dc.dataItems.map(_.transformation)))
   }
 }

@@ -41,7 +41,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[PointId, A] { self =>
   def interpolateNearestNeighbor(): Field[D, A]
   // TODO conceptually, we should have a map here too, but it becomes tricky to
   // do since the overloaded functions will all require their own version of map
-  // Maybe a trick with CanBuildFrom and Builder, similar to the scala collectiosn would be required.
+  // Maybe a trick with CanBuildFrom and Builder, similar to the scala collections would be required.
 }
 
 /**

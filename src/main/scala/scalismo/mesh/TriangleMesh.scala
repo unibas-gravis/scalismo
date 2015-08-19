@@ -85,8 +85,8 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    */
   def normalAtPoint(pt: Point[_3D]): Vector[_3D] = {
     val closestMeshPtId = findClosestPoint(pt)._2
-    val neigborCells = cellsWithPointId(closestMeshPtId)
-    val normalUnnormalized = neigborCells.foldLeft(Vector(0f, 0f, 0f))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neigborCells.size)
+    val neighborCells = cellsWithPointId(closestMeshPtId)
+    val normalUnnormalized = neighborCells.foldLeft(Vector(0f, 0f, 0f))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neighborCells.size)
     normalUnnormalized * (1.0 / normalUnnormalized.norm)
   }
 

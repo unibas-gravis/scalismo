@@ -97,7 +97,7 @@ object StatismoIO {
 
     def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
       // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
-      // i.e. pcaBasis = U * sqrt(lmbda), where U is a matrix of eigenvectors and lmbda the corresponding eigenvalues.
+      // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
       // We recover U from it.
 
       val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l).toFloat)
@@ -155,8 +155,7 @@ object StatismoIO {
         h5file.close()
       }
     } yield {
-      // statismo stores the mean as the point position and not as a displaceme
-      // ref. we compensate for this
+      // statismo stores the mean as the point position, not as a displacement on the reference.
       def flatten(v: IndexedSeq[Point[_3D]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
       val refpointsVec = flatten(mesh.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec

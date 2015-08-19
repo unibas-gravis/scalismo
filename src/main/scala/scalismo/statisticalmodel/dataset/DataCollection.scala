@@ -40,8 +40,8 @@ private[dataset] case class CrossvalidationFold(val trainingData: DataCollection
 case class DataItem[D <: Dim](val info: String, val transformation: Transformation[D])
 
 /**
- * Data-structure for handling a dataset of registered 3D meshes. All pre-implemeted operations such as building a
- * PCA model or performing a Generalized Procrustes Analysis require a DataColection as input
+ * Data-structure for handling a dataset of registered 3D meshes. All pre-implemented operations such as building a
+ * PCA model or performing a Generalized Procrustes Analysis require a DataCollection as input
  *
  * @param reference The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.
  * @param dataItems Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
@@ -108,7 +108,7 @@ object DataCollection {
   /**
    * Performs a Generalized Procrustes Analysis on the data collection.
    * This is done by repeatedly computing a new reference mesh that is the mean of all meshes in the dataset and
-   * aligining all items rigidly to the mean.
+   * aligning all items rigidly to the mean.
    * The final mean mesh will be the reference of the new data collection.
    *
    */

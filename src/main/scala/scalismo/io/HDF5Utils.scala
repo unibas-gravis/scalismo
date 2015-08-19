@@ -305,7 +305,7 @@ class HDF5File(h5file: FileFormat) {
         .asInstanceOf[Group]
     }
     if (normalizedPath.startsWith("/") == false)
-      return Failure(new Exception("relative path provieded tocreateGroup: " + absolutePath))
+      return Failure(new Exception("expected absolute path, but found relative path: " + absolutePath))
     if (absolutePath.trim == "/")
       return Success(root)
 

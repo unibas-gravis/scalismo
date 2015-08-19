@@ -300,7 +300,7 @@ object DiscreteLowRankGaussianProcess {
 
     val lambdas_p = DenseVector[Float](innerD2.toArray.map(_.toFloat))
 
-    // we do the follwoing computation
+    // we do the following computation
     // val eigenMatrix_p = gp.eigenMatrix * innerU // IS this correct?
     // but in parallel
     val eigenMatrix_p = DenseMatrix.zeros[Float](gp.basisMatrix.rows, innerU.cols)

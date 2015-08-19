@@ -42,7 +42,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       }
     }
 
-    it("keeps the same boundingbox when it is create with a new size") {
+    it("keeps the same bounding box when it is created with a new size") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
       val newDomain = DiscreteImageDomain(domain.boundingBox, size = domain.size.map(i => (i * 1.5f).toInt))
 
@@ -50,7 +50,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       newDomain.boundingBox.volume should be(domain.boundingBox.volume +- 1e-1f)
     }
 
-    it("keeps the same boundingbox approximately the same when it is create with a new spacing") {
+    it("keeps approximately the same bounding box when it is created with a new spacing") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
       val newDomain = DiscreteImageDomain(domain.boundingBox, spacing = domain.spacing.map(i => i * 1.5f))
 
@@ -89,14 +89,14 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(domain.pointId((40, 34)).id === 40 + 34 * domain.size(0))
     }
 
-    it("can correclty map a linear index to an index and back") {
+    it("can correctly map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       val idx = Index(5, 7)
       val recIdx = domain.index(domain.pointId(idx))
       assert(recIdx === idx)
     }
 
-    it("domains with same parameters yield to the same anisotropic simlarity transform ") {
+    it("domains with same parameters yield the same anisotropic similarity transform ") {
       val domain1 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       val domain2 = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
       assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
@@ -115,7 +115,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(domain.pointId((40, 34, 15)).id === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
     }
 
-    it("can correclty map a linear index to an index and back") {
+    it("can correctly map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
 
       val idx = Index(5, 3, 7)
@@ -123,7 +123,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(recIdx === idx)
     }
 
-    it("domains with same parameters yield to the same anisotropic simlarity transform ") {
+    it("domains with same parameters yield the same anisotropic similarity transform ") {
       val domain1 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
       val domain2 = DiscreteImageDomain[_3D]((1.0f, 2.0f, 3f), (2.0f, 1.0f, 0f), (42, 49, 74))
       assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
@@ -134,7 +134,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(domain1 == domain2)
     }
 
-    it("the anisotropic similarity transform defining the donmain is correct and invertible") {
+    it("the anisotropic similarity transform defining the domain is correct and invertible") {
       val pathH5 = getClass.getResource("/3dimage.nii").getPath
       val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
 

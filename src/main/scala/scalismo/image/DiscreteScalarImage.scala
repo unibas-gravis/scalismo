@@ -205,7 +205,6 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
       iterateOnPoints(x, splineBasis).toFloat
     }
     def df(x: Point[_2D]) = {
-      //derivativescalismo.
       val splineBasisD1 = (x: Double, y: Double) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y)
       val splineBasisD2 = (x: Double, y: Double) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f))
       val dfx = (iterateOnPoints(x, splineBasisD1) * (1 / domain.spacing(0))).toFloat
@@ -217,7 +216,7 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
 
   }
 
-  /* determine the b-spline coefficients for a 2D image. The coefficients are retunred
+  /* determine the b-spline coefficients for a 2D image. The coefficients are returned
   * as a DenseVector, i.e. the rows are written one after another */
   private def determineCoefficients2D[Pixel: Scalar](degree: Int, img: DiscreteScalarImage[_2D, Pixel]): Array[Float] = {
     val numeric = implicitly[Scalar[Pixel]]

@@ -333,13 +333,13 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = discretePosteriorGP.mean
       val phi1Posterior = posteriorGP.klBasis(0).eigenfunction
-      val phi1PosteriorSpezialized = discretePosteriorGP.klBasis(0).eigenfunction
+      val phi1PosteriorSpecialized = discretePosteriorGP.klBasis(0).eigenfunction
 
       // both posterior processes should give the same values at the specialized points
       for ((pt, id) <- f.discretizationPoints.zipWithIndex) {
         for (d <- 0 until 3) {
           meanPosterior(pt)(d) should be(meanPosteriorSpecialized(id)(d) +- 1e-5)
-          phi1Posterior(pt)(d) should be(phi1PosteriorSpezialized(id)(d) +- 1e-5)
+          phi1Posterior(pt)(d) should be(phi1PosteriorSpecialized(id)(d) +- 1e-5)
         }
       }
     }

@@ -86,9 +86,9 @@ class RegistrationTests extends ScalismoTestSuite {
 
     it("Rigid Transformation forth and back of a mesh gives the same points") {
       val inverseTrans = regResult.asInstanceOf[RigidTransformation[_3D]].inverse
-      val tranformed = mesh.transform(regResult).transform(inverseTrans)
+      val transformed = mesh.transform(regResult).transform(inverseTrans)
 
-      for ((p, i) <- tranformed.points.zipWithIndex) {
+      for ((p, i) <- transformed.points.zipWithIndex) {
         val id = PointId(i)
         p(0) should be(mesh.point(id)(0) +- 0.0001)
         p(1) should be(mesh.point(id)(1) +- 0.0001)
