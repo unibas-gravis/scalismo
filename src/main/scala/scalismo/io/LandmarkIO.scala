@@ -148,7 +148,7 @@ object LandmarkIO {
     val result = Try {
       val landmarks = for (line <- source.getLines() if line.nonEmpty && line(0) != '#') yield {
         val elements = line.split(',')
-        (elements(0).trim, elements.drop(1).take(3).map(_.toFloat))
+        (elements(0).trim, elements.slice(1, 4).map(_.toFloat))
       }
       landmarks.toIndexedSeq
     }

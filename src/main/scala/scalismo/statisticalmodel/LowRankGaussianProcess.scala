@@ -53,7 +53,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
   def instance(c: DenseVector[Float]): VectorField[D, DO] = {
     require(klBasis.size == c.size)
     val f: Point[D] => Vector[DO] = x => {
-      val deformationsAtX = (0 until klBasis.size).map(i => {
+      val deformationsAtX = klBasis.indices.map(i => {
         val Eigenpair(lambda_i, phi_i) = klBasis(i)
         phi_i(x) * c(i) * math.sqrt(lambda_i).toFloat
       })
@@ -66,7 +66,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * A random sample of the gaussian process
    */
   def sample: VectorField[D, DO] = {
-    val coeffs = for (_ <- 0 until klBasis.size) yield Gaussian(0, 1).draw().toFloat
+    val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw().toFloat
     instance(DenseVector(coeffs.toArray))
   }
 
@@ -224,7 +224,7 @@ object LowRankGaussianProcess {
       Vector[DO](vec.data)
     }
 
-    val klBasis_p = for (i <- 0 until gp.klBasis.size) yield {
+    val klBasis_p = for (i <- gp.klBasis.indices) yield {
       val phipi_memo = Memoize(phip(i), 1000)
       val newEf = (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
       val newEv = innerD2(i).toFloat

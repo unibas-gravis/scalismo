@@ -102,7 +102,7 @@ case class GradientDescentOptimizer(numIterations: Int,
     val ixs = insideVals.map(t => t._1)
     val ifs = insideVals.map(t => t._2)
 
-    if (ifs.size > 0) {
+    if (ifs.length > 0) {
       val t = ifs.zipWithIndex.min
       ixs(t._2)
     } else // all file values are 0, means we most probably mapped the image out ! then simply return the smallest step size

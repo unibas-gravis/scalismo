@@ -214,7 +214,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     val translation = TranslationSpace[_3D].transformForParameters(translationParams)
     val rotation = RotationSpace[_3D](Point(0, 0, 0)).transformForParameters(rotationParams)
-    val anisotropicScaling = AnisotropicScalingSpace[_3D].transformForParameters(anisotropScalingParams)
+    val anisotropicScaling = AnisotropicScalingSpace[_3D]().transformForParameters(anisotropScalingParams)
 
     val p = Point(1, 1, 1)
     it("Anisotropic scaling is correctly invertible") {

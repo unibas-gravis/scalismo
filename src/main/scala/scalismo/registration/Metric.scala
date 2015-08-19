@@ -40,7 +40,7 @@ trait ImageMetric[D <: Dim] {
 
 //case class MeanSquaresMetricConfiguration extends MetricConfiguration 
 
-case class MeanSquaresMetric[D <: Dim: NDSpace](val sampler: Sampler[D]) extends ImageMetric[D] {
+case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D]) extends ImageMetric[D] {
   // val configuration : MetricConfiguration
 
   override val ndSpace = implicitly[NDSpace[D]]

@@ -27,7 +27,7 @@ class ConversionTests extends ScalismoTestSuite {
   describe("a Mesh ") {
 
     it("can be converted to and from vtk") {
-      val path = getClass().getResource("/facemesh.stl").getPath
+      val path = getClass.getResource("/facemesh.stl").getPath
       val origmesh = MeshIO.readMesh(new java.io.File(path)).get
       val vtkpd = MeshConversion.meshToVtkPolyData(origmesh)
       val restoredMesh = MeshConversion.vtkPolyDataToTriangleMesh(vtkpd).get
@@ -42,7 +42,7 @@ class ConversionTests extends ScalismoTestSuite {
   }
   describe("an 2D image") {
     it("can be converted to and from vtk") {
-      val path = getClass().getResource("/lena.vtk").getPath
+      val path = getClass.getResource("/lena.vtk").getPath
       val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(path)).get
       val vtksp = ImageConversion.imageToVtkStructuredPoints(origimg)
       val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get

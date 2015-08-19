@@ -21,7 +21,7 @@ import scalismo.numerics.BSpline
 import scalismo.registration.Transformation
 import scalismo.utils.Memoize
 
-case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
+case class GaussianKernel[D <: Dim](sigma: Double) extends PDKernel[D] {
   val sigma2 = sigma * sigma
 
   override def domain = RealSpace[D]
@@ -32,7 +32,7 @@ case class GaussianKernel[D <: Dim](val sigma: Double) extends PDKernel[D] {
   }
 }
 
-case class SampleCovarianceKernel[D <: Dim: NDSpace](val ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
+case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
 
   override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
@@ -40,7 +40,7 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](val ts: IndexedSeq[Transfor
 
   def mu(x: Point[D]): Vector[D] = {
     var meanDisplacement = Vector.zeros[D]
-    var i = 0;
+    var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
       meanDisplacement = meanDisplacement + (t(x) - x)
@@ -53,7 +53,7 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](val ts: IndexedSeq[Transfor
 
   override def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
     var ms = SquareMatrix.zeros[D]
-    var i = 0;
+    var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
       val ux = t(x) - x

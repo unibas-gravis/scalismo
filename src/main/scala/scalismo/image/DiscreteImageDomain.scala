@@ -96,10 +96,10 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
     (indexToPoint(idxClosestPoint), ptIdClosestPoint)
   }
 
-  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)] = ???
+  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)] = throw new UnsupportedOperationException
 
   private def continuousIndextoIndex(cidx: Vector[D]): Index[D] = {
-    var d = 0;
+    var d = 0
     val indexData = new Array[Int](dimensionality)
     while (d < dimensionality) {
       indexData(d) = Math.min(Math.round(cidx(d)), size(d) - 1)
@@ -297,7 +297,6 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
     ((iVecImage * (1.0 / iVecImage.norm)).toArray
       ++ (jVecImage * (1.0 / jVecImage.norm)).toArray
       ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
-      .map(_.toFloat)
   )
 
   def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view)

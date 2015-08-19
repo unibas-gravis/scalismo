@@ -32,9 +32,9 @@ class StatismoIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again") {
-      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+      val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
       val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit
+      dummyFile.deleteOnExit()
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
@@ -48,9 +48,9 @@ class StatismoIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again in non-standard location") {
-      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+      val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
       val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit
+      dummyFile.deleteOnExit()
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
@@ -66,9 +66,9 @@ class StatismoIOTest extends ScalismoTestSuite {
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
 
-      val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+      val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
       val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit
+      dummyFile.deleteOnExit()
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
@@ -83,7 +83,7 @@ class StatismoIOTest extends ScalismoTestSuite {
   }
 
   it("can read a catalog") {
-    val statismoFile = new File(getClass().getResource("/facemodel.h5").getPath())
+    val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
     val catalog = StatismoIO.readModelCatalog(statismoFile).get
     catalog.size should equal(1)
     val firstEntry = catalog.head

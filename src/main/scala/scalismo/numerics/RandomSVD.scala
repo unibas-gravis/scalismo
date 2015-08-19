@@ -38,7 +38,7 @@ object RandomSVD {
     val standardNormal = breeze.stats.distributions.Gaussian(0, 1)
 
     // create a gaussian random matrix
-    val Omega = DenseMatrix.zeros[Double](m, 2 * k).map(_ => standardNormal.draw)
+    val Omega = DenseMatrix.zeros[Double](m, 2 * k).map(_ => standardNormal.draw())
 
     var Y = A * Omega
 
