@@ -599,6 +599,7 @@ object RigidTransformation {
   /** Returns a D-dimensional rigid transform performing first a translation then a rotation*/
   def apply[D <: Dim: NDSpace](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D]): RigidTransformation[D] = new RigidTransformationTransThenRot(rotationTransform, translationTransform)
 
+  def Identity[D <: Dim: NDSpace] = RigidTransformationSpace()[D].transformForParameters(RigidTransformationSpace()[D].identityTransformParameters)
 }
 
 private class RigidTransformationRotThenTrans[D <: Dim: NDSpace](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D])
