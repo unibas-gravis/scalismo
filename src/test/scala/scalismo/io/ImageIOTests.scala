@@ -237,7 +237,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
           if (dim == 0)
             dim = 1
-          val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
+          val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data.get(i, j, k, d)
           data.hashCode()
         }
         val nh = n.dataAsScalarArray[Short].map(_.toDouble).iterator.toArray.deep.hashCode()
