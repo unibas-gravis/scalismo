@@ -15,18 +15,19 @@
  */
 package scalismo.statisticalmodel.asm
 
+import scalismo.common.PointId
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.TriangleMesh
 
 import scala.collection.immutable
 
-trait SearchPointSampler extends Function2[TriangleMesh, Int, immutable.Seq[Point[_3D]]] {
+trait SearchPointSampler extends Function2[TriangleMesh, PointId, immutable.Seq[Point[_3D]]] {
 
 }
 
 case class NormalDirectionSearchPointSampler(numberOfPoints: Int, searchDistance: Float) extends SearchPointSampler {
 
-  override def apply(mesh: TriangleMesh, pointId: Int): immutable.Seq[Point[_3D]] = {
+  override def apply(mesh: TriangleMesh, pointId: PointId): immutable.Seq[Point[_3D]] = {
     val point = mesh.point(pointId)
     val interval = searchDistance * 2 / numberOfPoints
 

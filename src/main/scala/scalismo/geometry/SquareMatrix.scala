@@ -23,6 +23,7 @@ import breeze.linalg.DenseMatrix
 class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array[Float]) {
 
   val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
+  val ndSpace = NDSpace[D]
 
   def apply(i: Int, j: Int): Float = {
     val d = dimensionality

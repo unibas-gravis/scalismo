@@ -16,7 +16,7 @@
 package scalismo.io
 
 import java.io.File
-import scalismo.common.Scalar
+import scalismo.common.{ PointId, Scalar }
 import scalismo.utils.MeshConversion
 import scalismo.mesh.{ TriangleCell, ScalarMeshField, TriangleMesh }
 import scalismo.geometry._
@@ -197,13 +197,13 @@ object MeshIO {
 
   private def NDArrayToCellSeq(ndarray: NDArray[Int]): IndexedSeq[TriangleCell] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
-    ndarray.data.grouped(3).map(grp => TriangleCell(grp(0), grp(1), grp(2))).toIndexedSeq
+    ndarray.data.grouped(3).map(grp => TriangleCell(PointId(grp(0)), PointId(grp(1)), PointId(grp(2)))).toIndexedSeq
   }
 
   private def pointSeqToNDArray[T](points: IndexedSeq[Point[_3D]]): NDArray[Double] =
-    NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.data.map(_.toDouble)).toArray)
+    NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.toArray.map(_.toDouble)).toArray)
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
-    NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds).toArray)
+    NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
 }
 

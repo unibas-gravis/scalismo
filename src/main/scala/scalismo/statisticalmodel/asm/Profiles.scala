@@ -17,27 +17,18 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import scalismo.common._
-import scalismo.geometry.{ Dim, NDSpace, Point, _3D }
+import scalismo.geometry.{ Dim, NDSpace, Point }
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 import scala.collection.immutable
 
-case class Profile(pointId: Int, distribution: MultivariateNormalDistribution)
+final case class ProfileId(id: Int) extends AnyVal
 
-case class Profiles(domain: UnstructuredPointsDomain[_3D], data: immutable.IndexedSeq[Profile])
-    extends DiscreteField[_3D, Profile] {
-  require(domain.numberOfPoints == data.size)
+case class Profile(pointId: PointId, distribution: MultivariateNormalDistribution)
 
-  override def apply(i: Int) = data(i)
-
-  override def isDefinedAt(i: Int) = data.isDefinedAt(i)
-
-  override def values = data.iterator
-
-  override def interpolateNearestNeighbor(): Field[_3D, Profile] = {
-    Field(domain.boundingBox, (p: Point[_3D]) => apply(domain.findClosestPoint(p)._2))
-  }
-
+case class Profiles(private[scalismo] val data: immutable.IndexedSeq[Profile]) {
+  def apply(profileId: ProfileId): Profile = data(profileId.id)
+  def ids: IndexedSeq[ProfileId] = data.indices.map(idx => ProfileId(idx))
 }
 
 /**
@@ -47,11 +38,11 @@ case class Profiles(domain: UnstructuredPointsDomain[_3D], data: immutable.Index
  *
  */
 
-case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: DiscreteDomain[D], val _values: IndexedSeq[DenseVector[Float]]) extends DiscreteField[D, DenseVector[Float]] {
+case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: DiscreteDomain[D], _values: IndexedSeq[DenseVector[Float]]) extends DiscreteField[D, DenseVector[Float]] {
 
-  override def apply(i: Int) = _values(i)
+  override def apply(id: PointId) = _values(id.id)
 
-  override def isDefinedAt(i: Int) = i < domain.numberOfPoints
+  override def isDefinedAt(id: PointId) = id.id < domain.numberOfPoints
 
   override def values = _values.toIterator
 

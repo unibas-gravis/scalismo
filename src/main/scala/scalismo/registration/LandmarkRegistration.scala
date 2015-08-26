@@ -127,8 +127,8 @@ object LandmarkRegistration {
     val Y = DenseMatrix.zeros[Double](n, dimensionality)
 
     for (((x, y), i) <- landmarks.zipWithIndex) {
-      X(i, ::) := DenseVector(x.data.map(_.toDouble)).t
-      Y(i, ::) := DenseVector(y.data.map(_.toDouble)).t
+      X(i, ::) := DenseVector(x.toArray.map(_.toDouble)).t
+      Y(i, ::) := DenseVector(y.toArray.map(_.toDouble)).t
     }
 
     val mu_x = mean(X.t, Axis._1)

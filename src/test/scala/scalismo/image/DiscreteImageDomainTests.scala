@@ -17,14 +17,14 @@
 package scalismo.image
 
 import java.io.File
-import breeze.linalg.*
-import scalismo.common.BoxDomain
-import scalismo.io.ImageIO
+
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
+import scalismo.common.BoxDomain
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
+import scalismo.geometry._
+import scalismo.io.ImageIO
 
 class DiscreteImageDomainTests extends ScalismoTestSuite {
 
@@ -38,7 +38,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       val domain = DiscreteImageDomain[_2D]((0f, 0f), (1.0f, 1.0f), (20, 20))
       for (pt <- domain.points) {
         val ptId = domain.pointId(pt).get
-        ptId should be < domain.numberOfPoints
+        ptId.id should be < domain.numberOfPoints
       }
     }
 
@@ -52,14 +52,14 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
 
     it("keeps the same boundingbox approximately the same when it is create with a new spacing") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 3.5f), (1.0f, 2.1f), (42, 49))
-      val newDomain = DiscreteImageDomain(domain.boundingBox, spacing = domain.spacing.map(i => (i * 1.5f)))
+      val newDomain = DiscreteImageDomain(domain.boundingBox, spacing = domain.spacing.map(i => i * 1.5f))
 
       newDomain.boundingBox.origin should equal(domain.boundingBox.origin)
 
       // as the size needs to be integer, it can be that the imageBox is slightly larger.
       // The difference is, however , guaranteed to be smaller than the spacing in each direction. This is also
       // the difference between bounding and image box.
-      newDomain.boundingBox.volume should be >= (domain.boundingBox.volume)
+      newDomain.boundingBox.volume should be >= domain.boundingBox.volume
       newDomain.boundingBox.volume should be <= BoxDomain(domain.boundingBox.origin, domain.boundingBox.oppositeCorner + Vector(1f, 1f)).volume
     }
 
@@ -69,7 +69,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
         val (closestPt, closestPtId) = domain.findClosestPoint(pt)
         closestPt should equal(correctClosestPoint)
         closestPtId should equal(domain.pointId(closestPt).get)
-        closestPtId should be < domain.numberOfPoints
+        closestPtId.id should be < domain.numberOfPoints
       }
 
       // test all points that are inside the domain
@@ -86,7 +86,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
   describe("a discreteImageDomain  in 2d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_2D]((0.0f, 0.0f), (1.0f, 2.0f), (42, 49))
-      assert(domain.pointId((40, 34)) === 40 + 34 * domain.size(0))
+      assert(domain.pointId((40, 34)).id === 40 + 34 * domain.size(0))
     }
 
     it("can correclty map a linear index to an index and back") {
@@ -112,7 +112,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
   describe("a discreteImageDomain in 3d") {
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
-      assert(domain.pointId((40, 34, 15)) === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
+      assert(domain.pointId((40, 34, 15)).id === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
     }
 
     it("can correclty map a linear index to an index and back") {
@@ -144,8 +144,8 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
       assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
 
-      (trans(Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))) - origImg.domain.boundingBox.oppositeCorner).norm should be < (0.1)
-      (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0), origImg.domain.size(1), origImg.domain.size(2))).norm should be < (0.1)
+      (trans(Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)) - origImg.domain.boundingBox.oppositeCorner).norm should be < 0.1
+      (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)).norm should be < 0.1
     }
 
   }

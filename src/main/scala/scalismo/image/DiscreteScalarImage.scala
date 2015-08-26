@@ -188,8 +188,8 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
         var k = k1
         while (k <= k1 + K - 1) {
           val kBC = DiscreteScalarImage.applyMirrorBoundaryCondition(k, domain.size(0))
-          val idx = domain.pointId(Index(kBC, lBC))
-          result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l)
+          val pointId = domain.pointId(Index(kBC, lBC))
+          result = result + ck(pointId.id) * splineBasis(xUnit - k, yUnit - l)
           k = k + 1
         }
         l = l + 1
@@ -230,7 +230,7 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val c = rowValues.map(numeric.toFloat).toArray
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-      val idxInCoeffs = img.domain.pointId(Index(0, y))
+      val idxInCoeffs = img.domain.pointId(Index(0, y)).id
       coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
       y = y + 1
     }
@@ -241,11 +241,14 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
 private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D], data: ScalarArray[A]) extends DiscreteScalarImage[_3D, A](domain, data) {
   def interpolate(degree: Int): DifferentiableScalarImage[_3D] = {
     val ck = determineCoefficients3D(degree, this)
+    val pointToIdx = domain.indexToPhysicalCoordinateTransform.inverse
 
     def iterateOnPoints(x: Point[_3D], splineBasis: ((Double, Double, Double) => Double)): Double = {
-      val xUnit = (x(0) - domain.origin(0)) / domain.spacing(0)
-      val yUnit = (x(1) - domain.origin(1)) / domain.spacing(1)
-      val zUnit = (x(2) - domain.origin(2)) / domain.spacing(2)
+
+      val unitCoords = pointToIdx(x)
+      val xUnit = unitCoords(0)
+      val yUnit = unitCoords(1)
+      val zUnit = unitCoords(2)
 
       val k1 = scala.math.ceil(xUnit - 0.5f * (degree + 1)).toInt
       val l1 = scala.math.ceil(yUnit - 0.5f * (degree + 1)).toInt
@@ -266,8 +269,8 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
           k = k1
           while (k <= k1 + K - 1) {
             val kBC = DiscreteScalarImage.applyMirrorBoundaryCondition(k, domain.size(0))
-            val idx = domain.pointId(Index(kBC, lBC, mBC))
-            result = result + ck(idx) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
+            val pointId = domain.pointId(Index(kBC, lBC, mBC))
+            result = result + ck(pointId.id) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
             k = k + 1
           }
           l = l + 1
@@ -310,7 +313,7 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
         // the c is an input-output argument here
         val c = rowValues.map(numeric.toFloat).toArray
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-        val idxInCoeffs = img.domain.pointId(Index(0, y, z))
+        val idxInCoeffs = img.domain.pointId(Index(0, y, z)).id
         coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
         y = y + 1
       }

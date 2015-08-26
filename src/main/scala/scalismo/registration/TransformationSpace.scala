@@ -18,7 +18,6 @@ package scalismo.registration
 import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-import java.util.Arrays
 import scalismo.geometry
 import scalismo.geometry._
 import scalismo.common._
@@ -122,8 +121,6 @@ class ProductTransformationSpace[D <: Dim, OT <: ParametricTransformation[D] wit
   /**Returns a transform belonging to the product space. Parameters should be a concatenation of the outer and inner space parameters*/
   override def transformForParameters(p: ParameterVector) = {
     val (outerParams, innerParams) = splitProductParameterVector(p)
-    val v = outer.transformForParameters(outerParams)
-
     new ProductTransformation(outer.transformForParameters(outerParams), inner.transformForParameters(innerParams))
   }
 
@@ -273,24 +270,7 @@ private class RotationSpace3D(val centre: Point[_3D]) extends RotationSpace[_3D]
 
   override def transformForParameters(p: ParameterVector): RotationTransform[_3D] = {
     require(p.length == parametersDimensionality)
-
-    val rotMatrix = {
-      // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
-      val cospsi = Math.cos(p(2)).toFloat
-      val sinpsi = Math.sin(p(2)).toFloat
-
-      val costh = Math.cos(p(1)).toFloat
-      val sinth = Math.sin(p(1)).toFloat
-
-      val cosphi = Math.cos(p(0)).toFloat
-      val sinphi = Math.sin(p(0)).toFloat
-
-      SquareMatrix(
-        (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
-        (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
-        (-sinth, sinpsi * costh, cospsi * costh))
-    }
-
+    val rotMatrix = RotationSpace.eulerAnglesToRotMatrix3D(p)
     RotationTransform[_3D](rotMatrix, centre)
   }
 
@@ -349,6 +329,26 @@ object RotationSpace {
     evCreateRot.createRotationSpace(origin)
 
   }
+
+  private[scalismo] def eulerAnglesToRotMatrix3D(p: DenseVector[Float]): SquareMatrix[_3D] = {
+    val rotMatrix = {
+      // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
+      val cospsi = Math.cos(p(2)).toFloat
+      val sinpsi = Math.sin(p(2)).toFloat
+
+      val costh = Math.cos(p(1)).toFloat
+      val sinth = Math.sin(p(1)).toFloat
+
+      val cosphi = Math.cos(p(0)).toFloat
+      val sinphi = Math.sin(p(0)).toFloat
+
+      SquareMatrix(
+        (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),
+        (costh * sinphi, cospsi * cosphi + sinpsi * sinth * sinphi, cospsi * sinth * sinphi - sinpsi * cosphi),
+        (-sinth, sinpsi * costh, cospsi * costh))
+    }
+    rotMatrix
+  }
 }
 
 /**
@@ -387,7 +387,7 @@ private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Poi
   override val f = (pt: Point[_3D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat, rotCentered(2).toFloat)
+    centre + Vector(rotCentered(0), rotCentered(1), rotCentered(2))
   }
 
   override val domain = RealSpace[_3D]
@@ -407,7 +407,7 @@ private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Poi
   override val f = (pt: Point[_2D]) => {
     val ptCentered = pt - centre
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector(rotCentered(0).toFloat, rotCentered(1).toFloat)
+    centre + Vector(rotCentered(0), rotCentered(1))
   }
   override def domain = RealSpace[_2D]
 
@@ -431,7 +431,7 @@ private[scalismo] case class RotationTransform1D() extends RotationTransform[_1D
 
   val parameters = DenseVector.zeros[Float](0)
 
-  def takeDerivative(x: Point[_1D]): SquareMatrix[_1D] = ???
+  def takeDerivative(x: Point[_1D]): SquareMatrix[_1D] = throw new UnsupportedOperationException
 
   override def inverse: RotationTransform1D = {
     RotationTransform1D()
@@ -620,13 +620,13 @@ private class RigidTransformationTransThenRot[D <: Dim: NDSpace](rotationTransfo
  */
 case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: geometry.Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override val domain = RealSpace[D]
-  override val f = (x: Point[D]) => Point((x.toBreezeVector :* s.toBreezeVector).data)
+  override val f = (x: Point[D]) => Point((x.toVector.toBreezeVector :* s.toBreezeVector).data)
 
   val parameters = s.toBreezeVector
   def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix[D](breeze.linalg.diag(s.toBreezeVector).data)
 
   override def inverse: AnisotropicScalingTransformation[D] = {
-    val sinv = s.data.map(v => if (v == 0) 0 else 1.0 / v) map (_.toFloat)
+    val sinv = s.toArray.map(v => if (v == 0) 0 else 1.0 / v) map (_.toFloat)
     new AnisotropicScalingTransformation[D](Vector[D](sinv))
   }
 }
@@ -650,7 +650,7 @@ case class AnisotropicScalingSpace[D <: Dim: NDSpace]() extends TransformationSp
   }
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
-    x: Point[D] => new DenseMatrix(parametersDimensionality, 1, x.data)
+    x: Point[D] => new DenseMatrix(parametersDimensionality, 1, x.toArray)
   }
 }
 /**
@@ -690,7 +690,7 @@ case class AnisotropicSimilarityTransformationSpace[D <: Dim: NDSpace: CreateRot
    *  constructors or factory methods.
    *
    *  The order of operations in the rigid transformation is first rotation, then translation.
-   *  @param : p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
+   *  @param p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
    *
    */
   override def transformForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[D] = {

@@ -15,30 +15,123 @@
  */
 package scalismo.geometry
 
+import breeze.linalg.DenseVector
+import spire.algebra.{ Rng, Field }
+
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-class Index[D <: Dim: NDSpace] private (val data: Array[Int]) extends Coordinate[D, Int] with CoordinateOps[D, Int, Index[D]] {
+sealed abstract class Index[D <: Dim: NDSpace] {
+  def apply(a: Int): Int
 
-  override val classTagScalar: ClassTag[Int] = implicitly[ClassTag[Int]]
-  override def createConcreteRepresentation(data: Array[Int]): Index[D] = new Index[D](data)
+  val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Index[D]]
+  def toArray: Array[Int]
 
+  @deprecated("real data is now private, use toArray", "")
+  def data = toArray
+
+  def toBreezeVector: DenseVector[Int] = DenseVector(toArray)
+
+  def mapWithIndex(f: (Int, Int) => Int): Index[D]
+
+  def map(f: Int => Int): Index[D] = mapWithIndex((v, i) => f(v))
+}
+
+/** 1D point */
+case class Index1D(i: Int) extends Index[_1D] {
+  override def apply(a: Int): Int = a match {
+    case 0 => i
+    case _ => throw new IndexOutOfBoundsException("Index1D has only 1 element")
+  }
+
+  override def toArray = Array(i)
+
+  override def mapWithIndex(f: (Int, Int) => Int): Index1D = Index1D(f(i, 0))
+}
+
+/** 2D point */
+case class Index2D(i: Int, j: Int) extends Index[_2D] {
+  override def apply(a: Int): Int = a match {
+    case 0 => i
+    case 1 => j
+    case _ => throw new IndexOutOfBoundsException("Index2D has only 2 elements")
+  }
+
+  override def toArray = Array(i, j)
+
+  override def mapWithIndex(f: (Int, Int) => Int): Index2D = Index2D(f(i, 0), f(j, 1))
+}
+
+/** 3D point */
+case class Index3D(i: Int, j: Int, k: Int) extends Index[_3D] {
+  override def apply(a: Int): Int = a match {
+    case 0 => i
+    case 1 => j
+    case 2 => k
+    case _ => throw new IndexOutOfBoundsException("Index3D has only 3 elements")
+  }
+
+  override def toArray = Array(i, j, k)
+
+  override def mapWithIndex(f: (Int, Int) => Int): Index3D = Index3D(f(i, 0), f(j, 1), f(k, 2))
 }
 
 object Index {
 
-  def apply[D <: Dim: NDSpace](d: Array[Int]) = new Index[D](d)
-  def apply(i: Int): Index[_1D] = new Index[_1D](Array(i))
-  def apply(i: Int, j: Int): Index[_2D] = new Index[_2D](Array(i, j))
-  def apply(i: Int, j: Int, k: Int): Index[_3D] = new Index[_3D](Array(i, j, k))
+  /** creation typeclass */
+  trait Create[D <: Dim] {
+    def createIndex(data: Array[Int]): Index[D]
+  }
+
+  trait Create1D extends Create[_1D] {
+    override def createIndex(d: Array[Int]) = {
+      require(d.length == 1)
+      Index1D(d(0))
+    }
+  }
+
+  trait Create2D extends Create[_2D] {
+    override def createIndex(d: Array[Int]) = {
+      require(d.length == 2)
+      Index2D(d(0), d(1))
+    }
+  }
+
+  trait Create3D extends Create[_3D] {
+    override def createIndex(d: Array[Int]) = {
+      require(d.length == 3)
+      Index3D(d(0), d(1), d(2))
+    }
+  }
+
+  def apply[D <: Dim: NDSpace](d: Array[Int])(implicit builder: Create[D]) = builder.createIndex(d)
+  def apply(x: Int): Index1D = Index1D(x)
+  def apply(x: Int, y: Int): Index2D = Index2D(x, y)
+  def apply(x: Int, y: Int, z: Int): Index3D = Index3D(x, y, z)
+
+  def zeros[D <: Dim: NDSpace](implicit builder: Create[D]) = {
+    Index(Array.fill(NDSpace[D].dimensionality)(0))
+  }
+
+  /** spire Module implementation for Index (no scalar division) */
+  implicit def spireModule[D <: Dim: NDSpace] = new spire.algebra.Module[Index[D], Int] {
+    override implicit def scalar: Rng[Int] = Rng[Int]
+    override def timesl(r: Int, v: Index[D]): Index[D] = v.map(i => i * r)
+    override def negate(x: Index[D]): Index[D] = x.map(i => -i)
+    override def zero: Index[D] = zeros[D]
+    override def plus(x: Index[D], y: Index[D]): Index[D] = x.mapWithIndex((v, i) => v + y(i))
+  }
 
   object implicits {
-    implicit def index1DToInt(v: Index[_1D]) = v(0)
-    implicit def intToindex1De(i: Int): Index[_1D] = Index(i)
-    implicit def tupleOfIntToindex2D(t: (Int, Int)): Index[_2D] = Index(t._1, t._2)
-    implicit def tupleOfIntToindex3D(t: (Int, Int, Int)): Index[_3D] = Index(t._1, t._2, t._3)
+    implicit def index1DToInt(ind: Index[_1D]): Int = ind.i
+    implicit def intToIndex1D(f: Int): Index1D = Index1D(f)
+    implicit def tupleOfIntToIndex2D(t: (Int, Int)): Index2D = Index2D(t._1, t._2)
+    implicit def tupleOfIntToIndex3D(t: (Int, Int, Int)): Index3D = Index3D(t._1.toInt, t._2.toInt, t._3.toInt)
   }
-}
 
+  implicit def parametricToConcrete1D(p: Index[_1D]): Index1D = p.asInstanceOf[Index1D]
+  implicit def parametricToConcrete2D(p: Index[_2D]): Index2D = p.asInstanceOf[Index2D]
+  implicit def parametricToConcrete3D(p: Index[_3D]): Index3D = p.asInstanceOf[Index3D]
+
+}

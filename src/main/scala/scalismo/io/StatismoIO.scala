@@ -17,6 +17,7 @@ package scalismo.io
 
 import java.io.File
 
+import scalismo.common.PointId
 import scalismo.geometry.{ _3D, Point }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
 import scalismo.mesh.{ TriangleCell, TriangleMesh }
@@ -175,7 +176,7 @@ object StatismoIO {
 
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
-    val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.data)
+    val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
 
     val pcaBasis = model.gp.basisMatrix.copy
@@ -220,8 +221,8 @@ object StatismoIO {
 
   private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
-    val cellArray = model.referenceMesh.cells.map(_.ptId1) ++ model.referenceMesh.cells.map(_.ptId2) ++ model.referenceMesh.cells.map(_.ptId3)
-    val pts = model.referenceMesh.points.toIndexedSeq.par.map(p => (p.data(0).toDouble, p.data(1).toDouble, p.data(2).toDouble))
+    val cellArray = model.referenceMesh.cells.map(_.ptId1.id) ++ model.referenceMesh.cells.map(_.ptId2.id) ++ model.referenceMesh.cells.map(_.ptId3.id)
+    val pts = model.referenceMesh.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
 
     for {
@@ -299,7 +300,7 @@ object StatismoIO {
         else
           Success(cellArray))
       cellMat = ndArrayToMatrix(cellArray)
-      cells = for (i <- 0 until cellMat.cols) yield TriangleCell(cellMat(0, i), cellMat(1, i), cellMat(2, i))
+      cells = for (i <- 0 until cellMat.cols) yield TriangleCell(PointId(cellMat(0, i)), PointId(cellMat(1, i)), PointId(cellMat(2, i)))
       cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells")
     } yield TriangleMesh(points, cells)
   }

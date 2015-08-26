@@ -244,7 +244,7 @@ object LowRankGaussianProcess {
     val outputDim = outputDimensionality
 
     val dim = implicitly[NDSpace[DO]].dimensionality
-    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.data).toArray)
+    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
 
     val (xs, ys, errorDistributions) = trainingData.unzip3
 

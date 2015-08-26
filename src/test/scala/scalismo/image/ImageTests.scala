@@ -15,25 +15,22 @@
  */
 package scalismo.image
 
-import java.io.File
-
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ BoxDomain, Scalar, ScalarArray }
+import scalismo.common.{ BoxDomain, PointId, Scalar, ScalarArray }
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry._
-import scalismo.io.ImageIO
 import scalismo.registration.TranslationSpace
 
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 class ImageTests extends ScalismoTestSuite {
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
-  implicit def arrayToScalarArray[A: Scalar: ClassTag](a: Array[A]) = ScalarArray(a)
+  implicit def arrayToScalarArray[A: Scalar: ClassTag](a: Array[A]): ScalarArray[A] = ScalarArray(a)
 
   describe("A discrete 1D image") {
     it("returns the same points for a 1d index and a coordinate index") {
@@ -55,7 +52,7 @@ class ImageTests extends ScalismoTestSuite {
         y <- 0 until domain.size(1);
         x <- 0 until domain.size(0)
       ) {
-        assert(discreteImage(y * domain.size(0) + x) === discreteImage((x, y)))
+        assert(discreteImage(PointId(y * domain.size(0) + x)) === discreteImage((x, y)))
       }
     }
   }

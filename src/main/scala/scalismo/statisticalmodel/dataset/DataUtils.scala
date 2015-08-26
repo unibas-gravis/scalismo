@@ -15,19 +15,15 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import java.io.File
-
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.Transformation
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 private object DataUtils {
   /**
-   *  Partitions a list os possible transformation (tries) into those that succeeded and those who failed
+   * Partitions a list os possible transformation (tries) into those that succeeded and those who failed
    */
   def partitionSuccAndFailedTries[A](tries: Seq[Try[A]]): (Seq[A], Seq[Throwable]) = {
     val (s, f) = tries.partition(_.isSuccess)
@@ -53,7 +49,7 @@ private object DataUtils {
         val targetPts = targetMesh.points.toIndexedSeq
         override val f = (x: Point[_3D]) => {
           val (_, ptId) = refMesh.findClosestPoint(x)
-          targetPts(ptId)
+          targetPts(ptId.id)
         }
       }
       Success(t)

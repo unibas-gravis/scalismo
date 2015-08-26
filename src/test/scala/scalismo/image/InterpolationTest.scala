@@ -19,6 +19,7 @@ import java.io.File
 
 import org.scalatest.PrivateMethodTester
 import scalismo.ScalismoTestSuite
+import scalismo.common.PointId
 import scalismo.common.ScalarArray.implicits._
 import scalismo.geometry.Index.implicits._
 import scalismo.geometry.Point.implicits._
@@ -30,7 +31,7 @@ import scala.language.implicitConversions
 
 class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("A 1D Interpolation with 0rd order bspline") {
 
@@ -93,7 +94,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImg = discreteImage.interpolate(0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+          continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
 
@@ -104,7 +105,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImg = discreteImage.interpolate(0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+          continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
     }
@@ -116,7 +117,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImg = discreteImage.interpolate(3)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+          continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
 
@@ -126,7 +127,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val interpolatedImage = discreteFixedImage.interpolate(2)
 
         for ((p, i) <- discreteFixedImage.domain.points.zipWithIndex) {
-          interpolatedImage(p).toShort should be(discreteFixedImage(i) +- 30)
+          interpolatedImage(p).toShort should be(discreteFixedImage(PointId(i)) +- 30)
         }
       }
 
@@ -154,7 +155,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImg = discreteImage.interpolate(0)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+          continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
     }
@@ -167,7 +168,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImg = discreteImage.interpolate(1)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+          continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
     }
@@ -180,7 +181,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImg = discreteImage.interpolate(3)
 
         for ((pt, idx) <- discreteImage.domain.points.zipWithIndex) {
-          continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+          continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
 
@@ -204,7 +205,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val continuousImage = discreteImage.interpolate(1)
 
         for ((p, i) <- discreteImage.domain.points.zipWithIndex.filter(p => p._2 % 100 == 0))
-          discreteImage(i) should be(continuousImage(p).toShort +- 1.toShort)
+          discreteImage(PointId(i)) should be(continuousImage(p).toShort +- 1.toShort)
       }
     }
   }
