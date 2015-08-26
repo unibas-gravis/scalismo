@@ -17,18 +17,18 @@ package scalismo.io
 
 import java.io.File
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, Scalar, ScalarArray}
+import scalismo.common.{ PointId, Scalar, ScalarArray }
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
+import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.utils.CanConvertToVtk
-import spire.math.{UByte, UInt, UShort}
+import spire.math.{ UByte, UInt, UShort }
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{TypeTag, typeOf}
-import scala.util.{Failure, Success, Try}
+import scala.reflect.runtime.universe.{ TypeTag, typeOf }
+import scala.util.{ Failure, Success, Try }
 
 class ImageIOTests extends ScalismoTestSuite {
 
@@ -213,7 +213,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
           if (dim == 0)
             dim = 1
-          val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data.get(i,j,k,d)
+          val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data.get(i, j, k, d)
           data.hashCode()
         }
         val nh = n.dataAsScalarArray[Short].map(_.toDouble).iterator.toArray.deep.hashCode()
