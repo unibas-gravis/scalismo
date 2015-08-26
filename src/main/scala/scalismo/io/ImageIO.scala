@@ -371,7 +371,7 @@ object ImageIO {
       // the data
 
       for (d <- 0 until dim; k <- 0 until size(2); j <- 0 until size(1); i <- 0 until size(0)) {
-        volume.data(i)(j)(k)(d) = scalarConv.toDouble(img(Index(i, j, k)))
+        volume.data.set(i,j,k,d,scalarConv.toDouble(img(Index(i, j, k))))
 
       }
 
