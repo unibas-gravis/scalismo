@@ -208,7 +208,7 @@ object DiscreteImageDomain {
 //
 case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D]) extends DiscreteImageDomain[_1D] {
 
-  def origin = indexToPhysicalCoordinateTransform(Point(0))
+  override val origin = indexToPhysicalCoordinateTransform(Point(0))
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
   override def spacing = Vector(iVecImage.norm.toFloat)
   def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
@@ -235,7 +235,7 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
 
   private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
 
-  def origin = indexToPhysicalCoordinateTransform(Point(0, 0))
+  override val origin = indexToPhysicalCoordinateTransform(Point(0, 0))
 
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
   private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
@@ -265,7 +265,7 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
 
   private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
 
-  override def origin = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  override val origin = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
 
   private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
   override def spacing = Vector(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
