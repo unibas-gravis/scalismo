@@ -208,9 +208,9 @@ object DiscreteImageDomain {
 //
 case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D]) extends DiscreteImageDomain[_1D] {
 
-  override val origin = indexToPhysicalCoordinateTransform(Point(0))
+  override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
-  override val spacing = Vector(iVecImage.norm.toFloat)
+  override val spacing = Vector1D(iVecImage.norm.toFloat)
   def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
 
   //override def indexToPhysicalCoordinateTransform = transform
@@ -235,13 +235,16 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
 
   private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
 
-  override val origin = indexToPhysicalCoordinateTransform(Point(0, 0))
+  override val origin = {
+    val p = indexToPhysicalCoordinateTransform(Point(0, 0))
+    Point2D(p(0), p(1))
+  }
 
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
   private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
 
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
-  override val spacing = Vector(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
+  override val spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
   def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
 
@@ -265,10 +268,13 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
 
   private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
 
-  override val origin = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  override val origin = {
+    val p = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+    Point3D(p(0), p(1), p(2))
+  }
 
   private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
-  override val spacing = Vector(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
+  override val spacing = Vector3D(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
 
   override def boundingBox: BoxDomain[_3D] = {
 
