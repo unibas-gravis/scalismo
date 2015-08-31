@@ -240,13 +240,15 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     Point2D(p(0), p(1))
   }
 
-  private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
-  private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
+  private val iVecImage = Vector.parametricToConcrete2D(indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0)))
+  private val jVecImage = Vector.parametricToConcrete2D(indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0)))
 
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
   override val spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
-  def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield indexToPhysicalCoordinateTransform(Point(i, j))
+  def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield {
+    Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
+  }
 
   override def index(ptId: PointId) = (Index(ptId.id % size(0), ptId.id / size(0)))
   override def pointId(idx: Index[_2D]) = PointId(idx(0) + idx(1) * size(0))
@@ -255,6 +257,9 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     new UnstructuredPointsDomain2D(points.map(t).toIndexedSeq)
   }
 
+  override def indexToPoint(i: Index[_2D]) = {
+    Point2D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1), origin.y + iVecImage.y * i(0) + jVecImage.y * i(1))
+  }
   override def boundingBox: BoxDomain[_2D] = {
     val extendData = (0 until 2).map(i => size(i) * spacing(i))
     val extent = Vector[_2D](extendData.toArray)
@@ -310,7 +315,6 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
       origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
       origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
   }
-  
 
   override def indexToPoint(i: Index[_3D]) = {
     Point3D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1) + kVecImage.x * i(2),
