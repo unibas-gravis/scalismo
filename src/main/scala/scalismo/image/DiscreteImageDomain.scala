@@ -211,7 +211,7 @@ case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTran
   override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
   override val spacing = Vector1D(iVecImage.norm.toFloat)
-  def points = for (i <- (0 until size(0)).toIterator) yield Point(origin(0) + spacing(0) * i) // TODO replace with operator version
+  def points = for (i <- (0 until size(0)).toIterator) yield Point1D(origin(0) + spacing(0) * i) // TODO replace with operator version
 
   //override def indexToPhysicalCoordinateTransform = transform
 
@@ -295,9 +295,9 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
     BoxDomain(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
   }
 
-  private val iVecImage = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
-  private val jVecImage = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
-  private val kVecImage = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val iVecImage = Vector.parametricToConcrete3D(indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0)))
+  private val jVecImage = Vector.parametricToConcrete3D(indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0)))
+  private val kVecImage = Vector.parametricToConcrete3D(indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0)))
 
   val directions = SquareMatrix[_3D](
     ((iVecImage * (1.0 / iVecImage.norm)).toArray
@@ -305,10 +305,18 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
       ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
   )
 
-  def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view)
-    yield indexToPhysicalCoordinateTransform(Point(i, j, k))
+  def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view) yield {
+    Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
+      origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
+      origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
+  }
+  
 
-  override def indexToPoint(i: Index[_3D]) = indexToPhysicalCoordinateTransform(Point(i(0), i(1), i(2)))
+  override def indexToPoint(i: Index[_3D]) = {
+    Point3D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1) + kVecImage.x * i(2),
+      origin.y + iVecImage.y * i(0) + jVecImage.y * i(1) + kVecImage.y * i(2),
+      origin.z + iVecImage.z * i(0) + jVecImage.z * i(1) + kVecImage.z * i(2))
+  }
 
   override def index(pointId: PointId) =
     Index(
