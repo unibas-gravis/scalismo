@@ -310,7 +310,7 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
       ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
   )
 
-  def points = for (k <- (0 until size(2)).toIterator; j <- (0 until size(1)).view; i <- (0 until size(0)).view) yield {
+  def points =  for (k <- Iterator.range(0, size(2)); j <- Iterator.range(0, size(1)); i <- Iterator.range(0, size(0))) yield {
     Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
       origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
       origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
