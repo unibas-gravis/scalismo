@@ -108,10 +108,10 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
    */
   def sample[Pixel: Scalar: ClassTag](domain: DiscreteImageDomain[D], outsideValue: Float)(implicit ev: DiscreteScalarImage.Create[D]): DiscreteScalarImage[D, Pixel] = {
     val numeric = implicitly[Scalar[Pixel]]
-
+    val convertedOutsideValue = numeric.fromFloat(outsideValue)
     val sampledValues = domain.points.toIterable.par.map((pt: Point[D]) => {
-      if (isDefinedAt(pt)) numeric.fromFloat(this(pt))
-      else numeric.fromFloat(outsideValue)
+      if (isDefinedAt(pt)) numeric.fromFloat(f(pt))
+      else convertedOutsideValue
     })
 
     DiscreteScalarImage(domain, ScalarArray(sampledValues.toArray))
