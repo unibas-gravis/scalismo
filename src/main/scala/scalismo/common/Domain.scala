@@ -15,15 +15,16 @@
  */
 package scalismo.common
 
-import scalismo.geometry.{ Point, Vector, Dim, _1D, _2D, _3D }
-import breeze.linalg.DenseVector
+import scalismo.geometry._
 import scalismo.registration.{ CanInvert, Transformation }
 
-trait Domain[D <: Dim] { self =>
+trait Domain[D <: Dim] {
+  self =>
   def isDefinedAt(pt: Point[D]): Boolean
 
   def warp(t: Transformation[D] with CanInvert[D]): Domain[D] = new Domain[D] {
     val tinv = t.inverse
+
     override def isDefinedAt(pt: Point[D]): Boolean = {
       self.isDefinedAt(tinv(pt))
     }
@@ -47,20 +48,41 @@ object Domain {
 class RealSpace[D <: Dim] extends Domain[D] {
   override def isDefinedAt(pt: Point[D]) = true
 }
+
 object RealSpace {
   def apply[D <: Dim] = new RealSpace[D]
 }
 
-case class BoxDomain[D <: Dim](origin: Point[D], oppositeCorner: Point[D]) extends Domain[D] {
+abstract class BoxDomainCommon[D <: Dim] extends Domain[D] {
+
+  val origin: Point[D]
+  val oppositeCorner: Point[D]
+
   def isDefinedAt(pt: Point[D]): Boolean = {
     isInside(pt)
   }
 
-  def extent: Vector[D] = oppositeCorner - origin
-  def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
+  val extent: Vector[D] = oppositeCorner - origin
+  val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
+
   def isInside(pt: Point[D]): Boolean = {
     def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= oppositeCorner(i)
     (0 until pt.dimensionality).forall(i => isInsideAxis(i))
   }
 }
 
+case class BoxDomain[D <: Dim](origin: Point[D], oppositeCorner: Point[D]) extends BoxDomainCommon[D]
+
+case class BoxDomain3D(val origin: Point3D, val oppositeCorner: Point3D) extends BoxDomainCommon[_3D] {
+  override def isDefinedAt(pt: Point[_3D]): Boolean = {
+    pt(0) >= origin.x && pt(0) <= oppositeCorner.x &&
+      pt(1) >= origin.y && pt(1) <= oppositeCorner.y &&
+      pt(2) >= origin.z && pt(2) <= oppositeCorner.z
+  }
+
+  def isDefinedAt(pt: Point3D): Boolean = {
+    pt.x >= origin.x && pt.x <= oppositeCorner.x &&
+      pt.y >= origin.y && pt.y <= oppositeCorner.y &&
+      pt.z >= origin.z && pt.z <= oppositeCorner.z
+  }
+}
