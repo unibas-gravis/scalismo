@@ -310,14 +310,30 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
       ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
   )
 
-  private def generateIterator(maxK : Int, maxY: Int, maxX: Int) =
-    for (k <- Iterator.range(0, maxK); j <- Iterator.range(0, maxY); i <- Iterator.range(0, maxX)) yield {
+  private def generateIterator(minK: Int, maxK : Int, minY:Int, maxY: Int, minX:Int, maxX: Int) =
+    for (k <- Iterator.range(minK, maxK); j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
     Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
       origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
       origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
   }
 
-  override def points = generateIterator(size(2), size(1), size(0))
+  override def points = generateIterator(0, size(2), 0, size(1), 0, size(0))
+
+  /** *
+    * Returns a sequence of iterators on the domain points, the size of the sequence being indicated by the user.
+    *
+    * The main idea behind this method is to be able to easily parallelize on the domain points, as parallel operations
+    * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would parallelize on the
+    * IndexedSeq of iterators instead.
+    *
+    */
+  private [scalismo] def pointsInChunks(nbChunks: Int) : IndexedSeq[Iterator[Point3D]] = {
+      require(nbChunks > 1)
+      val chunkSize = numberOfPoints / nbChunks
+      val ranges = (0 until nbChunks).map{chunkId => chunkId * chunkSize} :+ numberOfPoints
+      ranges.sliding(2).toIndexedSeq.map( minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
+  }
+
 
   override def indexToPoint(i: Index[_3D]) = {
     Point3D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1) + kVecImage.x * i(2),
