@@ -220,7 +220,7 @@ object DiscreteImageDomain {
 case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D]) extends DiscreteImageDomain[_1D] {
 
   override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
-  private val iVecImage = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
+  private val iVecImage: Vector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
   override val spacing = Vector1D(iVecImage.norm.toFloat)
 
   private def generateIterator(minX: Int, maxX: Int) = {
@@ -262,8 +262,8 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     Point2D(p(0), p(1))
   }
 
-  private val iVecImage = Vector.parametricToConcrete2D(indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0)))
-  private val jVecImage = Vector.parametricToConcrete2D(indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0)))
+  private val iVecImage: Vector2D = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
+  private val jVecImage: Vector2D = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
 
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
   override val spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
@@ -333,9 +333,9 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
     BoxDomain(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
   }
 
-  private val iVecImage = Vector.parametricToConcrete3D(indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0)))
-  private val jVecImage = Vector.parametricToConcrete3D(indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0)))
-  private val kVecImage = Vector.parametricToConcrete3D(indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0)))
+  private val iVecImage: Vector3D = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val jVecImage: Vector3D = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val kVecImage: Vector3D = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
 
   val directions = SquareMatrix[_3D](
     ((iVecImage * (1.0 / iVecImage.norm)).toArray
