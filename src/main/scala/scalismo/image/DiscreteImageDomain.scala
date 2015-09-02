@@ -284,7 +284,8 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
   }
 
   override def indexToPoint(i: Index[_2D]) = {
-    Point2D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1), origin.y + iVecImage.y * i(0) + jVecImage.y * i(1))
+    val idx: Index2D = i
+    Point2D(origin.x + iVecImage.x * idx.i + jVecImage.x * idx.j, origin.y + iVecImage.y * idx.i + jVecImage.y * idx.j)
   }
   override def boundingBox: BoxDomain[_2D] = {
     val extendData = (0 until 2).map(i => size(i) * spacing(i))
@@ -359,10 +360,11 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
     ranges.sliding(2).toIndexedSeq.map(minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
   }
 
-  override def indexToPoint(i: Index[_3D]) = {
-    Point3D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1) + kVecImage.x * i(2),
-      origin.y + iVecImage.y * i(0) + jVecImage.y * i(1) + kVecImage.y * i(2),
-      origin.z + iVecImage.z * i(0) + jVecImage.z * i(1) + kVecImage.z * i(2))
+  override def indexToPoint(indx: Index[_3D]) = {
+    val idx: Index3D = indx
+    Point3D(origin.x + iVecImage.x * idx.i + jVecImage.x * idx.j + kVecImage.x * idx.k,
+      origin.y + iVecImage.y * idx.i + jVecImage.y * idx.j + kVecImage.y * idx.k,
+      origin.z + iVecImage.z * idx.i + jVecImage.z * idx.j + kVecImage.z * idx.k)
   }
 
   override def index(pointId: PointId) =
