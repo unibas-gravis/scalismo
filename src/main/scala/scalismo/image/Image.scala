@@ -110,8 +110,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
     val numeric = implicitly[Scalar[Pixel]]
     val convertedOutsideValue = numeric.fromFloat(outsideValue)
 
-    val nbChunks = Runtime.getRuntime().availableProcessors() + 1
-
+    val nbChunks = Runtime.getRuntime().availableProcessors() * 2
     val parallelArrays = domain.pointsInChunks(nbChunks).par.map { chunkIterator =>
       chunkIterator.map(pt => {
         if (isDefinedAt(pt)) numeric.fromFloat(f(pt))

@@ -111,7 +111,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
 
   describe("a discreteImageDomain in 3d") {
 
-    object Fixture{
+    object Fixture {
       val pathH5 = getClass.getResource("/3dimage.nii").getPath
       val img = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
     }
@@ -157,7 +157,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       val points = Fixture.img.domain.points
       val chunkedPoints = Fixture.img.domain.pointsInChunks(24)
       val concatenated = chunkedPoints.reduce(_ ++ _)
-      points zip concatenated foreach { case (p1,p2) => assert(p1 == p2) }
+      points zip concatenated foreach { case (p1, p2) => assert(p1 == p2) }
     }
 
   }
