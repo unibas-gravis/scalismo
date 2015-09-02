@@ -124,6 +124,17 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   /** the anisotropic similarity transform that maps between the index and physical coordinates*/
   private[scalismo] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
 
+  /**
+   * *
+   * Returns a sequence of iterators on the domain points, the size of the sequence being indicated by the user.
+   *
+   * The main idea behind this method is to be able to easily parallelize on the domain points, as parallel operations
+   * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would parallelize on the
+   * IndexedSeq of iterators instead.
+   *
+   */
+  private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[D]]]
+
   // define the canEqual method
   override def canEqual(a: Any) = a.isInstanceOf[DiscreteImageDomain[D]]
 
@@ -211,7 +222,11 @@ case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTran
   override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
   private val iVecImage = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
   override val spacing = Vector1D(iVecImage.norm.toFloat)
-  def points = for (i <- (0 until size(0)).toIterator) yield Point1D(origin(0) + spacing(0) * i) // TODO replace with operator version
+
+  private def generateIterator(minX: Int, maxX: Int) = {
+    for (i <- Iterator.range(minX, maxX)) yield { Point1D(origin.x + iVecImage.x * i) }
+  }
+  override def points: Iterator[Point1D] = generateIterator(0, size(0))
 
   //override def indexToPhysicalCoordinateTransform = transform
 
@@ -228,6 +243,13 @@ case class DiscreteImageDomain1D(size: Index[_1D], indexToPhysicalCoordinateTran
   }
 
   override def boundingBox: BoxDomain[_1D] = BoxDomain(origin, origin + Vector(size(0) * spacing(0)))
+
+  override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point1D]] = {
+    require(nbChunks > 1)
+    val chunkSize = size(0) / nbChunks
+    val ranges = (0 until nbChunks).map { chunkId => chunkId * chunkSize } :+ size(0)
+    ranges.sliding(2).toIndexedSeq.map(minMaxX => generateIterator(minMaxX(0), minMaxX(1)))
+  }
 
 }
 
@@ -246,9 +268,13 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
   override val spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
-  def points = for (j <- (0 until size(1)).toIterator; i <- (0 until size(0)).view) yield {
-    Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
+  private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) = {
+    for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
+      Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
+    }
   }
+
+  override def points: Iterator[Point2D] = generateIterator(0, size(1), 0, size(0))
 
   override def index(ptId: PointId) = (Index(ptId.id % size(0), ptId.id / size(0)))
   override def pointId(idx: Index[_2D]) = PointId(idx(0) + idx(1) * size(0))
@@ -265,6 +291,13 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     val extent = Vector[_2D](extendData.toArray)
     val oppositeCorner = origin + extent
     BoxDomain(origin, oppositeCorner)
+  }
+
+  override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point2D]] = {
+    require(nbChunks > 1)
+    val chunkSize = size(1) / nbChunks
+    val ranges = (0 until nbChunks).map { chunkId => chunkId * chunkSize } :+ size(1)
+    ranges.sliding(2).toIndexedSeq.map(minMaxY => generateIterator(minMaxY(0), minMaxY(1), 0, size(0)))
   }
 
 }
@@ -310,30 +343,21 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
       ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
   )
 
-  private def generateIterator(minK: Int, maxK : Int, minY:Int, maxY: Int, minX:Int, maxX: Int) =
+  private def generateIterator(minK: Int, maxK: Int, minY: Int, maxY: Int, minX: Int, maxX: Int) = {
     for (k <- Iterator.range(minK, maxK); j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
-    Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
-      origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
-      origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
+      Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
+        origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
+        origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
+    }
   }
-
   override def points = generateIterator(0, size(2), 0, size(1), 0, size(0))
 
-  /** *
-    * Returns a sequence of iterators on the domain points, the size of the sequence being indicated by the user.
-    *
-    * The main idea behind this method is to be able to easily parallelize on the domain points, as parallel operations
-    * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would parallelize on the
-    * IndexedSeq of iterators instead.
-    *
-    */
-  private [scalismo] def pointsInChunks(nbChunks: Int) : IndexedSeq[Iterator[Point3D]] = {
-      require(nbChunks > 1)
-      val chunkSize = numberOfPoints / nbChunks
-      val ranges = (0 until nbChunks).map{chunkId => chunkId * chunkSize} :+ numberOfPoints
-      ranges.sliding(2).toIndexedSeq.map( minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
+  override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point3D]] = {
+    require(nbChunks > 1)
+    val chunkSize = size(2) / nbChunks
+    val ranges = (0 until nbChunks).map { chunkId => chunkId * chunkSize } :+ size(2)
+    ranges.sliding(2).toIndexedSeq.map(minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
   }
-
 
   override def indexToPoint(i: Index[_3D]) = {
     Point3D(origin.x + iVecImage.x * i(0) + jVecImage.x * i(1) + kVecImage.x * i(2),
