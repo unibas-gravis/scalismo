@@ -86,7 +86,7 @@ class UnstructuredPointsDomain1D private[scalismo] (pointSeq: IndexedSeq[Point[_
   override def boundingBox: BoxDomain[_1D] = {
     val minx = pointSeq.map(_(0)).min
     val maxx = pointSeq.map(_(0)).max
-    BoxDomain[_1D](Point(minx), Point(maxx))
+    BoxDomain(Point(minx), Point(maxx))
   }
 
   override def transform(t: Point[_1D] => Point[_1D]): UnstructuredPointsDomain1D = {
@@ -102,7 +102,7 @@ class UnstructuredPointsDomain2D private[scalismo] (pointSeq: IndexedSeq[Point[_
     val miny = pointSeq.map(_(1)).min
     val maxx = pointSeq.map(_(0)).max
     val maxy = pointSeq.map(_(1)).max
-    BoxDomain[_2D](Point(minx, miny), Point(maxx, maxy))
+    BoxDomain(Point(minx, miny), Point(maxx, maxy))
   }
 
   override def transform(t: Point[_2D] => Point[_2D]): UnstructuredPointsDomain2D = {
@@ -120,7 +120,7 @@ class UnstructuredPointsDomain3D private[scalismo] (pointSeq: IndexedSeq[Point[_
     val maxx = pointSeq.map(_(0)).max
     val maxy = pointSeq.map(_(1)).max
     val maxz = pointSeq.map(_(2)).max
-    BoxDomain[_3D](Point(minx, miny, minz), Point(maxx, maxy, maxz))
+    BoxDomain(Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
   override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPointsDomain3D = {

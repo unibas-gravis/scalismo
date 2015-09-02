@@ -57,7 +57,7 @@ class KernelTests extends ScalismoTestSuite {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxDomain[_3D](Point(-5, 1, 3), Point(100, 90, 25))
+      val domain = BoxDomain(Point(-5, 1, 3), Point(100, 90, 25))
 
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 

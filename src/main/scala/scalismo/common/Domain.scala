@@ -67,14 +67,20 @@ trait BoxDomain[D <: Dim] extends Domain[D] {
   val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
 
 }
+
 object BoxDomain {
   def apply(origin: Point1D, oppositeCorner: Point1D) = BoxDomain1D(origin, oppositeCorner)
   def apply(origin: Point2D, oppositeCorner: Point2D) = BoxDomain2D(origin, oppositeCorner)
   def apply(origin: Point3D, oppositeCorner: Point3D) = BoxDomain3D(origin, oppositeCorner)
 
+  /**
+   * Creates a BoxDomain of dimensionality D. Attention, due to the fact that it is a generic
+   * constructor, the isDefinedAt method of the resulting object will not be as optimized as when created for a
+   * specific dimensionality
+   */
   def apply[D <: Dim: NDSpace](orig: Point[D], oppCorner: Point[D]) = new BoxDomain[D] {
-    override val oppositeCorner = oppCorner
-    override val origin = orig
+    override lazy val oppositeCorner = oppCorner
+    override lazy val origin = orig
   }
 }
 

@@ -41,7 +41,7 @@ case class GaussianFilter1D(stddev: Double) extends Filter[_1D] {
   }
 
   val radius = (3.0 * stddev).toFloat
-  def support = BoxDomain[_1D](Point(-radius), Point(radius))
+  def support = BoxDomain(Point(-radius), Point(radius))
 }
 
 /**
@@ -54,7 +54,7 @@ case class GaussianFilter2D(stddev: Double) extends Filter[_2D] {
   }
 
   val radius = (3.0 * stddev).toFloat
-  def support = BoxDomain[_2D](Point(-radius, -radius), Point(radius, radius))
+  def support = BoxDomain(Point(-radius, -radius), Point(radius, radius))
 }
 /**
  * 3 dimensional Gaussian blur filter. See [[GaussianFilter1D]]
@@ -70,7 +70,7 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
   }
 
   val radius = (3.0 * stddev).toFloat
-  def support = BoxDomain[_3D](Point(-radius, -radius, -radius), Point(radius, radius, radius))
+  def support = BoxDomain(Point(-radius, -radius, -radius), Point(radius, radius, radius))
 }
 /**
  * D- dimensional box Blurring Filter to be used in a convolution. The filter has a value 1 in its support and 0 otherwise
