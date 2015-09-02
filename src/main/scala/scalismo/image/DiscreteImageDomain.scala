@@ -268,11 +268,8 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
   override val spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
-  private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) = {
-    for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
-      Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
-    }
-  }
+  private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) =
+    for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield { ijToPoint(i, j) }
 
   override def points: Iterator[Point2D] = generateIterator(0, size(1), 0, size(0))
 
@@ -283,10 +280,13 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     new UnstructuredPointsDomain2D(points.map(t).toIndexedSeq)
   }
 
+  private def ijToPoint(i: Int, j: Int) = Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
+
   override def indexToPoint(i: Index[_2D]) = {
     val idx: Index2D = i
-    Point2D(origin.x + iVecImage.x * idx.i + jVecImage.x * idx.j, origin.y + iVecImage.y * idx.i + jVecImage.y * idx.j)
+    ijToPoint(idx.i, idx.j)
   }
+
   override def boundingBox: BoxDomain[_2D] = {
     val extendData = (0 until 2).map(i => size(i) * spacing(i))
     val extent = Vector[_2D](extendData.toArray)
@@ -346,9 +346,7 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
 
   private def generateIterator(minK: Int, maxK: Int, minY: Int, maxY: Int, minX: Int, maxX: Int) = {
     for (k <- Iterator.range(minK, maxK); j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
-      Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
-        origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
-        origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
+      ijkToPoint(i, j, k)
     }
   }
   override def points = generateIterator(0, size(2), 0, size(1), 0, size(0))
@@ -360,11 +358,15 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
     ranges.sliding(2).toIndexedSeq.map(minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
   }
 
+  private def ijkToPoint(i: Int, j: Int, k: Int) = {
+    Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
+      origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
+      origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
+  }
+
   override def indexToPoint(indx: Index[_3D]) = {
     val idx: Index3D = indx
-    Point3D(origin.x + iVecImage.x * idx.i + jVecImage.x * idx.j + kVecImage.x * idx.k,
-      origin.y + iVecImage.y * idx.i + jVecImage.y * idx.j + kVecImage.y * idx.k,
-      origin.z + iVecImage.z * idx.i + jVecImage.z * idx.j + kVecImage.z * idx.k)
+    ijkToPoint(idx.i, idx.j, idx.k)
   }
 
   override def index(pointId: PointId) =

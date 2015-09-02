@@ -67,7 +67,6 @@ trait BoxDomain[D <: Dim] extends Domain[D] {
   val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
 
 }
-
 object BoxDomain {
   def apply(origin: Point1D, oppositeCorner: Point1D) = BoxDomain1D(origin, oppositeCorner)
   def apply(origin: Point2D, oppositeCorner: Point2D) = BoxDomain2D(origin, oppositeCorner)
