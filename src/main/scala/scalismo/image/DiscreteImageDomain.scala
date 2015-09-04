@@ -280,7 +280,7 @@ case class DiscreteImageDomain2D(size: Index[_2D], indexToPhysicalCoordinateTran
     new UnstructuredPointsDomain2D(points.map(t).toIndexedSeq)
   }
 
-  private def ijToPoint(i: Int, j: Int) = Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
+  @inline private def ijToPoint(i: Int, j: Int) = Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
 
   override def indexToPoint(i: Index[_2D]) = {
     val idx: Index2D = i
@@ -358,7 +358,7 @@ case class DiscreteImageDomain3D(size: Index[_3D], indexToPhysicalCoordinateTran
     ranges.sliding(2).toIndexedSeq.map(minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
   }
 
-  private def ijkToPoint(i: Int, j: Int, k: Int) = {
+  @inline private def ijkToPoint(i: Int, j: Int, k: Int) = {
     Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
       origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
       origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
