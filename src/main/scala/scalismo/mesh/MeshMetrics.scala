@@ -83,7 +83,7 @@ object MeshMetrics {
 
     val box1 = m1.boundingBox
     val box2 = m2.boundingBox
-    val evaluationRegion = BoxDomain[_3D](minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
+    val evaluationRegion = BoxDomain(minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
 
     val sampler = UniformSampler[_3D](evaluationRegion, 10000)
     val samplePts = sampler.sample.map(_._1)

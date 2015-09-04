@@ -295,7 +295,8 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val dfz = (iterateOnPoints(x, splineBasisD3) * (1 / domain.spacing(2))).toFloat
       Vector(dfx, dfy, dfz)
     }
-    DifferentiableScalarImage(domain.boundingBox, f, df)
+    val bbox = domain.boundingBox
+    DifferentiableScalarImage(BoxDomain3D(bbox.origin, bbox.oppositeCorner), f, df)
 
   }
 

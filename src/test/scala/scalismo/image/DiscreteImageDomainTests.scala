@@ -110,6 +110,11 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
   }
 
   describe("a discreteImageDomain in 3d") {
+
+    object Fixture {
+      val pathH5 = getClass.getResource("/3dimage.nii").getPath
+      val img = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+    }
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
       assert(domain.pointId((40, 34, 15)).id === 40 + 34 * domain.size(0) + 15 * domain.size(0) * domain.size(1))
@@ -135,17 +140,24 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
     }
 
     it("the anisotropic similarity transform defining the domain is correct and invertible") {
-      val pathH5 = getClass.getResource("/3dimage.nii").getPath
-      val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
 
-      val trans = origImg.domain.indexToPhysicalCoordinateTransform
+      val img = Fixture.img
+
+      val trans = img.domain.indexToPhysicalCoordinateTransform
       val inverseTrans = trans.inverse
 
-      assert((trans(Point(0, 0, 0)) - origImg.domain.origin).norm < 0.1f)
-      assert(inverseTrans(origImg.domain.origin).toVector.norm < 0.1f)
+      assert((trans(Point(0, 0, 0)) - img.domain.origin).norm < 0.1f)
+      assert(inverseTrans(img.domain.origin).toVector.norm < 0.1f)
 
-      (trans(Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)) - origImg.domain.boundingBox.oppositeCorner).norm should be < 0.1
-      (inverseTrans(origImg.domain.boundingBox.oppositeCorner) - Point(origImg.domain.size(0) - 1, origImg.domain.size(1) - 1, origImg.domain.size(2) - 1)).norm should be < 0.1
+      (trans(Point(img.domain.size(0) - 1, img.domain.size(1) - 1, img.domain.size(2) - 1)) - img.domain.boundingBox.oppositeCorner).norm should be < 0.1
+      (inverseTrans(img.domain.boundingBox.oppositeCorner) - Point(img.domain.size(0) - 1, img.domain.size(1) - 1, img.domain.size(2) - 1)).norm should be < 0.1
+    }
+
+    it("Domain points in chunks returns the correct list of points") {
+      val points = Fixture.img.domain.points
+      val chunkedPoints = Fixture.img.domain.pointsInChunks(24)
+      val concatenated = chunkedPoints.reduce(_ ++ _)
+      points zip concatenated foreach { case (p1, p2) => assert(p1 == p2) }
     }
 
   }

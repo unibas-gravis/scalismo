@@ -36,7 +36,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
   describe("The Nystroem approximation of a Kernel matrix") {
     it("Is close enough to a scalar valued kernel matrix") {
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](20))
-      val domain = BoxDomain[_1D](-5.0f, 195.0f)
+      val domain = BoxDomain(-5.0f, 195.0f)
 
       val sampler = UniformSampler(domain, 500)
 
@@ -59,7 +59,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
     it("Its eigenvalues are close enough to the real eigenvalues for 1D") {
       val kernelDim = 1
       val scalarKernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](10))
-      val domain = BoxDomain[_1D](0.0f, 10.0f)
+      val domain = BoxDomain(0.0f, 10.0f)
       val numPoints = 500
       val sampler = UniformSampler(domain, numPoints)
       val (points, _) = sampler.sample.unzip
@@ -85,7 +85,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val kernelDim = 2
       val scalarKernel = GaussianKernel[_2D](10)
       val ndKernel = UncorrelatedKernel[_2D](scalarKernel)
-      val domain = BoxDomain[_2D]((0.0f, 0.0f), (5.0f, 5.0f))
+      val domain = BoxDomain((0.0f, 0.0f), (5.0f, 5.0f))
       val sampler = UniformSampler(domain, 400)
       val (pts, _) = sampler.sample.unzip
 
@@ -106,7 +106,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
 
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
-      val domain = BoxDomain[_1D](-5.0f, 5.0f)
+      val domain = BoxDomain(-5.0f, 5.0f)
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), Index(1000))
       val sampler = GridSampler(grid)
 

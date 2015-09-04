@@ -59,7 +59,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
 
     it("have the correct mean and variance for a full gp") {
-      val domain = BoxDomain[_1D](Point(-1.0), Point(1.0))
+      val domain = BoxDomain(Point(-1.0), Point(1.0))
       val m = VectorField(domain, (_: Point[_1D]) => Vector(0))
       val k = UncorrelatedKernel[_1D](GaussianKernel[_1D](2.0))
       val gp = GaussianProcess[_1D, _1D](m, k)
@@ -67,7 +67,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
 
     it("have the correct mean and variance for a low-rank gp") {
-      val domain = BoxDomain[_1D](Point(-1.0), Point(1.0))
+      val domain = BoxDomain(Point(-1.0), Point(1.0))
       val m = VectorField(domain, (_: Point[_1D]) => Vector(0))
       val k = UncorrelatedKernel[_1D](GaussianKernel[_1D](2.0))
       val sampler = UniformSampler(domain, 500)
@@ -77,7 +77,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
 
     it("yields the same values as the original gp at the given points") {
-      val domain = BoxDomain[_2D](Point(-2.0f, 1.0f), Point(1.0f, 2.0f))
+      val domain = BoxDomain(Point(-2.0f, 1.0f), Point(1.0f, 2.0f))
       val m = VectorField(domain, (_: Point[_2D]) => Vector(0.0f, 0.0f))
       val gp = GaussianProcess(m, UncorrelatedKernel[_2D](GaussianKernel[_2D](1.0)))
 
@@ -96,7 +96,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
   describe("A Gaussian process regression") {
     it("keeps the landmark points fixed for a 1D case") {
-      val domain = BoxDomain[_1D](-5.0f, 5f)
+      val domain = BoxDomain(-5.0f, 5f)
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](5))
       val gp = GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel)
       val gpLowRank = LowRankGaussianProcess.approximateGP(gp, UniformSampler(domain, 500), 100)
@@ -112,7 +112,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
 
     it("yields a larger posterior variance for points that are less strongly constrained") {
-      val domain = BoxDomain[_1D](-5.0f, 5f)
+      val domain = BoxDomain(-5.0f, 5f)
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
       val gp = GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel)
       val gpLowRank = LowRankGaussianProcess.approximateGP(gp, UniformSampler(domain, 500), 100)
@@ -134,7 +134,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
 
     it("keeps the landmark points fixed for a 2D case") {
-      val domain = BoxDomain[_2D]((-5.0f, -5.0f), (5.0f, 5.0f))
+      val domain = BoxDomain((-5.0f, -5.0f), (5.0f, 5.0f))
       val gp = GaussianProcess[_2D, _2D](VectorField(domain, _ => Vector(0.0, 0.0)),
         UncorrelatedKernel[_2D](GaussianKernel[_2D](5)))
       val gpLowRank = LowRankGaussianProcess.approximateGP[_2D, _2D](gp, UniformSampler(domain, 400), 100)
@@ -154,7 +154,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
 
     it("keeps the landmark points fixed for a 3D case") {
-      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val gp = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
         UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))
       val gpLowRank = LowRankGaussianProcess.approximateGP[_3D, _3D](gp, UniformSampler(domain, 6 * 6 * 6), 50)
@@ -178,7 +178,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
   describe("a lowRankGaussian process") {
     object Fixture {
-      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), Index(7, 7, 7)))
       val kernel = UncorrelatedKernel[_3D](GaussianKernel[_3D](10))
       val gp = {
@@ -247,7 +247,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
         }
       }
 
-      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = UniformSampler(domain, 7 * 7 * 7)
       val kernel = covKernel
       val gp = {
@@ -267,7 +267,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("can be discretized and yields the correct values at the discretization points") {
 
-      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = UniformSampler(domain, 6 * 6 * 6)
       val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
       val gp = GaussianProcess(mean, UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))
@@ -293,7 +293,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
   describe("a discrete LowRank Gaussian process") {
 
     object Fixture {
-      val domain = BoxDomain[_3D]((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
       val sampler = UniformSampler(domain, 6 * 6 * 6)
       val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
       val gp = GaussianProcess(mean, UncorrelatedKernel[_3D](GaussianKernel[_3D](5)))

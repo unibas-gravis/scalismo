@@ -30,7 +30,7 @@ class IntegrationTest extends ScalismoTestSuite {
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val domain = BoxDomain[_1D](0f, 1.0f)
+      val domain = BoxDomain(0f, 1.0f)
       val img = DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f) * x(0))
 
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), Index(255))
@@ -59,10 +59,10 @@ class IntegrationTest extends ScalismoTestSuite {
 
     it("Correctly integrates a compact function") {
 
-      val img = ScalarImage(BoxDomain[_1D](-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
+      val img = ScalarImage(BoxDomain(-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
 
-      val region1 = BoxDomain[_1D](-1.0f, 1.0f)
-      val region2 = BoxDomain[_1D](-8.0f, 8.0f)
+      val region1 = BoxDomain(-1.0f, 1.0f)
+      val region2 = BoxDomain(-8.0f, 8.0f)
 
       val numPoints = 200
       val grid1 = DiscreteImageDomain(Point(-1.0), Vector(2.0 / numPoints), Index(numPoints))
