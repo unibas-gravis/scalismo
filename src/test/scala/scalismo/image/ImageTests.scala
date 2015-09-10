@@ -18,7 +18,7 @@ package scalismo.image
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ BoxDomain, PointId, Scalar, ScalarArray }
-import scalismo.geometry.Index.implicits._
+import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry._

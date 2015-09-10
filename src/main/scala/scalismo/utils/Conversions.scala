@@ -339,7 +339,7 @@ object CanConvertToVtk {
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
       val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
-      val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1))
+      val size = IntVector(sp.GetDimensions()(0), sp.GetDimensions()(1))
 
       val domain = DiscreteImageDomain[_2D](origin, spacing, size)
       val scalars = sp.GetPointData().GetScalars()
@@ -423,7 +423,7 @@ object CanConvertToVtk {
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
       val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
-      val size = Index(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
+      val size = IntVector(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
 
       val domain = DiscreteImageDomain[_3D](origin, spacing, size)
       val scalars = sp.GetPointData().GetScalars()
