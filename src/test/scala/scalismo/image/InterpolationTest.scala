@@ -21,7 +21,7 @@ import org.scalatest.PrivateMethodTester
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.common.ScalarArray.implicits._
-import scalismo.geometry.Index.implicits._
+import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry._

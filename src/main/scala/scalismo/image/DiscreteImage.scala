@@ -39,9 +39,9 @@ trait DiscreteImage[D <: Dim, Pixel] extends DiscreteField[D, Pixel] {
 
   val dimensionality = ndSpace.dimensionality
 
-  def apply(idx: Index[D]): Pixel = this(domain.pointId(idx))
+  def apply(idx: IntVector[D]): Pixel = this(domain.pointId(idx))
 
-  def isDefinedAt(idx: Index[D]): Boolean = {
+  def isDefinedAt(idx: IntVector[D]): Boolean = {
     (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
   }
 

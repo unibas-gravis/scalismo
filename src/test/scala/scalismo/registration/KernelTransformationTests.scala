@@ -107,7 +107,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
       val domain = BoxDomain(-5.0f, 5.0f)
-      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), Index(1000))
+      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
       val sampler = GridSampler(grid)
 
       val eigPairs = Kernel.computeNystromApproximation(kernel, 100, sampler)

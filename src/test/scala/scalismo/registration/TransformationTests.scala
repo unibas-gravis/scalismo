@@ -20,7 +20,7 @@ import java.io.File
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.Index.implicits._
+import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry._

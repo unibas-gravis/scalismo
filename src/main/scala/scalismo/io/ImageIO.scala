@@ -278,7 +278,7 @@ object ImageIO {
       val approxErrors = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
       if (approxErrors.max > 0.01f) throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
       else {
-        val newDomain = DiscreteImageDomain[_3D](Index(nx, ny, nz), transform)
+        val newDomain = DiscreteImageDomain[_3D](IntVector(nx, ny, nz), transform)
         val im = DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
 
         // if the domain is rotated, we resample the image to RAI voxel ordering
@@ -371,7 +371,7 @@ object ImageIO {
       // the data
 
       for (d <- 0 until dim; k <- 0 until size(2); j <- 0 until size(1); i <- 0 until size(0)) {
-        volume.data.set(i, j, k, d, scalarConv.toDouble(img(Index(i, j, k))))
+        volume.data.set(i, j, k, d, scalarConv.toDouble(img(IntVector(i, j, k))))
 
       }
 

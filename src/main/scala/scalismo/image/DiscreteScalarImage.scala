@@ -188,7 +188,7 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
         var k = k1
         while (k <= k1 + K - 1) {
           val kBC = DiscreteScalarImage.applyMirrorBoundaryCondition(k, domain.size(0))
-          val pointId = domain.pointId(Index(kBC, lBC))
+          val pointId = domain.pointId(IntVector(kBC, lBC))
           result = result + ck(pointId.id) * splineBasis(xUnit - k, yUnit - l)
           k = k + 1
         }
@@ -223,13 +223,13 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
     val coeffs = DenseVector.zeros[Float](img.values.size)
     var y = 0
     while (y < img.domain.size(1)) {
-      val rowValues = (0 until img.domain.size(0)).map(x => img(img.domain.pointId(Index(x, y))))
+      val rowValues = (0 until img.domain.size(0)).map(x => img(img.domain.pointId(IntVector(x, y))))
 
       // the c is an input-output argument here
       val c = rowValues.map(numeric.toFloat).toArray
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-      val idxInCoeffs = img.domain.pointId(Index(0, y)).id
+      val idxInCoeffs = img.domain.pointId(IntVector(0, y)).id
       coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
       y = y + 1
     }
@@ -268,7 +268,7 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
           k = k1
           while (k <= k1 + K - 1) {
             val kBC = DiscreteScalarImage.applyMirrorBoundaryCondition(k, domain.size(0))
-            val pointId = domain.pointId(Index(kBC, lBC, mBC))
+            val pointId = domain.pointId(IntVector(kBC, lBC, mBC))
             result = result + ck(pointId.id) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
             k = k + 1
           }
@@ -308,12 +308,12 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
     while (z < img.domain.size(2)) {
       y = 0
       while (y < img.domain.size(1)) {
-        val rowValues = (0 until img.domain.size(0)).map(x => img(Index(x, y, z)))
+        val rowValues = (0 until img.domain.size(0)).map(x => img(IntVector(x, y, z)))
 
         // the c is an input-output argument here
         val c = rowValues.map(numeric.toFloat).toArray
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-        val idxInCoeffs = img.domain.pointId(Index(0, y, z)).id
+        val idxInCoeffs = img.domain.pointId(IntVector(0, y, z)).id
         coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
         y = y + 1
       }

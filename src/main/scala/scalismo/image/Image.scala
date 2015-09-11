@@ -81,7 +81,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
-    val supportSize = Index[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
+    val supportSize = IntVector[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
 
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
@@ -186,7 +186,7 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
-    val supportSize = Index[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
+    val supportSize = IntVector[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
 

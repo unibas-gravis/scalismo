@@ -179,7 +179,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
   describe("a lowRankGaussian process") {
     object Fixture {
       val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
-      val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), Index(7, 7, 7)))
+      val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), IntVector(7, 7, 7)))
       val kernel = UncorrelatedKernel[_3D](GaussianKernel[_3D](10))
       val gp = {
         LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 200)
@@ -220,7 +220,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("yields the same covariance as given by the kernel") {
       val f = Fixture
-      val fewPointsSampler = GridSampler(DiscreteImageDomain(f.domain.origin, f.domain.extent * (1.0 / 8), Index(2, 2, 2)))
+      val fewPointsSampler = GridSampler(DiscreteImageDomain(f.domain.origin, f.domain.extent * (1.0 / 8), IntVector(2, 2, 2)))
       val pts = fewPointsSampler.sample.map(_._1)
       for (pt1 <- pts.par; pt2 <- pts) {
         val covGP = f.gp.cov(pt1, pt2)

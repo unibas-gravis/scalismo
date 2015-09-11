@@ -20,7 +20,7 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.geometry.Index.implicits._
+import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry._
@@ -91,7 +91,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
 
     it("can correctly map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_2D]((1.0f, 2.0f), (2.0f, 1.0f), (42, 49))
-      val idx = Index(5, 7)
+      val idx = IntVector(5, 7)
       val recIdx = domain.index(domain.pointId(idx))
       assert(recIdx === idx)
     }
@@ -123,7 +123,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
     it("can correctly map a linear index to an index and back") {
       val domain = DiscreteImageDomain[_3D]((0.0f, 0.0f, 0.0f), (1.0f, 2.0f, 3.0f), (42, 49, 65))
 
-      val idx = Index(5, 3, 7)
+      val idx = IntVector(5, 3, 7)
       val recIdx = domain.index(domain.pointId(idx))
       assert(recIdx === idx)
     }
