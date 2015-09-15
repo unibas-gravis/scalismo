@@ -185,7 +185,15 @@ object ImageIO {
     }
   }
 
-  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean = false): Try[DiscreteScalarImage[_3D, S]] = {
+  /**
+   * Read a 3D Scalar Image
+   * @param file  image file to be read
+   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
+   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
+   * @tparam S Voxel type of the image
+   *
+   */
+  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean = false, favourQform : Boolean = false): Try[DiscreteScalarImage[_3D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".vtk") =>
@@ -205,7 +213,7 @@ object ImageIO {
         vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[S](f, resampleOblique)
+        readNifti[S](f, resampleOblique, favourQform)
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
@@ -234,12 +242,12 @@ object ImageIO {
     }
   }
 
-  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean): Try[DiscreteScalarImage[_3D, S]] = {
+  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean, favourQform: Boolean): Try[DiscreteScalarImage[_3D, S]] = {
 
     for {
 
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
-      pair <- computeNiftiWorldToVoxelTransforms(volume)
+      pair <- computeNiftiWorldToVoxelTransforms(volume, favourQform)
     } yield {
       val expectedScalarType = ScalarType.fromType[S]
       val foundScalarType = ScalarType.fromNiftiId(volume.header.datatype)
@@ -262,7 +270,7 @@ object ImageIO {
 
       // figure out if the ijk to xyz_RAS transform does mirror: determinant of the linear transform
 
-      val augmentedMatrix = transformMatrixFromNifti(volume).get // get is safe in here 
+      val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
       val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
 
       val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toFloat
@@ -310,7 +318,7 @@ object ImageIO {
    * The logic is based on: http://brainder.org/2012/09/23/the-nifti-file-format/
    * (section "Orientation information").
    */
-  private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume): Try[DenseMatrix[Double]] = {
+  private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume,  favourQform : Boolean): Try[DenseMatrix[Double]] = {
     (volume.header.qform_code, volume.header.sform_code) match {
       case (0, 0) => // Method 1
         val data = Array.fill(16)(0.0d)
@@ -325,8 +333,11 @@ object ImageIO {
       case (q, 0) if q != 0 => // Method 2
         Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
       case (q, s) if s != 0 => // Method 3
-        //Attention: we're ignoring the q value here, and solely basing the decision on s != 0
-        Success(DenseMatrix.create(4, 4, volume.header.sformArray).t)
+        //Attention: we're by default ignoring the q value here, and solely basing the decision on s != 0, unless the user says so
+        if(favourQform)
+          Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
+        else
+          Success(DenseMatrix.create(4, 4, volume.header.sformArray).t)
     }
   }
 
@@ -334,7 +345,7 @@ object ImageIO {
    * returns transformations from voxel to World coordinates and its inverse
    */
 
-  private[this] def computeNiftiWorldToVoxelTransforms(volume: FastReadOnlyNiftiVolume): Try[(Transformation[_3D], Transformation[_3D])] = {
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: FastReadOnlyNiftiVolume, favourQform : Boolean): Try[(Transformation[_3D], Transformation[_3D])] = {
     var dim = volume.header.dim(4)
 
     if (dim == 0)
@@ -343,7 +354,7 @@ object ImageIO {
     // check this page http://brainder.org/2012/09/23/the-nifti-file-format/
     // for details about the nifti format
 
-    transformMatrixFromNifti(volume).map { affineTransMatrix =>
+    transformMatrixFromNifti(volume, favourQform).map { affineTransMatrix =>
 
       val t = new Transformation[_3D] {
         override val domain = RealSpace[_3D]
