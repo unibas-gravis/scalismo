@@ -34,10 +34,10 @@ import scala.util.{ Failure, Success, Try }
 /**
  * Implements methods for reading and writing D-dimensional images
  *
- * WARNING! WE ARE USING an LPS COORDINATE SYSTEM
+ * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
  *
  * VTK file format does not indicate the orientation of the image.
- * Therefore, when reading from VTK, we assume that it is in LPS world coordinates.
+ * Therefore, when reading from VTK, we assume that it is in RAI orientation.
  * Hence, no magic is done, the same information (coordinates) present in the
  * VTK file header are directly mapped to our coordinate system.
  *
@@ -48,17 +48,32 @@ import scala.util.{ Failure, Success, Try }
  * image coordinates to an RAS World Coordinate System (therefore supporting different image orientations).
  * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :
  *
- * This is done by :
- * * mirroring the first two dimensions of each point after applying the affine transform
+ * This is done by mirroring the first two dimensions of each point after applying the affine transform
  *
  * The same mirroring is done again when writing an image to the Nifti format.
  *
- * Also notice that only one image orientation is supported when writing Nifti images : RAI
  *
- * Documentation on orientation :
+ * '''Important for oblique images :'''
+ * The Nifti standard supports oblique images, that is images with a bounding box rotated compared to the world dimensions.
+ * Scalismo does not support such images. For such images, we offer the user a possibility to resample the image to
+ * a domain aligned with the world dimensions and with an RAI orientation. The integrity of the oblique image will be contained
+ * in the resampled one. This functionality can be activated by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
+ *
+ *
+ * '''Note on Nifti's qform and sform :'''
+ *
+ * As mentioned above, the Nifti header contains a transform from the unit ijk grid to the RAS world coordinates of the grid.
+ * This transform can be encoded in 2 entries of the Nifti header, the qform and the sform. In some files, these 2 entries can both be present,
+ * and in some cases could even indicate different transforms. In Scalismo, when such a case happens, we favour the sform entry by default.
+ * If you wish instead to favour the qform transform, you can do so by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
+ *
+ *
+ *''' Documentation on orientation :'''
  *
  * http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
+ *
  * http://www.slicer.org/slicerWiki/index.php/Coordinate_systems
+ *
  * http://brainder.org/2012/09/23/the-nifti-file-format/
  *
  */
