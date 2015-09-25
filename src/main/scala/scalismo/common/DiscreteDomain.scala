@@ -42,6 +42,11 @@ trait DiscreteDomain[D <: Dim] extends Equals {
 
   def point(id: PointId): Point[D]
 
+
+  /** *
+    * Returns the point belonging to the domain that is closest to the indicated position. The point identifier
+    * within th e domain is also returned.
+    */
   def findClosestPoint(pt: Point[D]): (Point[D], PointId)
 
   def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)]
