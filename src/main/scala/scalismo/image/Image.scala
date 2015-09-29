@@ -57,7 +57,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
   }
 
   /** composes (i.e. warp) an image with a transformation. */
-  def compose(t: Transformation[D]): ScalarImage[D] = {
+  def compose(t: Point[D] => Point[D]): ScalarImage[D] = {
     def f(x: Point[D]) = this.f(t(x))
 
     val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => isDefinedAt(t(pt)))
