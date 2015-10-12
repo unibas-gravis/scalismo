@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ *, DenseMatrix, DenseVector }
+import breeze.linalg.{ diag, *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry._
@@ -61,6 +61,38 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     val instVal = instanceVector(c)
     DiscreteVectorField.fromDenseVector(domain, instVal)
   }
+
+  /**
+   * Returns the probability density of the instance produced by the x coefficients
+   */
+  def pdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank),diag(DenseVector.ones[Float](rank)))
+    mvnormal.pdf(coefficients)
+  }
+
+  /**
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  def logpdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    mvnormal.logpdf(coefficients)
+  }
+
+  /**
+   * Returns the probability density of the given instance
+   */
+  override def pdf(instance: DiscreteVectorField[D, DO]): Double = pdf(coefficients(instance))
+
+  /**
+   * Returns the log of the probability density of the instance
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  override def logpdf(instance: DiscreteVectorField[D, DO]): Double = logpdf(coefficients(instance))
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
