@@ -127,10 +127,10 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
   /**
    * Returns the probability density of the instance produced by the x coefficients
    */
-  def pdf(x: DenseVector[Float]) = {
-    if (x.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector(klBasis.map(_.eigenvalue).toArray)))
-    mvnormal.pdf(x)
+  def pdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank),diag(DenseVector.ones[Float](rank)))
+    mvnormal.pdf(coefficients)
   }
 
   /**
@@ -138,12 +138,11 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    *
    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
    */
-  def logpdf(x: DenseVector[Float]) = {
-    if (x.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector(klBasis.map(_.eigenvalue).toArray)))
-    mvnormal.logpdf(x)
+  def logpdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank),diag(DenseVector.ones[Float](rank)))
+    mvnormal.logpdf(coefficients)
   }
-
 
   override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
