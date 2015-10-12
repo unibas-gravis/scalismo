@@ -382,14 +382,15 @@ class GaussianProcessTests extends ScalismoTestSuite {
       dgp1.domain should equal(dgp2.domain)
     }
 
-    it("pdf of the mean is higher than 10 random samples") {
+    it("logpdf of the mean is higher than 10 random samples") {
       val f = Fixture
-
       val discreteGP = f.discreteLowRankGp
-      val pdfmean = discreteGP.pdf(discreteGP.mean)
+
+      val logpdfmean = discreteGP.logpdf(discreteGP.mean)
+
       val s = (0 until 10) map { _ =>
-        val pdfSample = discreteGP.pdf(discreteGP.sample)
-        pdfmean >= pdfSample
+        val logpdfSample = discreteGP.logpdf(discreteGP.sample)
+        logpdfmean >= logpdfSample
       }
 
       assert(s.forall(e => e))
