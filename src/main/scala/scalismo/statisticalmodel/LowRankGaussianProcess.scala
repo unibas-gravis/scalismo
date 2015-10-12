@@ -16,11 +16,11 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ *, Axis, DenseVector, DenseMatrix }
+import breeze.linalg.{ diag, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{ Point, SquareMatrix, NDSpace, Dim, Vector }
-import scalismo.kernels.{ MatrixValuedPDKernel, Kernel }
+import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
+import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
@@ -31,7 +31,6 @@ import scalismo.utils.Memoize
  * A gaussian process which is represented in terms of a (small) finite set of basis functions.
  * The basis functions are the orthonormal basis functions given by a mercers' decomposition.
  *
- * @param domain defines the set of points on which the GP is defined
  * @param mean The mean function
  * @param klBasis A set of basis functions
  * @tparam D The dimensionality of the input space
@@ -124,6 +123,27 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     coefficients(newtd)
   }
+
+  /**
+   * Returns the probability density of the instance produced by the x coefficients
+   */
+  def pdf(x: DenseVector[Float]) = {
+    if (x.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector(klBasis.map(_.eigenvalue).toArray)))
+    mvnormal.pdf(x)
+  }
+
+  /**
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  def logpdf(x: DenseVector[Float]) = {
+    if (x.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector(klBasis.map(_.eigenvalue).toArray)))
+    mvnormal.logpdf(x)
+  }
+
 
   override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
