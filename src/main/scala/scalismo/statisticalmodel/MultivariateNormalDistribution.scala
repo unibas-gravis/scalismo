@@ -77,7 +77,7 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
   override def pdf(x: DenseVector[Float]) = {
     if (x.size != dim) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $dim)")
-    val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet)
+    val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet + 1e-10)
 
     val x0 = (x - mean).map(_.toDouble)
     val exponent = -0.5f * x0.dot(covInv * x0)
@@ -86,7 +86,7 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
   override def logpdf(x: DenseVector[Float]) = {
     if (x.size != dim) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $dim)")
-    val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet)
+    val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet + 1e-10)
 
     val x0 = (x - mean).map(_.toDouble)
     val exponent = -0.5f * x0.dot(covInv * x0)
