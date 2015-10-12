@@ -16,11 +16,9 @@
 
 package scalismo.statisticalmodel
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.kernels.{ MatrixValuedPDKernel, Kernel, DiscreteMatrixValuedPDKernel }
-import scalismo.mesh.kdtree.KDTreeMap
+import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
 
 /**
  * A representation of a gaussian process, which is only defined on a discrete domain.
@@ -130,6 +128,18 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
     val mvnormal = MultivariateNormalDistribution(mean.asBreezeVector, cov.asBreezeMatrix)
     val instvec = instance.asBreezeVector
     mvnormal.pdf(instvec)
+  }
+
+
+  /**
+   * Returns the log of the probability density of the given instance
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  def logpdf(instance: DiscreteVectorField[D, DO]): Double = {
+    val mvnormal = MultivariateNormalDistribution(mean.asBreezeVector, cov.asBreezeMatrix)
+    val instvec = instance.asBreezeVector
+    mvnormal.logpdf(instvec)
   }
 
 }
