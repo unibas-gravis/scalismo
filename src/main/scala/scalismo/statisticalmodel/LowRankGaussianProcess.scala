@@ -129,7 +129,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    */
   def pdf(coefficients: DenseVector[Float]) = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank),diag(DenseVector.ones[Float](rank)))
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
     mvnormal.pdf(coefficients)
   }
 
@@ -140,7 +140,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    */
   def logpdf(coefficients: DenseVector[Float]) = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank),diag(DenseVector.ones[Float](rank)))
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
     mvnormal.logpdf(coefficients)
   }
 

@@ -15,23 +15,23 @@
  */
 package scalismo.io
 
-import java.io.{File, IOException}
+import java.io.{ File, IOException }
 
-import scalismo.common.{PointId, Scalar}
+import scalismo.common.{ PointId, Scalar }
 import scalismo.geometry._
-import scalismo.mesh.{ScalarMeshField, TriangleCell, TriangleMesh}
+import scalismo.mesh.{ ScalarMeshField, TriangleCell, TriangleMesh }
 import scalismo.utils.MeshConversion
 import vtk._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object MeshIO {
   /**
-  * Implements methods for reading and writing D-dimensional meshes
-    *
-  * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
+   * Implements methods for reading and writing D-dimensional meshes
+   *
+   * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
    *
    * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates
    * to lie in an LPS world and map them unchanged in our coordinate system.
@@ -40,7 +40,8 @@ object MeshIO {
    * mirroring magic.
    *
    *
-   * **/
+   * *
+   */
 
   def readMesh(file: File): Try[TriangleMesh] = {
     val filename = file.getAbsolutePath

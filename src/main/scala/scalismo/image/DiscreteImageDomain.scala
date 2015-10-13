@@ -89,14 +89,14 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
     if (isIndex(cidx)) Some(ptId) else None
   }
 
-  override def findClosestPoint(pt: Point[D]): (Point[D], PointId) = {
+  override def findClosestPoint(pt: Point[D]): PointWithId[D] = {
     val cidx = pointToContinuousIndex(pt)
     val idxClosestPoint = continuousIndextoIndex(cidx)
     val ptIdClosestPoint = pointId(idxClosestPoint)
-    (indexToPoint(idxClosestPoint), ptIdClosestPoint)
+    PointWithId(indexToPoint(idxClosestPoint), ptIdClosestPoint)
   }
 
-  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)] = throw new UnsupportedOperationException
+  override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = throw new UnsupportedOperationException
 
   private def continuousIndextoIndex(cidx: Vector[D]): IntVector[D] = {
     var d = 0

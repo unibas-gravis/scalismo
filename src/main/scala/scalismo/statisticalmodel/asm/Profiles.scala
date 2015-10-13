@@ -47,7 +47,7 @@ case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: Discrete
   override def values = _values.toIterator
 
   override def interpolateNearestNeighbor(): Field[D, DenseVector[Float]] = {
-    Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
+    Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
 }
 
