@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
+import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
 
 /**
  * A representation of a gaussian process, which is only defined on a discrete domain.
@@ -90,7 +90,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
     val newDomain = RealSpace[D]
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val (_, closestPtId) = domain.findClosestPoint(pt)
+      val closestPtId = domain.findClosestPoint(pt).id
       meanDiscreteGp(closestPtId)
     }
 
@@ -98,8 +98,8 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
       override val domain = newDomain
 
       override def k(pt1: Point[D], pt2: Point[D]): SquareMatrix[DO] = {
-        val (_, closestPtId1) = self.domain.findClosestPoint(pt1)
-        val (_, closestPtId2) = self.domain.findClosestPoint(pt2)
+        val closestPtId1 = self.domain.findClosestPoint(pt1).id
+        val closestPtId2 = self.domain.findClosestPoint(pt2).id
         cov(closestPtId1, closestPtId2)
       }
     }
@@ -129,7 +129,6 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
     val instvec = instance.asBreezeVector
     mvnormal.pdf(instvec)
   }
-
 
   /**
    * Returns the log of the probability density of the given instance

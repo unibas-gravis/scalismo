@@ -67,7 +67,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
    */
   def pdf(coefficients: DenseVector[Float]) = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank),diag(DenseVector.ones[Float](rank)))
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
     mvnormal.pdf(coefficients)
   }
 
@@ -199,7 +199,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     val meanPD = this.mean
 
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val (closestPt, closestPtId) = self.domain.findClosestPoint(pt)
+      val closestPtId = self.domain.findClosestPoint(pt).id
       meanPD(closestPtId)
     }
 
@@ -207,8 +207,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
       override val domain = RealSpace[D]
 
       override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-        val (closestX, xId) = self.domain.findClosestPoint(x)
-        val (closestY, yId) = self.domain.findClosestPoint(y)
+        val xId = self.domain.findClosestPoint(x).id
+        val yId = self.domain.findClosestPoint(y).id
         cov(xId, yId)
       }
     }
@@ -226,7 +226,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
     // we cache the closest point computation, as it might be heavy for general domains, and we know that
     // we will have the same oints for all the eigenfunctions
-    val findClosestPointMemo = Memoize((pt: Point[D]) => domain.findClosestPoint(pt)._2, cacheSizeHint = 1000000)
+    val findClosestPointMemo = Memoize((pt: Point[D]) => domain.findClosestPoint(pt).id, cacheSizeHint = 1000000)
 
     def meanFun(closestPointFun: Point[D] => PointId)(pt: Point[D]): Vector[DO] = {
       val closestPtId = closestPointFun(pt)

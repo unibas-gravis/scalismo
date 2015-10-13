@@ -83,9 +83,9 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh, gp: Discre
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
   def marginal(ptIds: IndexedSeq[PointId]) = {
-    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
+    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p).id) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
-    val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2).toIndexedSeq
+    val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p).id).toIndexedSeq
     if (remainingPtIds.isEmpty) {
       val newRef = TriangleMesh(ptIds.map(id => referenceMesh.point(id)), IndexedSeq[TriangleCell]())
       val marginalGP = gp.marginal(ptIds.toIndexedSeq)

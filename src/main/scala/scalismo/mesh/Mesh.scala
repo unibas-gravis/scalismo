@@ -30,11 +30,11 @@ object Mesh {
   def meshToDistanceImage(mesh: TriangleMesh): DifferentiableScalarImage[_3D] = {
 
     def dist(pt: Point[_3D]): Float = {
-      val (closestPt, _) = mesh.findClosestPoint(pt)
+      val closestPt = mesh.findClosestPoint(pt).point
       Math.sqrt(Math.pow(closestPt(0) - pt(0), 2) + Math.pow(closestPt(1) - pt(1), 2) + Math.pow(closestPt(2) - pt(2), 2)).toFloat
     }
     def grad(pt: Point[_3D]) = {
-      val (closestPt, _) = mesh.findClosestPoint(pt)
+      val closestPt = mesh.findClosestPoint(pt).point
       val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
@@ -49,7 +49,7 @@ object Mesh {
    */
   def meshToBinaryImage(mesh: TriangleMesh): ScalarImage[_3D] = {
     def inside(pt: Point[_3D]): Short = {
-      val closestMeshPt = mesh.findClosestPoint(pt)._1
+      val closestMeshPt = mesh.findClosestPoint(pt).point
       val dotprod = mesh.normalAtPoint(closestMeshPt) dot (closestMeshPt - pt)
       if (dotprod > 0.0) 1 else 0
     }
