@@ -123,10 +123,23 @@ case class UncorrelatedKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends Ma
   override def domain = kernel.domain
 }
 
-case class DiagonalKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
+trait DiagonalKernel[D <: Dim] extends MatrixValuedPDKernel[D, D]
+
+case class IsotropicDiagonalKernel[D <: Dim: NDSpace] private[kernels] (kernel: PDKernel[D]) extends DiagonalKernel[D] {
   val I = SquareMatrix.eye[D]
   def k(x: Point[D], y: Point[D]) = I * (kernel(x, y)) // k is scalar valued
   override def domain = kernel.domain
+}
+
+case class AnisotropicDiagonalKernel[D <: Dim: NDSpace] private[kernels] (kernels: IndexedSeq[PDKernel[D]]) extends DiagonalKernel[D] {
+  def k(x: Point[D], y: Point[D]) = SquareMatrix.diag(Vector(kernels.map(k => k(x, y).toFloat).toArray))
+  override def domain = kernels.map(_.domain).reduce(Domain.intersection(_, _))
+}
+
+object DiagonalKernel {
+  def apply[D <: Dim: NDSpace](kernel: PDKernel[D]): IsotropicDiagonalKernel[D] = IsotropicDiagonalKernel(kernel)
+  def apply(xKernel: PDKernel[_2D], yKernel: PDKernel[_2D]): AnisotropicDiagonalKernel[_2D] = AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel))
+  def apply(xKernel: PDKernel[_3D], yKernel: PDKernel[_3D], zKernel: PDKernel[_3D]): AnisotropicDiagonalKernel[_3D] = AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel, zKernel))
 }
 
 case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, D],

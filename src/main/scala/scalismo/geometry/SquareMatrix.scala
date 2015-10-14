@@ -171,7 +171,7 @@ object SquareMatrix {
     new SquareMatrix[D](data)
   }
 
-  def diag[D <: Dim](vector : Vector[D])(implicit ev: NDSpace[D]): SquareMatrix[D] = {
+  def diag[D <: Dim](vector: Vector[D])(implicit ev: NDSpace[D]): SquareMatrix[D] = {
     val dim = ev.dimensionality
     val data = Array.fill(dim * dim)(0f)
     for (i <- 0 until dim) {
