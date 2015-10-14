@@ -15,7 +15,7 @@
  */
 package scalismo.kernels
 
-import breeze.linalg.{ DenseVector, pinv, diag, DenseMatrix }
+import breeze.linalg.{ DenseMatrix, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.numerics.{ RandomSVD, Sampler }
@@ -117,7 +117,7 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
 
 }
 
-case class UncorrelatedKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
+case class DiagonalKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
   val I = SquareMatrix.eye[D]
   def k(x: Point[D], y: Point[D]) = I * (kernel(x, y)) // k is scalar valued
   override def domain = kernel.domain
