@@ -116,6 +116,12 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] { sel
   }
 
 }
+@deprecated("use DiagonalKernel instead", "0.10.0")
+case class UncorrelatedKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
+  val I = SquareMatrix.eye[D]
+  def k(x: Point[D], y: Point[D]) = I * (kernel(x, y)) // k is scalar valued
+  override def domain = kernel.domain
+}
 
 case class DiagonalKernel[D <: Dim: NDSpace](kernel: PDKernel[D]) extends MatrixValuedPDKernel[D, D] {
   val I = SquareMatrix.eye[D]
