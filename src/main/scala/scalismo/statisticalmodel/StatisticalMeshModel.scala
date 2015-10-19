@@ -39,7 +39,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh, gp: Discre
    * The mean shape
    * @see [[DiscreteLowRankGaussianProcess.mean]]
    */
-  def mean: TriangleMesh = warpReference(gp.mean)
+  lazy val mean: TriangleMesh = warpReference(gp.mean)
 
   /**
    * The covariance between two points of the  mesh with given point id.
