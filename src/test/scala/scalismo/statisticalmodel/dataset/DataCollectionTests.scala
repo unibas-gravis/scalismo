@@ -24,7 +24,7 @@ import scalismo.io.MeshIO
 import scalismo.kernels.{ GaussianKernel, DiagonalKernel }
 import scalismo.mesh.MeshMetrics
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.statisticalmodel.{StatisticalMeshModel, GaussianProcess}
+import scalismo.statisticalmodel.{ StatisticalMeshModel, GaussianProcess }
 
 class DataCollectionTests extends ScalismoTestSuite {
 
@@ -92,7 +92,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     val testingSet = aligendDataset.take(3)
 
     val dc = DataCollection.fromMeshSequence(ref, trainingSet)._1.get
-    val pcaModel = StatisticalMeshModel.createFromDataCollection(dc).get
+    val pcaModel = StatisticalMeshModel.createUsingPCA(dc).get
     val testDC = DataCollection.fromMeshSequence(pcaModel.referenceMesh, testingSet)._1.get
 
   }

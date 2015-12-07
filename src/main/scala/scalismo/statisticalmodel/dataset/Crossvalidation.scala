@@ -54,7 +54,7 @@ object Crossvalidation {
     val folds = dc.createCrossValidationFolds(numFolds)
     val evalResultsForFolds = for (fold <- folds) yield {
       val td = fold.trainingData
-      StatisticalMeshModel.createFromDataCollection(td).map { pcaModel =>
+      StatisticalMeshModel.createUsingPCA(td).map { pcaModel =>
         val model = if (biasModelAndRank.isDefined) StatisticalMeshModel.augmentModel(pcaModel, biasModelAndRank.get._1, biasModelAndRank.get._2) else pcaModel
         val evalResults = for (testingItem <- fold.testingData.dataItems) yield {
           val testMesh = dc.reference.transform(testingItem.transformation)

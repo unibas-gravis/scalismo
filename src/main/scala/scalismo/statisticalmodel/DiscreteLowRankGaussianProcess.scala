@@ -350,7 +350,7 @@ object DiscreteLowRankGaussianProcess {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
    *
    */
-  def createWithPCA[D <: Dim: NDSpace](domain: DiscreteDomain[D], fields: Seq[VectorField[D, D]]): DiscreteLowRankGaussianProcess[D, D] = {
+  def createUsingPCA[D <: Dim: NDSpace](domain: DiscreteDomain[D], fields: Seq[VectorField[D, D]]): DiscreteLowRankGaussianProcess[D, D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
     val n = fields.size

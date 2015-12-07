@@ -208,8 +208,8 @@ object StatisticalMeshModel {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
    *
    */
-  def createWithPCA(referenceMesh: TriangleMesh, fields: Seq[VectorField[_3D, _3D]]): StatisticalMeshModel = {
-    val dgp = DiscreteLowRankGaussianProcess.createWithPCA(referenceMesh, fields)
+  def createUsingPCA(referenceMesh: TriangleMesh, fields: Seq[VectorField[_3D, _3D]]): StatisticalMeshModel = {
+    val dgp = DiscreteLowRankGaussianProcess.createUsingPCA(referenceMesh, fields)
     new StatisticalMeshModel(referenceMesh, dgp)
   }
 
@@ -231,13 +231,13 @@ object StatisticalMeshModel {
    * Returns a PCA model with given reference mesh and a set of items in correspondence.
    * All points of the reference mesh are considered for computing the PCA
    */
-  def createFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = {
+  def createUsingPCA(dc: DataCollection): Try[StatisticalMeshModel] = {
     if (dc.size < 3) return Failure(new Throwable(s"A data collection with at least 3 transformations is required to build a PCA Model (only ${dc.size} were provided)"))
 
     val fields = dc.dataItems.map { i =>
       VectorField[_3D, _3D](i.transformation.domain, p => i.transformation(p) - p)
     }
-    Success(StatisticalMeshModel.createWithPCA(dc.reference, fields))
+    Success(createUsingPCA(dc.reference, fields))
   }
 
 }
