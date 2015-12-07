@@ -16,16 +16,13 @@
 
 package scalismo.statisticalmodel.dataset
 
-import scalismo.numerics.{ Sampler, FixedPointsUniformMeshSampler3D }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 import scalismo.geometry._
-
-import scala.util.Failure
-import scala.util.Success
 import scala.util.Try
 
 /**
- * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence
+ * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence.
+ * This object is deprecated and its methods moved to StatisticalMeshModel. The object will be removed in future versions.
  */
 @deprecated("Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.", "0.10.0")
 object PCAModel {
