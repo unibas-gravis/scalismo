@@ -347,21 +347,21 @@ object DiscreteLowRankGaussianProcess {
   }
 
   /**
-   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
+   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
    *
    */
-  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace](domain: DiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
+  def createWithPCA[D <: Dim: NDSpace](domain: DiscreteDomain[D], fields: Seq[VectorField[D, D]]): DiscreteLowRankGaussianProcess[D, D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
-    val n = transformations.size
+    val n = fields.size
     val p = domain.numberOfPoints
 
     // create the data matrix
     val X = DenseMatrix.zeros[Float](n, p * dim)
-    for (p1 <- transformations.zipWithIndex.par; p2 <- domain.pointsWithId) {
-      val (t, i) = p1
+    for (p1 <- fields.zipWithIndex.par; p2 <- domain.pointsWithId) {
+      val (f, i) = p1
       val (x, ptId) = p2
-      val ux = t(x) - x
+      val ux = f(x)
       X(i, ptId.id * dim until (ptId.id + 1) * dim) := ux.toBreezeVector.t
     }
 

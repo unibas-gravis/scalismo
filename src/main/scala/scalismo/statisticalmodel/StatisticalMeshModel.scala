@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.{ PointId, DiscreteVectorField }
+import scalismo.common.{VectorField, PointId, DiscreteVectorField}
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ Mesh, TriangleMesh }
 import scalismo.registration.{ RigidTransformation, Transformation }
@@ -204,8 +204,8 @@ object StatisticalMeshModel {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
    *
    */
-  def createStatisticalMeshModelFromTransformations(referenceMesh: TriangleMesh, transformations: Seq[Transformation[_3D]]): StatisticalMeshModel = {
-    val dgp = DiscreteLowRankGaussianProcess.createDiscreteLowRankGPFromTransformations(referenceMesh, transformations)
+  def createWithPCA(referenceMesh: TriangleMesh, fields: Seq[VectorField[_3D,_3D]]): StatisticalMeshModel = {
+    val dgp = DiscreteLowRankGaussianProcess.createWithPCA(referenceMesh, fields)
     new StatisticalMeshModel(referenceMesh, dgp)
   }
 

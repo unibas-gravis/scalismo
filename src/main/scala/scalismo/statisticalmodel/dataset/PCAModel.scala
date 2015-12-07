@@ -15,6 +15,7 @@
  */
 package scalismo.statisticalmodel.dataset
 
+import scalismo.common.VectorField
 import scalismo.numerics.{ Sampler, FixedPointsUniformMeshSampler3D }
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
 import scalismo.geometry._
@@ -50,6 +51,10 @@ object PCAModel {
    */
   def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = {
     if (dc.size < 3) return Failure(new Throwable(s"A data collection with at least 3 transformations is required to build a PCA Model (only ${dc.size} were provided)"))
-    Success(StatisticalMeshModel.createStatisticalMeshModelFromTransformations(dc.reference, dc.dataItems.map(_.transformation)))
+
+    val fields = dc.dataItems.map{ i =>
+        VectorField[_3D, _3D](i.transformation.domain, p => i.transformation(p) - p)
+    }
+    Success(StatisticalMeshModel.createWithPCA(dc.reference, fields))
   }
 }
