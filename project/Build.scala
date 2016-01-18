@@ -7,6 +7,8 @@ import com.typesafe.sbt.SbtGit.git
 
 import com.banno.license.Plugin.LicenseKeys._
 import com.banno.license.Licenses._
+import sbtbuildinfo.Plugin._
+
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
@@ -95,6 +97,12 @@ object STKBuild extends Build {
       ++ ghpages.settings ++
       Seq(
         git.remoteRepo := "git@github.com:unibas-gravis/scalismo.git"
+      )++
+      buildInfoSettings ++
+      Seq(
+      sourceGenerators in Compile <+= buildInfo,
+      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion),
+      buildInfoPackage := "scalismo"
       )
 )
   // Sub-project specific dependencies
