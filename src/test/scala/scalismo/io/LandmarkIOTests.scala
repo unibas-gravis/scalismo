@@ -91,7 +91,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
     }
 
     /*
-     * SIMPLE JSON LANDMARKS (no extensions)
+     * SIMPLE JSON LANDMARKS
      */
 
     def distWithDefaultVectors(d1: Float, d2: Float, d3: Float): NDimensionalNormalDistribution[_3D] = {
@@ -118,50 +118,5 @@ class LandmarkIOTests extends ScalismoTestSuite {
       read should equal(jsonLms)
     }
 
-    /*
-     * COMPLEX JSON LANDMARKS (with extensions)
-     * This example uses two additional (bogus) attributes: color, and visibility.
-     * For simplicity, it uses an internal case class.
-     */
-
-    import spray.json.DefaultJsonProtocol._
-    import spray.json._
-
-    case class LMData(color: Option[String], visible: Boolean)
-    implicit val LMDataProtocol = jsonFormat2(LMData)
-
-    case class TestLandmark(lm: Landmark[_3D], data: LMData)
-
-    val extLm1 = TestLandmark(jsonLm1, LMData(None, visible = false))
-    val extLm2 = TestLandmark(jsonLm2, LMData(Some("red"), visible = true))
-    val extLm2E = TestLandmark(jsonLm2, LMData(None, visible = false))
-
-    val extLms = List(extLm1, extLm2)
-    val extLmsE = List(extLm1, extLm2E)
-
-    implicit val extEncode: LandmarkIO.ExtensionEncodeFunction[_3D, TestLandmark] = { tlm => (tlm.lm, Some(Map("test.ext" -> tlm.data.toJson))) }
-    implicit val extDecode: LandmarkIO.ExtensionDecodeFunction[_3D, TestLandmark] = { (lm, json) =>
-      val data = json.map(_.get("test.ext")).flatMap(_.map(_.convertTo[LMData]))
-      TestLandmark(lm, data.getOrElse(LMData(None, visible = false)))
-    }
-
-    it("can serialize and deserialize complex landmarks using JSON") {
-      val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJsonToStream(extLms, out)
-      val read = LandmarkIO.readLandmarksJsonFromSource[_3D, TestLandmark](Source.fromBytes(out.toByteArray)).get
-      read should equal(extLms)
-    }
-
-    it("can read complex landmarks from a JSON Stream") {
-      val read = LandmarkIO.readLandmarksJsonFromSource[_3D, TestLandmark](jsonComplexStream()).get
-      read should equal(extLms)
-    }
-
-    it("can handle unexpected and missing extensions in JSON landmarks") {
-      val cs = LandmarkIO.readLandmarksJsonFromSource[_3D, TestLandmark](jsonStream()).get
-      cs should equal(extLmsE)
-      val sc = LandmarkIO.readLandmarksJsonFromSource[_3D](jsonComplexStream()).get
-      sc should equal(jsonLms)
-    }
   }
 }

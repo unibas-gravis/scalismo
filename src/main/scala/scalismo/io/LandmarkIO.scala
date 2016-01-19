@@ -29,14 +29,9 @@ import scala.util.{ Failure, Try }
 
 object LandmarkIO {
 
-  private case class ExtLandmark[D <: Dim](lm: Landmark[D], exts: Option[Map[String, JsValue]])
-
   private case class Uncertainty(stddevs: List[Float], pcvectors: List[List[Float]])
 
   private implicit val uncertaintyProtocol = jsonFormat2(Uncertainty.apply)
-
-  type ExtensionEncodeFunction[D <: Dim, A] = A => (Landmark[D], Option[Map[String, JsValue]])
-  type ExtensionDecodeFunction[D <: Dim, A] = (Landmark[D], Option[Map[String, JsValue]]) => A
 
   private implicit def u2m[D <: Dim: NDSpace](u: Uncertainty): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
@@ -53,14 +48,13 @@ object LandmarkIO {
     Uncertainty(stdDevs, pcList)
   }
 
-  private case class LandmarkJsonFormat[D <: Dim: NDSpace]() extends JsonFormat[ExtLandmark[D]] {
-    def write(l: ExtLandmark[D]) = {
-      val fixedMap = Map("id" -> JsString(l.lm.id),
-        "coordinates" -> arrayFormat[Float].write(l.lm.point.toArray))
-      val descriptionMap = l.lm.description.map { d => Map("description" -> JsString(d)) }.getOrElse(Map())
-      val uncertaintyMap = l.lm.uncertainty.map { u => Map("uncertainty" -> uncertaintyProtocol.write(u)) }.getOrElse(Map())
-      val extensionsMap = l.exts.map(e => Map("extensions" -> JsObject(e))).getOrElse(Map())
-      JsObject(fixedMap ++ descriptionMap ++ uncertaintyMap ++ extensionsMap)
+  private case class LandmarkJsonFormat[D <: Dim: NDSpace]() extends JsonFormat[Landmark[D]] {
+    def write(l: Landmark[D]) = {
+      val fixedMap = Map("id" -> JsString(l.id),
+        "coordinates" -> arrayFormat[Float].write(l.point.toArray))
+      val descriptionMap = l.description.map { d => Map("description" -> JsString(d)) }.getOrElse(Map())
+      val uncertaintyMap = l.uncertainty.map { u => Map("uncertainty" -> uncertaintyProtocol.write(u)) }.getOrElse(Map())
+      JsObject(fixedMap ++ descriptionMap ++ uncertaintyMap)
     }
 
     def read(value: JsValue) = {
@@ -69,34 +63,25 @@ object LandmarkIO {
         case _ => throw new DeserializationException("No coordinates or landmark id Found")
       }
       val description = value.asJsObject.getFields("description").headOption.map(_.convertTo[String])
-      val extensions = value.asJsObject.getFields("extensions").headOption.map(_.convertTo[Map[String, JsValue]])
       val uncertainty = value.asJsObject.getFields("uncertainty").headOption.map(_.convertTo[Uncertainty])
-      ExtLandmark(Landmark[D](id, Point[D](coordinates), description, uncertainty.map(u => u2m(u))), extensions)
+      Landmark[D](id, Point[D](coordinates), description, uncertainty.map(u => u2m(u)))
     }
   }
 
   /* Convenience methods if the "standard" landmarks are used.
    * This simply avoids having to specify the Landmark[D] type all the time.
    */
+
   def readLandmarksJson[D <: Dim: NDSpace](file: File): Try[immutable.Seq[Landmark[D]]] = {
-    readLandmarksJson[D, Landmark[D]](file)
-  }
-
-  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.Seq[Landmark[D]]] = {
-    readLandmarksJsonFromSource[D, Landmark[D]](source)
-  }
-
-  def readLandmarksJson[D <: Dim: NDSpace, A](file: File)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[immutable.Seq[A]] = {
     readLandmarksJsonFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksJsonFromSource[D <: Dim: NDSpace, A](source: Source)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[immutable.Seq[A]] = {
+  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.Seq[Landmark[D]]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
       result <- Try {
         val stringData = source.getLines().mkString("\n")
-        val extLms = JsonParser(stringData).convertTo[List[ExtLandmark[D]]]
-        extLms.map(e => extDecode(e.lm, e.exts))
+        JsonParser(stringData).convertTo[List[Landmark[D]]]
       }
       d <- Try {
         source.close()
@@ -108,9 +93,11 @@ object LandmarkIO {
   def writeLandmarksJson[D <: Dim: NDSpace](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksJson(landmarks, file)
 
   @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
-  def writeLandmarksJsonToStream[D <: Dim, A](stream: OutputStream, landmarks: immutable.Seq[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = writeLandmarksJsonToStream(landmarks, stream)
+  def writeLandmarksJsonToStream[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksJsonToStream(landmarks, stream)
 
-  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
+  def writeLandmarksJson[D <: Dim: NDSpace](landmarks: immutable.Seq[Landmark[D]], file: File): Try[Unit] = writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
+
+  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]])(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
       writer.println(landmarks.toJson.toString())
@@ -121,14 +108,9 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksJson[D <: Dim: NDSpace](landmarks: immutable.Seq[Landmark[D]], file: File): Try[Unit] = {
-    writeLandmarksJsonToStream[D, Landmark[D]](landmarks, new FileOutputStream(file))
-  }
-
-  def writeLandmarksJsonToStream[D <: Dim, A](landmarks: immutable.Seq[A], stream: OutputStream)(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
-    val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext) }
+  def writeLandmarksJsonToStream[D <: Dim: NDSpace](landmarks: immutable.Seq[Landmark[D]], stream: OutputStream): Try[Unit] = Try {
     implicit val e = LandmarkJsonFormat[D]()
-    writeLandmarksJsonToStreamP(stream, lms)
+    writeLandmarksJsonToStreamP(stream, landmarks)
   }.flatten
 
   /**
