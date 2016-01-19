@@ -23,6 +23,7 @@ import scalismo.statisticalmodel.NDimensionalNormalDistribution
 
 import scala.io.Source
 import scala.language.implicitConversions
+import scala.collection.immutable.Seq
 
 class LandmarkIOTests extends ScalismoTestSuite {
 
@@ -76,7 +77,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
       val tmpFile = File.createTempFile("landmark", "txt")
       tmpFile.deleteOnExit()
 
-      val landmarks = IndexedSeq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t => Landmark(t._1, t._2))
+      val landmarks = Seq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t => Landmark(t._1, t._2))
       LandmarkIO.writeLandmarksCsv(tmpFile, landmarks) should be a 'Success
 
       val restoredLandmarksTry = LandmarkIO.readLandmarksCsv[_3D](tmpFile)

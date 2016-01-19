@@ -78,19 +78,19 @@ object LandmarkIO {
   /* Convenience methods if the "standard" landmarks are used.
    * This simply avoids having to specify the Landmark[D] type all the time.
    */
-  def readLandmarksJson[D <: Dim: NDSpace](file: File): Try[List[Landmark[D]]] = {
+  def readLandmarksJson[D <: Dim: NDSpace](file: File): Try[immutable.Seq[Landmark[D]]] = {
     readLandmarksJson[D, Landmark[D]](file)
   }
 
-  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[List[Landmark[D]]] = {
+  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.Seq[Landmark[D]]] = {
     readLandmarksJsonFromSource[D, Landmark[D]](source)
   }
 
-  def readLandmarksJson[D <: Dim: NDSpace, A](file: File)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
+  def readLandmarksJson[D <: Dim: NDSpace, A](file: File)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[immutable.Seq[A]] = {
     readLandmarksJsonFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksJsonFromSource[D <: Dim: NDSpace, A](source: Source)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[List[A]] = {
+  def readLandmarksJsonFromSource[D <: Dim: NDSpace, A](source: Source)(implicit extDecode: ExtensionDecodeFunction[D, A]): Try[immutable.Seq[A]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
       result <- Try {
@@ -104,17 +104,17 @@ object LandmarkIO {
     } yield result
   }
 
-  def writeLandmarksJson[D <: Dim: NDSpace](file: File, landmarks: List[Landmark[D]]) = {
+  def writeLandmarksJson[D <: Dim: NDSpace](file: File, landmarks: immutable.Seq[Landmark[D]]) = {
     writeLandmarksJsonToStream[D, Landmark[D]](new FileOutputStream(file), landmarks)
   }
 
-  def writeLandmarksJsonToStream[D <: Dim, A](stream: OutputStream, landmarks: List[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
+  def writeLandmarksJsonToStream[D <: Dim, A](stream: OutputStream, landmarks: immutable.Seq[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
     val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext) }
     implicit val e = LandmarkJsonFormat[D]()
     writeLandmarksJsonToStream(stream, lms)
   }.flatten
 
-  private def writeLandmarksJsonToStream[D <: Dim: NDSpace](stream: OutputStream, landmarks: List[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonToStream[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
       writer.println(landmarks.toJson.toString())
@@ -133,18 +133,18 @@ object LandmarkIO {
    * ****************************************************************************************************************
    */
 
-  def readLandmarksCsv[D <: Dim: NDSpace](file: File): Try[immutable.IndexedSeq[Landmark[D]]] = {
+  def readLandmarksCsv[D <: Dim: NDSpace](file: File): Try[immutable.Seq[Landmark[D]]] = {
     readLandmarksCsvFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksCsvFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.IndexedSeq[Landmark[D]]] = {
+  def readLandmarksCsvFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.Seq[Landmark[D]]] = {
     val items = implicitly[NDSpace[D]].dimensionality
     for (landmarks <- readLandmarksCsvRaw(source)) yield {
       for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
     }
   }
 
-  private def readLandmarksCsvRaw(source: Source): Try[immutable.IndexedSeq[(String, Array[Float])]] = {
+  private def readLandmarksCsvRaw(source: Source): Try[immutable.Seq[(String, Array[Float])]] = {
     val result = Try {
       val landmarks = for (line <- source.getLines() if line.nonEmpty && line(0) != '#') yield {
         val elements = line.split(',')
@@ -158,11 +158,11 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksCsv[D <: Dim](file: File, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
+  def writeLandmarksCsv[D <: Dim](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = {
     writeLandmarksCsvToStream(new FileOutputStream(file), landmarks)
   }
 
-  def writeLandmarksCsvToStream[D <: Dim](stream: OutputStream, landmarks: IndexedSeq[Landmark[D]]): Try[Unit] = {
+  def writeLandmarksCsvToStream[D <: Dim](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = {
     Try {
       val out = new PrintWriter(stream, true)
       for (landmark <- landmarks) {
