@@ -78,7 +78,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
       tmpFile.deleteOnExit()
 
       val landmarks = Seq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t => Landmark(t._1, t._2))
-      LandmarkIO.writeLandmarksCsv(tmpFile, landmarks) should be a 'Success
+      LandmarkIO.writeLandmarksCsv(landmarks, tmpFile) should be a 'Success
 
       val restoredLandmarksTry = LandmarkIO.readLandmarksCsv[_3D](tmpFile)
       restoredLandmarksTry should be a 'Success
@@ -107,7 +107,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
 
     it("can serialize and deserialize simple landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJsonToStream(out, jsonLms)
+      LandmarkIO.writeLandmarksJsonToStream(jsonLms, out)
       val written = new String(out.toByteArray)
       val read = LandmarkIO.readLandmarksJsonFromSource[_3D](Source.fromString(written)).get
       read should equal(jsonLms)
@@ -147,7 +147,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
 
     it("can serialize and deserialize complex landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJsonToStream(out, extLms)
+      LandmarkIO.writeLandmarksJsonToStream(extLms, out)
       val read = LandmarkIO.readLandmarksJsonFromSource[_3D, TestLandmark](Source.fromBytes(out.toByteArray)).get
       read should equal(extLms)
     }

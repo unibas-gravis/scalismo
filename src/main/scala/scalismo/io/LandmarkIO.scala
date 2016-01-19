@@ -104,17 +104,13 @@ object LandmarkIO {
     } yield result
   }
 
-  def writeLandmarksJson[D <: Dim: NDSpace](file: File, landmarks: immutable.Seq[Landmark[D]]) = {
-    writeLandmarksJsonToStream[D, Landmark[D]](new FileOutputStream(file), landmarks)
-  }
+  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
+  def writeLandmarksJson[D <: Dim: NDSpace](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksJson(landmarks, file)
 
-  def writeLandmarksJsonToStream[D <: Dim, A](stream: OutputStream, landmarks: immutable.Seq[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
-    val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext) }
-    implicit val e = LandmarkJsonFormat[D]()
-    writeLandmarksJsonToStream(stream, lms)
-  }.flatten
+  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
+  def writeLandmarksJsonToStream[D <: Dim, A](stream: OutputStream, landmarks: immutable.Seq[A])(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = writeLandmarksJsonToStream(landmarks, stream)
 
-  private def writeLandmarksJsonToStream[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[ExtLandmark[D]])(implicit e: JsonFormat[ExtLandmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
       writer.println(landmarks.toJson.toString())
@@ -124,6 +120,16 @@ object LandmarkIO {
     }
     result
   }
+
+  def writeLandmarksJson[D <: Dim: NDSpace](landmarks: immutable.Seq[Landmark[D]], file: File): Try[Unit] = {
+    writeLandmarksJsonToStream[D, Landmark[D]](landmarks, new FileOutputStream(file))
+  }
+
+  def writeLandmarksJsonToStream[D <: Dim, A](landmarks: immutable.Seq[A], stream: OutputStream)(implicit extEncode: ExtensionEncodeFunction[D, A], ndSpace: NDSpace[D]): Try[Unit] = Try {
+    val lms = landmarks.map(extEncode).map { case (lm, ext) => ExtLandmark(lm, ext) }
+    implicit val e = LandmarkJsonFormat[D]()
+    writeLandmarksJsonToStreamP(stream, lms)
+  }.flatten
 
   /**
    * ******************************************************************************************************************
@@ -158,11 +164,17 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksCsv[D <: Dim](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = {
-    writeLandmarksCsvToStream(new FileOutputStream(file), landmarks)
+  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
+  def writeLandmarksCsv[D <: Dim](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksCsv(landmarks, file)
+
+  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
+  def writeLandmarksCsvToStream[D <: Dim](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksCsvToStream(landmarks, stream)
+
+  def writeLandmarksCsv[D <: Dim](landmarks: immutable.Seq[Landmark[D]], file: File): Try[Unit] = {
+    writeLandmarksCsvToStream(landmarks, new FileOutputStream(file))
   }
 
-  def writeLandmarksCsvToStream[D <: Dim](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = {
+  def writeLandmarksCsvToStream[D <: Dim](landmarks: immutable.Seq[Landmark[D]], stream: OutputStream): Try[Unit] = {
     Try {
       val out = new PrintWriter(stream, true)
       for (landmark <- landmarks) {
