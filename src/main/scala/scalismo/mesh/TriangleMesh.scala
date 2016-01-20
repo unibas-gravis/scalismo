@@ -83,9 +83,9 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
 
     if (u.norm < 1e-6 || v.norm < 1e-6) {
       degeneratedCellNormals.getOrElseUpdate(cell, {
-        val cellNeighbors = cell.pointIds.flatMap(id => cellsWithPointId(id)).filterNot(nbr => degeneratedCells.contains(nbr) || nbr == cell)
+        val cellNeighbors = cell.pointIds.flatMap(id => cellsWithPointId(id)).filterNot(nbr => degeneratedCells.contains(nbr) || nbr == cell).distinct
         val nbrNormals = cellNeighbors.foldLeft(Vector.zeros[_3D])((acc, nbr) => acc + computeCellNormalInternal(nbr, degeneratedCells :+ cell))
-        nbrNormals * 1 / cellNeighbors.size
+        nbrNormals * (1.0 / cellNeighbors.size)
       })
     } else {
       u.crossproduct(v)
