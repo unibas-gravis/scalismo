@@ -68,13 +68,28 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
 
   /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
   def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
+    computeCellNormalInternal(cell, Seq())
+  }
+
+  private val degeneratedCellNormals = mutable.Map[TriangleCell, Vector[_3D]]()
+
+  private def computeCellNormalInternal(cell: TriangleCell, degeneratedCells: Seq[TriangleCell]): Vector[_3D] = {
     val pt1 = meshPoints(cell.ptId1.id)
     val pt2 = meshPoints(cell.ptId2.id)
     val pt3 = meshPoints(cell.ptId3.id)
 
     val u = pt2 - pt1
     val v = pt3 - pt1
-    u.crossproduct(v)
+
+    if (u.norm < 1e-6 || v.norm < 1e-6) {
+      degeneratedCellNormals.getOrElseUpdate(cell, {
+        val cellNeighbors = cell.pointIds.flatMap(id => cellsWithPointId(id)).filterNot(nbr => degeneratedCells.contains(nbr) || nbr == cell).distinct
+        val nbrNormals = cellNeighbors.foldLeft(Vector.zeros[_3D])((acc, nbr) => acc + computeCellNormalInternal(nbr, degeneratedCells :+ cell))
+        nbrNormals * (1.0 / cellNeighbors.size)
+      })
+    } else {
+      u.crossproduct(v)
+    }
   }
 
   /**
