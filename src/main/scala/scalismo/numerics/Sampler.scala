@@ -88,7 +88,7 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
   val ptsWithDist = refmesh.points.toIndexedSeq.zipWithIndex.par
     .map {
       case (refPt, refPtId) =>
-        val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId))
+        val closestTgtPt = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
         (refPt, gp.marginal(refPt).mahalanobisDistance(closestTgtPt - refPt))
     }
 

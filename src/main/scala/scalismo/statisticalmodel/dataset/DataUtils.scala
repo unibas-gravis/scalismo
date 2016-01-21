@@ -48,7 +48,7 @@ private object DataUtils {
         override val domain = refMesh.boundingBox
         val targetPts = targetMesh.points.toIndexedSeq
         override val f = (x: Point[_3D]) => {
-          val (_, ptId) = refMesh.findClosestPoint(x)
+          val ptId = refMesh.findClosestPoint(x).id
           targetPts(ptId.id)
         }
       }

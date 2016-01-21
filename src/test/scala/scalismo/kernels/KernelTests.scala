@@ -61,7 +61,7 @@ class KernelTests extends ScalismoTestSuite {
 
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 
-      val k = UncorrelatedKernel[_3D](GaussianKernel[_3D](100.0))
+      val k = DiagonalKernel[_3D](GaussianKernel[_3D](100.0))
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
       val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, mu), k), samplerForNystromApprox, 500)
 
@@ -117,8 +117,8 @@ class KernelTests extends ScalismoTestSuite {
 
   describe("Two matrix valued kernels") {
     it("can be added and multiplied") {
-      val k1 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
-      val k2 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
+      val k1 = DiagonalKernel[_1D](GaussianKernel[_1D](1.0))
+      val k2 = DiagonalKernel[_1D](GaussianKernel[_1D](1.0))
       val ksum = k1 + k2
       val x = Point(0)
       val y = Point(1)

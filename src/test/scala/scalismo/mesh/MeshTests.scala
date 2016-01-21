@@ -39,7 +39,9 @@ class MeshTests extends ScalismoTestSuite {
     it("finds the right closest points for all the points that define the mesh") {
 
       for ((pt, id) <- facemesh.points.zipWithIndex) {
-        val (closestPt, closestId) = facemesh.findClosestPoint(pt)
+        val ptWithID = facemesh.findClosestPoint(pt)
+        val closestPt = ptWithID.point
+        val closestId = ptWithID.id
         assert(closestPt === pt)
         assert(closestId.id === id)
       }
@@ -50,7 +52,9 @@ class MeshTests extends ScalismoTestSuite {
       val mesh = TriangleMesh(pts, cells)
 
       val newPt = Point(1.1, 1.1, 4)
-      val (closestPt, closestPtId) = mesh.findClosestPoint(newPt)
+      val ptWithID = mesh.findClosestPoint(newPt)
+      val closestPt = ptWithID.point
+      val closestPtId = ptWithID.id
       assert(closestPtId.id === 2)
       assert(closestPt === pts(2))
     }

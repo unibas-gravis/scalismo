@@ -16,10 +16,9 @@
 package scalismo.common
 
 import breeze.linalg.DenseVector
-import scalismo.geometry.{ NDSpace, Dim, Vector }
+import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
+
 import scala.reflect.ClassTag
-import scalismo.geometry.NDSpace
-import scalismo.geometry.Point
 
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
@@ -74,7 +73,7 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
     other.isInstanceOf[DiscreteField[D, A]]
 
   def interpolateNearestNeighbor(): ScalarField[D, A] = {
-    ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
+    ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 
@@ -96,7 +95,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](val domain: Dis
   override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
   def interpolateNearestNeighbor(): VectorField[D, DO] = {
-    VectorField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
+    VectorField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */

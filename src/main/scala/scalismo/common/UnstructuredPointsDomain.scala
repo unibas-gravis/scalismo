@@ -18,6 +18,7 @@ package scalismo.common
 
 import scalismo.geometry._
 import scalismo.mesh.kdtree.KDTreeMap
+
 import scala.language.implicitConversions
 
 sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalismo] (pointSeq: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
@@ -32,23 +33,23 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
 
   override def isDefinedAt(pt: Point[D]) = pointIDMap.contains(pt)
 
-  override def findClosestPoint(pt: Point[D]): (Point[D], PointId) = {
+  override def findClosestPoint(pt: Point[D]): PointWithId[D] = {
 
-    def kdtreeLookup(pt: Point[D]): (Point[D], PointId) = {
+    def kdtreeLookup(pt: Point[D]): PointWithId[D] = {
       val (nearestPt, nearestInd) = kdTreeMap.findNearest(pt, n = 1).head
-      (nearestPt, PointId(nearestInd))
+      PointWithId(nearestPt, PointId(nearestInd))
     }
 
     // first we check if the point is part of the domain (i.e. we get a pointId for the point).
     // if not, we do a KDtree lookup, which is more expensive
     pointId(pt) match {
-      case Some(id) => (pt, id)
+      case Some(id) => PointWithId(pt, id)
       case None => kdtreeLookup(pt)
     }
   }
 
-  override def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)] = {
-    kdTreeMap.findNearest(pt, n).map { case (p, id) => (p, PointId(id)) }
+  override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = {
+    kdTreeMap.findNearest(pt, n).map { case (p, id) => PointWithId(p, PointId(id)) }
   }
 
   override def pointId(pt: Point[D]): Option[PointId] = {

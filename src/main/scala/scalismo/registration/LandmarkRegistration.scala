@@ -15,13 +15,10 @@
  */
 package scalismo.registration
 
-import scalismo.geometry._
 import breeze.linalg.svd.SVD
+import breeze.linalg.{ Axis, DenseMatrix, DenseVector, svd, _ }
 import breeze.stats.mean
-import breeze.linalg.{ svd, DenseVector, DenseMatrix, Axis }
-import breeze.stats.{ mean, variance }
-
-import breeze.linalg._
+import scalismo.geometry._
 
 object LandmarkRegistration {
 
@@ -64,6 +61,20 @@ object LandmarkRegistration {
 
     val rotparams = rotMatrixToEulerAngles(rotMat)
     (t, rotparams, s)
+  }
+
+  /**
+   * Returns a rigid transformation mapping the original landmarks into the target. Attention : correspondence between landmarks is
+   * inferred based on the Landmark identifier and not their order in the sequence.
+   *
+   * @param originalLms original set of landmarks to be transformed
+   * @param targetLms target landmarks to be mapped to
+   */
+
+  def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]], targetLms: Seq[Landmark[_3D]]): RigidTransformation[_3D] = {
+    val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
+    val landmarksPairs = commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
+    LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq)
   }
 
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = {

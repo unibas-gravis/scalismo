@@ -68,7 +68,7 @@ import scala.util.{ Failure, Success, Try }
  * If you wish instead to favour the qform transform, you can do so by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
  *
  *
- *''' Documentation on orientation :'''
+ * ''' Documentation on orientation :'''
  *
  * http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
  *
@@ -193,7 +193,7 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean = false, favourQform : Boolean = false): Try[DiscreteScalarImage[_3D, S]] = {
+  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean = false, favourQform: Boolean = false): Try[DiscreteScalarImage[_3D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".vtk") =>
@@ -318,7 +318,7 @@ object ImageIO {
    * The logic is based on: http://brainder.org/2012/09/23/the-nifti-file-format/
    * (section "Orientation information").
    */
-  private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume,  favourQform : Boolean): Try[DenseMatrix[Double]] = {
+  private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume, favourQform: Boolean): Try[DenseMatrix[Double]] = {
     (volume.header.qform_code, volume.header.sform_code) match {
       case (0, 0) => // Method 1
         val data = Array.fill(16)(0.0d)
@@ -334,7 +334,7 @@ object ImageIO {
         Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
       case (q, s) if s != 0 => // Method 3
         //Attention: we're by default ignoring the q value here, and solely basing the decision on s != 0, unless the user says so
-        if(favourQform)
+        if (favourQform)
           Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
         else
           Success(DenseMatrix.create(4, 4, volume.header.sformArray).t)
@@ -345,7 +345,7 @@ object ImageIO {
    * returns transformations from voxel to World coordinates and its inverse
    */
 
-  private[this] def computeNiftiWorldToVoxelTransforms(volume: FastReadOnlyNiftiVolume, favourQform : Boolean): Try[(Transformation[_3D], Transformation[_3D])] = {
+  private[this] def computeNiftiWorldToVoxelTransforms(volume: FastReadOnlyNiftiVolume, favourQform: Boolean): Try[(Transformation[_3D], Transformation[_3D])] = {
     var dim = volume.header.dim(4)
 
     if (dim == 0)

@@ -22,7 +22,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, VectorField, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
-import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel }
+import scalismo.kernels.{ GaussianKernel, DiagonalKernel }
 import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
 import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess }
 
@@ -209,7 +209,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel[_2D](GaussianKernel(50.0) * 50.0))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
       val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
@@ -238,7 +238,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel[_2D](GaussianKernel(50.0) * 50.0))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
       val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor

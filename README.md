@@ -17,7 +17,7 @@ We aim to achieve these properties by leveraging two core technologies:
 ## Documentation
 
 * [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
-* [Tutorial (Graphical Tool)](http://shapemodelling.cs.unibas.ch/tutorial.html)
+* [Tutorial (Graphical tool: Scalismo Lab)](https://github.com/unibas-gravis/scalismo/wiki/scalismoLab)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
@@ -33,9 +33,9 @@ resolvers ++= Seq(
 
 libraryDependencies  ++= Seq(
             // other dependencies here
-            "ch.unibas.cs.gravis" %% "scalismo" % "0.9.+"
+            "ch.unibas.cs.gravis" %% "scalismo" % "0.10.+"
             // scalismo depends on some native libraries, which must be added explicitly for your system
-            "ch.unibas.cs.gravis" % "scalismo-native-all" % "3.0.+" 
+            "ch.unibas.cs.gravis" % "scalismo-native-all" % "3.0.+"
 )
 ```
 
@@ -44,7 +44,7 @@ To use scalismo-ui (which is currently not open source) also add the following d
 
 ```
 libraryDependencies  ++= Seq(
-            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.5.+"
+            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.6.+"
 )
 ```
 

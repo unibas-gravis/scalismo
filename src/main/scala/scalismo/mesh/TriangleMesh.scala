@@ -99,7 +99,7 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    *  The returned vector is the normal at the closest mesh point to this point.
    */
   def normalAtPoint(pt: Point[_3D]): Vector[_3D] = {
-    val closestMeshPtId = findClosestPoint(pt)._2
+    val closestMeshPtId = findClosestPoint(pt).id
     val neighborCells = cellsWithPointId(closestMeshPtId)
     val normalUnnormalized = neighborCells.foldLeft(Vector(0f, 0f, 0f))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neighborCells.size)
     normalUnnormalized * (1.0 / normalUnnormalized.norm)

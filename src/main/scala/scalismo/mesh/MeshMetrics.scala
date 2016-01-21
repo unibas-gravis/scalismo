@@ -34,7 +34,7 @@ object MeshMetrics {
   def avgDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
 
     val dists = for (ptM1 <- m1.points) yield {
-      val (cpM2, _) = m2.findClosestPoint(ptM1)
+      val cpM2 = m2.findClosestPoint(ptM1).point
       (ptM1 - cpM2).norm
     }
     dists.sum / m1.numberOfPoints
@@ -59,7 +59,7 @@ object MeshMetrics {
   def hausdorffDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
     def allDistsBetweenMeshes(mm1: TriangleMesh, mm2: TriangleMesh): Iterator[Double] = {
       for (ptM1 <- mm1.points) yield {
-        val (cpM2, _) = mm2.findClosestPoint(ptM1)
+        val cpM2 = mm2.findClosestPoint(ptM1).point
         (ptM1 - cpM2).norm
       }
     }

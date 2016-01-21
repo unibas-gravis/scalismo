@@ -66,7 +66,9 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
     it("identifies the closest point correctly") {
       val domain = DiscreteImageDomain[_2D]((0f, 0f), (1.0f, 1.0f), (20, 20))
       def testPoint(pt: Point[_2D], correctClosestPoint: Point[_2D]) = {
-        val (closestPt, closestPtId) = domain.findClosestPoint(pt)
+        val ptWithId = domain.findClosestPoint(pt)
+        val closestPt = ptWithId.point
+        val closestPtId = ptWithId.id
         closestPt should equal(correctClosestPoint)
         closestPtId should equal(domain.pointId(closestPt).get)
         closestPtId.id should be < domain.numberOfPoints
