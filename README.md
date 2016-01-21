@@ -17,7 +17,7 @@ We aim to achieve these properties by leveraging two core technologies:
 ## Documentation
 
 * [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
-* [Scalismo Lab (Graphical tool with tutorial)](https://github.com/unibas-gravis/scalismo/wiki/scalismoLab)
+* [Tutorial (Graphical tool: Scalismo Lab)](https://github.com/unibas-gravis/scalismo/wiki/scalismoLab)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
