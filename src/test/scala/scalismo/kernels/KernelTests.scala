@@ -57,11 +57,11 @@ class KernelTests extends ScalismoTestSuite {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
-      val domain = BoxDomain[_3D](Point(-5, 1, 3), Point(100, 90, 25))
+      val domain = BoxDomain(Point(-5, 1, 3), Point(100, 90, 25))
 
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 
-      val k = UncorrelatedKernel[_3D](GaussianKernel[_3D](100.0))
+      val k = DiagonalKernel[_3D](GaussianKernel[_3D](100.0))
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
       val gp = LowRankGaussianProcess.approximateGP(GaussianProcess(VectorField(domain, mu), k), samplerForNystromApprox, 500)
 
@@ -103,8 +103,8 @@ class KernelTests extends ScalismoTestSuite {
       val k1 = GaussianKernel[_1D](1.0)
       val k2 = GaussianKernel[_1D](1.0)
       val ksum = k1 + k2
-      val x = Point(0);
-      val y = Point(1);
+      val x = Point(0)
+      val y = Point(1)
       ksum(x, y) should be(k1(x, y) + k2(x, y) +- 1e-5)
 
       val kprod = k1 * k2
@@ -117,11 +117,11 @@ class KernelTests extends ScalismoTestSuite {
 
   describe("Two matrix valued kernels") {
     it("can be added and multiplied") {
-      val k1 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
-      val k2 = UncorrelatedKernel[_1D](GaussianKernel[_1D](1.0))
+      val k1 = DiagonalKernel[_1D](GaussianKernel[_1D](1.0))
+      val k2 = DiagonalKernel[_1D](GaussianKernel[_1D](1.0))
       val ksum = k1 + k2
-      val x = Point(0);
-      val y = Point(1);
+      val x = Point(0)
+      val y = Point(1)
       ksum(x, y)(0, 0) should be((k1(x, y) + k2(x, y))(0, 0) +- 1e-5f)
 
       val kprod = k1 * k2

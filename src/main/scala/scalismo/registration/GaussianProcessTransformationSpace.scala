@@ -36,7 +36,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
 
     /**
-     * The jacobian matrix of a sample, with respect to the given parameteers.
+     * The jacobian matrix of a sample, with respect to the given parameters.
      * @param p
      * @return
      */

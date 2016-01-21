@@ -16,11 +16,11 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ *, Axis, DenseVector, DenseMatrix }
+import breeze.linalg.{ diag, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{ Point, SquareMatrix, NDSpace, Dim, Vector }
-import scalismo.kernels.{ MatrixValuedPDKernel, Kernel }
+import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
+import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
@@ -31,7 +31,6 @@ import scalismo.utils.Memoize
  * A gaussian process which is represented in terms of a (small) finite set of basis functions.
  * The basis functions are the orthonormal basis functions given by a mercers' decomposition.
  *
- * @param domain defines the set of points on which the GP is defined
  * @param mean The mean function
  * @param klBasis A set of basis functions
  * @tparam D The dimensionality of the input space
@@ -53,7 +52,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
   def instance(c: DenseVector[Float]): VectorField[D, DO] = {
     require(klBasis.size == c.size)
     val f: Point[D] => Vector[DO] = x => {
-      val deformationsAtX = (0 until klBasis.size).map(i => {
+      val deformationsAtX = klBasis.indices.map(i => {
         val Eigenpair(lambda_i, phi_i) = klBasis(i)
         phi_i(x) * c(i) * math.sqrt(lambda_i).toFloat
       })
@@ -66,7 +65,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * A random sample of the gaussian process
    */
   def sample: VectorField[D, DO] = {
-    val coeffs = for (_ <- 0 until klBasis.size) yield Gaussian(0, 1).draw().toFloat
+    val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw().toFloat
     instance(DenseVector(coeffs.toArray))
   }
 
@@ -85,7 +84,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * are subject to 0 mean Gaussian noise
    *
    * @param trainingData Point/value pairs where that the sample should approximate.
-   * @param sigma2 variance of a GAussian noise that is assumed on every training point
+   * @param sigma2 variance of a Gaussian noise that is assumed on every training point
    */
   def project(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double = 1e-6): VectorField[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
@@ -125,6 +124,26 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
     coefficients(newtd)
   }
 
+  /**
+   * Returns the probability density of the instance produced by the x coefficients
+   */
+  def pdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    mvnormal.pdf(coefficients)
+  }
+
+  /**
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  def logpdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    mvnormal.logpdf(coefficients)
+  }
+
   override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): LowRankGaussianProcess[D, DO] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
@@ -145,7 +164,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
 }
 
 /**
- * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian proceses.
+ * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
  */
 object LowRankGaussianProcess {
 
@@ -224,7 +243,7 @@ object LowRankGaussianProcess {
       Vector[DO](vec.data)
     }
 
-    val klBasis_p = for (i <- 0 until gp.klBasis.size) yield {
+    val klBasis_p = for (i <- gp.klBasis.indices) yield {
       val phipi_memo = Memoize(phip(i), 1000)
       val newEf = (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
       val newEv = innerD2(i).toFloat

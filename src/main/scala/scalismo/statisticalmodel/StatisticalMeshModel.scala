@@ -16,12 +16,16 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.{ PointId, DiscreteVectorField }
+import scalismo.common.{ VectorField, PointId, DiscreteVectorField }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ Mesh, TriangleMesh }
+import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.registration.{ RigidTransformation, Transformation }
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.mesh.TriangleCell
+import scalismo.statisticalmodel.dataset.DataCollection
+
+import scala.util.{ Success, Failure, Try }
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -30,7 +34,7 @@ import scalismo.mesh.TriangleCell
  *
  * @see [[DiscreteLowRankGaussianProcess]]
  */
-case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp: DiscreteLowRankGaussianProcess[_3D, _3D]) {
+case class StatisticalMeshModel private (referenceMesh: TriangleMesh, gp: DiscreteLowRankGaussianProcess[_3D, _3D]) {
 
   /** @see [[scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.rank]] */
   val rank = gp.rank
@@ -39,7 +43,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * The mean shape
    * @see [[DiscreteLowRankGaussianProcess.mean]]
    */
-  def mean: TriangleMesh = warpReference(gp.mean)
+  lazy val mean: TriangleMesh = warpReference(gp.mean)
 
   /**
    * The covariance between two points of the  mesh with given point id.
@@ -83,10 +87,10 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
   def marginal(ptIds: IndexedSeq[PointId]) = {
-    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p)._2) })
+    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.findClosestPoint(p).id) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
-    val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p)._2).toIndexedSeq
-    if (remainingPtIds.size == 0) {
+    val remainingPtIds = clippedReference.points.map(p => referenceMesh.findClosestPoint(p).id).toIndexedSeq
+    if (remainingPtIds.isEmpty) {
       val newRef = TriangleMesh(ptIds.map(id => referenceMesh.point(id)), IndexedSeq[TriangleCell]())
       val marginalGP = gp.marginal(ptIds.toIndexedSeq)
       StatisticalMeshModel(newRef, marginalGP)
@@ -184,7 +188,7 @@ case class StatisticalMeshModel private (val referenceMesh: TriangleMesh, val gp
 object StatisticalMeshModel {
 
   /**
-   * creates a StatisticalMeshModel by discretizign the given Gaussian Process on the points of the reference mesh.
+   * creates a StatisticalMeshModel by discretizing the given Gaussian Process on the points of the reference mesh.
    */
   def apply(referenceMesh: TriangleMesh, gp: LowRankGaussianProcess[_3D, _3D]): StatisticalMeshModel = {
     val discreteGp = DiscreteLowRankGaussianProcess(referenceMesh, gp)
@@ -204,9 +208,36 @@ object StatisticalMeshModel {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
    *
    */
-  def createStatisticalMeshModelFromTransformations(referenceMesh: TriangleMesh, transformations: Seq[Transformation[_3D]]): StatisticalMeshModel = {
-    val dgp = DiscreteLowRankGaussianProcess.createDiscreteLowRankGPFromTransformations(referenceMesh, transformations)
+  def createUsingPCA(referenceMesh: TriangleMesh, fields: Seq[VectorField[_3D, _3D]]): StatisticalMeshModel = {
+    val dgp = DiscreteLowRankGaussianProcess.createUsingPCA(referenceMesh, fields)
     new StatisticalMeshModel(referenceMesh, dgp)
+  }
+
+  /**
+   *  Adds a bias model to the given statistical shape model
+   */
+  def augmentModel(model: StatisticalMeshModel, biasModel: GaussianProcess[_3D, _3D], numBasisFunctions: Int): StatisticalMeshModel = {
+
+    val modelGP = model.gp.interpolateNearestNeighbor
+    val newMean = modelGP.mean + biasModel.mean
+    val newCov = modelGP.cov + biasModel.cov
+    val newGP = GaussianProcess(newMean, newCov)
+    val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, 2 * numBasisFunctions, 42)
+    val newLowRankGP = LowRankGaussianProcess.approximateGP(newGP, sampler, numBasisFunctions)
+    StatisticalMeshModel(model.referenceMesh, newLowRankGP)
+  }
+
+  /**
+   * Returns a PCA model with given reference mesh and a set of items in correspondence.
+   * All points of the reference mesh are considered for computing the PCA
+   */
+  def createUsingPCA(dc: DataCollection): Try[StatisticalMeshModel] = {
+    if (dc.size < 3) return Failure(new Throwable(s"A data collection with at least 3 transformations is required to build a PCA Model (only ${dc.size} were provided)"))
+
+    val fields = dc.dataItems.map { i =>
+      VectorField[_3D, _3D](i.transformation.domain, p => i.transformation(p) - p)
+    }
+    Success(createUsingPCA(dc.reference, fields))
   }
 
 }

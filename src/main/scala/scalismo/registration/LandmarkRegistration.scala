@@ -15,13 +15,10 @@
  */
 package scalismo.registration
 
-import scalismo.geometry._
 import breeze.linalg.svd.SVD
+import breeze.linalg.{ Axis, DenseMatrix, DenseVector, svd, _ }
 import breeze.stats.mean
-import breeze.linalg.{ svd, DenseVector, DenseMatrix, Axis }
-import breeze.stats.{ mean, variance }
-
-import breeze.linalg._
+import scalismo.geometry._
 
 object LandmarkRegistration {
 
@@ -66,6 +63,20 @@ object LandmarkRegistration {
     (t, rotparams, s)
   }
 
+  /**
+   * Returns a rigid transformation mapping the original landmarks into the target. Attention : correspondence between landmarks is
+   * inferred based on the Landmark identifier and not their order in the sequence.
+   *
+   * @param originalLms original set of landmarks to be transformed
+   * @param targetLms target landmarks to be mapped to
+   */
+
+  def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]], targetLms: Seq[Landmark[_3D]]): RigidTransformation[_3D] = {
+    val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
+    val landmarksPairs = commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
+    LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq)
+  }
+
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks)
     val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
@@ -76,8 +87,8 @@ object LandmarkRegistration {
   def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): ParametricTransformation[_3D] = {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, similarityFlag = true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams).map(_.toFloat), DenseVector(s.toFloat))
-    val similritySpace = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D])
-    similritySpace.transformForParameters(optimalParameters)
+    val similaritySpace = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D])
+    similaritySpace.transformForParameters(optimalParameters)
   }
 
   def rotationMatrixToAngle2D(rotMat: DenseMatrix[Double]) = {
@@ -100,8 +111,8 @@ object LandmarkRegistration {
   def similarity2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): ParametricTransformation[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, similarityFlag = true)
     val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat), DenseVector(s.toFloat))
-    val similartiySpace = RigidTransformationSpace[_2D](origin2D).product(ScalingSpace[_2D])
-    similartiySpace.transformForParameters(optimalParameters)
+    val similaritySpace = RigidTransformationSpace[_2D](origin2D).product(ScalingSpace[_2D])
+    similaritySpace.transformForParameters(optimalParameters)
   }
 
   def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): RigidTransformation[_2D] = {

@@ -26,7 +26,7 @@ import scalismo.registration.{ LandmarkRegistration, Transformation }
 import scala.annotation.tailrec
 import scala.util.Random
 
-private[dataset] case class CrossvalidationFold(val trainingData: DataCollection, val testingData: DataCollection)
+private[dataset] case class CrossvalidationFold(trainingData: DataCollection, testingData: DataCollection)
 
 /**
  * A registered item in a dataset.
@@ -37,11 +37,11 @@ private[dataset] case class CrossvalidationFold(val trainingData: DataCollection
  *  @param transformation Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
  *  This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item.
  */
-case class DataItem[D <: Dim](val info: String, val transformation: Transformation[D])
+case class DataItem[D <: Dim](info: String, transformation: Transformation[D])
 
 /**
- * Data-structure for handling a dataset of registered 3D meshes. All pre-implemeted operations such as building a
- * PCA model or performing a Generalized Procrustes Analysis require a DataColection as input
+ * Data-structure for handling a dataset of registered 3D meshes. All pre-implemented operations such as building a
+ * PCA model or performing a Generalized Procrustes Analysis require a DataCollection as input
  *
  * @param reference The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.
  * @param dataItems Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
@@ -99,7 +99,7 @@ object DataCollection {
    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
    */
   def fromMeshDirectory(referenceMesh: TriangleMesh, meshDirectory: File): (Option[DataCollection], Seq[Throwable]) = {
-    val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath().endsWith(".vtk") || fn.getAbsolutePath().endsWith(".stl"))
+    val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
     (dc, ioErrors ++ meshErrors)
@@ -108,7 +108,7 @@ object DataCollection {
   /**
    * Performs a Generalized Procrustes Analysis on the data collection.
    * This is done by repeatedly computing a new reference mesh that is the mean of all meshes in the dataset and
-   * aligining all items rigidly to the mean.
+   * aligning all items rigidly to the mean.
    * The final mean mesh will be the reference of the new data collection.
    *
    */
@@ -125,16 +125,16 @@ object DataCollection {
       (points1, points2) => points1.zip(points2).map(a => a._1 + a._2.toVector)
     }.map(Point(0, 0, 0) + _.toVector * (1.0 / nbShapes.toFloat))
 
-    val newMeanMesh = TriangleMesh(meanShapePoints.seq.toIndexedSeq, dc.reference.cells)
+    val newMeanMesh = TriangleMesh(meanShapePoints.seq, dc.reference.cells)
 
     // if the new mean is close enough to the old one return
     if (MeshMetrics.procrustesDistance(newMeanMesh, dc.reference) < haltDistance) {
       dc
     } else {
       // align all shape to it and create a transformation from the mean to the aligned shape 
-      val alignedShapesTransformations = dc.dataItems.toSeq.zip(allShapesPoints).par.map {
+      val alignedShapesTransformations = dc.dataItems.zip(allShapesPoints).par.map {
         case (item, points) =>
-          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints).toIndexedSeq)
+          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints))
           val alignedPoints = points.map(transform)
 
           val t = meanShapePoints.zip(alignedPoints).toMap

@@ -126,7 +126,7 @@ object Hdf5IOHandler {
    * The metadata is retrieved by reading the identifier and version information from attributes attached to the given group.
    * @param h5File the HDF5 file to read the metadata from.
    * @param h5Group the HDF5 Group within the file to read metadata from.
-   * @return an IO medata object, wrapped in a [[Success]], or a [[Failure]] object indicating the failure that occurred.
+   * @return an IO metadata object, wrapped in a [[Success]], or a [[Failure]] object indicating the failure that occurred.
    */
   def loadMetadata(h5File: HDF5File, h5Group: Group): Try[IOMetadata] = {
     val groupName = h5Group.getFullName

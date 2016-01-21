@@ -36,7 +36,7 @@ object ActiveShapeModel {
   def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh => Sampler[_3D]): ActiveShapeModel = {
 
     val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
-    val (_, pointIds) = sampled.map(statisticalModel.referenceMesh.findClosestPoint).unzip
+    val pointIds = sampled.map(statisticalModel.referenceMesh.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
     val imageFeatures = trainingData.flatMap {
@@ -105,7 +105,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
   }
 
   /**
-   * Returns an Active Shape Model where both the statisitical shape Model and the profile points distributions are correctly transformed
+   * Returns an Active Shape Model where both the statistical shape Model and the profile points distributions are correctly transformed
    * according to the provided rigid transformation
    *
    */

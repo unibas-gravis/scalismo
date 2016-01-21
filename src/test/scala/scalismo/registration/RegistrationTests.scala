@@ -22,7 +22,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, VectorField, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
-import scalismo.kernels.{ GaussianKernel, UncorrelatedKernel }
+import scalismo.kernels.{ GaussianKernel, DiagonalKernel }
 import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
 import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess }
 
@@ -86,9 +86,9 @@ class RegistrationTests extends ScalismoTestSuite {
 
     it("Rigid Transformation forth and back of a mesh gives the same points") {
       val inverseTrans = regResult.asInstanceOf[RigidTransformation[_3D]].inverse
-      val tranformed = mesh.transform(regResult).transform(inverseTrans)
+      val transformed = mesh.transform(regResult).transform(inverseTrans)
 
-      for ((p, i) <- tranformed.points.zipWithIndex) {
+      for ((p, i) <- transformed.points.zipWithIndex) {
         val id = PointId(i)
         p(0) should be(mesh.point(id)(0) +- 0.0001)
         p(1) should be(mesh.point(id)(1) +- 0.0001)
@@ -209,7 +209,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel[_2D](GaussianKernel(50.0) * 50.0))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
       val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
@@ -238,7 +238,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), UncorrelatedKernel[_2D](GaussianKernel(50.0) * 50.0))
+      val gp = GaussianProcess(VectorField(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel[_2D](GaussianKernel(50.0) * 50.0))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
       val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor

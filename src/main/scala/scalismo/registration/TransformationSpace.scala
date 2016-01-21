@@ -472,6 +472,14 @@ object RotationTransform {
     evCreateRot.createRotationTransform(rotMatrix, centre)
   }
 
+  /**
+   *  Factory method to create a 3-dimensional rotation transform around a center (default at origin) when
+   *  given the Euler angles
+   */
+  def apply(phi: Float, theta: Float, psi: Float, centre: Point[_3D] = Point(0, 0, 0)): RotationTransform[_3D] = {
+    val rotMatrix = RotationSpace.eulerAnglesToRotMatrix3D(DenseVector(phi, theta, psi))
+    new RotationTransform3D(rotMatrix, centre)
+  }
 }
 
 /**

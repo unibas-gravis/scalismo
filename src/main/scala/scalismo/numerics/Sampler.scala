@@ -30,7 +30,7 @@ trait Sampler[D <: Dim] {
 
   val numberOfPoints: Int
   /**
-   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probbility density function
+   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probability density function
    * according to which the points are sampled
    */
   def sample: IndexedSeq[(Point[D], Double)]
@@ -88,7 +88,7 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
   val ptsWithDist = refmesh.points.toIndexedSeq.zipWithIndex.par
     .map {
       case (refPt, refPtId) =>
-        val (closestTgtPt, _) = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId))
+        val closestTgtPt = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
         (refPt, gp.marginal(refPt).mahalanobisDistance(closestTgtPt - refPt))
     }
 

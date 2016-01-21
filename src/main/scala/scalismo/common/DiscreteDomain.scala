@@ -18,6 +18,7 @@ package scalismo.common
 import scalismo.geometry._
 
 final case class PointId(id: Int) extends AnyVal
+final case class PointWithId[D <: Dim](point: Point[D], id: PointId)
 
 trait Cell {
   def pointIds: IndexedSeq[PointId]
@@ -42,9 +43,14 @@ trait DiscreteDomain[D <: Dim] extends Equals {
 
   def point(id: PointId): Point[D]
 
-  def findClosestPoint(pt: Point[D]): (Point[D], PointId)
+  /**
+   * *
+   * Returns the point belonging to the domain that is closest to the indicated position. The point identifier
+   * within th e domain is also returned.
+   */
+  def findClosestPoint(pt: Point[D]): PointWithId[D]
 
-  def findNClosestPoints(pt: Point[D], n: Int): Seq[(Point[D], PointId)]
+  def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]]
 
   def transform(t: Point[D] => Point[D]): DiscreteDomain[D]
 

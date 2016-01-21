@@ -196,7 +196,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkVector[_3D]()
 
   def checkIndex[D <: Dim: NDSpace]() = {
-    def randomIndex(): Index[D] = Index[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextInt()))
+    def randomIndex(): IntVector[D] = IntVector[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextInt()))
     val ind = randomIndex()
 
     describe(s"A random nD Index $ind (n=${NDSpace[D].dimensionality})") {
@@ -205,7 +205,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("converts to an Array and back") {
-        Index[D](ind.toArray) should equal(ind)
+        IntVector[D](ind.toArray) should equal(ind)
       }
 
       it("converts to an Array of proper length") {
@@ -213,24 +213,24 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("converts to a Breeze vector and back") {
-        Index[D](ind.toBreezeVector.data) should equal(ind)
+        IntVector[D](ind.toBreezeVector.data) should equal(ind)
       }
 
       it("can map a constant value p.map(f) == 0 (f: x => 0)") {
-        val z = Index[D](Array.fill(NDSpace[D].dimensionality)(0))
+        val z = IntVector[D](Array.fill(NDSpace[D].dimensionality)(0))
         def f(x: Int): Int = 0
         ind.map(f) should equal(z)
       }
 
       it("can map a function p.map(f).map(g) == 0 (f: x => 2 + x, g: x => x - 2)") {
-        val z = Index[D](Array.fill(NDSpace[D].dimensionality)(0))
+        val z = IntVector[D](Array.fill(NDSpace[D].dimensionality)(0))
         val f = (x: Int) => 2 + x
         val g = (x: Int) => x - 2
         ind.map(f).map(g) should equal(ind)
       }
 
       it("can map a function using its index: p.mapWithIndex(f) == 0 (f: (v,i) => v - p(i))") {
-        val z = Index[D](Array.fill(NDSpace[D].dimensionality)(0))
+        val z = IntVector[D](Array.fill(NDSpace[D].dimensionality)(0))
         ind.mapWithIndex((v, i) => v - ind(i)) should equal(z)
       }
     }
@@ -334,12 +334,12 @@ class GeometryTests extends ScalismoTestSuite {
       }
     }
 
-    it("can be correclty initialized by a tuple") {
+    it("can be correctly initialized by a tuple") {
       val mInitFromTuple = SquareMatrix((1.1, 1.2, 1.3), (2.1, 2.2, 2.3), (3.1, 3.2, 3.3))
       mInitFromTuple should equal(m)
     }
 
-    it("should euqal another 3x3 matrix with the same values") {
+    it("equals another 3x3 matrix with the same values") {
       val m = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
       val m2 = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
       m should equal(m2)
@@ -407,7 +407,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
     }
 
-    it("fullfills some simple identities with ones,zeros and ident") {
+    it("fulfills some simple identities with ones,zeros and ident") {
       val v = Vector(1, 2, 3)
       SquareMatrix.eye[_3D] * v should equal(v)
       SquareMatrix.zeros[_3D] * v should equal(Vector(0, 0, 0))

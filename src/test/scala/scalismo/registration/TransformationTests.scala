@@ -20,7 +20,7 @@ import java.io.File
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.Index.implicits._
+import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.Vector.implicits._
 import scalismo.geometry._
@@ -214,7 +214,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     val translation = TranslationSpace[_3D].transformForParameters(translationParams)
     val rotation = RotationSpace[_3D](Point(0, 0, 0)).transformForParameters(rotationParams)
-    val anisotropicScaling = AnisotropicScalingSpace[_3D].transformForParameters(anisotropScalingParams)
+    val anisotropicScaling = AnisotropicScalingSpace[_3D]().transformForParameters(anisotropScalingParams)
 
     val p = Point(1, 1, 1)
     it("Anisotropic scaling is correctly invertible") {

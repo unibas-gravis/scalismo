@@ -26,7 +26,7 @@ import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scala.language.implicitConversions
 class StatisticalModelTests extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("A statistical model") {
 
@@ -61,13 +61,13 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
     it("can change the mean shape and still yield the same shape space") {
 
-      val path = getClass().getResource("/facemodel.h5").getPath
+      val path = getClass.getResource("/facemodel.h5").getPath
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
 
       val newMesh = model.sample
 
       def t(pt: Point[_3D]): Point[_3D] = {
-        val (refPt, ptId) = model.referenceMesh.findClosestPoint(pt)
+        val ptId = model.referenceMesh.findClosestPoint(pt).id
         newMesh.point(ptId)
       }
 

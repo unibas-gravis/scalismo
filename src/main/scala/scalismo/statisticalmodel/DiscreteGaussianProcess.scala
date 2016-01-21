@@ -16,11 +16,9 @@
 
 package scalismo.statisticalmodel
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.kernels.{ MatrixValuedPDKernel, Kernel, DiscreteMatrixValuedPDKernel }
-import scalismo.mesh.kdtree.KDTreeMap
+import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
 
 /**
  * A representation of a gaussian process, which is only defined on a discrete domain.
@@ -51,7 +49,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     val vecs = sampleVec.toArray.grouped(outputDimensionality)
-      .map(data => Vector[DO](data.map(_.toFloat)))
+      .map(data => Vector[DO](data))
       .toIndexedSeq
     DiscreteVectorField(domain, vecs)
   }
@@ -84,7 +82,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
   /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
-   * using nearest neigbor interpolation (for both mean and covariance function)
+   * using nearest neighbor interpolation (for both mean and covariance function)
    */
   def interpolateNearestNeighbor: GaussianProcess[D, DO] = {
 
@@ -92,7 +90,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
 
     val newDomain = RealSpace[D]
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val (_, closestPtId) = domain.findClosestPoint(pt)
+      val closestPtId = domain.findClosestPoint(pt).id
       meanDiscreteGp(closestPtId)
     }
 
@@ -100,8 +98,8 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
       override val domain = newDomain
 
       override def k(pt1: Point[D], pt2: Point[D]): SquareMatrix[DO] = {
-        val (_, closestPtId1) = self.domain.findClosestPoint(pt1)
-        val (_, closestPtId2) = self.domain.findClosestPoint(pt2)
+        val closestPtId1 = self.domain.findClosestPoint(pt1).id
+        val closestPtId2 = self.domain.findClosestPoint(pt2).id
         cov(closestPtId1, closestPtId2)
       }
     }
@@ -130,6 +128,17 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[sca
     val mvnormal = MultivariateNormalDistribution(mean.asBreezeVector, cov.asBreezeMatrix)
     val instvec = instance.asBreezeVector
     mvnormal.pdf(instvec)
+  }
+
+  /**
+   * Returns the log of the probability density of the given instance
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  def logpdf(instance: DiscreteVectorField[D, DO]): Double = {
+    val mvnormal = MultivariateNormalDistribution(mean.asBreezeVector, cov.asBreezeMatrix)
+    val instvec = instance.asBreezeVector
+    mvnormal.logpdf(instvec)
   }
 
 }

@@ -25,15 +25,15 @@ import scala.language.implicitConversions
 
 class IntegrationTest extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double) = d.toFloat
+  implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val domain = BoxDomain[_1D](0f, 1.0f)
+      val domain = BoxDomain(0f, 1.0f)
       val img = DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f) * x(0))
 
-      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), Index(255))
+      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), IntVector(255))
       val integrator = Integrator[_1D](GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
@@ -49,7 +49,7 @@ class IntegrationTest extends ScalismoTestSuite {
       )
 
       val numPoints = 1000
-      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), Vector(2 * math.Pi.toFloat / numPoints), Index(numPoints))
+      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), Vector(2 * math.Pi.toFloat / numPoints), IntVector(numPoints))
       val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
@@ -59,14 +59,14 @@ class IntegrationTest extends ScalismoTestSuite {
 
     it("Correctly integrates a compact function") {
 
-      val img = ScalarImage(BoxDomain[_1D](-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
+      val img = ScalarImage(BoxDomain(-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
 
-      val region1 = BoxDomain[_1D](-1.0f, 1.0f)
-      val region2 = BoxDomain[_1D](-8.0f, 8.0f)
+      val region1 = BoxDomain(-1.0f, 1.0f)
+      val region2 = BoxDomain(-8.0f, 8.0f)
 
       val numPoints = 200
-      val grid1 = DiscreteImageDomain(Point(-1.0), Vector(2.0 / numPoints), Index(numPoints))
-      val grid2 = DiscreteImageDomain(Point(-8.0), Vector(16.0 / numPoints), Index(numPoints))
+      val grid1 = DiscreteImageDomain(Point(-1.0), Vector(2.0 / numPoints), IntVector(numPoints))
+      val grid2 = DiscreteImageDomain(Point(-8.0), Vector(16.0 / numPoints), IntVector(numPoints))
       val integrator1 = Integrator(GridSampler(grid1))
       val integrator2 = Integrator(GridSampler(grid2))
       val res1 = integrator1.integrateScalar(img)

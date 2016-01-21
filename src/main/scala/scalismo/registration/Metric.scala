@@ -30,7 +30,7 @@ trait ImageMetric[D <: Dim] {
   implicit def ndSpace: NDSpace[D]
 
   /**
-   * Implmentations of this method should return the full derivations
+   * Implementations of this method should return the full derivations
    * i.e: (d/dMovingImage M(fixed,moving)(x)) * (d/dx(movingImage(transform(x))))
    */
   def takeDerivativeWRTToTransform(movingImage: DifferentiableScalarImage[D], fixedImage: ScalarImage[D], transform: Transformation[D]): Point[D] => Option[DenseVector[Float]]
@@ -40,7 +40,7 @@ trait ImageMetric[D <: Dim] {
 
 //case class MeanSquaresMetricConfiguration extends MetricConfiguration 
 
-case class MeanSquaresMetric[D <: Dim: NDSpace](val sampler: Sampler[D]) extends ImageMetric[D] {
+case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D]) extends ImageMetric[D] {
   // val configuration : MetricConfiguration
 
   override val ndSpace = implicitly[NDSpace[D]]

@@ -42,7 +42,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
     new ScalarImage(newDomain, f)
   }
 
-  /** element wise multiplcation. The domain of the new image is the intersection of the domains of the individual images*/
+  /** element wise multiplication. The domain of the new image is the intersection of the domains of the individual images*/
   def :*(that: ScalarImage[D]): ScalarImage[D] = {
     def f(x: Point[D]): Float = this.f(x) * that.f(x)
     val newDomain = Domain.intersection[D](domain, that.domain)
@@ -81,7 +81,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
-    val supportSize = Index[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
+    val supportSize = IntVector[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
 
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
@@ -103,24 +103,28 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
   }
 
   /**
-   * Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImge at the domain points.
+   * Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImage at the domain points.
    * If the image is not defined at a domain point, the outside value is used.
    */
   def sample[Pixel: Scalar: ClassTag](domain: DiscreteImageDomain[D], outsideValue: Float)(implicit ev: DiscreteScalarImage.Create[D]): DiscreteScalarImage[D, Pixel] = {
     val numeric = implicitly[Scalar[Pixel]]
+    val convertedOutsideValue = numeric.fromFloat(outsideValue)
 
-    val sampledValues = domain.points.toIterable.par.map((pt: Point[D]) => {
-      if (isDefinedAt(pt)) numeric.fromFloat(this(pt))
-      else numeric.fromFloat(outsideValue)
-    })
+    val nbChunks = Runtime.getRuntime().availableProcessors() * 2
+    val parallelArrays = domain.pointsInChunks(nbChunks).par.map { chunkIterator =>
+      chunkIterator.map(pt => {
+        if (isDefinedAt(pt)) numeric.fromFloat(f(pt))
+        else convertedOutsideValue
+      }).toArray
+    }
 
-    DiscreteScalarImage(domain, ScalarArray(sampledValues.toArray))
+    DiscreteScalarImage(domain, ScalarArray(parallelArrays.reduce(_ ++ _)))
   }
 
 }
 
 /**
- * Factory methods for createing scalar images
+ * Factory methods for creating scalar images
  */
 object ScalarImage {
 
@@ -182,7 +186,7 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
-    val supportSize = Index[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
+    val supportSize = IntVector[D]((0 until dim).map(_ => numberOfPointsPerDim).toArray)
     val origin = (supportSpacing * ((numberOfPointsPerDim - 1) * -0.5f)).toPoint
     val support = DiscreteImageDomain[D](origin, supportSpacing, supportSize)
 
@@ -211,7 +215,7 @@ object DifferentiableScalarImage {
    * creates a new differentiable image.
    *
    * @param domain the domain of the image
-   * @param f a function that yiels for each point of the domain its intensities
+   * @param f a function that yields the intensity for each point of the domain
    * @param df the derivative of the function f
    */
   def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)

@@ -13,43 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package scalismo.statisticalmodel.dataset
 
-import scalismo.numerics.{ Sampler, FixedPointsUniformMeshSampler3D }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 import scalismo.geometry._
-
-import scala.util.Failure
-import scala.util.Success
 import scala.util.Try
 
 /**
- * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence
+ * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence.
+ * This object is deprecated and its methods moved to StatisticalMeshModel. The object will be removed in future versions.
  */
+@deprecated("Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.", "0.10.0")
 object PCAModel {
-
-  type MeshSampler = Sampler[_3D]
 
   /**
    *  Adds a bias model to the given pca model
    */
+  @deprecated("Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.", "0.10.0")
   def augmentModel(pcaModel: StatisticalMeshModel, biasModel: GaussianProcess[_3D, _3D], numBasisFunctions: Int): StatisticalMeshModel = {
-
-    val modelGP = pcaModel.gp.interpolateNearestNeighbor
-    val newMean = modelGP.mean + biasModel.mean
-    val newCov = modelGP.cov + biasModel.cov
-    val newGP = GaussianProcess(newMean, newCov)
-    val sampler = FixedPointsUniformMeshSampler3D(pcaModel.referenceMesh, 2 * numBasisFunctions, 42)
-    val newLowRankGP = LowRankGaussianProcess.approximateGP(newGP, sampler, numBasisFunctions)
-    StatisticalMeshModel(pcaModel.referenceMesh, newLowRankGP)
+    StatisticalMeshModel.augmentModel(pcaModel, biasModel, numBasisFunctions)
   }
 
   /**
    * Returns a PCA model with given reference mesh and a set of items in correspondence.
    * All points of the reference mesh are considered for computing the PCA
    */
-  def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = {
-    if (dc.size < 3) return Failure(new Throwable(s"We need to have at least 3 transformations to build a PCA Model (${dc.size} provied"))
-    Success(StatisticalMeshModel.createStatisticalMeshModelFromTransformations(dc.reference, dc.dataItems.map(_.transformation)))
-  }
+  @deprecated("Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.", "0.10.0")
+  def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = StatisticalMeshModel.createUsingPCA(dc)
+
 }

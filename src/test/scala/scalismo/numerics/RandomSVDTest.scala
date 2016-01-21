@@ -19,7 +19,7 @@ import breeze.linalg.DenseMatrix
 import breeze.linalg.svd.SVD
 import scalismo.ScalismoTestSuite
 import scalismo.geometry.{ Point, _1D }
-import scalismo.kernels.{ GaussianKernel, Kernel, UncorrelatedKernel }
+import scalismo.kernels.{ GaussianKernel, Kernel, DiagonalKernel }
 
 class RandomSVDTest extends ScalismoTestSuite {
 
@@ -27,7 +27,7 @@ class RandomSVDTest extends ScalismoTestSuite {
 
     it("accurately approximates the first 10 eigenvectors and eigenvalues of a gaussian kernel matrix") {
 
-      val k = UncorrelatedKernel[_1D](GaussianKernel[_1D](100))
+      val k = DiagonalKernel[_1D](GaussianKernel[_1D](100))
       val xs = (0 until 1000).map(x => Point(x))
 
       val K = Kernel.computeKernelMatrix(xs, k)
@@ -44,7 +44,7 @@ class RandomSVDTest extends ScalismoTestSuite {
       }
     }
 
-    it("can accuratly reproduce the original matrix") {
+    it("can accurately reproduce the original matrix") {
 
       // check that the frobenius norm of the reconstruction is exact
       val R = DenseMatrix.rand(100, 100)

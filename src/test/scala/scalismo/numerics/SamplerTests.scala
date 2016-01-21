@@ -95,7 +95,7 @@ class SamplerTests extends ScalismoTestSuite {
 
         def randomArea(mesh: TriangleMesh, targetRatio: Double): (IndexedSeq[Int], Double) = {
           val cellAreas = facemesh.cells.map(facemesh.computeTriangleArea)
-          val cellIdWithArea = random.shuffle((0 until facemesh.cells.size) zip cellAreas)
+          val cellIdWithArea = random.shuffle(facemesh.cells.indices zip cellAreas)
 
           var areaRemaining = mesh.area * targetRatio
           val areaCellIds = cellIdWithArea.takeWhile {
@@ -114,9 +114,9 @@ class SamplerTests extends ScalismoTestSuite {
         val actualRatio = (facemesh.area * randomAreaSizeRatio + areaAdjust) / facemesh.area
         //println(s"actual ratio of selected areas = $actualRatio")
 
-        val numSampledPointsInArea = randomAreas.par.map(cellId => {
+        val numSampledPointsInArea = randomAreas.par.flatMap(cellId => {
           samplePoints.filter(sampledPoint => pointInCell(sampledPoint, cellId, facemesh))
-        }).flatten.toSet.size
+        }).toSet.size
 
         val expectedNumberOfPointsInArea = actualRatio * numSamplingPoints
         //        println(s"expecting ~ ${expectedNumberOfPointsInArea.round} points to be found in randomly selected cells, actual found = $numSampledPointsInArea")
@@ -140,7 +140,7 @@ class SamplerTests extends ScalismoTestSuite {
       val sampler = UniformMeshSampler3D(facemesh, 200, seed = 42)
       val pts1 = sampler.sample.map(_._1)
       val pts2 = sampler.sample.map(_._1)
-      assert((pts1 diff pts2).size > 0)
+      assert((pts1 diff pts2).nonEmpty)
     }
   }
 
@@ -149,7 +149,7 @@ class SamplerTests extends ScalismoTestSuite {
       val sampler = FixedPointsUniformMeshSampler3D(facemesh, 200, seed = 42)
       val pts1 = sampler.sample.map(_._1)
       val pts2 = sampler.sample.map(_._1)
-      assert((pts1 diff pts2).size == 0)
+      assert((pts1 diff pts2).isEmpty)
     }
   }
 

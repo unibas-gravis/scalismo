@@ -19,9 +19,6 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 
-/**
- * Created by luethi on 2/19/14.
- */
 class HDF5UtilsTests extends ScalismoTestSuite {
 
   def createTmpH5File(): File = {

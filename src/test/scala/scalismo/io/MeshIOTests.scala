@@ -25,8 +25,8 @@ class MeshIOTests extends ScalismoTestSuite {
 
   describe("MeshIO") {
 
-    it("yields the original mesh when readeing  and writing") {
-      val path = getClass().getResource("/facemesh.stl").getPath
+    it("yields the original mesh when reading  and writing") {
+      val path = getClass.getResource("/facemesh.stl").getPath
       val origMesh = MeshIO.readMesh(new File(path)).get
 
       def testWriteRead(extension: String): Unit = {

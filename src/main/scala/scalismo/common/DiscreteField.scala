@@ -16,10 +16,9 @@
 package scalismo.common
 
 import breeze.linalg.DenseVector
-import scalismo.geometry.{ NDSpace, Dim, Vector }
+import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
+
 import scala.reflect.ClassTag
-import scalismo.geometry.NDSpace
-import scalismo.geometry.Point
 
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
@@ -41,7 +40,7 @@ trait DiscreteField[D <: Dim, A] extends PartialFunction[PointId, A] { self =>
   def interpolateNearestNeighbor(): Field[D, A]
   // TODO conceptually, we should have a map here too, but it becomes tricky to
   // do since the overloaded functions will all require their own version of map
-  // Maybe a trick with CanBuildFrom and Builder, similar to the scala collectiosn would be required.
+  // Maybe a trick with CanBuildFrom and Builder, similar to the scala collections would be required.
 }
 
 /**
@@ -73,8 +72,8 @@ class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: Di
   def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, A]]
 
-  def interpolateNearestNeighbor: ScalarField[D, A] = {
-    ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
+  def interpolateNearestNeighbor(): ScalarField[D, A] = {
+    ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
   override lazy val hashCode: Int = data.hashCode() + domain.hashCode()
 
@@ -96,7 +95,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](val domain: Dis
   override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
   def interpolateNearestNeighbor(): VectorField[D, DO] = {
-    VectorField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p)._2))
+    VectorField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */

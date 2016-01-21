@@ -48,11 +48,11 @@ class HDF5File(h5file: FileFormat) {
   def readStringAttribute(path: String, attrName: String): Try[String] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
-        val metadata = s.getMetadata()
-        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName().equals(attrName))
+        val metadata = s.getMetadata
+        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName.equals(attrName))
         maybeAttr match {
           case Some(a) => {
-            Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[String]](0))
+            Success(a.asInstanceOf[Attribute].getValue.asInstanceOf[Array[String]](0))
           }
           case None => Failure(new Exception(s"Attribute $attrName not found"))
         }
@@ -67,11 +67,11 @@ class HDF5File(h5file: FileFormat) {
   def readIntAttribute(path: String, attrName: String): Try[Int] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
-        val metadata = s.getMetadata()
-        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName().equals(attrName))
+        val metadata = s.getMetadata
+        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName.equals(attrName))
         maybeAttr match {
           case Some(a) => {
-            Success(a.asInstanceOf[Attribute].getValue().asInstanceOf[Array[Int]](0))
+            Success(a.asInstanceOf[Attribute].getValue.asInstanceOf[Array[Int]](0))
           }
           case None => Failure(new Exception(s"Attribute $attrName not found"))
         }
@@ -86,8 +86,8 @@ class HDF5File(h5file: FileFormat) {
   def writeIntAttribute(path: String, attrName: String, attrValue: Int) = {
     Try {
       val s = h5file.get(path)
-      val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
-      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE);
+      val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE)
 
       val attr = new Attribute(attrName, dtype, Array(1))
       attr.setValue(Array(attrValue))
@@ -98,8 +98,8 @@ class HDF5File(h5file: FileFormat) {
   def writeStringAttribute(path: String, attrName: String, attrValue: String) = {
     Try {
       val s = h5file.get(path)
-      val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
-      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length + 1, Datatype.NATIVE, Datatype.NATIVE);
+      val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length + 1, Datatype.NATIVE, Datatype.NATIVE)
 
       val attr = new Attribute(attrName, dtype, Array(1))
       attr.setValue(Array(attrValue))
@@ -115,10 +115,10 @@ class HDF5File(h5file: FileFormat) {
         // we need to explicitly set the selectedDims to dims, in order to avoid that 
         // in the three D case only the first slice is read (bug in hdf5?)
         s.read()
-        val dims = s.getDims()
-        val selectedDims = s.getSelectedDims()
+        val dims = s.getDims
+        val selectedDims = s.getSelectedDims
         for (i <- 0 until dims.length) { selectedDims(i) = dims(i) }
-        val data = s.getData()
+        val data = s.getData
 
         Try(NDArray(dims.toIndexedSeq, data.asInstanceOf[Array[T]]))
 
@@ -205,7 +205,7 @@ class HDF5File(h5file: FileFormat) {
     groupOrFailure.map { group =>
       val dtype = h5file.createDatatype(Datatype.CLASS_STRING,
         value.length, Datatype.NATIVE, Datatype.NATIVE)
-      h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value));
+      h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value))
       Success(Unit)
     }
   }
@@ -228,8 +228,8 @@ class HDF5File(h5file: FileFormat) {
 
     groupOrFailure.map { group =>
 
-      val fileFormat: FileFormat = group.getFileFormat()
-      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE);
+      val fileFormat: FileFormat = group.getFileFormat
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE)
       Try { h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
 
     }
@@ -254,8 +254,8 @@ class HDF5File(h5file: FileFormat) {
 
     groupOrFailure.map { group =>
 
-      val fileFormat: FileFormat = group.getFileFormat()
-      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE);
+      val fileFormat: FileFormat = group.getFileFormat
+      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE)
       Try { h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
     }
 
@@ -276,7 +276,7 @@ class HDF5File(h5file: FileFormat) {
 
     val groupnames = trimmedPath.split("/", 2)
 
-    def getMember(name: String) = parent.getMemberList().find(_.getName() == name.trim())
+    def getMember(name: String) = parent.getMemberList.find(_.getName == name.trim())
 
     val newgroup = getMember(groupnames(0)) match {
       case Some(g) => g.asInstanceOf[Group]
@@ -297,15 +297,15 @@ class HDF5File(h5file: FileFormat) {
 
     val normalizedPath = absolutePath.replaceAll("//*", "/")
 
-    val root = if (h5file.getRootNode() == null)
+    val root = if (h5file.getRootNode == null)
       return Failure(new Throwable("file not correctly opened"))
     else {
-      h5file.getRootNode()
-        .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject()
+      h5file.getRootNode
+        .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject
         .asInstanceOf[Group]
     }
     if (normalizedPath.startsWith("/") == false)
-      return Failure(new Exception("relative path provieded tocreateGroup: " + absolutePath))
+      return Failure(new Exception("expected absolute path, but found relative path: " + absolutePath))
     if (absolutePath.trim == "/")
       return Success(root)
 
@@ -337,18 +337,18 @@ object HDF5Utils {
   def hdf5Version = "to be defined"
 
   def openFile(file: File, mode: FileAccessMode): Try[HDF5File] = Try {
-    val filename = file.getAbsolutePath()
+    val filename = file.getAbsolutePath
     val h5fileAccessMode = mode match {
       case READ => FileFormat.READ
       case WRITE => FileFormat.WRITE
       case CREATE => FileFormat.CREATE
     }
 
-    val fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
-    val h5file = fileFormat.createInstance(filename, h5fileAccessMode);
+    val fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
+    val h5file = fileFormat.createInstance(filename, h5fileAccessMode)
 
     if (h5file.open() == -1) {
-      throw new IOException("could not open file " + file.getAbsolutePath())
+      throw new IOException("could not open file " + file.getAbsolutePath)
     }
     new HDF5File(h5file)
   }

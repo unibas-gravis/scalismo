@@ -48,7 +48,7 @@ abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTa
   def interpolate(order: Int): DifferentiableScalarImage[D]
 
   /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolate(0)]] instead*/
-  override def interpolateNearestNeighbor: ScalarField[D, A] = {
+  override def interpolateNearestNeighbor(): ScalarField[D, A] = {
     val ev = implicitly[Scalar[A]]
     ScalarField(RealSpace[D], this.interpolate(0) andThen ev.fromFloat _)
   }
@@ -188,7 +188,7 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
         var k = k1
         while (k <= k1 + K - 1) {
           val kBC = DiscreteScalarImage.applyMirrorBoundaryCondition(k, domain.size(0))
-          val pointId = domain.pointId(Index(kBC, lBC))
+          val pointId = domain.pointId(IntVector(kBC, lBC))
           result = result + ck(pointId.id) * splineBasis(xUnit - k, yUnit - l)
           k = k + 1
         }
@@ -205,7 +205,6 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
       iterateOnPoints(x, splineBasis).toFloat
     }
     def df(x: Point[_2D]) = {
-      //derivativescalismo.
       val splineBasisD1 = (x: Double, y: Double) => (bSplineNmin1thOrder(x + 0.5f) - bSplineNmin1thOrder(x - 0.5f)) * bSplineNthOrder(y)
       val splineBasisD2 = (x: Double, y: Double) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f))
       val dfx = (iterateOnPoints(x, splineBasisD1) * (1 / domain.spacing(0))).toFloat
@@ -217,20 +216,20 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
 
   }
 
-  /* determine the b-spline coefficients for a 2D image. The coefficients are retunred
+  /* determine the b-spline coefficients for a 2D image. The coefficients are returned
   * as a DenseVector, i.e. the rows are written one after another */
   private def determineCoefficients2D[Pixel: Scalar](degree: Int, img: DiscreteScalarImage[_2D, Pixel]): Array[Float] = {
     val numeric = implicitly[Scalar[Pixel]]
     val coeffs = DenseVector.zeros[Float](img.values.size)
     var y = 0
     while (y < img.domain.size(1)) {
-      val rowValues = (0 until img.domain.size(0)).map(x => img(img.domain.pointId(Index(x, y))))
+      val rowValues = (0 until img.domain.size(0)).map(x => img(img.domain.pointId(IntVector(x, y))))
 
       // the c is an input-output argument here
       val c = rowValues.map(numeric.toFloat).toArray
       BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
 
-      val idxInCoeffs = img.domain.pointId(Index(0, y)).id
+      val idxInCoeffs = img.domain.pointId(IntVector(0, y)).id
       coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
       y = y + 1
     }
@@ -269,7 +268,7 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
           k = k1
           while (k <= k1 + K - 1) {
             val kBC = DiscreteScalarImage.applyMirrorBoundaryCondition(k, domain.size(0))
-            val pointId = domain.pointId(Index(kBC, lBC, mBC))
+            val pointId = domain.pointId(IntVector(kBC, lBC, mBC))
             result = result + ck(pointId.id) * splineBasis(xUnit - k, yUnit - l, zUnit - m)
             k = k + 1
           }
@@ -296,7 +295,8 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val dfz = (iterateOnPoints(x, splineBasisD3) * (1 / domain.spacing(2))).toFloat
       Vector(dfx, dfy, dfz)
     }
-    DifferentiableScalarImage(domain.boundingBox, f, df)
+    val bbox = domain.boundingBox
+    DifferentiableScalarImage(BoxDomain3D(bbox.origin, bbox.oppositeCorner), f, df)
 
   }
 
@@ -308,12 +308,12 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
     while (z < img.domain.size(2)) {
       y = 0
       while (y < img.domain.size(1)) {
-        val rowValues = (0 until img.domain.size(0)).map(x => img(Index(x, y, z)))
+        val rowValues = (0 until img.domain.size(0)).map(x => img(IntVector(x, y, z)))
 
         // the c is an input-output argument here
         val c = rowValues.map(numeric.toFloat).toArray
         BSplineCoefficients.getSplineInterpolationCoefficients(degree, c)
-        val idxInCoeffs = img.domain.pointId(Index(0, y, z)).id
+        val idxInCoeffs = img.domain.pointId(IntVector(0, y, z)).id
         coeffs(idxInCoeffs until idxInCoeffs + img.domain.size(0)) := DenseVector(c)
         y = y + 1
       }

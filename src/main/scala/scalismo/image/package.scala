@@ -31,7 +31,7 @@ package scalismo
  * val continuousImage = discreteImage.interpolate(3)
  * }}}
  *
- * To get back the discrete representation, we can sample the iamge values on a regular grid:
+ * To get back the discrete representation, we can sample the image values on a regular grid:
  * {{{
  *  val newDomain = DiscreteImageDomain(Point(0,0), Vector(1,1), Index(128,128))
  *  val resampledDiscreteImage = continuousImage.sample(domain, 0)

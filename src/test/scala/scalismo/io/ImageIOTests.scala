@@ -24,7 +24,7 @@ import scalismo.common.{ PointId, Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.utils.CanConvertToVtk
-import spire.math.{ UByte, UInt, ULong, UShort }
+import spire.math.{ UByte, UInt, UShort }
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
@@ -42,26 +42,6 @@ class ImageIOTests extends ScalismoTestSuite {
       ((img1.domain.spacing - img2.domain.spacing).norm < 0.01f) && (img1.domain.size == img2.domain.size)
   }
 
-  describe("A 1D scalar image") {
-    it("can be stored and read again") {
-      import scalismo.common.ScalarArray.implicits._
-      val domain = DiscreteImageDomain[_1D](Point(0), Vector(0.02f), Index(50))
-      val values = domain.points.map(x => math.sin(2 * math.Pi * x(0))).map(_.toFloat).toArray
-      val discreteImage = DiscreteScalarImage[_1D, Float](domain, values)
-
-      val tmpImgFile = File.createTempFile("image1D", ".h5")
-      tmpImgFile.deleteOnExit()
-
-      ImageIO.writeHDF5(discreteImage, tmpImgFile)
-      val restoredDiscreteImgOrFailure = ImageIO.read1DScalarImage[Float](tmpImgFile)
-
-      restoredDiscreteImgOrFailure.isSuccess should equal(true)
-      discreteImage should equal(restoredDiscreteImgOrFailure.get)
-
-      tmpImgFile.delete()
-    }
-  }
-
   private class DataReadWrite[D <: Dim: NDSpace: CanConvertToVtk] {
 
     val dim = implicitly[NDSpace[D]].dimensionality
@@ -71,13 +51,11 @@ class ImageIOTests extends ScalismoTestSuite {
         case t if t =:= typeOf[Byte] => "char"
         case t if t =:= typeOf[Short] => "short"
         case t if t =:= typeOf[Int] => "int"
-        case t if t =:= typeOf[Long] => "long"
         case t if t =:= typeOf[Float] => "float"
         case t if t =:= typeOf[Double] => "double"
         case t if t =:= typeOf[UByte] => "uchar"
         case t if t =:= typeOf[UShort] => "ushort"
         case t if t =:= typeOf[UInt] => "uint"
-        case t if t =:= typeOf[ULong] => "ulong"
         case _ => throw new NotImplementedError("" + typeOf[T])
       }
     }
@@ -139,14 +117,12 @@ class ImageIOTests extends ScalismoTestSuite {
     def run() = {
       testReadWrite[Short]()
       testReadWrite[Int]()
-      //testReadWrite[Long]()
       testReadWrite[Float]()
       testReadWrite[Double]()
       testReadWrite[Byte]()
       testReadWrite[UByte]()
       testReadWrite[UShort]()
       testReadWrite[UInt]()
-      //testReadWrite[ULong]()
     }
   }
 
@@ -178,7 +154,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
     it("can be stored to VTK and re-read in right precision") {
       import scalismo.common.ScalarArray.implicits._
-      val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), Index(15, 15, 15))
+      val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), IntVector(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
       val discreteImage = DiscreteScalarImage(domain, values)
       val f = File.createTempFile("dummy", ".vtk")
@@ -282,9 +258,9 @@ class ImageIOTests extends ScalismoTestSuite {
       }
 
       val data = (1 to 8).toArray
-      val dom2 = DiscreteImageDomain(Point(0, 0), Vector(1, 1), Index(2, 2))
+      val dom2 = DiscreteImageDomain(Point(0, 0), Vector(1, 1), IntVector(2, 2))
       val img2 = DiscreteScalarImage(dom2, ScalarArray(data.take(4)))
-      val dom3 = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), Index(2, 2, 2))
+      val dom3 = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), IntVector(2, 2, 2))
       val img3 = DiscreteScalarImage(dom3, ScalarArray(data))
 
       def imageSeq[D <: Dim: NDSpace: CanConvertToVtk](img: DiscreteScalarImage[D, Int]) = Seq(
@@ -326,13 +302,11 @@ class ImageIOTests extends ScalismoTestSuite {
             check(read[D, Byte](file), c.typeName)
             check(read[D, Short](file), c.typeName)
             check(read[D, Int](file), c.typeName)
-            //check(read[D, Long](file), c.typeName)
             check(read[D, Float](file), c.typeName)
             check(read[D, Double](file), c.typeName)
             check(read[D, UByte](file), c.typeName)
             check(read[D, UShort](file), c.typeName)
             check(read[D, UInt](file), c.typeName)
-            //check(read[D, ULong](file), c.typeName)
           }
 
           c.writeVtk(vtk) should be a 'Success

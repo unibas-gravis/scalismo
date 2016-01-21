@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ *, DenseMatrix, DenseVector }
+import breeze.linalg.{ diag, *, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry._
@@ -44,9 +44,9 @@ import scalismo.utils.Memoize
  */
 
 case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (_domain: DiscreteDomain[D],
-  val meanVector: DenseVector[Float],
-  val variance: DenseVector[Float],
-  val basisMatrix: DenseMatrix[Float])
+  meanVector: DenseVector[Float],
+  variance: DenseVector[Float],
+  basisMatrix: DenseMatrix[Float])
     extends DiscreteGaussianProcess[D, DO](DiscreteVectorField.fromDenseVector(_domain, meanVector), basisMatrixToCov(_domain, variance, basisMatrix)) {
   self =>
 
@@ -61,6 +61,38 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     val instVal = instanceVector(c)
     DiscreteVectorField.fromDenseVector(domain, instVal)
   }
+
+  /**
+   * Returns the probability density of the instance produced by the x coefficients
+   */
+  def pdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    mvnormal.pdf(coefficients)
+  }
+
+  /**
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  def logpdf(coefficients: DenseVector[Float]) = {
+    if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    mvnormal.logpdf(coefficients)
+  }
+
+  /**
+   * Returns the probability density of the given instance
+   */
+  override def pdf(instance: DiscreteVectorField[D, DO]): Double = pdf(coefficients(instance))
+
+  /**
+   * Returns the log of the probability density of the instance
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
+  override def logpdf(instance: DiscreteVectorField[D, DO]): Double = logpdf(coefficients(instance))
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
@@ -167,7 +199,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
     val meanPD = this.mean
 
     def meanFun(pt: Point[D]): Vector[DO] = {
-      val (closestPt, closestPtId) = self.domain.findClosestPoint(pt)
+      val closestPtId = self.domain.findClosestPoint(pt).id
       meanPD(closestPtId)
     }
 
@@ -175,8 +207,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
       override val domain = RealSpace[D]
 
       override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-        val (closestX, xId) = self.domain.findClosestPoint(x)
-        val (closestY, yId) = self.domain.findClosestPoint(y)
+        val xId = self.domain.findClosestPoint(x).id
+        val yId = self.domain.findClosestPoint(y).id
         cov(xId, yId)
       }
     }
@@ -194,7 +226,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
     // we cache the closest point computation, as it might be heavy for general domains, and we know that
     // we will have the same oints for all the eigenfunctions
-    val findClosestPointMemo = Memoize((pt: Point[D]) => domain.findClosestPoint(pt)._2, cacheSizeHint = 1000000)
+    val findClosestPointMemo = Memoize((pt: Point[D]) => domain.findClosestPoint(pt).id, cacheSizeHint = 1000000)
 
     def meanFun(closestPointFun: Point[D] => PointId)(pt: Point[D]): Vector[DO] = {
       val closestPtId = closestPointFun(pt)
@@ -300,7 +332,7 @@ object DiscreteLowRankGaussianProcess {
 
     val lambdas_p = DenseVector[Float](innerD2.toArray.map(_.toFloat))
 
-    // we do the follwoing computation
+    // we do the following computation
     // val eigenMatrix_p = gp.eigenMatrix * innerU // IS this correct?
     // but in parallel
     val eigenMatrix_p = DenseMatrix.zeros[Float](gp.basisMatrix.rows, innerU.cols)
@@ -315,21 +347,21 @@ object DiscreteLowRankGaussianProcess {
   }
 
   /**
-   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
+   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
    *
    */
-  def createDiscreteLowRankGPFromTransformations[D <: Dim: NDSpace](domain: DiscreteDomain[D], transformations: Seq[Transformation[D]]): DiscreteLowRankGaussianProcess[D, D] = {
+  def createUsingPCA[D <: Dim: NDSpace](domain: DiscreteDomain[D], fields: Seq[VectorField[D, D]]): DiscreteLowRankGaussianProcess[D, D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
-    val n = transformations.size
+    val n = fields.size
     val p = domain.numberOfPoints
 
     // create the data matrix
     val X = DenseMatrix.zeros[Float](n, p * dim)
-    for (p1 <- transformations.zipWithIndex.par; p2 <- domain.pointsWithId) {
-      val (t, i) = p1
+    for (p1 <- fields.zipWithIndex.par; p2 <- domain.pointsWithId) {
+      val (f, i) = p1
       val (x, ptId) = p2
-      val ux = t(x) - x
+      val ux = f(x)
       X(i, ptId.id * dim until (ptId.id + 1) * dim) := ux.toBreezeVector.t
     }
 
