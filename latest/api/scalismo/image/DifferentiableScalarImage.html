@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>DifferentiableScalarImage - scalismo.image.DifferentiableScalarImage</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -30,11 +26,7 @@
       <div id="definition">
         <a href="DifferentiableScalarImage$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.image">image</a></p>
-        <h1><a href="DifferentiableScalarImage$.html" title="Go to companion">DifferentiableScalarImage</a></h1> <span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+        <h1><a href="DifferentiableScalarImage$.html" title="Go to companion">DifferentiableScalarImage</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -50,7 +42,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A scalar image that is once differentiable
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>], <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>], (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <span class="extype" name="scala.Float">Float</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>], <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>], <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>], (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <span class="extype" name="scala.Float">Float</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -68,7 +60,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.image.DifferentiableScalarImage"><span>DifferentiableScalarImage</span></li><li class="in" name="scalismo.image.ScalarImage"><span>ScalarImage</span></li><li class="in" name="scalismo.common.Field"><span>Field</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.image.DifferentiableScalarImage"><span>DifferentiableScalarImage</span></li><li class="in" name="scalismo.image.ScalarImage"><span>ScalarImage</span></li><li class="in" name="scalismo.common.ScalarField"><span>ScalarField</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scalismo.common.Field"><span>Field</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -99,11 +91,7 @@
       <span class="symbol">
         <span class="name">DifferentiableScalarImage</span><span class="params">(<span name="_domain">_domain: <a href="../common/Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>, <span name="_f">_f: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <span class="extype" name="scala.Float">Float</span></span>, <span name="df">df: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@&lt;init&gt;(_domain:scalismo.common.Domain[D],_f:scalismo.geometry.Point[D]=&gt;Float,df:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Vector[D])(implicitevidence$5:scalismo.geometry.NDSpace[D]):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -115,6 +103,19 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -125,12 +126,8 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -142,11 +139,7 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.image.DifferentiableScalarImage#*" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="*(s:Double):scalismo.image.DifferentiableScalarImage[D]"></a>
@@ -159,12 +152,8 @@
       <span class="symbol">
         <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@*(s:Double):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">scalar multiplication of an image</p><div class="fullcomment"><div class="comment cmt"><p>scalar multiplication of an image</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a> → <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">scalar multiplication of an image</p><div class="fullcomment"><div class="comment cmt"><p>scalar multiplication of an image</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a> → <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a> → <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a></dd></dl></div>
     </li><li name="scalismo.image.DifferentiableScalarImage#+" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="+(that:scalismo.image.DifferentiableScalarImage[D]):scalismo.image.DifferentiableScalarImage[D]"></a>
       <a id="+(DifferentiableScalarImage[D]):DifferentiableScalarImage[D]"></a>
@@ -176,11 +165,7 @@
       <span class="symbol">
         <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@+(that:scalismo.image.DifferentiableScalarImage[D]):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.image.ScalarImage#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="+(that:scalismo.image.ScalarImage[D]):scalismo.image.ScalarImage[D]"></a>
@@ -193,12 +178,21 @@
       <span class="symbol">
         <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@+(that:scalismo.image.ScalarImage[D]):scalismo.image.ScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">adds two images.</p><div class="fullcomment"><div class="comment cmt"><p>adds two images. The domain of the new image is the intersection of both</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
+    </li><li name="scalismo.common.ScalarField#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="+(that:scalismo.common.ScalarField[D,A]):scalismo.common.ScalarField[D,A]"></a>
+      <a id="+(ScalarField[D,Float]):ScalarField[D,Float]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>)</span><span class="result">: <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">adds two images.</p><div class="fullcomment"><div class="comment cmt"><p>adds two images. The domain of the new image is the intersection of both</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a></dd></dl></div>
     </li><li name="scalismo.image.DifferentiableScalarImage#-" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="-(that:scalismo.image.DifferentiableScalarImage[D]):scalismo.image.DifferentiableScalarImage[D]"></a>
       <a id="-(DifferentiableScalarImage[D]):DifferentiableScalarImage[D]"></a>
@@ -210,11 +204,7 @@
       <span class="symbol">
         <span title="gt4s: $minus" class="name">-</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@-(that:scalismo.image.DifferentiableScalarImage[D]):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.image.ScalarImage#-" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="-(that:scalismo.image.ScalarImage[D]):scalismo.image.ScalarImage[D]"></a>
@@ -227,12 +217,21 @@
       <span class="symbol">
         <span title="gt4s: $minus" class="name">-</span><span class="params">(<span name="that">that: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@-(that:scalismo.image.ScalarImage[D]):scalismo.image.ScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">subtract two images.</p><div class="fullcomment"><div class="comment cmt"><p>subtract two images. The domain of the new image is the intersection of the domains of the individual images</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
+    </li><li name="scalismo.common.ScalarField#-" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="-(that:scalismo.common.ScalarField[D,A]):scalismo.common.ScalarField[D,A]"></a>
+      <a id="-(ScalarField[D,Float]):ScalarField[D,Float]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $minus" class="name">-</span><span class="params">(<span name="that">that: <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>)</span><span class="result">: <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">subtract two images.</p><div class="fullcomment"><div class="comment cmt"><p>subtract two images. The domain of the new image is the intersection of the domains of the individual images</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a></dd></dl></div>
     </li><li name="scalismo.image.DifferentiableScalarImage#:*" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id=":*(that:scalismo.image.DifferentiableScalarImage[D]):scalismo.image.DifferentiableScalarImage[D]"></a>
       <a id=":*(DifferentiableScalarImage[D]):DifferentiableScalarImage[D]"></a>
@@ -244,11 +243,7 @@
       <span class="symbol">
         <span title="gt4s: $colon$times" class="name">:*</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@:*(that:scalismo.image.DifferentiableScalarImage[D]):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.image.ScalarImage#:*" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id=":*(that:scalismo.image.ScalarImage[D]):scalismo.image.ScalarImage[D]"></a>
@@ -261,13 +256,22 @@
       <span class="symbol">
         <span title="gt4s: $colon$times" class="name">:*</span><span class="params">(<span name="that">that: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@:*(that:scalismo.image.ScalarImage[D]):scalismo.image.ScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">element wise multiplcation.</p><div class="fullcomment"><div class="comment cmt"><p>element wise multiplcation. The domain of the new image is the intersection of the domains of the individual images</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">element wise multiplication.</p><div class="fullcomment"><div class="comment cmt"><p>element wise multiplication. The domain of the new image is the intersection of the domains of the individual images</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -278,12 +282,8 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.image.ScalarImage#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen(g:Float=&gt;Float):scalismo.image.ScalarImage[D]"></a>
       <a id="andThen((Float)⇒Float):ScalarImage[D]"></a>
@@ -295,11 +295,7 @@
       <span class="symbol">
         <span class="name">andThen</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Float">Float</span>) ⇒ <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@andThen(g:Float=&gt;Float):scalismo.image.ScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">applies the given function to the image values</p><div class="fullcomment"><div class="comment cmt"><p>applies the given function to the image values</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
     </li><li name="scala.Function1#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen[A](g:R=&gt;A):T1=&gt;A"></a>
@@ -312,11 +308,7 @@
       <span class="symbol">
         <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Float">Float</span>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@andThen[A](g:R=&gt;A):T1=&gt;A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
@@ -332,11 +324,7 @@
       <span class="symbol">
         <span class="name">apply</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@apply(x:scalismo.geometry.Point[D]):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">The value of the image at a given point.</p><div class="fullcomment"><div class="comment cmt"><p>The value of the image at a given point.
 if an image is accessed outside of its definition, an exception is thrown
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a> → Function1</dd></dl></div>
@@ -351,11 +339,7 @@ if an image is accessed outside of its definition, an exception is thrown
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -368,11 +352,7 @@ if an image is accessed outside of its definition, an exception is thrown
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -391,11 +371,7 @@ if an image is accessed outside of its definition, an exception is thrown
       <span class="symbol">
         <span class="name">compose</span><span class="params">(<span name="t">t: <a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>] with <a href="../registration/CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@compose(t:scalismo.registration.Transformation[D]withscalismo.registration.CanDifferentiate[D]):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.image.ScalarImage#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose(t:scalismo.registration.Transformation[D]):scalismo.image.ScalarImage[D]"></a>
@@ -408,12 +384,8 @@ if an image is accessed outside of its definition, an exception is thrown
       <span class="symbol">
         <span class="name">compose</span><span class="params">(<span name="t">t: <a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@compose(t:scalismo.registration.Transformation[D]):scalismo.image.ScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">composes (i.e.</p><div class="fullcomment"><div class="comment cmt"><p>composes (i.e. warp) an image with a transformation.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">composes (i.</p><div class="fullcomment"><div class="comment cmt"><p>composes (i.e. warp) an image with a transformation.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
     </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a>
       <a id="compose[A]((A)⇒Point[D]):(A)⇒Float"></a>
@@ -425,31 +397,23 @@ if an image is accessed outside of its definition, an exception is thrown
       <span class="symbol">
         <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@compose[A](g:A=&gt;T1):A=&gt;R" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="scalismo.image.DifferentiableScalarImage#convolve" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="convolve(filter:scalismo.image.filter.Filter[D],numberOfPointsPerDim:Int)(implicitc:scalismo.image.DiscreteImageDomain.CanCreate[D]):scalismo.image.DifferentiableScalarImage[D]"></a>
-      <a id="convolve(Filter[D],Int)(CanCreate[D]):DifferentiableScalarImage[D]"></a>
+      <a id="convolve(filter:scalismo.image.filter.Filter[D],numberOfPointsPerDim:Int)(implicitc:scalismo.image.CreateDiscreteImageDomain[D]):scalismo.image.DifferentiableScalarImage[D]"></a>
+      <a id="convolve(Filter[D],Int)(CreateDiscreteImageDomain[D]):DifferentiableScalarImage[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">convolve</span><span class="params">(<span name="filter">filter: <a href="filter/Filter.html" class="extype" name="scalismo.image.filter.Filter">Filter</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>, <span name="numberOfPointsPerDim">numberOfPointsPerDim: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="c">c: <a href="DiscreteImageDomain$$CanCreate.html" class="extype" name="scalismo.image.DiscreteImageDomain.CanCreate">CanCreate</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
+        <span class="name">convolve</span><span class="params">(<span name="filter">filter: <a href="filter/Filter.html" class="extype" name="scalismo.image.filter.Filter">Filter</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>, <span name="numberOfPointsPerDim">numberOfPointsPerDim: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="c">c: <a href="CreateDiscreteImageDomain.html" class="extype" name="scalismo.image.CreateDiscreteImageDomain">CreateDiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@convolve(filter:scalismo.image.filter.Filter[D],numberOfPointsPerDim:Int)(implicitc:scalismo.image.DiscreteImageDomain.CanCreate[D]):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Convolution of an image with a given filter.</p><div class="fullcomment"><div class="comment cmt"><p>Convolution of an image with a given filter. The convolution is carried out by
 numerical integration, using the given number of points elevated to the power of dimensionality as an approximation.
 </p></div><dl class="paramcmts block"><dt class="param">filter</dt><dd class="cmt"><p>Filter to be used in the convolution.</p></dd><dt class="param">numberOfPointsPerDim</dt><dd class="cmt"><p>Number of points to be used to approximate the filter. Depending on the
@@ -466,11 +430,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">df</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@df:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Vector[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.image.DifferentiableScalarImage#differentiate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="differentiate:scalismo.common.VectorField[D,D]"></a>
@@ -483,11 +443,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">differentiate</span><span class="result">: <a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@differentiate:scalismo.common.VectorField[D,D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.image.ScalarImage#domain" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="domain:scalismo.common.Domain[D]"></a>
@@ -500,12 +456,8 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">domain</span><span class="result">: <a href="../common/Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@domain:scalismo.common.Domain[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">The domain on which the image is defined</p><div class="fullcomment"><div class="comment cmt"><p>The domain on which the image is defined</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">The domain on which the image is defined</p><div class="fullcomment"><div class="comment cmt"><p>The domain on which the image is defined</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a> → <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -517,29 +469,21 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
+    </li><li name="scalismo.common.ScalarField#ev" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ev:scalismo.common.Scalar[A]"></a>
+      <a id="ev:Scalar[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">ev</span><span class="result">: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a></dd></dl></div>
     </li><li name="scalismo.image.ScalarImage#f" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="f:scalismo.geometry.Point[D]=&gt;Float"></a>
       <a id="f:(Point[D])⇒Float"></a>
@@ -551,12 +495,8 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">f</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@f:scalismo.geometry.Point[D]=&gt;Float" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">a function that defines the image values.</p><div class="fullcomment"><div class="comment cmt"><p>a function that defines the image values. It must be defined on the full domain</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">a function that defines the image values.</p><div class="fullcomment"><div class="comment cmt"><p>a function that defines the image values. It must be defined on the full domain</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a> → <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -568,11 +508,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -591,28 +527,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.common.Field#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isDefinedAt(pt:scalismo.geometry.Point[D]):Boolean"></a>
@@ -625,11 +540,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">isDefinedAt</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@isDefinedAt(pt:scalismo.geometry.Point[D]):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">True if the image is defined at the given point</p><div class="fullcomment"><div class="comment cmt"><p>True if the image is defined at the given point</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -642,11 +553,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.common.Field#liftValues" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="liftValues:scalismo.geometry.Point[D]=&gt;Option[A]"></a>
@@ -659,11 +566,7 @@ support size of the filter and the Frequency of the image, increasing this value
       <span class="symbol">
         <span class="name">liftValues</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@liftValues:scalismo.geometry.Point[D]=&gt;Option[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Lifts the definition of the value function such that it is defined everywhere,
 but yields none if the value is outside of the domain
 </p><div class="fullcomment"><div class="comment cmt"><p>Lifts the definition of the value function such that it is defined everywhere,
@@ -680,11 +583,7 @@ but yields none if the value is outside of the domain
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -697,11 +596,7 @@ but yields none if the value is outside of the domain
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -714,29 +609,21 @@ but yields none if the value is outside of the domain
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.image.ScalarImage#sample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="sample[Pixel](domain:scalismo.image.DiscreteImageDomain[D],outsideValue:Double)(implicitevidence$2:spire.math.Numeric[Pixel],implicitevidence$3:scala.reflect.ClassTag[Pixel]):scalismo.image.DiscreteScalarImage[D,Pixel]"></a>
-      <a id="sample[Pixel](DiscreteImageDomain[D],Double)(Numeric[Pixel],ClassTag[Pixel]):DiscreteScalarImage[D,Pixel]"></a>
+      <a id="sample[Pixel](domain:scalismo.image.DiscreteImageDomain[D],outsideValue:Float)(implicitevidence$2:scalismo.common.Scalar[Pixel],implicitevidence$3:scala.reflect.ClassTag[Pixel],implicitev:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,Pixel]"></a>
+      <a id="sample[Pixel](DiscreteImageDomain[D],Float)(Scalar[Pixel],ClassTag[Pixel],Create[D]):DiscreteScalarImage[D,Pixel]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sample</span><span class="tparams">[<span name="Pixel">Pixel</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>, <span name="outsideValue">outsideValue: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="spire.math.Numeric">Numeric</span>[<span class="extype" name="scalismo.image.ScalarImage.sample.Pixel">Pixel</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.ScalarImage.sample.Pixel">Pixel</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scalismo.image.ScalarImage.sample.Pixel">Pixel</span>]</span>
+        <span class="name">sample</span><span class="tparams">[<span name="Pixel">Pixel</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>, <span name="outsideValue">outsideValue: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.ScalarImage.sample.Pixel">Pixel</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.ScalarImage.sample.Pixel">Pixel</span>]</span>, <span name="ev">ev: <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scalismo.image.ScalarImage.sample.Pixel">Pixel</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@sample[Pixel](domain:scalismo.image.DiscreteImageDomain[D],outsideValue:Double)(implicitevidence$2:spire.math.Numeric[Pixel],implicitevidence$3:scala.reflect.ClassTag[Pixel]):scalismo.image.DiscreteScalarImage[D,Pixel]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImge at the domain points.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImge at the domain points.
+      </h4>
+      <p class="shortcomment cmt">Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImage at the domain points.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImage at the domain points.
 If the image is not defined at a domain point, the outside value is used.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -750,11 +637,7 @@ If the image is not defined at a domain point, the outside value is used.
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.Function1#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -767,11 +650,7 @@ If the image is not defined at a domain point, the outside value is used.
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -784,11 +663,7 @@ If the image is not defined at a domain point, the outside value is used.
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -807,11 +682,7 @@ If the image is not defined at a domain point, the outside value is used.
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -830,11 +701,7 @@ If the image is not defined at a domain point, the outside value is used.
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DifferentiableScalarImage@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -853,6 +720,16 @@ If the image is not defined at a domain point, the outside value is used.
         <div id="inheritedMembers">
         <div class="parent" name="scalismo.image.ScalarImage">
               <h3>Inherited from <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</h3>
+            </div><div class="parent" name="scalismo.common.ScalarField">
+              <h3>Inherited from <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</h3>
+            </div><div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="scalismo.common.Field">
               <h3>Inherited from <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</h3>
             </div><div class="parent" name="scala.Function1">
@@ -877,7 +754,6 @@ If the image is not defined at a domain point, the outside value is used.
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

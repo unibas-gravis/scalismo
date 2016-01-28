@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>dataset - scalismo.statisticalmodel.dataset</title>
@@ -8,11 +9,6 @@
           
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../index.html';
@@ -30,11 +26,7 @@
       <div id="definition">
         <img src="../../../lib/package_big.png" />
         <p id="owner"><a href="../../package.html" class="extype" name="scalismo">scalismo</a>.<a href="../package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></p>
-        <h1>dataset</h1> <span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
+        <h1>dataset</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -89,7 +81,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scalismo.statisticalmodel.dataset.DataCollection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="scalismo.statisticalmodel.dataset.DataCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DataCollectionextendsProductwithSerializable"></a>
       <a id="DataCollection:DataCollection"></a>
       <h4 class="signature">
@@ -100,17 +92,9 @@
       <span class="symbol">
         <a href="DataCollection.html"><span class="name">DataCollection</span></a><span class="params">(<span name="reference">reference: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="dataItems">dataItems: <span class="extype" name="scala.Seq">Seq</span>[<a href="DataItem.html" class="extype" name="scalismo.statisticalmodel.dataset.DataItem">DataItem</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@DataCollectionextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Data-structure for handling a dataset of registered 3D meshes.</p><div class="fullcomment"><div class="comment cmt"><p>Data-structure for handling a dataset of registered 3D meshes. All pre-implemeted operations such as building a
-PCA model or performing a Generalized Procrustes Analysis require a DataColection as input
-</p></div><dl class="paramcmts block"><dt class="param">reference</dt><dd class="cmt"><p>The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.</p></dd><dt class="param">dataItems</dt><dd class="cmt"><p>Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
-other elements of the dataset.
-</p></dd></dl></div>
-    </li><li name="scalismo.statisticalmodel.dataset.DataItem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Data-structure for handling a dataset of registered 3D meshes.</p>
+    </li><li name="scalismo.statisticalmodel.dataset.DataItem" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DataItem[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable"></a>
       <a id="DataItem[D&lt;:Dim]:DataItem[D]"></a>
       <h4 class="signature">
@@ -121,17 +105,8 @@ other elements of the dataset.
       <span class="symbol">
         <a href="DataItem.html"><span class="name">DataItem</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="transformation">transformation: <a href="../../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.statisticalmodel.dataset.DataItem.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@DataItem[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A registered item in a dataset.</p><div class="fullcomment"><div class="comment cmt"><p>A registered item in a dataset.
-</p></div><dl class="paramcmts block"><dt class="param">info</dt><dd class="cmt"><p>A human-readable description of the processing the data item went through. Current implemented methods on data collections,
- such as <a href="DataCollection$.html#gpa(dc:scalismo.statisticalmodel.dataset.DataCollection,maxIteration:Int,haltDistance:Double):scalismo.statisticalmodel.dataset.DataCollection" class="extmbr" name="scalismo.statisticalmodel.dataset.DataCollection#gpa">DataCollection.gpa</a> will increment this description
-</p></dd><dt class="param">transformation</dt><dd class="cmt"><p>Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
- This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item.
-</p></dd></dl></div>
+      </h4>
+      <p class="comment cmt">A registered item in a dataset.</p>
     </li></ol>
             </div>
 
@@ -150,12 +125,8 @@ other elements of the dataset.
       <span class="symbol">
         <a href="Crossvalidation$.html"><span class="name">Crossvalidation</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@Crossvalidation" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implements utility functions for evaluating the quality of a registered dataset
+      </h4>
+      <p class="comment cmt">Implements utility functions for evaluating the quality of a registered dataset
 </p>
     </li><li name="scalismo.statisticalmodel.dataset.DataCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DataCollection"></a>
@@ -168,14 +139,31 @@ other elements of the dataset.
       <span class="symbol">
         <a href="DataCollection$.html"><span class="name">DataCollection</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@DataCollection" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implements utility functions on <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instances
+      </h4>
+      <p class="comment cmt">Implements utility functions on <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instances
 </p>
-    </li><li name="scalismo.statisticalmodel.dataset.PCAModel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="scalismo.statisticalmodel.dataset.ModelMetrics" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ModelMetrics"></a>
+      <a id="ModelMetrics:ModelMetrics"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ModelMetrics$.html"><span class="name">ModelMetrics</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Implements utility functions for evaluating the quality of a <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a>
+</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scalismo.statisticalmodel.dataset.PCAModel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PCAModel"></a>
       <a id="PCAModel:PCAModel"></a>
       <h4 class="signature">
@@ -184,21 +172,12 @@ other elements of the dataset.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="PCAModel$.html"><span class="name">PCAModel</span></a>
+        <a href="PCAModel$.html"><span class="name deprecated" title="Deprecated: (Since version 0.10.0) Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.">PCAModel</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@PCAModel" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implements utility functions for building a <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a> from a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> containing a reference and items in correspondence
-</p>
+      </h4>
+      <p class="comment cmt">Implements utility functions for building a <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a> from a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> containing a reference and items in correspondence.</p>
     </li></ol>
             </div>
-
-        
-
-        
         </div>
 
         <div id="inheritedMembers">
@@ -222,7 +201,6 @@ other elements of the dataset.
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
     </body>
       </html>

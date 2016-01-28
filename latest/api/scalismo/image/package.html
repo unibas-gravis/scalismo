@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>image - scalismo.image</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -30,11 +26,7 @@
       <div id="definition">
         <img src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
-        <h1>image</h1> <span class="permalink">
-      <a href="../../index.html#scalismo.image.package" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+        <h1>image</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -53,7 +45,7 @@ of images is much more flexible and most method for manipulating images are defi
 A discrete image can be converted to a continuous image by using an interpolation procedure:</p><pre><span class="kw">val</span> domain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">255</span>,<span class="num">255</span>))
 <span class="kw">val</span> di = DiscreteScalarImage(domain)(<span class="num">0</span>)
 <span class="kw">val</span> discreteImage =  DiscreteScalarImage(domain, (_ : Point[_2D]) <span class="kw">=&gt;</span> <span class="num">1.0</span>f)
-<span class="kw">val</span> continuousImage = discreteImage.interpolate(<span class="num">3</span>)</pre><p>To get back the discrete representation, we can sample the iamge values on a regular grid:</p><pre><span class="kw">val</span> newDomain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">128</span>,<span class="num">128</span>))
+<span class="kw">val</span> continuousImage = discreteImage.interpolate(<span class="num">3</span>)</pre><p>To get back the discrete representation, we can sample the image values on a regular grid:</p><pre><span class="kw">val</span> newDomain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">128</span>,<span class="num">128</span>))
 <span class="kw">val</span> resampledDiscreteImage = continuousImage.sample(domain, <span class="num">0</span>)</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -96,23 +88,19 @@ A discrete image can be converted to a continuous image by using an interpolatio
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scalismo.image.BSplineCoefficients" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BSplineCoefficientsextendsObject"></a>
-      <a id="BSplineCoefficients:BSplineCoefficients"></a>
+              <ol><li name="scalismo.image.CreateDiscreteImageDomain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CreateDiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="CreateDiscreteImageDomain[D&lt;:Dim]:CreateDiscreteImageDomain[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="BSplineCoefficients.html"><span class="name">BSplineCoefficients</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="CreateDiscreteImageDomain.html"><span class="name">CreateDiscreteImageDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@BSplineCoefficientsextendsObject" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      
+      </h4>
+      <p class="comment cmt">Typeclass for creating domains of arbitrary dimensionality</p>
     </li><li name="scalismo.image.DifferentiableScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DifferentiableScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarImage[D]"></a>
       <a id="DifferentiableScalarImage[D&lt;:Dim]:DifferentiableScalarImage[D]"></a>
@@ -124,14 +112,10 @@ A discrete image can be converted to a continuous image by using an interpolatio
       <span class="symbol">
         <a href="DifferentiableScalarImage.html"><span class="name">DifferentiableScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DifferentiableScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A scalar image that is once differentiable
+      </h4>
+      <p class="comment cmt">A scalar image that is once differentiable
 </p>
-    </li><li name="scalismo.image.DiscreteImage" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.image.DiscreteImage" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DiscreteImage[D&lt;:scalismo.geometry.Dim,Pixel]extendsDiscreteField[D,Pixel]"></a>
       <a id="DiscreteImage[D&lt;:Dim,Pixel]:DiscreteImage[D,Pixel]"></a>
       <h4 class="signature">
@@ -142,16 +126,10 @@ A discrete image can be converted to a continuous image by using an interpolatio
       <span class="symbol">
         <a href="DiscreteImage.html"><span class="name">DiscreteImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Pixel">Pixel</span>]</span><span class="result"> extends <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DiscreteImage[D&lt;:scalismo.geometry.Dim,Pixel]extendsDiscreteField[D,Pixel]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Basic interface for a discrete image of arbitrary Pixel type
-</p><div class="fullcomment"><div class="comment cmt"><p>Basic interface for a discrete image of arbitrary Pixel type
-</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">Pixel</dt><dd class="cmt"><p>The type of the pixel (usually a scalar or a vector)
-</p></dd></dl></div>
-    </li><li name="scalismo.image.DiscreteImageDomain" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Basic interface for a discrete image of arbitrary Pixel type
+</p>
+    </li><li name="scalismo.image.DiscreteImageDomain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsDiscreteDomain[D]withEquals"></a>
       <a id="DiscreteImageDomain[D&lt;:Dim]:DiscreteImageDomain[D]"></a>
       <h4 class="signature">
@@ -162,36 +140,62 @@ A discrete image can be converted to a continuous image by using an interpolatio
       <span class="symbol">
         <a href="DiscreteImageDomain.html"><span class="name">DiscreteImageDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.image.DiscreteImageDomain.D">D</span>] with <span class="extype" name="scala.Equals">Equals</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsDiscreteDomain[D]withEquals" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Defines points in D dimension which are aligned on a regular grid.</p><div class="fullcomment"><div class="comment cmt"><p>Defines points in D dimension which are aligned on a regular grid.</p><p>The grid points are defined by specifying an origin, a spacing between the grid points,
-and the size (number of points) in each direction.</p><p>A global coordinate system is assumed, and all units are measured in mm.
-</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the domain
-</p></dd></dl></div>
-    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Defines points in D dimension which are aligned on a regular grid.</p>
+    </li><li name="scalismo.image.DiscreteImageDomain1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain1DextendsDiscreteImageDomain[scalismo.geometry._1D]withProductwithSerializable"></a>
+      <a id="DiscreteImageDomain1D:DiscreteImageDomain1D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain1D.html"><span class="name">DiscreteImageDomain1D</span></a><span class="params">(<span name="size">size: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>]</span>, <span name="indexToPhysicalCoordinateTransform">indexToPhysicalCoordinateTransform: <a href="../registration/AnisotropicSimilarityTransformation.html" class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation">AnisotropicSimilarityTransformation</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>]</span>)</span><span class="result"> extends <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.image.DiscreteImageDomain2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain2DextendsDiscreteImageDomain[scalismo.geometry._2D]withProductwithSerializable"></a>
+      <a id="DiscreteImageDomain2D:DiscreteImageDomain2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain2D.html"><span class="name">DiscreteImageDomain2D</span></a><span class="params">(<span name="size">size: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>, <span name="indexToPhysicalCoordinateTransform">indexToPhysicalCoordinateTransform: <a href="../registration/AnisotropicSimilarityTransformation.html" class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation">AnisotropicSimilarityTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result"> extends <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.image.DiscreteImageDomain3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain3DextendsDiscreteImageDomain[scalismo.geometry._3D]withProductwithSerializable"></a>
+      <a id="DiscreteImageDomain3D:DiscreteImageDomain3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain3D.html"><span class="name">DiscreteImageDomain3D</span></a><span class="params">(<span name="size">size: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="indexToPhysicalCoordinateTransform">indexToPhysicalCoordinateTransform: <a href="../registration/AnisotropicSimilarityTransformation.html" class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation">AnisotropicSimilarityTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result"> extends <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DiscreteScalarImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteScalarField[D,A]withDiscreteImage[D,A]"></a>
       <a id="DiscreteScalarImage[D&lt;:Dim,A]:DiscreteScalarImage[D,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
         <a href="DiscreteScalarImage.html"><span class="name">DiscreteScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>] with <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DiscreteScalarImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteScalarField[D,A]withDiscreteImage[D,A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A scalar valued discrete image.</p><div class="fullcomment"><div class="comment cmt"><p>A scalar valued discrete image.
-</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the pixel (needs to implement Numeric).
-</p></dd></dl></div>
+      </h4>
+      <p class="comment cmt">A scalar valued discrete image.</p>
     </li><li name="scalismo.image.ScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ScalarImage[D&lt;:scalismo.geometry.Dim]extendsField[D,Float]"></a>
+      <a id="ScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarField[D,Float]"></a>
       <a id="ScalarImage[D&lt;:Dim]:ScalarImage[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -199,14 +203,10 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ScalarImage.html"><span class="name">ScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.image.ScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>
+        <a href="ScalarImage.html"><span class="name">ScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.ScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@ScalarImage[D&lt;:scalismo.geometry.Dim]extendsField[D,Float]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">An image whose values are scalar.</p>
+      </h4>
+      <p class="comment cmt">An image whose values are scalar.</p>
     </li></ol>
             </div>
 
@@ -214,7 +214,20 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scalismo.image.DifferentiableScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scalismo.image.CreateDiscreteImageDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CreateDiscreteImageDomain"></a>
+      <a id="CreateDiscreteImageDomain:CreateDiscreteImageDomain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateDiscreteImageDomain$.html"><span class="name">CreateDiscreteImageDomain</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.image.DifferentiableScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DifferentiableScalarImage"></a>
       <a id="DifferentiableScalarImage:DifferentiableScalarImage"></a>
       <h4 class="signature">
@@ -223,14 +236,10 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="DifferentiableScalarImage$.html"><span class="name">DifferentiableScalarImage</span></a>
+        <a href="DifferentiableScalarImage$.html"><span class="name">DifferentiableScalarImage</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DifferentiableScalarImage" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Factory methods to create a differentiableScalarImage
+      </h4>
+      <p class="comment cmt">Factory methods to create a differentiableScalarImage
 </p>
     </li><li name="scalismo.image.DiscreteImageDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DiscreteImageDomain"></a>
@@ -243,12 +252,8 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       <span class="symbol">
         <a href="DiscreteImageDomain$.html"><span class="name">DiscreteImageDomain</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Factory methods for creating DiscreteImageDomain objects
+      </h4>
+      <p class="comment cmt">Factory methods for creating DiscreteImageDomain objects
 </p>
     </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DiscreteScalarImage"></a>
@@ -261,12 +266,8 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       <span class="symbol">
         <a href="DiscreteScalarImage$.html"><span class="name">DiscreteScalarImage</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@DiscreteScalarImage" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.</p>
+      </h4>
+      <p class="comment cmt">Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.</p>
     </li><li name="scalismo.image.ScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ScalarImage"></a>
       <a id="ScalarImage:ScalarImage"></a>
@@ -276,14 +277,10 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="ScalarImage$.html"><span class="name">ScalarImage</span></a>
+        <a href="ScalarImage$.html"><span class="name">ScalarImage</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@ScalarImage" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Factory methods for createing scalar images
+      </h4>
+      <p class="comment cmt">Factory methods for creating scalar images
 </p>
     </li><li name="scalismo.image.filter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="filter"></a>
@@ -296,12 +293,8 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       <span class="symbol">
         <a href="filter/package.html"><span class="name">filter</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.package@filter" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Created by luetma00 on 08.01.15.</p>
+      </h4>
+      
     </li></ol>
             </div>
 
@@ -331,7 +324,6 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

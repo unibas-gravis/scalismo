@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>GaussianProcess - scalismo.statisticalmodel.GaussianProcess</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -30,11 +26,7 @@
       <div id="definition">
         <a href="GaussianProcess$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></p>
-        <h1><a href="GaussianProcess$.html" title="Go to companion">GaussianProcess</a></h1> <span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+        <h1><a href="GaussianProcess$.html" title="Go to companion">GaussianProcess</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -54,9 +46,9 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
-            <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a></div>
-          </div></div>
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a></div>
+        </div></div>
         
 
       <div id="mbrsel">
@@ -104,11 +96,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">GaussianProcess</span><span class="params">(<span name="mean">mean: <a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>, <span name="cov">cov: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>, <span name="arg1">arg1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@&lt;init&gt;(mean:scalismo.common.VectorField[D,DO],cov:scalismo.kernels.MatrixValuedPDKernel[D,DO])(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitevidence$2:scalismo.geometry.NDSpace[DO]):scalismo.statisticalmodel.GaussianProcess[D,DO]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">mean</dt><dd class="cmt"><p>The mean function</p></dd><dt class="param">cov</dt><dd class="cmt"><p>The covariance function. Needs to be positive definite</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li></ol>
             </div>
@@ -120,6 +108,19 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -130,12 +131,8 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -147,13 +144,22 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -164,12 +170,8 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -181,11 +183,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -198,11 +196,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -221,11 +215,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">cov</span><span class="result">: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@cov:scalismo.kernels.MatrixValuedPDKernel[D,DO]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">The covariance function.</p><div class="fullcomment"><div class="comment cmt"><p>The covariance function. Needs to be positive definite</p></div></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#dimOps" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dimOps:scalismo.geometry.NDSpace[DO]"></a>
@@ -238,11 +228,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">dimOps</span><span class="result">: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@dimOps:scalismo.geometry.NDSpace[DO]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#domain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="domain:scalismo.common.Domain[D]"></a>
@@ -255,11 +241,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">domain</span><span class="result">: <a href="../common/Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@domain:scalismo.common.Domain[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -272,11 +254,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -289,11 +267,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -306,11 +280,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -329,11 +299,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -346,11 +312,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -363,11 +325,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#marginal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="marginal(pt:scalismo.geometry.Point[D]):scalismo.statisticalmodel.NDimensionalNormalDistribution[DO]"></a>
@@ -380,13 +338,23 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">marginal</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@marginal(pt:scalismo.geometry.Point[D]):scalismo.statisticalmodel.NDimensionalNormalDistribution[DO]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Compute the marginal distribution for the given point
-</p>
+      </h4>
+      <p class="shortcomment cmt">Compute the marginal distribution at a single point.</p>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#marginal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="marginal(domain:scalismo.common.DiscreteDomain[D]):scalismo.statisticalmodel.DiscreteGaussianProcess[D,DO]"></a>
+      <a id="marginal(DiscreteDomain[D]):DiscreteGaussianProcess[D,DO]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">marginal</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteGaussianProcess">DiscreteGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Compute the marginal distribution for the given points.</p><div class="fullcomment"><div class="comment cmt"><p>Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
+is defined by the given points.
+</p></div></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#mean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="mean:scalismo.common.VectorField[D,DO]"></a>
       <a id="mean:VectorField[D,DO]"></a>
@@ -398,11 +366,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">mean</span><span class="result">: <a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@mean:scalismo.common.VectorField[D,DO]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">The mean function</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -415,11 +379,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -432,11 +392,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -449,29 +405,52 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.statisticalmodel.GaussianProcess#sampleAtPoints" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sampleAtPoints(pts:IndexedSeq[scalismo.geometry.Point[D]]):scalismo.common.DiscreteVectorField[D,DO]"></a>
-      <a id="sampleAtPoints(IndexedSeq[Point[D]]):DiscreteVectorField[D,DO]"></a>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#posterior" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="posterior(trainingData:IndexedSeq[(scalismo.geometry.Point[D],scalismo.geometry.Vector[DO],scalismo.statisticalmodel.NDimensionalNormalDistribution[DO])]):scalismo.statisticalmodel.GaussianProcess[D,DO]"></a>
+      <a id="posterior(IndexedSeq[(Point[D],Vector[DO],NDimensionalNormalDistribution[DO])]):GaussianProcess[D,DO]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sampleAtPoints</span><span class="params">(<span name="pts">pts: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]]</span>)</span><span class="result">: <a href="../common/DiscreteVectorField.html" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>], <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>], <a href="NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>])]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@sampleAtPoints(pts:IndexedSeq[scalismo.geometry.Point[D]]):scalismo.common.DiscreteVectorField[D,DO]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Sample values of the GAussian process evaluated at the given points.</p>
+      </h4>
+      <p class="shortcomment cmt">The posterior distribution of the gaussian process, with respect to the given trainingData.</p><div class="fullcomment"><div class="comment cmt"><p>The posterior distribution of the gaussian process, with respect to the given trainingData.
+It is computed using Gaussian process regression.
+</p></div></div>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#posterior" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="posterior(trainingData:IndexedSeq[(scalismo.geometry.Point[D],scalismo.geometry.Vector[DO])],sigma2:Double):scalismo.statisticalmodel.GaussianProcess[D,DO]"></a>
+      <a id="posterior(IndexedSeq[(Point[D],Vector[DO])],Double):GaussianProcess[D,DO]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>], <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>])]</span>, <span name="sigma2">sigma2: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The posterior distribution of the gaussian process, with respect to the given trainingData.</p><div class="fullcomment"><div class="comment cmt"><p>The posterior distribution of the gaussian process, with respect to the given trainingData.
+It is computed using Gaussian process regression.
+We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
+</p></div></div>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#sampleAtPoints" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sampleAtPoints(domain:scalismo.common.DiscreteDomain[D]):scalismo.common.DiscreteVectorField[D,DO]"></a>
+      <a id="sampleAtPoints(DiscreteDomain[D]):DiscreteVectorField[D,DO]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sampleAtPoints</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="../common/DiscreteVectorField.html" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Sample values of the Gaussian process evaluated at the given points.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -483,11 +462,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -500,11 +475,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -517,11 +488,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -540,11 +507,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -563,11 +526,7 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -604,7 +563,6 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>
