@@ -17,47 +17,14 @@ We aim to achieve these properties by leveraging two core technologies:
 ## Documentation
 
 * [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
+* [Setup a project using Scalismo](https://github.com/unibas-gravis/scalismo/wiki/Setup-a-project-using-Scalismo)
 * [Tutorial (Graphical tool: Scalismo Lab)](https://github.com/unibas-gravis/scalismo/wiki/scalismoLab)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
 
-## Using scalismo
 
-To use scalismo in your own project, add the following lines to your ```build.sbt```:
-
-```
-resolvers ++= Seq(
-          "shapemodelling unibas" at "http://shapemodelling.cs.unibas.ch/repository/public"
-          )
-
-libraryDependencies  ++= Seq(
-            // other dependencies here
-            "ch.unibas.cs.gravis" %% "scalismo" % "0.10.+",
-            // scalismo depends on some native libraries, which must be added explicitly for your system
-            "ch.unibas.cs.gravis" % "scalismo-native-all" % "3.0.+"
-)
-```
-
-Scalismo works best together with a GUI toolkit, scalismo-ui, which allows you to quickly visualize shapes and shape models. 
-To use scalismo-ui (which is currently not open source) also add the following dependency
-
-```
-libraryDependencies  ++= Seq(
-            "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.6.+"
-)
-```
-
-### Building scalismo 
-To build scalismo, run ```sbt``` and then any of the following commands
-
-* ```compile```: Compile sbt
-* ```test```: Run the unit test
-* ```doc```: Generate the api docs
-* ```scalastyle```: Run the style checker
-
-
-## Participation
+## Getting involved
 While scalismo is already fully usable for shape modeling and simple image processing task, its functionality is currently targeted
 to support the needs that arise in the research at the Gravis and Vision research group.  In particular, many standard image and mesh 
 processing algorithms are missing.
