@@ -16,8 +16,9 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ *, DenseVector, DenseMatrix }
+import breeze.linalg._
 import scalismo.common._
+import scalismo.geometry.Vector
 import scalismo.geometry._
 import scalismo.kernels._
 import scalismo.utils.Memoize
@@ -140,6 +141,51 @@ object GaussianProcess {
     }
 
     new GaussianProcess[D, DO](VectorField(gp.domain, posteriorMean _), posteriorKernel)
+  }
+
+  /**
+   * * Computes the marginal likelihood of the observed data, according to the given GP.
+   *
+   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
+   *
+   * @param gp  The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
+   *       with a Cholesky decomposition would be more efficient.
+   */
+  def marginalLikelihood[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
+    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): Float = {
+
+    val outputDim = implicitly[NDSpace[DO]].dimensionality
+
+    // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
+
+    val (ptIds, ys, errorDistributions) = trainingData.unzip3
+    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
+    val yVec = flatten(ys)
+
+    val Ky = DenseMatrix.zeros[Float](trainingData.size * outputDim, trainingData.size * outputDim)
+
+    for ((ptIdI, i) <- ptIds.zipWithIndex; (ptIdJ, j) <- ptIds.zipWithIndex) {
+
+      val covBlock = gp.cov(ptIdI, ptIdJ).toBreezeMatrix
+
+      val Kyyp = if (i == j) {
+        // in this case add observation uncertainty
+        val noiseBlock = errorDistributions(i).cov.toBreezeMatrix
+        covBlock + noiseBlock
+      } else covBlock
+
+      // insert the block in the big covariance matrix
+      for (l <- (0 until outputDim); m <- (0 until outputDim)) {
+        Ky(l + (i * outputDim), m + (j * outputDim)) = Kyyp(l, m)
+      }
+    }
+
+    val KyInv = inv(Ky).map(_.toFloat)
+    val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
+    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5f) - (0.5f * math.log(det(Ky)).toFloat) - const.toFloat
+    margLikehood
   }
 
 }
