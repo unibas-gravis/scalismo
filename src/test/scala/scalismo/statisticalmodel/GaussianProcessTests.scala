@@ -176,6 +176,44 @@ class GaussianProcessTests extends ScalismoTestSuite {
     }
   }
 
+  describe("a Gaussian process marginal likelihood") {
+
+    object Fixture {
+      val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
+      val gp = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
+        DiagonalKernel[_3D](GaussianKernel[_3D](5)))
+
+      val moreComplexGP = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
+        DiagonalKernel[_3D](GaussianKernel[_3D](5) + GaussianKernel[_3D](2.5) * 2 + GaussianKernel[_3D](0.5) * 1))
+
+      val littleNoise = NDimensionalNormalDistribution(Vector(0, 0, 0), SquareMatrix((1f, 0, 0), (0, 1f, 0), (0, 0, 1f)))
+      val discreteDomain = UnstructuredPointsDomain(IndexedSeq(Point(-3.0, -3.0, -1.0), Point(-1.0, 3.0, 0.0)))
+      val dataOnMean = discreteDomain.points.toIndexedSeq.map { p => (p, Vector(0.0, 0.0, 0.0), littleNoise) }
+    }
+
+    it("is higher for observations on the mean than 20 random samples") {
+
+      val meanMarginal = GaussianProcess.marginalLikelihood(Fixture.gp, Fixture.dataOnMean)
+
+      val sampleMarginals = (0 until 20).map { i =>
+        val sampleDef = Fixture.gp.sampleAtPoints(Fixture.discreteDomain)
+        val trainingData = sampleDef.pointsWithValues.map { case (p, v) => (p, v, Fixture.littleNoise) }
+        GaussianProcess.marginalLikelihood(Fixture.gp, trainingData.toIndexedSeq)
+      }
+
+      assert(meanMarginal >= sampleMarginals.max)
+    }
+
+    it("penalizes more complex models on equally likely data") {
+
+      val meanMarginalSimple = GaussianProcess.marginalLikelihood(Fixture.gp, Fixture.dataOnMean)
+      val meanMarginalComplex = GaussianProcess.marginalLikelihood(Fixture.moreComplexGP, Fixture.dataOnMean)
+
+      assert(meanMarginalSimple >= meanMarginalComplex)
+    }
+
+  }
+
   describe("a lowRankGaussian process") {
     object Fixture {
       val domain = BoxDomain((-5.0f, -5.0f, -5.0f), (5.0f, 5.0f, 5.0f))
