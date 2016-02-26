@@ -340,6 +340,14 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val discretizationPoints = sampler.sample.map(_._1)
       val discreteLowRankGp = DiscreteLowRankGaussianProcess(UnstructuredPointsDomain(discretizationPoints), lowRankGp)
+
+      val trainingData = IndexedSeq((0, Vector.zeros[_3D]), (discretizationPoints.size / 2, Vector.zeros[_3D]), (discretizationPoints.size - 1, Vector.zeros[_3D])).map { case (i, v) => (PointId(i), v) }
+      val cov = NDimensionalNormalDistribution(Vector.zeros[_3D], SquareMatrix.eye[_3D] * 1e-5)
+
+      val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
+      val trainingDataGP = trainingData.map { case (ptId, v) => (discretizationPoints(ptId.id), v) }
+      val trainingDataLowRankGP = trainingDataDiscreteGP.map { case (ptId, v, cov) => (discreteLowRankGp.domain.point(ptId), v, cov)}
+
     }
 
     it("will yield the correct values at the interpolation points when it is interpolated") {
@@ -360,13 +368,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yields the same result for gp regression as a LowRankGaussianProcess") {
       val f = Fixture
 
-      val trainingData = IndexedSeq((0, Vector.zeros[_3D]), (f.discretizationPoints.size / 2, Vector.zeros[_3D]), (f.discretizationPoints.size - 1, Vector.zeros[_3D])).map { case (i, v) => (PointId(i), v) }
-      val cov = NDimensionalNormalDistribution(Vector.zeros[_3D], SquareMatrix.eye[_3D] * 1e-5)
-      val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
-      val trainingDataGP = trainingData.map { case (ptId, v) => (f.discretizationPoints(ptId.id), v) }
-
-      val posteriorGP = f.lowRankGp.posterior(trainingDataGP, 1e-5)
-      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteLowRankGp, trainingDataDiscreteGP)
+      val posteriorGP = f.lowRankGp.posterior(f.trainingDataGP, 1e-5)
+      val discretePosteriorGP = DiscreteLowRankGaussianProcess.regression(f.discreteLowRankGp, f.trainingDataDiscreteGP)
 
       val meanPosterior = posteriorGP.mean
       val meanPosteriorSpecialized = discretePosteriorGP.mean
@@ -433,6 +436,33 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       assert(s.forall(e => e))
     }
+
+    it("yields the same values on the discrete points when interpolated with nearest neighbor"){
+      val f = Fixture
+      val interpolatedGP = f.discreteLowRankGp.interpolateNearestNeighbor
+      val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
+      val coeffs = DenseVector.rand(interpolatedGP.rank, gaussRNG).map(_.toFloat)
+
+      val discreteInstance = f.discreteLowRankGp.instance(coeffs)
+      val contInterpolatedInstance = interpolatedGP.instance(coeffs)
+      f.discreteLowRankGp.domain.pointsWithId.forall{ case (p,i) => discreteInstance(i) == contInterpolatedInstance(p) }
+    }
+
+    it("yields the same posterior values on the discrete points when interpolated with nearest neighbor"){
+      val f = Fixture
+
+      val orignalLowRankPosterior = f.lowRankGp.posterior(f.trainingDataLowRankGP)
+      val interpolatedGPPosterior = f.discreteLowRankGp.interpolateNearestNeighbor.posterior(f.trainingDataLowRankGP)
+
+      val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
+      val coeffs = DenseVector.rand(orignalLowRankPosterior.rank, gaussRNG).map(_.toFloat)
+
+      val originalPosteriorInstance = orignalLowRankPosterior.instance(coeffs)
+      val interpolatedPosteriorInstance = interpolatedGPPosterior.instance(coeffs)
+
+      f.discreteLowRankGp.domain.points.forall{p => originalPosteriorInstance(p) == interpolatedPosteriorInstance(p) }
+    }
+
 
   }
 
