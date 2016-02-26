@@ -220,7 +220,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
    * using nearest neigbor interpolation (for both mean and covariance function)
    */
-  override def interpolateNearestNeighbor: LowRankGaussianProcess[D, DO] = {
+  override def interpolateNearestNeighbor: NearestNeighbourInterpolatedLowRankGaussianProcess[D, DO] = {
 
     val meanPD = this.mean
 
@@ -242,7 +242,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
 
       (0 until rank) map (i => Eigenpair(variance(i), VectorField(RealSpace[D], phi(i, findClosestPointMemo))))
     }
-    new LowRankGaussianProcess(VectorField(RealSpace[D], meanFun(findClosestPointMemo)), interpolatedKLBasis)
+    new NearestNeighbourInterpolatedLowRankGaussianProcess(VectorField(RealSpace[D], meanFun(findClosestPointMemo)), interpolatedKLBasis, this)
   }
 
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Float]): DenseVector[Float] = {
