@@ -346,7 +346,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
       val trainingDataGP = trainingData.map { case (ptId, v) => (discretizationPoints(ptId.id), v) }
-      val trainingDataLowRankGP = trainingDataDiscreteGP.map { case (ptId, v, cov) => (discreteLowRankGp.domain.point(ptId), v, cov)}
+      val trainingDataLowRankGP = trainingDataDiscreteGP.map { case (ptId, v, cov) => (discreteLowRankGp.domain.point(ptId), v, cov) }
 
     }
 
@@ -437,7 +437,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       assert(s.forall(e => e))
     }
 
-    it("yields the same values on the discrete points when interpolated with nearest neighbor"){
+    it("yields the same values on the discrete points when interpolated with nearest neighbor") {
       val f = Fixture
       val interpolatedGP = f.discreteLowRankGp.interpolateNearestNeighbor
       val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
@@ -445,10 +445,10 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val discreteInstance = f.discreteLowRankGp.instance(coeffs)
       val contInterpolatedInstance = interpolatedGP.instance(coeffs)
-      f.discreteLowRankGp.domain.pointsWithId.forall{ case (p,i) => discreteInstance(i) == contInterpolatedInstance(p) }
+      f.discreteLowRankGp.domain.pointsWithId.forall { case (p, i) => discreteInstance(i) == contInterpolatedInstance(p) }
     }
 
-    it("yields the same posterior values on the discrete points when interpolated with nearest neighbor"){
+    it("yields the same posterior values on the discrete points when interpolated with nearest neighbor") {
       val f = Fixture
 
       val orignalLowRankPosterior = f.lowRankGp.posterior(f.trainingDataLowRankGP)
@@ -460,9 +460,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val originalPosteriorInstance = orignalLowRankPosterior.instance(coeffs)
       val interpolatedPosteriorInstance = interpolatedGPPosterior.instance(coeffs)
 
-      f.discreteLowRankGp.domain.points.forall{p => originalPosteriorInstance(p) == interpolatedPosteriorInstance(p) }
+      f.discreteLowRankGp.domain.points.forall { p => originalPosteriorInstance(p) == interpolatedPosteriorInstance(p) }
     }
-
 
   }
 
