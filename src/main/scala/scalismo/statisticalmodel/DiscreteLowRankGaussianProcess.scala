@@ -220,7 +220,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
    * using nearest neigbor interpolation (for both mean and covariance function)
    */
-  override def interpolateNearestNeighbor: NearestNeighbourInterpolatedLowRankGaussianProcess[D, DO] = {
+  override def interpolateNearestNeighbor: LowRankGaussianProcess[D, DO] = {
 
     val meanPD = this.mean
 
@@ -254,6 +254,32 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace]
   private[this] val outputDimensionality = implicitly[NDSpace[DO]].dimensionality
 
   private[this] val stddev = variance.map(x => math.sqrt(x).toFloat)
+
+}
+
+/**
+ * Convenience class to speedup sampling from a LowRankGaussianProcess obtained by nearest neighbor interpolation of a DiscreteLowRankGaussianProcess
+ *
+ */
+private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: VectorField[D, DO], klBasis: LowRankGaussianProcess.KLBasis[D, DO], discreteGP: DiscreteLowRankGaussianProcess[D, DO]) extends LowRankGaussianProcess[D, DO](mean, klBasis) {
+
+  require(klBasis.size == discreteGP.rank)
+
+  override def instance(c: DenseVector[Float]): VectorField[D, DO] = discreteGP.instance(c).interpolateNearestNeighbor
+
+  // if all training data points belong to the interpolated discrete domain, then we compute a discrete posterior GP and interpolate it
+  // this way the posterior will also remain very efficient when sampling.
+  override def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): LowRankGaussianProcess[D, DO] = {
+
+    val allInDiscrete = trainingData.forall { case (pt, vc, nz) => discreteGP.domain.isDefinedAt(pt) }
+
+    if (allInDiscrete) {
+      val discreteTD = trainingData.map { case (pt, vc, nz) => (discreteGP.domain.findClosestPoint(pt).id, vc, nz) }
+      discreteGP.posterior(discreteTD).interpolateNearestNeighbor
+    } else {
+      LowRankGaussianProcess.regression(this, trainingData)
+    }
+  }
 
 }
 
