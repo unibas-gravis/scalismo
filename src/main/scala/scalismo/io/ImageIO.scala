@@ -203,7 +203,7 @@ object ImageIO {
         val errCode = reader.GetErrorCode()
         if (errCode != 0) {
           return Failure(new IOException(s"Failed to read vtk file ${f.getAbsolutePath}. " +
-            s"(error code from vtkReader = $errCode"))
+            s"(error code from vtkReader = $errCode)"))
         }
         val sp = reader.GetOutput()
         val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp)
@@ -218,6 +218,54 @@ object ImageIO {
     }
   }
 
+  /**
+   * Read a 3D Scalar Image, and possibly convert it to the requested voxel type.
+   *
+   * This method is similar to the [[read3DScalarImage]] method, except that it will convert the image to the requested voxel type if
+   * the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that case.
+   *
+   * @param file  image file to be read
+   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
+   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
+   * @tparam S Voxel type of the image
+   *
+   */
+  def read3DScalarImageAsType[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean = false, favourQform: Boolean = false): Try[DiscreteScalarImage[_3D, S]] = {
+    def loadAs[T: Scalar: TypeTag: ClassTag]: Try[DiscreteScalarImage[_3D, T]] = {
+      read3DScalarImage[T](file, resampleOblique, favourQform)
+    }
+
+    val result = (for {
+      fileScalarType <- ScalarType.ofFile(file)
+    } yield {
+      val expectedScalarType = ScalarType.fromType[S]
+      if (expectedScalarType == fileScalarType) {
+        loadAs[S]
+      } else {
+        val s = implicitly[Scalar[S]]
+        fileScalarType match {
+          case ScalarType.Byte => loadAs[Byte].map(_.map(s.fromByte))
+          case ScalarType.Short => loadAs[Short].map(_.map(s.fromShort))
+          case ScalarType.Int => loadAs[Int].map(_.map(s.fromInt))
+          case ScalarType.Float => loadAs[Float].map(_.map(s.fromFloat))
+          case ScalarType.Double => loadAs[Double].map(_.map(s.fromDouble))
+          case ScalarType.UByte => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
+          case ScalarType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
+          case ScalarType.UInt => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
+
+          case _ => Failure(new IllegalArgumentException(s"unknown scalar type $fileScalarType"))
+        }
+      }
+    }).flatten
+    result
+  }
+
+  /**
+   * Read a 2D Scalar Image
+   * @param file  image file to be read
+   * @tparam S Voxel type of the image
+   *
+   */
   def read2DScalarImage[S: Scalar: ClassTag: TypeTag](file: File): Try[DiscreteScalarImage[_2D, S]] = {
 
     file match {
@@ -240,6 +288,46 @@ object ImageIO {
 
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
+  }
+
+  /**
+   * Read a 2D Scalar Image, and possibly convert it to the requested voxel type.
+   *
+   * This method is similar to the [[read2DScalarImage]] method, except that it will convert the image to the requested voxel type if
+   * the type in the file is different, whereas [[read2DScalarImage]] will throw an exception in that case.
+   *
+   * @param file  image file to be read
+   * @tparam S Voxel type of the image
+   *
+   */
+  def read2DScalarImageAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[_2D, S]] = {
+    def loadAs[T: Scalar: TypeTag: ClassTag]: Try[DiscreteScalarImage[_2D, T]] = {
+      read2DScalarImage[T](file)
+    }
+
+    val result = (for {
+      fileScalarType <- ScalarType.ofFile(file)
+    } yield {
+      val expectedScalarType = ScalarType.fromType[S]
+      if (expectedScalarType == fileScalarType) {
+        loadAs[S]
+      } else {
+        val s = implicitly[Scalar[S]]
+        fileScalarType match {
+          case ScalarType.Byte => loadAs[Byte].map(_.map(s.fromByte))
+          case ScalarType.Short => loadAs[Short].map(_.map(s.fromShort))
+          case ScalarType.Int => loadAs[Int].map(_.map(s.fromInt))
+          case ScalarType.Float => loadAs[Float].map(_.map(s.fromFloat))
+          case ScalarType.Double => loadAs[Double].map(_.map(s.fromDouble))
+          case ScalarType.UByte => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
+          case ScalarType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
+          case ScalarType.UInt => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
+
+          case _ => Failure(new IllegalArgumentException(s"unknown scalar type $fileScalarType"))
+        }
+      }
+    }).flatten
+    result
   }
 
   private def readNifti[S: Scalar: TypeTag: ClassTag](file: File, resampleOblique: Boolean, favourQform: Boolean): Try[DiscreteScalarImage[_3D, S]] = {
