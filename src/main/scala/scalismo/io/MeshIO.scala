@@ -43,7 +43,7 @@ object MeshIO {
    * *
    */
 
-  def readScalarMeshField(file: File): Try[ScalarMeshField[Float]] = {
+  def readScalarMeshFieldAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTKPolydata(file).flatMap(pd => MeshConversion.vtkPolyDataToScalarMeshField(pd))

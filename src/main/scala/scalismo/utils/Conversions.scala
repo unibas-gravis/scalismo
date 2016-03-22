@@ -272,10 +272,10 @@ object MeshConversion {
     pd
   }
 
-  def vtkPolyDataToScalarMeshField(pd: vtkPolyData): Try[ScalarMeshField[Float]] = {
+  def vtkPolyDataToScalarMeshField[S: Scalar: TypeTag: ClassTag](pd: vtkPolyData): Try[ScalarMeshField[S]] = {
     for {
       mesh <- vtkPolyDataToTriangleMesh(pd)
-      scalarData <- VtkHelpers.vtkDataArrayToScalarArray[Float](pd.GetPointData().GetScalars().GetDataType(), pd.GetPointData().GetScalars())
+      scalarData <- VtkHelpers.vtkDataArrayToScalarArray[S](pd.GetPointData().GetScalars().GetDataType(), pd.GetPointData().GetScalars())
     } yield {
       ScalarMeshField(mesh, scalarData)
     }
