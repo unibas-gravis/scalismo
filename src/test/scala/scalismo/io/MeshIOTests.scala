@@ -18,6 +18,8 @@ package scalismo.io
 import java.io.File
 
 import scalismo.ScalismoTestSuite
+import scalismo.common.ScalarArray
+import scalismo.mesh.ScalarMeshField
 
 import scala.language.implicitConversions
 
@@ -49,6 +51,26 @@ class MeshIOTests extends ScalismoTestSuite {
       val path = "/NONEXISTENT-b1cfa24000992425413ff27a52c07705ba507062a71efd7f924178972545bf7353d6ed78aea47a1.h5"
       val failed = MeshIO.readHDF5(new File(path))
       failed.isFailure should be(true)
+    }
+  }
+
+  describe("ScalarMeshField IO") {
+
+    it("can write and correctly read a ScalarMeshField") {
+      val path = getClass.getResource("/facemesh.stl").getPath
+      val mesh = MeshIO.readMesh(new File(path)).get
+
+      val meshData = ScalarMeshField(mesh, ScalarArray(mesh.pointIds.map(_.id).toArray))
+
+      val tmpFile = File.createTempFile("scalarMesh", ".vtk")
+
+      val writeTry = MeshIO.writeScalarMeshField(meshData, tmpFile)
+      assert(writeTry.isSuccess)
+
+      val readTry = MeshIO.readScalarMeshField(tmpFile)
+      assert(readTry.isSuccess)
+
+      readTry.get.data == ScalarArray(mesh.pointIds.map(_.id.toFloat).toArray)
     }
   }
 
