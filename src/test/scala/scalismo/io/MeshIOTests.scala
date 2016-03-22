@@ -18,10 +18,13 @@ package scalismo.io
 import java.io.File
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.ScalarArray
+import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.mesh.ScalarMeshField
 
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.TypeTag
+import scala.util.Try
 
 class MeshIOTests extends ScalismoTestSuite {
 
@@ -56,22 +59,46 @@ class MeshIOTests extends ScalismoTestSuite {
 
   describe("ScalarMeshField IO") {
 
-    it("can write and correctly read a ScalarMeshField") {
+    object Fixture {
       val path = getClass.getResource("/facemesh.stl").getPath
       val mesh = MeshIO.readMesh(new File(path)).get
-
       val meshData = ScalarMeshField(mesh, ScalarArray(mesh.pointIds.map(_.id).toArray))
+    }
 
+    def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarMeshField[S]] = {
+      val f = Fixture
       val tmpFile = File.createTempFile("scalarMesh", ".vtk")
 
-      val writeTry = MeshIO.writeScalarMeshField(meshData, tmpFile)
+      val writeTry = MeshIO.writeScalarMeshField(f.meshData, tmpFile)
       assert(writeTry.isSuccess)
 
-      val readTry = MeshIO.readScalarMeshFieldAsType[Int](tmpFile)
+      MeshIO.readScalarMeshField[S](tmpFile)
+    }
+
+    it("can write and correctly read a ScalarMeshField") {
+      val f = Fixture
+      val readTry = sameWriteRead[Int]()
       assert(readTry.isSuccess)
 
-      readTry.get.data == ScalarArray(mesh.pointIds.map(_.id).toArray)
+      readTry.get.data == ScalarArray(f.mesh.pointIds.map(_.id).toArray)
     }
+
+    it("fails when reading with the wrong Scalar type") {
+      val readTry = sameWriteRead[Float]()
+      assert(readTry.isFailure)
+    }
+
+    it("can read and cast a ScalarMeshField") {
+      val f = Fixture
+      val tmpFile = File.createTempFile("scalarMesh", ".vtk")
+      val writeTry = MeshIO.writeScalarMeshField(f.meshData, tmpFile)
+
+      val readTry = MeshIO.readScalarMeshFieldAsType[Float](tmpFile)
+      assert(readTry.isSuccess)
+
+      readTry.get.data == ScalarArray(f.mesh.pointIds.map(_.id).toArray)
+    }
+
   }
 
 }
