@@ -26,7 +26,7 @@ import scala.language.implicitConversions
 sealed abstract class Vector[D <: Dim: NDSpace] {
   def apply(i: Int): Float
 
-  val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
+  def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   def norm: Double = math.sqrt(norm2)
 
