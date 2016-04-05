@@ -16,21 +16,23 @@
 package scalismo.io
 
 import java.io.File
+
 import ncsa.hdf.`object`._
 import ncsa.hdf.`object`.h5._
+
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
 import scala.collection.JavaConversions._
-import java.io.IOException
+import java.io.{ Closeable, IOException }
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.product == data.length, s"${dims.product} != ${data.length}")
 }
 
-class HDF5File(h5file: FileFormat) {
+class HDF5File(h5file: FileFormat) extends Closeable {
 
-  def close() { h5file.close() }
+  override def close() { h5file.close() }
 
   def exists(path: String): Boolean = h5file.get(path) != null
 
