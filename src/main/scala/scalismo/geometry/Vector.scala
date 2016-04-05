@@ -54,7 +54,7 @@ sealed abstract class Vector[D <: Dim: NDSpace] {
 
   def dot(that: Vector[D]): Float
 
-  def multiplyComponents(that: Vector[D]): Vector[D]
+  def :*(that: Vector[D]): Vector[D]
 
   def normalize: Vector[D] = this / norm
 
@@ -107,7 +107,7 @@ case class Vector1D(x: Float) extends Vector[_1D] {
 
   override def *(s: Float): Vector1D = Vector1D(x * s)
 
-  override def multiplyComponents(that: Vector[_1D]): Vector1D = Vector1D(x * that.x)
+  override def :*(that: Vector[_1D]): Vector1D = Vector1D(x * that.x)
 
   override def toPoint: Point1D = Point1D(x)
 
@@ -140,7 +140,7 @@ case class Vector2D(x: Float, y: Float) extends Vector[_2D] {
 
   override def *(s: Float): Vector2D = Vector2D(x * s, y * s)
 
-  override def multiplyComponents(that: Vector[_2D]): Vector2D = Vector2D(x * that.x, y * that.y)
+  override def :*(that: Vector[_2D]): Vector2D = Vector2D(x * that.x, y * that.y)
 
   override def toPoint: Point2D = Point2D(x, y)
 
@@ -176,7 +176,7 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[_3D] {
 
   override def *(s: Float): Vector3D = Vector3D(x * s, y * s, z * s)
 
-  override def multiplyComponents(that: Vector[_3D]): Vector3D = Vector3D(x * that.x, y * that.y, z * that.z)
+  override def :*(that: Vector[_3D]): Vector3D = Vector3D(x * that.x, y * that.y, z * that.z)
 
   override def toPoint: Point[_3D] = Point3D(x, y, z)
 
@@ -248,6 +248,7 @@ object Vector {
 
   /**
    * create a Cartesian vector from polar coordinates
+   *
    * @param r radial distance, 0 .. infinity
    * @param phi azimuth, 0 .. 2*Pi
    */
@@ -257,6 +258,7 @@ object Vector {
 
   /**
    * create a Cartesian vector from spherical coordinates
+   *
    * @param r radial distance, 0 .. infinity
    * @param theta inclination, 0 .. Pi
    * @param phi azimuth, 0 .. 2*Pi
