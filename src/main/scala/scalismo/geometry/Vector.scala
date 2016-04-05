@@ -34,6 +34,10 @@ sealed abstract class Vector[D <: Dim: NDSpace] {
 
   def *(s: Float): Vector[D]
 
+  def *:(s: Float): Vector[D] = this * s
+
+  def *:(s: Double): Vector[D] = this * s
+
   def /(s: Float): Vector[D] = this * (1.0f / s)
 
   def *(s: Double): Vector[D] = this * s.toFloat
@@ -44,9 +48,15 @@ sealed abstract class Vector[D <: Dim: NDSpace] {
 
   def -(that: Vector[D]): Vector[D]
 
+  def unary_- : Vector[D] = this * (-1f)
+
   def toPoint: Point[D]
 
   def dot(that: Vector[D]): Float
+
+  def multiplyComponents(that: Vector[D]): Vector[D]
+
+  def normalize: Vector[D] = this / norm
 
   def outer(that: Vector[D]): SquareMatrix[D] = {
 
@@ -97,12 +107,19 @@ case class Vector1D(x: Float) extends Vector[_1D] {
 
   override def *(s: Float): Vector1D = Vector1D(x * s)
 
+  override def multiplyComponents(that: Vector[_1D]): Vector1D = Vector1D(x * that.x)
+
   override def toPoint: Point1D = Point1D(x)
 
   override def toArray = Array(x)
 
   override def mapWithIndex(f: (Float, Int) => Float): Vector1D = Vector1D(f(x, 0))
 
+}
+
+object Vector1D {
+  val unit = Vector1D(1f)
+  val zero = Vector1D(0f)
 }
 
 /** 2D Vector */
@@ -123,12 +140,21 @@ case class Vector2D(x: Float, y: Float) extends Vector[_2D] {
 
   override def *(s: Float): Vector2D = Vector2D(x * s, y * s)
 
+  override def multiplyComponents(that: Vector[_2D]): Vector2D = Vector2D(x * that.x, y * that.y)
+
   override def toPoint: Point2D = Point2D(x, y)
 
   override def toArray = Array(x, y)
 
   override def mapWithIndex(f: (Float, Int) => Float): Vector2D = Vector2D(f(x, 0), f(y, 1))
 
+}
+
+object Vector2D {
+  val unitX = Vector2D(1f, 0f)
+  val unitY = Vector2D(0f, 1f)
+
+  val zero = Vector2D(0f, 0f)
 }
 
 /** 3D Vector */
@@ -150,7 +176,9 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[_3D] {
 
   override def *(s: Float): Vector3D = Vector3D(x * s, y * s, z * s)
 
-  override def toPoint: Point3D = Point3D(x, y, z)
+  override def multiplyComponents(that: Vector[_3D]): Vector3D = Vector3D(x * that.x, y * that.y, z * that.z)
+
+  override def toPoint: Point[_3D] = Point3D(x, y, z)
 
   override def toArray = Array(x, y, z)
 
@@ -162,11 +190,20 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[_3D] {
 
 }
 
+object Vector3D {
+  val unitX = Vector3D(1f, 0f, 0f)
+  val unitY = Vector3D(0f, 1f, 0f)
+  val unitZ = Vector3D(0f, 0f, 1f)
+
+  val zero = Vector3D(0f, 0f, 0f)
+}
+
 object Vector {
 
   /** creation typeclass */
   trait Create[D <: Dim] {
     def createVector(data: Array[Float]): Vector[D]
+    val zero: Vector[D]
   }
 
   trait Create1D extends Create[_1D] {
@@ -174,6 +211,7 @@ object Vector {
       require(d.length == 1, "Creation of Vector failed: provided Array has invalid length")
       Vector1D(d(0))
     }
+    override val zero: Vector[_1D] = Vector1D.zero
   }
 
   trait Create2D extends Create[_2D] {
@@ -181,6 +219,7 @@ object Vector {
       require(d.length == 2, "Creation of Vector failed: provided Array has invalid length")
       Vector2D(d(0), d(1))
     }
+    override val zero: Vector[_2D] = Vector2D.zero
   }
 
   trait Create3D extends Create[_3D] {
@@ -188,25 +227,44 @@ object Vector {
       require(d.length == 3, "Creation of Vector failed: provided Array has invalid length")
       Vector3D(d(0), d(1), d(2))
     }
+    override val zero: Vector[_3D] = Vector3D.zero
   }
 
   def apply[D <: Dim: NDSpace](d: Array[Float])(implicit builder: Create[D]) = builder.createVector(d)
 
-  def apply(x: Float): Vector1D = Vector1D(x)
+  def apply(x: Float): Vector[_1D] = Vector1D(x)
 
-  def apply(x: Float, y: Float): Vector2D = Vector2D(x, y)
+  def apply(x: Float, y: Float): Vector[_2D] = Vector2D(x, y)
 
-  def apply(x: Float, y: Float, z: Float): Vector3D = Vector3D(x, y, z)
+  def apply(x: Float, y: Float, z: Float): Vector[_3D] = Vector3D(x, y, z)
 
-  def zeros[D <: Dim: NDSpace](implicit builder: Create[D]) = {
-    Vector.apply[D](Array.fill[Float](NDSpace[D].dimensionality)(0f))
-  }
+  def zeros[D <: Dim: NDSpace](implicit builder: Create[D]): Vector[D] = builder.zero
 
   def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Float])(implicit builder: Create[D]): Vector[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Vector.apply[D](breeze.data)
   }
+
+  /**
+   * create a Cartesian vector from polar coordinates
+   * @param r radial distance, 0 .. infinity
+   * @param phi azimuth, 0 .. 2*Pi
+   */
+  def fromPolar(r: Float, phi: Float): Vector[_2D] = Vector(
+    r * math.cos(phi).toFloat,
+    r * math.sin(phi).toFloat)
+
+  /**
+   * create a Cartesian vector from spherical coordinates
+   * @param r radial distance, 0 .. infinity
+   * @param theta inclination, 0 .. Pi
+   * @param phi azimuth, 0 .. 2*Pi
+   */
+  def fromSpherical(r: Float, theta: Float, phi: Float): Vector[_3D] = Vector(
+    (r * math.cos(phi) * math.sin(theta)).toFloat,
+    (r * math.sin(phi) * math.sin(theta)).toFloat,
+    r * math.cos(theta).toFloat)
 
   /** spire VectorSpace implementation for Vector */
   implicit def spireVectorSpace[D <: Dim: NDSpace] = new spire.algebra.VectorSpace[Vector[D], Float] {

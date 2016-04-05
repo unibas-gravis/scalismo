@@ -68,6 +68,10 @@ case class Point1D(x: Float) extends Point[_1D] {
   override def mapWithIndex(f: (Float, Int) => Float): Point1D = Point1D(f(x, 0))
 }
 
+object Point1D {
+  val origin = Point1D(0f)
+}
+
 /** 2D point */
 case class Point2D(x: Float, y: Float) extends Point[_2D] {
   override def apply(i: Int): Float = i match {
@@ -87,6 +91,10 @@ case class Point2D(x: Float, y: Float) extends Point[_2D] {
   override def toArray = Array(x, y)
 
   override def mapWithIndex(f: (Float, Int) => Float): Point2D = Point2D(f(x, 0), f(y, 1))
+}
+
+object Point2D {
+  val origin = Point2D(0f, 0f)
 }
 
 /** 3D point */
@@ -109,6 +117,10 @@ case class Point3D(x: Float, y: Float, z: Float) extends Point[_3D] {
   override def toArray = Array(x, y, z)
 
   override def mapWithIndex(f: (Float, Int) => Float): Point3D = Point3D(f(x, 0), f(y, 1), f(z, 2))
+}
+
+object Point3D {
+  val origin = Point3D(0f, 0f, 0f)
 }
 
 object Point {
@@ -140,15 +152,32 @@ object Point {
   }
 
   def apply[D <: Dim: NDSpace](d: Array[Float])(implicit builder: Create[D]) = builder.createPoint(d)
-  def apply(x: Float): Point1D = Point1D(x)
-  def apply(x: Float, y: Float): Point2D = Point2D(x, y)
-  def apply(x: Float, y: Float, z: Float): Point3D = Point3D(x, y, z)
+  def apply(x: Float): Point[_1D] = Point1D(x)
+  def apply(x: Float, y: Float): Point[_2D] = Point2D(x, y)
+  def apply(x: Float, y: Float, z: Float): Point[_3D] = Point3D(x, y, z)
+
+  def origin[D <: Dim: NDSpace](implicit builder: Create[D]) = builder.createPoint(Array.fill(NDSpace[D].dimensionality)(0f))
 
   def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Float])(implicit builder: Create[D]): Point[D] = {
     val dim = NDSpace[D].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Point.apply[D](breeze.data)
   }
+
+  /**
+   * create a Cartesian point from polar coordinates
+   * @param r radial distance, 0 .. infinity
+   * @param phi azimuth, 0 .. 2*Pi
+   */
+  def fromPolar(r: Float, phi: Float): Point[_2D] = Vector.fromPolar(r, phi).toPoint
+
+  /**
+   * create a Cartesian point from spherical coordinates
+   * @param r radial distance, 0 .. infinity
+   * @param theta inclination, 0 .. Pi
+   * @param phi azimuth, 0 .. 2*Pi
+   */
+  def fromSpherical(r: Float, theta: Float, phi: Float): Point[_3D] = Vector.fromSpherical(r, theta, phi).toPoint
 
   object implicits {
     implicit def point1DToFloat(p: Point[_1D]): Float = p.x
