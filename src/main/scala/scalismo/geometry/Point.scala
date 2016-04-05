@@ -26,7 +26,7 @@ import scala.reflect.ClassTag
 sealed abstract class Point[D <: Dim: NDSpace] {
   def apply(i: Int): Float
 
-  val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
+  def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   def +(that: Vector[D]): Point[D]
 
