@@ -19,7 +19,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val imagePreprocessor = GaussianGradientImagePreprocessor(0.1f)
       // number of points should usually be an odd number, so that the profiles are centered on the profiled points
       val featureExtractor = NormalDirectionFeatureExtractor(11, 1f)
-      def samplerPerMesh(mesh: TriangleMesh): Sampler[_3D] = UniformMeshSampler3D(mesh, 1000, 42)
+      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, 1000, 42)
       val searchMethod = NormalDirectionSearchPointSampler(31, 6)
       val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2f, pointDistanceThreshold = 3f, modelCoefficientBounds = 3f)
 
@@ -40,7 +40,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val asm = ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)
 
       // align the model
-      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.points zip targetMesh.points).toIndexedSeq)
+      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.domain.points zip targetMesh.domain.points).toIndexedSeq)
       val alignedASM = asm.transform(alignment)
 
       // fit

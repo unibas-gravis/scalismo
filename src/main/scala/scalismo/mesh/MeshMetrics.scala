@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.BoxDomain
-import scalismo.geometry.{ _3D, Point }
+import scalismo.geometry.{ Dim, Point, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
 
@@ -31,35 +31,35 @@ object MeshMetrics {
    * second mesh and returns the average over all points
    */
 
-  def avgDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
+  def avgDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
 
-    val dists = for (ptM1 <- m1.points) yield {
-      val cpM2 = m2.findClosestPoint(ptM1).point
+    val dists = for (ptM1 <- m1.domain.points) yield {
+      val cpM2 = m2.domain.findClosestPoint(ptM1).point
       (ptM1 - cpM2).norm
     }
-    dists.sum / m1.numberOfPoints
+    dists.sum / m1.domain.numberOfPoints
   }
 
   /**
    * Returns the average mesh distance after performing a rigid alignment between the two meshes.
    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
    */
-  def procrustesDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
-    require(m1.numberOfPoints == m2.numberOfPoints)
+  def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
+    require(m1.domain.numberOfPoints == m2.domain.numberOfPoints)
 
-    val landmarks = m1.points.toIndexedSeq zip m2.points.toIndexedSeq
+    val landmarks = m1.domain.points.toIndexedSeq zip m2.domain.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
-    val m1w = m1.transform(t)
+    val m1w = m1.asInstanceOf[TriangleMesh3D].transform(t)
     avgDistance(m1w, m2)
   }
 
   /**
    * Returns the Hausdorff distance between the two meshes
    */
-  def hausdorffDistance(m1: TriangleMesh, m2: TriangleMesh): Double = {
-    def allDistsBetweenMeshes(mm1: TriangleMesh, mm2: TriangleMesh): Iterator[Double] = {
-      for (ptM1 <- mm1.points) yield {
-        val cpM2 = mm2.findClosestPoint(ptM1).point
+  def hausdorffDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
+    def allDistsBetweenMeshes(mm1: TriangleMesh[_3D], mm2: TriangleMesh[_3D]): Iterator[Double] = {
+      for (ptM1 <- mm1.domain.points) yield {
+        val cpM2 = mm2.domain.findClosestPoint(ptM1).point
         (ptM1 - cpM2).norm
       }
     }
@@ -74,15 +74,15 @@ object MeshMetrics {
   /**
    * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
    */
-  def diceCoefficient(m1: TriangleMesh, m2: TriangleMesh): Double = {
+  def diceCoefficient(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     val imgA = Mesh.meshToBinaryImage(m1)
     val imgB = Mesh.meshToBinaryImage(m2)
 
     def minPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.min(pt1(0), pt2(0)), math.min(pt1(1), pt2(1)), math.min(pt1(2), pt2(2)))
     def maxPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.max(pt1(0), pt2(0)), math.max(pt1(1), pt2(1)), math.max(pt1(2), pt2(2)))
 
-    val box1 = m1.boundingBox
-    val box2 = m2.boundingBox
+    val box1 = m1.domain.boundingBox
+    val box2 = m2.domain.boundingBox
     val evaluationRegion = BoxDomain(minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
 
     val sampler = UniformSampler[_3D](evaluationRegion, 10000)

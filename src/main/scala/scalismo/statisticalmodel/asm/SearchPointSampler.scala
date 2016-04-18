@@ -21,17 +21,17 @@ import scalismo.mesh.TriangleMesh
 
 import scala.collection.immutable
 
-trait SearchPointSampler extends Function2[TriangleMesh, PointId, immutable.Seq[Point[_3D]]] {
+trait SearchPointSampler extends Function2[TriangleMesh[_3D], PointId, immutable.Seq[Point[_3D]]] {
 
 }
 
 case class NormalDirectionSearchPointSampler(numberOfPoints: Int, searchDistance: Float) extends SearchPointSampler {
 
-  override def apply(mesh: TriangleMesh, pointId: PointId): immutable.Seq[Point[_3D]] = {
-    val point = mesh.point(pointId)
+  override def apply(mesh: TriangleMesh[_3D], pointId: PointId): immutable.Seq[Point[_3D]] = {
+    val point = mesh.domain.point(pointId)
     val interval = searchDistance * 2 / numberOfPoints
 
-    val normalUnnormalized = mesh.normalAtPoint(point)
+    val normalUnnormalized = mesh.vertexNormals(pointId)
     val normal = normalUnnormalized * (1.0 / normalUnnormalized.norm)
 
     def samplePointsOnNormal(): immutable.Seq[Point[_3D]] = {

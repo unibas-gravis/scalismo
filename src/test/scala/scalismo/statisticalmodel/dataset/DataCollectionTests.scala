@@ -84,7 +84,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     val dataset = nonAlignedFaces.tail
 
     val aligendDataset = dataset.map { d =>
-      val trans = LandmarkRegistration.rigid3DLandmarkRegistration((d.points zip ref.points).toIndexedSeq)
+      val trans = LandmarkRegistration.rigid3DLandmarkRegistration((d.domain.points zip ref.domain.points).toIndexedSeq)
       d.transform(trans)
     }
 

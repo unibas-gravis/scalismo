@@ -21,7 +21,7 @@ import scalismo.mesh.kdtree.KDTreeMap
 
 import scala.language.implicitConversions
 
-sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalismo] (pointSeq: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
+sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalismo] (pointSeq: IndexedSeq[Point[D]])(implicit creator: CreateUnstructuredPointsDomain[D]) extends DiscreteDomain[D] {
 
   override def points: Iterator[Point[D]] = pointSeq.toIterator
   override def numberOfPoints = points.size
@@ -55,6 +55,8 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
   override def pointId(pt: Point[D]): Option[PointId] = {
     pointIDMap.get(pt)
   }
+
+  override def transform(transform: Point[D] => Point[D]): UnstructuredPointsDomain[D] = UnstructuredPointsDomain(pointSeq.par.map(transform).toIndexedSeq)
 
 }
 

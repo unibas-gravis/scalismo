@@ -62,7 +62,7 @@ class MeshIOTests extends ScalismoTestSuite {
     object Fixture {
       val path = getClass.getResource("/facemesh.stl").getPath
       val mesh = MeshIO.readMesh(new File(path)).get
-      val meshData = ScalarMeshField(mesh, ScalarArray(mesh.pointIds.map(_.id).toArray))
+      val meshData = ScalarMeshField(mesh, ScalarArray(mesh.domain.pointIds.map(_.id).toArray))
     }
 
     def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarMeshField[S]] = {
@@ -80,7 +80,7 @@ class MeshIOTests extends ScalismoTestSuite {
       val readTry = sameWriteRead[Int]()
       assert(readTry.isSuccess)
 
-      readTry.get.data == ScalarArray(f.mesh.pointIds.map(_.id).toArray)
+      readTry.get.data == ScalarArray(f.mesh.domain.pointIds.map(_.id).toArray)
     }
 
     it("fails when reading with the wrong Scalar type") {
@@ -96,7 +96,7 @@ class MeshIOTests extends ScalismoTestSuite {
       val readTry = MeshIO.readScalarMeshFieldAsType[Float](tmpFile)
       assert(readTry.isSuccess)
 
-      readTry.get.data == ScalarArray(f.mesh.pointIds.map(_.id).toArray)
+      readTry.get.data == ScalarArray(f.mesh.domain.pointIds.map(_.id).toArray)
     }
 
   }

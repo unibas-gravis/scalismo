@@ -19,10 +19,11 @@ import scalismo.common._
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
 import scalismo.io.ImageIO
-import scalismo.mesh.{ ScalarMeshField, TriangleCell, TriangleMesh }
+import scalismo.mesh._
 import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
 
+import scala.collection.immutable.IndexedSeq
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.util.{ Failure, Try }
@@ -208,16 +209,16 @@ object MeshConversion {
     (points, cells)
   }
 
-  def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
+  def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh[_3D]] = {
     // TODO currently all data arrays are ignored    
     val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd)
     cellsPointsOrFailure.map {
       case (points, cells) =>
-        TriangleMesh(points.toIndexedSeq, cells)
+        TriangleMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), TriangleList(cells))
     }
   }
 
-  def vtkPolyDataToCorrectedTriangleMesh(pd: vtkPolyData): Try[TriangleMesh] = {
+  def vtkPolyDataToCorrectedTriangleMesh(pd: vtkPolyData): Try[TriangleMesh[_3D]] = {
 
     val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd, correctFlag = true)
     cellsPointsOrFailure.map {
@@ -226,12 +227,12 @@ object MeshConversion {
         val oldId2newId = cellPointIds.zipWithIndex.map { case (id, index) => (id, PointId(index)) }.toMap
         val newCells = cells.map(c => TriangleCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3)))
         val oldPoints = points.toIndexedSeq
-        val newPoints: IndexedSeq[Point[_3D]] = cellPointIds.map(id => oldPoints(id.id))
-        TriangleMesh(newPoints, newCells)
+        val newPoints = cellPointIds.map(id => oldPoints(id.id))
+        TriangleMesh3D(UnstructuredPointsDomain(newPoints), TriangleList(newCells))
     }
   }
 
-  def meshToVtkPolyData(mesh: TriangleMesh, template: Option[vtkPolyData] = None): vtkPolyData = {
+  def meshToVtkPolyData(mesh: TriangleMesh[_3D], template: Option[vtkPolyData] = None): vtkPolyData = {
 
     val pd = new vtkPolyData
 
@@ -241,9 +242,9 @@ object MeshConversion {
         pd.ShallowCopy(tpl)
       case None =>
         val triangles = new vtkCellArray
-        triangles.SetNumberOfCells(mesh.cells.size)
+        triangles.SetNumberOfCells(mesh.triangulation.triangles.size)
         triangles.Initialize()
-        for ((cell, cell_id) <- mesh.cells.zipWithIndex) {
+        for ((cell, cell_id) <- mesh.triangulation.triangles.zipWithIndex) {
           val triangle = new vtkTriangle()
 
           triangle.GetPointIds().SetId(0, cell.ptId1.id)
@@ -256,7 +257,7 @@ object MeshConversion {
     }
 
     // set points
-    val pointDataArray = mesh.points.toIndexedSeq.toArray.flatMap(_.toArray)
+    val pointDataArray = mesh.domain.points.toIndexedSeq.toArray.flatMap(_.toArray)
     val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)

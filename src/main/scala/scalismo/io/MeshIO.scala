@@ -17,9 +17,12 @@ package scalismo.io
 
 import java.io.{ File, IOException }
 
-import scalismo.common.{ PointId, Scalar }
+import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
-import scalismo.mesh.{ ScalarMeshField, TriangleCell, TriangleMesh }
+import scalismo.mesh._
+import scalismo.geometry.Point._
+import scalismo.geometry.Vector._
+import scalismo.mesh.TriangleMesh._
 import scalismo.utils.MeshConversion
 import vtk._
 
@@ -80,7 +83,7 @@ object MeshIO {
     }
   }
 
-  def readMesh(file: File): Try[TriangleMesh] = {
+  def readMesh(file: File): Try[TriangleMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".h5") => readHDF5(file)
@@ -91,7 +94,7 @@ object MeshIO {
     }
   }
 
-  def readAndCorrectMesh(file: File): Try[TriangleMesh] = {
+  def readAndCorrectMesh(file: File): Try[TriangleMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTK(file, correctMesh = true)
@@ -100,7 +103,7 @@ object MeshIO {
     }
   }
 
-  def writeMesh(mesh: TriangleMesh, file: File): Try[Unit] = {
+  def writeMesh(mesh: TriangleMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".h5") => writeHDF5(mesh, file)
@@ -120,9 +123,9 @@ object MeshIO {
     }
   }
 
-  def writeHDF5(surface: TriangleMesh, file: File): Try[Unit] = {
+  def writeHDF5(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
 
-    val domainPoints: IndexedSeq[Point[_3D]] = surface.points.toIndexedSeq
+    val domainPoints: IndexedSeq[Point[_3D]] = surface.domain.points.toIndexedSeq
     val cells: IndexedSeq[TriangleCell] = surface.cells
 
     val maybeError: Try[Unit] = for {
@@ -146,14 +149,14 @@ object MeshIO {
     err
   }
 
-  def writeVTK(surface: TriangleMesh, file: File): Try[Unit] = {
+  def writeVTK(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshToVtkPolyData(surface)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()
     err
   }
 
-  def writeSTL(surface: TriangleMesh, file: File): Try[Unit] = {
+  def writeSTL(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshToVtkPolyData(surface)
     val err = writeVTKPdAsSTL(vtkPd, file)
     vtkPd.Delete()
@@ -204,7 +207,7 @@ object MeshIO {
     Success(data)
   }
 
-  private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
+  private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh[_3D]] = {
     for {
       vtkPd <- readVTKPolydata(file)
       mesh <- {
@@ -216,7 +219,7 @@ object MeshIO {
     }
   }
 
-  private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
+  private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh[_3D]] = {
     val stlReader = new vtkSTLReader()
     stlReader.SetFileName(file.getAbsolutePath)
     stlReader.Update()
@@ -234,7 +237,7 @@ object MeshIO {
     mesh
   }
 
-  def readHDF5(file: File): Try[TriangleMesh] = {
+  def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
 
     val maybeSurface = for {
       h5file <- HDF5Utils.openFileForReading(file)
@@ -243,7 +246,9 @@ object MeshIO {
       _ <- Try {
         h5file.close()
       }
-    } yield TriangleMesh(NDArrayToPointSeq(vertArray), NDArrayToCellSeq(cellArray))
+    } yield {
+      TriangleMesh3D(UnstructuredPointsDomain(NDArrayToPointSeq(vertArray).toIndexedSeq), TriangleList(NDArrayToCellSeq(cellArray)))
+    }
 
     maybeSurface
   }

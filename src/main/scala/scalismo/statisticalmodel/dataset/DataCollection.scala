@@ -17,10 +17,10 @@ package scalismo.statisticalmodel.dataset
 
 import java.io.File
 
-import scalismo.common.RealSpace
-import scalismo.geometry.{ Point, _3D, Dim }
+import scalismo.common.{ RealSpace, UnstructuredPointsDomain }
+import scalismo.geometry.{ Dim, Point, _3D }
 import scalismo.io.MeshIO
-import scalismo.mesh.{ MeshMetrics, TriangleMesh }
+import scalismo.mesh.{ MeshMetrics, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.registration.{ LandmarkRegistration, Transformation }
 
 import scala.annotation.tailrec
@@ -47,7 +47,7 @@ case class DataItem[D <: Dim](info: String, transformation: Transformation[D])
  * @param dataItems Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
  * other elements of the dataset.
  */
-case class DataCollection(reference: TriangleMesh, dataItems: Seq[DataItem[_3D]]) {
+case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[_3D]]) {
 
   val size: Int = dataItems.size
 
@@ -87,7 +87,7 @@ object DataCollection {
    * Builds a [[DataCollection]] instance from a reference mesh and a sequence of meshes in correspondence.
    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
    */
-  def fromMeshSequence(referenceMesh: TriangleMesh, registeredMeshes: Seq[TriangleMesh]): (Option[DataCollection], Seq[Throwable]) = {
+  def fromMeshSequence(referenceMesh: TriangleMesh[_3D], registeredMeshes: Seq[TriangleMesh[_3D]]): (Option[DataCollection], Seq[Throwable]) = {
     val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshToTransformation(referenceMesh, _)))
     val dc = DataCollection(referenceMesh, transformations.map(DataItem("from mesh", _)))
     if (dc.size > 0) (Some(dc), errors) else (None, errors)
@@ -98,7 +98,7 @@ object DataCollection {
    * Only vtk and stl meshes are currently supported.
    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
    */
-  def fromMeshDirectory(referenceMesh: TriangleMesh, meshDirectory: File): (Option[DataCollection], Seq[Throwable]) = {
+  def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File): (Option[DataCollection], Seq[Throwable]) = {
     val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
@@ -117,7 +117,7 @@ object DataCollection {
 
     if (maxIteration == 0) return dc
 
-    val allShapesPoints = dc.dataItems.map { dataitem => dc.reference.points.toIndexedSeq.map(dataitem.transformation) }
+    val allShapesPoints = dc.dataItems.map { dataitem => dc.reference.domain.points.toIndexedSeq.map(dataitem.transformation) }
     val nbShapes = dc.size
 
     // compute mean shape
@@ -125,7 +125,7 @@ object DataCollection {
       (points1, points2) => points1.zip(points2).map(a => a._1 + a._2.toVector)
     }.map(Point(0, 0, 0) + _.toVector * (1.0 / nbShapes.toFloat))
 
-    val newMeanMesh = TriangleMesh(meanShapePoints.seq, dc.reference.cells)
+    val newMeanMesh = TriangleMesh3D(UnstructuredPointsDomain(meanShapePoints.seq), TriangleList(dc.reference.cells))
 
     // if the new mean is close enough to the old one return
     if (MeshMetrics.procrustesDistance(newMeanMesh, dc.reference) < haltDistance) {
