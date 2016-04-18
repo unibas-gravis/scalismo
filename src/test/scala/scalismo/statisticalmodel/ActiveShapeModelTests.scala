@@ -40,7 +40,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val asm = ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)
 
       // align the model
-      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.domain.points zip targetMesh.domain.points).toIndexedSeq)
+      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq)
       val alignedASM = asm.transform(alignment)
 
       // fit

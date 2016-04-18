@@ -3,9 +3,7 @@ package scalismo.statisticalmodel.dataset
 import scalismo.geometry._3D
 import scalismo.statisticalmodel.StatisticalMeshModel
 import scalismo.mesh.TriangleMesh
-import scalismo.mesh.Mesh
 import scalismo.mesh.MeshMetrics
-
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success

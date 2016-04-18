@@ -72,8 +72,8 @@ case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, see
   // should be replaced with real mesh volume
   val volumeOfSampleRegion = mesh.area
   def sample = {
-    val points = mesh.domain.points.toIndexedSeq
-    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.domain.numberOfPoints)(new RandBasis(mt))
+    val points = mesh.pointSet.points.toIndexedSeq
+    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.pointSet.numberOfPoints)(new RandBasis(mt))
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
   }
@@ -82,13 +82,13 @@ case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, see
 case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], refmesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D], maxMd: Double) extends Sampler[_3D] {
 
   //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
-  val meanPts = refmesh.domain.points.map {
+  val meanPts = refmesh.pointSet.points.map {
     x: Point[_3D] => x + gp.mean(x)
   }
-  val ptsWithDist = refmesh.domain.points.toIndexedSeq.zipWithIndex.par
+  val ptsWithDist = refmesh.pointSet.points.toIndexedSeq.zipWithIndex.par
     .map {
       case (refPt, refPtId) =>
-        val closestTgtPt = targetMesh.domain.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
+        val closestTgtPt = targetMesh.pointSet.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
         (refPt, gp.marginal(refPt).mahalanobisDistance(closestTgtPt - refPt))
     }
 
@@ -151,9 +151,9 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
   val p = 1.0 / mesh.area
 
   scala.util.Random.setSeed(seed)
-  val meshPoints = mesh.domain.points.toIndexedSeq
+  val meshPoints = mesh.pointSet.points.toIndexedSeq
   val samplePoints = for (i <- 0 until numberOfPoints) yield {
-    val idx = scala.util.Random.nextInt(mesh.domain.numberOfPoints)
+    val idx = scala.util.Random.nextInt(mesh.pointSet.numberOfPoints)
     meshPoints(idx)
   }
   assert(samplePoints.size == numberOfPoints)

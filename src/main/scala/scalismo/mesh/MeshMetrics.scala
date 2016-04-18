@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.BoxDomain
-import scalismo.geometry.{ Dim, Point, _3D }
+import scalismo.geometry.{ Point, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
 
@@ -33,11 +33,11 @@ object MeshMetrics {
 
   def avgDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
 
-    val dists = for (ptM1 <- m1.domain.points) yield {
-      val cpM2 = m2.domain.findClosestPoint(ptM1).point
+    val dists = for (ptM1 <- m1.pointSet.points) yield {
+      val cpM2 = m2.pointSet.findClosestPoint(ptM1).point
       (ptM1 - cpM2).norm
     }
-    dists.sum / m1.domain.numberOfPoints
+    dists.sum / m1.pointSet.numberOfPoints
   }
 
   /**
@@ -45,11 +45,11 @@ object MeshMetrics {
    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
    */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
-    require(m1.domain.numberOfPoints == m2.domain.numberOfPoints)
+    require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
 
-    val landmarks = m1.domain.points.toIndexedSeq zip m2.domain.points.toIndexedSeq
+    val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
-    val m1w = m1.asInstanceOf[TriangleMesh3D].transform(t)
+    val m1w = m1.transform(t)
     avgDistance(m1w, m2)
   }
 
@@ -58,8 +58,8 @@ object MeshMetrics {
    */
   def hausdorffDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     def allDistsBetweenMeshes(mm1: TriangleMesh[_3D], mm2: TriangleMesh[_3D]): Iterator[Double] = {
-      for (ptM1 <- mm1.domain.points) yield {
-        val cpM2 = mm2.domain.findClosestPoint(ptM1).point
+      for (ptM1 <- mm1.pointSet.points) yield {
+        val cpM2 = mm2.pointSet.findClosestPoint(ptM1).point
         (ptM1 - cpM2).norm
       }
     }
@@ -81,8 +81,8 @@ object MeshMetrics {
     def minPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.min(pt1(0), pt2(0)), math.min(pt1(1), pt2(1)), math.min(pt1(2), pt2(2)))
     def maxPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.max(pt1(0), pt2(0)), math.max(pt1(1), pt2(1)), math.max(pt1(2), pt2(2)))
 
-    val box1 = m1.domain.boundingBox
-    val box2 = m2.domain.boundingBox
+    val box1 = m1.pointSet.boundingBox
+    val box2 = m2.pointSet.boundingBox
     val evaluationRegion = BoxDomain(minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
 
     val sampler = UniformSampler[_3D](evaluationRegion, 10000)

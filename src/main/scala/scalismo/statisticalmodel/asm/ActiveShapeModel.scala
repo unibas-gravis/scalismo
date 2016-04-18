@@ -36,13 +36,13 @@ object ActiveShapeModel {
   def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
     val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
-    val pointIds = sampled.map(statisticalModel.referenceMesh.domain.findClosestPoint(_).id)
+    val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
     val imageFeatures = trainingData.flatMap {
       case (image, transform) =>
         val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
-        pointIds.map { pointId => featureExtractor(pimg, mesh.domain.point(pointId), mesh, pointId) }
+        pointIds.map { pointId => featureExtractor(pimg, mesh.pointSet.point(pointId), mesh, pointId) }
     }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -75,7 +75,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def mean(): ASMSample = {
     val smean = statisticalModel.mean
-    val meanProfilePoints = profiles.data.map(p => smean.domain.point(p.pointId))
+    val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val meanFeatures = profiles.data.map(_.distribution.mean)
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
     ASMSample(smean, featureField, featureExtractor)
@@ -86,7 +86,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def sample(): ASMSample = {
     val sampleMesh = statisticalModel.sample
-    val randomProfilePoints = profiles.data.map(p => sampleMesh.domain.point(p.pointId))
+    val randomProfilePoints = profiles.data.map(p => sampleMesh.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
@@ -98,7 +98,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def sampleFeaturesOnly(): ASMSample = {
     val smean = statisticalModel.mean
-    val meanProfilePoints = profiles.data.map(p => smean.domain.point(p.pointId))
+    val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(smean, featureField, featureExtractor)
@@ -181,7 +181,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
       Failure(new IllegalStateException("No point correspondences found. You may need to relax the configuration thresholds."))
     } else Try {
 
-      val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.domain.point(refPtId), tgtPt) }
+      val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.pointSet.point(refPtId), tgtPt) }
       val bestRigidTransform = LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts)
 
       val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (refPtId, bestRigidTransform.inverse(tgtPt)) }
@@ -195,7 +195,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     }
   }
 
-  private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.domain.point(profiles(profileId).pointId)
+  private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.pointSet.point(profiles(profileId).pointId)
 
   private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration): IndexedSeq[(PointId, Point[_3D])] = {
 

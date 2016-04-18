@@ -70,17 +70,17 @@ class RegistrationTests extends ScalismoTestSuite {
 
     val rigidTransformed = mesh transform trans
 
-    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.domain.points.zip(rigidTransformed.domain.points).toIndexedSeq)
+    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq)
 
     //should not test on parameters here since many euler angles can lead to the same rotation matrix
     val rigidRegTransformed = mesh transform regResult
     it("can retrieve correct parameters") {
 
-      for ((p, i) <- rigidRegTransformed.domain.points.zipWithIndex) {
+      for ((p, i) <- rigidRegTransformed.pointSet.points.zipWithIndex) {
         val id = PointId(i)
-        p(0) should be(rigidTransformed.domain.point(id)(0) +- 0.0001)
-        p(1) should be(rigidTransformed.domain.point(id)(1) +- 0.0001)
-        p(2) should be(rigidTransformed.domain.point(id)(2) +- 0.0001)
+        p(0) should be(rigidTransformed.pointSet.point(id)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.pointSet.point(id)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.pointSet.point(id)(2) +- 0.0001)
       }
     }
 
@@ -88,11 +88,11 @@ class RegistrationTests extends ScalismoTestSuite {
       val inverseTrans = regResult.asInstanceOf[RigidTransformation[_3D]].inverse
       val transformed = mesh.transform(regResult).transform(inverseTrans)
 
-      for ((p, i) <- transformed.domain.points.zipWithIndex) {
+      for ((p, i) <- transformed.pointSet.points.zipWithIndex) {
         val id = PointId(i)
-        p(0) should be(mesh.domain.point(id)(0) +- 0.0001)
-        p(1) should be(mesh.domain.point(id)(1) +- 0.0001)
-        p(2) should be(mesh.domain.point(id)(2) +- 0.0001)
+        p(0) should be(mesh.pointSet.point(id)(0) +- 0.0001)
+        p(1) should be(mesh.pointSet.point(id)(1) +- 0.0001)
+        p(2) should be(mesh.pointSet.point(id)(2) +- 0.0001)
       }
     }
   }
@@ -137,16 +137,16 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val translatedRotatedScaled = mesh transform trans
 
-      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.domain.points.zip(translatedRotatedScaled.domain.points).toIndexedSeq)
+      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq)
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regSim = mesh transform regResult
 
-      for ((p, i) <- regSim.domain.points.zipWithIndex.take(100)) {
+      for ((p, i) <- regSim.pointSet.points.zipWithIndex.take(100)) {
         val id = PointId(i)
-        p(0) should be(translatedRotatedScaled.domain.point(id)(0) +- 0.0001)
-        p(1) should be(translatedRotatedScaled.domain.point(id)(1) +- 0.0001)
-        p(2) should be(translatedRotatedScaled.domain.point(id)(2) +- 0.0001)
+        p(0) should be(translatedRotatedScaled.pointSet.point(id)(0) +- 0.0001)
+        p(1) should be(translatedRotatedScaled.pointSet.point(id)(1) +- 0.0001)
+        p(2) should be(translatedRotatedScaled.pointSet.point(id)(2) +- 0.0001)
       }
     }
   }

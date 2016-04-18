@@ -23,7 +23,6 @@ import scalismo.mesh._
 import spire.math.{ UByte, UInt, ULong, UShort }
 import vtk._
 
-import scala.collection.immutable.IndexedSeq
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.util.{ Failure, Try }
@@ -257,7 +256,7 @@ object MeshConversion {
     }
 
     // set points
-    val pointDataArray = mesh.domain.points.toIndexedSeq.toArray.flatMap(_.toArray)
+    val pointDataArray = mesh.pointSet.points.toIndexedSeq.toArray.flatMap(_.toArray)
     val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)

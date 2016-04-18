@@ -117,7 +117,7 @@ object ActiveShapeModelIO {
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
       pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
-      pts = pointIds.map(id => referenceMesh.domain.point(PointId(id))).toIndexedSeq
+      pts = pointIds.map(id => referenceMesh.pointSet.point(PointId(id))).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
       (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))

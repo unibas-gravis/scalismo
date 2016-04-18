@@ -30,11 +30,11 @@ object Mesh {
   def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableScalarImage[_3D] = {
 
     def dist(pt: Point[_3D]): Float = {
-      val closestPt = mesh.domain.findClosestPoint(pt).point
+      val closestPt = mesh.pointSet.findClosestPoint(pt).point
       Math.sqrt(Math.pow(closestPt(0) - pt(0), 2) + Math.pow(closestPt(1) - pt(1), 2) + Math.pow(closestPt(2) - pt(2), 2)).toFloat
     }
     def grad(pt: Point[_3D]) = {
-      val closestPt = mesh.domain.findClosestPoint(pt).point
+      val closestPt = mesh.pointSet.findClosestPoint(pt).point
       val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
@@ -49,7 +49,7 @@ object Mesh {
    */
   def meshToBinaryImage(mesh: TriangleMesh[_3D]): ScalarImage[_3D] = {
     def inside(pt: Point[_3D]): Short = {
-      val closestMeshPt = mesh.domain.findClosestPoint(pt)
+      val closestMeshPt = mesh.pointSet.findClosestPoint(pt)
       val dotprod = mesh.vertexNormals(closestMeshPt.id) dot (closestMeshPt.point - pt)
       if (dotprod > 0.0) 1 else 0
     }
@@ -66,8 +66,8 @@ object Mesh {
   def clipMesh(mesh: TriangleMesh[_3D], clipPointPredicate: Point[_3D] => Boolean): TriangleMesh[_3D] = {
 
     // predicate tested at the beginning, once.
-    val remainingPoints = mesh.domain.points.toIndexedSeq.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
-    val pts = mesh.domain.points.toIndexedSeq
+    val remainingPoints = mesh.pointSet.points.toIndexedSeq.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
+    val pts = mesh.pointSet.points.toIndexedSeq
 
     val remainingPointTriplet = mesh.cells.par.map {
       cell =>

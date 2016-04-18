@@ -59,7 +59,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("returns the max distance") {
       // create a mesh where the first vector is displaced by a value of 1
-      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.domain.findClosestPoint(pt).id == PointId(0)) pt + Vector(1, 0, 0) else pt)
+      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.pointSet.findClosestPoint(pt).id == PointId(0)) pt + Vector(1, 0, 0) else pt)
       MeshMetrics.hausdorffDistance(mesh, newMesh) should be(1)
     }
 

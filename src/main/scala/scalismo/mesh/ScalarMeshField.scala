@@ -12,11 +12,11 @@ import scala.reflect.ClassTag
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
  * The number of values and mesh points must be equal.
  */
-case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], override val data: ScalarArray[S]) extends DiscreteScalarField[_3D, S](mesh.domain, data) {
-  require(mesh.domain.numberOfPoints == data.size)
+case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], override val data: ScalarArray[S]) extends DiscreteScalarField[_3D, S](mesh.pointSet, data) {
+  require(mesh.pointSet.numberOfPoints == data.size)
 
   override def values = data.iterator
-  override val domain = mesh.domain
+  override val domain = mesh.pointSet
 
   override def apply(ptId: PointId) = data(ptId.id)
   override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)

@@ -21,28 +21,20 @@ import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
-import scalismo.geometry.Point._
-import scalismo.geometry.Vector._
-import scalismo.common.CreateUnstructuredPointsDomain
 import scalismo.mesh.TriangleMesh._
 import scalismo.statisticalmodel.StatisticalMeshModel
 
 import scala.util.Try
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
-
 import scala.util.Failure
 import scala.util.Success
 import java.util.Calendar
-
 import ncsa.hdf.`object`._
-import java.util.List
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
-
-import scala.collection.immutable.IndexedSeq
 
 object StatismoIO {
   object StatismoModelType extends Enumeration {
@@ -164,7 +156,7 @@ object StatismoIO {
     } yield {
       // statismo stores the mean as the point position, not as a displacement on the reference.
       def flatten(v: IndexedSeq[Point[_3D]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
-      val refpointsVec = flatten(mesh.domain.points.toIndexedSeq)
+      val refpointsVec = flatten(mesh.pointSet.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
       StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
@@ -182,7 +174,7 @@ object StatismoIO {
 
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
-    val discretizedMean = model.mean.domain.points.toIndexedSeq.flatten(_.toArray)
+    val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
 
     val pcaBasis = model.gp.basisMatrix.copy
@@ -228,7 +220,7 @@ object StatismoIO {
   private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
     val cellArray = model.referenceMesh.cells.map(_.ptId1.id) ++ model.referenceMesh.cells.map(_.ptId2.id) ++ model.referenceMesh.cells.map(_.ptId3.id)
-    val pts = model.referenceMesh.domain.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
+    val pts = model.referenceMesh.pointSet.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
     val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
 
     for {
@@ -238,7 +230,7 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
       _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(3, model.referenceMesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.domain.points.size), pointArray.toArray))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.pointSet.points.size), pointArray.toArray))
     } yield Success(())
   }
 

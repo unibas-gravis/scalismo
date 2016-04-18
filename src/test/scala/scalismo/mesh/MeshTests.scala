@@ -19,7 +19,7 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ PointId, PointWithId, UnstructuredPointsDomain }
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{ Point, _3D }
 import scalismo.io.MeshIO
@@ -38,8 +38,8 @@ class MeshTests extends ScalismoTestSuite {
 
     it("finds the right closest points for all the points that define the mesh") {
 
-      for ((pt, id) <- facemesh.domain.points.zipWithIndex) {
-        val ptWithID = facemesh.domain.findClosestPoint(pt)
+      for ((pt, id) <- facemesh.pointSet.points.zipWithIndex) {
+        val ptWithID = facemesh.pointSet.findClosestPoint(pt)
         val closestPt = ptWithID.point
         val closestId = ptWithID.id
         assert(closestPt === pt)
@@ -52,7 +52,7 @@ class MeshTests extends ScalismoTestSuite {
       val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells))
 
       val newPt = Point(1.1, 1.1, 4)
-      val ptWithID = mesh.domain.findClosestPoint(newPt)
+      val ptWithID = mesh.pointSet.findClosestPoint(newPt)
       val closestPt = ptWithID.point
       val closestPtId = ptWithID.id
       assert(closestPtId.id === 2)

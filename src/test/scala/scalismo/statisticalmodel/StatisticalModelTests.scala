@@ -39,7 +39,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)
         val instNew = newModel.instance(coeffs)
-        inst.domain.points.zip(instNew.domain.points)
+        inst.pointSet.points.zip(instNew.pointSet.points)
           .foreach {
             case (pt1, pt2) =>
               (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
@@ -67,8 +67,8 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val newMesh = model.sample
 
       def t(pt: Point[_3D]): Point[_3D] = {
-        val ptId = model.referenceMesh.domain.findClosestPoint(pt).id
-        newMesh.domain.point(ptId)
+        val ptId = model.referenceMesh.pointSet.findClosestPoint(pt).id
+        newMesh.pointSet.point(ptId)
       }
 
       val newModel = model.changeReference(t)

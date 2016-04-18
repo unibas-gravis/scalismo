@@ -1,9 +1,23 @@
+/*
+ * Copyright 2015 University of Basel, Graphics and Vision Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package scalismo.mesh
 
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.geometry.Vector._
-import scalismo.geometry.Point._
 
 import scala.language.implicitConversions
 
@@ -21,7 +35,7 @@ case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends 
 trait TriangleMesh[D <: Dim] {
 
   def triangulation: TriangleList
-  def domain: UnstructuredPointsDomain[D]
+  def pointSet: UnstructuredPointsDomain[D]
   def transform(transform: Point[D] => Point[D]): TriangleMesh[D]
 }
 
@@ -74,13 +88,13 @@ object TriangleMesh {
 
 /** Standard 3D Gravis mesh, geometry only */
 
-case class TriangleMesh3D(domain: UnstructuredPointsDomain[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
+case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
 
-  val position = SurfacePointProperty(triangulation, domain.point _)
+  val position = SurfacePointProperty(triangulation, pointSet.point _)
   val triangles = triangulation.triangles
   val cells = triangles
 
-  lazy val boundingBox = domain.boundingBox
+  lazy val boundingBox = pointSet.boundingBox
 
   /** Get all cell normals as a surface property */
   lazy val cellNormals: TriangleProperty[Vector[_3D]] = {
@@ -95,8 +109,8 @@ case class TriangleMesh3D(domain: UnstructuredPointsDomain[_3D], triangulation: 
   /** Get all vertex normals as a surface property, averages over cell normals */
   lazy val vertexNormals: SurfacePointProperty[Vector[_3D]] = {
     // create data array: average over all adjacent triangles
-    val pointNormals = new Array[Vector[_3D]](domain.numberOfPoints)
-    domain.pointIds.foreach { ptId =>
+    val pointNormals = new Array[Vector[_3D]](pointSet.numberOfPoints)
+    pointSet.pointIds.foreach { ptId =>
       val tr = triangulation.adjacentTrianglesForPoint(ptId)
       var x = 0f
       var y = 0f
@@ -132,14 +146,14 @@ case class TriangleMesh3D(domain: UnstructuredPointsDomain[_3D], triangulation: 
    *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
   override def transform(transform: Point[_3D] => Point[_3D]): TriangleMesh3D = {
-    TriangleMesh3D(domain.points.map(transform).toIndexedSeq, triangulation)
+    TriangleMesh3D(pointSet.points.map(transform).toIndexedSeq, triangulation)
   }
 
   /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
   def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
-    val pt1 = domain.point(cell.ptId1)
-    val pt2 = domain.point(cell.ptId2)
-    val pt3 = domain.point(cell.ptId3)
+    val pt1 = pointSet.point(cell.ptId1)
+    val pt2 = pointSet.point(cell.ptId2)
+    val pt3 = pointSet.point(cell.ptId3)
 
     val u = pt2 - pt1
     val v = pt3 - pt1
@@ -151,9 +165,9 @@ case class TriangleMesh3D(domain: UnstructuredPointsDomain[_3D], triangulation: 
    */
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
-    val A = domain.point(t.ptId1)
-    val B = domain.point(t.ptId2)
-    val C = domain.point(t.ptId3)
+    val A = pointSet.point(t.ptId1)
+    val B = pointSet.point(t.ptId2)
+    val C = pointSet.point(t.ptId3)
     val a = (B - A).norm
     val b = (C - B).norm
     val c = (C - A).norm
@@ -172,9 +186,9 @@ case class TriangleMesh3D(domain: UnstructuredPointsDomain[_3D], triangulation: 
    *  @param seed Seed value for the random generator
    */
   def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
-    val A = domain.point(t.ptId1).toVector
-    val B = domain.point(t.ptId2).toVector
-    val C = domain.point(t.ptId3).toVector
+    val A = pointSet.point(t.ptId1).toVector
+    val B = pointSet.point(t.ptId2).toVector
+    val C = pointSet.point(t.ptId3).toVector
 
     val rand = new scala.util.Random(seed)
     val u = rand.nextFloat()
@@ -193,18 +207,18 @@ object TriangleMesh3D {
   }
 }
 
-case class TriangleMesh2D(domain: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
-  val position = SurfacePointProperty(triangulation, domain.point _)
+case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
+  val position = SurfacePointProperty(triangulation, pointSet.point _)
 
   override def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh2D = {
-    TriangleMesh2D(UnstructuredPointsDomain(domain.points.map(transform).toIndexedSeq), triangulation)
+    TriangleMesh2D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq), triangulation)
   }
 }
 
-case class TriangleMesh1D(domain: UnstructuredPointsDomain[_1D]) extends TriangleMesh[_1D] {
+case class TriangleMesh1D(pointSet: UnstructuredPointsDomain[_1D]) extends TriangleMesh[_1D] {
   override val triangulation = TriangleList(IndexedSeq[TriangleCell]())
 
   override def transform(transform: Point[_1D] => Point[_1D]): TriangleMesh1D = {
-    TriangleMesh1D(UnstructuredPointsDomain(domain.points.map(transform).toIndexedSeq))
+    TriangleMesh1D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq))
   }
 }
