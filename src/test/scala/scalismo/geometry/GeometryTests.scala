@@ -19,6 +19,7 @@ import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
 
 import scala.language.implicitConversions
+import scala.util.Random
 
 class GeometryTests extends ScalismoTestSuite {
 
@@ -322,6 +323,31 @@ class GeometryTests extends ScalismoTestSuite {
       vRes should equal(v.mapWithIndex({ case (f, i) => f * i }))
     }
   }
+
+  describe("Polar and Spherical coordinates constructors") {
+    it("A 3D point can be constructed from spherical coordinates (with random values)") {
+      Point.fromSpherical(2.0f, 2.0f, 0.5f) shouldBe Point(1.5959672f, 0.8718808f, -0.8322937f)
+    }
+
+    it("A 2D point can be constructed from polar coordinates (with random values)") {
+      Point.fromPolar(2.0f, 0.5f) shouldBe Point(1.7551651f, 0.9588511f)
+    }
+
+    it("polar and spherical coordinates are consistent in xy plane") {
+      val p2d: Point2D = Point.fromPolar(1.5f, 0.2f)
+      val p3d: Point3D = Point.fromSpherical(1.5f, math.Pi / 2, 0.2f)
+      (Point(p2d.x, p2d.y, 0.0f) - p3d).norm should be < 1e-4
+    }
+
+    it("A 3D vector constructed from spherical coordinates is identical to the corresponding point") {
+      Vector.fromSpherical(3.0f, 3.0f, 5.0f) shouldBe Point.fromSpherical(3.0f, 3.0f, 5.0f).toVector
+    }
+
+    it("A 2D vector constructed from spherical coordinates is identical to the corresponding point") {
+      Vector.fromPolar(2.0f, 0.5f) shouldBe Point.fromPolar(2.0f, 0.5f).toVector
+    }
+  }
+
   describe("a 3x3 matrix") {
 
     // storage is column major

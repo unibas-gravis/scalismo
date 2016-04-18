@@ -24,7 +24,7 @@ import scala.reflect.ClassTag
 sealed abstract class IntVector[D <: Dim: NDSpace] {
   def apply(a: Int): Int
 
-  val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
+  def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   def toArray: Array[Int]
 

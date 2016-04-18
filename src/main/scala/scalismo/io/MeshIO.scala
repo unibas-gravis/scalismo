@@ -43,6 +43,43 @@ object MeshIO {
    * *
    */
 
+  /**
+   * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
+   *
+   */
+
+  def readScalarMeshField[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
+    val requiredScalarType = ImageIO.ScalarType.fromType[S]
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".vtk") => readVTKPolydata(file).flatMap { pd =>
+        val spScalarType = ImageIO.ScalarType.fromVtkId(pd.GetPointData().GetScalars().GetDataType())
+        MeshConversion.vtkPolyDataToScalarMeshField(pd)
+        if (requiredScalarType != spScalarType) {
+          Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
+        } else {
+          MeshConversion.vtkPolyDataToScalarMeshField(pd)
+        }
+      }
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+  }
+
+  /**
+   * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
+   *
+   */
+
+  def readScalarMeshFieldAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".vtk") => readVTKPolydata(file).flatMap(pd => MeshConversion.vtkPolyDataToScalarMeshField(pd))
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+  }
+
   def readMesh(file: File): Try[TriangleMesh] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -153,7 +190,8 @@ object MeshIO {
     succOrFailure
   }
 
-  private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
+  private def readVTKPolydata(file: File): Try[vtkPolyData] = {
+
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath)
     vtkReader.Update()
@@ -161,14 +199,21 @@ object MeshIO {
     if (errCode != 0) {
       return Failure(new IOException(s"Could not read vtk mesh (received error code $errCode"))
     }
-
-    val vtkPd = vtkReader.GetOutput()
-    val mesh = if (correctMesh) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
-    else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
-
+    val data = vtkReader.GetOutput()
     vtkReader.Delete()
-    vtkPd.Delete()
-    mesh
+    Success(data)
+  }
+
+  private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {
+    for {
+      vtkPd <- readVTKPolydata(file)
+      mesh <- {
+        if (correctMesh) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd) else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+      }
+    } yield {
+      vtkPd.Delete()
+      mesh
+    }
   }
 
   private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh] = {

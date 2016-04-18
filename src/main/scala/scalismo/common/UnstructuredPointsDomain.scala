@@ -28,8 +28,8 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalis
 
   override def point(id: PointId) = pointSeq(id.id)
 
-  private[this] val kdTreeMap = KDTreeMap.fromSeq(pointSeq.zipWithIndex)
-  private[this] val pointIDMap = pointSeq.zipWithIndex.map { case (pt, id) => (pt, PointId(id)) }.toMap
+  private[this] lazy val kdTreeMap = KDTreeMap.fromSeq(pointSeq.zipWithIndex)
+  private[this] lazy val pointIDMap = pointSeq.zipWithIndex.map { case (pt, id) => (pt, PointId(id)) }.toMap
 
   override def isDefinedAt(pt: Point[D]) = pointIDMap.contains(pt)
 
