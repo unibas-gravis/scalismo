@@ -64,7 +64,7 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   }
 }
 
-case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.area
   val mt = new MersenneTwister()
@@ -72,23 +72,23 @@ case class RandomMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: In
   // should be replaced with real mesh volume
   val volumeOfSampleRegion = mesh.area
   def sample = {
-    val points = mesh.points.toIndexedSeq
-    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.numberOfPoints)(new RandBasis(mt))
+    val points = mesh.pointSet.points.toIndexedSeq
+    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.pointSet.numberOfPoints)(new RandBasis(mt))
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
   }
 }
 
-case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], refmesh: TriangleMesh, targetMesh: TriangleMesh, maxMd: Double) extends Sampler[_3D] {
+case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], refmesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D], maxMd: Double) extends Sampler[_3D] {
 
   //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
-  val meanPts = refmesh.points.map {
+  val meanPts = refmesh.pointSet.points.map {
     x: Point[_3D] => x + gp.mean(x)
   }
-  val ptsWithDist = refmesh.points.toIndexedSeq.zipWithIndex.par
+  val ptsWithDist = refmesh.pointSet.points.toIndexedSeq.zipWithIndex.par
     .map {
       case (refPt, refPtId) =>
-        val closestTgtPt = targetMesh.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
+        val closestTgtPt = targetMesh.pointSet.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
         (refPt, gp.marginal(refPt).mahalanobisDistance(closestTgtPt - refPt))
     }
 
@@ -111,7 +111,7 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
   }
 }
 
-case class UniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   override val volumeOfSampleRegion = mesh.area
 
@@ -139,21 +139,21 @@ case class UniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: I
   }
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.area
   val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints, seed).sample
   override def sample = samplePoints
 }
 
-case class FixedPointsMeshSampler3D(mesh: TriangleMesh, numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
   val volumeOfSampleRegion = mesh.area
   val p = 1.0 / mesh.area
 
   scala.util.Random.setSeed(seed)
-  val meshPoints = mesh.points.toIndexedSeq
+  val meshPoints = mesh.pointSet.points.toIndexedSeq
   val samplePoints = for (i <- 0 until numberOfPoints) yield {
-    val idx = scala.util.Random.nextInt(mesh.numberOfPoints)
+    val idx = scala.util.Random.nextInt(mesh.pointSet.numberOfPoints)
     meshPoints(idx)
   }
   assert(samplePoints.size == numberOfPoints)

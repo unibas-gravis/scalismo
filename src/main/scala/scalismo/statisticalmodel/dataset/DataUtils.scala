@@ -40,16 +40,15 @@ private object DataUtils {
   /**
    * Create a transformation from a mesh. The transformation maps from the reference mesh to the corresponding target point.
    */
-  def meshToTransformation(refMesh: TriangleMesh, targetMesh: TriangleMesh): Try[Transformation[_3D]] = {
-    if (refMesh.numberOfPoints != targetMesh.numberOfPoints)
-      Failure(new Throwable(s"reference and target mesh do not have the same number of points (${refMesh.numberOfPoints} != ${targetMesh.numberOfPoints}"))
+  def meshToTransformation(refMesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D]): Try[Transformation[_3D]] = {
+    if (refMesh.pointSet.numberOfPoints != targetMesh.pointSet.numberOfPoints)
+      Failure(new Throwable(s"reference and target mesh do not have the same number of points (${refMesh.pointSet.numberOfPoints} != ${targetMesh.pointSet.numberOfPoints}"))
     else {
       val t = new Transformation[_3D] {
         override val domain = refMesh.boundingBox
-        val targetPts = targetMesh.points.toIndexedSeq
         override val f = (x: Point[_3D]) => {
-          val ptId = refMesh.findClosestPoint(x).id
-          targetPts(ptId.id)
+          val ptId = refMesh.pointSet.findClosestPoint(x).id
+          targetMesh.pointSet.point(ptId)
         }
       }
       Success(t)
