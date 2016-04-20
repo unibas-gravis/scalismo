@@ -15,8 +15,10 @@
  */
 package scalismo.statisticalmodel
 
+import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector }
-import scalismo.common.{ VectorField, PointId, DiscreteVectorField }
+import breeze.numerics.sqrt
+import scalismo.common.{ DiscreteVectorField, PointId, VectorField }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ Mesh, TriangleMesh }
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
@@ -25,7 +27,7 @@ import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.mesh.TriangleCell
 import scalismo.statisticalmodel.dataset.DataCollection
 
-import scala.util.{ Success, Failure, Try }
+import scala.util.{ Failure, Success, Try }
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -214,8 +216,12 @@ object StatisticalMeshModel {
   }
 
   /**
-   *  Adds a bias model to the given statistical shape model
+   *  @deprecated
+   *  Biasmodel can now be approximated before and the augment method is just an addition of two lowrank Gaussian processes.
+   *  Please use approximate the biasModel before as a LowRankGaussianProcess and use the new method to create the bias model.
    */
+
+  @Deprecated
   def augmentModel(model: StatisticalMeshModel, biasModel: GaussianProcess[_3D, _3D], numBasisFunctions: Int): StatisticalMeshModel = {
 
     val modelGP = model.gp.interpolateNearestNeighbor
@@ -225,6 +231,33 @@ object StatisticalMeshModel {
     val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, 2 * numBasisFunctions, 42)
     val newLowRankGP = LowRankGaussianProcess.approximateGP(newGP, sampler, numBasisFunctions)
     StatisticalMeshModel(model.referenceMesh, newLowRankGP)
+  }
+
+  /**
+   *  Adds a bias model to the given statistical shape model
+   */
+
+  def augmentModel(model: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D, _3D]) = {
+
+    val discretizedBiasModel = biasModel.discretize(model.referenceMesh)
+    val eigenvalues = DenseVector.vertcat(model.gp.variance, discretizedBiasModel.variance).map(sqrt(_))
+    val eigenvectors = DenseMatrix.horzcat(model.gp.basisMatrix, discretizedBiasModel.basisMatrix)
+
+    for (i <- 0 until eigenvalues.length) {
+      eigenvectors(::, i) :*= eigenvalues(i)
+    }
+
+    val l: DenseMatrix[Float] = eigenvectors.t * eigenvectors
+    val SVD(v, _, _) = breeze.linalg.svd(l)
+    val U: DenseMatrix[Float] = eigenvectors * v
+    val d: DenseVector[Float] = DenseVector.zeros(U.cols)
+    for (i <- (0 until U.cols)) {
+      d(i) = breeze.linalg.norm(U(::, i)).toFloat
+      U(::, i) := U(::, i) * (1f / d(i))
+    }
+
+    val r = model.gp.copy[_3D, _3D](meanVector = model.gp.meanVector + discretizedBiasModel.meanVector, variance = breeze.numerics.pow(d, 2), basisMatrix = U)
+    StatisticalMeshModel(model.referenceMesh, r)
   }
 
   /**
