@@ -21,7 +21,7 @@ import scala.annotation.switch
 import scala.util.Random
 
 /** barycentric coordinates: localization within triangles */
-case class BarycentricCoordinates(a: Float, b: Float, c: Float) {
+case class BarycentricCoordinates(a: Double, b: Double, c: Double) {
 
   def normalized: BarycentricCoordinates = {
     val s = a + b + c
@@ -38,14 +38,14 @@ case class BarycentricCoordinates(a: Float, b: Float, c: Float) {
 object BarycentricCoordinates {
 
   /** coordinates of first vertex */
-  val v0 = new BarycentricCoordinates(1.0f, 0.0f, 0.0f)
+  val v0 = new BarycentricCoordinates(1.0, 0.0, 0.0)
   /** coordinates of second vertex */
-  val v1 = new BarycentricCoordinates(0.0f, 1.0f, 0.0f)
+  val v1 = new BarycentricCoordinates(0.0, 1.0, 0.0)
   /** coordinates of third vertex */
-  val v2 = new BarycentricCoordinates(0.0f, 0.0f, 1.0f)
+  val v2 = new BarycentricCoordinates(0.0, 0.0, 1.0)
 
   /** coordinates of center point in triangle */
-  val center = BarycentricCoordinates(1.0f, 1.0f, 1.0f).normalized
+  val center = BarycentricCoordinates(1.0, 1.0, 1.0).normalized
 
   /** get vertex coordinates, vertexIndex must be 0, 1 or 2 */
   def canonical(vertexIndex: Int): BarycentricCoordinates = (vertexIndex: @switch) match {
@@ -57,14 +57,14 @@ object BarycentricCoordinates {
 
   /** find barycentric coordinates for a point within the given triangle */
   def pointInTriangle(point: Point[_2D], v1: Point[_2D], v2: Point[_2D], v3: Point[_2D]): BarycentricCoordinates = {
-    val x: Float = point.x
-    val y: Float = point.y
-    val x1: Float = v1.x
-    val y1: Float = v1.y
-    val x2: Float = v2.x
-    val y2: Float = v2.y
-    val x3: Float = v3.x
-    val y3: Float = v3.y
+    val x: Double = point.x
+    val y: Double = point.y
+    val x1: Double = v1.x
+    val y1: Double = v1.y
+    val x2: Double = v2.x
+    val y2: Double = v2.y
+    val x3: Double = v3.x
+    val y3: Double = v3.y
 
     val A1 = y2 - y3
     val A2 = y3 - y1
@@ -90,12 +90,12 @@ object BarycentricCoordinates {
 
   /** Generate random barycentric coordinates, guaranteed to lie within the triangle, uniform distribution */
   def randomUniform(generator: Random): BarycentricCoordinates = {
-    val s = generator.nextFloat()
-    val t = generator.nextFloat()
-    if (s + t < 1f)
-      new BarycentricCoordinates(s, t, 1f - s - t)
+    val s = generator.nextDouble()
+    val t = generator.nextDouble()
+    if (s + t < 1.0)
+      new BarycentricCoordinates(s, t, 1.0 - s - t)
     else
-      new BarycentricCoordinates(1f - s, 1f - t, s + t - 1f)
+      new BarycentricCoordinates(1.0 - s, 1.0 - t, s + t - 1.0)
   }
 }
 

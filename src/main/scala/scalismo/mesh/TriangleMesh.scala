@@ -41,8 +41,8 @@ trait TriangleMesh[D <: Dim] {
 
 object TriangleMesh {
 
-  def apply[D <: Dim: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
-    creator.createTriangleMesh(pointSet, topology)
+  def apply[D <: Dim: NDSpace](domain: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
+    creator.createTriangleMesh(domain, topology)
   }
 
   def apply[D <: Dim: NDSpace](points: IndexedSeq[Point[D]], topology: TriangleList)(implicit creator: Create[D]) = {
@@ -51,18 +51,18 @@ object TriangleMesh {
 
   /** Typeclass for creating domains of arbitrary dimensionality */
   trait Create[D <: Dim] extends CreateUnstructuredPointsDomain[D] {
-    def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
+    def createTriangleMesh(domain: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
   }
 
   trait Create2D extends Create[_2D] {
-    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
-      TriangleMesh2D(pointSet, topology)
+    override def createTriangleMesh(domain: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
+      TriangleMesh2D(domain, topology)
     }
   }
 
   trait Create3D extends Create[_3D] {
-    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
-      TriangleMesh3D(pointSet, topology)
+    override def createTriangleMesh(domain: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
+      TriangleMesh3D(domain, topology)
     }
   }
 
@@ -102,9 +102,9 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
     val pointNormals = new Array[Vector[_3D]](pointSet.numberOfPoints)
     pointSet.pointIds.foreach { ptId =>
       val tr = triangulation.adjacentTrianglesForPoint(ptId)
-      var x = 0f
-      var y = 0f
-      var z = 0f
+      var x = 0.0
+      var y = 0.0
+      var z = 0.0
       tr.foreach { tId =>
         val n = cellNormals(tId)
         x += n.x
@@ -181,11 +181,11 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
     val C = pointSet.point(t.ptId3).toVector
 
     val rand = new scala.util.Random(seed)
-    val u = rand.nextFloat()
-    val d = rand.nextFloat()
-    val v = if (d + u <= 1) d else 1 - u
+    val u = rand.nextDouble()
+    val d = rand.nextDouble()
+    val v = if (d + u <= 1.0) d else 1.0 - u
 
-    val s = A * u + B * v + C * (1 - (u + v))
+    val s = A * u + B * v + C * (1.0 - (u + v))
     Point(s(0), s(1), s(2))
   }
 

@@ -26,7 +26,7 @@ import scalismo.statisticalmodel.asm.PreprocessedImage.{ Gradient, Intensity }
 import scala.collection.immutable
 import scala.util.{ Failure, Try }
 
-trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], TriangleMesh[_3D], PointId, Option[DenseVector[Float]]] with HasIOMetadata {
+trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], TriangleMesh[_3D], PointId, Option[DenseVector[Double]]] with HasIOMetadata {
 
   /**
    * Actually extracts features from an image.
@@ -40,7 +40,7 @@ trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], Triangle
    * @param profilePointId a point id on the mesh, corresponding to a profiled point id.
    * @return
    */
-  def apply(image: PreprocessedImage, featurePoint: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Float]]
+  def apply(image: PreprocessedImage, featurePoint: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Double]]
 
   /**
    * Return the points at which feature components are extracted for a given mesh and point.
@@ -72,8 +72,8 @@ object NormalDirectionFeatureExtractor {
   val IOMetadata_Default = IOMetadata_1_0
 }
 
-case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Float, override val ioMetadata: IOMetadata = NormalDirectionFeatureExtractor.IOMetadata_Default) extends FeatureExtractor {
-  override def apply(image: PreprocessedImage, point: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Float]] = {
+case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double, override val ioMetadata: IOMetadata = NormalDirectionFeatureExtractor.IOMetadata_Default) extends FeatureExtractor {
+  override def apply(image: PreprocessedImage, point: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Double]] = {
     val normal: Vector[_3D] = mesh.vertexNormals(profilePointId) // TODO: this was adapted when switched to new mesh... Check if this is correct.
     val unitNormal = normal * (1.0 / normal.norm)
 
@@ -82,9 +82,9 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Float, 
     val samples = for (samplePt <- sampledPoints) yield {
       if (image.isDefinedAt(samplePt)) {
         image.valueType match {
-          case Intensity => image(samplePt)(0)
+          case Intensity => image(samplePt)(0).toDouble
           case Gradient =>
-            val gradient = Vector.fromBreezeVector[_3D](image(samplePt))
+            val gradient = Vector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
             gradient dot unitNormal
           case _ => throw new IllegalStateException(s"The feature extractor cannot handle preprocessed images of type ${image.valueType}")
         }
@@ -121,7 +121,7 @@ object NormalDirectionFeatureExtractorIOHandler extends FeatureExtractorIOHandle
     for {
       numberOfPoints <- h5File.readInt(s"$groupName/$NumberOfPoints")
       spacing <- h5File.readFloat(s"$groupName/$Spacing")
-    } yield NormalDirectionFeatureExtractor(numberOfPoints, spacing, meta)
+    } yield NormalDirectionFeatureExtractor(numberOfPoints, spacing.toDouble, meta)
   }
 
   override def save(t: FeatureExtractor, h5File: HDF5File, h5Group: Group): Try[Unit] = {
@@ -130,7 +130,7 @@ object NormalDirectionFeatureExtractorIOHandler extends FeatureExtractorIOHandle
         val groupName = h5Group.getFullName
         for {
           _ <- h5File.writeInt(s"$groupName/$NumberOfPoints", fe.numberOfPoints)
-          _ <- h5File.writeFloat(s"$groupName/$Spacing", fe.spacing)
+          _ <- h5File.writeFloat(s"$groupName/$Spacing", fe.spacing.toFloat)
         } yield ()
       case _ => Failure(new IllegalArgumentException("unsupported feature extractor class: " + t.getClass.getName))
     }

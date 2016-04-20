@@ -46,13 +46,13 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("A scaling in 2D") {
     val ss = ScalingSpace[_2D]
-    val params = DenseVector[Float](3.0)
+    val params = DenseVector[Double](3.0)
     val scale = ss.transformForParameters(params)
     val pt = Point(2.0, 1.0)
     val scaledPt = scale(pt)
     it("scales a point correctly") {
-      scaledPt(0) should be(6f +- 0.0001)
-      scaledPt(1) should be(3f +- 0.0001)
+      scaledPt(0) should be(6.0 +- 0.0001)
+      scaledPt(1) should be(3.0 +- 0.0001)
     }
 
     it("can be inverted") {
@@ -66,17 +66,17 @@ class TransformationTests extends ScalismoTestSuite {
     val center = Point(2.0, 3.5)
     val rs = RotationSpace[_2D](center)
     val phi = scala.math.Pi / 2
-    val rotate = rs.transformForParameters(DenseVector(phi.toFloat))
+    val rotate = rs.transformForParameters(DenseVector(phi))
     val pt = Point(2.0, 2.0)
     val rotatedPt = rotate(pt)
     it("rotates a point correctly") {
-      rotatedPt(0) should be(3.5f +- 0.0001)
-      rotatedPt(1) should be(3.5f +- 0.0001)
+      rotatedPt(0) should be(3.5 +- 0.0001)
+      rotatedPt(1) should be(3.5 +- 0.0001)
     }
 
     it("can be inverted") {
 
-      val identitiyTransform = rs.transformForParameters(DenseVector(phi.toFloat)).inverse compose rotate
+      val identitiyTransform = rs.transformForParameters(DenseVector(phi)).inverse compose rotate
       identitiyTransform(pt)(0) should be(pt(0) +- 0.00001)
       identitiyTransform(pt)(1) should be(pt(1) +- 0.00001)
     }
@@ -96,11 +96,11 @@ class TransformationTests extends ScalismoTestSuite {
         productSpace.parametersDimensionality should equal(ts.parametersDimensionality + rs.parametersDimensionality)
       }
 
-      val transParams = DenseVector[Float](1.0, 1.5)
+      val transParams = DenseVector[Double](1.0, 1.5)
       val translate = ts.transformForParameters(transParams)
 
       val phi = scala.math.Pi / 2
-      val rotationParams = DenseVector(phi.toFloat)
+      val rotationParams = DenseVector(phi)
       val rotate = rs.transformForParameters(rotationParams)
 
       val pt = Point(2.0f, 2.0f)
@@ -128,10 +128,10 @@ class TransformationTests extends ScalismoTestSuite {
     }
 
     it("translates a 1D image") {
-      val domain = DiscreteImageDomain[_1D](-50.0f, 1.0f, 100)
-      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f * x))
+      val domain = DiscreteImageDomain[_1D](-50.0, 1.0, 100)
+      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => (x * x), (x: Point[_1D]) => Vector(2f * x))
 
-      val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Float](10))
+      val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Double](10))
       val translatedImg = continuousImage.compose(translation)
 
       translatedImg(-10) should equal(0)
@@ -146,7 +146,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("translation forth and back of a real dataset yields the same image") {
 
-      val parameterVector = DenseVector[Float](75.0, 50.0, 25.0)
+      val parameterVector = DenseVector[Double](75.0, 50.0, 25.0)
       val translation = TranslationSpace[_3D].transformForParameters(parameterVector)
       val inverseTransform = TranslationSpace[_3D].transformForParameters(parameterVector).inverse
       val translatedForthBackImg = continuousImage.compose(translation).compose(inverseTransform)
@@ -156,7 +156,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("rotation forth and back of a real dataset yields the same image") {
 
-      val parameterVector = DenseVector[Float](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
+      val parameterVector = DenseVector[Double](2.0 * Math.PI, 2.0 * Math.PI, 2.0 * Math.PI)
       val origin = discreteImage.domain.origin
       val corner = discreteImage.domain.boundingBox.oppositeCorner
       val center = ((corner - origin) * 0.5).toPoint
@@ -172,8 +172,8 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("rotation is invertible on meshes") {
 
-      val center = Point(0f, 0f, 0f)
-      val parameterVector = DenseVector[Float](Math.PI, -Math.PI / 2.0, -Math.PI)
+      val center = Point(0.0, 0.0, 0.0)
+      val parameterVector = DenseVector[Double](Math.PI, -Math.PI / 2.0, -Math.PI)
       val rotation = RotationSpace[_3D](center).transformForParameters(parameterVector)
       val inverseRotation = rotation.inverse
 
@@ -189,8 +189,8 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("a rigid transformation yields the same result as the composition of rotation and translation") {
 
-      val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val translationParams = DenseVector(1.5f, 1.0f, 3.5f)
+      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+      val translationParams = DenseVector(1.5, 1.0, 3.5)
       val rotation = RotationSpace[_3D](Point(0f, 0f, 0f)).transformForParameters(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
       val translation = TranslationSpace[_3D].transformForParameters(translationParams)
 
@@ -208,9 +208,9 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("An anisotropic similarity transform") {
 
-    val translationParams = DenseVector(1f, 2f, 3f)
-    val rotationParams = DenseVector(0f, Math.PI.toFloat / 2f, Math.PI.toFloat / 4f)
-    val anisotropScalingParams = DenseVector(2f, 3f, 1f)
+    val translationParams = DenseVector(1.0, 2.0, 3.0)
+    val rotationParams = DenseVector(0.0, Math.PI / 2.0, Math.PI / 4.0)
+    val anisotropScalingParams = DenseVector(2.0, 3.0, 1.0)
 
     val translation = TranslationSpace[_3D].transformForParameters(translationParams)
     val rotation = RotationSpace[_3D](Point(0, 0, 0)).transformForParameters(rotationParams)

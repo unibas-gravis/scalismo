@@ -361,7 +361,7 @@ object ImageIO {
       val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
       val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
 
-      val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toFloat
+      val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toDouble
 
       val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
 
@@ -516,9 +516,9 @@ object ImageIO {
       volume.header.srow_x = data.take(4)
       volume.header.srow_y = data.slice(4, 8)
       volume.header.srow_z = data.slice(8, 12)
-      volume.header.pixdim(1) = domain.spacing(0)
-      volume.header.pixdim(2) = domain.spacing(1)
-      volume.header.pixdim(3) = domain.spacing(2)
+      volume.header.pixdim(1) = domain.spacing(0).toFloat
+      volume.header.pixdim(2) = domain.spacing(1).toFloat
+      volume.header.pixdim(3) = domain.spacing(2).toFloat
 
       volume.write(file.getAbsolutePath)
     }

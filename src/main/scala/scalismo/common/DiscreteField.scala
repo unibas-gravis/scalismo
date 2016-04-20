@@ -101,9 +101,9 @@ class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](val domain: Dis
   /** map the function f over the values, but ensures that the result is scalar valued as well */
   def map(f: Vector[DO] => Vector[DO]): DiscreteVectorField[D, DO] = new DiscreteVectorField(domain, data.map(f))
 
-  def asBreezeVector: DenseVector[Float] = {
+  def asBreezeVector: DenseVector[Double] = {
     val d = implicitly[NDSpace[DO]].dimensionality
-    val v = DenseVector.zeros[Float](domain.numberOfPoints * d)
+    val v = DenseVector.zeros[Double](domain.numberOfPoints * d)
     for ((pt, i) <- domain.pointsWithId) {
       v(i.id * d until (i.id + 1) * d) := data(i.id).toBreezeVector
     }
@@ -123,7 +123,7 @@ object DiscreteVectorField {
    * the vector is ordered as (v_11, v_12, ... v_1d, ...v_n1, v_n2, v_nd)
    */
   def fromDenseVector[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D],
-    vec: DenseVector[Float]): DiscreteVectorField[D, DO] = {
+    vec: DenseVector[Double]): DiscreteVectorField[D, DO] = {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =
       for (v <- vec.toArray.grouped(dim))

@@ -34,7 +34,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       for (i <- 0 until 10) {
         val coeffsData = (0 until oldModel.rank).map { _ =>
-          breeze.stats.distributions.Gaussian(0, 1).draw().toFloat
+          breeze.stats.distributions.Gaussian(0, 1).draw()
         }
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)
@@ -51,7 +51,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val path = getClass.getResource("/facemodel.h5").getPath
       val model = StatismoIO.readStatismoMeshModel(new File(path)).get
 
-      val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
       val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
       val transformedModel = model.transform(rigidTransform)

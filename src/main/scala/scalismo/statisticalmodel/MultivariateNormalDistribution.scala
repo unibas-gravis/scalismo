@@ -39,8 +39,8 @@ private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
   def sample(): V
 }
 
-case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMatrix[Float])
-    extends MultivariateNormalDistributionLike[DenseVector[Float], DenseMatrix[Float]] {
+case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseMatrix[Double])
+    extends MultivariateNormalDistributionLike[DenseVector[Double], DenseMatrix[Double]] {
 
   require(cov.rows == cov.cols)
   require(mean.size == cov.rows)
@@ -64,27 +64,27 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
    * Returns a seq with the principal components and associated variance
    * @return
    */
-  override def principalComponents: Seq[(DenseVector[Float], Double)] = {
+  override def principalComponents: Seq[(DenseVector[Double], Double)] = {
     val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd.reduced(cov.map(_.toDouble))
     val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
     val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
     val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
 
     for (i <- 0 until uMat.cols) yield {
-      (uMat(::, i).toDenseVector.map(_.toFloat), sigma2s(i))
+      (uMat(::, i).toDenseVector, sigma2s(i))
     }
   }
 
-  override def pdf(x: DenseVector[Float]) = {
+  override def pdf(x: DenseVector[Double]) = {
     if (x.size != dim) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $dim)")
     val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet + 1e-10)
 
-    val x0 = (x - mean).map(_.toDouble)
+    val x0 = (x - mean)
     val exponent = -0.5f * x0.dot(covInv * x0)
     normFactor * math.exp(exponent)
   }
 
-  override def logpdf(x: DenseVector[Float]) = {
+  override def logpdf(x: DenseVector[Double]) = {
     if (x.size != dim) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $dim)")
     val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet + 1e-10)
 
@@ -94,25 +94,25 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
   }
 
-  override def mahalanobisDistance(x: DenseVector[Float]): Double = {
-    val x0 = (x - mean).map(_.toDouble)
+  override def mahalanobisDistance(x: DenseVector[Double]): Double = {
+    val x0 = (x - mean)
     math.sqrt(x0 dot (covInv * x0))
   }
 
-  override def sample(): DenseVector[Float] = {
+  override def sample(): DenseVector[Double] = {
 
     val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
 
-    mean + (root * u).map(_.toFloat)
+    mean + (root * u)
   }
 
   private def regularizedCholesky(regWeight: Double): Try[DenseMatrix[Double]] = {
 
     // we regularize the covariance matrix before doing a cholesky decomposition
     // to avoid numerical errors
-    val covReg = cov.map(_.toDouble)
-    for (i <- 0 until cov.cols) {
+    val covReg = cov.copy
+    for (i <- 0 until covReg.cols) {
       covReg(i, i) += regWeight
     }
 
@@ -125,7 +125,7 @@ case class MultivariateNormalDistribution(mean: DenseVector[Float], cov: DenseMa
 
 object MultivariateNormalDistribution {
 
-  def estimateFromData(samples: Seq[DenseVector[Float]]): MultivariateNormalDistribution = {
+  def estimateFromData(samples: Seq[DenseVector[Double]]): MultivariateNormalDistribution = {
 
     val numSamples = samples.length
     require(numSamples > 0)
@@ -133,27 +133,27 @@ object MultivariateNormalDistribution {
     val sampleDim = samples(0).length
     require(samples.forall(s => s.length == sampleDim))
 
-    val zeroVec = DenseVector.zeros[Float](sampleDim)
-    val mean = samples.foldLeft(zeroVec)((acc, s) => acc + s) * (1f / numSamples)
+    val zeroVec = DenseVector.zeros[Double](sampleDim)
+    val mean = samples.foldLeft(zeroVec)((acc, s) => acc + s) * (1.0 / numSamples)
 
-    val zeroMatrix = DenseMatrix.zeros[Float](sampleDim, sampleDim)
-    def outer(v1: DenseVector[Float], v2: DenseVector[Float]) = v1.toDenseMatrix.t * v2.toDenseMatrix
+    val zeroMatrix = DenseMatrix.zeros[Double](sampleDim, sampleDim)
+    def outer(v1: DenseVector[Double], v2: DenseVector[Double]) = v1.toDenseMatrix.t * v2.toDenseMatrix
 
     val normalizer = if (numSamples == 1) 1 else numSamples - 1
-    val cov = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1f / normalizer)
+    val cov = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1.0 / normalizer)
     new MultivariateNormalDistribution(mean, cov)
   }
 
 }
 
 object NDimensionalNormalDistribution {
-  def apply[D <: Dim: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Float)]): NDimensionalNormalDistribution[D] = {
+  def apply[D <: Dim: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Double)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
     val cov: SquareMatrix[D] = {
       val d2 = {
-        val data = Array.fill(dim * dim)(0.0f)
+        val data = Array.fill(dim * dim)(0.0)
         for (i <- 0 until dim) data(i * dim + i) = principalComponents(i)._2
         SquareMatrix[D](data)
       }

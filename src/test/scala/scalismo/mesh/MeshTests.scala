@@ -59,11 +59,11 @@ class MeshTests extends ScalismoTestSuite {
       assert(closestPt === pts(2))
     }
     it("computes its area correctly for a triangle") {
-      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0f, 0.0f, 0.0f), (0.0f, 1.0f, 0.0f), (1.0f, 0.0f, 0.0f))
+      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
       val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells))
 
-      val R = RotationSpace[_3D]((0.0f, 0.0f, 0.0f)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
+      val R = RotationSpace[_3D]((0.0, 0.0, 0.0)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
       val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
       val transformedMesh = mesh.transform(R).transform(s)
       mesh.area should be(0.5 +- 1e-8)

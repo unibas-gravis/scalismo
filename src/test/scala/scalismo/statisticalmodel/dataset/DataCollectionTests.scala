@@ -30,7 +30,7 @@ class DataCollectionTests extends ScalismoTestSuite {
 
   describe("A datacollection") {
 
-    val transformations = for (i <- 0 until 10) yield TranslationTransform(Vector(i.toFloat, 0f, 0f))
+    val transformations = for (i <- 0 until 10) yield TranslationTransform(Vector(i.toDouble, 0.0, 0.0))
     val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)
     val meshpath = getClass.getResource("/facemesh.stl").getPath
     val referenceMesh = MeshIO.readMesh(new File(meshpath)).get
