@@ -18,7 +18,8 @@ package scalismo.kernels
 import breeze.linalg.{ DenseMatrix, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.{ RandomSVD, Sampler }
+import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
+import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
 
@@ -234,8 +235,7 @@ object Kernel {
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
-    val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)
-    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
+    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, NumberOfEigenfunctions(numBasisFunctions))
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
