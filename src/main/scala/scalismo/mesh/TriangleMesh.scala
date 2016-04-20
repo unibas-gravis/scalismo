@@ -1,56 +1,127 @@
-/*
- * Copyright 2015 University of Basel, Graphics and Vision Research Group
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 package scalismo.mesh
 
-import scala.reflect.ClassTag
-import scala.collection.mutable
 import scalismo.common._
 import scalismo.geometry._
 
+
+import scala.language.implicitConversions
+
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
 case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends Cell {
-
   /** Identifiers of the points belonging to the cell*/
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
 
   /** Returns true if the given point identifier is part of the triangle cell*/
   def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
+
+  def toIntVector3D = IntVector(ptId1.id, ptId2.id, ptId3.id)
 }
 
-/**
- * 3-dimensional triangle mesh.
- *
- * Triangle meshes are currently the only supported representation of 3-dimensional meshes in the library.
- *
- */
-case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell], private val cellMapOpt: Option[mutable.HashMap[PointId, Seq[TriangleCell]]])
-    extends UnstructuredPointsDomain3D(meshPoints) {
+trait TriangleMesh[D <: Dim] {
 
-  // a map that has for every point the neighboring cell ids
-  private[scalismo] val cellMap: mutable.HashMap[PointId, Seq[TriangleCell]] = cellMapOpt.getOrElse(mutable.HashMap())
+  def triangulation: TriangleList
+  def domain: UnstructuredPointsDomain[D]
+}
 
-  private[this] def updateCellMapForPtId(ptId: PointId, cell: TriangleCell): Unit = {
-    val cellsForKey = cellMap.getOrElse(ptId, Seq[TriangleCell]())
-    cellMap.update(ptId, cellsForKey :+ cell)
+object TriangleMesh {
+
+  def apply[D <: Dim: NDSpace](domain: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
+    creator.createTriangleMesh(domain, topology)
   }
 
-  if (cellMapOpt.isEmpty)
-    for (cell <- cells) {
-      cell.pointIds.foreach(id => updateCellMapForPtId(id, cell))
+  def apply[D <: Dim: NDSpace](points: IndexedSeq[Point[D]], topology: TriangleList)(implicit creator: Create[D], domainCreator: CreateUnstructuredPointsDomain[D]) = {
+    creator.createTriangleMesh(UnstructuredPointsDomain(points), topology)
+  }
+
+  /** Typeclass for creating domains of arbitrary dimensionality */
+  trait Create[D <: Dim] extends CreateUnstructuredPointsDomain[D] {
+    def createTriangleMesh(domain: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
+  }
+
+  trait Create1D extends Create[_1D] {
+    override def createTriangleMesh(domain: UnstructuredPointsDomain[_1D], topology: TriangleList) = {
+      TriangleMesh1D(domain)
     }
+  }
+
+  trait Create2D extends Create[_2D] {
+    override def createTriangleMesh(domain: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
+      TriangleMesh2D(domain, topology)
+    }
+  }
+
+  trait Create3D extends Create[_3D] {
+    override def createTriangleMesh(domain: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
+      TriangleMesh3D(domain, topology)
+    }
+  }
+
+  implicit def parametricToConcreteType1D(triangleMesh: TriangleMesh[_1D]): TriangleMesh1D = {
+    triangleMesh.asInstanceOf[TriangleMesh1D]
+  }
+
+  implicit def parametricToConcreteType2D(triangleMesh: TriangleMesh[_2D]): TriangleMesh2D = {
+    triangleMesh.asInstanceOf[TriangleMesh2D]
+  }
+
+  implicit def parametricToConcreteType3D(triangleMesh: TriangleMesh[_3D]): TriangleMesh3D = {
+    triangleMesh.asInstanceOf[TriangleMesh3D]
+  }
+
+}
+
+/** Standard 3D Gravis mesh, geometry only */
+
+case class TriangleMesh3D(domain: UnstructuredPointsDomain[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
+
+  val position = SurfacePointProperty(triangulation, domain.point _)
+  val triangles = triangulation.triangles
+  val cells = triangles
+
+  lazy val boundingBox = domain.boundingBox
+
+  /** Get all cell normals as a surface property */
+  lazy val cellNormals: TriangleProperty[Vector[_3D]] = {
+    val triangleNormals: Array[Vector[_3D]] = new Array[Vector[_3D]](triangles.size)
+    triangulation.triangleIds.foreach { tId =>
+      val cell = triangulation.triangle(tId)
+      triangleNormals(tId.id) = computeCellNormal(cell)
+    }
+    TriangleProperty(triangulation, triangleNormals)
+  }
+
+  /** Get all vertex normals as a surface property, averages over cell normals */
+  lazy val vertexNormals: SurfacePointProperty[Vector[_3D]] = {
+    // create data array: average over all adjacent triangles
+    val pointNormals = new Array[Vector[_3D]](domain.numberOfPoints)
+    domain.pointIds.foreach { ptId =>
+      val tr = triangulation.adjacentTrianglesForPoint(ptId)
+      var x = 0f
+      var y = 0f
+      var z = 0f
+      tr.foreach { tId =>
+        val n = cellNormals(tId)
+        x += n.x
+        y += n.y
+        z += n.z
+      }
+      val n = tr.size
+      pointNormals(ptId.id) = Vector3D(x / n, y / n, z / n).normalize
+    }
+    SurfacePointProperty(triangulation, pointNormals)
+  }
+
+  /**
+   * Area of the mesh surface.
+   *
+   *  The computed area is the sum of all the triangle cell areas.
+   */
+  lazy val area: Double = {
+    var sum = 0.0
+    triangles.foreach(t => sum += computeTriangleArea(t))
+    sum
+  }
 
   /**
    *  Returns a triangle mesh that is the image of this mesh by the given transform.
@@ -59,67 +130,29 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
    *
    *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
-  override def transform(transform: Point[_3D] => Point[_3D]): TriangleMesh = new TriangleMesh(meshPoints.par.map(transform).toIndexedSeq, cells, Some(cellMap))
-
-  /**
-   * Returns the identifiers of the mesh cells to which the given point identifier belongs
-   */
-  def cellsWithPointId(id: PointId): Seq[TriangleCell] = cellMap(id)
+  def transform(transform: Point[_3D] => Point[_3D]): TriangleMesh3D = {
+    TriangleMesh3D(domain.points.map(transform).toIndexedSeq, triangulation)
+  }
 
   /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
   def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
-    computeCellNormalInternal(cell, Seq())
-  }
-
-  private val degeneratedCellNormals = mutable.Map[TriangleCell, Vector[_3D]]()
-
-  private def computeCellNormalInternal(cell: TriangleCell, degeneratedCells: Seq[TriangleCell]): Vector[_3D] = {
-    val pt1 = meshPoints(cell.ptId1.id)
-    val pt2 = meshPoints(cell.ptId2.id)
-    val pt3 = meshPoints(cell.ptId3.id)
+    val pt1 = domain.point(cell.ptId1)
+    val pt2 = domain.point(cell.ptId2)
+    val pt3 = domain.point(cell.ptId3)
 
     val u = pt2 - pt1
     val v = pt3 - pt1
-
-    if (u.norm < 1e-6 || v.norm < 1e-6) {
-      degeneratedCellNormals.getOrElseUpdate(cell, {
-        val cellNeighbors = cell.pointIds.flatMap(id => cellsWithPointId(id)).filterNot(nbr => degeneratedCells.contains(nbr) || nbr == cell).distinct
-        val nbrNormals = cellNeighbors.foldLeft(Vector.zeros[_3D])((acc, nbr) => acc + computeCellNormalInternal(nbr, degeneratedCells :+ cell))
-        nbrNormals * (1.0 / cellNeighbors.size)
-      })
-    } else {
-      u.crossproduct(v)
-    }
+    u.crossproduct(v).normalize
   }
-
-  /**
-   *  Returns surface normal at the closest mesh point to the indicated argument point.
-   *
-   *  @param pt Point at which to evaluate the surface normal. Note that it does not need to be one of the mesh points.
-   *  The returned vector is the normal at the closest mesh point to this point.
-   */
-  def normalAtPoint(pt: Point[_3D]): Vector[_3D] = {
-    val closestMeshPtId = findClosestPoint(pt).id
-    val neighborCells = cellsWithPointId(closestMeshPtId)
-    val normalUnnormalized = neighborCells.foldLeft(Vector(0f, 0f, 0f))((acc, cell) => acc + computeCellNormal(cell)) * (1.0 / neighborCells.size)
-    normalUnnormalized * (1.0 / normalUnnormalized.norm)
-  }
-
-  /**
-   * Area of the mesh surface.
-   *
-   *  The computed area is the sum of all the triangle cell areas.
-   */
-  lazy val area = cells.map(triangle => computeTriangleArea(triangle)).sum
 
   /**
    *  Returns the area of the indicated triangle cell.
    */
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
-    val A = meshPoints(t.ptId1.id)
-    val B = meshPoints(t.ptId2.id)
-    val C = meshPoints(t.ptId3.id)
+    val A = domain.point(t.ptId1)
+    val B = domain.point(t.ptId2)
+    val C = domain.point(t.ptId3)
     val a = (B - A).norm
     val b = (C - B).norm
     val c = (C - A).norm
@@ -128,64 +161,19 @@ case class TriangleMesh private[scalismo] (private val meshPoints: IndexedSeq[Po
     // it can happen that the area is negative, due to a degenerate triangle.
     if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
   }
-
-  /**
-   *  Returns a random point lying within the triangle defined by the indicated cell.
-   *
-   *  A uniform distribution is used for sampling points.
-   *
-   *  @param t Triangle cell in which to draw a random point
-   *  @param seed Seed value for the random generator
-   */
-  def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
-    val A = meshPoints(t.ptId1.id).toVector
-    val B = meshPoints(t.ptId2.id).toVector
-    val C = meshPoints(t.ptId3.id).toVector
-
-    val rand = new scala.util.Random(seed)
-    val u = rand.nextFloat()
-    val d = rand.nextFloat()
-    val v = if (d + u <= 1) d else 1 - u
-
-    val s = A * u + B * v + C * (1 - (u + v))
-    Point(s(0), s(1), s(2))
-  }
-
-  override lazy val hashCode = super.hashCode()
 }
 
-/**
- * Factory for [[TriangleMesh]] instances.
- */
-object TriangleMesh {
-  /**
-   * Returns a 3D triangle mesh defined by the indicated points and cells
-   *
-   * @param meshPoints Sequence of points defining the triangle mesh.
-   * @param cells Sequence of the triangle cells defined over the mesh points.
-   * The identifiers used for defining the cells are the indices of points in meshPoints.
-   */
-  def apply(meshPoints: IndexedSeq[Point[_3D]], cells: IndexedSeq[TriangleCell]) = new TriangleMesh(meshPoints, cells, None)
-}
-
-/**
- * 3-dimensional triangle mesh with scalar values associated to mesh points.
- * @tparam S type of the scalar values defined over the mesh (Short, Int, Float, Double)
- *
- * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
- * The number of values and mesh points must be equal.
- */
-case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh, override val data: ScalarArray[S]) extends DiscreteScalarField[_3D, S](mesh, data) {
-  require(mesh.numberOfPoints == data.size)
-
-  override def values = data.iterator
-  override val domain = mesh
-
-  override def apply(ptId: PointId) = data(ptId.id)
-  override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
-
-  override def map[S2: Scalar: ClassTag](f: S => S2): ScalarMeshField[S2] = {
-    ScalarMeshField(mesh, data.map(f))
+object TriangleMesh3D {
+  def apply(points: IndexedSeq[Point[_3D]], topology: TriangleList): TriangleMesh3D = {
+    TriangleMesh3D(UnstructuredPointsDomain(points), topology)
   }
 }
 
+case class TriangleMesh2D(domain: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
+  val position = SurfacePointProperty(triangulation, domain.point _)
+
+}
+
+case class TriangleMesh1D(domain: UnstructuredPointsDomain[_1D]) extends TriangleMesh[_1D] {
+  override val triangulation = TriangleList(IndexedSeq[TriangleCell]())
+}
