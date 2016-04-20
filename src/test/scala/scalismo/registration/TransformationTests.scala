@@ -178,12 +178,12 @@ class TransformationTests extends ScalismoTestSuite {
       val inverseRotation = rotation.inverse
 
       val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
-      rotRotMesh.points.zipWithIndex.foreach {
+      rotRotMesh.pointSet.points.zipWithIndex.foreach {
         case (p, i) =>
           val id = PointId(i)
-          p(0) should be(mesh.point(id)(0) +- 0.000001)
-          p(1) should be(mesh.point(id)(1) +- 0.000001)
-          p(2) should be(mesh.point(id)(2) +- 0.000001)
+          p(0) should be(mesh.pointSet.point(id)(0) +- 0.000001)
+          p(1) should be(mesh.pointSet.point(id)(1) +- 0.000001)
+          p(2) should be(mesh.pointSet.point(id)(2) +- 0.000001)
       }
     }
 
@@ -200,7 +200,7 @@ class TransformationTests extends ScalismoTestSuite {
       val transformedRigid = mesh.transform(rigid)
       val transformedComposed = mesh.transform(rigid)
 
-      val diffNormMax = transformedRigid.points.zip(transformedComposed.points).map { case (p1, p2) => (p1 - p2).norm }.max
+      val diffNormMax = transformedRigid.pointSet.points.zip(transformedComposed.pointSet.points).map { case (p1, p2) => (p1 - p2).norm }.max
       assert(diffNormMax < 0.00001)
 
     }

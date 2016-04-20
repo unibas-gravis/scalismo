@@ -26,9 +26,9 @@ import scala.util.Try
  */
 object Crossvalidation {
 
-  type EvaluationFunction[A] = (StatisticalMeshModel, TriangleMesh) => A
+  type EvaluationFunction[A] = (StatisticalMeshModel, TriangleMesh[_3D]) => A
 
-  private def projectIntoModel(model: StatisticalMeshModel, mesh: TriangleMesh): TriangleMesh = {
+  private def projectIntoModel(model: StatisticalMeshModel, mesh: TriangleMesh[_3D]): TriangleMesh[_3D] = {
     model.project(mesh)
   }
 

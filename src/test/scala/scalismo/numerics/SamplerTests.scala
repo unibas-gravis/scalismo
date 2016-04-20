@@ -41,7 +41,7 @@ class SamplerTests extends ScalismoTestSuite {
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
-        val vec = cell.pointIds.map(facemesh.point).map(_.toVector)
+        val vec = cell.pointIds.map(facemesh.pointSet.point).map(_.toVector)
         val (a, b, c) = (vec(0), vec(1), vec(2))
         val v0 = c - a
         val v1 = b - a
@@ -58,7 +58,7 @@ class SamplerTests extends ScalismoTestSuite {
       def testSampling(numSamplingPoints: Int, randomAreaSizeRatio: Double): Unit = {
 
         // the algorithm is taken from http://www.blackpawn.com/texts/pointinpoly/
-        def pointInCell(p: Point[_3D], cellId: Int, mesh: TriangleMesh): Boolean = {
+        def pointInCell(p: Point[_3D], cellId: Int, mesh: TriangleMesh[_3D]): Boolean = {
           val info = memoizedInfo(cellId)
 
           val v2 = p.toVector - info.a
@@ -93,7 +93,7 @@ class SamplerTests extends ScalismoTestSuite {
         val (samplePoints, _) = sampler.sample.unzip
         //        println(s"total number of points: ${facemesh.numberOfPoints}")
 
-        def randomArea(mesh: TriangleMesh, targetRatio: Double): (IndexedSeq[Int], Double) = {
+        def randomArea(mesh: TriangleMesh[_3D], targetRatio: Double): (IndexedSeq[Int], Double) = {
           val cellAreas = facemesh.cells.map(facemesh.computeTriangleArea)
           val cellIdWithArea = random.shuffle(facemesh.cells.indices zip cellAreas)
 

@@ -20,6 +20,7 @@ import java.io.{ File, IOException }
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
+import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
@@ -111,12 +112,12 @@ object ActiveShapeModelIO {
     } yield ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
   }
 
-  private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh): Try[Profiles] = {
+  private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
     val groupName = group.getFullName
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
       pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
-      pts = pointIds.map(id => referenceMesh.point(PointId(id))).toIndexedSeq
+      pts = pointIds.map(id => referenceMesh.pointSet.point(PointId(id))).toIndexedSeq
       covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
       (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
