@@ -54,12 +54,6 @@ object TriangleMesh {
     def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
   }
 
-  trait Create1D extends Create[_1D] {
-    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_1D], topology: TriangleList) = {
-      TriangleMesh1D(pointSet)
-    }
-  }
-
   trait Create2D extends Create[_2D] {
     override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
       TriangleMesh2D(pointSet, topology)
@@ -70,10 +64,6 @@ object TriangleMesh {
     override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
       TriangleMesh3D(pointSet, topology)
     }
-  }
-
-  implicit def parametricToConcreteType1D(triangleMesh: TriangleMesh[_1D]): TriangleMesh1D = {
-    triangleMesh.asInstanceOf[TriangleMesh1D]
   }
 
   implicit def parametricToConcreteType2D(triangleMesh: TriangleMesh[_2D]): TriangleMesh2D = {
@@ -212,13 +202,5 @@ case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation
 
   override def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh2D = {
     TriangleMesh2D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq), triangulation)
-  }
-}
-
-case class TriangleMesh1D(pointSet: UnstructuredPointsDomain[_1D]) extends TriangleMesh[_1D] {
-  override val triangulation = TriangleList(IndexedSeq[TriangleCell]())
-
-  override def transform(transform: Point[_1D] => Point[_1D]): TriangleMesh1D = {
-    TriangleMesh1D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq))
   }
 }
