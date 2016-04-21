@@ -77,7 +77,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val smean = statisticalModel.mean
     val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val meanFeatures = profiles.data.map(_.distribution.mean)
-    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
+    val featureField = new DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
     ASMSample(smean, featureField, featureExtractor)
   }
 
@@ -88,7 +88,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val sampleMesh = statisticalModel.sample
     val randomProfilePoints = profiles.data.map(p => sampleMesh.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
-    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
+    val featureField = new DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
   }
 
@@ -100,7 +100,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val smean = statisticalModel.mean
     val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
-    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
+    val featureField = new DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(smean, featureField, featureExtractor)
   }
 
