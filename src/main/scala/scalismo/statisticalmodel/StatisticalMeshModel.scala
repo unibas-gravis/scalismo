@@ -247,13 +247,13 @@ object StatisticalMeshModel {
       eigenvectors(::, i) :*= eigenvalues(i)
     }
 
-    val l: DenseMatrix[Float] = eigenvectors.t * eigenvectors
+    val l: DenseMatrix[Double] = eigenvectors.t * eigenvectors
     val SVD(v, _, _) = breeze.linalg.svd(l)
-    val U: DenseMatrix[Float] = eigenvectors * v
-    val d: DenseVector[Float] = DenseVector.zeros(U.cols)
+    val U: DenseMatrix[Double] = eigenvectors * v
+    val d: DenseVector[Double] = DenseVector.zeros(U.cols)
     for (i <- (0 until U.cols)) {
-      d(i) = breeze.linalg.norm(U(::, i)).toFloat
-      U(::, i) := U(::, i) * (1f / d(i))
+      d(i) = breeze.linalg.norm(U(::, i))
+      U(::, i) := U(::, i) * (1.0 / d(i))
     }
 
     val r = model.gp.copy[_3D, _3D](meanVector = model.gp.meanVector + discretizedBiasModel.meanVector, variance = breeze.numerics.pow(d, 2), basisMatrix = U)
