@@ -41,8 +41,8 @@ trait TriangleMesh[D <: Dim] {
 
 object TriangleMesh {
 
-  def apply[D <: Dim: NDSpace](domain: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
-    creator.createTriangleMesh(domain, topology)
+  def apply[D <: Dim: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
+    creator.createTriangleMesh(pointSet, topology)
   }
 
   def apply[D <: Dim: NDSpace](points: IndexedSeq[Point[D]], topology: TriangleList)(implicit creator: Create[D]) = {
@@ -51,18 +51,18 @@ object TriangleMesh {
 
   /** Typeclass for creating domains of arbitrary dimensionality */
   trait Create[D <: Dim] extends CreateUnstructuredPointsDomain[D] {
-    def createTriangleMesh(domain: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
+    def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
   }
 
   trait Create2D extends Create[_2D] {
-    override def createTriangleMesh(domain: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
-      TriangleMesh2D(domain, topology)
+    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
+      TriangleMesh2D(pointSet, topology)
     }
   }
 
   trait Create3D extends Create[_3D] {
-    override def createTriangleMesh(domain: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
-      TriangleMesh3D(domain, topology)
+    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
+      TriangleMesh3D(pointSet, topology)
     }
   }
 
