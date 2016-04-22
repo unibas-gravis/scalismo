@@ -256,7 +256,7 @@ object MeshConversion {
     }
 
     // set points
-    val pointDataArray = mesh.pointSet.points.toIndexedSeq.toArray.flatMap(_.toArray)
+    val pointDataArray = mesh.pointSet.pointSequence.toArray.flatMap(_.toArray)
     val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.DoubleIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
