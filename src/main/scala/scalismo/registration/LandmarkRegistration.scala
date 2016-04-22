@@ -79,14 +79,14 @@ object LandmarkRegistration {
 
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks)
-    val optimalParameters = DenseVector.vertcat(t, rotparams).map(_.toFloat)
+    val optimalParameters = DenseVector.vertcat(t, rotparams)
     val rigidSpace = RigidTransformationSpace[_3D]()
     rigidSpace.transformForParameters(optimalParameters)
   }
 
   def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): ParametricTransformation[_3D] = {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, similarityFlag = true)
-    val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams).map(_.toFloat), DenseVector(s.toFloat))
+    val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, rotparams), DenseVector(s))
     val similaritySpace = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D])
     similaritySpace.transformForParameters(optimalParameters)
   }
@@ -110,14 +110,14 @@ object LandmarkRegistration {
 
   def similarity2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): ParametricTransformation[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, similarityFlag = true)
-    val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat), DenseVector(s.toFloat))
+    val optimalParameters = DenseVector.vertcat(DenseVector.vertcat(t, DenseVector(phi)), DenseVector(s))
     val similaritySpace = RigidTransformationSpace[_2D](origin2D).product(ScalingSpace[_2D])
     similaritySpace.transformForParameters(optimalParameters)
   }
 
   def rigid2DLandmarkRegistration(landmarks: IndexedSeq[(Point[_2D], Point[_2D])]): RigidTransformation[_2D] = {
     val (t, phi, _) = rigidSimilarity2DCommon(landmarks)
-    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi)).map(_.toFloat)
+    val optimalParameters = DenseVector.vertcat(t, DenseVector(phi))
     val rigidSpace = RigidTransformationSpace[_2D](origin2D)
     rigidSpace.transformForParameters(optimalParameters)
   }
@@ -138,8 +138,8 @@ object LandmarkRegistration {
     val Y = DenseMatrix.zeros[Double](n, dimensionality)
 
     for (((x, y), i) <- landmarks.zipWithIndex) {
-      X(i, ::) := DenseVector(x.toArray.map(_.toDouble)).t
-      Y(i, ::) := DenseVector(y.toArray.map(_.toDouble)).t
+      X(i, ::) := DenseVector(x.toArray).t
+      Y(i, ::) := DenseVector(y.toArray).t
     }
 
     val mu_x = mean(X.t, Axis._1)

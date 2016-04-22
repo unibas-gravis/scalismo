@@ -26,13 +26,13 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
   val path = getClass.getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
-  val translationLength = 1.0f
-  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0f, 0.0f))
+  val translationLength = 1.0
+  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0, 0.0))
 
   describe("The ProcrustesDistanceMetric") {
 
     it("yields 0 between the same mesh") {
-      MeshMetrics.procrustesDistance(mesh, mesh) should be(0.0)
+      MeshMetrics.procrustesDistance(mesh, mesh) should be(0.0 +- 1e-10)
     }
 
     it("should be 0 for a translated mesh") {

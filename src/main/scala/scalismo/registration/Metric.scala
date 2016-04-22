@@ -22,7 +22,6 @@ import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics.{ Sampler, Integrator }
 
 import scala.language.higherKinds
-import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
 
 trait ImageMetric[D <: Dim] {
@@ -60,7 +59,7 @@ case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D]) extends Ima
     val fullMetricGradient = (x: Point[D]) => {
       val domain = Domain.intersection(warpedImage.domain, dDMovingImage.domain)
       if (domain.isDefinedAt(x))
-        Some(movingGradientImage(transform(x)).toBreezeVector * dDMovingImage(x))
+        Some(movingGradientImage(transform(x)).toFloatBreezeVector * dDMovingImage(x))
       else None
     }
 

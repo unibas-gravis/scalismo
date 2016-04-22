@@ -257,7 +257,7 @@ object MeshConversion {
 
     // set points
     val pointDataArray = mesh.pointSet.points.toIndexedSeq.toArray.flatMap(_.toArray)
-    val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
+    val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.DoubleIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
     pd.SetPoints(pointsVTK)
@@ -403,9 +403,9 @@ object CanConvertToVtk {
       val newYSpatialSize = cornerImages.map(p => p(1)).max - newOriginY
       val newZSpatialSize = cornerImages.map(p => p(2)).max - newOriginZ
 
-      val newXExtent = math.round(newXSpatialSize / domain.spacing(0))
-      val newYExtent = math.round(newYSpatialSize / domain.spacing(1))
-      val newZExtent = math.round(newZSpatialSize / domain.spacing(2))
+      val newXExtent = math.round(newXSpatialSize / domain.spacing(0)).toInt
+      val newYExtent = math.round(newYSpatialSize / domain.spacing(1)).toInt
+      val newZExtent = math.round(newZSpatialSize / domain.spacing(2)).toInt
 
       reslice.SetOutputExtent(0, newXExtent, 0, newYExtent, 0, newZExtent)
       val conv = new vtkImageToStructuredPoints()

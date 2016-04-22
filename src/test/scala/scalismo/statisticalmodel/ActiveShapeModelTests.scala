@@ -18,10 +18,10 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
 
       val imagePreprocessor = GaussianGradientImagePreprocessor(0.1f)
       // number of points should usually be an odd number, so that the profiles are centered on the profiled points
-      val featureExtractor = NormalDirectionFeatureExtractor(11, 1f)
-      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, 1000, 42)
-      val searchMethod = NormalDirectionSearchPointSampler(31, 6)
-      val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2f, pointDistanceThreshold = 3f, modelCoefficientBounds = 3f)
+      val featureExtractor = NormalDirectionFeatureExtractor(numberOfPoints = 5, spacing = 1.0)
+      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, numberOfPoints = 1000, seed = 42)
+      val searchMethod = NormalDirectionSearchPointSampler(numberOfPoints = 31, searchDistance = 6)
+      val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 
       val shapeModel = StatismoIO.readStatismoMeshModel(new File(getClass.getResource(s"/asmData/model.h5").getPath)).get
       val nbFiles = 7

@@ -130,7 +130,7 @@ case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => Ve
 
   /** scalar multiplication of a vector field */
   def *(s: Double): VectorField[D, DO] = {
-    def f(x: Point[D]): Vector[DO] = this.f(x) * s.toFloat
+    def f(x: Point[D]): Vector[DO] = this.f(x) * s
     new VectorField(domain, f)
   }
 }

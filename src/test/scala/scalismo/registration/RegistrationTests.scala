@@ -38,8 +38,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
-        val rotationParams = DenseVector[Float](-angle)
-        val transParams = DenseVector[Float](1f, 1.5f)
+        val rotationParams = DenseVector[Double](-angle)
+        val transParams = DenseVector[Double](1.0, 1.5)
         val productParams = DenseVector.vertcat(transParams, rotationParams)
 
         val productSpace = RigidTransformationSpace[_2D](c)
@@ -65,7 +65,7 @@ class RegistrationTests extends ScalismoTestSuite {
     val path = getClass.getResource("/facemesh.stl").getPath
     val mesh = MeshIO.readMesh(new File(path)).get
 
-    val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+    val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
     val trans = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
 
     val rigidTransformed = mesh transform trans
@@ -103,10 +103,10 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
-        val rotationParams = DenseVector[Float](-angle)
-        val transParams = DenseVector[Float](1f, 1.5f)
+        val rotationParams = DenseVector[Double](-angle)
+        val transParams = DenseVector[Double](1.0, 1.5)
 
-        val scalingFactor = scala.util.Random.nextFloat()
+        val scalingFactor = scala.util.Random.nextDouble()
         val productParams = DenseVector.vertcat(DenseVector.vertcat(transParams, rotationParams), DenseVector(scalingFactor))
 
         val productSpace = RigidTransformationSpace[_2D](c).product(ScalingSpace[_2D])
@@ -132,7 +132,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val path = getClass.getResource("/facemesh.stl").getPath
       val mesh = MeshIO.readMesh(new File(path)).get
 
-      val parameterVector = DenseVector[Float](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2f)
+      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2.0)
       val trans = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D]).transformForParameters(parameterVector)
 
       val translatedRotatedScaled = mesh transform trans
@@ -168,7 +168,7 @@ class RegistrationTests extends ScalismoTestSuite {
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
-      val translationParams = DenseVector[Float](-10.0, 5.0)
+      val translationParams = DenseVector[Double](-10.0, 5.0)
       val translationTransform = regConf.transformationSpace.transformForParameters(translationParams)
       val transformedLena = fixedImage compose translationTransform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
@@ -193,7 +193,7 @@ class RegistrationTests extends ScalismoTestSuite {
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
-      val rotationParams = DenseVector[Float](math.Pi / 8.0)
+      val rotationParams = DenseVector[Double](math.Pi / 8.0)
       val transform = regConf.transformationSpace.transformForParameters(rotationParams)
       val transformedLena = fixedImage compose transform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
@@ -220,7 +220,7 @@ class RegistrationTests extends ScalismoTestSuite {
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
-      val gpParams = DenseVector.ones[Float](lowRankGp.rank)
+      val gpParams = DenseVector.ones[Double](lowRankGp.rank)
       val groundTruthTransform = regConf.transformationSpace.transformForParameters(gpParams)
       val transformedLena = fixedImage compose groundTruthTransform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
@@ -250,7 +250,7 @@ class RegistrationTests extends ScalismoTestSuite {
         regularizer = L2Regularizer,
         regularizationWeight = 0.0)
 
-      val gpParams = DenseVector.ones[Float](lowRankGp.rank)
+      val gpParams = DenseVector.ones[Double](lowRankGp.rank)
       val groundTruthTransform = regConf.transformationSpace.transformForParameters(gpParams)
       val transformedLena = fixedImage compose groundTruthTransform
       val regResult = Registration.registration(regConf)(transformedLena, fixedImage)
@@ -271,7 +271,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
     it("Recovers the correct parameters for a translation transform") {
 
-      val translationParams = DenseVector[Float](-10.0, 0, 0)
+      val translationParams = DenseVector[Double](-10.0, 0.0, 0.0)
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 

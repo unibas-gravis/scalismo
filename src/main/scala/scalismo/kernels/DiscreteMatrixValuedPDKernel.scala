@@ -47,11 +47,11 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] privat
    * return the matrix representation of this kernel.
    * (This is a covariance matrix, consisting of blocks of size DO times DO)
    */
-  def asBreezeMatrix: DenseMatrix[Float] = {
+  def asBreezeMatrix: DenseMatrix[Double] = {
     val d = outputDim
     val xs = domain.points.toIndexedSeq
 
-    val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
+    val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
     for { i <- xs.indices; j <- 0 to i } {

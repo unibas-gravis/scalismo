@@ -102,9 +102,9 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
     val pointNormals = new Array[Vector[_3D]](pointSet.numberOfPoints)
     pointSet.pointIds.foreach { ptId =>
       val tr = triangulation.adjacentTrianglesForPoint(ptId)
-      var x = 0f
-      var y = 0f
-      var z = 0f
+      var x = 0.0
+      var y = 0.0
+      var z = 0.0
       tr.foreach { tId =>
         val n = cellNormals(tId)
         x += n.x
@@ -181,11 +181,11 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
     val C = pointSet.point(t.ptId3).toVector
 
     val rand = new scala.util.Random(seed)
-    val u = rand.nextFloat()
-    val d = rand.nextFloat()
-    val v = if (d + u <= 1) d else 1 - u
+    val u = rand.nextDouble()
+    val d = rand.nextDouble()
+    val v = if (d + u <= 1.0) d else 1.0 - u
 
-    val s = A * u + B * v + C * (1 - (u + v))
+    val s = A * u + B * v + C * (1.0 - (u + v))
     Point(s(0), s(1), s(2))
   }
 

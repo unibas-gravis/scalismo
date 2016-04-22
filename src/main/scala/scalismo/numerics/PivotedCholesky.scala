@@ -47,7 +47,7 @@ object PivotedCholesky {
     val p = scala.collection.mutable.IndexedSeq.range(0, n)
 
     val diagData = for (x <- xs) yield kernel(x, x)
-    val d = DenseVector(diagData.toArray)
+    val d = DenseVector[Double](diagData.toArray)
 
     var tr: Double = breeze.linalg.sum(d)
     var k = 0
@@ -92,10 +92,10 @@ object PivotedCholesky {
       L(p.slice(k + 1, n), IndexedSeq(k)) := (L(p.slice(k + 1, n), IndexedSeq(k)).toDenseMatrix - rhs)
 
       // update d
-      val lll = (L(p.slice(k, n), IndexedSeq(k)).flatten().toDenseVector.map(e => Math.pow(e, 2)))
+      val lll = L(p.slice(k, n), IndexedSeq(k)).flatten().toDenseVector.map(e => Math.pow(e, 2))
       val ddd = d(p.slice(k, n)).toDenseVector
       d(p.slice(k, n)) := ddd - lll
-      tr = breeze.linalg.sum((d(p.slice(k, n)).toDenseVector))
+      tr = breeze.linalg.sum(d(p.slice(k, n)).toDenseVector)
 
       k += 1
     }
@@ -110,8 +110,8 @@ object PivotedCholesky {
 
     case class PointWithDim(point: Point[D], dim: Int)
     val dim = NDSpace[DO].dimensionality
-    val xsWithDim: IndexedSeq[PointWithDim] = xs.map(f => (0 until dim).map(i => PointWithDim(f, i))).flatten
-    def kscalar(x: PointWithDim, y: PointWithDim): Double = kernel(x.point, y.point)(x.dim, y.dim).toDouble
+    val xsWithDim: IndexedSeq[PointWithDim] = xs.flatMap(f => (0 until dim).map(i => PointWithDim(f, i)))
+    def kscalar(x: PointWithDim, y: PointWithDim): Double = kernel(x.point, y.point)(x.dim, y.dim)
 
     computeApproximateCholeskyGeneric[PointWithDim](kscalar, xsWithDim, stoppingCriterion)
 
@@ -136,11 +136,11 @@ object PivotedCholesky {
 
     val PivotedCholesky(l, _, _) = computeApproximateCholeskyGeneric(k, xs, sc)
 
-    val LD = l(::, 0 to l.cols - 1).t :* D
-    val phi: DenseMatrix[Double] = LD * l(::, 0 to l.cols - 1)
+    val LD = l(::, 0 until l.cols).t :* D
+    val phi: DenseMatrix[Double] = LD * l(::, 0 until l.cols)
 
     val SVD(v, _, _) = breeze.linalg.svd(phi)
-    val U: DenseMatrix[Double] = l(::, 0 to l.cols - 1) * v
+    val U: DenseMatrix[Double] = l(::, 0 until l.cols) * v
 
     U
   }
@@ -149,7 +149,7 @@ object PivotedCholesky {
 
     val d: DenseVector[Double] = DenseVector.zeros(U.cols)
 
-    for (i <- (0 until U.cols)) {
+    for (i <- 0 until U.cols) {
       d(i) = breeze.linalg.norm(U(::, i))
       U(::, i) := U(::, i) * 1.0 / d(i)
     }
@@ -171,8 +171,8 @@ object PivotedCholesky {
 
     case class PointWithDim(point: Point[D], dim: Int)
     val dim = NDSpace[DO].dimensionality
-    val xsWithDim: IndexedSeq[PointWithDim] = xs.map(f => (0 until dim).map(i => PointWithDim(f, i))).flatten
-    def kscalar(x: PointWithDim, y: PointWithDim): Double = kernel(x.point, y.point)(x.dim, y.dim).toDouble
+    val xsWithDim: IndexedSeq[PointWithDim] = xs.flatMap(f => (0 until dim).map(i => PointWithDim(f, i)))
+    def kscalar(x: PointWithDim, y: PointWithDim): Double = kernel(x.point, y.point)(x.dim, y.dim)
 
     extractEigenvalues(computeApproximateEigGeneric[PointWithDim](kscalar, xsWithDim, D, stoppingCriterion))
 

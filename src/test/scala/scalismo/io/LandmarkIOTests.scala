@@ -94,7 +94,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
      * SIMPLE JSON LANDMARKS
      */
 
-    def distWithDefaultVectors(d1: Float, d2: Float, d3: Float): NDimensionalNormalDistribution[_3D] = {
+    def distWithDefaultVectors(d1: Double, d2: Double, d3: Double): NDimensionalNormalDistribution[_3D] = {
       val axes = List(Vector(1, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1))
       val devs = List(d1, d2, d3)
       val data = axes zip devs

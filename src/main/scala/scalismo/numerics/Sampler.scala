@@ -60,7 +60,7 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   }
 
   override def sample = {
-    for (_ <- 0 until numberOfPoints) yield (Point.apply[D](randGens.map(r => r.draw().toFloat).toArray), p)
+    for (_ <- 0 until numberOfPoints) yield (Point.apply[D](randGens.map(r => r.draw()).toArray), p)
   }
 }
 
@@ -113,9 +113,9 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, _3D], 
 
 case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
 
-  override val volumeOfSampleRegion = mesh.area
+  override val volumeOfSampleRegion: Double = mesh.area
 
-  private val p = 1.0 / mesh.area
+  private val p: Double = 1.0 / mesh.area
 
   val accumulatedAreas: Array[Double] = mesh.cells.scanLeft(0.0) {
     case (sum, cell) =>

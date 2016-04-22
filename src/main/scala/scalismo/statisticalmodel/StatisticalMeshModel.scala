@@ -64,7 +64,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
    *
    */
-  def pdf(instanceCoefficients: DenseVector[Float]): Double = {
+  def pdf(instanceCoefficients: DenseVector[Double]): Double = {
     val disVecField = gp.instance(instanceCoefficients)
     gp.pdf(disVecField)
   }
@@ -73,7 +73,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
    *  @see [[DiscreteLowRankGaussianProcess.instance]]
    */
-  def instance(c: DenseVector[Float]): TriangleMesh[_3D] = warpReference(gp.instance(c))
+  def instance(c: DenseVector[Double]): TriangleMesh[_3D] = warpReference(gp.instance(c))
 
   /**
    *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
@@ -114,7 +114,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
   /**
    * @see [[DiscreteLowRankGaussianProcess.coefficients]]
    */
-  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Float] = {
+  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
     val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
     gp.coefficients(dvf)
@@ -145,7 +145,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
     val newRef = referenceMesh.transform(rigidTransform)
 
-    val newMean: DenseVector[Float] = {
+    val newMean: DenseVector[Double] = {
       val newMeanVecs = for ((pt, meanAtPoint) <- gp.mean.pointsWithValues) yield {
         rigidTransform(pt + meanAtPoint) - rigidTransform(pt)
       }
@@ -153,7 +153,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
       DenseVector(data)
     }
 
-    val newBasisMat = DenseMatrix.zeros[Float](gp.basisMatrix.rows, gp.basisMatrix.cols)
+    val newBasisMat = DenseMatrix.zeros[Double](gp.basisMatrix.rows, gp.basisMatrix.cols)
 
     for ((Eigenpair(_, ithKlBasis), i) <- gp.klBasis.zipWithIndex) {
       val newIthBasis = for ((pt, basisAtPoint) <- ithKlBasis.pointsWithValues) yield {
@@ -199,9 +199,9 @@ object StatisticalMeshModel {
 
   /**
    * creates a StatisticalMeshModel from vector/matrix representation of the mean, variance and basis matrix.
-   * @see [[DiscreteLowRankGaussianProcess.apply(FiniteDiscreteDomain, DenseVector[Float], DenseVector[Float], DenseMatrix[Float]]
+   * @see [[DiscreteLowRankGaussianProcess.apply(FiniteDiscreteDomain, DenseVector[Double], DenseVector[Double], DenseMatrix[Double]]
    */
-  private[scalismo] def apply(referenceMesh: TriangleMesh[_3D], meanVector: DenseVector[Float], variance: DenseVector[Float], basisMatrix: DenseMatrix[Float]) = {
+  private[scalismo] def apply(referenceMesh: TriangleMesh[_3D], meanVector: DenseVector[Double], variance: DenseVector[Double], basisMatrix: DenseMatrix[Double]) = {
     val gp = new DiscreteLowRankGaussianProcess[_3D, _3D](referenceMesh.pointSet, meanVector, variance, basisMatrix)
     new StatisticalMeshModel(referenceMesh, gp)
   }
@@ -247,13 +247,13 @@ object StatisticalMeshModel {
       eigenvectors(::, i) :*= eigenvalues(i)
     }
 
-    val l: DenseMatrix[Float] = eigenvectors.t * eigenvectors
+    val l: DenseMatrix[Double] = eigenvectors.t * eigenvectors
     val SVD(v, _, _) = breeze.linalg.svd(l)
-    val U: DenseMatrix[Float] = eigenvectors * v
-    val d: DenseVector[Float] = DenseVector.zeros(U.cols)
+    val U: DenseMatrix[Double] = eigenvectors * v
+    val d: DenseVector[Double] = DenseVector.zeros(U.cols)
     for (i <- (0 until U.cols)) {
-      d(i) = breeze.linalg.norm(U(::, i)).toFloat
-      U(::, i) := U(::, i) * (1f / d(i))
+      d(i) = breeze.linalg.norm(U(::, i))
+      U(::, i) := U(::, i) * (1.0 / d(i))
     }
 
     val r = model.gp.copy[_3D, _3D](meanVector = model.gp.meanVector + discretizedBiasModel.meanVector, variance = breeze.numerics.pow(d, 2), basisMatrix = U)
