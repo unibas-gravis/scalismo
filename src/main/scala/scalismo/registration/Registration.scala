@@ -17,7 +17,7 @@
 package scalismo.registration
 
 import TransformationSpace.ParameterVector
-import breeze.linalg.DenseVector
+import breeze.linalg.{ DenseVector, convert }
 import scalismo.geometry.{ Point, NDSpace, Dim }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
@@ -36,7 +36,7 @@ object Registration {
   def iterations[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](config: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
-    initialParameters: DenseVector[Float] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D, TS]] =
+    initialParameters: DenseVector[Double] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D, TS]] =
     {
       val regularizer = config.regularizer
 
@@ -48,7 +48,7 @@ object Registration {
 
           config.metric.value(movingImage, fixedImage, transformation) + config.regularizationWeight * regularizer(params)
         }
-        def apply(params: ParameterVector): (Float, DenseVector[Float]) = {
+        def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
           // create a new sampler, that simply caches the points and returns the same points in every call
           // this means, we are always using the same samples for computing the integral over the values
@@ -67,12 +67,12 @@ object Registration {
           val metricDerivative = config.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformation)
           // the first derivative (after applying the chain rule) at each point
           val parametricTransformGradient = (x: Point[D]) => metricDerivative(x).map {
-            dM => dTransformSpaceDAlpha(x).t * dM
+            dM => convert(dTransformSpaceDAlpha(x).t, Float) * dM
           }
-          val gradient = integrationStrategy.integrateVector(parametricTransformGradient, params.size)
+          val gradient = convert(integrationStrategy.integrateVector(parametricTransformGradient, params.size), Double)
           val dR = regularizer.takeDerivative(params)
 
-          (value.toFloat, gradient + dR * config.regularizationWeight.toFloat)
+          (value, gradient + dR * config.regularizationWeight)
         }
       }
 

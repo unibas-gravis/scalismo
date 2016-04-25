@@ -23,10 +23,10 @@ class OptimizerTests extends ScalismoTestSuite {
   describe("The GradientDescentOptimizer") {
 
     val c = new CostFunction {
-      override def apply(x: DenseVector[Float]): (Float, DenseVector[Float]) = {
+      override def apply(x: DenseVector[Double]): (Double, DenseVector[Double]) = {
         (x(0) * x(0), DenseVector(x(0) * 2f))
       }
-      override def onlyValue(x: DenseVector[Float]) = x(0) * x(0)
+      override def onlyValue(x: DenseVector[Double]) = x(0) * x(0)
     }
 
     it("finds the correct parameter for a simple convex function") {
@@ -34,7 +34,7 @@ class OptimizerTests extends ScalismoTestSuite {
       val optimizer = GradientDescentOptimizer(numIterations = 100, stepLength = 0.1)
       val param = optimizer.minimize(DenseVector(1f), c)
       val value = c(param)._1
-      value should be(0f +- 1e-5f)
+      value should be(0.0 +- 1e-5)
 
     }
 

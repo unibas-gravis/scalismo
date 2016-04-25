@@ -24,7 +24,7 @@ import scala.language.implicitConversions
  * An n-dimensional Vector
  */
 sealed abstract class Vector[D <: Dim: NDSpace] {
-  def apply(i: Int): Float
+  def apply(i: Int): Double
 
   def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
@@ -32,27 +32,21 @@ sealed abstract class Vector[D <: Dim: NDSpace] {
 
   def norm2: Double
 
-  def *(s: Float): Vector[D]
-
-  def *:(s: Float): Vector[D] = this * s
+  def *(s: Double): Vector[D]
 
   def *:(s: Double): Vector[D] = this * s
 
-  def /(s: Float): Vector[D] = this * (1.0f / s)
-
-  def *(s: Double): Vector[D] = this * s.toFloat
-
-  def /(s: Double): Vector[D] = this / s.toFloat
+  def /(s: Double): Vector[D] = this * (1.0 / s)
 
   def +(that: Vector[D]): Vector[D]
 
   def -(that: Vector[D]): Vector[D]
 
-  def unary_- : Vector[D] = this * (-1f)
+  def unary_- : Vector[D] = this * (-1.0)
 
   def toPoint: Point[D]
 
-  def dot(that: Vector[D]): Float
+  def dot(that: Vector[D]): Double
 
   def :*(that: Vector[D]): Vector[D]
 
@@ -63,7 +57,7 @@ sealed abstract class Vector[D <: Dim: NDSpace] {
     require(that.dimensionality == dimensionality)
     val d = dimensionality
 
-    val data = new Array[Float](d * d)
+    val data = new Array[Double](d * d)
     var i = 0
     var j = 0
     while (i < d) {
@@ -77,22 +71,24 @@ sealed abstract class Vector[D <: Dim: NDSpace] {
     SquareMatrix[D](data)
   }
 
-  def toArray: Array[Float]
+  def toArray: Array[Double]
 
   @deprecated("real data is now private, use toArray", "")
   def data = toArray
 
   def toBreezeVector = DenseVector(toArray)
 
-  def mapWithIndex(f: (Float, Int) => Float): Vector[D]
+  def toFloatBreezeVector = DenseVector(toArray.map(_.toFloat))
 
-  def map(f: Float => Float): Vector[D] = mapWithIndex((v, i) => f(v))
+  def mapWithIndex(f: (Double, Int) => Double): Vector[D]
+
+  def map(f: Double => Double): Vector[D] = mapWithIndex((v, i) => f(v))
 
 }
 
 /** 1D Vector */
-case class Vector1D(x: Float) extends Vector[_1D] {
-  override def apply(i: Int): Float = i match {
+case class Vector1D(x: Double) extends Vector[_1D] {
+  override def apply(i: Int): Double = i match {
     case 0 => x
     case _ => throw new IndexOutOfBoundsException("Vector1D has only 1 element")
   }
@@ -103,9 +99,9 @@ case class Vector1D(x: Float) extends Vector[_1D] {
 
   override def norm2: Double = x * x
 
-  override def dot(that: Vector[_1D]): Float = x * that.x
+  override def dot(that: Vector[_1D]): Double = x * that.x
 
-  override def *(s: Float): Vector1D = Vector1D(x * s)
+  override def *(s: Double): Vector1D = Vector1D(x * s)
 
   override def :*(that: Vector[_1D]): Vector1D = Vector1D(x * that.x)
 
@@ -113,18 +109,19 @@ case class Vector1D(x: Float) extends Vector[_1D] {
 
   override def toArray = Array(x)
 
-  override def mapWithIndex(f: (Float, Int) => Float): Vector1D = Vector1D(f(x, 0))
+  override def mapWithIndex(f: (Double, Int) => Double): Vector1D = Vector1D(f(x, 0))
 
 }
 
 object Vector1D {
-  val unit = Vector1D(1f)
-  val zero = Vector1D(0f)
+  val unit = Vector1D(1.0)
+  val zero = Vector1D(0.0)
+  val ones = Vector1D(1.0)
 }
 
 /** 2D Vector */
-case class Vector2D(x: Float, y: Float) extends Vector[_2D] {
-  override def apply(i: Int): Float = i match {
+case class Vector2D(x: Double, y: Double) extends Vector[_2D] {
+  override def apply(i: Int): Double = i match {
     case 0 => x
     case 1 => y
     case _ => throw new IndexOutOfBoundsException("Vector2D has only 2 elements")
@@ -136,9 +133,9 @@ case class Vector2D(x: Float, y: Float) extends Vector[_2D] {
 
   override def norm2: Double = x * x + y * y
 
-  override def dot(that: Vector[_2D]): Float = x * that.x + y * that.y
+  override def dot(that: Vector[_2D]): Double = x * that.x + y * that.y
 
-  override def *(s: Float): Vector2D = Vector2D(x * s, y * s)
+  override def *(s: Double): Vector2D = Vector2D(x * s, y * s)
 
   override def :*(that: Vector[_2D]): Vector2D = Vector2D(x * that.x, y * that.y)
 
@@ -146,20 +143,21 @@ case class Vector2D(x: Float, y: Float) extends Vector[_2D] {
 
   override def toArray = Array(x, y)
 
-  override def mapWithIndex(f: (Float, Int) => Float): Vector2D = Vector2D(f(x, 0), f(y, 1))
+  override def mapWithIndex(f: (Double, Int) => Double): Vector2D = Vector2D(f(x, 0), f(y, 1))
 
 }
 
 object Vector2D {
-  val unitX = Vector2D(1f, 0f)
-  val unitY = Vector2D(0f, 1f)
+  val unitX = Vector2D(1.0, 0.0)
+  val unitY = Vector2D(0.0, 1.0)
 
-  val zero = Vector2D(0f, 0f)
+  val zero = Vector2D(0.0, 0.0)
+  val ones = Vector2D(1.0, 1.0)
 }
 
 /** 3D Vector */
-case class Vector3D(x: Float, y: Float, z: Float) extends Vector[_3D] {
-  override def apply(i: Int): Float = i match {
+case class Vector3D(x: Double, y: Double, z: Double) extends Vector[_3D] {
+  override def apply(i: Int): Double = i match {
     case 0 => x
     case 1 => y
     case 2 => z
@@ -172,9 +170,9 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[_3D] {
 
   override def norm2: Double = x * x + y * y + z * z
 
-  override def dot(that: Vector[_3D]): Float = x * that.x + y * that.y + z * that.z
+  override def dot(that: Vector[_3D]): Double = x * that.x + y * that.y + z * that.z
 
-  override def *(s: Float): Vector3D = Vector3D(x * s, y * s, z * s)
+  override def *(s: Double): Vector3D = Vector3D(x * s, y * s, z * s)
 
   override def :*(that: Vector[_3D]): Vector3D = Vector3D(x * that.x, y * that.y, z * that.z)
 
@@ -186,28 +184,29 @@ case class Vector3D(x: Float, y: Float, z: Float) extends Vector[_3D] {
     Vector3D(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x)
   }
 
-  override def mapWithIndex(f: (Float, Int) => Float): Vector3D = Vector3D(f(x, 0), f(y, 1), f(z, 2))
+  override def mapWithIndex(f: (Double, Int) => Double): Vector3D = Vector3D(f(x, 0), f(y, 1), f(z, 2))
 
 }
 
 object Vector3D {
-  val unitX = Vector3D(1f, 0f, 0f)
-  val unitY = Vector3D(0f, 1f, 0f)
-  val unitZ = Vector3D(0f, 0f, 1f)
+  val unitX = Vector3D(1.0, 0.0, 0.0)
+  val unitY = Vector3D(0.0, 1.0, 0.0)
+  val unitZ = Vector3D(0.0, 0.0, 1.0)
 
-  val zero = Vector3D(0f, 0f, 0f)
+  val zero = Vector3D(0.0, 0.0, 0.0)
+  val ones = Vector3D(1.0, 1.0, 1.0)
 }
 
 object Vector {
 
   /** creation typeclass */
   trait Create[D <: Dim] {
-    def createVector(data: Array[Float]): Vector[D]
+    def createVector(data: Array[Double]): Vector[D]
     val zero: Vector[D]
   }
 
   trait Create1D extends Create[_1D] {
-    override def createVector(d: Array[Float]) = {
+    override def createVector(d: Array[Double]) = {
       require(d.length == 1, "Creation of Vector failed: provided Array has invalid length")
       Vector1D(d(0))
     }
@@ -215,7 +214,7 @@ object Vector {
   }
 
   trait Create2D extends Create[_2D] {
-    override def createVector(d: Array[Float]) = {
+    override def createVector(d: Array[Double]) = {
       require(d.length == 2, "Creation of Vector failed: provided Array has invalid length")
       Vector2D(d(0), d(1))
     }
@@ -223,24 +222,24 @@ object Vector {
   }
 
   trait Create3D extends Create[_3D] {
-    override def createVector(d: Array[Float]) = {
+    override def createVector(d: Array[Double]) = {
       require(d.length == 3, "Creation of Vector failed: provided Array has invalid length")
       Vector3D(d(0), d(1), d(2))
     }
     override val zero: Vector[_3D] = Vector3D.zero
   }
 
-  def apply[D <: Dim: NDSpace](d: Array[Float])(implicit builder: Create[D]) = builder.createVector(d)
+  def apply[D <: Dim: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
 
-  def apply(x: Float): Vector[_1D] = Vector1D(x)
+  def apply(x: Double): Vector[_1D] = Vector1D(x)
 
-  def apply(x: Float, y: Float): Vector[_2D] = Vector2D(x, y)
+  def apply(x: Double, y: Double): Vector[_2D] = Vector2D(x, y)
 
-  def apply(x: Float, y: Float, z: Float): Vector[_3D] = Vector3D(x, y, z)
+  def apply(x: Double, y: Double, z: Double): Vector[_3D] = Vector3D(x, y, z)
 
   def zeros[D <: Dim: NDSpace](implicit builder: Create[D]): Vector[D] = builder.zero
 
-  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Float])(implicit builder: Create[D]): Vector[D] = {
+  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double])(implicit builder: Create[D]): Vector[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Vector.apply[D](breeze.data)
@@ -252,9 +251,9 @@ object Vector {
    * @param r radial distance, 0 .. infinity
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromPolar(r: Float, phi: Float): Vector[_2D] = Vector(
-    r * math.cos(phi).toFloat,
-    r * math.sin(phi).toFloat)
+  def fromPolar(r: Double, phi: Double): Vector[_2D] = Vector(
+    r * math.cos(phi),
+    r * math.sin(phi))
 
   /**
    * create a Cartesian vector from spherical coordinates
@@ -263,25 +262,25 @@ object Vector {
    * @param theta inclination, 0 .. Pi
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromSpherical(r: Float, theta: Float, phi: Float): Vector[_3D] = Vector(
-    (r * math.cos(phi) * math.sin(theta)).toFloat,
-    (r * math.sin(phi) * math.sin(theta)).toFloat,
-    r * math.cos(theta).toFloat)
+  def fromSpherical(r: Double, theta: Double, phi: Double): Vector[_3D] = Vector(
+    (r * math.cos(phi) * math.sin(theta)),
+    (r * math.sin(phi) * math.sin(theta)),
+    r * math.cos(theta))
 
   /** spire VectorSpace implementation for Vector */
-  implicit def spireVectorSpace[D <: Dim: NDSpace] = new spire.algebra.VectorSpace[Vector[D], Float] {
-    override implicit def scalar: Field[Float] = Field[Float]
-    override def timesl(r: Float, v: Vector[D]): Vector[D] = v.map(f => f * r)
+  implicit def spireVectorSpace[D <: Dim: NDSpace] = new spire.algebra.VectorSpace[Vector[D], Double] {
+    override implicit def scalar: Field[Double] = Field[Double]
+    override def timesl(r: Double, v: Vector[D]): Vector[D] = v.map(f => f * r)
     override def negate(x: Vector[D]): Vector[D] = x.map(f => -f)
     override def zero: Vector[D] = zeros[D]
     override def plus(x: Vector[D], y: Vector[D]): Vector[D] = x.mapWithIndex((f, i) => f + y(i))
   }
 
   object implicits {
-    implicit def Vector1DToFloat(v: Vector[_1D]): Float = v.x
-    implicit def floatToVector1D(f: Float): Vector[_1D] = Vector(f)
-    implicit def tupleOfFloatToVector2D(t: (Float, Float)): Vector[_2D] = Vector(t._1, t._2)
-    implicit def tupleOfFloatToVector3D(t: (Float, Float, Float)): Vector[_3D] = Vector(t._1.toFloat, t._2.toFloat, t._3.toFloat)
+    implicit def Vector1DToDouble(v: Vector[_1D]): Double = v.x
+    implicit def doubleToVector1D(f: Double): Vector[_1D] = Vector(f)
+    implicit def tupleOfDoubleToVector2D(t: (Double, Double)): Vector[_2D] = Vector(t._1, t._2)
+    implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)): Vector[_3D] = Vector(t._1, t._2, t._3)
   }
 
   implicit def parametricToConcrete1D(p: Vector[_1D]): Vector1D = p.asInstanceOf[Vector1D]

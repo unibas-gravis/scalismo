@@ -15,13 +15,11 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.svd.SVD
 import breeze.linalg._
 import scalismo.common._
 import scalismo.geometry.Vector
 import scalismo.geometry._
 import scalismo.kernels._
-import scalismo.utils.Memoize
 
 /**
  * A gaussian process from a D dimensional input space, whose input values are points,
@@ -130,13 +128,13 @@ object GaussianProcess {
     def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D, DO](x, xs, gp.cov) }
 
     def posteriorMean(x: Point[D]): Vector[DO] = {
-      Vector[DO](((xstar(x) * K_inv).map(_.toFloat) * fVec).toArray)
+      Vector[DO](((xstar(x) * K_inv) * fVec).toArray)
     }
 
     val posteriorKernel = new MatrixValuedPDKernel[D, DO] {
       override def domain = gp.domain
       override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-        gp.cov(x, y) - SquareMatrix[DO]((xstar(x) * K_inv * xstar(y).t).data.map(_.toFloat))
+        gp.cov(x, y) - SquareMatrix[DO]((xstar(x) * K_inv * xstar(y).t).data)
       }
     }
 
@@ -154,7 +152,7 @@ object GaussianProcess {
    *       with a Cholesky decomposition would be more efficient.
    */
   def marginalLikelihood[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): Float = {
+    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): Double = {
 
     val outputDim = implicitly[NDSpace[DO]].dimensionality
 
@@ -164,7 +162,7 @@ object GaussianProcess {
     def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
     val yVec = flatten(ys)
 
-    val Ky = DenseMatrix.zeros[Float](trainingData.size * outputDim, trainingData.size * outputDim)
+    val Ky = DenseMatrix.zeros[Double](trainingData.size * outputDim, trainingData.size * outputDim)
 
     for ((ptIdI, i) <- ptIds.zipWithIndex; (ptIdJ, j) <- ptIds.zipWithIndex) {
 
@@ -182,9 +180,9 @@ object GaussianProcess {
       }
     }
 
-    val KyInv = inv(Ky).map(_.toFloat)
+    val KyInv = inv(Ky)
     val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
-    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5f) - (0.5f * math.log(det(Ky)).toFloat) - const.toFloat
+    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5f) - (0.5f * math.log(det(Ky))) - const
     margLikehood
   }
 

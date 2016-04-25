@@ -28,7 +28,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
 
   override type T = GaussianProcessTransformation[D]
 
-  override def identityTransformParameters = DenseVector.zeros[Float](parametersDimensionality)
+  override def identityTransformParameters = DenseVector.zeros[Double](parametersDimensionality)
 
   override def parametersDimensionality = gp.rank
 
@@ -43,10 +43,10 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
     (x: Point[D]) =>
       {
         val dim = x.dimensionality
-        val J = DenseMatrix.zeros[Float](dim, gp.klBasis.size)
+        val J = DenseMatrix.zeros[Double](dim, gp.klBasis.size)
         (0 until gp.rank).map(i => {
           val Eigenpair(lambda_i, phi_i) = gp.klBasis(i)
-          J(::, i) := (phi_i(x) * math.sqrt(lambda_i).toFloat).toBreezeVector
+          J(::, i) := (phi_i(x) * math.sqrt(lambda_i)).toBreezeVector
         })
         J
       }

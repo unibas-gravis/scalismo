@@ -166,10 +166,6 @@ class HDF5File(h5file: FileFormat) extends Closeable {
           Success(h5file.createDatatype(Datatype.CLASS_FLOAT,
             4, Datatype.NATIVE, Datatype.NATIVE))
         }
-        case _: Array[Double] => {
-          Success(h5file.createDatatype(Datatype.CLASS_FLOAT,
-            8, Datatype.NATIVE, Datatype.NATIVE))
-        }
         case _ => {
           // TODO error handling
           Failure(new Exception("unknown type for path " + path))

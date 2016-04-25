@@ -17,7 +17,6 @@ package scalismo.numerics
 
 import java.io.File
 
-import breeze.linalg.diff
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
@@ -37,11 +36,11 @@ class SamplerTests extends ScalismoTestSuite {
       val random = new Random()
 
       // precalculate values needed for determining if a point lies in a (triangle) cell.
-      case class CellInfo(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], v0: Vector[_3D], v1: Vector[_3D], dot00: Float, dot01: Float, dot11: Float)
+      case class CellInfo(a: Point[_3D], b: Point[_3D], c: Point[_3D], v0: Vector[_3D], v1: Vector[_3D], dot00: Double, dot01: Double, dot11: Double)
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
-        val vec = cell.pointIds.map(facemesh.point).map(_.toVector)
+        val vec = cell.pointIds.map(facemesh.pointSet.point)
         val (a, b, c) = (vec(0), vec(1), vec(2))
         val v0 = c - a
         val v1 = b - a
@@ -58,10 +57,10 @@ class SamplerTests extends ScalismoTestSuite {
       def testSampling(numSamplingPoints: Int, randomAreaSizeRatio: Double): Unit = {
 
         // the algorithm is taken from http://www.blackpawn.com/texts/pointinpoly/
-        def pointInCell(p: Point[_3D], cellId: Int, mesh: TriangleMesh): Boolean = {
+        def pointInCell(p: Point[_3D], cellId: Int, mesh: TriangleMesh[_3D]): Boolean = {
           val info = memoizedInfo(cellId)
 
-          val v2 = p.toVector - info.a
+          val v2 = p - info.a
           val dot02 = info.v0 dot v2
           val dot12 = info.v1 dot v2
 
@@ -76,7 +75,7 @@ class SamplerTests extends ScalismoTestSuite {
             // we additionally need to check if (A + u*v0 + v*v1) actually corresponds to
             // the point we were given.
             val check = info.a + info.v0 * u + info.v1 * v
-            val diff = (p - check).toVector.norm
+            val diff = (p - check).norm
 
             //            if (diff < 0.01) true
             //            else {
@@ -93,7 +92,7 @@ class SamplerTests extends ScalismoTestSuite {
         val (samplePoints, _) = sampler.sample.unzip
         //        println(s"total number of points: ${facemesh.numberOfPoints}")
 
-        def randomArea(mesh: TriangleMesh, targetRatio: Double): (IndexedSeq[Int], Double) = {
+        def randomArea(mesh: TriangleMesh[_3D], targetRatio: Double): (IndexedSeq[Int], Double) = {
           val cellAreas = facemesh.cells.map(facemesh.computeTriangleArea)
           val cellIdWithArea = random.shuffle(facemesh.cells.indices zip cellAreas)
 

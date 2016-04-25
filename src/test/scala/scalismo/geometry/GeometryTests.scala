@@ -23,15 +23,13 @@ import scala.util.Random
 
 class GeometryTests extends ScalismoTestSuite {
 
-  implicit def doubleToFloat(d: Double): Float = d.toFloat
-
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p
   val v = Vector(0.1, 3.0, 1.1)
   val vGeneric: Vector[_3D] = v
 
   def checkPoint[D <: Dim: NDSpace]() = {
-    def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextFloat()))
+    def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextDouble()))
     val pt = randomPoint()
 
     describe(s"A random nD Point $pt (n=${NDSpace[D].dimensionality})") {
@@ -60,21 +58,21 @@ class GeometryTests extends ScalismoTestSuite {
         Point.fromBreezeVector[D](pt.toBreezeVector) should equal(pt)
       }
 
-      it("can map a constant value p.map(f) == 0 (f: x => 0.0f)") {
-        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0f))
-        def f(x: Float): Float = 0.0f
+      it("can map a constant value p.map(f) == 0 (f: x => 0.0)") {
+        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        def f(x: Double): Double = 0.0
         pt.map(f) should equal(z)
       }
 
       it("can map a function p.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
-        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0f))
-        val f = (x: Float) => 2.0f + x
-        val g = (x: Float) => x - 2.0f
+        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0))
+        val f = (x: Double) => 2.0 + x
+        val g = (x: Double) => x - 2.0
         (pt.map(f).map(g) - pt).norm should be < 1e-4
       }
 
       it("can map a function using its index: p.mapWithIndex(f) == 0 (f: (v,i) => v - p(i))") {
-        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0.0))
         pt.mapWithIndex((v, i) => v - pt(i)) should equal(z)
       }
     }
@@ -86,7 +84,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkPoint[_3D]()
 
   def checkVector[D <: Dim: NDSpace]() = {
-    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextFloat()))
+    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextDouble()))
     val v = randomVector()
 
     describe(s"A random nD Vector $v (n=${NDSpace[D].dimensionality})") {
@@ -115,21 +113,21 @@ class GeometryTests extends ScalismoTestSuite {
         Vector.fromBreezeVector[D](v.toBreezeVector) should equal(v)
       }
 
-      it("can map a constant value v.map(f) == 0 (f: x => 0.0f)") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0f))
-        def f(x: Float): Float = 0.0f
+      it("can map a constant value v.map(f) == 0 (f: x => 0.0)") {
+        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        def f(x: Double): Double = 0.0
         v.map(f) should equal(z)
       }
 
       it("can map a function v.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0f))
-        val f = (x: Float) => 2.0f + x
-        val g = (x: Float) => x - 2.0f
+        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        val f = (x: Double) => 2.0 + x
+        val g = (x: Double) => x - 2.0
         (v.map(f).map(g) - v).norm should be < 1e-4
       }
 
       it("can map a function using its index: v.mapWithIndex(f) == 0 (f: (x,i) => x - v(i))") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0f))
+        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
         v.mapWithIndex((x, i) => x - v(i)) should equal(z)
       }
 
@@ -138,24 +136,24 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("inner product probably (1 example) fulfills dot(v,v) >= 0") {
-        v.dot(v) should be >= 0f
+        v.dot(v) should be >= 0.0
       }
 
       it("inner product probably (1 example) fulfills dot(a*v,w) == a*dot(v,w)") {
-        val a = scala.util.Random.nextFloat()
+        val a = scala.util.Random.nextDouble()
         val w = randomVector()
-        (v * a).dot(w) - a * v.dot(w) should be < 1.0e-4.toFloat
+        (v * a).dot(w) - a * v.dot(w) should be < 1.0e-4
       }
 
       it("inner product probably (1 example) fulfills dot(v+a,w) == dot(v,w)+dot(a,w)") {
         val w = randomVector()
         val a = randomVector()
-        (v + a).dot(w) - (v.dot(w) + a.dot(w)) should be < 1.0e-4.toFloat
+        (v + a).dot(w) - (v.dot(w) + a.dot(w)) should be < 1.0e-4
       }
 
       it("inner product is probably (1 example) symmetric") {
         val w = randomVector()
-        v.dot(w) - w.dot(v) should be < 1.0e-4.toFloat
+        v.dot(w) - w.dot(v) should be < 1.0e-4
       }
 
       it("has the proper relation between norm and norm2") {
@@ -176,7 +174,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("has norm which probably (1 example) fulfills (a*v).norm == |a|*v.norm(v)") {
-        val a = scala.util.Random.nextFloat()
+        val a = scala.util.Random.nextDouble()
         (v * a).norm - math.abs(a) * v.norm should be <= 1e-6
       }
 
@@ -184,7 +182,7 @@ class GeometryTests extends ScalismoTestSuite {
         v.norm2 should be(v.dot(v))
       }
 
-      val f = math.max(1e-10, scala.util.Random.nextFloat())
+      val f = math.max(1e-10, scala.util.Random.nextDouble())
       it(s"fulfills norm((v*f)/f - v) ~ 0 (f=$f)") {
         ((v * f) / f - v).norm should be(0.0 +- 1e-4)
       }
@@ -255,15 +253,15 @@ class GeometryTests extends ScalismoTestSuite {
       p.toVector should equal(v)
     }
 
-    it("can be mapped with a function f: (Float) => Float") {
-      val p = Point(6f, 3f, 3f)
-      val pHalf = Point(3f, 1.5f, 1.5f)
+    it("can be mapped with a function f: (Double) => Double") {
+      val p = Point(6.0, 3.0, 3.0)
+      val pHalf = Point(3.0, 1.5, 1.5)
       p should equal(pHalf.map(f => f * 2))
     }
 
-    it("can be mapped with Index a function f: (Float,Int) => Float") {
-      val p = Point(1f, 1f, 1f)
-      val pRes = Point(0f, 1f, 2f)
+    it("can be mapped with Index a function f: (Double,Int) => Double") {
+      val p = Point(1.0, 1.0, 1.0)
+      val pRes = Point(0.0, 1.0, 2.0)
       pRes should equal(p.mapWithIndex({ case (v, i) => i * v }))
     }
 
@@ -284,10 +282,10 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("gives the correct norm and normsquared for various test cases") {
-      Vector(1).norm2 should equal(1)
-      Vector(1, 1).norm2 should equal(2)
-      Vector(1, 1, 1).norm2 should equal(3)
-      Vector(math.sqrt(2).toFloat, math.sqrt(2).toFloat).norm2 should be(4.0 +- 1e-5)
+      Vector(1.0).norm2 should equal(1)
+      Vector(1.0, 1.0).norm2 should equal(2)
+      Vector(1.0, 1.0, 1.0).norm2 should equal(3)
+      Vector(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 +- 1e-5)
       v.norm should be(math.sqrt(v.norm2) +- 1e-5)
     }
 
@@ -300,7 +298,7 @@ class GeometryTests extends ScalismoTestSuite {
     it("gives the correct value for the outer product") {
       val v1 = Vector(4.0, -3.0, -1.0)
       val v2 = Vector(3.0, 2.0, 5.0)
-      val res = SquareMatrix((12f, 8f, 20f), (-9f, -6f, -15f), (-3f, -2f, -5f))
+      val res = SquareMatrix((12.0, 8.0, 20.0), (-9.0, -6.0, -15.0), (-3.0, -2.0, -5.0))
       (v1 outer v2) should be(res)
     }
 
@@ -311,52 +309,52 @@ class GeometryTests extends ScalismoTestSuite {
       v1.crossproduct(v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
     }
 
-    it("can be mapped with a function f: (Float) => Float") {
-      val v = Point(6f, 3f, 3f)
-      val vHalf = Point(3f, 1.5f, 1.5f)
+    it("can be mapped with a function f: (Double) => Double") {
+      val v = Point(6.0, 3.0, 3.0)
+      val vHalf = Point(3.0, 1.5, 1.5)
       v should equal(vHalf.map(f => f * 2))
     }
 
-    it("can be mapped with Index a function f: (Float,Int) => Float") {
-      val v = Point(1f, 1f, 1f)
-      val vRes = Point(0f, 1f, 2f)
+    it("can be mapped with Index a function f: (Double,Int) => Double") {
+      val v = Point(1.0, 1.0, 1.0)
+      val vRes = Point(0.0, 1.0, 2.0)
       vRes should equal(v.mapWithIndex({ case (f, i) => f * i }))
     }
   }
 
   describe("Polar and Spherical coordinates constructors") {
     it("A 3D point can be constructed from spherical coordinates (with random values)") {
-      Point.fromSpherical(2.0f, 2.0f, 0.5f) shouldBe Point(1.5959672f, 0.8718808f, -0.8322937f)
+      Point.fromSpherical(2.0, 2.0, 0.5) shouldBe Point(1.595967130708011, 0.8718808172146366, -0.8322936730942848)
     }
 
     it("A 2D point can be constructed from polar coordinates (with random values)") {
-      Point.fromPolar(2.0f, 0.5f) shouldBe Point(1.7551651f, 0.9588511f)
+      Point.fromPolar(2.0, 0.5) shouldBe Point(1.7551651237807455, 0.958851077208406)
     }
 
     it("polar and spherical coordinates are consistent in xy plane") {
-      val p2d: Point2D = Point.fromPolar(1.5f, 0.2f)
-      val p3d: Point3D = Point.fromSpherical(1.5f, math.Pi / 2, 0.2f)
-      (Point(p2d.x, p2d.y, 0.0f) - p3d).norm should be < 1e-4
+      val p2d: Point2D = Point.fromPolar(1.5, 0.2)
+      val p3d: Point3D = Point.fromSpherical(1.5, math.Pi / 2, 0.2)
+      (Point(p2d.x, p2d.y, 0.0) - p3d).norm should be < 1e-4
     }
 
     it("A 3D vector constructed from spherical coordinates is identical to the corresponding point") {
-      Vector.fromSpherical(3.0f, 3.0f, 5.0f) shouldBe Point.fromSpherical(3.0f, 3.0f, 5.0f).toVector
+      Vector.fromSpherical(3.0, 3.0, 5.0) shouldBe Point.fromSpherical(3.0, 3.0, 5.0).toVector
     }
 
     it("A 2D vector constructed from spherical coordinates is identical to the corresponding point") {
-      Vector.fromPolar(2.0f, 0.5f) shouldBe Point.fromPolar(2.0f, 0.5f).toVector
+      Vector.fromPolar(2.0, 0.5) shouldBe Point.fromPolar(2.0, 0.5).toVector
     }
   }
 
   describe("a 3x3 matrix") {
 
     // storage is column major
-    val m = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3).map(_.toFloat))
+    val m = SquareMatrix[_3D](Array(1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
 
     it("can be created using zeros") {
       val m = SquareMatrix.zeros[_3D]
       for (i <- 0 until 3; j <- 0 until 3) {
-        m(i, j) should be(0f)
+        m(i, j) should be(0.0)
       }
     }
 
@@ -372,24 +370,24 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("can be converted to a breeze matrix") {
-      val mbreeze = DenseMatrix.create[Float](3, 3, Array[Float](1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
+      val mbreeze = DenseMatrix.create[Double](3, 3, Array[Double](1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3))
       m.toBreezeMatrix should equal(mbreeze)
     }
 
     it("can be indexed correctly") {
       val mbreeze = m.toBreezeMatrix
-      m(1, 2) should equal(2.3f)
+      m(1, 2) should equal(2.3)
       m(1, 2) should equal(mbreeze(1, 2))
-      m(0, 0) should equal(1.1f)
+      m(0, 0) should equal(1.1)
       m(0, 0) should equal(mbreeze(0, 0))
-      m(2, 1) should equal(3.2f)
+      m(2, 1) should equal(3.2)
       m(2, 1) should equal(mbreeze(2, 1))
-      m(2, 2) should equal(3.3f)
+      m(2, 2) should equal(3.3)
     }
 
     it("can be multiplied by a vector") {
-      val v = Vector(1, 2, 3)
-      val vBreeze = DenseVector(1f, 2f, 3f)
+      val v = Vector(1.0, 2.0, 3.0)
+      val vBreeze = DenseVector(1.0, 2.0, 3.0)
       val mxv = m * v
       val mxvBreeze = m.toBreezeMatrix * vBreeze
       for (i <- 0 until 3) {
@@ -399,7 +397,7 @@ class GeometryTests extends ScalismoTestSuite {
 
     it("can be multiplied by a scalar") {
       val m1 = (m * 0.1).toBreezeMatrix
-      val m2 = m.toBreezeMatrix * 0.1f
+      val m2 = m.toBreezeMatrix * 0.1
       for (i <- 0 until 3; j <- 0 until 3) {
         m1(i, j) should be(m2(i, j) +- 1e-8)
       }
@@ -422,8 +420,8 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("can be multiplied (matrix product) with another matrix") {
-      val m = SquareMatrix((1, 2, 3), (2, 7, 3), (9, 2, 8))
-      val m2 = SquareMatrix((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val m = SquareMatrix((1.0, 2.0, 3.0), (2.0, 7.0, 3.0), (9.0, 2.0, 8.0))
+      val m2 = SquareMatrix((3.0, 4.0, 1.0), (3.0, 7.0, 2.0), (7.0, 9.0, 11.0))
 
       val res = m * m2
       val resBreeze = m.toBreezeMatrix * m2.toBreezeMatrix
@@ -434,14 +432,14 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("fulfills some simple identities with ones,zeros and ident") {
-      val v = Vector(1, 2, 3)
+      val v = Vector(1.0, 2.0, 3.0)
       SquareMatrix.eye[_3D] * v should equal(v)
-      SquareMatrix.zeros[_3D] * v should equal(Vector(0, 0, 0))
-      SquareMatrix.ones[_3D] * v should equal(Vector(6, 6, 6))
+      SquareMatrix.zeros[_3D] * v should equal(Vector(0.0, 0.0, 0.0))
+      SquareMatrix.ones[_3D] * v should equal(Vector(6.0, 6.0, 6.0))
     }
 
     it("yields itself when transposed twice") {
-      val m = SquareMatrix((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val m = SquareMatrix((3.0, 4.0, 1.0), (3.0, 7.0, 2.0), (7.0, 9.0, 11.0))
       val mtt = m.t.t
       for (i <- 0 until 3; j <- 0 until 3) {
         mtt(i, j) should equal(m(i, j))
@@ -449,12 +447,12 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("yields the identity transform when inverted and multiplied with itself") {
-      val m = SquareMatrix((3, 4, 1), (3, 7, 2), (7, 9, 11))
+      val m = SquareMatrix((3.0, 4.0, 1.0), (3.0, 7.0, 2.0), (7.0, 9.0, 11.0))
       val mInvertible = m.t * m // m^T *m is always invertible
       val almostEye = mInvertible * SquareMatrix.inv(mInvertible)
       val eye = SquareMatrix.eye[_3D]
       for (i <- 0 until 3; j <- 0 until 3) {
-        almostEye(i, j) should be(eye(i, j) +- 1e-5f)
+        almostEye(i, j) should be(eye(i, j) +- 1e-5)
       }
     }
   }
