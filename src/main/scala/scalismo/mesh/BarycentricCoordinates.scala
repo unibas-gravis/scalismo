@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{ Point, _2D }
+import scalismo.geometry.{ Point, _2D, _3D, Vector }
 
 import scala.annotation.switch
 import scala.util.Random
@@ -83,6 +83,21 @@ object BarycentricCoordinates {
       A2 * x + B2 * y + C2,
       A3 * x + B3 * y + C3
     ).normalized
+  }
+
+  def pointInTriangle3D(point: Point[_3D], v1: Point[_3D], v2: Point[_3D], v3: Point[_3D]): BarycentricCoordinates = {
+    val a: Vector[_3D] = v2 - v1
+    val b: Vector[_3D] = v3 - v1
+    val c: Vector[_3D] = point - v1
+    val d00 = a dot a
+    val d01 = a dot b
+    val d11 = b dot b
+    val d20 = c dot a
+    val d21 = c dot b
+    val d = d00 * d11 - d01 * d01
+    val t = (d11 * d20 - d01 * d21) / d
+    val s = (d00 * d21 - d01 * d20) / d
+    new BarycentricCoordinates(s, t, 1f - t - s)
   }
 
   /** Generate random barycentric coordinates, guaranteed to lie within the triangle, uniform distribution */
