@@ -26,7 +26,7 @@ trait Cell {
 
 trait PointGenerator[D <: Dim] extends Function0[Point[D]]
 
-trait DiscreteDomain[D <: Dim] extends Equals {
+trait DiscreteDomain[D <: Dim] extends Equals with DomainTrait[D] {
   self =>
 
   def numberOfPoints: Int
