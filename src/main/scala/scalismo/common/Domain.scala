@@ -18,13 +18,7 @@ package scalismo.common
 import scalismo.geometry._
 import scalismo.registration.{ CanInvert, Transformation }
 
-
-trait DomainTrait[D <: Dim] {
-  def isDefinedAt(pt: Point[D]): Boolean
-}
-
-
-trait Domain[D <: Dim] extends DomainTrait[D] {
+trait Domain[D <: Dim] {
   self =>
   def isDefinedAt(pt: Point[D]): Boolean
 
