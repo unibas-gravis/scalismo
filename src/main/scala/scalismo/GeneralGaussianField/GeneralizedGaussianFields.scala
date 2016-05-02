@@ -8,24 +8,23 @@ import breeze.linalg.svd.SVD
 import breeze.stats.distributions.Gaussian
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.GeneralGaussianField
-import scalismo.GeneralGaussianField.Adapted.DiscreteLowRankGaussianRandomField.{DiscEigenpair, DiscKLBasis}
-import scalismo.GeneralGaussianField.Adapted.LowRankGaussianRandomRandomField.{Eigenpair, KLBasis}
-import scalismo.GeneralGaussianField.{ContinuousMatrixValuedKernel, DiscreteMatrixValuedKernel}
+import scalismo.GeneralGaussianField.Adapted.DiscreteLowRankGaussianRandomField.{ DiscEigenpair, DiscKLBasis }
+import scalismo.GeneralGaussianField.Adapted.LowRankGaussianRandomRandomField.{ Eigenpair, KLBasis }
+import scalismo.GeneralGaussianField.{ ContinuousMatrixValuedKernel, DiscreteMatrixValuedKernel }
 import scalismo.common._
-import scalismo.geometry.{Dim, NDSpace, Point, Vector, _3D}
-import scalismo.mesh.{TriangleMesh, TriangleMesh3D}
+import scalismo.geometry.{ Dim, NDSpace, Point, Vector, _3D }
+import scalismo.mesh.{ TriangleMesh, TriangleMesh3D }
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.numerics.{PivotedCholesky, Sampler}
+import scalismo.numerics.{ PivotedCholesky, Sampler }
 import scalismo.utils.Memoize
 
 import scala.collection.immutable.IndexedSeq
 
-
 object Kernel {
-  def computeNystromApproximation[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                                              k: ContinuousMatrixValuedKernel[D],
-                                                             numBasisFunctions: Int,
-                                                             sampler: Sampler[D]): KLBasis[D, Value] = {
+  def computeNystromApproximation[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    k: ContinuousMatrixValuedKernel[D],
+    numBasisFunctions: Int,
+    sampler: Sampler[D]): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -35,7 +34,7 @@ object Kernel {
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
-    val (uMat: DenseMatrix[Double], lambdaMat:DenseVector[Double]) = (DenseMatrix.eye[Double](10),DenseVector.zeros[Double](5)) //PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, NumberOfEigenfunctions(numBasisFunctions))
+    val (uMat: DenseMatrix[Double], lambdaMat: DenseVector[Double]) = (DenseMatrix.eye[Double](10), DenseVector.zeros[Double](5)) //PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, NumberOfEigenfunctions(numBasisFunctions))
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
@@ -59,18 +58,18 @@ object Kernel {
 }
 
 /**
-  * A gaussian process from a D dimensional input space, whose input values are points,
-  * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
-  *
-  * @param representer The vectorizer of the output type
-  * @param mean        The mean function
-  * @param cov         The covariance function. Needs to be positive definite
-  * @tparam D     The dimensionality of the input space
-  * @tparam Value The output type
-  */
-class GaussianRandomField[D <: Dim : NDSpace, Value] protected(val representer: GeneralGaussianField.Vectorizer[Value],
-                                                               val mean: Field[D, Value],
-                                                               val cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D]) {
+ * A gaussian process from a D dimensional input space, whose input values are points,
+ * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
+ *
+ * @param representer The vectorizer of the output type
+ * @param mean        The mean function
+ * @param cov         The covariance function. Needs to be positive definite
+ * @tparam D     The dimensionality of the input space
+ * @tparam Value The output type
+ */
+class GaussianRandomField[D <: Dim: NDSpace, Value] protected (val representer: GeneralGaussianField.Vectorizer[Value],
+    val mean: Field[D, Value],
+    val cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D]) {
 
   //  protected[this] val dimOps: NDSpace[DO] = implicitly[NDSpace[DO]]
 
@@ -79,17 +78,17 @@ class GaussianRandomField[D <: Dim : NDSpace, Value] protected(val representer: 
   val domain = Domain.intersection(mean.domain, cov.domain)
 
   /**
-    *
-    * Sample values of the Gaussian process evaluated at the given points.
-    */
+   *
+   * Sample values of the Gaussian process evaluated at the given points.
+   */
   def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteField[D, Value] = {
     this.marginal(domain).sample
   }
 
   /**
-    * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
-    * is defined by the given points.
-    */
+   * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
+   * is defined by the given points.
+   */
   def marginal(domain: DiscreteDomain[D]): DiscreteGaussianRandomField[D, Value] = {
     val meanField = new DiscreteField[D, Value](domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
     val pts = domain.points.toIndexedSeq
@@ -102,15 +101,15 @@ class GaussianRandomField[D <: Dim : NDSpace, Value] protected(val representer: 
   }
 
   /**
-    * Compute the marginal distribution at a single point.
-    */
+   * Compute the marginal distribution at a single point.
+   */
   def marginal(pt: Point[D]) = MultivariateNormalDistribution(representer.vectorize(mean(pt)), cov(pt, pt))
 
   /**
-    * The posterior distribution of the gaussian process, with respect to the given trainingData.
-    * It is computed using Gaussian process regression.
-    * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
-    */
+   * The posterior distribution of the gaussian process, with respect to the given trainingData.
+   * It is computed using Gaussian process regression.
+   * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
+   */
   def posterior(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): GaussianRandomField[D, Value] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDimensionality), DenseMatrix.eye[Double](outputDimensionality) * sigma2)
     val fullTrainingData = trainingData.map { case (p, v) => (p, v, cov) }
@@ -118,36 +117,36 @@ class GaussianRandomField[D <: Dim : NDSpace, Value] protected(val representer: 
   }
 
   /**
-    * The posterior distribution of the gaussian process, with respect to the given trainingData.
-    * It is computed using Gaussian process regression.
-    */
+   * The posterior distribution of the gaussian process, with respect to the given trainingData.
+   * It is computed using Gaussian process regression.
+   */
   def posterior(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianRandomField[D, Value] = {
     GaussianRandomField.regression(this, trainingData)
   }
 }
 
 /**
-  * Factory methods for creating Gaussian processes
-  */
+ * Factory methods for creating Gaussian processes
+ */
 object GaussianRandomField {
 
   /**
-    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
-    */
-  def apply[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                       mean: Field[D, Value],
-                                       cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D]) = {
+   * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
+   */
+  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    mean: Field[D, Value],
+    cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D]) = {
     new GaussianRandomField[D, Value](representer, mean, cov)
   }
 
   /**
-    * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
-    *
-    * @param gp           The gaussian process
-    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-    */
-  def regression[D <: Dim : NDSpace, Value](gp: GaussianRandomField[D, Value],
-                                            trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianRandomField[D, Value] = {
+   * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
+   *
+   * @param gp           The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  def regression[D <: Dim: NDSpace, Value](gp: GaussianRandomField[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianRandomField[D, Value] = {
 
     val outputDimensionality = gp.outputDimensionality
     val (xs, ys, errorDists) = trainingData.unzip3
@@ -183,17 +182,17 @@ object GaussianRandomField {
   }
 
   /**
-    * * Computes the marginal likelihood of the observed data, according to the given GP.
-    *
-    * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
-    *
-    * @param gp           The gaussian process
-    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
-    *       with a Cholesky decomposition would be more efficient.
-    */
-  def marginalLikelihood[D <: Dim : NDSpace, Value](gp: GaussianRandomField[D, Value],
-                                                    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
+   * * Computes the marginal likelihood of the observed data, according to the given GP.
+   *
+   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
+   *
+   * @param gp           The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
+   *       with a Cholesky decomposition would be more efficient.
+   */
+  def marginalLikelihood[D <: Dim: NDSpace, Value](gp: GaussianRandomField[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
 
     val outputDim = gp.outputDimensionality
 
@@ -229,15 +228,14 @@ object GaussianRandomField {
 
 }
 
-
 /**
-  * A representation of a gaussian process, which is only defined on a discrete domain.
-  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
-  * class that we represent (discrete) functions, defined on the given domain.
-  */
-class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](val representer: GeneralGaussianField.Vectorizer[Value],
-                                                                               val mean: DiscreteField[D, Value],
-                                                                               val cov: GeneralGaussianField.DiscreteMatrixValuedKernel[D]) {
+ * A representation of a gaussian process, which is only defined on a discrete domain.
+ * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
+ * class that we represent (discrete) functions, defined on the given domain.
+ */
+class DiscreteGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (val representer: GeneralGaussianField.Vectorizer[Value],
+    val mean: DiscreteField[D, Value],
+    val cov: GeneralGaussianField.DiscreteMatrixValuedKernel[D]) {
   self =>
 
   require(mean.domain == cov.domain)
@@ -265,19 +263,17 @@ class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](v
   }
 
   /**
-    * The marginal distribution at a given (single) point, specified by the pointId.
-    */
+   * The marginal distribution at a given (single) point, specified by the pointId.
+   */
   def marginal(pointId: PointId) = {
     MultivariateNormalDistribution(representer.vectorize(mean(pointId)), cov(pointId, pointId))
   }
 
   /**
-    * The marginal distribution for the points specified by the given point ids.
-    * Note that this is again a DiscreteGaussianProcess.
-    */
-  def marginal(pointIds: Seq[PointId])
-              (implicit domainCreator: CreateUnstructuredPointsDomain[D])
-  : DiscreteGaussianRandomField[D, Value] = {
+   * The marginal distribution for the points specified by the given point ids.
+   * Note that this is again a DiscreteGaussianProcess.
+   */
+  def marginal(pointIds: Seq[PointId])(implicit domainCreator: CreateUnstructuredPointsDomain[D]): DiscreteGaussianRandomField[D, Value] = {
     val domainPts = domain.points.toIndexedSeq
 
     val newPts = pointIds.map(pointId => domainPts(pointId.id)).toIndexedSeq
@@ -293,9 +289,9 @@ class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](v
   }
 
   /**
-    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianRandomField]],
-    * using nearest neighbor interpolation (for both mean and covariance function)
-    */
+   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianRandomField]],
+   * using nearest neighbor interpolation (for both mean and covariance function)
+   */
   def interpolateNearestNeighbor: GaussianRandomField[D, Value] = {
 
     val meanDiscreteGp = this.mean
@@ -318,14 +314,14 @@ class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](v
   }
 
   /**
-    * Discrete version of [[LowRankGaussianRandomRandomField.project(IndexedSeq[(Point[D], Value)], Double)]]
-    */
+   * Discrete version of [[LowRankGaussianRandomRandomField.project(IndexedSeq[(Point[D], Value)], Double)]]
+   */
 
   def project(s: DiscreteField[D, Value]): DiscreteField[D, Value] = {
 
     val sigma2 = 1e-5 // regularization weight to avoid numerical problems
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](representer.dim),
-        DenseMatrix.eye[Double](representer.dim) * sigma2)
+      DenseMatrix.eye[Double](representer.dim) * sigma2)
     val td = s.values.zipWithIndex.map {
       case (v, id) => (id, v, noiseDist)
     }.toIndexedSeq
@@ -334,8 +330,8 @@ class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](v
   }
 
   /**
-    * Returns the probability density of the given instance
-    */
+   * Returns the probability density of the given instance
+   */
   def pdf(instance: DiscreteField[D, Value]): Double = {
     val mvnormal = MultivariateNormalDistribution(representer.vectorize(mean.data), cov.asBreezeMatrix)
     val instvec = representer.vectorize(instance.data)
@@ -343,10 +339,10 @@ class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](v
   }
 
   /**
-    * Returns the log of the probability density of the given instance
-    *
-    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
-    */
+   * Returns the log of the probability density of the given instance
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
   def logpdf(instance: DiscreteField[D, Value]): Double = {
     val mvnormal = MultivariateNormalDistribution(representer.vectorize(mean.data), cov.asBreezeMatrix)
     val instvec = representer.vectorize(instance.data)
@@ -357,15 +353,15 @@ class DiscreteGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](v
 
 object DiscreteGaussianRandomField {
 
-  def apply[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                       mean: DiscreteField[D, Value],
-                                       cov: GeneralGaussianField.DiscreteMatrixValuedKernel[D]) = {
+  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    mean: DiscreteField[D, Value],
+    cov: GeneralGaussianField.DiscreteMatrixValuedKernel[D]) = {
     new DiscreteGaussianRandomField[D, Value](representer, mean, cov)
   }
 
-  def apply[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                       domain: DiscreteDomain[D],
-                                       gp: GaussianRandomField[D, Value]) = {
+  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    domain: DiscreteDomain[D],
+    gp: GaussianRandomField[D, Value]) = {
     val domainPoints = domain.points.toIndexedSeq
 
     val discreteMean = new DiscreteField[D, Value](domain, domainPoints.map(pt => gp.mean(pt)))
@@ -376,8 +372,8 @@ object DiscreteGaussianRandomField {
     new DiscreteGaussianRandomField[D, Value](representer, discreteMean, discreteCov)
   }
 
-  def regression[D <: Dim : NDSpace, Value](discreteGp: DiscreteGaussianRandomField[D, Value],
-                                            trainingData: IndexedSeq[(Int, Value, MultivariateNormalDistribution)]): DiscreteGaussianRandomField[D, Value] = {
+  def regression[D <: Dim: NDSpace, Value](discreteGp: DiscreteGaussianRandomField[D, Value],
+    trainingData: IndexedSeq[(Int, Value, MultivariateNormalDistribution)]): DiscreteGaussianRandomField[D, Value] = {
 
     // TODO, this is somehow a hack to reuse the code written for the general GP regression. We should think if that has disadvantages
     // TODO We should think whether we can do it in  a conceptually more clean way.
@@ -391,34 +387,33 @@ object DiscreteGaussianRandomField {
   }
 }
 
-
 /**
-  *
-  * A gaussian process which is represented in terms of a (small) finite set of basis functions.
-  * The basis functions are the orthonormal basis functions given by a mercers' decomposition.
-  *
-  * @param mean    The mean function
-  * @param klBasis A set of basis functions
-  * @tparam D     The dimensionality of the input space
-  * @tparam Value The type of the output element
-  */
-class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                                                  mean: Field[D, Value],
-                                                                  val klBasis: KLBasis[D, Value])
-  extends GaussianRandomField[D, Value](representer, mean, LowRankGaussianRandomRandomField.covFromKLTBasis(representer, klBasis)) {
+ *
+ * A gaussian process which is represented in terms of a (small) finite set of basis functions.
+ * The basis functions are the orthonormal basis functions given by a mercers' decomposition.
+ *
+ * @param mean    The mean function
+ * @param klBasis A set of basis functions
+ * @tparam D     The dimensionality of the input space
+ * @tparam Value The type of the output element
+ */
+class LowRankGaussianRandomRandomField[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  mean: Field[D, Value],
+  val klBasis: KLBasis[D, Value])
+    extends GaussianRandomField[D, Value](representer, mean, LowRankGaussianRandomRandomField.covFromKLTBasis(representer, klBasis)) {
 
   /**
-    * the rank (i.e. number of basis functions)
-    */
+   * the rank (i.e. number of basis functions)
+   */
   def rank = klBasis.size
 
   val outputDimension = representer.dim
 
   /**
-    * an instance of the gaussian process, which is formed by a linear combination of the klt basis using the given coefficients c.
-    *
-    * @param c Coefficients that determine the linear combination. Are assumed to be N(0,1) distributed.
-    */
+   * an instance of the gaussian process, which is formed by a linear combination of the klt basis using the given coefficients c.
+   *
+   * @param c Coefficients that determine the linear combination. Are assumed to be N(0,1) distributed.
+   */
   def instance(c: DenseVector[Double]): Field[D, Value] = {
     require(klBasis.size == c.size)
     val f: Point[D] => Value = x => {
@@ -432,16 +427,16 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * A random sample of the gaussian process
-    */
+   * A random sample of the gaussian process
+   */
   def sample: Field[D, Value] = {
     val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 
   /**
-    * A random sample evaluated at the given points
-    */
+   * A random sample evaluated at the given points
+   */
   override def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteField[D, Value] = {
     // TODO check that points are part of the domain
     val aSample = sample
@@ -450,12 +445,12 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean Gaussian noise
-    *
-    * @param trainingData Point/value pairs where that the sample should approximate.
-    * @param sigma2       variance of a Gaussian noise that is assumed on every training point
-    */
+   * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean Gaussian noise
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate.
+   * @param sigma2       variance of a Gaussian noise that is assumed on every training point
+   */
   def project(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double = 1e-6): Field[D, Value] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDimension), DenseMatrix.eye[Double](outputDimension) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
@@ -463,20 +458,20 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean gaussian noise
-    *
-    * @param trainingData Point/value pairs where that the sample should approximate, together with the variance of the noise model at each point.
-    */
+   * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean gaussian noise
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate, together with the variance of the noise model at each point.
+   */
   def project(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Field[D, Value] = {
     val c = coefficients(trainingData)
     instance(c)
   }
 
   /**
-    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean Gaussian noise
-    */
+   * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean Gaussian noise
+   */
   def coefficients(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): DenseVector[Double] = {
     val (minv, qtL, yVec, mVec) = LowRankGaussianRandomRandomField.genericRegressionComputations(this, trainingData)
     val mean_coeffs = (minv * qtL) * (yVec - mVec)
@@ -484,9 +479,9 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean Gaussian noise
-    */
+   * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean Gaussian noise
+   */
   def coefficients(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): DenseVector[Double] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDimension), DenseMatrix.eye[Double](outputDimension) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
@@ -494,8 +489,8 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * Returns the probability density of the instance produced by the x coefficients
-    */
+   * Returns the probability density of the instance produced by the x coefficients
+   */
   def pdf(coefficients: DenseVector[Double]): Double = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
     val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
@@ -503,10 +498,10 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * Returns the log of the probability density of the instance produced by the x coefficients.
-    *
-    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
-    */
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
   def logpdf(coefficients: DenseVector[Double]): Double = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
     val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
@@ -524,8 +519,8 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
   }
 
   /**
-    * Discretize the gaussian process on the given points.
-    */
+   * Discretize the gaussian process on the given points.
+   */
   def discretize(domain: DiscreteDomain[D]): DiscreteLowRankGaussianRandomField[D, Value] = {
     DiscreteLowRankGaussianRandomField(domain, this)
   }
@@ -533,8 +528,8 @@ class LowRankGaussianRandomRandomField[D <: Dim : NDSpace, Value](representer: G
 }
 
 /**
-  * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
-  */
+ * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
+ */
 object LowRankGaussianRandomRandomField {
 
   case class Eigenpair[D <: Dim, Value](eigenvalue: Double, eigenfunction: Field[D, Value])
@@ -542,22 +537,22 @@ object LowRankGaussianRandomRandomField {
   type KLBasis[D <: Dim, Value] = Seq[Eigenpair[D, Value]]
 
   /**
-    * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
-    * are sampled using the given sample.
-    *
-    * @param gp                The gaussian process to approximate
-    * @param sampler           determines which points will be used as samples for the nystrom approximation.
-    * @param numBasisFunctions The number of basis functions to approximate.
-    */
-  def approximateGP[D <: Dim : NDSpace, Value](gp: GaussianRandomField[D, Value],
-                                               sampler: Sampler[D],
-                                               numBasisFunctions: Int) = {
+   * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
+   * are sampled using the given sample.
+   *
+   * @param gp                The gaussian process to approximate
+   * @param sampler           determines which points will be used as samples for the nystrom approximation.
+   * @param numBasisFunctions The number of basis functions to approximate.
+   */
+  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianRandomField[D, Value],
+    sampler: Sampler[D],
+    numBasisFunctions: Int) = {
     val kltBasis = Kernel.computeNystromApproximation[D, Value](gp.representer, gp.cov, numBasisFunctions, sampler)
     new LowRankGaussianRandomRandomField[D, Value](gp.representer, gp.mean, kltBasis)
   }
 
-  private def covFromKLTBasis[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                                         klBasis: KLBasis[D, Value]): GeneralGaussianField.ContinuousMatrixValuedKernel[D] = {
+  private def covFromKLTBasis[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    klBasis: KLBasis[D, Value]): GeneralGaussianField.ContinuousMatrixValuedKernel[D] = {
     val cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D] = {
       val outputDim = 3
       val domain = klBasis.headOption.map { case (Eigenpair(lambda, phi)) => phi.domain }.getOrElse(RealSpace[D])
@@ -579,13 +574,13 @@ object LowRankGaussianRandomRandomField {
   }
 
   /**
-    * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
-    *
-    * @param gp           The gaussian process
-    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-    */
-  def regression[D <: Dim : NDSpace, Value](gp: LowRankGaussianRandomRandomField[D, Value],
-                                            trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): LowRankGaussianRandomRandomField[D, Value] = {
+   * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
+   *
+   * @param gp           The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  def regression[D <: Dim: NDSpace, Value](gp: LowRankGaussianRandomRandomField[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): LowRankGaussianRandomRandomField[D, Value] = {
     val outputDim = gp.outputDimension
     val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
     val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
@@ -627,8 +622,8 @@ object LowRankGaussianRandomRandomField {
   /*
   * Internal computations of the regression.
    */
-  private def genericRegressionComputations[D <: Dim : NDSpace, Value](gp: LowRankGaussianRandomRandomField[D, Value],
-                                                                       trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]) = {
+  private def genericRegressionComputations[D <: Dim: NDSpace, Value](gp: LowRankGaussianRandomRandomField[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]) = {
 
     val outputDimension = gp.outputDimension
 
@@ -661,9 +656,9 @@ object LowRankGaussianRandomRandomField {
   }
 
   /**
-    * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
-    * vectors are transformed along the domain.
-    */
+   * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
+   * vectors are transformed along the domain.
+   */
   //  def transform[D <: Dim: NDSpace, Value](gp: LowRankGaussianField[D, Value], rigidTransform: RigidTransformation[D]): LowRankGaussianField[D, Value] = {
   //    val invTransform = rigidTransform.inverse
   //
@@ -689,35 +684,35 @@ object LowRankGaussianRandomRandomField {
 }
 
 /**
-  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
-  * It supports the same operations as the LowRankGaussianProcess class, but always returns instead a
-  * discrete representation. Furthermore, most operations are much more efficient, as they are implemented
-  * using fast matrix/vector operations.
-  *
-  * Where the modeled functions in a LowRankGaussianProcess are of type Point[D]=>Vector[D], this discretized version is of type VectorPointData.
-  *
-  * It is possible to convert a DiscreteLowRankGaussianProcess to a LowRankGaussianProcess by calling the interpolation method.
-  *
-  * @see [[scalismo.common.DiscreteVectorField]]
-  * @see [[DiscreteLowRankGaussianRandomField]]
-  */
+ * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
+ * It supports the same operations as the LowRankGaussianProcess class, but always returns instead a
+ * discrete representation. Furthermore, most operations are much more efficient, as they are implemented
+ * using fast matrix/vector operations.
+ *
+ * Where the modeled functions in a LowRankGaussianProcess are of type Point[D]=>Vector[D], this discretized version is of type VectorPointData.
+ *
+ * It is possible to convert a DiscreteLowRankGaussianProcess to a LowRankGaussianProcess by calling the interpolation method.
+ *
+ * @see [[scalismo.common.DiscreteVectorField]]
+ * @see [[DiscreteLowRankGaussianRandomField]]
+ */
 
 import scalismo.GeneralGaussianField.Adapted.DiscreteLowRankGaussianRandomField.basisMatrixToCov
 
-case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private[scalismo](override val representer: GeneralGaussianField.Vectorizer[Value],
-                                                                                           override val domain: DiscreteDomain[D],
-                                                                                           override val meanVector: DenseVector[Double],
-                                                                                           variance: DenseVector[Double],
-                                                                                           val kernelMatrix: DenseMatrix[Double])
-  extends DiscreteGaussianRandomField[D, Value](representer, new DiscreteField(domain, representer.unvectorizeField(meanVector)), basisMatrixToCov(domain, variance, kernelMatrix)) {
+case class DiscreteLowRankGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (override val representer: GeneralGaussianField.Vectorizer[Value],
+  override val domain: DiscreteDomain[D],
+  override val meanVector: DenseVector[Double],
+  variance: DenseVector[Double],
+  val kernelMatrix: DenseMatrix[Double])
+    extends DiscreteGaussianRandomField[D, Value](representer, new DiscreteField(domain, representer.unvectorizeField(meanVector)), basisMatrixToCov(domain, variance, kernelMatrix)) {
   self =>
 
   /** See [[DiscreteLowRankGaussianRandomField.rank]] */
   val rank: Int = kernelMatrix.cols
 
   /**
-    * Discrete version of [[DiscreteLowRankGaussianRandomField.instance]]
-    */
+   * Discrete version of [[DiscreteLowRankGaussianRandomField.instance]]
+   */
   def instance(c: DenseVector[Double]): DiscreteField[D, Value] = {
     require(rank == c.size)
     val instVal = instanceVector(c)
@@ -725,8 +720,8 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Returns the probability density of the instance produced by the x coefficients
-    */
+   * Returns the probability density of the instance produced by the x coefficients
+   */
   def pdf(coefficients: DenseVector[Double]) = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
     val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
@@ -734,10 +729,10 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Returns the log of the probability density of the instance produced by the x coefficients.
-    *
-    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
-    */
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
   def logpdf(coefficients: DenseVector[Double]) = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
     val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
@@ -745,29 +740,29 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Returns the probability density of the given instance
-    */
+   * Returns the probability density of the given instance
+   */
   override def pdf(instance: DiscreteField[D, Value]): Double = pdf(coefficients(instance))
 
   /**
-    * Returns the log of the probability density of the instance
-    *
-    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
-    */
+   * Returns the log of the probability density of the instance
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
   override def logpdf(instance: DiscreteField[D, Value]): Double = logpdf(coefficients(instance))
 
   /**
-    * Discrete version of [[DiscreteLowRankGaussianRandomField.sample]]
-    */
+   * Discrete version of [[DiscreteLowRankGaussianRandomField.sample]]
+   */
   override def sample: DiscreteField[D, Value] = {
     val coeffs = for (_ <- 0 until rank) yield Gaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 
   /**
-    * Returns the variance and associated basis function that defines the process.
-    * The basis is the (discretized) Karhunen Loeve basis (e.g. it is obtained from a Mercer's decomposition of the covariance function
-    */
+   * Returns the variance and associated basis function that defines the process.
+   * The basis is the (discretized) Karhunen Loeve basis (e.g. it is obtained from a Mercer's decomposition of the covariance function
+   */
   def klBasis: DiscKLBasis[D, Value] = {
     for (i <- 0 until rank) yield {
       val eigenValue = variance(i)
@@ -777,15 +772,15 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Discrete version of [[LowRankGaussianRandomRandomField.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
-    */
+   * Discrete version of [[LowRankGaussianRandomRandomField.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
+   */
   override def project(s: DiscreteField[D, Value]): DiscreteField[D, Value] = {
     instance(coefficients(s))
   }
 
   /**
-    * Discrete version of [[DiscreteLowRankGaussianRandomField.coefficients(IndexedSeq[(Point[D], Vector[DO], Double)])]]
-    */
+   * Discrete version of [[DiscreteLowRankGaussianRandomField.coefficients(IndexedSeq[(Point[D], Vector[DO], Double)])]]
+   */
   def coefficients(s: DiscreteField[D, Value]): DenseVector[Double] = {
     val sigma2 = 1e-5 // regularization weight to avoid numerical problems
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDimension), DenseMatrix.eye[Double](outputDimension) * sigma2)
@@ -796,10 +791,10 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Discrete version of [[DiscreteLowRankGaussianRandomField.posterior(IndexedSeq[(Point[D], Vector[DO])], sigma2: Double]]. In contrast to this method, the points for the training
-    * data are defined by the pointId. The returned posterior process is defined at the same points.
-    *
-    */
+   * Discrete version of [[DiscreteLowRankGaussianRandomField.posterior(IndexedSeq[(Point[D], Vector[DO])], sigma2: Double]]. In contrast to this method, the points for the training
+   * data are defined by the pointId. The returned posterior process is defined at the same points.
+   *
+   */
   def posterior(trainingData: IndexedSeq[(PointId, Value)], sigma2: Double): DiscreteLowRankGaussianRandomField[D, Value] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDimension), DenseMatrix.eye[Double](outputDimension) * sigma2)
     val newtd = trainingData.map { case (ptId, df) => (ptId, df, cov) }
@@ -807,10 +802,10 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Discrete version of [[DiscreteLowRankGaussianRandomField.posterior(IndexedSeq[(Point[D], Vector[DO], Double)])]]. In contrast to this method, the points for the training
-    * data are defined by the pointId. The returned posterior process is defined at the same points.
-    *
-    */
+   * Discrete version of [[DiscreteLowRankGaussianRandomField.posterior(IndexedSeq[(Point[D], Vector[DO], Double)])]]. In contrast to this method, the points for the training
+   * data are defined by the pointId. The returned posterior process is defined at the same points.
+   *
+   */
   def posterior(trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): DiscreteLowRankGaussianRandomField[D, Value] = {
     DiscreteLowRankGaussianRandomField.regression(this, trainingData)
   }
@@ -833,13 +828,13 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianRandomField]].
-    * This is achieved by using a  Nystrom method for computing the kl basis.
-    * The mean function is currently interpolated using a nearest neighbor approach.
-    *
-    * @param nNystromPoints determines how many points of the domain are used to estimate the full
-    *                       kl basis.
-    */
+   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianRandomField]].
+   * This is achieved by using a  Nystrom method for computing the kl basis.
+   * The mean function is currently interpolated using a nearest neighbor approach.
+   *
+   * @param nNystromPoints determines how many points of the domain are used to estimate the full
+   *                       kl basis.
+   */
 
   def interpolateNystrom(nNystromPoints: Int = 2 * rank): LowRankGaussianRandomRandomField[D, Value] = {
 
@@ -880,9 +875,9 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
   }
 
   /**
-    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianRandomField]],
-    * using nearest neigbor interpolation (for both mean and covariance function)
-    */
+   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianRandomField]],
+   * using nearest neigbor interpolation (for both mean and covariance function)
+   */
   override def interpolateNearestNeighbor: LowRankGaussianRandomRandomField[D, Value] = {
 
     val meanPD = this.mean
@@ -921,12 +916,12 @@ case class DiscreteLowRankGaussianRandomField[D <: Dim : NDSpace, Value] private
 }
 
 /**
-  * Convenience class to speedup sampling from a LowRankGaussianProcess obtained by nearest neighbor interpolation of a DiscreteLowRankGaussianProcess
-  *
-  */
-private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianRandomProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
-                                                                                                            klBasis: LowRankGaussianRandomRandomField.KLBasis[D, Value],
-                                                                                                            discreteGP: DiscreteLowRankGaussianRandomField[D, Value]) extends LowRankGaussianRandomRandomField[D, Value](discreteGP.representer, mean, klBasis) {
+ * Convenience class to speedup sampling from a LowRankGaussianProcess obtained by nearest neighbor interpolation of a DiscreteLowRankGaussianProcess
+ *
+ */
+private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianRandomProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
+    klBasis: LowRankGaussianRandomRandomField.KLBasis[D, Value],
+    discreteGP: DiscreteLowRankGaussianRandomField[D, Value]) extends LowRankGaussianRandomRandomField[D, Value](discreteGP.representer, mean, klBasis) {
 
   require(klBasis.size == discreteGP.rank)
 
@@ -955,10 +950,10 @@ object DiscreteLowRankGaussianRandomField {
   type DiscKLBasis[D <: Dim, Value] = Seq[DiscEigenpair[D, Value]]
 
   /**
-    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
-    */
-  def apply[D <: Dim : NDSpace, Value](domain: DiscreteDomain[D],
-                                       gp: LowRankGaussianRandomRandomField[D, Value]): DiscreteLowRankGaussianRandomField[D, Value] = {
+   * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
+   */
+  def apply[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D],
+    gp: LowRankGaussianRandomRandomField[D, Value]): DiscreteLowRankGaussianRandomField[D, Value] = {
     val points = domain.points.toSeq
 
     val outputDimension = gp.outputDimension
@@ -984,9 +979,9 @@ object DiscreteLowRankGaussianRandomField {
     DiscreteLowRankGaussianRandomField(gp.representer, domain, m, lambdas, U)
   }
 
-  def apply[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                       mean: DiscreteField[D, Value],
-                                       klBasis: DiscKLBasis[D, Value]): DiscreteLowRankGaussianRandomField[D, Value] = {
+  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    mean: DiscreteField[D, Value],
+    klBasis: DiscKLBasis[D, Value]): DiscreteLowRankGaussianRandomField[D, Value] = {
     val outputDimension = representer.dim
 
     for (DiscEigenpair(_, phi) <- klBasis) {
@@ -1006,9 +1001,9 @@ object DiscreteLowRankGaussianRandomField {
   }
 
   /**
-    * Discrete implementation of [[LowRankGaussianRandomRandomField.regression]]
-    */
-  def regression[D <: Dim : NDSpace, Value](gp: DiscreteLowRankGaussianRandomField[D, Value], trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): DiscreteLowRankGaussianRandomField[D, Value] = {
+   * Discrete implementation of [[LowRankGaussianRandomRandomField.regression]]
+   */
+  def regression[D <: Dim: NDSpace, Value](gp: DiscreteLowRankGaussianRandomField[D, Value], trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): DiscreteLowRankGaussianRandomField[D, Value] = {
 
     val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
     val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
@@ -1037,12 +1032,12 @@ object DiscreteLowRankGaussianRandomField {
   }
 
   /**
-    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
-    *
-    */
-  def createUsingPCA[D <: Dim : NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
-                                                domain: DiscreteDomain[D],
-                                                fields: Seq[DiscreteField[D, Value]]): DiscreteLowRankGaussianRandomField[D, Value] = {
+   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
+   *
+   */
+  def createUsingPCA[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+    domain: DiscreteDomain[D],
+    fields: Seq[DiscreteField[D, Value]]): DiscreteLowRankGaussianRandomField[D, Value] = {
     val dim = implicitly[NDSpace[D]].dimensionality
 
     val n = fields.size
@@ -1078,8 +1073,8 @@ object DiscreteLowRankGaussianRandomField {
 
   }
 
-  private def genericRegressionComputations[D <: Dim : NDSpace, Value](gp: DiscreteLowRankGaussianRandomField[D, Value],
-                                                                       trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]) = {
+  private def genericRegressionComputations[D <: Dim: NDSpace, Value](gp: DiscreteLowRankGaussianRandomField[D, Value],
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]) = {
     val dim = gp.outputDimensionality
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
 
@@ -1110,9 +1105,9 @@ object DiscreteLowRankGaussianRandomField {
     (Minv, QtL, yVec, mVec)
   }
 
-  private def basisMatrixToCov[D <: Dim : NDSpace, Value](domain: DiscreteDomain[D],
-                                                          variance: DenseVector[Double],
-                                                          basisMatrix: DenseMatrix[Double]): DiscreteMatrixValuedKernel[D] = {
+  private def basisMatrixToCov[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D],
+    variance: DenseVector[Double],
+    basisMatrix: DenseMatrix[Double]): DiscreteMatrixValuedKernel[D] = {
 
     val outputDimensionality = 3
     def cov(p1: PointId, p2: PointId): DenseMatrix[Double] = {
@@ -1154,7 +1149,7 @@ object DiscreteLowRankGaussianRandomField {
 import scalismo.geometry.Vector._
 
 class StatisticalShapeModel(val reference: TriangleMesh[_3D],
-                            val grf: DiscreteLowRankGaussianRandomField[_3D, Vector[_3D]]) extends {
+  val grf: DiscreteLowRankGaussianRandomField[_3D, Vector[_3D]]) extends {
   def sample = {
     val s: DiscreteField[_3D, Vector[_3D]] = grf.sample
     val refPt: IndexedSeq[Point[_3D]] = reference.pointSet.points.toIndexedSeq
@@ -1165,7 +1160,7 @@ class StatisticalShapeModel(val reference: TriangleMesh[_3D],
 
 object StatisticalShapeModel {
 
-  class VectorRepresenter[D <: Dim : NDSpace] extends GeneralGaussianField.Vectorizer[Vector[D]] {
+  class VectorRepresenter[D <: Dim: NDSpace] extends GeneralGaussianField.Vectorizer[Vector[D]] {
     override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
     override def vectorize(v: Vector[D]): DenseVector[Double] = v.toBreezeVector

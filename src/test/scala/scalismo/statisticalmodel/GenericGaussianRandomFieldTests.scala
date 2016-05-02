@@ -6,13 +6,13 @@ import scalismo.GeneralGaussianField.Adapted.StatisticalShapeModel
 
 //import scalismo.GeneralGaussianField.Adapted.StatisticalShapeModel
 import scalismo.common.DiscreteField
-import scalismo.geometry.{Point, Vector, _3D}
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.io.MeshIO
 import scalismo.statisticalmodel.dataset.DataCollection
 
 /**
-  * Created by forand00 on 27.04.16.
-  */
+ * Created by forand00 on 27.04.16.
+ */
 
 object TestStatisticalShapeModel {
 
@@ -37,9 +37,9 @@ object TestStatisticalShapeModel {
     val reference = meshes.head
     val trainingMeshes = meshes.tail
     val collection = DataCollection.fromMeshSequence(reference, trainingMeshes)._1.get
-//    val ssm = StatisticalMeshModel.createUsingPCA(collection).get
+    //    val ssm = StatisticalMeshModel.createUsingPCA(collection).get
     val trainingFields = toFields(collection)
-    val ssm = StatisticalShapeModel(reference,trainingFields)
+    val ssm = StatisticalShapeModel(reference, trainingFields)
 
     for (idx <- 0 until 20) {
       print("Draw sample %d ...".format(idx))

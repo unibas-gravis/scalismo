@@ -91,10 +91,9 @@ import scala.collection.mutable
 //  }
 //}
 
-class ContinuousMatrixValuedKernel[D <: Dim: NDSpace]( val domain: Domain[D],
-                                                       val k: (Point[D], Point[D]) => DenseMatrix[Double],
-                                                       val outputDim: Int
-                                                     ) {
+class ContinuousMatrixValuedKernel[D <: Dim: NDSpace](val domain: Domain[D],
+    val k: (Point[D], Point[D]) => DenseMatrix[Double],
+    val outputDim: Int) {
   def apply(i: Point[D], j: Point[D]): DenseMatrix[Double] = {
     if (domain.isDefinedAt(i) && domain.isDefinedAt(j))
       k(i, j)
@@ -142,13 +141,13 @@ object ContinuousMatrixValuedKernel {
   }
 
   /**
-    * for every domain point x in the list, we compute the kernel vector
-    * kx = (k(x, x1), ... k(x, xm))
-    * since the kernel is matrix valued, kx is actually a matrix
-    *
-    * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
-    * faster (breeze implementation detail). This should be replaced at some point
-    */
+   * for every domain point x in the list, we compute the kernel vector
+   * kx = (k(x, x1), ... k(x, xm))
+   * since the kernel is matrix valued, kx is actually a matrix
+   *
+   * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
+   * faster (breeze implementation detail). This should be replaced at some point
+   */
   def computeKernelVectorFor[D <: Dim: NDSpace](x: Point[D], xs: IndexedSeq[Point[D]], k: ContinuousMatrixValuedKernel[D]): DenseMatrix[Double] = {
     val d = k.outputDim
 
@@ -172,22 +171,11 @@ object ContinuousMatrixValuedKernel {
     kxs
   }
 
-
 }
 
-
-
-
-
-
-
-
-
-
-
-class DiscreteMatrixValuedKernel[D <: Dim: NDSpace]( val domain: DiscreteDomain[D],
-                                                     val k: (PointId, PointId) => DenseMatrix[Double],
-                                                     val outputDim: Int) extends {
+class DiscreteMatrixValuedKernel[D <: Dim: NDSpace](val domain: DiscreteDomain[D],
+  val k: (PointId, PointId) => DenseMatrix[Double],
+  val outputDim: Int) extends {
   def isDefinedAt(i: PointId) = {
     (i.id >= 0) && (i.id < domain.numberOfPoints)
   }
@@ -205,9 +193,9 @@ class DiscreteMatrixValuedKernel[D <: Dim: NDSpace]( val domain: DiscreteDomain[
   }
 
   /**
-    * return the matrix representation of this kernel.
-    * (This is a covariance matrix, consisting of blocks of size DO times DO)
-    */
+   * return the matrix representation of this kernel.
+   * (This is a covariance matrix, consisting of blocks of size DO times DO)
+   */
   def asBreezeMatrix: DenseMatrix[Double] = {
     val d = outputDim
     val xs = domain.points.toIndexedSeq
@@ -235,8 +223,8 @@ class DiscreteMatrixValuedKernel[D <: Dim: NDSpace]( val domain: DiscreteDomain[
 
 object DiscreteMatrixValuedKernel {
   private def basisMatrixToCov[D <: Dim: NDSpace](domain: DiscreteDomain[D],
-                                                         variance: DenseVector[Double],
-                                                         basisMatrix: DenseMatrix[Double]) = {
+    variance: DenseVector[Double],
+    basisMatrix: DenseMatrix[Double]) = {
 
     val outputDimensionen = implicitly[NDSpace[D]].dimensionality
     def cov(ptId1: PointId, ptId2: PointId): DenseMatrix[Double] = {
