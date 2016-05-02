@@ -25,13 +25,14 @@ import scalismo.geometry.{ NDSpace, Dim, SquareMatrix }
  *  Mathematically, it can be represented as a covariance matrix. However, it has more structure, i.e. its entry ij
  *  is a matrix. Furthermore, the class has the knowledge about its domain (the point on which it is defined).
  */
-class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] private[scalismo] (val domain: DiscreteDomain[D],
-    val k: (PointId, PointId) => SquareMatrix[DO]) {
+class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace] private[scalismo]
+(
+  val domain: DiscreteDomain[D],
+  val k: (PointId, PointId) => DenseMatrix[Double],
+  val outputDim: Int ) {
   self =>
 
-  def outputDim = implicitly[NDSpace[DO]].dimensionality
-
-  def apply(i: PointId, j: PointId): SquareMatrix[DO] = {
+  def apply(i: PointId, j: PointId): DenseMatrix[Double] = {
     if (i.id < domain.numberOfPoints && j.id < domain.numberOfPoints)
       k(i, j)
     else {
@@ -48,20 +49,19 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] privat
    * (This is a covariance matrix, consisting of blocks of size DO times DO)
    */
   def asBreezeMatrix: DenseMatrix[Double] = {
-    val d = outputDim
     val xs = domain.points.toIndexedSeq
 
-    val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
+    val K = DenseMatrix.zeros[Double](xs.size * outputDim, xs.size * outputDim)
     val xiWithIndex = xs.zipWithIndex.par
     val xjWithIndex = xs.zipWithIndex
     for { i <- xs.indices; j <- 0 to i } {
       val kxixj = k(PointId(i), PointId(j))
       var di = 0
-      while (di < d) {
+      while (di < outputDim) {
         var dj = 0
-        while (dj < d) {
-          K(i * d + di, j * d + dj) = kxixj(di, dj)
-          K(j * d + dj, i * d + di) = K(i * d + di, j * d + dj)
+        while (dj < outputDim) {
+          K(i * outputDim + di, j * outputDim + dj) = kxixj(di, dj)
+          K(j * outputDim + dj, i * outputDim + di) = K(i * outputDim + di, j * outputDim + dj)
           dj += 1
         }
         di += 1
@@ -73,7 +73,7 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace, DO <: Dim: NDSpace] privat
 }
 
 object DiscreteMatrixValuedPDKernel {
-  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], k: (PointId, PointId) => SquareMatrix[DO]) = {
-    new DiscreteMatrixValuedPDKernel(domain, k)
+  def apply[D <: Dim: NDSpace](domain: DiscreteDomain[D], k: (PointId, PointId) => DenseMatrix[Double], outputDim: Int) = {
+    new DiscreteMatrixValuedPDKernel(domain, k, outputDim)
   }
 }

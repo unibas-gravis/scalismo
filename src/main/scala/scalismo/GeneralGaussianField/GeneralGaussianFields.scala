@@ -175,7 +175,7 @@ object ContinuousMatrixValuedKernel {
 
 class DiscreteMatrixValuedKernel[D <: Dim: NDSpace](val domain: DiscreteDomain[D],
   val k: (PointId, PointId) => DenseMatrix[Double],
-  val outputDim: Int) extends {
+  val outputDim: Int) {
   def isDefinedAt(i: PointId) = {
     (i.id >= 0) && (i.id < domain.numberOfPoints)
   }
