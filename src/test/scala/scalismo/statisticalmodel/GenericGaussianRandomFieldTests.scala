@@ -2,7 +2,7 @@ package scalismo.statisticalmodel
 
 import java.io.File
 
-import scalismo.GeneralGaussianField.Adapted.StatisticalShapeModel
+import scalismo.statisticalmodel.StatisticalMeshModel
 
 //import scalismo.GeneralGaussianField.Adapted.StatisticalShapeModel
 import scalismo.common.DiscreteField
@@ -27,8 +27,10 @@ object TestStatisticalShapeModel {
   def main(args: Array[String]) {
     scalismo.initialize()
 
-    val meshes = args.map { s =>
-      print("Loading " + s + " ...")
+    val meshes = args.zipWithIndex.map { t =>
+      val s = t._1
+      val i = t._2
+      print("Loading " + i + ": " + s + " ...")
       val m = MeshIO.readMesh(new File(s)).get
       println(" Done.")
       m
@@ -37,9 +39,7 @@ object TestStatisticalShapeModel {
     val reference = meshes.head
     val trainingMeshes = meshes.tail
     val collection = DataCollection.fromMeshSequence(reference, trainingMeshes)._1.get
-    //    val ssm = StatisticalMeshModel.createUsingPCA(collection).get
-    val trainingFields = toFields(collection)
-    val ssm = StatisticalShapeModel(reference, trainingFields)
+    val ssm = StatisticalMeshModel.createUsingPCA(collection).get
 
     for (idx <- 0 until 20) {
       print("Draw sample %d ...".format(idx))

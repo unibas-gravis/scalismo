@@ -174,8 +174,8 @@ object ContinuousMatrixValuedKernel {
 }
 
 class DiscreteMatrixValuedKernel[D <: Dim: NDSpace](val domain: DiscreteDomain[D],
-  val k: (PointId, PointId) => DenseMatrix[Double],
-  val outputDim: Int) {
+    val k: (PointId, PointId) => DenseMatrix[Double],
+    val outputDim: Int) {
   def isDefinedAt(i: PointId) = {
     (i.id >= 0) && (i.id < domain.numberOfPoints)
   }
@@ -258,34 +258,6 @@ object DiscreteMatrixValuedKernel {
 
     new DiscreteMatrixValuedKernel(domain, cov, outputDimensionen)
   }
-}
-
-trait Vectorizer[Value] {
-  def dim: Int
-
-  def vectorize(v: Value): DenseVector[Double]
-
-  def unvectorize(d: DenseVector[Double]): Value
-
-  def vectorize(vs: IndexedSeq[Value]): DenseVector[Double] = {
-    val fullDim = vs.length * dim
-    val M = DenseVector.zeros[Double](fullDim)
-    val pt = vs.zipWithIndex
-    for (i <- pt) {
-      val m = vectorize(i._1)
-      for (x <- 0 until dim) {
-        M(i._2 * dim + x) = m(x)
-      }
-    }
-    M
-  }
-
-  // TODO: check efficiency
-  def unvectorizeField(d: DenseVector[Double]): IndexedSeq[Value] = {
-    val nElem = d.length / dim
-    d.toArray.grouped(dim).map(e => unvectorize(DenseVector(e))).toIndexedSeq
-  }
-
 }
 
 case class DiscreteGaussianField[D <: Dim: NDSpace, Value](mean: DiscreteField[D, Value],

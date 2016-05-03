@@ -21,7 +21,7 @@ import scalismo.utils.Memoize
 import scala.collection.immutable.IndexedSeq
 
 object Kernel {
-  def computeNystromApproximation[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  def computeNystromApproximation[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     k: ContinuousMatrixValuedKernel[D],
     numBasisFunctions: Int,
     sampler: Sampler[D]): KLBasis[D, Value] = {
@@ -67,7 +67,7 @@ object Kernel {
  * @tparam D     The dimensionality of the input space
  * @tparam Value The output type
  */
-class GaussianRandomField[D <: Dim: NDSpace, Value] protected (val representer: GeneralGaussianField.Vectorizer[Value],
+class GaussianRandomField[D <: Dim: NDSpace, Value] protected (val representer: Vectorizer[Value],
     val mean: Field[D, Value],
     val cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D]) {
 
@@ -133,7 +133,7 @@ object GaussianRandomField {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  def apply[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     mean: Field[D, Value],
     cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D]) = {
     new GaussianRandomField[D, Value](representer, mean, cov)
@@ -233,7 +233,7 @@ object GaussianRandomField {
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (val representer: GeneralGaussianField.Vectorizer[Value],
+class DiscreteGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (val representer: Vectorizer[Value],
     val mean: DiscreteField[D, Value],
     val cov: GeneralGaussianField.DiscreteMatrixValuedKernel[D]) {
   self =>
@@ -353,13 +353,13 @@ class DiscreteGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (v
 
 object DiscreteGaussianRandomField {
 
-  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  def apply[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     mean: DiscreteField[D, Value],
     cov: GeneralGaussianField.DiscreteMatrixValuedKernel[D]) = {
     new DiscreteGaussianRandomField[D, Value](representer, mean, cov)
   }
 
-  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  def apply[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     domain: DiscreteDomain[D],
     gp: GaussianRandomField[D, Value]) = {
     val domainPoints = domain.points.toIndexedSeq
@@ -397,7 +397,7 @@ object DiscreteGaussianRandomField {
  * @tparam D     The dimensionality of the input space
  * @tparam Value The type of the output element
  */
-class LowRankGaussianRandomRandomField[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+class LowRankGaussianRandomRandomField[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
   mean: Field[D, Value],
   val klBasis: KLBasis[D, Value])
     extends GaussianRandomField[D, Value](representer, mean, LowRankGaussianRandomRandomField.covFromKLTBasis(representer, klBasis)) {
@@ -551,7 +551,7 @@ object LowRankGaussianRandomRandomField {
     new LowRankGaussianRandomRandomField[D, Value](gp.representer, gp.mean, kltBasis)
   }
 
-  private def covFromKLTBasis[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  private def covFromKLTBasis[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     klBasis: KLBasis[D, Value]): GeneralGaussianField.ContinuousMatrixValuedKernel[D] = {
     val cov: GeneralGaussianField.ContinuousMatrixValuedKernel[D] = {
       val outputDim = 3
@@ -699,7 +699,7 @@ object LowRankGaussianRandomRandomField {
 
 import scalismo.GeneralGaussianField.Adapted.DiscreteLowRankGaussianRandomField.basisMatrixToCov
 
-case class DiscreteLowRankGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (override val representer: GeneralGaussianField.Vectorizer[Value],
+case class DiscreteLowRankGaussianRandomField[D <: Dim: NDSpace, Value] private[scalismo] (override val representer: Vectorizer[Value],
   override val domain: DiscreteDomain[D],
   override val meanVector: DenseVector[Double],
   variance: DenseVector[Double],
@@ -979,7 +979,7 @@ object DiscreteLowRankGaussianRandomField {
     DiscreteLowRankGaussianRandomField(gp.representer, domain, m, lambdas, U)
   }
 
-  def apply[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  def apply[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     mean: DiscreteField[D, Value],
     klBasis: DiscKLBasis[D, Value]): DiscreteLowRankGaussianRandomField[D, Value] = {
     val outputDimension = representer.dim
@@ -1035,7 +1035,7 @@ object DiscreteLowRankGaussianRandomField {
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
    *
    */
-  def createUsingPCA[D <: Dim: NDSpace, Value](representer: GeneralGaussianField.Vectorizer[Value],
+  def createUsingPCA[D <: Dim: NDSpace, Value](representer: Vectorizer[Value],
     domain: DiscreteDomain[D],
     fields: Seq[DiscreteField[D, Value]]): DiscreteLowRankGaussianRandomField[D, Value] = {
     val dim = implicitly[NDSpace[D]].dimensionality
@@ -1160,7 +1160,7 @@ class StatisticalShapeModel(val reference: TriangleMesh[_3D],
 
 object StatisticalShapeModel {
 
-  class VectorRepresenter[D <: Dim: NDSpace] extends GeneralGaussianField.Vectorizer[Vector[D]] {
+  class VectorRepresenter[D <: Dim: NDSpace] extends Vectorizer[Vector[D]] {
     override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
     override def vectorize(v: Vector[D]): DenseVector[Double] = v.toBreezeVector

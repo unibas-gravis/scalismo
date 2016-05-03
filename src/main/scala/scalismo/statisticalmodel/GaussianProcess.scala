@@ -30,10 +30,10 @@ import scalismo.kernels._
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
  */
-class GaussianProcess[D <: Dim: NDSpace, Value] protected (val vectorizer: GeneralGaussianField.Vectorizer[Value], val mean: Field[D, Value],
+class GaussianProcess[D <: Dim: NDSpace, Value] protected (val vectorizer: Vectorizer[Value], val mean: Field[D, Value],
     val cov: MatrixValuedPDKernel[D]) {
 
-  private[this] def outputDim = vectorizer.dim
+  def outputDim = vectorizer.dim
 
   def domain = Domain.intersection(mean.domain, cov.domain)
 
@@ -50,7 +50,7 @@ class GaussianProcess[D <: Dim: NDSpace, Value] protected (val vectorizer: Gener
    * is defined by the given points.
    */
   def marginal(domain: DiscreteDomain[D]): DiscreteGaussianProcess[D, Value] = {
-    val meanField = new DiscreteField(domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
+    val meanField = DiscreteField(domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
     val pts = domain.points.toIndexedSeq
     def newCov(i: PointId, j: PointId): DenseMatrix[Double] = {
       cov(pts(i.id), pts(j.id))
@@ -93,7 +93,7 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace, Value](vectorizer: GeneralGaussianField.Vectorizer[Value], mean: Field[D, Value], cov: MatrixValuedPDKernel[D]) = {
+  def apply[D <: Dim: NDSpace, Value](vectorizer: Vectorizer[Value], mean: Field[D, Value], cov: MatrixValuedPDKernel[D]) = {
     new GaussianProcess[D, Value](vectorizer, mean, cov)
   }
 
@@ -104,7 +104,7 @@ object GaussianProcess {
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
   def regression[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D],  Value, MultivariateNormalDistribution)]): GaussianProcess[D, Value] = {
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianProcess[D, Value] = {
 
     val outputDim = gp.vectorizer.dim
 
@@ -132,7 +132,7 @@ object GaussianProcess {
       override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
         gp.cov(x, y) - (xstar(x) * K_inv * xstar(y).t)
       }
-      override def outputDim = outputDim
+      override def outputDim = gp.outputDim
     }
 
     new GaussianProcess[D, Value](gp.vectorizer, Field(gp.domain, posteriorMean _), posteriorKernel)
@@ -148,16 +148,15 @@ object GaussianProcess {
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  def marginalLikelihood[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): Double = {
+  def marginalLikelihood[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
 
-    val outputDim = implicitly[NDSpace[DO]].dimensionality
+    val outputDim = gp.outputDim
 
     // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
 
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
-    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
-    val yVec = flatten(ys)
+    val yVec = gp.vectorizer.vectorize(ys)
 
     val Ky = DenseMatrix.zeros[Double](trainingData.size * outputDim, trainingData.size * outputDim)
 
@@ -167,7 +166,7 @@ object GaussianProcess {
 
       val Kyyp = if (i == j) {
         // in this case add observation uncertainty
-        val noiseBlock = errorDistributions(i).cov.toBreezeMatrix
+        val noiseBlock = errorDistributions(i).cov
         covBlock + noiseBlock
       } else covBlock
 
@@ -179,7 +178,7 @@ object GaussianProcess {
 
     val KyInv = inv(Ky)
     val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
-    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5f) - (0.5f * math.log(det(Ky))) - const
+    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5) - (0.5 * math.log(det(Ky))) - const
     margLikehood
   }
 

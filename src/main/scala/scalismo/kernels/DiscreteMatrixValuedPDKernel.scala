@@ -25,11 +25,10 @@ import scalismo.geometry.{ NDSpace, Dim, SquareMatrix }
  *  Mathematically, it can be represented as a covariance matrix. However, it has more structure, i.e. its entry ij
  *  is a matrix. Furthermore, the class has the knowledge about its domain (the point on which it is defined).
  */
-class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace] private[scalismo]
-(
-  val domain: DiscreteDomain[D],
-  val k: (PointId, PointId) => DenseMatrix[Double],
-  val outputDim: Int ) {
+class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace] private[scalismo] (
+    val domain: DiscreteDomain[D],
+    val k: (PointId, PointId) => DenseMatrix[Double],
+    val outputDim: Int) {
   self =>
 
   def apply(i: PointId, j: PointId): DenseMatrix[Double] = {

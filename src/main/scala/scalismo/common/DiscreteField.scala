@@ -39,7 +39,7 @@ class DiscreteField[D <: Dim, A](val domain: DiscreteDomain[D], val data: Indexe
    * Returns a continuous field, where the value at each point is that of the closest point in the discrete set
    * *
    */
-  def interpolateNearestNeighbor(): Field[D, A] = { ??? }
+  def interpolateNearestNeighbor(): Field[D, A] = Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   // TODO conceptually, we should have a map here too, but it becomes tricky to
   // do since the overloaded functions will all require their own version of map
   // Maybe a trick with CanBuildFrom and Builder, similar to the scala collections would be required.
@@ -58,6 +58,10 @@ class DiscreteField[D <: Dim, A](val domain: DiscreteDomain[D], val data: Indexe
   def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, A]]
 
+}
+
+object DiscreteField {
+  def apply[D <: Dim, A](domain: DiscreteDomain[D], data: IndexedSeq[A]): DiscreteField[D, A] = new DiscreteField[D, A](domain, data)
 }
 
 /**
