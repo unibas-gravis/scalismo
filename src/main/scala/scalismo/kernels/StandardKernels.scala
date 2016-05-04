@@ -35,7 +35,7 @@ case class GaussianKernel[D <: Dim](sigma: Double) extends PDKernel[D] {
 
 case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
 
-  override def outputDim = implicitly[NDSpace].dimensionality // TODO check if thats correct
+  override def outputDim = implicitly[NDSpace[D]].dimensionality // TODO check if thats correct
 
   override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
@@ -66,7 +66,6 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformati
     }
     ms * (1.0 / (ts.size - 1))
   }
-
 
 }
 

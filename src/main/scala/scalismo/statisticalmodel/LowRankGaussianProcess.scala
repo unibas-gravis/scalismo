@@ -16,41 +16,40 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{diag, DenseMatrix, DenseVector}
+import breeze.linalg.{ diag, DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{Dim, NDSpace, Point, SquareMatrix, Vector}
-import scalismo.kernels.{Kernel, MatrixValuedPDKernel}
+import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
+import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
-import scalismo.statisticalmodel.LowRankGaussianProcess.{Eigenpair, KLBasis}
+import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
 
 /**
-  *
-  * A gaussian process which is represented in terms of a (small) finite set of basis functions.
-  * The basis functions are the orthonormal basis functions given by a mercers' decomposition.
-  *
-  * @param mean    The mean function
-  * @param klBasis A set of basis functions
-  * @tparam D     The dimensionality of the input space
-  * @tparam Value The output type
-  */
-class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
-                                                        val klBasis: KLBasis[D, Value])
-                                                       (implicit vectorizer: Vectorizer[Value])
-  extends GaussianProcess[D, Value](mean, LowRankGaussianProcess.covFromKLTBasis(klBasis)) {
+ *
+ * A gaussian process which is represented in terms of a (small) finite set of basis functions.
+ * The basis functions are the orthonormal basis functions given by a mercers' decomposition.
+ *
+ * @param mean    The mean function
+ * @param klBasis A set of basis functions
+ * @tparam D     The dimensionality of the input space
+ * @tparam Value The output type
+ */
+class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
+  val klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value])
+    extends GaussianProcess[D, Value](mean, LowRankGaussianProcess.covFromKLTBasis(klBasis)) {
 
   /**
-    * the rank (i.e. number of basis functions)
-    */
+   * the rank (i.e. number of basis functions)
+   */
   def rank = klBasis.size
 
   /**
-    * an instance of the gaussian process, which is formed by a linear combination of the klt basis using the given coefficients c.
-    *
-    * @param c Coefficients that determine the linear combination. Are assumed to be N(0,1) distributed.
-    */
+   * an instance of the gaussian process, which is formed by a linear combination of the klt basis using the given coefficients c.
+   *
+   * @param c Coefficients that determine the linear combination. Are assumed to be N(0,1) distributed.
+   */
   def instance(c: DenseVector[Double]): Field[D, Value] = {
     require(klBasis.size == c.size)
     val f: Point[D] => Value = x => {
@@ -65,16 +64,16 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * A random sample of the gaussian process
-    */
+   * A random sample of the gaussian process
+   */
   def sample: Field[D, Value] = {
     val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 
   /**
-    * A random sample evaluated at the given points
-    */
+   * A random sample evaluated at the given points
+   */
   override def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteField[D, Value] = {
     // TODO check that points are part of the domain
     val aSample = sample
@@ -83,12 +82,12 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean Gaussian noise
-    *
-    * @param trainingData Point/value pairs where that the sample should approximate.
-    * @param sigma2       variance of a Gaussian noise that is assumed on every training point
-    */
+   * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean Gaussian noise
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate.
+   * @param sigma2       variance of a Gaussian noise that is assumed on every training point
+   */
   def project(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double = 1e-6): Field[D, Value] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
@@ -96,20 +95,20 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean gaussian noise
-    *
-    * @param trainingData Point/value pairs where that the sample should approximate, together with the variance of the noise model at each point.
-    */
+   * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean gaussian noise
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate, together with the variance of the noise model at each point.
+   */
   def project(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Field[D, Value] = {
     val c = coefficients(trainingData)
     instance(c)
   }
 
   /**
-    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean Gaussian noise
-    */
+   * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean Gaussian noise
+   */
   def coefficients(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): DenseVector[Double] = {
     val (minv, qtL, yVec, mVec) = LowRankGaussianProcess.genericRegressionComputations(this, trainingData)
     val mean_coeffs = (minv * qtL) * (yVec - mVec)
@@ -117,9 +116,9 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
-    * are subject to 0 mean Gaussian noise
-    */
+   * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
+   * are subject to 0 mean Gaussian noise
+   */
   def coefficients(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): DenseVector[Double] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
@@ -127,8 +126,8 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * Returns the probability density of the instance produced by the x coefficients
-    */
+   * Returns the probability density of the instance produced by the x coefficients
+   */
   def pdf(coefficients: DenseVector[Double]): Double = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
     val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
@@ -136,10 +135,10 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * Returns the log of the probability density of the instance produced by the x coefficients.
-    *
-    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
-    */
+   * Returns the log of the probability density of the instance produced by the x coefficients.
+   *
+   * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
+   */
   def logpdf(coefficients: DenseVector[Double]): Double = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
     val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
@@ -157,8 +156,8 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
-    * Discretize the gaussian process on the given points.
-    */
+   * Discretize the gaussian process on the given points.
+   */
   def discretize(domain: DiscreteDomain[D]): DiscreteLowRankGaussianProcess[D, Value] = {
     DiscreteLowRankGaussianProcess(domain, this)
   }
@@ -166,8 +165,8 @@ class LowRankGaussianProcess[D <: Dim : NDSpace, Value](mean: Field[D, Value],
 }
 
 /**
-  * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
-  */
+ * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
+ */
 object LowRankGaussianProcess {
 
   case class Eigenpair[D <: Dim, Value](eigenvalue: Double, eigenfunction: Field[D, Value])
@@ -175,21 +174,21 @@ object LowRankGaussianProcess {
   type KLBasis[D <: Dim, Value] = Seq[Eigenpair[D, Value]]
 
   /**
-    * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
-    * are sampled using the given sample.
-    *
-    * @param gp                The gaussian process to approximate
-    * @param sampler           determines which points will be used as samples for the nystrom approximation.
-    * @param numBasisFunctions The number of basis functions to approximate.
-    */
-  def approximateGP[D <: Dim : NDSpace, Value](gp: GaussianProcess[D, Value],
-                                               sampler: Sampler[D],
-                                               numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
+   * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
+   * are sampled using the given sample.
+   *
+   * @param gp                The gaussian process to approximate
+   * @param sampler           determines which points will be used as samples for the nystrom approximation.
+   * @param numBasisFunctions The number of basis functions to approximate.
+   */
+  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    sampler: Sampler[D],
+    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, numBasisFunctions, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
 
-  private def covFromKLTBasis[D <: Dim : NDSpace, Value](klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value]): MatrixValuedPDKernel[D] = {
+  private def covFromKLTBasis[D <: Dim: NDSpace, Value](klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value]): MatrixValuedPDKernel[D] = {
     val dimOps = vectorizer.dim
     val cov: MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
       override val domain = klBasis.headOption
@@ -212,13 +211,13 @@ object LowRankGaussianProcess {
   }
 
   /**
-    * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
-    *
-    * @param gp           The gaussian process
-    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-    */
-  def regression[D <: Dim : NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
-                                            trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
+   * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
+   *
+   * @param gp           The gaussian process
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  def regression[D <: Dim: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
     val outputDim = gp.outputDim
 
     val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
@@ -261,8 +260,8 @@ object LowRankGaussianProcess {
   /*
   * Internal computations of the regression.
    */
-  private def genericRegressionComputations[D <: Dim : NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
-                                                                       trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]) = {
+  private def genericRegressionComputations[D <: Dim: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]) = {
 
     val outputDim = gp.outputDim
 
@@ -296,10 +295,10 @@ object LowRankGaussianProcess {
   }
 
   /**
-    * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
-    * vectors are transformed along the domain.
-    */
-  def transform[D <: Dim : NDSpace](gp: LowRankGaussianProcess[D, Vector[D]], rigidTransform: RigidTransformation[D])(implicit vectorizer: Vectorizer[Vector[D]]): LowRankGaussianProcess[D, Vector[D]] = {
+   * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
+   * vectors are transformed along the domain.
+   */
+  def transform[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, Vector[D]], rigidTransform: RigidTransformation[D])(implicit vectorizer: Vectorizer[Vector[D]]): LowRankGaussianProcess[D, Vector[D]] = {
     val invTransform = rigidTransform.inverse
 
     val newDomain = gp.domain.warp(rigidTransform)
