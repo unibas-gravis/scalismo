@@ -230,6 +230,7 @@ object StatisticalMeshModel {
   def augmentModel(model: StatisticalMeshModel, biasModel: GaussianProcess[_3D, Vector[_3D]], numBasisFunctions: Int): StatisticalMeshModel = {
 
     val modelGP = model.gp.interpolateNearestNeighbor
+    // TODO: check if there is a better alternative (move method to Field?)
     val newMean = Field[_3D, Vector[_3D]](modelGP.domain,
       (p: Point[_3D]) => modelGP.mean(p) + biasModel.mean(p)
     )

@@ -52,3 +52,7 @@ class DiscreteFeatureField[D <: Dim: NDSpace](domain: DiscreteDomain[D], _values
   }
 }
 
+
+object DiscreteFeatureField {
+  def apply[D <:Dim:NDSpace](domain: DiscreteDomain[D], values: IndexedSeq[DenseVector[Double]]) = new DiscreteFeatureField[D](domain,values)
+}

@@ -15,15 +15,8 @@
  */
 package scalismo.image
 
-import breeze.linalg.DenseVector
-import scalismo.common._
-
-import scalismo.common.{ RealSpace, ScalarField, DiscreteScalarField, DiscreteField }
+import scalismo.common.DiscreteField
 import scalismo.geometry._
-import scalismo.image
-import scalismo.image.DiscreteScalarImage.Create
-import scalismo.numerics.BSpline
-import scala.reflect.ClassTag
 
 /**
  * Basic interface for a discrete image of arbitrary Pixel type
@@ -34,8 +27,6 @@ import scala.reflect.ClassTag
 class DiscreteImage[D <: Dim: NDSpace, A](domain: DiscreteImageDomain[D], values: IndexedSeq[A]) extends DiscreteField[D, A](domain, values) {
 
   protected[this] def ndSpace: NDSpace[D] = NDSpace[D]
-
-  //  override def domain: DiscreteImageDomain[D]
 
   val dimensionality = ndSpace.dimensionality
 

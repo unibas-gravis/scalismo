@@ -35,12 +35,14 @@ case class GaussianKernel[D <: Dim](sigma: Double) extends PDKernel[D] {
 
 case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
 
+  override def outputDim = implicitly[NDSpace].dimensionality // TODO check if thats correct
+
   override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
   def mu(x: Point[D]): DenseVector[Double] = {
-    var meanDisplacement = DenseVector.zeros[Double](3)
+    var meanDisplacement = DenseVector.zeros[Double](outputDim)
     var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -53,7 +55,7 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformati
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
   override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
-    var ms = DenseMatrix.zeros[Double](3, 3)
+    var ms = DenseMatrix.zeros[Double](outputDim, outputDim)
     var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
@@ -65,7 +67,6 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformati
     ms * (1.0 / (ts.size - 1))
   }
 
-  override def outputDim = 3 // TODO: think about where do we get this from?
 
 }
 

@@ -68,7 +68,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
     val newPts = pointIds.map(pointId => domainPts(pointId.id)).toIndexedSeq
     val newDomain = domainCreator.create(newPts)
 
-    val newMean = new DiscreteField[D, Value](newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
+    val newMean = DiscreteField[D, Value](newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
     val newCov = (i: PointId, j: PointId) => {
       cov(pointIds(i.id), pointIds(j.id))
     }

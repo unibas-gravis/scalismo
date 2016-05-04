@@ -174,7 +174,7 @@ object GaussianProcess {
       } else covBlock
 
       // insert the block in the big covariance matrix
-      for (l <- (0 until outputDim); m <- (0 until outputDim)) {
+      for (l <- 0 until outputDim; m <- 0 until outputDim) {
         Ky(l + (i * outputDim), m + (j * outputDim)) = Kyyp(l, m)
       }
     }

@@ -147,7 +147,7 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace] {
 case class UncorrelatedKernel[D <: Dim: NDSpace](kernel: PDKernel[D], override val outputDim: Int) extends MatrixValuedPDKernel[D] {
   val I = DenseMatrix.eye[Double](outputDim)
 
-  def k(x: Point[D], y: Point[D]) = I * (kernel(x, y))
+  def k(x: Point[D], y: Point[D]) = I * kernel(x, y)
 
   // k is scalar valued
   override def domain = kernel.domain
@@ -158,7 +158,7 @@ trait DiagonalKernel[D <: Dim] extends MatrixValuedPDKernel[D]
 private[kernels] case class IsotropicDiagonalKernel[D <: Dim: NDSpace](kernel: PDKernel[D], override val outputDim: Int) extends DiagonalKernel[D] {
   val I = DenseMatrix.eye[Double](outputDim)
 
-  def k(x: Point[D], y: Point[D]) = I * (kernel(x, y))
+  def k(x: Point[D], y: Point[D]) = I * kernel(x, y)
 
   // k is scalar valued
   override def domain = kernel.domain
@@ -167,7 +167,7 @@ private[kernels] case class IsotropicDiagonalKernel[D <: Dim: NDSpace](kernel: P
 private[kernels] case class AnisotropicDiagonalKernel[D <: Dim: NDSpace](kernels: IndexedSeq[PDKernel[D]]) extends DiagonalKernel[D] {
   def k(x: Point[D], y: Point[D]) = diag(DenseVector[Double](kernels.map(k => k(x, y)).toArray))
 
-  override def domain = kernels.map(_.domain).reduce(Domain.intersection(_, _))
+  override def domain = kernels.map(_.domain).reduce(Domain.intersection)
 
   override def outputDim = kernels.length
 }

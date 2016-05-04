@@ -18,7 +18,6 @@ package scalismo.common
 import breeze.linalg.DenseVector
 import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
 
-import scala.collection.mutable
 import scala.reflect.ClassTag
 
 /**
