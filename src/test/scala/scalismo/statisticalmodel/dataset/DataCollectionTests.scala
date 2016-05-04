@@ -17,7 +17,6 @@ package scalismo.statisticalmodel.dataset
 
 import java.io.File
 
-import scalismo.GeneralGaussianField.Adapted.StatisticalShapeModel.VectorRepresenter
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ Field, VectorField }
 import scalismo.geometry._
@@ -112,7 +111,7 @@ class DataCollectionTests extends ScalismoTestSuite {
 
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
-    val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(new VectorRepresenter[_3D], zeroMean, matrixValuedGaussian)
+    val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
     val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {

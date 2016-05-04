@@ -22,7 +22,6 @@ import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
 import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
-import scalismo.GeneralGaussianField
 
 abstract class PDKernel[D <: Dim] {
   self =>
@@ -263,10 +262,9 @@ object Kernel {
     kxs
   }
 
-  def computeNystromApproximation[D <: Dim: NDSpace, Value](vectorizer: Vectorizer[Value],
-    k: MatrixValuedPDKernel[D],
+  def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
     numBasisFunctions: Int,
-    sampler: Sampler[D]): KLBasis[D, Value] = {
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99

@@ -62,6 +62,40 @@ class DiscreteField[D <: Dim, A](val domain: DiscreteDomain[D], val data: Indexe
 
 object DiscreteField {
   def apply[D <: Dim, A](domain: DiscreteDomain[D], data: IndexedSeq[A]): DiscreteField[D, A] = new DiscreteField[D, A](domain, data)
+
+  private[scalismo] def createFromDenseVector[D <: Dim, A](domain: DiscreteDomain[D], d: DenseVector[Double])(implicit vectorizer: Vectorizer[A]) = {
+    val dim = vectorizer.dim
+    val nElem = d.length / dim
+    val data = d.toArray.grouped(dim).map(e => vectorizer.unvectorize(DenseVector(e))).toIndexedSeq
+    new DiscreteField[D, A](domain, data)
+  }
+
+  private[scalismo] def vectorize[D <: Dim, A](field: DiscreteField[D, A])(implicit vectorizer: Vectorizer[A]): DenseVector[Double] = {
+    val dim = vectorizer.dim
+    val fullDim = field.valuesWithIds.length * dim
+    val M = DenseVector.zeros[Double](fullDim)
+    for (i <- field.valuesWithIds) {
+      val m = vectorizer.vectorize(i._1)
+      for (x <- 0 until dim) {
+        M(i._2.id * dim + x) = m(x)
+      }
+    }
+    M
+  }
+
+  private[scalismo] def vectorize[D <: Dim, A](values: IndexedSeq[A])(implicit vectorizer: Vectorizer[A]): DenseVector[Double] = {
+    val dim = vectorizer.dim
+    val valuesWithIndex = values.zipWithIndex
+    val fullDim = valuesWithIndex.length * dim
+    val M = DenseVector.zeros[Double](fullDim)
+    for (i <- valuesWithIndex) {
+      val m = vectorizer.vectorize(i._1)
+      for (x <- 0 until dim) {
+        M(i._2 * dim + x) = m(x)
+      }
+    }
+    M
+  }
 }
 
 /**

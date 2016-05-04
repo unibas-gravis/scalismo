@@ -16,7 +16,6 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg._
-import scalismo.GeneralGaussianField
 import scalismo.common._
 import scalismo.geometry.Vector
 import scalismo.geometry._
@@ -30,8 +29,8 @@ import scalismo.kernels._
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
  */
-class GaussianProcess[D <: Dim: NDSpace, Value] protected (val vectorizer: Vectorizer[Value], val mean: Field[D, Value],
-    val cov: MatrixValuedPDKernel[D]) {
+class GaussianProcess[D <: Dim: NDSpace, Value] protected (val mean: Field[D, Value],
+    val cov: MatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
 
   def outputDim = vectorizer.dim
 
@@ -57,7 +56,7 @@ class GaussianProcess[D <: Dim: NDSpace, Value] protected (val vectorizer: Vecto
     }
 
     val discreteCov = DiscreteMatrixValuedPDKernel[D](domain, newCov, outputDim)
-    new DiscreteGaussianProcess(vectorizer, meanField, discreteCov)
+    new DiscreteGaussianProcess(meanField, discreteCov)
   }
 
   /**
@@ -93,25 +92,25 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace, Value](vectorizer: Vectorizer[Value], mean: Field[D, Value], cov: MatrixValuedPDKernel[D]) = {
-    new GaussianProcess[D, Value](vectorizer, mean, cov)
+  def apply[D <: Dim: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]) = {
+    new GaussianProcess[D, Value](mean, cov)
   }
 
   /**
    * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
    *
-   * @param gp  The gaussian process
+   * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
   def regression[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianProcess[D, Value] = {
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
 
-    val outputDim = gp.vectorizer.dim
+    val outputDim = vectorizer.dim
 
     val (xs, ys, errorDists) = trainingData.unzip3
 
-    val mVec = gp.vectorizer.vectorize(xs.map(gp.mean))
-    val yVec = gp.vectorizer.vectorize(ys)
+    val mVec = DiscreteField.vectorize[D, Value](xs.map(gp.mean))
+    val yVec = DiscreteField.vectorize[D, Value](ys)
     val fVec = yVec - mVec
 
     val K = Kernel.computeKernelMatrix(xs, gp.cov)
@@ -121,21 +120,25 @@ object GaussianProcess {
 
     val K_inv = breeze.linalg.inv(K)
 
-    def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D](x, xs, gp.cov) }
+    def xstar(x: Point[D]) = {
+      Kernel.computeKernelVectorFor[D](x, xs, gp.cov)
+    }
 
     def posteriorMean(x: Point[D]): Value = {
-      gp.vectorizer.unvectorize((xstar(x) * K_inv) * fVec)
+      vectorizer.unvectorize((xstar(x) * K_inv) * fVec)
     }
 
     val posteriorKernel = new MatrixValuedPDKernel[D] {
       override def domain = gp.domain
+
       override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
         gp.cov(x, y) - (xstar(x) * K_inv * xstar(y).t)
       }
+
       override def outputDim = gp.outputDim
     }
 
-    new GaussianProcess[D, Value](gp.vectorizer, Field(gp.domain, posteriorMean _), posteriorKernel)
+    new GaussianProcess[D, Value](Field(gp.domain, posteriorMean _), posteriorKernel)
   }
 
   /**
@@ -143,20 +146,20 @@ object GaussianProcess {
    *
    * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
    *
-   * @param gp  The gaussian process
+   * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
   def marginalLikelihood[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): Double = {
 
     val outputDim = gp.outputDim
 
     // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
 
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
-    val yVec = gp.vectorizer.vectorize(ys)
+    val yVec = DiscreteField.vectorize[D, Value](ys)
 
     val Ky = DenseMatrix.zeros[Double](trainingData.size * outputDim, trainingData.size * outputDim)
 

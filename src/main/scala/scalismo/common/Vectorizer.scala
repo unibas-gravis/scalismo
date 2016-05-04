@@ -12,22 +12,4 @@ trait Vectorizer[Value] {
 
   def unvectorize(d: DenseVector[Double]): Value
 
-  def vectorize(vs: IndexedSeq[Value]): DenseVector[Double] = {
-    val fullDim = vs.length * dim
-    val M = DenseVector.zeros[Double](fullDim)
-    val pt = vs.zipWithIndex
-    for (i <- pt) {
-      val m = vectorize(i._1)
-      for (x <- 0 until dim) {
-        M(i._2 * dim + x) = m(x)
-      }
-    }
-    M
-  }
-
-  def unvectorizeField(d: DenseVector[Double]): IndexedSeq[Value] = {
-    val nElem = d.length / dim
-    d.toArray.grouped(dim).map(e => unvectorize(DenseVector(e))).toIndexedSeq
-  }
-
 }

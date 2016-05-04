@@ -18,7 +18,6 @@ package scalismo.registration
 import java.io.File
 
 import breeze.linalg.DenseVector
-import scalismo.GeneralGaussianField.Adapted.StatisticalShapeModel.VectorRepresenter
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ Field, PointId, RealSpace, VectorField }
 import scalismo.geometry._
@@ -210,7 +209,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(new VectorRepresenter[_2D], Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
       val regConf = RegistrationConfiguration[_2D, GaussianProcessTransformationSpace[_2D]](
@@ -239,7 +238,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(new VectorRepresenter[_2D], Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
       val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor

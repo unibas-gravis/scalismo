@@ -28,7 +28,6 @@ import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess._
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => DiscreteEigenpair }
 import scalismo.utils.Memoize
-import scalismo.GeneralGaussianField
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -44,12 +43,8 @@ import scalismo.GeneralGaussianField
  * @see [[DiscreteLowRankGaussianProcess]]
  */
 
-case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (override val vectorizer: Vectorizer[Value],
-  _domain: DiscreteDomain[D],
-  meanVector: DenseVector[Double],
-  variance: DenseVector[Double],
-  basisMatrix: DenseMatrix[Double])
-    extends DiscreteGaussianProcess[D, Value](vectorizer, DiscreteField(_domain, vectorizer.unvectorizeField(meanVector)), basisMatrixToCov(_domain, variance, basisMatrix)) {
+case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (_domain: DiscreteDomain[D], meanVector: DenseVector[Double], variance: DenseVector[Double], basisMatrix: DenseMatrix[Double])(override implicit val vectorizer: Vectorizer[Value])
+    extends DiscreteGaussianProcess[D, Value](DiscreteField.createFromDenseVector[D, Value](_domain, meanVector), basisMatrixToCov(_domain, variance, basisMatrix)) {
   self =>
 
   /** See [[DiscreteLowRankGaussianProcess.rank]] */
@@ -61,7 +56,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   def instance(c: DenseVector[Double]): DiscreteField[D, Value] = {
     require(rank == c.size)
     val instVal = instanceVector(c)
-    DiscreteField(domain, vectorizer.unvectorizeField(instVal))
+    DiscreteField.createFromDenseVector[D, Value](domain, instVal)
   }
 
   /**
@@ -111,7 +106,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   def klBasis: KLBasis[D, Value] = {
     for (i <- 0 until rank) yield {
       val eigenValue = variance(i)
-      val eigenFunction = DiscreteField(domain, vectorizer.unvectorizeField(basisMatrix(::, i)))
+      val eigenFunction = DiscreteField.createFromDenseVector[D, Value](domain, basisMatrix(::, i))
       DiscreteEigenpair(eigenValue, eigenFunction)
     }
   }
@@ -131,7 +126,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val td = s.valuesWithIds.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
     val (minv, qtL, yVec, mVec) = DiscreteLowRankGaussianProcess.genericRegressionComputations(this, td)
-    val mean_coeffs = (minv * qtL) * (yVec - vectorizer.vectorize(mVec))
+    val mean_coeffs = (minv * qtL) * (yVec - mVec)
     mean_coeffs
   }
 
@@ -169,7 +164,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
 
     }
 
-    DiscreteLowRankGaussianProcess[D, Value](vectorizer, newMean, newKLBasis)
+    DiscreteLowRankGaussianProcess[D, Value](newMean, newKLBasis)
   }
 
   /**
@@ -216,7 +211,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
 
       override val outputDim = self.outputDim
     }
-    val gp = GaussianProcess(vectorizer, Field(RealSpace[D], meanFun _), covFun)
+    val gp = GaussianProcess(Field(RealSpace[D], meanFun _), covFun)
     LowRankGaussianProcess.approximateGP[D, Value](gp, sampler, rank)
   }
 
@@ -265,8 +260,9 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
  *
  */
 private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
-    klBasis: LowRankGaussianProcess.KLBasis[D, Value],
-    discreteGP: DiscreteLowRankGaussianProcess[D, Value]) extends LowRankGaussianProcess[D, Value](discreteGP.vectorizer, mean, klBasis) {
+  klBasis: LowRankGaussianProcess.KLBasis[D, Value],
+  discreteGP: DiscreteLowRankGaussianProcess[D, Value])(implicit vectorizer: Vectorizer[Value])
+    extends LowRankGaussianProcess[D, Value](mean, klBasis) {
 
   require(klBasis.size == discreteGP.rank)
 
@@ -297,7 +293,7 @@ object DiscreteLowRankGaussianProcess {
   /**
    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
    */
-  def apply[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D], gp: LowRankGaussianProcess[D, Value]): DiscreteLowRankGaussianProcess[D, Value] = {
+  def apply[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D], gp: LowRankGaussianProcess[D, Value])(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, Value] = {
 
     val points = domain.points.toSeq
     val outputDim = gp.outputDim
@@ -307,7 +303,7 @@ object DiscreteLowRankGaussianProcess {
     val m = DenseVector.zeros[Double](points.size * outputDim)
     for (xWithIndex <- points.zipWithIndex.par) {
       val (x, i) = xWithIndex
-      m((i * outputDim) until ((i + 1) * outputDim)) := gp.vectorizer.vectorize(gp.mean(x))
+      m((i * outputDim) until ((i + 1) * outputDim)) := vectorizer.vectorize(gp.mean(x))
     }
 
     val U = DenseMatrix.zeros[Double](points.size * outputDim, gp.rank)
@@ -316,43 +312,40 @@ object DiscreteLowRankGaussianProcess {
       val LowRankGaussianProcess.Eigenpair(lambda_j, phi_j) = eigenPair_j
       val (x, i) = xWithIndex
       val v = phi_j(x)
-      U(i * outputDim until (i + 1) * outputDim, j) := gp.vectorizer.vectorize(phi_j(x))
+      U(i * outputDim until (i + 1) * outputDim, j) := vectorizer.vectorize(phi_j(x))
       lambdas(j) = lambda_j
     }
 
-    new DiscreteLowRankGaussianProcess[D, Value](gp.vectorizer, domain, m, lambdas, U)
+    new DiscreteLowRankGaussianProcess[D, Value](domain, m, lambdas, U)
   }
 
-  def apply[D <: Dim: NDSpace, Value](vectorizer: Vectorizer[Value],
-    mean: DiscreteField[D, Value],
-    klBasis: KLBasis[D, Value]): DiscreteLowRankGaussianProcess[D, Value] = {
+  def apply[D <: Dim: NDSpace, Value](mean: DiscreteField[D, Value],
+    klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, Value] = {
 
     for (Eigenpair(_, phi) <- klBasis) {
       require(phi.domain == mean.domain)
     }
 
     val domain = mean.domain
-    val meanVec = vectorizer.vectorize(mean.data)
+    val meanVec = DiscreteField.vectorize[D, Value](mean)
     val varianceVec = DenseVector.zeros[Double](klBasis.size)
     val basisMat = DenseMatrix.zeros[Double](meanVec.length, klBasis.size)
     for ((eigenPair, i) <- klBasis.zipWithIndex) yield {
       val Eigenpair(lambda, phi) = eigenPair
-      basisMat(::, i) := vectorizer.vectorize(phi.data)
+      basisMat(::, i) := DiscreteField.vectorize[D, Value](phi)
       varianceVec(i) = lambda
     }
-    new DiscreteLowRankGaussianProcess(vectorizer, domain, meanVec, varianceVec, basisMat)
+    new DiscreteLowRankGaussianProcess(domain, meanVec, varianceVec, basisMat)
   }
 
   /**
    * Discrete implementation of [[LowRankGaussianProcess.regression]]
    */
   def regression[D <: Dim: NDSpace, Value](gp: DiscreteLowRankGaussianProcess[D, Value],
-    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): DiscreteLowRankGaussianProcess[D, Value] = {
-
-    val outputDim = gp.outputDim
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, Value] = {
 
     val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
-    val mean_coeffs = (_Minv * _QtL) * (yVec - gp.vectorizer.vectorize(mVec))
+    val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
 
     //val mean_p = gp.instance(mean_coeffs)
     val mean_pVector = gp.instanceVector(mean_coeffs)
@@ -374,16 +367,15 @@ object DiscreteLowRankGaussianProcess {
       eigenMatrix_p(rowInd, ::) := (innerU.t * gp.basisMatrix(rowInd, ::).t).t
     }
 
-    new DiscreteLowRankGaussianProcess(gp.vectorizer, gp.domain, mean_pVector, lambdas_p, eigenMatrix_p)
+    new DiscreteLowRankGaussianProcess(gp.domain, mean_pVector, lambdas_p, eigenMatrix_p)
   }
 
   /**
    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
    *
    */
-  def createUsingPCA[D <: Dim: NDSpace, Value](vectorizer: Vectorizer[Value],
-    domain: DiscreteDomain[D],
-    fields: Seq[Field[D, Value]]): DiscreteLowRankGaussianProcess[D, Value] = {
+  def createUsingPCA[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D],
+    fields: Seq[Field[D, Value]])(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, Value] = {
     val dim = vectorizer.dim
 
     val n = fields.size
@@ -416,20 +408,17 @@ object DiscreteLowRankGaussianProcess {
     // a Matrix with the eigenvectors
     val U: DenseMatrix[Double] = x0.t * vt.t * breeze.linalg.diag(Dinv) / Math.sqrt(n - 1)
 
-    new DiscreteLowRankGaussianProcess(vectorizer, domain, meanVec, d2, U)
+    new DiscreteLowRankGaussianProcess(domain, meanVec, d2, U)
 
   }
 
-  private def genericRegressionComputations[D <: Dim: NDSpace, Value](gp: DiscreteLowRankGaussianProcess[D, Value],
-    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]) = {
+  private def genericRegressionComputations[D <: Dim: NDSpace, Value](gp: DiscreteLowRankGaussianProcess[D, Value], trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]) = {
     val outputDim = gp.outputDim
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
 
-    val yVec = gp.vectorizer.vectorize(ys)
+    val yVec = DiscreteField.vectorize[D, Value](ys)
 
     val meanValues = DenseVector(ptIds.toArray.flatMap { ptId => gp.meanVector(ptId.id * outputDim until (ptId.id + 1) * outputDim).toArray })
-
-    val mVec = gp.vectorizer.unvectorizeField(meanValues)
 
     val Q = DenseMatrix.zeros[Double](trainingData.size * outputDim, gp.rank)
     for ((ptId, i) <- ptIds.zipWithIndex; j <- 0 until gp.rank) {
@@ -451,7 +440,7 @@ object DiscreteLowRankGaussianProcess {
     val M = QtL * Q + DenseMatrix.eye[Double](gp.rank)
     val Minv = breeze.linalg.pinv(M)
 
-    (Minv, QtL, yVec, mVec)
+    (Minv, QtL, yVec, meanValues)
   }
 
   private def basisMatrixToCov[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D],

@@ -20,11 +20,11 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
+import scalismo.geometry.Vector._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
 import scalismo.numerics.{ GridSampler, Integrator, RandomSVD, UniformSampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
-import scalismo.statisticalmodel.VectorRepresenter
 
 import scala.language.implicitConversions
 
@@ -41,7 +41,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
 
       val sampler = UniformSampler(domain, 500)
 
-      val eigPairs = Kernel.computeNystromApproximation(new VectorRepresenter[_1D], kernel, 100, sampler)
+      val eigPairs = Kernel.computeNystromApproximation[_1D, Vector[_1D]](kernel, 100, sampler)
 
       def approxKernel(x: Point[_1D], y: Point[_1D]) = {
         eigPairs.indices.foldLeft(0.0)((sum, i) => {
@@ -64,7 +64,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val numPoints = 500
       val sampler = UniformSampler(domain, numPoints)
       val (points, _) = sampler.sample.unzip
-      val eigPairsApprox = Kernel.computeNystromApproximation(new VectorRepresenter[_1D], scalarKernel, 10, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation[_1D, Vector[_1D]](scalarKernel, 10, sampler)
       val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
       val realKernelMatrix = DenseMatrix.zeros[Double](numPoints * kernelDim, numPoints * kernelDim)
@@ -90,7 +90,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val sampler = UniformSampler(domain, 400)
       val (pts, _) = sampler.sample.unzip
 
-      val eigPairsApprox = Kernel.computeNystromApproximation(new VectorRepresenter[_2D], ndKernel, 10, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation[_2D, Vector[_2D]](ndKernel, 10, sampler)
       val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
       val realKernelMatrix = DenseMatrix.zeros[Double](pts.size * kernelDim, pts.size * kernelDim)
@@ -111,7 +111,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
       val sampler = GridSampler(grid)
 
-      val eigPairs = Kernel.computeNystromApproximation(new VectorRepresenter[_1D], kernel, 100, sampler)
+      val eigPairs = Kernel.computeNystromApproximation[_1D, Vector[_1D]](kernel, 100, sampler)
 
       val integrator = Integrator(sampler)
 
