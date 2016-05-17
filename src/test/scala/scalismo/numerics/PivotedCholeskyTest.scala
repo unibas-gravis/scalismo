@@ -19,8 +19,8 @@ package scalismo.numerics
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain3D
-import scalismo.geometry.{ Point, _1D, _3D, Vector }
-import scalismo.kernels.{ GaussianKernel, Kernel, UncorrelatedKernel }
+import scalismo.geometry.{ Point, Vector, _1D, _3D }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
 
 class PivotedCholeskyTest extends ScalismoTestSuite {
 
@@ -30,7 +30,7 @@ class PivotedCholeskyTest extends ScalismoTestSuite {
 
       val pts = DenseVector.rand[Double](60).toArray.map(v => Point(v.toFloat))
       val k = GaussianKernel[_1D](1.0)
-      val matrixValuedK = UncorrelatedKernel[_1D](k, 1)
+      val matrixValuedK = DiagonalKernel[_1D](k, 1)
       val m = Kernel.computeKernelMatrix[_1D](pts, matrixValuedK)
       val eigCholesky = PivotedCholesky.computeApproximateEig(matrixValuedK, pts, 1.0, PivotedCholesky.RelativeTolerance(1e-15))
       val (u, d) = eigCholesky
@@ -44,7 +44,7 @@ class PivotedCholeskyTest extends ScalismoTestSuite {
       val uniformSampler = UniformSampler[_3D](boxDomain, 20)
       val pts = uniformSampler.sample.map(_._1)
       val k = GaussianKernel[_3D](1.0)
-      val matrixValuedK = UncorrelatedKernel[_3D](k, 3)
+      val matrixValuedK = DiagonalKernel[_3D](k, 3)
       val m = Kernel.computeKernelMatrix[_3D](pts, matrixValuedK)
       val eigCholesky = PivotedCholesky.computeApproximateEig(matrixValuedK, pts, 1.0, PivotedCholesky.RelativeTolerance(1e-15))
       val (u, d) = eigCholesky
