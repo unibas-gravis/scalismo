@@ -15,16 +15,14 @@
  */
 package scalismo.registration
 
-import scalismo.geometry.{ Point, Dim }
+import scalismo.geometry.{ Dim, Point, Vector, _3D }
 import scalismo.statisticalmodel.LowRankGaussianProcess
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
-
-import scala.NotImplementedError
 import TransformationSpace.ParameterVector
-
 import breeze.linalg.{ DenseMatrix, DenseVector }
+import scalismo.geometry.Vector.VectorVectorizer
 
-class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
 
   override type T = GaussianProcessTransformation[D]
 
@@ -37,7 +35,6 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
 
     /**
      * The jacobian matrix of a sample, with respect to the given parameters.
-     * @param p
      * @return
      */
     (x: Point[D]) =>
@@ -46,7 +43,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
         val J = DenseMatrix.zeros[Double](dim, gp.klBasis.size)
         (0 until gp.rank).map(i => {
           val Eigenpair(lambda_i, phi_i) = gp.klBasis(i)
-          J(::, i) := (phi_i(x) * math.sqrt(lambda_i)).toBreezeVector
+          J(::, i) := vectorizer.vectorize(phi_i(x)) * math.sqrt(lambda_i)
         })
         J
       }
@@ -54,7 +51,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
 
 }
 
-class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, D], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
+class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
 
   val instance = gp.instance(alpha)
   val parameters = alpha
@@ -69,10 +66,10 @@ class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProces
 }
 
 object GaussianProcessTransformation {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D, D], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
 }
 
 object GaussianProcessTransformationSpace {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D, D]) = new GaussianProcessTransformationSpace[D](gp)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) = new GaussianProcessTransformationSpace[D](gp)
 }
 

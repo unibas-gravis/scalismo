@@ -224,7 +224,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
       if (bestFeatureDistance <= config.featureDistanceThreshold) {
         val refPoint = this.refPoint(profileId)
-        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(bestPoint - refPoint)
+        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance((bestPoint - refPoint).toBreezeVector)
         if (bestPointDistance <= config.pointDistanceThreshold) {
           Some(bestPoint)
         } else {

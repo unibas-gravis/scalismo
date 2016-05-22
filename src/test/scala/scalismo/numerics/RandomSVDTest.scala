@@ -27,7 +27,7 @@ class RandomSVDTest extends ScalismoTestSuite {
 
     it("accurately approximates the first 10 eigenvectors and eigenvalues of a gaussian kernel matrix") {
 
-      val k = DiagonalKernel[_1D](GaussianKernel[_1D](100))
+      val k = DiagonalKernel(GaussianKernel[_1D](100), 1)
       val xs = (0 until 1000).map(x => Point(x))
 
       val K = Kernel.computeKernelMatrix(xs, k)

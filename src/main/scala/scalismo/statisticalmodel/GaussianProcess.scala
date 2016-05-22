@@ -28,14 +28,11 @@ import scalismo.kernels._
  * @param mean The mean function
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
- * @tparam DO The dimensionality of the output space
  */
-class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean: VectorField[D, DO],
-    val cov: MatrixValuedPDKernel[D, DO]) {
+class GaussianProcess[D <: Dim: NDSpace, Value] protected (val mean: Field[D, Value],
+    val cov: MatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
 
-  protected[this] val dimOps: NDSpace[DO] = implicitly[NDSpace[DO]]
-
-  private[this] def outputDimensionality = dimOps.dimensionality
+  def outputDim = vectorizer.dim
 
   def domain = Domain.intersection(mean.domain, cov.domain)
 
@@ -43,7 +40,7 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    *
    * Sample values of the Gaussian process evaluated at the given points.
    */
-  def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteVectorField[D, DO] = {
+  def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteField[D, Value] = {
     this.marginal(domain).sample
   }
 
@@ -51,29 +48,29 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
    * is defined by the given points.
    */
-  def marginal(domain: DiscreteDomain[D]): DiscreteGaussianProcess[D, DO] = {
-    val meanField = DiscreteVectorField(domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
+  def marginal(domain: DiscreteDomain[D]): DiscreteGaussianProcess[D, Value] = {
+    val meanField = DiscreteField(domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
     val pts = domain.points.toIndexedSeq
-    def newCov(i: PointId, j: PointId): SquareMatrix[DO] = {
+    def newCov(i: PointId, j: PointId): DenseMatrix[Double] = {
       cov(pts(i.id), pts(j.id))
     }
 
-    val discreteCov = DiscreteMatrixValuedPDKernel[D, DO](domain, newCov)
+    val discreteCov = DiscreteMatrixValuedPDKernel[D](domain, newCov, outputDim)
     new DiscreteGaussianProcess(meanField, discreteCov)
   }
 
   /**
    * Compute the marginal distribution at a single point.
    */
-  def marginal(pt: Point[D]) = NDimensionalNormalDistribution(mean(pt), cov(pt, pt))
+  def marginal(pt: Point[D]) = MultivariateNormalDistribution(vectorizer.vectorize(mean(pt)), cov(pt, pt))
 
   /**
    * The posterior distribution of the gaussian process, with respect to the given trainingData.
    * It is computed using Gaussian process regression.
    * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
    */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): GaussianProcess[D, DO] = {
-    val cov = NDimensionalNormalDistribution[DO](Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
+  def posterior(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): GaussianProcess[D, Value] = {
+    val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val fullTrainingData = trainingData.map { case (p, v) => (p, v, cov) }
     GaussianProcess.regression(this, fullTrainingData)
   }
@@ -82,7 +79,7 @@ class GaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace] protected (val mean
    * The posterior distribution of the gaussian process, with respect to the given trainingData.
    * It is computed using Gaussian process regression.
    */
-  def posterior(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO] = {
+  def posterior(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianProcess[D, Value] = {
     GaussianProcess.regression(this, trainingData)
   }
 }
@@ -95,50 +92,53 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: VectorField[D, DO], cov: MatrixValuedPDKernel[D, DO]) = {
-    new GaussianProcess[D, DO](mean, cov)
+  def apply[D <: Dim: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]) = {
+    new GaussianProcess[D, Value](mean, cov)
   }
 
   /**
    * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
    *
-   * @param gp  The gaussian process
+   * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): GaussianProcess[D, DO] = {
+  def regression[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
 
-    val outputDim = implicitly[NDSpace[DO]].dimensionality
-
-    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
+    val outputDim = vectorizer.dim
 
     val (xs, ys, errorDists) = trainingData.unzip3
 
-    val mVec = flatten(xs.map(gp.mean))
-    val yVec = flatten(ys)
+    val mVec = DiscreteField.vectorize[D, Value](xs.map(gp.mean))
+    val yVec = DiscreteField.vectorize[D, Value](ys)
     val fVec = yVec - mVec
 
     val K = Kernel.computeKernelMatrix(xs, gp.cov)
     for ((errorDist, i) <- errorDists.zipWithIndex) {
-      K(i * outputDim until (i + 1) * outputDim, i * outputDim until (i + 1) * outputDim) += errorDist.cov.toBreezeMatrix
+      K(i * outputDim until (i + 1) * outputDim, i * outputDim until (i + 1) * outputDim) += errorDist.cov
     }
 
     val K_inv = breeze.linalg.inv(K)
 
-    def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D, DO](x, xs, gp.cov) }
-
-    def posteriorMean(x: Point[D]): Vector[DO] = {
-      Vector[DO](((xstar(x) * K_inv) * fVec).toArray)
+    def xstar(x: Point[D]) = {
+      Kernel.computeKernelVectorFor[D](x, xs, gp.cov)
     }
 
-    val posteriorKernel = new MatrixValuedPDKernel[D, DO] {
+    def posteriorMean(x: Point[D]): Value = {
+      vectorizer.unvectorize((xstar(x) * K_inv) * fVec)
+    }
+
+    val posteriorKernel = new MatrixValuedPDKernel[D] {
       override def domain = gp.domain
-      override def k(x: Point[D], y: Point[D]): SquareMatrix[DO] = {
-        gp.cov(x, y) - SquareMatrix[DO]((xstar(x) * K_inv * xstar(y).t).data)
+
+      override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
+        gp.cov(x, y) - (xstar(x) * K_inv * xstar(y).t)
       }
+
+      override def outputDim = gp.outputDim
     }
 
-    new GaussianProcess[D, DO](VectorField(gp.domain, posteriorMean _), posteriorKernel)
+    new GaussianProcess[D, Value](Field(gp.domain, posteriorMean _), posteriorKernel)
   }
 
   /**
@@ -146,43 +146,42 @@ object GaussianProcess {
    *
    * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
    *
-   * @param gp  The gaussian process
+   * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  def marginalLikelihood[D <: Dim: NDSpace, DO <: Dim: NDSpace](gp: GaussianProcess[D, DO],
-    trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): Double = {
+  def marginalLikelihood[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): Double = {
 
-    val outputDim = implicitly[NDSpace[DO]].dimensionality
+    val outputDim = gp.outputDim
 
     // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
 
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
-    def flatten(v: IndexedSeq[Vector[DO]]) = DenseVector(v.flatten(_.toArray).toArray)
-    val yVec = flatten(ys)
+    val yVec = DiscreteField.vectorize[D, Value](ys)
 
     val Ky = DenseMatrix.zeros[Double](trainingData.size * outputDim, trainingData.size * outputDim)
 
     for ((ptIdI, i) <- ptIds.zipWithIndex; (ptIdJ, j) <- ptIds.zipWithIndex) {
 
-      val covBlock = gp.cov(ptIdI, ptIdJ).toBreezeMatrix
+      val covBlock = gp.cov(ptIdI, ptIdJ)
 
       val Kyyp = if (i == j) {
         // in this case add observation uncertainty
-        val noiseBlock = errorDistributions(i).cov.toBreezeMatrix
+        val noiseBlock = errorDistributions(i).cov
         covBlock + noiseBlock
       } else covBlock
 
       // insert the block in the big covariance matrix
-      for (l <- (0 until outputDim); m <- (0 until outputDim)) {
+      for (l <- 0 until outputDim; m <- 0 until outputDim) {
         Ky(l + (i * outputDim), m + (j * outputDim)) = Kyyp(l, m)
       }
     }
 
     val KyInv = inv(Ky)
     val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
-    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5f) - (0.5f * math.log(det(Ky))) - const
+    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5) - (0.5 * math.log(det(Ky))) - const
     margLikehood
   }
 

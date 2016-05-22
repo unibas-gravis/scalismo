@@ -84,50 +84,50 @@ object UnstructuredPointsDomain {
   }
 }
 
-class UnstructuredPointsDomain1D private[scalismo] (pointSeq: IndexedSeq[Point[_1D]]) extends UnstructuredPointsDomain[_1D](pointSeq)(NDSpace[_1D], CreateUnstructuredPointsDomain.CreateUnstructuredPointsDomain1D) {
+class UnstructuredPointsDomain1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]]) extends UnstructuredPointsDomain[_1D](pointSequence)(NDSpace[_1D], CreateUnstructuredPointsDomain.CreateUnstructuredPointsDomain1D) {
 
   override def boundingBox: BoxDomain[_1D] = {
-    val minx = pointSeq.map(_(0)).min
-    val maxx = pointSeq.map(_(0)).max
+    val minx = pointSequence.map(_(0)).min
+    val maxx = pointSequence.map(_(0)).max
     BoxDomain(Point(minx), Point(maxx))
   }
 
   override def transform(t: Point[_1D] => Point[_1D]): UnstructuredPointsDomain1D = {
-    new UnstructuredPointsDomain1D(pointSeq.map(t).toIndexedSeq)
+    new UnstructuredPointsDomain1D(pointSequence.map(t).toIndexedSeq)
   }
 
 }
 
-class UnstructuredPointsDomain2D private[scalismo] (pointSeq: IndexedSeq[Point[_2D]]) extends UnstructuredPointsDomain[_2D](pointSeq)(NDSpace[_2D], CreateUnstructuredPointsDomain.CreateUnstructuredPointsDomain2D) {
+class UnstructuredPointsDomain2D private[scalismo] (pointSequence: IndexedSeq[Point[_2D]]) extends UnstructuredPointsDomain[_2D](pointSequence)(NDSpace[_2D], CreateUnstructuredPointsDomain.CreateUnstructuredPointsDomain2D) {
 
   override def boundingBox: BoxDomain[_2D] = {
-    val minx = pointSeq.map(_(0)).min
-    val miny = pointSeq.map(_(1)).min
-    val maxx = pointSeq.map(_(0)).max
-    val maxy = pointSeq.map(_(1)).max
+    val minx = pointSequence.map(_(0)).min
+    val miny = pointSequence.map(_(1)).min
+    val maxx = pointSequence.map(_(0)).max
+    val maxy = pointSequence.map(_(1)).max
     BoxDomain(Point(minx, miny), Point(maxx, maxy))
   }
 
   override def transform(t: Point[_2D] => Point[_2D]): UnstructuredPointsDomain2D = {
-    new UnstructuredPointsDomain2D(pointSeq.map(t).toIndexedSeq)
+    new UnstructuredPointsDomain2D(pointSequence.map(t).toIndexedSeq)
   }
 
 }
 
-class UnstructuredPointsDomain3D private[scalismo] (pointSeq: IndexedSeq[Point[_3D]]) extends UnstructuredPointsDomain[_3D](pointSeq)(NDSpace[_3D], CreateUnstructuredPointsDomain.CreateUnstructuredPointsDomain3D) {
+class UnstructuredPointsDomain3D private[scalismo] (pointSequence: IndexedSeq[Point[_3D]]) extends UnstructuredPointsDomain[_3D](pointSequence)(NDSpace[_3D], CreateUnstructuredPointsDomain.CreateUnstructuredPointsDomain3D) {
 
   override def boundingBox: BoxDomain[_3D] = {
-    val minx = pointSeq.map(_(0)).min
-    val miny = pointSeq.map(_(1)).min
-    val minz = pointSeq.map(_(2)).min
-    val maxx = pointSeq.map(_(0)).max
-    val maxy = pointSeq.map(_(1)).max
-    val maxz = pointSeq.map(_(2)).max
+    val minx = pointSequence.map(_(0)).min
+    val miny = pointSequence.map(_(1)).min
+    val minz = pointSequence.map(_(2)).min
+    val maxx = pointSequence.map(_(0)).max
+    val maxy = pointSequence.map(_(1)).max
+    val maxz = pointSequence.map(_(2)).max
     BoxDomain(Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
   override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPointsDomain3D = {
-    new UnstructuredPointsDomain3D(pointSeq.map(t).toIndexedSeq)
+    new UnstructuredPointsDomain3D(pointSequence.map(t).toIndexedSeq)
   }
 
 }

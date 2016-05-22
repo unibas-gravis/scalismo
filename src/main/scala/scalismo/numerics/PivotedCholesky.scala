@@ -25,8 +25,9 @@ import scalismo.utils.Benchmark
 
 /**
  * Result object for the pivoted cholesky of a matrix A
- * @param L The (first m columns) of a lower triangular matrix L, for which LL' = A_m \approx A.
- * @param p The pivot
+ *
+ * @param L  The (first m columns) of a lower triangular matrix L, for which LL' = A_m \approx A.
+ * @param p  The pivot
  * @param tr : The trace of the matrix (A_m - A) (i.e. the approximation error)
  */
 case class PivotedCholesky(L: DenseMatrix[Double], p: IndexedSeq[Int], tr: Double)
@@ -34,8 +35,11 @@ case class PivotedCholesky(L: DenseMatrix[Double], p: IndexedSeq[Int], tr: Doubl
 object PivotedCholesky {
 
   sealed trait StoppingCriterion
+
   case class AbsoluteTolerance(tol: Double) extends StoppingCriterion
+
   case class RelativeTolerance(tol: Double) extends StoppingCriterion
+
   case class NumberOfEigenfunctions(n: Int) extends StoppingCriterion
 
   private[this] def computeApproximateCholeskyGeneric[A](kernel: (A, A) => Double,
@@ -104,7 +108,7 @@ object PivotedCholesky {
 
   }
 
-  def computeApproximateCholesky[D <: Dim: NDSpace, DO <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, DO],
+  def computeApproximateCholesky[D <: Dim: NDSpace, DO <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
     xs: IndexedSeq[Point[D]],
     stoppingCriterion: StoppingCriterion): PivotedCholesky = {
 
@@ -165,12 +169,12 @@ object PivotedCholesky {
     extractEigenvalues(computeApproximateEigGeneric(kernel, indices, D, sc))
   }
 
-  def computeApproximateEig[D <: Dim: NDSpace, DO <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, DO],
+  def computeApproximateEig[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
     xs: IndexedSeq[Point[D]], D: Double,
     stoppingCriterion: StoppingCriterion) = {
 
     case class PointWithDim(point: Point[D], dim: Int)
-    val dim = NDSpace[DO].dimensionality
+    val dim = kernel.outputDim
     val xsWithDim: IndexedSeq[PointWithDim] = xs.flatMap(f => (0 until dim).map(i => PointWithDim(f, i)))
     def kscalar(x: PointWithDim, y: PointWithDim): Double = kernel(x.point, y.point)(x.dim, y.dim)
 

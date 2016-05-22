@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector, det }
+import breeze.linalg.{ DenseMatrix, DenseVector, det, inv }
 import scalismo.geometry._
 
 import scala.util.Try
@@ -119,6 +119,34 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
     Try {
       breeze.linalg.cholesky(covReg)
     }
+  }
+
+  def marginal(subspace: IndexedSeq[Int]): MultivariateNormalDistribution = {
+    val redMean = mean(subspace).toDenseVector
+    val redCov = cov(subspace, subspace).toDenseMatrix
+    MultivariateNormalDistribution(redMean, redCov)
+  }
+
+  def conditional(observations: IndexedSeq[(Int, Double)]): MultivariateNormalDistribution = {
+
+    val (obsIdx: IndexedSeq[Int], obsVals: IndexedSeq[Double]) = observations.unzip
+    val unknownIdx = (0 until mean.length).filter(e => !obsIdx.contains(e))
+
+    val meanUn = mean(unknownIdx)
+    val meanObs = mean(obsIdx)
+
+    val covUnUn = cov(unknownIdx, unknownIdx)
+    val covUnObs = cov(unknownIdx, obsIdx)
+    val covObsUn = cov(obsIdx, unknownIdx)
+    val covObsObs = cov(obsIdx, obsIdx)
+
+    val diff = DenseVector(obsVals.toArray) - meanObs
+    val mprod = covUnObs * inv(covObsObs.toDenseMatrix)
+    val newMean = meanUn + mprod * diff
+
+    val newCov = covUnUn - mprod * covObsUn
+
+    MultivariateNormalDistribution(newMean.toDenseVector, newCov.toDenseMatrix)
   }
 
 }

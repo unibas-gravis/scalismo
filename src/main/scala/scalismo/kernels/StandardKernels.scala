@@ -15,6 +15,7 @@
  */
 package scalismo.kernels
 
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common.RealSpace
 import scalismo.geometry._
 import scalismo.numerics.BSpline
@@ -26,24 +27,26 @@ case class GaussianKernel[D <: Dim](sigma: Double) extends PDKernel[D] {
 
   override def domain = RealSpace[D]
 
-  override def k(x: Point[D], y: Point[D]) = {
+  override def k(x: Point[D], y: Point[D]): Double = {
     val r = x - y
     scala.math.exp(-r.norm2 / sigma2)
   }
 }
 
-case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D, D] {
+case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
+
+  override def outputDim = implicitly[NDSpace[D]].dimensionality // TODO check if thats correct
 
   override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
   val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
 
-  def mu(x: Point[D]): Vector[D] = {
-    var meanDisplacement = Vector.zeros[D]
+  def mu(x: Point[D]): DenseVector[Double] = {
+    var meanDisplacement = DenseVector.zeros[Double](outputDim)
     var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
-      meanDisplacement = meanDisplacement + (t(x) - x)
+      meanDisplacement = meanDisplacement + (t(x) - x).toBreezeVector
       i += 1
     }
     meanDisplacement * (1.0 / ts.size)
@@ -51,17 +54,17 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformati
 
   val mu_memoized = Memoize(mu, cacheSizeHint)
 
-  override def k(x: Point[D], y: Point[D]): SquareMatrix[D] = {
-    var ms = SquareMatrix.zeros[D]
+  override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
+    var ms = DenseMatrix.zeros[Double](outputDim, outputDim)
     var i = 0
     while (i < ts.size) {
       val t = ts_memoized(i)
-      val ux = t(x) - x
-      val uy = t(y) - y
-      ms = ms + (ux - mu_memoized(x)).outer(uy - mu_memoized(y))
+      val ux = (t(x) - x).toBreezeVector
+      val uy = (t(y) - y).toBreezeVector
+      ms = ms + (ux - mu_memoized(x)) * ((uy - mu_memoized(y)).t)
       i += 1
     }
-    ms * (1f / (ts.size - 1))
+    ms * (1.0 / (ts.size - 1))
   }
 
 }

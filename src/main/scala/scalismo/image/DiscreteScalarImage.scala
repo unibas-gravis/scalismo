@@ -32,15 +32,15 @@ import scala.reflect.ClassTag
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Scalar).
  */
-abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTag] protected (override val domain: DiscreteImageDomain[D], data: ScalarArray[A])
-    extends DiscreteScalarField[D, A](domain, data) with DiscreteImage[D, A] {
+abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTag] protected (override val domain: DiscreteImageDomain[D], override val data: ScalarArray[A])
+    extends DiscreteImage[D, A](domain, data) {
 
   require(domain.numberOfPoints == data.size)
 
   protected override def ndSpace = implicitly[NDSpace[D]]
 
   /** returns a new image whose whose pixel values have been mapped using the function f */
-  override def map[B: Scalar: ClassTag](f: A => B): DiscreteScalarImage[D, B] = {
+  def map[B: Scalar: ClassTag](f: A => B): DiscreteScalarImage[D, B] = {
     DiscreteScalarImage(domain, data.map(f))
   }
 
@@ -160,7 +160,7 @@ private class DiscreteScalarImage1D[A: Scalar: ClassTag](domain: DiscreteImageDo
     val numeric = implicitly[Scalar[Pixel]]
 
     // the c is an input-output argument here
-    val c = img.data.map(numeric.toFloat)
+    val c = img.data.map[Float](numeric.toFloat)
     val floats: Array[Float] = c.asInstanceOf[PrimitiveScalarArray[Float]].rawData
     BSplineCoefficients.getSplineInterpolationCoefficients(degree, floats)
     floats

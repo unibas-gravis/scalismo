@@ -16,6 +16,7 @@
 package scalismo.geometry
 
 import breeze.linalg.DenseVector
+import scalismo.common.Vectorizer
 import spire.algebra.Field
 
 import scala.language.implicitConversions
@@ -286,6 +287,27 @@ object Vector {
   implicit def parametricToConcrete1D(p: Vector[_1D]): Vector1D = p.asInstanceOf[Vector1D]
   implicit def parametricToConcrete2D(p: Vector[_2D]): Vector2D = p.asInstanceOf[Vector2D]
   implicit def parametricToConcrete3D(p: Vector[_3D]): Vector3D = p.asInstanceOf[Vector3D]
+
+  class VectorVectorizer[D <: Dim: NDSpace] extends Vectorizer[Vector[D]] {
+    override def dim: Int = implicitly[NDSpace[D]].dimensionality
+
+    override def vectorize(v: Vector[D]): DenseVector[Double] = v.toBreezeVector
+
+    override def unvectorize(d: DenseVector[Double]): Vector[D] = {
+      fromBreezeVector(d)
+    }
+
+    override def equals(that: Any): Boolean = {
+      that match {
+        case t: VectorVectorizer[D] => true
+        case _ => false
+      }
+    }
+  }
+
+  implicit val Vector1DVectorizer = new VectorVectorizer[_1D]
+  implicit val Vector2DVectorizer = new VectorVectorizer[_2D]
+  implicit val Vector3DVectorizer = new VectorVectorizer[_3D]
 
 }
 
