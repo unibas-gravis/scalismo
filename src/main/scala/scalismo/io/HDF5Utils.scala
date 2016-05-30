@@ -85,7 +85,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     }
   }
 
-  def writeIntAttribute(path: String, attrName: String, attrValue: Int) = {
+  def writeIntAttribute(path: String, attrName: String, attrValue: Int): Try[Unit] = {
     Try {
       val s = h5file.get(path)
       val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
@@ -97,7 +97,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     }
   }
   // should be merged with some type magic
-  def writeStringAttribute(path: String, attrName: String, attrValue: String) = {
+  def writeStringAttribute(path: String, attrName: String, attrValue: String): Try[Unit] = {
     Try {
       val s = h5file.get(path)
       val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
@@ -142,8 +142,8 @@ class HDF5File(h5file: FileFormat) extends Closeable {
   def writeNDArray[T](path: String, ndArray: NDArray[T]): Try[Unit] = {
 
     val (groupname, datasetname) = splitpath(path)
-    val maybeGroup = createGroup(groupname)
-    maybeGroup.map { group =>
+    val maybeGroup: Try[Group] = createGroup(groupname)
+    maybeGroup.flatMap { group =>
 
       val dtypeOrFailure = ndArray.data match {
         case _: Array[Byte] => {
@@ -204,19 +204,15 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val dtype = h5file.createDatatype(Datatype.CLASS_STRING,
         value.length, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value))
-      Success(Unit)
     }
   }
 
-  def readInt(path: String): Try[Int] = {
-
+  def readInt(path: String): Try[Int] = Try {
     h5file.get(path) match {
-      case s: H5ScalarDS => {
-        Try { s.read().asInstanceOf[Array[Int]](0) }
-      }
-      case _ => {
-        Failure(new Exception("Expected H5ScalarDS when reading Int " + path))
-      }
+      case s: H5ScalarDS =>
+        s.read().asInstanceOf[Array[Int]](0)
+      case _ =>
+        throw new Exception("Expected H5ScalarDS when reading Int " + path)
     }
   }
 
@@ -225,24 +221,19 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     val groupOrFailure = createGroup(groupname)
 
     groupOrFailure.map { group =>
-
       val fileFormat: FileFormat = group.getFileFormat
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE)
-      Try { h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
-
+      h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
     }
-
   }
 
-  def readFloat(path: String): Try[Float] = {
+  def readFloat(path: String): Try[Float] = Try {
 
     h5file.get(path) match {
-      case s: H5ScalarDS => {
-        Try { s.read().asInstanceOf[Array[Float]](0) }
-      }
-      case _ => {
-        Failure(new Exception("Expected H5ScalarDS when reading Float " + path))
-      }
+      case s: H5ScalarDS =>
+        s.read().asInstanceOf[Array[Float]](0)
+      case _ =>
+        throw new Exception("Expected H5ScalarDS when reading Float " + path)
     }
   }
 
@@ -251,12 +242,10 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     val groupOrFailure = createGroup(groupname)
 
     groupOrFailure.map { group =>
-
       val fileFormat: FileFormat = group.getFileFormat
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE)
-      Try { h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value)) }
+      h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
     }
-
   }
 
   def createGroup(parent: Group, relativePath: String): Try[Group] = {
@@ -269,7 +258,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
         relativePath
       }
 
-    assert(trimmedPath.startsWith("/") == false)
+    assert(!trimmedPath.startsWith("/"))
     if (trimmedPath == "") return Success(parent)
 
     val groupnames = trimmedPath.split("/", 2)
@@ -302,7 +291,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
         .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject
         .asInstanceOf[Group]
     }
-    if (normalizedPath.startsWith("/") == false)
+    if (!normalizedPath.startsWith("/"))
       return Failure(new Exception("expected absolute path, but found relative path: " + absolutePath))
     if (absolutePath.trim == "/")
       return Success(root)
