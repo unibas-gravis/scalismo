@@ -25,6 +25,7 @@ import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel }
 import scalismo.numerics.{ GridSampler, UniformSampler }
 
 import scala.language.implicitConversions
+import scala.util.Random
 
 class GaussianProcessTests extends ScalismoTestSuite {
   implicit def doubleToFloat(d: Double): Float = d.toFloat
@@ -416,7 +417,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       dgp2.domain should equal(dgp3.domain)
     }
 
-    it("yields the same result for the marginal as the discretegp") {
+    it("yields the same result for the marginal as the discrete gp") {
       val f = Fixture
 
       val domain = UnstructuredPointsDomain(f.discretizationPoints)
@@ -433,12 +434,11 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val logpdfmean = discreteGP.logpdf(discreteGP.mean)
 
-      val s = (0 until 10) map { _ =>
+      (0 until 10) foreach { _ =>
         val logpdfSample = discreteGP.logpdf(discreteGP.sample)
-        logpdfmean >= logpdfSample
+        logpdfmean should be >= logpdfSample
       }
 
-      assert(s.forall(e => e))
     }
 
     it("yields the same values on the discrete points when interpolated with nearest neighbor") {
@@ -449,7 +449,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val discreteInstance = f.discreteLowRankGp.instance(coeffs)
       val contInterpolatedInstance = interpolatedGP.instance(coeffs)
-      f.discreteLowRankGp.domain.pointsWithId.forall { case (p, i) => discreteInstance(i) == contInterpolatedInstance(p) }
+      f.discreteLowRankGp.domain.pointsWithId.foreach { case (p, i) => discreteInstance(i) shouldBe contInterpolatedInstance(p) }
     }
 
     it("yields the same posterior values on the discrete points when interpolated with nearest neighbor") {
@@ -464,7 +464,26 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val originalPosteriorInstance = orignalLowRankPosterior.instance(coeffs)
       val interpolatedPosteriorInstance = interpolatedGPPosterior.instance(coeffs)
 
-      f.discreteLowRankGp.domain.points.forall { p => originalPosteriorInstance(p) == interpolatedPosteriorInstance(p) }
+      f.discreteLowRankGp.domain.points.foreach { p =>
+        val orig = originalPosteriorInstance(p)
+        val intp = interpolatedPosteriorInstance(p)
+        orig(0) shouldBe intp(0) +- 1.0e-10
+        orig(1) shouldBe intp(1) +- 1.0e-10
+        orig(2) shouldBe intp(2) +- 1.0e-10
+      }
+    }
+
+    it("yields the same values for an instance at a point when either only the point or the complete instance is calculated") {
+      val f = Fixture
+      val gp = f.discreteLowRankGp
+      val points = (0 until 1000) map { i => Random.nextInt(gp._domain.numberOfPoints) }
+      points.foreach { pid =>
+        val k = gp.rank
+        val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
+        val coeffs = DenseVector.rand(k, gaussRNG)
+        val instance = gp.instance(coeffs)
+        instance.data(pid) shouldBe gp.instanceAtPoint(coeffs, pid)
+      }
     }
 
   }

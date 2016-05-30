@@ -60,6 +60,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   }
 
   /**
+   * Get instance at a specific point
+   */
+  def instanceAtPoint(c: DenseVector[Double], pid: PointId): Value = {
+    require(rank == c.size)
+    vectorizer.unvectorize(instanceVectorAtPoint(c, pid))
+  }
+
+  /**
    * Returns the probability density of the instance produced by the x coefficients
    */
   def pdf(coefficients: DenseVector[Double]) = {
@@ -249,6 +257,12 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
     require(rank == alpha.size)
 
     basisMatrix * (stddev :* alpha) + meanVector
+  }
+
+  protected[statisticalmodel] def instanceVectorAtPoint(alpha: DenseVector[Double], pid: PointId): DenseVector[Double] = {
+    require(rank == alpha.size)
+    val range = pid.id * vectorizer.dim until (pid.id + 1) * vectorizer.dim
+    basisMatrix(range, ::) * (stddev :* alpha) + meanVector(range)
   }
 
   private[this] val stddev = variance.map(x => math.sqrt(x))
