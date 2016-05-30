@@ -120,9 +120,10 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.coefficients(IndexedSeq[(Point[D], Vector[DO], Double)])]]
+   *
+   * @param sigma2 variance of observation uncertainty (default value avoids numerical issues)
    */
-  def coefficients(s: DiscreteField[D, Value]): DenseVector[Double] = {
-    val sigma2 = 1e-5 // regularization weight to avoid numerical problems
+  def coefficients(s: DiscreteField[D, Value], sigma2: Double = 1e-5): DenseVector[Double] = {
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val td = s.valuesWithIds.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
     val (minv, qtL, yVec, mVec) = DiscreteLowRankGaussianProcess.genericRegressionComputations(this, td)
