@@ -16,6 +16,7 @@
 package scalismo.geometry
 
 import breeze.linalg.DenseVector
+import scalismo.common.Vectorizer
 
 import scala.language.implicitConversions
 
@@ -191,5 +192,23 @@ object Point {
   implicit def parametricToConcrete1D(p: Point[_1D]): Point1D = p.asInstanceOf[Point1D]
   implicit def parametricToConcrete2D(p: Point[_2D]): Point2D = p.asInstanceOf[Point2D]
   implicit def parametricToConcrete3D(p: Point[_3D]): Point3D = p.asInstanceOf[Point3D]
+
+  implicit object Point3DVectorizer extends Vectorizer[Point[_3D]] {
+    override def dim: Int = 3
+    override def vectorize(pt: Point[_3D]): DenseVector[Double] = pt.toBreezeVector
+    override def unvectorize(d: DenseVector[Double]): Point[_3D] = Point(d(0), d(1), d(2))
+  }
+
+  implicit object Point2DVectorizer extends Vectorizer[Point[_2D]] {
+    override def dim: Int = 2
+    override def vectorize(pt: Point[_2D]): DenseVector[Double] = pt.toBreezeVector
+    override def unvectorize(d: DenseVector[Double]): Point[_2D] = Point(d(0), d(1))
+  }
+
+  implicit object Point1DVectorizer extends Vectorizer[Point[_1D]] {
+    override def dim: Int = 1
+    override def vectorize(pt: Point[_1D]): DenseVector[Double] = pt.toBreezeVector
+    override def unvectorize(d: DenseVector[Double]): Point[_1D] = Point(d(0))
+  }
 
 }
