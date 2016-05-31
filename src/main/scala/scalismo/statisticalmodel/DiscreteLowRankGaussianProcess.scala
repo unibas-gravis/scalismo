@@ -82,14 +82,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   /**
    * Returns the probability density of the given instance
    */
-  override def pdf(instance: DiscreteField[D, Value]): Double = pdf(coefficients(instance))
+  override def pdf(instance: DiscreteField[D, Value]): Double = pdf(coefficients(instance, DiscreteLowRankGaussianProcess.numericalNoiseVariance))
 
   /**
    * Returns the log of the probability density of the instance
    *
    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
    */
-  override def logpdf(instance: DiscreteField[D, Value]): Double = logpdf(coefficients(instance))
+  override def logpdf(instance: DiscreteField[D, Value]): Double = logpdf(coefficients(instance, DiscreteLowRankGaussianProcess.numericalNoiseVariance))
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
@@ -114,8 +114,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
-  override def project(s: DiscreteField[D, Value]): DiscreteField[D, Value] = {
-    instance(coefficients(s))
+  override def project(s: DiscreteField[D, Value], sigma2: Double = DiscreteLowRankGaussianProcess.numericalNoiseVariance): DiscreteField[D, Value] = {
+    instance(coefficients(s, sigma2))
   }
 
   /**
@@ -123,7 +123,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
    *
    * @param sigma2 variance of observation uncertainty (default value avoids numerical issues)
    */
-  def coefficients(s: DiscreteField[D, Value], sigma2: Double = 1e-5): DenseVector[Double] = {
+  def coefficients(s: DiscreteField[D, Value], sigma2: Double = DiscreteLowRankGaussianProcess.numericalNoiseVariance): DenseVector[Double] = {
+    require(sigma2 >= 0.0, "noise variance cannot be negative")
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val td = s.valuesWithIds.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
     val (minv, qtL, yVec, mVec) = DiscreteLowRankGaussianProcess.genericRegressionComputations(this, td)
@@ -137,6 +138,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
    *
    */
   def posterior(trainingData: IndexedSeq[(PointId, Value)], sigma2: Double): DiscreteLowRankGaussianProcess[D, Value] = {
+    require(sigma2 >= 0.0, "noise variance cannot be negative")
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (ptId, df) => (ptId, df, cov) }
     posterior(newtd)
@@ -286,7 +288,6 @@ private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianProcess[D <: 
 }
 
 object DiscreteLowRankGaussianProcess {
-
   case class Eigenpair[D <: Dim, Value](eigenvalue: Double, eigenfunction: DiscreteField[D, Value])
 
   type KLBasis[D <: Dim, Value] = Seq[Eigenpair[D, Value]]
@@ -480,6 +481,9 @@ object DiscreteLowRankGaussianProcess {
 
     DiscreteMatrixValuedPDKernel(domain, cov, outputDim)
   }
+
+  /** default noise variance value of data observations (independent Gaussian), value to avoid numerical issues */
+  val numericalNoiseVariance: Double = DiscreteGaussianProcess.numericalNoiseVariance
 
 }
 
