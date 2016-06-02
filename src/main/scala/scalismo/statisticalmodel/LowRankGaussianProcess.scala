@@ -88,7 +88,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
    * @param trainingData Point/value pairs where that the sample should approximate.
    * @param sigma2       variance of a Gaussian noise that is assumed on every training point
    */
-  def project(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double = LowRankGaussianProcess.numericalNoiseVariance): Field[D, Value] = {
+  def project(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double = 1e-6): Field[D, Value] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     project(newtd)
@@ -119,7 +119,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
    * are subject to 0 mean Gaussian noise
    */
-  def coefficients(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double = LowRankGaussianProcess.numericalNoiseVariance): DenseVector[Double] = {
+  def coefficients(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): DenseVector[Double] = {
     val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     coefficients(newtd)
@@ -168,9 +168,6 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
  * Factory methods for creating Low-rank gaussian processes, as well as generic algorithms to manipulate Gaussian processes.
  */
 object LowRankGaussianProcess {
-  /** default noise variance value of data observations (independent Gaussian), to avoid numerical issues */
-  val numericalNoiseVariance: Double = 1e-5
-
 
   case class Eigenpair[D <: Dim, Value](eigenvalue: Double, eigenfunction: Field[D, Value])
 

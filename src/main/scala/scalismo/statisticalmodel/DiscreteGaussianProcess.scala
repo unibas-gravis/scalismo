@@ -111,8 +111,9 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
 
-  def project(s: DiscreteField[D, Value], sigma2: Double = DiscreteGaussianProcess.numericalNoiseVariance): DiscreteField[D, Value] = {
-    require(sigma2 >= 0.0, "noise variance cannot be negative")
+  def project(s: DiscreteField[D, Value]): DiscreteField[D, Value] = {
+
+    val sigma2 = 1e-5 // regularization weight to avoid numerical problems
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val td = s.values.zipWithIndex.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
     DiscreteGaussianProcess.regression(this, td).mean
@@ -170,7 +171,4 @@ object DiscreteGaussianProcess {
 
     DiscreteGaussianProcess(discreteGp.domain, gp)
   }
-
-  /** default noise variance value of data observations (independent Gaussian), to avoid numerical issues */
-  val numericalNoiseVariance: Double = 1e-5
 }
