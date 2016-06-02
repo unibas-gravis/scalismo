@@ -106,20 +106,19 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
   /**
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
-  def project(mesh: TriangleMesh[_3D], sigma2: Double = DiscreteLowRankGaussianProcess.numericalNoiseVariance) = {
+  def project(mesh: TriangleMesh[_3D]) = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
     val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
-    warpReference(gp.project(dvf, sigma2))
+    warpReference(gp.project(dvf))
   }
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.coefficients]]
    */
-  def coefficients(mesh: TriangleMesh[_3D], sigma2: Double = DiscreteLowRankGaussianProcess.numericalNoiseVariance): DenseVector[Double] = {
-    require(sigma2 >= 0.0, "noise variance cannot be negative")
+  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
     val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
-    gp.coefficients(dvf, sigma2)
+    gp.coefficients(dvf)
   }
 
   /**
