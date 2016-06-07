@@ -381,13 +381,14 @@ object CreateRotationSpace {
  */
 abstract class RotationTransform[D <: Dim: NDSpace] extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override def inverse: RotationTransform[D]
+  def center : Point[D]
 }
 
-private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
+private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], val center: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
   override val f = (pt: Point[_3D]) => {
-    val ptCentered = pt - centre
+    val ptCentered = pt - center
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector(rotCentered(0), rotCentered(1), rotCentered(2))
+    center + Vector(rotCentered(0), rotCentered(1), rotCentered(2))
   }
 
   override val domain = RealSpace[_3D]
@@ -399,15 +400,15 @@ private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], centre: Poi
   }
 
   override def inverse: RotationTransform3D = {
-    new RotationTransform3D(SquareMatrix.inv(rotMatrix), centre)
+    new RotationTransform3D(SquareMatrix.inv(rotMatrix), center)
   }
 }
 
-private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Point[_2D] = Point(0, 0)) extends RotationTransform[_2D] {
+private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], val center: Point[_2D] = Point(0, 0)) extends RotationTransform[_2D] {
   override val f = (pt: Point[_2D]) => {
-    val ptCentered = pt - centre
+    val ptCentered = pt - center
     val rotCentered = rotMatrix * ptCentered
-    centre + Vector(rotCentered(0), rotCentered(1))
+    center + Vector(rotCentered(0), rotCentered(1))
   }
   override def domain = RealSpace[_2D]
 
@@ -417,7 +418,7 @@ private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], centre: Poi
   }
 
   override def inverse: RotationTransform2D = {
-    new RotationTransform2D(SquareMatrix.inv(rotMatrix), centre)
+    new RotationTransform2D(SquareMatrix.inv(rotMatrix), center)
   }
 
 }
@@ -426,6 +427,7 @@ private[scalismo] case class RotationTransform1D() extends RotationTransform[_1D
   override val f = (pt: Point[_1D]) => {
     pt
   }
+  override val center = Point(0)
 
   override def domain = RealSpace[_1D]
 
@@ -565,6 +567,9 @@ object ScalingTransformation {
 class RigidTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace] private (center: Point[D])
     extends ProductTransformationSpace[D, TranslationTransform[D], RotationTransform[D]](TranslationSpace[D], RotationSpace[D](center)) {
 
+  def translationSpace : TransformationSpace[D] = TranslationSpace[D]
+  def rotationSpace : RotationSpace[D] = RotationSpace[D](center)
+
   /**
    * Returns a rigid transform that rotates first then translates.
    * @param p concatenated parameter vector containing first the translation parameters, then the rotaion ones
@@ -598,7 +603,10 @@ object RigidTransformationSpace {
  *
  * Instances of this trait exist only for [[_2D]] and [[_3D]] as [[RotationTransform]] is not defined for [[_1D]]
  */
-trait RigidTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D]
+trait RigidTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D] {
+  def translation : TranslationTransform[D]
+  def rotation : RotationTransform[D]
+}
 
 /** Factory for [[RigidTransformation]] instances. */
 object RigidTransformation {
@@ -609,15 +617,17 @@ object RigidTransformation {
 
 }
 
-private class RigidTransformationRotThenTrans[D <: Dim: NDSpace](translationTransform: TranslationTransform[D], rotationTransform: RotationTransform[D])
-    extends ProductTransformation[D](translationTransform, rotationTransform) with RigidTransformation[D] {
+private class RigidTransformationRotThenTrans[D <: Dim: NDSpace](val translation: TranslationTransform[D], val rotation: RotationTransform[D])
+    extends ProductTransformation[D](translation, rotation) with RigidTransformation[D] {
 
-  def inverse = new RigidTransformationTransThenRot[D](rotationTransform.inverse, translationTransform.inverse)
+
+
+  def inverse = new RigidTransformationTransThenRot[D](rotation.inverse, translation.inverse)
 }
 
-private class RigidTransformationTransThenRot[D <: Dim: NDSpace](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D])
-    extends ProductTransformation[D](rotationTransform, translationTransform) with RigidTransformation[D] {
-  def inverse = new RigidTransformationRotThenTrans[D](translationTransform.inverse, rotationTransform.inverse)
+private class RigidTransformationTransThenRot[D <: Dim: NDSpace](val rotation: RotationTransform[D], val translation: TranslationTransform[D])
+    extends ProductTransformation[D](rotation, translation) with RigidTransformation[D] {
+  def inverse = new RigidTransformationRotThenTrans[D](translation.inverse, rotation.inverse)
 
 }
 
