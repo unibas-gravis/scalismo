@@ -77,5 +77,11 @@ class MeshTests extends ScalismoTestSuite {
       binaryImg(Point(0, 0, 0)) should be(1)
       binaryImg(Point(2, 0, 0)) should be(0)
     }
+
+    it("can have an empty cell list"){
+      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0))
+      val cells = IndexedSeq[TriangleCell]()
+      val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells)) // would throw exception on fail
+    }
   }
 }
