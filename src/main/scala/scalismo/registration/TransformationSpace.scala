@@ -35,6 +35,18 @@ trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 
 object Transformation {
 
+
+  /**
+    * Create a transformation defined on the whole real space with the given function
+    */
+  def apply[D <: Dim](t : Point[D] => Point[D]) : Transformation[D] = {
+    new Transformation[D] {
+      override val f: (Point[D]) => Point[D] = t
+
+      override def domain: Domain[D] = RealSpace[D]
+    }
+  }
+
   /**
    * Returns a new transformation that memoizes (caches) the values that have already been
    * computed. The size of the cache used is given by the argument cacheSizeHint.
@@ -381,7 +393,7 @@ object CreateRotationSpace {
  */
 abstract class RotationTransform[D <: Dim: NDSpace] extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override def inverse: RotationTransform[D]
-  def center : Point[D]
+  def center: Point[D]
 }
 
 private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], val center: Point[_3D] = Point(0, 0, 0)) extends RotationTransform[_3D] {
@@ -567,8 +579,8 @@ object ScalingTransformation {
 class RigidTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace] private (center: Point[D])
     extends ProductTransformationSpace[D, TranslationTransform[D], RotationTransform[D]](TranslationSpace[D], RotationSpace[D](center)) {
 
-  def translationSpace : TransformationSpace[D] = TranslationSpace[D]
-  def rotationSpace : RotationSpace[D] = RotationSpace[D](center)
+  def translationSpace: TransformationSpace[D] = TranslationSpace[D]
+  def rotationSpace: RotationSpace[D] = RotationSpace[D](center)
 
   /**
    * Returns a rigid transform that rotates first then translates.
@@ -604,8 +616,8 @@ object RigidTransformationSpace {
  * Instances of this trait exist only for [[_2D]] and [[_3D]] as [[RotationTransform]] is not defined for [[_1D]]
  */
 trait RigidTransformation[D <: Dim] extends ProductTransformation[D] with CanInvert[D] {
-  def translation : TranslationTransform[D]
-  def rotation : RotationTransform[D]
+  def translation: TranslationTransform[D]
+  def rotation: RotationTransform[D]
 }
 
 /** Factory for [[RigidTransformation]] instances. */
@@ -619,8 +631,6 @@ object RigidTransformation {
 
 private class RigidTransformationRotThenTrans[D <: Dim: NDSpace](val translation: TranslationTransform[D], val rotation: RotationTransform[D])
     extends ProductTransformation[D](translation, rotation) with RigidTransformation[D] {
-
-
 
   def inverse = new RigidTransformationTransThenRot[D](rotation.inverse, translation.inverse)
 }
