@@ -167,15 +167,15 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
       override def next() = {
         val mesh = lastResult.map(_.get.mesh).getOrElse(statisticalModel.instance(startingTransformations.coefficients).transform(startingTransformations.rigidTransform))
-        lastResult = Some(fitOnce(image, searchPointSampler, config, mesh))
+        lastResult = Some(fitOnce(image, searchPointSampler, config, mesh, startingTransformations.rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]))
         nextCount += 1
         lastResult.get
       }
     }
   }
 
-  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D]): Try[FittingResult] = {
-    val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config)
+  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D], inverseTransform : RigidTransformation[_3D]): Try[FittingResult] = {
+    val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, inverseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
       Failure(new IllegalStateException("No point correspondences found. You may need to relax the configuration thresholds."))
@@ -197,10 +197,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.pointSet.point(profiles(profileId).pointId)
 
-  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration): IndexedSeq[(PointId, Point[_3D])] = {
+  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration, inverseTransform : RigidTransformation[_3D]): IndexedSeq[(PointId, Point[_3D])] = {
 
     val matchingPts = profiles.ids.par.map { index =>
-      (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId))
+      (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, inverseTransform))
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
@@ -208,7 +208,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   }
 
-  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId): Option[Point[_3D]] = {
+  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId, inverseTransform : RigidTransformation[_3D]): Option[Point[_3D]] = {
     val sampledPoints = searchPointSampler(mesh, pointId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
@@ -224,10 +224,13 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
       if (bestFeatureDistance <= config.featureDistanceThreshold) {
         val refPoint = this.refPoint(profileId)
-        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(bestPoint - refPoint)
+
+        /** Attention: checking for the deformation vector's pdf needs to be done in the model space !**/
+        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(inverseTransform(bestPoint) - refPoint)
         if (bestPointDistance <= config.pointDistanceThreshold) {
           Some(bestPoint)
         } else {
+
           // point distance above user-set threshold
           None
         }
