@@ -84,7 +84,7 @@ case class TriangleList(triangles: IndexedSeq[TriangleCell]) {
   }
 
   private[this] def extractRange(triangles: IndexedSeq[TriangleCell]): IndexedSeq[PointId] = {
-    if(triangles.isEmpty){
+    if (triangles.isEmpty) {
       IndexedSeq[PointId]()
     } else {
       val min = triangles.flatMap(t => t.pointIds).minBy(_.id)

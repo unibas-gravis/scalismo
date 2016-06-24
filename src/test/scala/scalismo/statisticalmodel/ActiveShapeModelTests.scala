@@ -8,10 +8,9 @@ import scalismo.geometry._3D
 import scalismo.io.{ ImageIO, MeshIO, StatismoIO }
 import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
-import scalismo.registration.{RigidTransformationSpace, LandmarkRegistration}
+import scalismo.registration.{ RigidTransformationSpace, LandmarkRegistration }
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
-
 
 class ActiveShapeModelTests extends ScalismoTestSuite {
 
@@ -55,7 +54,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
     it("Can be transformed correctly from within the fitting") {
 
       val nullInitialParameters = DenseVector.zeros[Double](Fixture.asm.statisticalModel.rank)
-      val fit = Fixture.asm.fit(Fixture.targetImage, Fixture.searchMethod, 20, Fixture.fittingConfig, ModelTransformations(nullInitialParameters,Fixture.alignment)).get.mesh
+      val fit = Fixture.asm.fit(Fixture.targetImage, Fixture.searchMethod, 20, Fixture.fittingConfig, ModelTransformations(nullInitialParameters, Fixture.alignment)).get.mesh
       assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.95)
     }
   }

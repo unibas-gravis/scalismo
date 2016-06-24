@@ -174,7 +174,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     }
   }
 
-  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D], inverseTransform : RigidTransformation[_3D]): Try[FittingResult] = {
+  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D], inverseTransform: RigidTransformation[_3D]): Try[FittingResult] = {
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, inverseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
@@ -197,7 +197,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.pointSet.point(profiles(profileId).pointId)
 
-  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration, inverseTransform : RigidTransformation[_3D]): IndexedSeq[(PointId, Point[_3D])] = {
+  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration, inverseTransform: RigidTransformation[_3D]): IndexedSeq[(PointId, Point[_3D])] = {
 
     val matchingPts = profiles.ids.par.map { index =>
       (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, inverseTransform))
@@ -208,7 +208,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   }
 
-  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId, inverseTransform : RigidTransformation[_3D]): Option[Point[_3D]] = {
+  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId, inverseTransform: RigidTransformation[_3D]): Option[Point[_3D]] = {
     val sampledPoints = searchPointSampler(mesh, pointId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
