@@ -40,3 +40,9 @@ case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], overrid
     ScalarMeshField(mesh, data.map(f))
   }
 }
+
+object ScalarMeshField {
+  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Traversable[S]): ScalarMeshField[S] = {
+    ScalarMeshField(mesh, ScalarArray(data.toArray))
+  }
+}

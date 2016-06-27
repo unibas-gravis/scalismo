@@ -34,7 +34,7 @@ class ImageTests extends ScalismoTestSuite {
   describe("A discrete 1D image") {
     it("returns the same points for a 1d index and a coordinate index") {
       val domain = DiscreteImageDomain[_1D](0.0, 1.0, 5)
-      val discreteImage = DiscreteScalarImage(domain, Array(3.0, 2.0, 1.5, 1, 0))
+      val discreteImage = DiscreteScalarImage(domain, Seq(3.0, 2.0, 1.5, 1, 0))
 
       for (i <- 0 until domain.size(0)) {
         assert(discreteImage(i) == discreteImage(i))
@@ -45,7 +45,7 @@ class ImageTests extends ScalismoTestSuite {
   describe("A discrete 2D image") {
     it("returns the same points for a 1d index and a (2d) coordinate index") {
       val domain = DiscreteImageDomain[_2D]((0.0, 0.0), (1.0, 2.0), (3, 2))
-      val discreteImage = DiscreteScalarImage(domain, Array(3.0, 2.0, 1.5, 1.0, 0.0, 4.0))
+      val discreteImage = DiscreteScalarImage(domain, Seq(3.0, 2.0, 1.5, 1.0, 0.0, 4.0))
 
       for (
         y <- 0 until domain.size(1);
