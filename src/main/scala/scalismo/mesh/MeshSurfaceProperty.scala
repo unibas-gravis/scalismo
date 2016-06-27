@@ -46,7 +46,7 @@ case class ConstantProperty[@specialized(Double, Float, Int, Boolean) A](overrid
 }
 
 /** property per vertex, with interpolation */
-case class SurfacePointProperty[@specialized(Double, Float, Int, Boolean) A](override val triangulation: TriangleList, pointData: PointId => A)(implicit ops: Interpolator[A])
+case class SurfacePointProperty[@specialized(Double, Float, Int, Boolean) A](override val triangulation: TriangleList, pointData: PointId => A)(implicit val ops: Interpolator[A])
     extends MeshSurfaceProperty[A] {
 
   def atPoint(pointId: PointId): A = pointData(pointId)
