@@ -147,8 +147,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * @see [[fit()]] for a description of the parameters.
    *
    */
-  def fitIterator(targetImage: DiscreteScalarImage[_3D, Float], searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, startingTransformations: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
-    fitIteratorPreprocessed(preprocessor(targetImage), searchPointSampler, iterations, config, startingTransformations)
+  def fitIterator(targetImage: DiscreteScalarImage[_3D, Float], searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, initialTransform: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
+    fitIteratorPreprocessed(preprocessor(targetImage), searchPointSampler, iterations, config, initialTransform)
   }
 
   /**
@@ -156,7 +156,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * @see [[fit()]] for a description of the parameters.
    *
    */
-  def fitIteratorPreprocessed(image: PreprocessedImage, searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, startingTransformations: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
+  def fitIteratorPreprocessed(image: PreprocessedImage, searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, initialTransform: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
     require(iterations > 0, "number of iterations must be strictly positive")
 
     new Iterator[Try[FittingResult]] {
@@ -166,16 +166,16 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
       override def hasNext = nextCount < iterations && (lastResult.isEmpty || lastResult.get.isSuccess)
 
       override def next() = {
-        val mesh = lastResult.map(_.get.mesh).getOrElse(statisticalModel.instance(startingTransformations.coefficients).transform(startingTransformations.rigidTransform))
-        lastResult = Some(fitOnce(image, searchPointSampler, config, mesh, startingTransformations.rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]))
+        val mesh = lastResult.map(_.get.mesh).getOrElse(statisticalModel.instance(initialTransform.coefficients).transform(initialTransform.rigidTransform))
+        lastResult = Some(fitOnce(image, searchPointSampler, config, mesh, initialTransform.rigidTransform))
         nextCount += 1
         lastResult.get
       }
     }
   }
 
-  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D], inverseTransform: RigidTransformation[_3D]): Try[FittingResult] = {
-    val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, inverseTransform)
+  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D], poseTransform: RigidTransformation[_3D]): Try[FittingResult] = {
+    val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, poseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
       Failure(new IllegalStateException("No point correspondences found. You may need to relax the configuration thresholds."))
@@ -197,10 +197,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.pointSet.point(profiles(profileId).pointId)
 
-  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration, inverseTransform: RigidTransformation[_3D]): IndexedSeq[(PointId, Point[_3D])] = {
+  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration, poseTransform: RigidTransformation[_3D]): IndexedSeq[(PointId, Point[_3D])] = {
 
     val matchingPts = profiles.ids.par.map { index =>
-      (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, inverseTransform))
+      (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform))
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
@@ -208,7 +208,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   }
 
-  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId, inverseTransform: RigidTransformation[_3D]): Option[Point[_3D]] = {
+  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId, poseTransform: RigidTransformation[_3D]): Option[Point[_3D]] = {
     val sampledPoints = searchPointSampler(mesh, pointId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
@@ -226,7 +226,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
         val refPoint = this.refPoint(profileId)
 
         /** Attention: checking for the deformation vector's pdf needs to be done in the model space !**/
-        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(inverseTransform(bestPoint) - refPoint)
+        val inversePoseTransform = poseTransform.inverse
+        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(inversePoseTransform(bestPoint) - refPoint)
         if (bestPointDistance <= config.pointDistanceThreshold) {
           Some(bestPoint)
         } else {
