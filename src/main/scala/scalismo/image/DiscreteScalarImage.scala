@@ -94,6 +94,11 @@ object DiscreteScalarImage {
     create.create(domain, values)
   }
 
+  /** create a new DiscreteScalarImage with given domain and values */
+  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: Traversable[A])(implicit create: Create[D]) = {
+    create.create(domain, ScalarArray(values.toArray))
+  }
+
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
   def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A)(implicit create: Create[D]) = {
     create.create(domain, ScalarArray(domain.points.map(f).toArray))

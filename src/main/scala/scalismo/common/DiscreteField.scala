@@ -138,6 +138,10 @@ object DiscreteScalarField {
   def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteDomain[D], data: ScalarArray[A]): DiscreteScalarField[D, A] = {
     new DiscreteScalarField[D, A](domain, data)
   }
+
+  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteDomain[D], data: Traversable[A]): DiscreteScalarField[D, A] = {
+    new DiscreteScalarField[D, A](domain, ScalarArray(data.toArray))
+  }
 }
 
 /**
