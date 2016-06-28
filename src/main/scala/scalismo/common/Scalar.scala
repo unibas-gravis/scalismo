@@ -337,12 +337,12 @@ object ValueClassScalarArray {
 /** Factory for ScalarArray instances. */
 object ScalarArray {
 
-  /**
-   * Converts a native array of scalar values to the corresponding [[ScalarArray]] instance
-   * @param array a native array of scalar values
-   * @tparam T the type of the scalar data
-   * @return the corresponding [[ScalarArray]] instance, containing the same data as <code>array</code>
-   */
+//  /**
+//   * Converts a native array of scalar values to the corresponding [[ScalarArray]] instance
+//   * @param array a native array of scalar values
+//   * @tparam T the type of the scalar data
+//   * @return the corresponding [[ScalarArray]] instance, containing the same data as <code>array</code>
+//   */
   def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
     val scalar = implicitly[Scalar[T]]
     scalar match {
@@ -351,13 +351,4 @@ object ScalarArray {
     }
   }
 
-  object implicits {
-    import Scalar._
-    import scala.language.implicitConversions
-    implicit def scalarArrayFromByteArray(data: Array[Byte]): ScalarArray[Byte] = ByteIsScalar.createArray(data)
-    implicit def scalarArrayFromShortArray(data: Array[Short]): ScalarArray[Short] = ShortIsScalar.createArray(data)
-    implicit def scalarArrayFromIntArray(data: Array[Int]): ScalarArray[Int] = IntIsScalar.createArray(data)
-    implicit def scalarArrayFromFloatArray(data: Array[Float]): ScalarArray[Float] = FloatIsScalar.createArray(data)
-    implicit def scalarArrayFromDoubleArray(data: Array[Double]): ScalarArray[Double] = DoubleIsScalar.createArray(data)
-  }
 }

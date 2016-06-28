@@ -82,7 +82,7 @@ object STKBuild extends Build {
   import BuildSettings._
 
   lazy val lic = com.banno.license.Plugin.licenseSettings ++ Seq(license := apache2("Copyright 2015 University of Basel, Graphics and Vision Research Group"), removeExistingHeaderBlock := false)
-  
+
   lazy val scalismo = Project(
     "scalismo",
     file("."),
@@ -92,7 +92,7 @@ object STKBuild extends Build {
       parallelExecution in Test := false,
       publishTo := Some(publishURL),
       EclipseKeys.withSource := true)
-      ++ site.settings 
+      ++ site.settings
       ++ site.includeScaladoc()
       ++ ghpages.settings ++
       Seq(

@@ -24,7 +24,7 @@ import scala.language.implicitConversions
 sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace] private[scalismo] (private[scalismo] val pointSequence: IndexedSeq[Point[D]])(implicit creator: CreateUnstructuredPointsDomain[D]) extends DiscreteDomain[D] {
 
   override def points: Iterator[Point[D]] = pointSequence.toIterator
-  override def numberOfPoints = points.size
+  override def numberOfPoints = pointSequence.size
 
   override def point(id: PointId) = pointSequence(id.id)
 
