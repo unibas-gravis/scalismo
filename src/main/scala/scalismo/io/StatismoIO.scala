@@ -17,10 +17,11 @@ package scalismo.io
 
 import java.io.File
 
-import scalismo.common.PointId
-import scalismo.geometry.{ _3D, Point }
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
+import scalismo.geometry.{ Point, _3D }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
-import scalismo.mesh.{ TriangleCell, TriangleMesh }
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
+import scalismo.mesh.TriangleMesh._
 import scalismo.statisticalmodel.StatisticalMeshModel
 
 import scala.util.Try
@@ -28,10 +29,8 @@ import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
 import scala.util.Failure
 import scala.util.Success
-import reflect.runtime.universe.TypeTag
 import java.util.Calendar
 import ncsa.hdf.`object`._
-import java.util.List
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 import java.io.DataInputStream
@@ -95,17 +94,17 @@ object StatismoIO {
    */
   def readStatismoMeshModel(file: File, modelPath: String = "/"): Try[StatisticalMeshModel] = {
 
-    def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
+    def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double], pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
       // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
       // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
       // We recover U from it.
 
-      val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l).toFloat)
+      val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l))
       val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) 1.0f / l else 0f)
 
       // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
       // (diag returns densematrix, so the direct computation would be very slow)
-      val U = DenseMatrix.zeros[Float](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
+      val U = DenseMatrix.zeros[Double](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
       for (i <- 0 until pcaBasisMatrix.cols) {
         U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
       }
@@ -129,7 +128,7 @@ object StatismoIO {
       }
 
       meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
-      meanVector = DenseVector(meanArray.data)
+      meanVector = DenseVector(meanArray.data.map(_.toDouble))
       pcaBasisArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaBasis")
       majorVersion <- if (h5file.exists("/version/majorVersion")) h5file.readInt("/version/majorVersion")
       else {
@@ -142,8 +141,8 @@ object StatismoIO {
         else Failure(new Throwable(s"no entry /version/minorVersion provided in statismo file."))
       }
       pcaVarianceArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaVariance")
-      pcaVarianceVector = DenseVector(pcaVarianceArray.data)
-      pcaBasisMatrix = ndArrayToMatrix(pcaBasisArray)
+      pcaVarianceVector = DenseVector(pcaVarianceArray.data.map(_.toDouble))
+      pcaBasisMatrix = ndFloatArrayToDoubleMatrix(pcaBasisArray)
       pcaBasis <- (majorVersion, minorVersion) match {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
@@ -157,7 +156,7 @@ object StatismoIO {
     } yield {
       // statismo stores the mean as the point position, not as a displacement on the reference.
       def flatten(v: IndexedSeq[Point[_3D]]) = DenseVector(v.flatten(pt => Array(pt(0), pt(1), pt(2))).toArray)
-      val refpointsVec = flatten(mesh.points.toIndexedSeq)
+      val refpointsVec = flatten(mesh.pointSet.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
       StatisticalMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
@@ -175,22 +174,22 @@ object StatismoIO {
 
   def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
-    val discretizedMean = model.mean.points.toIndexedSeq.flatten(_.toArray)
+    val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
 
     val pcaBasis = model.gp.basisMatrix.copy
     if (statismoVersion == v081) {
       // statismo 081 has the variance included in the pcaBasis
       for (i <- 0 until variance.length) {
-        pcaBasis(::, i) *= math.sqrt(variance(i)).toFloat
+        pcaBasis(::, i) *= math.sqrt(variance(i))
       }
     }
     val maybeError = for {
       h5file <- HDF5Utils.createFile(file)
-      _ <- h5file.writeArray(s"$modelPath/model/mean", discretizedMean.toArray)
-      _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
-      _ <- h5file.writeNDArray(s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols), pcaBasis.t.flatten(false).toArray))
-      _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", variance.toArray)
+      _ <- h5file.writeArray[Float](s"$modelPath/model/mean", discretizedMean.toArray.map(_.toFloat))
+      _ <- h5file.writeArray[Float](s"$modelPath/model/noiseVariance", Array(0f))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq, pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
+      _ <- h5file.writeArray[Float](s"$modelPath/model/pcaVariance", variance.toArray.map(_.toFloat))
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup(s"$modelPath/representer")
       _ <- if (statismoVersion == v090) {
@@ -221,8 +220,8 @@ object StatismoIO {
   private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
     val cellArray = model.referenceMesh.cells.map(_.ptId1.id) ++ model.referenceMesh.cells.map(_.ptId2.id) ++ model.referenceMesh.cells.map(_.ptId3.id)
-    val pts = model.referenceMesh.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
-    val pointArray = pts.map(_._1.toFloat) ++ pts.map(_._2.toFloat) ++ pts.map(_._3.toFloat)
+    val pts = model.referenceMesh.pointSet.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
+    val pointArray = pts.map(_._1) ++ pts.map(_._2) ++ pts.map(_._3)
 
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
@@ -231,7 +230,7 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
       _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(3, model.referenceMesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.points.size), pointArray.toArray))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.pointSet.points.size), pointArray.toArray.map(_.toFloat)))
     } yield Success(())
   }
 
@@ -239,7 +238,7 @@ object StatismoIO {
 
     // we simply store the reference into a vtk file and store the file (the binary data) into the representer
 
-    def refAsByteArray(ref: TriangleMesh): Try[Array[Byte]] = {
+    def refAsByteArray(ref: TriangleMesh[_3D]): Try[Array[Byte]] = {
       val tmpfile = File.createTempFile("temp", ".vtk")
       tmpfile.deleteOnExit()
       for {
@@ -265,49 +264,49 @@ object StatismoIO {
     } yield Success(())
   }
 
-  private def ndArrayToMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit, dummy2: DummyImplicit) = {
+  private def ndFloatArrayToDoubleMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit, dummy2: DummyImplicit): DenseMatrix[Double] = {
+    // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
+    // do switch dimensions and transpose
+    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
+  }
+
+  private def ndDoubleArrayToDoubleMatrix(array: NDArray[Double])(implicit dummy: DummyImplicit): DenseMatrix[Double] = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
-  private def ndArrayToMatrix(array: NDArray[Double])(implicit dummy: DummyImplicit) = {
-    // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
-    // do switch dimensions and transpose
-    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
-  }
-
-  private def ndArrayToMatrix(array: NDArray[Int]) = {
+  private def ndIntArrayToIntMatrix(array: NDArray[Int]) = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
 
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
-  private def readStandardMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh] = {
+  private def readStandardMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh[_3D]] = {
     for {
       vertArray <- h5file.readNDArray[Float](s"$modelPath/representer/points").flatMap(vertArray =>
         if (vertArray.dims(0) != 3)
           Failure(new Exception("the representer points are not 3D points"))
         else
           Success(vertArray))
-      vertMat = ndArrayToMatrix(vertArray)
+      vertMat = ndFloatArrayToDoubleMatrix(vertArray)
       points = for (i <- 0 until vertMat.cols) yield Point(vertMat(0, i), vertMat(1, i), vertMat(2, i))
       cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells").flatMap(cellArray =>
         if (cellArray.dims(0) != 3)
           Failure(new Exception("the representer cells are not triangles"))
         else
           Success(cellArray))
-      cellMat = ndArrayToMatrix(cellArray)
+      cellMat = ndIntArrayToIntMatrix(cellArray)
       cells = for (i <- 0 until cellMat.cols) yield TriangleCell(PointId(cellMat(0, i)), PointId(cellMat(1, i)), PointId(cellMat(2, i)))
       cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells")
-    } yield TriangleMesh(points, cells)
+    } yield TriangleMesh3D(UnstructuredPointsDomain(points), TriangleList(cells))
   }
 
   /*
    * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
    */
-  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh] = {
+  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh[_3D]] = {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)

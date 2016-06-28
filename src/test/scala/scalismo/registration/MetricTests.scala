@@ -27,10 +27,10 @@ class MetricTests extends ScalismoTestSuite {
   describe("A mean squares metric (1D)") {
     it("returns 0 if provided twice the same image") {
 
-      val domain = BoxDomain(0f, 1.0f)
-      val img = DifferentiableScalarImage(BoxDomain(0.0f, 1.0f),
-        (x: Point[_1D]) => x * x,
-        (x: Point[_1D]) => Vector(2f) * x(0))
+      val domain = BoxDomain(0.0, 1.0)
+      val img = DifferentiableScalarImage(BoxDomain(0.0, 1.0),
+        (x: Point[_1D]) => (x * x).toFloat,
+        (x: Point[_1D]) => Vector(2.0) * x(0))
       val transSpace = TranslationSpace[_1D]
       val identityTransform = transSpace.transformForParameters(transSpace.identityTransformParameters)
       val sampler = UniformSampler(domain, 1000)

@@ -102,7 +102,7 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
     var d = 0
     val indexData = new Array[Int](dimensionality)
     while (d < dimensionality) {
-      indexData(d) = Math.min(Math.round(cidx(d)), size(d) - 1)
+      indexData(d) = Math.min(Math.round(cidx(d)), size(d) - 1).toInt
       d += 1
     }
     IntVector[D](indexData)
@@ -113,13 +113,9 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
     Vector[D](data.toArray)
   }
 
-  def indexToPoint(i: IntVector[D]) = {
-    indexToPhysicalCoordinateTransform(Point[D](i.toArray.map(_.toFloat)))
-  }
+  def indexToPoint(i: IntVector[D]) = indexToPhysicalCoordinateTransform(Point[D](i.toArray.map(_.toDouble)))
 
-  private def isIndex(continuousIndex: Vector[D]): Boolean = {
-    (0 until dimensionality).forall(i => (continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8))
-  }
+  private def isIndex(continuousIndex: Vector[D]): Boolean = (0 until dimensionality).forall(i => continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8)
 
   /** the anisotropic similarity transform that maps between the index and physical coordinates*/
   private[scalismo] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
@@ -204,7 +200,7 @@ object DiscreteImageDomain {
    * defining the domain points
    *
    */
-  private[scalismo] def computeInnerAffineMatrix(domain: DiscreteImageDomain[_3D]): DenseMatrix[Float] = {
+  private[scalismo] def computeInnerAffineMatrix(domain: DiscreteImageDomain[_3D]): DenseMatrix[Double] = {
     val parameters = domain.indexToPhysicalCoordinateTransform.parameters
     val rotParams = parameters(3 to 5)
     val scalingParams = parameters(6 to 8)
@@ -233,7 +229,7 @@ case class DiscreteImageDomain1D(size: IntVector[_1D], indexToPhysicalCoordinate
   override def index(linearIdx: PointId) = IntVector(linearIdx.id)
   override def pointId(idx: IntVector[_1D]) = PointId(idx(0))
 
-  override val directions = SquareMatrix(1.0f)
+  override val directions = SquareMatrix(1.0)
 
   //  private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   //  private val inverseTransform = transform.inverse
@@ -395,7 +391,7 @@ object CreateDiscreteImageDomain {
 
   implicit object CreateDiscreteImageDomain1D extends CreateDiscreteImageDomain[_1D] {
     override def createImageDomain(origin: Point[_1D], spacing: Vector[_1D], size: IntVector[_1D]): DiscreteImageDomain[_1D] = {
-      val rigidParameters = origin.toArray ++ Array(0f)
+      val rigidParameters = origin.toArray ++ Array(0.0)
       val anisotropicScalingParameters = spacing.toArray
       val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_1D](Point(0)).transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
       new DiscreteImageDomain1D(size, anisotropSimTransform)
@@ -409,7 +405,7 @@ object CreateDiscreteImageDomain {
 
   implicit object CreateDiscreteImageDomain2D extends CreateDiscreteImageDomain[_2D] {
     override def createImageDomain(origin: Point[_2D], spacing: Vector[_2D], size: IntVector[_2D]): DiscreteImageDomain[_2D] = {
-      val rigidParameters = origin.toArray ++ Array(0f)
+      val rigidParameters = origin.toArray ++ Array(0.0)
       val anisotropicScalingParameters = spacing.toArray
       val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_2D](Point(0, 0)).transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
       new DiscreteImageDomain2D(size, anisotropSimTransform)
@@ -420,7 +416,7 @@ object CreateDiscreteImageDomain {
 
   implicit object CreateDiscreteImageDomain3D extends CreateDiscreteImageDomain[_3D] {
     override def createImageDomain(origin: Point[_3D], spacing: Vector[_3D], size: IntVector[_3D]): DiscreteImageDomain[_3D] = {
-      val rigidParameters = origin.toArray ++ Array(0f, 0f, 0f)
+      val rigidParameters = origin.toArray ++ Array(0.0, 0.0, 0.0)
       val anisotropicScalingParameters = spacing.toArray
       val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
       new DiscreteImageDomain3D(size, anisotropSimTransform)

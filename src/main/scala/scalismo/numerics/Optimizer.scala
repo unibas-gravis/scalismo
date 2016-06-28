@@ -21,13 +21,13 @@ import breeze.optimize.DiffFunction
 import scalismo.registration.TransformationSpace.ParameterVector
 import scala.collection.Iterator
 
-trait CostFunction extends (ParameterVector => (Float, DenseVector[Float])) {
+trait CostFunction extends (ParameterVector => (Double, DenseVector[Double])) {
   def onlyValue(p: ParameterVector): Double
 }
 
 trait Optimizer {
 
-  case class State(iteration: Int, value: Double, gradient: DenseVector[Float], parameters: ParameterVector, stepLength: Double)
+  case class State(iteration: Int, value: Double, gradient: DenseVector[Double], parameters: ParameterVector, stepLength: Double)
 
   def iterations(x0: ParameterVector, c: CostFunction): Iterator[State]
   def minimize(x0: ParameterVector, c: CostFunction): ParameterVector
@@ -45,13 +45,13 @@ case class LBFGSOptimizer(numIterations: Int, m: Int = 10, tolerance: Double = 1
   private def optimize(x0: ParameterVector, c: CostFunction): Iterator[State] = {
     val f = new DiffFunction[DenseVector[Double]] {
       def calculate(x: DenseVector[Double]) = {
-        val (v, g) = c(x.map(_.toFloat))
+        val (v, g) = c(x)
         (v.toDouble, g.map(_.toDouble))
       }
     }
     val lbfgs = new LBFGS[DenseVector[Double]](maxIter = numIterations, m = m, tolerance = tolerance)
     for (it <- lbfgs.iterations(f, x0.map(_.toDouble)))
-      yield State(it.iter, it.value, it.grad.map(_.toFloat), it.x.map(_.toFloat), 0)
+      yield State(it.iter, it.value, it.grad, it.x, 0)
   }
 }
 
@@ -61,7 +61,7 @@ case class GradientDescentOptimizer(numIterations: Int,
     robinsMonroe: Boolean = false,
     stepDecreaseCoeff: Double = 0.0) extends Optimizer {
 
-  private def goldenSectionLineSearch(nbPoints: Int, xk: ParameterVector, lowerLimit: Double, upperLimit: Double, normalizedGradient: DenseVector[Float], f: CostFunction): Double = {
+  private def goldenSectionLineSearch(nbPoints: Int, xk: ParameterVector, lowerLimit: Double, upperLimit: Double, normalizedGradient: DenseVector[Double], f: CostFunction): Double = {
     val r = 0.618
 
     var ll = lowerLimit
@@ -72,8 +72,8 @@ case class GradientDescentOptimizer(numIterations: Int,
     val xs = new Array[Double](nbPoints)
     val fs = new Array[Double](nbPoints)
 
-    var fb = f.onlyValue(xk + normalizedGradient * b.toFloat)
-    var fc = f.onlyValue(xk + normalizedGradient * c.toFloat)
+    var fb = f.onlyValue(xk + normalizedGradient * b)
+    var fc = f.onlyValue(xk + normalizedGradient * c)
     xs(0) = b
     xs(1) = c
     fs(0) = fb
@@ -85,7 +85,7 @@ case class GradientDescentOptimizer(numIterations: Int,
         b = c
         fb = fc
         c = ll + r * (ul - ll)
-        fc = f.onlyValue(xk + normalizedGradient * c.toFloat)
+        fc = f.onlyValue(xk + normalizedGradient * c)
         xs(i) = c
         fs(i) = fc
       } else {
@@ -93,7 +93,7 @@ case class GradientDescentOptimizer(numIterations: Int,
         c = b
         fc = fb
         b = ll + (1 - r) * (ul - ll)
-        fb = f.onlyValue(xk + normalizedGradient * b.toFloat)
+        fb = f.onlyValue(xk + normalizedGradient * b)
         xs(i) = b
         fs(i) = fb
       }
@@ -125,17 +125,17 @@ case class GradientDescentOptimizer(numIterations: Int,
 
       if (withLineSearch) {
         val step = goldenSectionLineSearch(8, x, 0, stepLength, gradient, c)
-        val newParam = x - gradient * step.toFloat
+        val newParam = x - gradient * step
 
         Iterator(State(it, newValue, gradient, newParam, step)) ++ optimize(newParam, c, it + 1)
 
       } else if (robinsMonroe) {
         val step = stepLength / Math.pow(it + (numIterations * 0.1), stepDecreaseCoeff)
-        val newParam = x - gradient * step.toFloat
-        Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * step.toFloat, c, it + 1)
+        val newParam = x - gradient * step
+        Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * step, c, it + 1)
       } else {
-        val newParam = x - gradient * stepLength.toFloat
-        Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * stepLength.toFloat, c, it + 1)
+        val newParam = x - gradient * stepLength
+        Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * stepLength, c, it + 1)
       }
     }
   }

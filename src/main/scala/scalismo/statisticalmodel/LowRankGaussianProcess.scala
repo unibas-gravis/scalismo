@@ -49,12 +49,12 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * an instance of the gaussian process, which is formed by a linear combination of the klt basis using the given coefficients c.
    * @param c Coefficients that determine the linear combination. Are assumed to be N(0,1) distributed.
    */
-  def instance(c: DenseVector[Float]): VectorField[D, DO] = {
+  def instance(c: DenseVector[Double]): VectorField[D, DO] = {
     require(klBasis.size == c.size)
     val f: Point[D] => Vector[DO] = x => {
       val deformationsAtX = klBasis.indices.map(i => {
         val Eigenpair(lambda_i, phi_i) = klBasis(i)
-        phi_i(x) * c(i) * math.sqrt(lambda_i).toFloat
+        phi_i(x) * c(i) * math.sqrt(lambda_i)
       })
       deformationsAtX.foldLeft(mean(x))(_ + _)
     }
@@ -65,7 +65,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * A random sample of the gaussian process
    */
   def sample: VectorField[D, DO] = {
-    val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw().toFloat
+    val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 
@@ -107,10 +107,10 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
    * are subject to 0 mean Gaussian noise
    */
-  def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): DenseVector[Float] =
+  def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO], NDimensionalNormalDistribution[DO])]): DenseVector[Double] =
     {
       val (minv, qtL, yVec, mVec) = LowRankGaussianProcess.genericRegressionComputations(this, trainingData)
-      val mean_coeffs = (minv * qtL).map(_.toFloat) * (yVec - mVec)
+      val mean_coeffs = (minv * qtL) * (yVec - mVec)
       mean_coeffs
     }
 
@@ -118,7 +118,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    * Returns the sample of the coefficients of the sample that best explains the given training data. It is assumed that the training data (values)
    * are subject to 0 mean Gaussian noise
    */
-  def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): DenseVector[Float] = {
+  def coefficients(trainingData: IndexedSeq[(Point[D], Vector[DO])], sigma2: Double): DenseVector[Double] = {
     val cov = NDimensionalNormalDistribution(Vector.zeros[DO], SquareMatrix.eye[DO] * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
     coefficients(newtd)
@@ -127,9 +127,9 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
   /**
    * Returns the probability density of the instance produced by the x coefficients
    */
-  def pdf(coefficients: DenseVector[Float]) = {
+  def pdf(coefficients: DenseVector[Double]): Double = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
     mvnormal.pdf(coefficients)
   }
 
@@ -138,9 +138,9 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
    *
    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
    */
-  def logpdf(coefficients: DenseVector[Float]) = {
+  def logpdf(coefficients: DenseVector[Double]): Double = {
     if (coefficients.size != rank) throw new Exception(s"invalid vector dimensionality (provided ${coefficients.size} should be $rank)")
-    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Float](rank), diag(DenseVector.ones[Float](rank)))
+    val mvnormal = MultivariateNormalDistribution(DenseVector.zeros[Double](rank), diag(DenseVector.ones[Double](rank)))
     mvnormal.logpdf(coefficients)
   }
 
@@ -168,7 +168,7 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, DO <: Dim: NDSpace](mean: Vector
  */
 object LowRankGaussianProcess {
 
-  case class Eigenpair[D <: Dim, DO <: Dim](eigenvalue: Float, eigenfunction: VectorField[D, DO])
+  case class Eigenpair[D <: Dim, DO <: Dim](eigenvalue: Double, eigenfunction: VectorField[D, DO])
   type KLBasis[D <: Dim, DO <: Dim] = Seq[Eigenpair[D, DO]]
 
   /**
@@ -216,20 +216,20 @@ object LowRankGaussianProcess {
     val outputDim = implicitly[NDSpace[DO]].dimensionality
 
     val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
-    val mean_coeffs = (_Minv * _QtL).map(_.toFloat) * (yVec - mVec)
+    val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
 
     val mean_p = gp.instance(mean_coeffs)
 
     val D = breeze.linalg.diag(DenseVector(gp.klBasis.map(basisPair => Math.sqrt(basisPair.eigenvalue)).toArray))
     val Sigma = D * _Minv * D
     val SVD(innerUDbl, innerD2, _) = breeze.linalg.svd(Sigma)
-    val innerU = innerUDbl.map(_.toFloat)
+    val innerU = innerUDbl
 
     def phip(i: Int)(x: Point[D]): Vector[DO] = {
       // should be phi_p but _ is treated as partial function
       val phisAtX = {
         val newPhisAtX = {
-          val innerPhisAtx = DenseMatrix.zeros[Float](outputDim, gp.rank)
+          val innerPhisAtx = DenseMatrix.zeros[Double](outputDim, gp.rank)
 
           for ((eigenPair, j) <- gp.klBasis.zipWithIndex) {
             val phi_j = eigenPair.eigenfunction
@@ -245,8 +245,8 @@ object LowRankGaussianProcess {
 
     val klBasis_p = for (i <- gp.klBasis.indices) yield {
       val phipi_memo = Memoize(phip(i), 1000)
-      val newEf = (VectorField(gp.domain, (x: Point[D]) => phipi_memo(x)))
-      val newEv = innerD2(i).toFloat
+      val newEf = VectorField(gp.domain, (x: Point[D]) => phipi_memo(x))
+      val newEv = innerD2(i)
       Eigenpair(newEv, newEf)
     }
     new LowRankGaussianProcess[D, DO](mean_p, klBasis_p)

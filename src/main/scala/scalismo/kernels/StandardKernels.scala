@@ -103,13 +103,13 @@ class BSplineKernel3D(order: Int, scale: Int) extends BSplineKernel[_3D](order, 
 
   val spline = BSpline.nthOrderBSpline(order) _
 
-  def bspline3D(x1: Float, x2: Float, x3: Float) = {
+  def bspline3D(x1: Double, x2: Double, x3: Double) = {
     spline(x1) * spline(x2) * spline(x3)
   }
 
   val c: Double = scala.math.pow(2.0, scale)
   val O: Double = 0.5 * (order + 1)
-  val two_j: Float = c.toFloat
+  val two_j: Double = c
 
   override def k(x: Point[_3D], y: Point[_3D]) = {
 
@@ -159,13 +159,13 @@ class BSplineKernel3D(order: Int, scale: Int) extends BSplineKernel[_3D](order, 
 private class BSplineKernel2D(order: Int, scale: Int) extends BSplineKernel[_2D](order, scale) {
 
   private val spline = BSpline.nthOrderBSpline(order) _
-  def bspline2D(x1: Float, x2: Float) = {
+  def bspline2D(x1: Double, x2: Double) = {
     spline(x1) * spline(x2)
   }
 
   val c: Double = scala.math.pow(2.0, scale)
   val O: Double = 0.5 * (order + 1)
-  val two_j: Float = c.toFloat
+  val two_j: Double = c
 
   override def k(x: Point[_2D], y: Point[_2D]) = {
 
@@ -210,7 +210,7 @@ private class BSplineKernel1D(order: Int, scale: Int) extends BSplineKernel[_1D]
 
   val c: Double = scala.math.pow(2.0, scale)
   val O: Double = 0.5 * (order + 1)
-  val two_j: Float = c.toFloat
+  val two_j: Double = c
 
   override def k(x: Point[_1D], y: Point[_1D]) = {
 

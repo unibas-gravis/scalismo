@@ -18,7 +18,7 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
-import scalismo.common.{ Domain, Field }
+import scalismo.common.{ Domain, Field, VectorField }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.image.filter.DiscreteImageFilter
@@ -128,7 +128,7 @@ case class GaussianGradientImagePreprocessor(stddev: Float, override val ioMetad
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
-    val gradientImage = {
+    val gradientImage: VectorField[_3D, _3D] = {
       if (stddev > 0) {
         DiscreteImageFilter.gaussianSmoothing(inputImage, stddev)
       } else {
@@ -139,7 +139,7 @@ case class GaussianGradientImagePreprocessor(stddev: Float, override val ioMetad
     override def domain: Domain[_3D] = gradientImage.domain
 
     override protected[scalismo] val f: (Point[_3D]) => DenseVector[Float] = { point =>
-      gradientImage(point).toBreezeVector
+      gradientImage(point).toFloatBreezeVector
     }
   }
 }

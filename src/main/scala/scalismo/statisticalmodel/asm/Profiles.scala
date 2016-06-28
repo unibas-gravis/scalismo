@@ -38,7 +38,7 @@ case class Profiles(private[scalismo] val data: immutable.IndexedSeq[Profile]) {
  *
  */
 
-case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: DiscreteDomain[D], _values: IndexedSeq[DenseVector[Float]]) extends DiscreteField[D, DenseVector[Float]] {
+case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: DiscreteDomain[D], _values: IndexedSeq[DenseVector[Double]]) extends DiscreteField[D, DenseVector[Double]] {
 
   override def apply(id: PointId) = _values(id.id)
 
@@ -46,7 +46,7 @@ case class DiscreteFeatureField[D <: Dim: NDSpace](override val domain: Discrete
 
   override def values = _values.toIterator
 
-  override def interpolateNearestNeighbor(): Field[D, DenseVector[Float]] = {
+  override def interpolateNearestNeighbor(): Field[D, DenseVector[Double]] = {
     Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
 }

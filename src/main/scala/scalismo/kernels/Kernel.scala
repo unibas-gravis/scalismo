@@ -18,7 +18,8 @@ package scalismo.kernels
 import breeze.linalg.{ DenseMatrix, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.{ RandomSVD, Sampler }
+import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
+import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
 
@@ -132,7 +133,7 @@ private[kernels] case class IsotropicDiagonalKernel[D <: Dim: NDSpace](kernel: P
 }
 
 private[kernels] case class AnisotropicDiagonalKernel[D <: Dim: NDSpace](kernels: IndexedSeq[PDKernel[D]]) extends DiagonalKernel[D] {
-  def k(x: Point[D], y: Point[D]) = SquareMatrix.diag(Vector(kernels.map(k => k(x, y).toFloat).toArray))
+  def k(x: Point[D], y: Point[D]) = SquareMatrix.diag(Vector(kernels.map(k => k(x, y)).toArray))
   override def domain = kernels.map(_.domain).reduce(Domain.intersection(_, _))
 }
 
@@ -161,11 +162,11 @@ case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D, D
 
 object Kernel {
 
-  def computeKernelMatrix[D <: Dim, DO <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, DO]): DenseMatrix[Float] = {
+  def computeKernelMatrix[D <: Dim, DO <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D, DO]): DenseMatrix[Double] = {
 
     val d = k.outputDim
 
-    val K = DenseMatrix.zeros[Float](xs.size * d, xs.size * d)
+    val K = DenseMatrix.zeros[Double](xs.size * d, xs.size * d)
 
     var i = 0
     while (i < xs.size) {
@@ -234,8 +235,7 @@ object Kernel {
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
-    val kernelMatrix = computeKernelMatrix(ptsForNystrom, k).map(_.toDouble)
-    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(kernelMatrix, numBasisFunctions)
+    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, NumberOfEigenfunctions(numBasisFunctions))
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
@@ -248,12 +248,12 @@ object Kernel {
     def phi(i: Int)(x: Point[D]) = {
       val value = computePhisMemoized(x)
       // extract the right entry for the i-th phi function
-      Vector[DO](value(::, i).toArray.map(_.toFloat))
+      Vector[DO](value(::, i).toArray)
 
     }
 
     for (i <- 0 until numParams) yield {
-      Eigenpair(lambda(i).toFloat, VectorField(k.domain, phi(i)_))
+      Eigenpair(lambda(i), VectorField(k.domain, phi(i)_))
     }
   }
 

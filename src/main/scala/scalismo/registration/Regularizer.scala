@@ -20,12 +20,12 @@ import breeze.linalg.DenseVector
 
 trait Regularizer extends (ParameterVector => Double) {
 
-  def takeDerivative(p: ParameterVector): DenseVector[Float]
+  def takeDerivative(p: ParameterVector): DenseVector[Double]
 }
 
 object L2Regularizer extends Regularizer {
   def apply(alpha: ParameterVector) = { val t = breeze.linalg.norm(alpha, 2); t * t }
 
-  def takeDerivative(alpha: ParameterVector) = alpha * 2f
+  def takeDerivative(alpha: ParameterVector) = alpha * 2.0
 
 }

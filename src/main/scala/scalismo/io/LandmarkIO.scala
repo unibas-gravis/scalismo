@@ -29,29 +29,29 @@ import scala.util.{ Failure, Try }
 
 object LandmarkIO {
 
-  private case class Uncertainty(stddevs: List[Float], pcvectors: List[List[Float]])
+  private case class Uncertainty(stddevs: List[Double], pcvectors: List[List[Double]])
 
   private implicit val uncertaintyProtocol = jsonFormat2(Uncertainty.apply)
 
   private implicit def u2m[D <: Dim: NDSpace](u: Uncertainty): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     val pcs: Seq[Vector[D]] = u.pcvectors.take(dim).map { l => Vector(l.take(dim).toArray) }
-    val variances: Seq[Float] = u.stddevs.take(dim).map(f => f * f)
+    val variances: Seq[Double] = u.stddevs.take(dim).map(f => f * f)
     val mean: Vector[D] = Vector(Array.fill(dim)(0.0f))
     NDimensionalNormalDistribution(mean, pcs.zip(variances))
   }
 
   private implicit def m2u[D <: Dim: NDSpace](m: NDimensionalNormalDistribution[D]): Uncertainty = {
     val (pcs, variances) = m.principalComponents.unzip
-    val stdDevs: List[Float] = variances.map(Math.sqrt(_).toFloat).toList
-    val pcList: List[List[Float]] = pcs.map(v => v.toArray.toList).toList
+    val stdDevs: List[Double] = variances.map(Math.sqrt(_)).toList
+    val pcList: List[List[Double]] = pcs.map(v => v.toArray.toList).toList
     Uncertainty(stdDevs, pcList)
   }
 
   private case class LandmarkJsonFormat[D <: Dim: NDSpace]() extends JsonFormat[Landmark[D]] {
     def write(l: Landmark[D]) = {
       val fixedMap = Map("id" -> JsString(l.id),
-        "coordinates" -> arrayFormat[Float].write(l.point.toArray))
+        "coordinates" -> arrayFormat[Double].write(l.point.toArray))
       val descriptionMap = l.description.map { d => Map("description" -> JsString(d)) }.getOrElse(Map())
       val uncertaintyMap = l.uncertainty.map { u => Map("uncertainty" -> uncertaintyProtocol.write(u)) }.getOrElse(Map())
       JsObject(fixedMap ++ descriptionMap ++ uncertaintyMap)
@@ -59,7 +59,7 @@ object LandmarkIO {
 
     def read(value: JsValue) = {
       val (id, coordinates) = value.asJsObject.getFields("id", "coordinates") match {
-        case Seq(i, c) => (i.convertTo[String], c.convertTo[Array[Float]])
+        case Seq(i, c) => (i.convertTo[String], c.convertTo[Array[Double]])
         case _ => throw new DeserializationException("No coordinates or landmark id Found")
       }
       val description = value.asJsObject.getFields("description").headOption.map(_.convertTo[String])
@@ -132,11 +132,11 @@ object LandmarkIO {
     }
   }
 
-  private def readLandmarksCsvRaw(source: Source): Try[immutable.Seq[(String, Array[Float])]] = {
+  private def readLandmarksCsvRaw(source: Source): Try[immutable.Seq[(String, Array[Double])]] = {
     val result = Try {
       val landmarks = for (line <- source.getLines() if line.nonEmpty && line(0) != '#') yield {
         val elements = line.split(',')
-        (elements(0).trim, elements.slice(1, 4).map(_.toFloat))
+        (elements(0).trim, elements.slice(1, 4).map(_.toDouble))
       }
       landmarks.toIndexedSeq
     }

@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel.asm
 
-import breeze.linalg.DenseVector
+import breeze.linalg.{ DenseVector, convert }
 import scalismo.common.{ UnstructuredPointsDomain3D, PointId }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
@@ -33,16 +33,16 @@ object ActiveShapeModel {
   /**
    * Train an active shape model using an existing PCA model
    */
-  def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh => Sampler[_3D]): ActiveShapeModel = {
+  def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
     val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
-    val pointIds = sampled.map(statisticalModel.referenceMesh.findClosestPoint(_).id)
+    val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
     val imageFeatures = trainingData.flatMap {
       case (image, transform) =>
         val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
-        pointIds.map { pointId => featureExtractor(pimg, mesh.point(pointId), mesh, pointId) }
+        pointIds.map { pointId => featureExtractor(pimg, mesh.pointSet.point(pointId), mesh, pointId) }
     }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -51,7 +51,7 @@ object ActiveShapeModel {
     val imageRange = (0 until imageFeatures.length / pointsLength).toIndexedSeq
     val pointFeatures = (0 until pointsLength).toIndexedSeq.map { pointIndex =>
       val featuresForPoint = imageRange.flatMap { imageIndex =>
-        imageFeatures(imageIndex * pointsLength + pointIndex)
+        imageFeatures(imageIndex * pointsLength + pointIndex).map(convert(_, Double))
       }
       MultivariateNormalDistribution.estimateFromData(featuresForPoint)
     }
@@ -66,7 +66,7 @@ object ActiveShapeModel {
  * the Shape Model, and a set of sample features at the profile points.
  *
  */
-case class ASMSample(mesh: TriangleMesh, featureField: DiscreteFeatureField[_3D], featureExtractor: FeatureExtractor)
+case class ASMSample(mesh: TriangleMesh[_3D], featureField: DiscreteFeatureField[_3D], featureExtractor: FeatureExtractor)
 
 case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor) {
 
@@ -75,7 +75,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def mean(): ASMSample = {
     val smean = statisticalModel.mean
-    val meanProfilePoints = profiles.data.map(p => smean.point(p.pointId))
+    val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val meanFeatures = profiles.data.map(_.distribution.mean)
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
     ASMSample(smean, featureField, featureExtractor)
@@ -86,7 +86,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def sample(): ASMSample = {
     val sampleMesh = statisticalModel.sample
-    val randomProfilePoints = profiles.data.map(p => sampleMesh.point(p.pointId))
+    val randomProfilePoints = profiles.data.map(p => sampleMesh.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
@@ -98,7 +98,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    */
   def sampleFeaturesOnly(): ASMSample = {
     val smean = statisticalModel.mean
-    val meanProfilePoints = profiles.data.map(p => smean.point(p.pointId))
+    val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(smean, featureField, featureExtractor)
@@ -147,8 +147,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * @see [[fit()]] for a description of the parameters.
    *
    */
-  def fitIterator(targetImage: DiscreteScalarImage[_3D, Float], searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, startingTransformations: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
-    fitIteratorPreprocessed(preprocessor(targetImage), searchPointSampler, iterations, config, startingTransformations)
+  def fitIterator(targetImage: DiscreteScalarImage[_3D, Float], searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, initialTransform: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
+    fitIteratorPreprocessed(preprocessor(targetImage), searchPointSampler, iterations, config, initialTransform)
   }
 
   /**
@@ -156,7 +156,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * @see [[fit()]] for a description of the parameters.
    *
    */
-  def fitIteratorPreprocessed(image: PreprocessedImage, searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, startingTransformations: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
+  def fitIteratorPreprocessed(image: PreprocessedImage, searchPointSampler: SearchPointSampler, iterations: Int, config: FittingConfiguration = FittingConfiguration.Default, initialTransform: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
     require(iterations > 0, "number of iterations must be strictly positive")
 
     new Iterator[Try[FittingResult]] {
@@ -166,26 +166,26 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
       override def hasNext = nextCount < iterations && (lastResult.isEmpty || lastResult.get.isSuccess)
 
       override def next() = {
-        val mesh = lastResult.map(_.get.mesh).getOrElse(statisticalModel.instance(startingTransformations.coefficients).transform(startingTransformations.rigidTransform))
-        lastResult = Some(fitOnce(image, searchPointSampler, config, mesh))
+        val mesh = lastResult.map(_.get.mesh).getOrElse(statisticalModel.instance(initialTransform.coefficients).transform(initialTransform.rigidTransform))
+        lastResult = Some(fitOnce(image, searchPointSampler, config, mesh, initialTransform.rigidTransform))
         nextCount += 1
         lastResult.get
       }
     }
   }
 
-  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh): Try[FittingResult] = {
-    val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config)
+  private def fitOnce(image: PreprocessedImage, sampler: SearchPointSampler, config: FittingConfiguration, mesh: TriangleMesh[_3D], poseTransform: RigidTransformation[_3D]): Try[FittingResult] = {
+    val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, poseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
       Failure(new IllegalStateException("No point correspondences found. You may need to relax the configuration thresholds."))
     } else Try {
 
-      val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.point(refPtId), tgtPt) }
+      val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.pointSet.point(refPtId), tgtPt) }
       val bestRigidTransform = LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts)
 
       val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (refPtId, bestRigidTransform.inverse(tgtPt)) }
-      val bestReconstruction = statisticalModel.posterior(refPtIdsWithTargetPtAtModelSpace, 1e-5f).mean
+      val bestReconstruction = statisticalModel.posterior(refPtIdsWithTargetPtAtModelSpace, 1e-5).mean
       val coeffs = statisticalModel.coefficients(bestReconstruction)
 
       val boundedCoeffs = coeffs.map { c => Math.min(config.modelCoefficientBounds, Math.max(-config.modelCoefficientBounds, c)) }
@@ -195,12 +195,12 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     }
   }
 
-  private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.point(profiles(profileId).pointId)
+  private def refPoint(profileId: ProfileId): Point[_3D] = statisticalModel.referenceMesh.pointSet.point(profiles(profileId).pointId)
 
-  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh, sampler: SearchPointSampler, config: FittingConfiguration): IndexedSeq[(PointId, Point[_3D])] = {
+  private def findBestCorrespondingPoints(img: PreprocessedImage, mesh: TriangleMesh[_3D], sampler: SearchPointSampler, config: FittingConfiguration, poseTransform: RigidTransformation[_3D]): IndexedSeq[(PointId, Point[_3D])] = {
 
     val matchingPts = profiles.ids.par.map { index =>
-      (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId))
+      (profiles(index).pointId, findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform))
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
@@ -208,7 +208,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
   }
 
-  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh, profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId): Option[Point[_3D]] = {
+  private def findBestMatchingPointAtPoint(image: PreprocessedImage, mesh: TriangleMesh[_3D], profileId: ProfileId, searchPointSampler: SearchPointSampler, config: FittingConfiguration, pointId: PointId, poseTransform: RigidTransformation[_3D]): Option[Point[_3D]] = {
     val sampledPoints = searchPointSampler(mesh, pointId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
@@ -224,10 +224,14 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
       if (bestFeatureDistance <= config.featureDistanceThreshold) {
         val refPoint = this.refPoint(profileId)
-        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(bestPoint - refPoint)
+
+        /** Attention: checking for the deformation vector's pdf needs to be done in the model space !**/
+        val inversePoseTransform = poseTransform.inverse
+        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(inversePoseTransform(bestPoint) - refPoint)
         if (bestPointDistance <= config.pointDistanceThreshold) {
           Some(bestPoint)
         } else {
+
           // point distance above user-set threshold
           None
         }
@@ -238,7 +242,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     }
   }
 
-  private def featureDistance(pid: ProfileId, features: DenseVector[Float]): Double = {
+  private def featureDistance(pid: ProfileId, features: DenseVector[Double]): Double = {
     val mvdAtPoint = profiles(pid).distribution
     mvdAtPoint.mahalanobisDistance(features)
   }
@@ -251,10 +255,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
  * @param pointDistanceThreshold threshold for point distance: If the mahalanobis distance of a candidate point to its corresponding marginal distribution is larger than this value, then that candidate point will be ignored during fitting.
  * @param modelCoefficientBounds bounds to apply on the model coefficients. In other words, by setting this to n, all coefficients of the fitting result will be restricted to the interval [-n, n].
  */
-case class FittingConfiguration(featureDistanceThreshold: Float, pointDistanceThreshold: Float, modelCoefficientBounds: Float)
+case class FittingConfiguration(featureDistanceThreshold: Double, pointDistanceThreshold: Double, modelCoefficientBounds: Double)
 
 object FittingConfiguration {
-  lazy val Default = FittingConfiguration(featureDistanceThreshold = 5.0f, pointDistanceThreshold = 5.0f, modelCoefficientBounds = 3.0f)
+  lazy val Default = FittingConfiguration(featureDistanceThreshold = 5.0, pointDistanceThreshold = 5.0, modelCoefficientBounds = 3.0)
 }
 
 /**
@@ -265,7 +269,7 @@ object FittingConfiguration {
  * @param coefficients model coefficients to apply. These determine the shape transformation.
  * @param rigidTransform rigid transformation to apply. These determine translation and rotation.
  */
-case class ModelTransformations(coefficients: DenseVector[Float], rigidTransform: RigidTransformation[_3D])
+case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: RigidTransformation[_3D])
 
 /**
  * Fitting results.
@@ -276,4 +280,4 @@ case class ModelTransformations(coefficients: DenseVector[Float], rigidTransform
  * @param transformations transformations to apply to the model
  * @param mesh the mesh resulting from applying these transformations
  */
-case class FittingResult(transformations: ModelTransformations, mesh: TriangleMesh)
+case class FittingResult(transformations: ModelTransformations, mesh: TriangleMesh[_3D])

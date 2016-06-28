@@ -20,21 +20,21 @@ import breeze.linalg.DenseMatrix
 /**
  * Simple square matrix class of dimension D x D. The data is stored in column major ordering
  */
-class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array[Float]) {
+class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array[Double]) {
 
   val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
   val ndSpace = NDSpace[D]
 
-  def apply(i: Int, j: Int): Float = {
+  def apply(i: Int, j: Int): Double = {
     val d = dimensionality
     data(i + d * j)
   }
 
-  def toBreezeMatrix: DenseMatrix[Float] = DenseMatrix.create(dimensionality, dimensionality, data)
+  def toBreezeMatrix: DenseMatrix[Double] = DenseMatrix.create(dimensionality, dimensionality, data)
 
-  def *(s: Float): SquareMatrix[D] = {
+  def *(s: Double): SquareMatrix[D] = {
     val numElements = dimensionality * dimensionality
-    val newData = new Array[Float](numElements)
+    val newData = new Array[Double](numElements)
     var i = 0
     while (i < numElements) {
       newData(i) = data(i) * s
@@ -43,15 +43,13 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
     SquareMatrix[D](newData)
   }
 
-  def *(s: Double): SquareMatrix[D] = this * s.toFloat
-
   def *(that: Vector[D]): Vector[D] = {
 
-    val newData = new Array[Float](dimensionality)
+    val newData = new Array[Double](dimensionality)
 
     var i = 0
     while (i < dimensionality) {
-      var v = 0.0f
+      var v = 0.0
       var j = 0
       while (j < dimensionality) {
         v += this(i, j) * that(j)
@@ -65,13 +63,13 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
 
   def *(that: SquareMatrix[D]): SquareMatrix[D] = {
 
-    val newData = new Array[Float](dimensionality * dimensionality)
+    val newData = new Array[Double](dimensionality * dimensionality)
 
     var k = 0
     while (k < dimensionality) {
       var i = 0
       while (i < dimensionality) {
-        var v = 0.0f
+        var v = 0.0
         var j = 0
         while (j < dimensionality) {
           v += this(i, j) * that(j, k)
@@ -87,7 +85,7 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
 
   def -(that: SquareMatrix[D]): SquareMatrix[D] = {
     val dim2 = dimensionality * dimensionality
-    val newData = new Array[Float](dim2)
+    val newData = new Array[Double](dim2)
     var i = 0
     while (i < dim2) {
       newData(i) = this.data(i) - that.data(i)
@@ -98,7 +96,7 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
 
   def +(that: SquareMatrix[D]): SquareMatrix[D] = {
     val dim2 = dimensionality * dimensionality
-    val newData = new Array[Float](dim2)
+    val newData = new Array[Double](dim2)
     var i = 0
     while (i < dim2) {
       newData(i) = this.data(i) + that.data(i)
@@ -109,7 +107,7 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
 
   def :*(that: SquareMatrix[D]): SquareMatrix[D] = {
     val dim2 = dimensionality * dimensionality
-    val newData = new Array[Float](dim2)
+    val newData = new Array[Double](dim2)
     var i = 0
     while (i < dim2) {
       newData(i) = this.data(i) * that.data(i)
@@ -150,21 +148,21 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
 
 object SquareMatrix {
 
-  def apply(f: Float): SquareMatrix[_1D] = new SquareMatrix[_1D](Array(f))
-  def apply(row1: (Float, Float), row2: (Float, Float)): SquareMatrix[_2D] = {
+  def apply(d: Double): SquareMatrix[_1D] = new SquareMatrix[_1D](Array(d))
+  def apply(row1: (Double, Double), row2: (Double, Double)): SquareMatrix[_2D] = {
     new SquareMatrix[_2D](Array(row1._1, row2._1, row1._2, row2._2))
   }
 
-  type TupleF = (Float, Float, Float)
+  type TupleF = (Double, Double, Double)
   def apply(row1: TupleF, row2: TupleF, row3: TupleF): SquareMatrix[_3D] = {
     new SquareMatrix[_3D](Array(row1._1, row2._1, row3._1, row1._2, row2._2, row3._2, row1._3, row2._3, row3._3))
   }
 
-  def apply[D <: Dim: NDSpace](d: Array[Float]) = new SquareMatrix[D](d)
+  def apply[D <: Dim: NDSpace](d: Array[Double]) = new SquareMatrix[D](d)
 
   def eye[D <: Dim](implicit ev: NDSpace[D]): SquareMatrix[D] = {
     val dim = ev.dimensionality
-    val data = Array.fill(dim * dim)(0f)
+    val data = Array.fill(dim * dim)(0.0)
     for (i <- 0 until dim) {
       data(i * dim + i) = 1
     }
@@ -173,7 +171,7 @@ object SquareMatrix {
 
   def diag[D <: Dim](vector: Vector[D])(implicit ev: NDSpace[D]): SquareMatrix[D] = {
     val dim = ev.dimensionality
-    val data = Array.fill(dim * dim)(0f)
+    val data = Array.fill(dim * dim)(0.0)
     for (i <- 0 until dim) {
       data(i * dim + i) = vector(i)
     }
@@ -183,15 +181,15 @@ object SquareMatrix {
   def zeros[D <: Dim: NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](0)
   def ones[D <: Dim: NDSpace]: SquareMatrix[D] = SquareMatrix.fill[D](1)
 
-  def fill[D <: Dim: NDSpace](elem: => Float): SquareMatrix[D] = {
+  def fill[D <: Dim: NDSpace](elem: => Double): SquareMatrix[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
-    val data = Array.fill[Float](dim * dim)(elem)
+    val data = Array.fill[Double](dim * dim)(elem)
     new SquareMatrix[D](data)
   }
 
   def inv[D <: Dim: NDSpace](m: SquareMatrix[D]): SquareMatrix[D] = {
     val bm = m.toBreezeMatrix
     val bmInv: DenseMatrix[Double] = breeze.linalg.inv(bm)
-    new SquareMatrix[D](bmInv.data.map(_.toFloat))
+    new SquareMatrix[D](bmInv.data)
   }
 }

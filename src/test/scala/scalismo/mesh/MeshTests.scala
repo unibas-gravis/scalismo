@@ -19,7 +19,7 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.PointId
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{ Point, _3D }
 import scalismo.io.MeshIO
@@ -38,8 +38,8 @@ class MeshTests extends ScalismoTestSuite {
 
     it("finds the right closest points for all the points that define the mesh") {
 
-      for ((pt, id) <- facemesh.points.zipWithIndex) {
-        val ptWithID = facemesh.findClosestPoint(pt)
+      for ((pt, id) <- facemesh.pointSet.points.zipWithIndex) {
+        val ptWithID = facemesh.pointSet.findClosestPoint(pt)
         val closestPt = ptWithID.point
         val closestId = ptWithID.id
         assert(closestPt === pt)
@@ -49,21 +49,21 @@ class MeshTests extends ScalismoTestSuite {
     it("finds the right closest point for a point that is not defined on the mesh") {
       val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
-      val mesh = TriangleMesh(pts, cells)
+      val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells))
 
       val newPt = Point(1.1, 1.1, 4)
-      val ptWithID = mesh.findClosestPoint(newPt)
+      val ptWithID = mesh.pointSet.findClosestPoint(newPt)
       val closestPt = ptWithID.point
       val closestPtId = ptWithID.id
       assert(closestPtId.id === 2)
       assert(closestPt === pts(2))
     }
     it("computes its area correctly for a triangle") {
-      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0f, 0.0f, 0.0f), (0.0f, 1.0f, 0.0f), (1.0f, 0.0f, 0.0f))
+      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
-      val mesh = TriangleMesh(pts, cells)
+      val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells))
 
-      val R = RotationSpace[_3D]((0.0f, 0.0f, 0.0f)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
+      val R = RotationSpace[_3D]((0.0, 0.0, 0.0)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
       val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
       val transformedMesh = mesh.transform(R).transform(s)
       mesh.area should be(0.5 +- 1e-8)
@@ -76,6 +76,12 @@ class MeshTests extends ScalismoTestSuite {
       val binaryImg = Mesh.meshToBinaryImage(spheremesh)
       binaryImg(Point(0, 0, 0)) should be(1)
       binaryImg(Point(2, 0, 0)) should be(0)
+    }
+
+    it("can have an empty cell list") {
+      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0))
+      val cells = IndexedSeq[TriangleCell]()
+      val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells)) // would throw exception on fail
     }
   }
 }
