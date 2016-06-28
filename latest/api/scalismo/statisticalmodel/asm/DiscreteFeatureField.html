@@ -35,13 +35,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DiscreteFeatureField</span><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="../../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>, <span name="_values">_values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>)</span><span class="result"> extends <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">DiscreteFeatureField</span><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="../../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>, <span name="_values">_values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>)</span><span class="result"> extends <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Class of Discrete Fields where to each point, a DenseVector of arbitrary dimensionality is associated.</p><p>An example instance of such a class is the set of profile points and associated features in an Active Shape Model.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]], (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]], (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(domain:scalismo.common.DiscreteDomain[D],_values:IndexedSeq[breeze.linalg.DenseVector[Float]])(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.statisticalmodel.asm.DiscreteFeatureField[D]"></a>
+      <a id="&lt;init&gt;(domain:scalismo.common.DiscreteDomain[D],_values:IndexedSeq[breeze.linalg.DenseVector[Double]])(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.statisticalmodel.asm.DiscreteFeatureField[D]"></a>
       <a id="&lt;init&gt;:DiscreteFeatureField[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DiscreteFeatureField</span><span class="params">(<span name="domain">domain: <a href="../../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>, <span name="_values">_values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>)</span>
+        <span class="name">DiscreteFeatureField</span><span class="params">(<span name="domain">domain: <a href="../../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>, <span name="_values">_values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>)</span>
       </span>
       </h4>
       
@@ -167,54 +167,54 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField#_values" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="_values:IndexedSeq[breeze.linalg.DenseVector[Float]]"></a>
-      <a id="_values:IndexedSeq[DenseVector[Float]]"></a>
+      <a id="_values:IndexedSeq[breeze.linalg.DenseVector[Double]]"></a>
+      <a id="_values:IndexedSeq[DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">_values</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">_values</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       
     </li><li name="scala.PartialFunction#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen[C](k:B=&gt;C):PartialFunction[A,C]"></a>
-      <a id="andThen[C]((DenseVector[Float])⇒C):PartialFunction[PointId,C]"></a>
+      <a id="andThen[C]((DenseVector[Double])⇒C):PartialFunction[PointId,C]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">andThen</span><span class="tparams">[<span name="C">C</span>]</span><span class="params">(<span name="k">k: (<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]) ⇒ <span class="extype" name="scala.PartialFunction.andThen.C">C</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scala.PartialFunction.andThen.C">C</span>]</span>
+        <span class="name">andThen</span><span class="tparams">[<span name="C">C</span>]</span><span class="params">(<span name="k">k: (<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]) ⇒ <span class="extype" name="scala.PartialFunction.andThen.C">C</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scala.PartialFunction.andThen.C">C</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction → Function1</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(id:scalismo.common.PointId):breeze.linalg.DenseVector[Float]"></a>
-      <a id="apply(PointId):DenseVector[Float]"></a>
+      <a id="apply(id:scalismo.common.PointId):breeze.linalg.DenseVector[Double]"></a>
+      <a id="apply(PointId):DenseVector[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="id">id: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="id">id: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField">DiscreteFeatureField</a> → Function1</dd></dl></div>
     </li><li name="scala.PartialFunction#applyOrElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="applyOrElse[A1&lt;:&lt;?&gt;,B1&lt;:&lt;?&gt;](x:&lt;?&gt;,default:&lt;?&gt;):B1"></a>
-      <a id="applyOrElse[A1&lt;:PointId,B1&gt;:DenseVector[Float]](A1,(A1)⇒B1):B1"></a>
+      <a id="applyOrElse[A1&lt;:PointId,B1&gt;:DenseVector[Double]](A1,(A1)⇒B1):B1"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">applyOrElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>]</span><span class="params">(<span name="x">x: <span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span></span>, <span name="default">default: (<span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span>) ⇒ <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>
+        <span class="name">applyOrElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>]</span><span class="params">(<span name="x">x: <span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span></span>, <span name="default">default: (<span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span>) ⇒ <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -252,14 +252,14 @@
         </dd></dl></div>
     </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a>
-      <a id="compose[A]((A)⇒PointId):(A)⇒DenseVector[Float]"></a>
+      <a id="compose[A]((A)⇒PointId):(A)⇒DenseVector[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
@@ -313,14 +313,14 @@
         </dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="foreach(f:A=&gt;Unit):Unit"></a>
-      <a id="foreach((DenseVector[Float])⇒Unit):Unit"></a>
+      <a id="foreach((DenseVector[Double])⇒Unit):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foreach</span><span class="params">(<span name="f">f: (<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">foreach</span><span class="params">(<span name="f">f: (<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
@@ -338,15 +338,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField#interpolateNearestNeighbor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="interpolateNearestNeighbor():scalismo.common.Field[D,breeze.linalg.DenseVector[Float]]"></a>
-      <a id="interpolateNearestNeighbor():Field[D,DenseVector[Float]]"></a>
+      <a id="interpolateNearestNeighbor():scalismo.common.Field[D,breeze.linalg.DenseVector[Double]]"></a>
+      <a id="interpolateNearestNeighbor():Field[D,DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">interpolateNearestNeighbor</span><span class="params">()</span><span class="result">: <a href="../../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">interpolateNearestNeighbor</span><span class="params">()</span><span class="result">: <a href="../../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a continuous field, where the value at each point is that of the closest point in the discrete set
@@ -382,14 +382,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.PartialFunction#lift" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="lift:A=&gt;Option[B]"></a>
-      <a id="lift:(PointId)⇒Option[DenseVector[Float]]"></a>
+      <a id="lift:(PointId)⇒Option[DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">lift</span><span class="result">: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">lift</span><span class="result">: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -434,14 +434,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.PartialFunction#orElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="orElse[A1&lt;:&lt;?&gt;,B1&lt;:&lt;?&gt;](that:&lt;?&gt;):PartialFunction[A1,B1]"></a>
-      <a id="orElse[A1&lt;:PointId,B1&gt;:DenseVector[Float]](PartialFunction[A1,B1]):PartialFunction[A1,B1]"></a>
+      <a id="orElse[A1&lt;:PointId,B1&gt;:DenseVector[Double]](PartialFunction[A1,B1]):PartialFunction[A1,B1]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">orElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>]</span><span class="params">(<span name="that">that: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>
+        <span class="name">orElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>]</span><span class="params">(<span name="that">that: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -460,27 +460,27 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#pointsWithValues" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pointsWithValues:Iterator[(scalismo.geometry.Point[D],A)]"></a>
-      <a id="pointsWithValues:Iterator[(Point[D],DenseVector[Float])]"></a>
+      <a id="pointsWithValues:Iterator[(Point[D],DenseVector[Double])]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">pointsWithValues</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>], <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>])]</span>
+        <span class="name">pointsWithValues</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>], <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>])]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.PartialFunction#runWith" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="runWith[U&lt;:&lt;?&gt;](action:&lt;?&gt;):A=&gt;Boolean"></a>
-      <a id="runWith[U]((DenseVector[Float])⇒U):(PointId)⇒Boolean"></a>
+      <a id="runWith[U]((DenseVector[Double])⇒U):(PointId)⇒Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">runWith</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="action">action: (<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]) ⇒ <span class="extype" name="scala.PartialFunction.runWith.U">U</span></span>)</span><span class="result">: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">runWith</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="action">action: (<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]) ⇒ <span class="extype" name="scala.PartialFunction.runWith.U">U</span></span>)</span><span class="result">: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -511,28 +511,28 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField#values" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="values:Iterator[breeze.linalg.DenseVector[Float]]"></a>
-      <a id="values:Iterator[DenseVector[Float]]"></a>
+      <a id="values:Iterator[breeze.linalg.DenseVector[Double]]"></a>
+      <a id="values:Iterator[DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">values</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">values</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField">DiscreteFeatureField</a> → <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#valuesWithIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="valuesWithIds:Iterator[(A,scalismo.common.PointId)]"></a>
-      <a id="valuesWithIds:Iterator[(DenseVector[Float],PointId)]"></a>
+      <a id="valuesWithIds:Iterator[(DenseVector[Double],PointId)]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">valuesWithIds</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)]</span>
+        <span class="name">valuesWithIds</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
@@ -611,11 +611,11 @@
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="scalismo.common.DiscreteField">
-              <h3>Inherited from <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</h3>
+              <h3>Inherited from <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</h3>
             </div><div class="parent" name="scala.PartialFunction">
-              <h3>Inherited from <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</h3>
+              <h3>Inherited from <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</h3>
             </div><div class="parent" name="scala.Function1">
-              <h3>Inherited from (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</h3>
+              <h3>Inherited from (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

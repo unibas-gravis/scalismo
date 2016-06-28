@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DataCollection</span><span class="params">(<span name="reference">reference: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="dataItems">dataItems: <span class="extype" name="scala.Seq">Seq</span>[<a href="DataItem.html" class="extype" name="scalismo.statisticalmodel.dataset.DataItem">DataItem</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">DataCollection</span><span class="params">(<span name="reference">reference: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="dataItems">dataItems: <span class="extype" name="scala.Seq">Seq</span>[<a href="DataItem.html" class="extype" name="scalismo.statisticalmodel.dataset.DataItem">DataItem</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -84,7 +84,7 @@ other elements of the dataset.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.statisticalmodel.dataset.DataCollection#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(reference:scalismo.mesh.TriangleMesh,dataItems:Seq[scalismo.statisticalmodel.dataset.DataItem[scalismo.geometry._3D]]):scalismo.statisticalmodel.dataset.DataCollection"></a>
+      <a id="&lt;init&gt;(reference:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],dataItems:Seq[scalismo.statisticalmodel.dataset.DataItem[scalismo.geometry._3D]]):scalismo.statisticalmodel.dataset.DataCollection"></a>
       <a id="&lt;init&gt;:DataCollection"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -92,7 +92,7 @@ other elements of the dataset.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DataCollection</span><span class="params">(<span name="reference">reference: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="dataItems">dataItems: <span class="extype" name="scala.Seq">Seq</span>[<a href="DataItem.html" class="extype" name="scalismo.statisticalmodel.dataset.DataItem">DataItem</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span>
+        <span class="name">DataCollection</span><span class="params">(<span name="reference">reference: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="dataItems">dataItems: <span class="extype" name="scala.Seq">Seq</span>[<a href="DataItem.html" class="extype" name="scalismo.statisticalmodel.dataset.DataItem">DataItem</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span>
       </span>
       </h4>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">reference</dt><dd class="cmt"><p>The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.</p></dd><dt class="param">dataItems</dt><dd class="cmt"><p>Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
@@ -330,15 +330,15 @@ other elements of the dataset.</p>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.dataset.DataCollection#reference" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="reference:scalismo.mesh.TriangleMesh"></a>
-      <a id="reference:TriangleMesh"></a>
+      <a id="reference:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
+      <a id="reference:TriangleMesh[_3D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">reference</span><span class="result">: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>
+        <span class="name">reference</span><span class="result">: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The reference mesh of the dataset.</p><div class="fullcomment"><div class="comment cmt"><p>The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.</p></div></div>

@@ -104,15 +104,15 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="scalismo.geometry.Vector#*" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="*(s:Float):scalismo.geometry.Vector[D]"></a>
-      <a id="*(Float):Vector[D]"></a>
+      <a id="*(s:Double):scalismo.geometry.Vector[D]"></a>
+      <a id="*(Double):Vector[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
+        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
       </span>
       </h4>
       
@@ -142,42 +142,55 @@
       </span>
       </h4>
       
-    </li><li name="scalismo.geometry.Vector#apply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="apply(i:Int):Float"></a>
-      <a id="apply(Int):Float"></a>
+    </li><li name="scalismo.geometry.Vector#:*" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id=":*(that:scalismo.geometry.Vector[D]):scalismo.geometry.Vector[D]"></a>
+      <a id=":*(Vector[D]):Vector[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
+        <span title="gt4s: $colon$times" class="name">:*</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.geometry.Vector#apply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="apply(i:Int):Double"></a>
+      <a id="apply(Int):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       </h4>
       
     </li><li name="scalismo.geometry.Vector#dot" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="dot(that:scalismo.geometry.Vector[D]):Float"></a>
-      <a id="dot(Vector[D]):Float"></a>
+      <a id="dot(that:scalismo.geometry.Vector[D]):Double"></a>
+      <a id="dot(Vector[D]):Double"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">dot</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
+        <span class="name">dot</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       </h4>
       
     </li><li name="scalismo.geometry.Vector#mapWithIndex" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="mapWithIndex(f:(Float,Int)=&gt;Float):scalismo.geometry.Vector[D]"></a>
-      <a id="mapWithIndex((Float,Int)⇒Float):Vector[D]"></a>
+      <a id="mapWithIndex(f:(Double,Int)=&gt;Double):scalismo.geometry.Vector[D]"></a>
+      <a id="mapWithIndex((Double,Int)⇒Double):Vector[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">mapWithIndex</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Float">Float</span>, <span class="extype" name="scala.Int">Int</span>) ⇒ <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
+        <span class="name">mapWithIndex</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="scala.Int">Int</span>) ⇒ <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
       </span>
       </h4>
       
@@ -195,15 +208,15 @@
       </h4>
       
     </li><li name="scalismo.geometry.Vector#toArray" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="toArray:Array[Float]"></a>
-      <a id="toArray:Array[Float]"></a>
+      <a id="toArray:Array[Double]"></a>
+      <a id="toArray:Array[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toArray</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">toArray</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       
@@ -264,16 +277,16 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.geometry.Vector#*" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="*(s:Double):scalismo.geometry.Vector[D]"></a>
-      <a id="*(Double):Vector[D]"></a>
+    </li><li name="scalismo.geometry.Vector#*:" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="*:(s:Double):scalismo.geometry.Vector[D]"></a>
+      <a id="*:(Double):Vector[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
+        <span title="gt4s: $times$colon" class="name">*:</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
       </span>
       </h4>
       
@@ -287,19 +300,6 @@
       </span>
       <span class="symbol">
         <span title="gt4s: $div" class="name">/</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
-      </span>
-      </h4>
-      
-    </li><li name="scalismo.geometry.Vector#/" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="/(s:Float):scalismo.geometry.Vector[D]"></a>
-      <a id="/(Float):Vector[D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $div" class="name">/</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
       </span>
       </h4>
       
@@ -367,7 +367,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">dimensionality</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
@@ -459,15 +459,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.geometry.Vector#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="map(f:Float=&gt;Float):scalismo.geometry.Vector[D]"></a>
-      <a id="map((Float)⇒Float):Vector[D]"></a>
+      <a id="map(f:Double=&gt;Double):scalismo.geometry.Vector[D]"></a>
+      <a id="map((Double)⇒Double):Vector[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">map</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Float">Float</span>) ⇒ <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
+        <span class="name">map</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Double">Double</span>) ⇒ <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
       </span>
       </h4>
       
@@ -494,6 +494,19 @@
       </span>
       <span class="symbol">
         <span class="name">norm</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.geometry.Vector#normalize" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="normalize:scalismo.geometry.Vector[D]"></a>
+      <a id="normalize:Vector[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">normalize</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
       </span>
       </h4>
       
@@ -550,15 +563,28 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.geometry.Vector#toBreezeVector" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toBreezeVector:breeze.linalg.DenseVector[Float]"></a>
-      <a id="toBreezeVector:DenseVector[Float]"></a>
+      <a id="toBreezeVector:breeze.linalg.DenseVector[Double]"></a>
+      <a id="toBreezeVector:DenseVector[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toBreezeVector</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">toBreezeVector</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.geometry.Vector#toFloatBreezeVector" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toFloatBreezeVector:breeze.linalg.DenseVector[Float]"></a>
+      <a id="toFloatBreezeVector:DenseVector[Float]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toFloatBreezeVector</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
       </h4>
       
@@ -575,6 +601,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.geometry.Vector#unary_-" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unary_-:scalismo.geometry.Vector[D]"></a>
+      <a id="unary_-:Vector[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: unary_$minus" class="name">unary_-</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.geometry.Vector.D">D</span>]</span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -640,15 +679,15 @@
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
               <ol><li name="scalismo.geometry.Vector#data" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="data:Array[Float]"></a>
-      <a id="data:Array[Float]"></a>
+      <a id="data:Array[Double]"></a>
+      <a id="data:Array[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version ) real data is now private, use toArray">data</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version ) real data is now private, use toArray">data</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>

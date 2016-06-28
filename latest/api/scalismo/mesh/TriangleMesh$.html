@@ -24,7 +24,7 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="TriangleMesh.html" title="Go to companion"><img src="../../lib/object_to_class_big.png" /></a>
+        <a href="TriangleMesh.html" title="Go to companion"><img src="../../lib/object_to_trait_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.mesh">mesh</a></p>
         <h1><a href="TriangleMesh.html" title="Go to companion">TriangleMesh</a></h1>
       </div>
@@ -35,14 +35,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">TriangleMesh</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TriangleMesh</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Factory for <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> instances.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -60,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.mesh.TriangleMesh"><span>TriangleMesh</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.mesh.TriangleMesh"><span>TriangleMesh</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +79,49 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.mesh.TriangleMesh.Create" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Create[D&lt;:scalismo.geometry.Dim]extendsCreateUnstructuredPointsDomain[D]"></a>
+      <a id="Create[D&lt;:Dim]:Create[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh$$Create.html"><span class="name">Create</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/CreateUnstructuredPointsDomain.html" class="extype" name="scalismo.common.CreateUnstructuredPointsDomain">CreateUnstructuredPointsDomain</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.Create.D">D</span>]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Typeclass for creating domains of arbitrary dimensionality</p>
+    </li><li name="scalismo.mesh.TriangleMesh.Create2D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Create2DextendsTriangleMesh.Create[scalismo.geometry._2D]"></a>
+      <a id="Create2D:Create2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh$$Create2D.html"><span class="name">Create2D</span></a><span class="result"> extends <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleMesh.Create3D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Create3DextendsTriangleMesh.Create[scalismo.geometry._3D]"></a>
+      <a id="Create3D:Create3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh$$Create3D.html"><span class="name">Create3D</span></a><span class="result"> extends <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -151,23 +192,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(meshPoints:IndexedSeq[scalismo.geometry.Point[scalismo.geometry._3D]],cells:IndexedSeq[scalismo.mesh.TriangleCell]):scalismo.mesh.TriangleMesh"></a>
-      <a id="apply(IndexedSeq[Point[_3D]],IndexedSeq[TriangleCell]):TriangleMesh"></a>
+    </li><li name="scalismo.mesh.TriangleMesh#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply[D&lt;:scalismo.geometry.Dim](points:IndexedSeq[scalismo.geometry.Point[D]],topology:scalismo.mesh.TriangleList)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitcreator:scalismo.mesh.TriangleMesh.Create[D]):scalismo.mesh.TriangleMesh[D]"></a>
+      <a id="apply[D&lt;:Dim](IndexedSeq[Point[D]],TriangleList)(NDSpace[D],Create[D]):TriangleMesh[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="meshPoints">meshPoints: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="cells">cells: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a>]</span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>
+        <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="points">points: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]]</span>, <span name="topology">topology: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>, <span name="creator">creator: <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Returns a 3D triangle mesh defined by the indicated points and cells
-</p><div class="fullcomment"><div class="comment cmt"><p>Returns a 3D triangle mesh defined by the indicated points and cells
-</p></div><dl class="paramcmts block"><dt class="param">meshPoints</dt><dd class="cmt"><p>Sequence of points defining the triangle mesh.</p></dd><dt class="param">cells</dt><dd class="cmt"><p>Sequence of the triangle cells defined over the mesh points.
-The identifiers used for defining the cells are the indices of points in meshPoints.
-</p></dd></dl></div>
+      
+    </li><li name="scalismo.mesh.TriangleMesh#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply[D&lt;:scalismo.geometry.Dim](pointSet:scalismo.common.UnstructuredPointsDomain[D],topology:scalismo.mesh.TriangleList)(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitcreator:scalismo.mesh.TriangleMesh.Create[D]):scalismo.mesh.TriangleMesh[D]"></a>
+      <a id="apply[D&lt;:Dim](UnstructuredPointsDomain[D],TriangleList)(NDSpace[D],Create[D]):TriangleMesh[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="pointSet">pointSet: <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>, <span name="topology">topology: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>, <span name="creator">creator: <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>
+      </span>
+      </h4>
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -323,6 +373,32 @@ The identifiers used for defining the cells are the indices of points in meshPoi
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh#parametricToConcreteType2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="parametricToConcreteType2D(triangleMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._2D]):scalismo.mesh.TriangleMesh2D"></a>
+      <a id="parametricToConcreteType2D(TriangleMesh[_2D]):TriangleMesh2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parametricToConcreteType2D</span><span class="params">(<span name="triangleMesh">triangleMesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="TriangleMesh2D.html" class="extype" name="scalismo.mesh.TriangleMesh2D">TriangleMesh2D</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleMesh#parametricToConcreteType3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="parametricToConcreteType3D(triangleMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.mesh.TriangleMesh3D"></a>
+      <a id="parametricToConcreteType3D(TriangleMesh[_3D]):TriangleMesh3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parametricToConcreteType3D</span><span class="params">(<span name="triangleMesh">triangleMesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -415,11 +491,7 @@ The identifiers used for defining the cells are the indices of points in meshPoi
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
-              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

@@ -35,13 +35,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Float">Float</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name="NormalDirectionFeatureExtractor.IOMetadata_Default">...</span></span>)</span><span class="result"> extends <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Double">Double</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name="NormalDirectionFeatureExtractor.IOMetadata_Default">...</span></span>)</span><span class="result"> extends <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a>, <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a>, (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a>, <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a>, (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(numberOfPoints:Int,spacing:Float,ioMetadata:scalismo.statisticalmodel.asm.IOMetadata):scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor"></a>
+      <a id="&lt;init&gt;(numberOfPoints:Int,spacing:Double,ioMetadata:scalismo.statisticalmodel.asm.IOMetadata):scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor"></a>
       <a id="&lt;init&gt;:NormalDirectionFeatureExtractor"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Float">Float</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name="NormalDirectionFeatureExtractor.IOMetadata_Default">...</span></span>)</span>
+        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Double">Double</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name="NormalDirectionFeatureExtractor.IOMetadata_Default">...</span></span>)</span>
       </span>
       </h4>
       
@@ -167,15 +167,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(image:scalismo.statisticalmodel.asm.PreprocessedImage,point:scalismo.geometry.Point[scalismo.geometry._3D],mesh:scalismo.mesh.TriangleMesh,profilePointId:scalismo.common.PointId):Option[breeze.linalg.DenseVector[Float]]"></a>
-      <a id="apply(PreprocessedImage,Point[_3D],TriangleMesh,PointId):Option[DenseVector[Float]]"></a>
+      <a id="apply(image:scalismo.statisticalmodel.asm.PreprocessedImage,point:scalismo.geometry.Point[scalismo.geometry._3D],mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],profilePointId:scalismo.common.PointId):Option[breeze.linalg.DenseVector[Double]]"></a>
+      <a id="apply(PreprocessedImage,Point[_3D],TriangleMesh[_3D],PointId):Option[DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="image">image: <a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a></span>, <span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">apply</span><span class="params">(<span name="image">image: <a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a></span>, <span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Actually extracts features from an image.</p><div class="fullcomment"><div class="comment cmt"><p>Actually extracts features from an image.
@@ -218,14 +218,14 @@ determine the &quot;spatial orientation&quot; of the line on which the image poi
         </dd></dl></div>
     </li><li name="scala.Function4#curried" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="curried:T1=&gt;(T2=&gt;(T3=&gt;(T4=&gt;R)))"></a>
-      <a id="curried:(PreprocessedImage)⇒(Point[_3D])⇒(TriangleMesh)⇒(PointId)⇒Option[DenseVector[Float]]"></a>
+      <a id="curried:(PreprocessedImage)⇒(Point[_3D])⇒(TriangleMesh[_3D])⇒(PointId)⇒Option[DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">curried</span><span class="result">: (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>) ⇒ (<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>) ⇒ (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">curried</span><span class="result">: (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>) ⇒ (<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function4</dd><dt>Annotations</dt><dd>
@@ -246,15 +246,15 @@ determine the &quot;spatial orientation&quot; of the line on which the image poi
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#featurePoints" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="featurePoints(mesh:scalismo.mesh.TriangleMesh,profilePointId:scalismo.common.PointId,centerPoint:scalismo.geometry.Point[scalismo.geometry._3D]):Option[scala.collection.immutable.IndexedSeq[scalismo.geometry.Point[scalismo.geometry._3D]]]"></a>
-      <a id="featurePoints(TriangleMesh,PointId,Point[_3D]):Option[IndexedSeq[Point[_3D]]]"></a>
+      <a id="featurePoints(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],profilePointId:scalismo.common.PointId,centerPoint:scalismo.geometry.Point[scalismo.geometry._3D]):Option[scala.collection.immutable.IndexedSeq[scalismo.geometry.Point[scalismo.geometry._3D]]]"></a>
+      <a id="featurePoints(TriangleMesh[_3D],PointId,Point[_3D]):Option[IndexedSeq[Point[_3D]]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">featurePoints</span><span class="params">(<span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="centerPoint">centerPoint: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]]</span>
+        <span class="name">featurePoints</span><span class="params">(<span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="centerPoint">centerPoint: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Return the points at which feature components are extracted for a given mesh and point.</p><div class="fullcomment"><div class="comment cmt"><p>Return the points at which feature components are extracted for a given mesh and point.
@@ -374,15 +374,15 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       </h4>
       
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#spacing" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spacing:Float"></a>
-      <a id="spacing:Float"></a>
+      <a id="spacing:Double"></a>
+      <a id="spacing:Double"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">spacing</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
+        <span class="name">spacing</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       </h4>
       
@@ -414,14 +414,14 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function4 → AnyRef → Any</dd></dl></div>
     </li><li name="scala.Function4#tupled" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="tupled:((T1,T2,T3,T4))=&gt;R"></a>
-      <a id="tupled:((PreprocessedImage,Point[_3D],TriangleMesh,PointId))⇒Option[DenseVector[Float]]"></a>
+      <a id="tupled:((PreprocessedImage,Point[_3D],TriangleMesh[_3D],PointId))⇒Option[DenseVector[Double]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">tupled</span><span class="result">: ((<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
+        <span class="name">tupled</span><span class="result">: ((<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function4</dd><dt>Annotations</dt><dd>
@@ -507,7 +507,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
             </div><div class="parent" name="scalismo.statisticalmodel.asm.HasIOMetadata">
               <h3>Inherited from <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></h3>
             </div><div class="parent" name="scala.Function4">
-              <h3>Inherited from (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</h3>
+              <h3>Inherited from (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

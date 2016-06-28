@@ -229,30 +229,30 @@
               
         </dd></dl></div>
     </li><li name="scalismo.statisticalmodel.dataset.DataCollection#fromMeshDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromMeshDirectory(referenceMesh:scalismo.mesh.TriangleMesh,meshDirectory:java.io.File):(Option[scalismo.statisticalmodel.dataset.DataCollection],Seq[Throwable])"></a>
-      <a id="fromMeshDirectory(TriangleMesh,File):(Option[DataCollection],Seq[Throwable])"></a>
+      <a id="fromMeshDirectory(referenceMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],meshDirectory:java.io.File):(Option[scalismo.statisticalmodel.dataset.DataCollection],Seq[Throwable])"></a>
+      <a id="fromMeshDirectory(TriangleMesh[_3D],File):(Option[DataCollection],Seq[Throwable])"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromMeshDirectory</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="meshDirectory">meshDirectory: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: (<span class="extype" name="scala.Option">Option</span>[<a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a>], <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>])</span>
+        <span class="name">fromMeshDirectory</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="meshDirectory">meshDirectory: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: (<span class="extype" name="scala.Option">Option</span>[<a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a>], <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>])</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Builds a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instance from a reference mesh and a directory containing meshes in correspondence with the reference.</p><div class="fullcomment"><div class="comment cmt"><p>Builds a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instance from a reference mesh and a directory containing meshes in correspondence with the reference.
 Only vtk and stl meshes are currently supported.</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a data collection containing the valid elements as well as the list of errors for invalid items.
 </p></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.dataset.DataCollection#fromMeshSequence" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromMeshSequence(referenceMesh:scalismo.mesh.TriangleMesh,registeredMeshes:Seq[scalismo.mesh.TriangleMesh]):(Option[scalismo.statisticalmodel.dataset.DataCollection],Seq[Throwable])"></a>
-      <a id="fromMeshSequence(TriangleMesh,Seq[TriangleMesh]):(Option[DataCollection],Seq[Throwable])"></a>
+      <a id="fromMeshSequence(referenceMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],registeredMeshes:Seq[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]]):(Option[scalismo.statisticalmodel.dataset.DataCollection],Seq[Throwable])"></a>
+      <a id="fromMeshSequence(TriangleMesh[_3D],Seq[TriangleMesh[_3D]]):(Option[DataCollection],Seq[Throwable])"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromMeshSequence</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="registeredMeshes">registeredMeshes: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>)</span><span class="result">: (<span class="extype" name="scala.Option">Option</span>[<a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a>], <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>])</span>
+        <span class="name">fromMeshSequence</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="registeredMeshes">registeredMeshes: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result">: (<span class="extype" name="scala.Option">Option</span>[<a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a>], <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>])</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Builds a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instance from a reference mesh and a sequence of meshes in correspondence.</p><div class="fullcomment"><div class="comment cmt"><p>Builds a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instance from a reference mesh and a sequence of meshes in correspondence.

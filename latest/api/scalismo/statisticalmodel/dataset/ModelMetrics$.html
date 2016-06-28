@@ -326,15 +326,15 @@ The returned value is a scala.util.Try containing the average over all test data
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.dataset.ModelMetrics#specificity" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="specificity(pcaModel:scalismo.statisticalmodel.StatisticalMeshModel,data:Iterable[scalismo.mesh.TriangleMesh],nbSamples:Int):Double"></a>
-      <a id="specificity(StatisticalMeshModel,Iterable[TriangleMesh],Int):Double"></a>
+      <a id="specificity(pcaModel:scalismo.statisticalmodel.StatisticalMeshModel,data:Iterable[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]],nbSamples:Int):Double"></a>
+      <a id="specificity(StatisticalMeshModel,Iterable[TriangleMesh[_3D]],Int):Double"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">specificity</span><span class="params">(<span name="pcaModel">pcaModel: <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>, <span name="data">data: <span class="extype" name="scala.Iterable">Iterable</span>[<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>, <span name="nbSamples">nbSamples: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">specificity</span><span class="params">(<span name="pcaModel">pcaModel: <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>, <span name="data">data: <span class="extype" name="scala.Iterable">Iterable</span>[<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="nbSamples">nbSamples: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns the specificity metric of the Statistical Mesh Model, that is how close the model remains to the category of shapes it is supposed to represent</p><div class="fullcomment"><div class="comment cmt"><p>Returns the specificity metric of the Statistical Mesh Model, that is how close the model remains to the category of shapes it is supposed to represent</p></div><dl class="paramcmts block"><dt class="param">pcaModel</dt><dd class="cmt"><p>model to be evaluated</p></dd><dt class="param">data</dt><dd class="cmt"><p>test data to verify specificity against</p></dd><dt class="param">nbSamples</dt><dd class="cmt"><p>number of samples drawn to compute the average</p><p>The implementation of this metric is inspired from :

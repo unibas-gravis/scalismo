@@ -88,15 +88,15 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="scalismo.registration.TransformationSpace.JacobianImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="JacobianImage=scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Float]"></a>
-      <a id="JacobianImage:(Point[D])⇒DenseMatrix[Float]"></a>
+      <a id="JacobianImage=scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Double]"></a>
+      <a id="JacobianImage:(Point[D])⇒DenseMatrix[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">JacobianImage</span><span class="result"> = (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.TransformationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">JacobianImage</span><span class="result"> = (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.TransformationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       
@@ -119,15 +119,15 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="scalismo.registration.TransformationSpace#identityTransformParameters" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="identityTransformParameters:breeze.linalg.DenseVector[Float]"></a>
-      <a id="identityTransformParameters:DenseVector[Float]"></a>
+      <a id="identityTransformParameters:breeze.linalg.DenseVector[Double]"></a>
+      <a id="identityTransformParameters:DenseVector[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">identityTransformParameters</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">identityTransformParameters</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">returns the parameters corresponding the identity transform in this space</p>
@@ -145,15 +145,15 @@
       </h4>
       
     </li><li name="scalismo.registration.TransformationSpace#takeDerivativeWRTParameters" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="takeDerivativeWRTParameters(alpha:scalismo.registration.TransformationSpace.ParameterVector):scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Float]"></a>
-      <a id="takeDerivativeWRTParameters(ParameterVector):(Point[D])⇒DenseMatrix[Float]"></a>
+      <a id="takeDerivativeWRTParameters(alpha:scalismo.registration.TransformationSpace.ParameterVector):scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Double]"></a>
+      <a id="takeDerivativeWRTParameters(ParameterVector):(Point[D])⇒DenseMatrix[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">takeDerivativeWRTParameters</span><span class="params">(<span name="alpha">alpha: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Float]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.TransformationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Float">Float</span>]</span>
+        <span class="name">takeDerivativeWRTParameters</span><span class="params">(<span name="alpha">alpha: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.TransformationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">returns a function providing the Jacobian at a requested point.</p><div class="fullcomment"><div class="comment cmt"><p>returns a function providing the Jacobian at a requested point. This is used when optimizing over the parameters, e.g. during registration</p></div></div>
@@ -166,7 +166,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">transformForParameters</span><span class="params">(<span name="p">p: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Float]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: <a href="#T&lt;:scalismo.registration.ParametricTransformation[D]" class="extmbr" name="scalismo.registration.TransformationSpace.T">T</a></span>
+        <span class="name">transformForParameters</span><span class="params">(<span name="p">p: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: <a href="#T&lt;:scalismo.registration.ParametricTransformation[D]" class="extmbr" name="scalismo.registration.TransformationSpace.T">T</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">returns a transformation corresponding the indicated parameters</p>

@@ -24,7 +24,7 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="TriangleMesh$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
+        <a href="TriangleMesh$.html" title="Go to companion"><img src="../../lib/trait_to_object_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.mesh">mesh</a></p>
         <h1><a href="TriangleMesh$.html" title="Go to companion">TriangleMesh</a></h1>
       </div>
@@ -32,16 +32,19 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">TriangleMesh</span><span class="result"> extends <a href="../common/UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TriangleMesh</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>3-dimensional triangle mesh.</p><p>Triangle meshes are currently the only supported representation of 3-dimensional meshes in the library.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <a href="../common/UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a>, <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="TriangleMesh2D.html" class="extype" name="scalismo.mesh.TriangleMesh2D">TriangleMesh2D</a>, <a href="TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></div>
         </div></div>
         
 
@@ -59,7 +62,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.mesh.TriangleMesh"><span>TriangleMesh</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scalismo.common.UnstructuredPointsDomain3D"><span>UnstructuredPointsDomain3D</span></li><li class="in" name="scalismo.common.UnstructuredPointsDomain"><span>UnstructuredPointsDomain</span></li><li class="in" name="scalismo.common.DiscreteDomain"><span>DiscreteDomain</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.mesh.TriangleMesh"><span>TriangleMesh</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -81,10 +84,52 @@
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="scalismo.mesh.TriangleMesh#pointSet" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="pointSet:scalismo.common.UnstructuredPointsDomain[D]"></a>
+      <a id="pointSet:UnstructuredPointsDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pointSet</span><span class="result">: <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.D">D</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleMesh#transform" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="transform(transform:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.mesh.TriangleMesh[D]"></a>
+      <a id="transform((Point[D])⇒Point[D]):TriangleMesh[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transform</span><span class="params">(<span name="transform">transform: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.D">D</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleMesh#triangulation" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="triangulation:scalismo.mesh.TriangleList"></a>
+      <a id="triangulation:TriangleList"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">triangulation</span><span class="result">: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -150,20 +195,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#area" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="area:Double"></a>
-      <a id="area:Double"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">area</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Area of the mesh surface.</p><div class="fullcomment"><div class="comment cmt"><p>Area of the mesh surface.</p><p> The computed area is the sum of all the triangle cell areas.
-</p></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -177,60 +208,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain3D#boundingBox" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="boundingBox:scalismo.common.BoxDomain[scalismo.geometry._3D]"></a>
-      <a id="boundingBox:BoxDomain[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">boundingBox</span><span class="result">: <a href="../common/BoxDomain.html" class="extype" name="scalismo.common.BoxDomain">BoxDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns the smallest continuous box domain that fully contains all the domain points.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the smallest continuous box domain that fully contains all the domain points.</p><p>The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes)
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteDomain#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="canEqual(that:Any):Boolean"></a>
-      <a id="canEqual(Any):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">canEqual</span><span class="params">(<span name="that">that: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a> → Equals</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#cells" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="cells:IndexedSeq[scalismo.mesh.TriangleCell]"></a>
-      <a id="cells:IndexedSeq[TriangleCell]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">cells</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a>]</span>
-      </span>
-      </h4>
-      
-    </li><li name="scalismo.mesh.TriangleMesh#cellsWithPointId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="cellsWithPointId(id:scalismo.common.PointId):Seq[scalismo.mesh.TriangleCell]"></a>
-      <a id="cellsWithPointId(PointId):Seq[TriangleCell]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">cellsWithPointId</span><span class="params">(<span name="id">id: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns the identifiers of the mesh cells to which the given point identifier belongs
-</p>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -250,32 +227,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#computeCellNormal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="computeCellNormal(cell:scalismo.mesh.TriangleCell):scalismo.geometry.Vector[scalismo.geometry._3D]"></a>
-      <a id="computeCellNormal(TriangleCell):Vector[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">computeCellNormal</span><span class="params">(<span name="cell">cell: <a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a></span>)</span><span class="result">: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns a 3D vector that is orthogonal to the triangle defined by the cell points</p>
-    </li><li name="scalismo.mesh.TriangleMesh#computeTriangleArea" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="computeTriangleArea(t:scalismo.mesh.TriangleCell):Double"></a>
-      <a id="computeTriangleArea(TriangleCell):Double"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">computeTriangleArea</span><span class="params">(<span name="t">t: <a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt"> Returns the area of the indicated triangle cell.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -289,8 +240,8 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.common.DiscreteDomain#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(that:Any):Boolean"></a>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -298,10 +249,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="that">that: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a> → Equals → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -321,36 +272,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#findClosestPoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="findClosestPoint(pt:scalismo.geometry.Point[D]):scalismo.common.PointWithId[D]"></a>
-      <a id="findClosestPoint(Point[_3D]):PointWithId[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">findClosestPoint</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../common/PointWithId.html" class="extype" name="scalismo.common.PointWithId">PointWithId</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">*
-Returns the point belonging to the domain that is closest to the indicated position.</p><div class="fullcomment"><div class="comment cmt"><p>*
-Returns the point belonging to the domain that is closest to the indicated position. The point identifier
-within th e domain is also returned.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#findNClosestPoints" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="findNClosestPoints(pt:scalismo.geometry.Point[D],n:Int):Seq[scalismo.common.PointWithId[D]]"></a>
-      <a id="findNClosestPoints(Point[_3D],Int):Seq[PointWithId[_3D]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">findNClosestPoints</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../common/PointWithId.html" class="extype" name="scalismo.common.PointWithId">PointWithId</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -364,32 +285,19 @@ within th e domain is also returned.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode:Int"></a>
-      <a id="hashCode:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a> → AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="isDefinedAt(pt:scalismo.geometry.Point[D]):Boolean"></a>
-      <a id="isDefinedAt(Point[_3D]):Boolean"></a>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isDefinedAt</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -416,22 +324,6 @@ within th e domain is also returned.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#normalAtPoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="normalAtPoint(pt:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.geometry.Vector[scalismo.geometry._3D]"></a>
-      <a id="normalAtPoint(Point[_3D]):Vector[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">normalAtPoint</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt"> Returns surface normal at the closest mesh point to the indicated argument point.</p><div class="fullcomment"><div class="comment cmt"><p> Returns surface normal at the closest mesh point to the indicated argument point.
-</p></div><dl class="paramcmts block"><dt class="param">pt</dt><dd class="cmt"><p>Point at which to evaluate the surface normal. Note that it does not need to be one of the mesh points.
- The returned vector is the normal at the closest mesh point to this point.
-</p></dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <a id="notify():Unit"></a>
@@ -458,99 +350,6 @@ within th e domain is also returned.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#numberOfPoints" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="numberOfPoints:Int"></a>
-      <a id="numberOfPoints:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">numberOfPoints</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#point" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="point(id:scalismo.common.PointId):scalismo.geometry.Point[D]"></a>
-      <a id="point(PointId):Point[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">point</span><span class="params">(<span name="id">id: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#pointId" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pointId(pt:scalismo.geometry.Point[D]):Option[scalismo.common.PointId]"></a>
-      <a id="pointId(Point[_3D]):Option[PointId]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">pointId</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteDomain#pointIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pointIds:Iterator[scalismo.common.PointId]"></a>
-      <a id="pointIds:Iterator[PointId]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">pointIds</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.UnstructuredPointsDomain#points" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="points:Iterator[scalismo.geometry.Point[D]]"></a>
-      <a id="points:Iterator[Point[_3D]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">points</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteDomain#pointsWithId" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pointsWithId:Iterator[(scalismo.geometry.Point[D],scalismo.common.PointId)]"></a>
-      <a id="pointsWithId:Iterator[(Point[_3D],PointId)]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">pointsWithId</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#samplePointInTriangleCell" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="samplePointInTriangleCell(t:scalismo.mesh.TriangleCell,seed:Int):scalismo.geometry.Point[scalismo.geometry._3D]"></a>
-      <a id="samplePointInTriangleCell(TriangleCell,Int):Point[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">samplePointInTriangleCell</span><span class="params">(<span name="t">t: <a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt"> Returns a random point lying within the triangle defined by the indicated cell.</p><div class="fullcomment"><div class="comment cmt"><p> Returns a random point lying within the triangle defined by the indicated cell.</p><p> A uniform distribution is used for sampling points.
-</p></div><dl class="paramcmts block"><dt class="param">t</dt><dd class="cmt"><p>Triangle cell in which to draw a random point</p></dd><dt class="param">seed</dt><dd class="cmt"><p>Seed value for the random generator
-</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -564,21 +363,19 @@ within th e domain is also returned.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh#transform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="transform(transform:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.TriangleMesh"></a>
-      <a id="transform((Point[_3D])⇒Point[_3D]):TriangleMesh"></a>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">transform</span><span class="params">(<span name="transform">transform: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt"> Returns a triangle mesh that is the image of this mesh by the given transform.</p><div class="fullcomment"><div class="comment cmt"><p> Returns a triangle mesh that is the image of this mesh by the given transform.</p><p> This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
-</p></div><dl class="paramcmts block"><dt class="param">transform</dt><dd class="cmt"><p>A function that maps a given point to a new position. All instances of <a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">scalismo.registration.Transformation</a> being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> → <a href="../common/UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a> → <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -645,21 +442,7 @@ within th e domain is also returned.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
-              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.Product">
-              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
-            </div><div class="parent" name="scalismo.common.UnstructuredPointsDomain3D">
-              <h3>Inherited from <a href="../common/UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a></h3>
-            </div><div class="parent" name="scalismo.common.UnstructuredPointsDomain">
-              <h3>Inherited from <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</h3>
-            </div><div class="parent" name="scalismo.common.DiscreteDomain">
-              <h3>Inherited from <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</h3>
-            </div><div class="parent" name="scala.Equals">
-              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

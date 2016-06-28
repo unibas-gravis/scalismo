@@ -306,47 +306,70 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.io.MeshIO#readAndCorrectMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="readAndCorrectMesh(file:java.io.File):scala.util.Try[scalismo.mesh.TriangleMesh]"></a>
-      <a id="readAndCorrectMesh(File):Try[TriangleMesh]"></a>
+      <a id="readAndCorrectMesh(file:java.io.File):scala.util.Try[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]]"></a>
+      <a id="readAndCorrectMesh(File):Try[TriangleMesh[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">readAndCorrectMesh</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>
+        <span class="name">readAndCorrectMesh</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.io.MeshIO#readHDF5" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="readHDF5(file:java.io.File):scala.util.Try[scalismo.mesh.TriangleMesh]"></a>
-      <a id="readHDF5(File):Try[TriangleMesh]"></a>
+      <a id="readHDF5(file:java.io.File):scala.util.Try[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]]"></a>
+      <a id="readHDF5(File):Try[TriangleMesh[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">readHDF5</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>
+        <span class="name">readHDF5</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       
-    </li><li name="scalismo.io.MeshIO#readMesh" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="readMesh(file:java.io.File):scala.util.Try[scalismo.mesh.TriangleMesh]"></a>
-      <a id="readMesh(File):Try[TriangleMesh]"></a>
+    </li><li name="scalismo.io.MeshIO#readMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readMesh(file:java.io.File):scala.util.Try[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]]"></a>
+      <a id="readMesh(File):Try[TriangleMesh[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">readMesh</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>
+        <span class="name">readMesh</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Implements methods for reading and writing D-dimensional meshes</p><div class="fullcomment"><div class="comment cmt"><p>Implements methods for reading and writing D-dimensional meshes</p><p><b>WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM</b></p><p>This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates
-to lie in an LPS world and map them unchanged in our coordinate system.</p><p>The same happens at writing, we directly dump our vertex coordinates into the file format(stl, or vtk) without any
-mirroring magic.</p><p>*
-</p></div></div>
+      
+    </li><li name="scalismo.io.MeshIO#readScalarMeshField" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="readScalarMeshField[S](file:java.io.File)(implicitevidence$1:scalismo.common.Scalar[S],implicitevidence$2:reflect.runtime.universe.TypeTag[S],implicitevidence$3:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.mesh.ScalarMeshField[S]]"></a>
+      <a id="readScalarMeshField[S](File)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[ScalarMeshField[S]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readScalarMeshField</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshField.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshField.S">S</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshField.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/ScalarMeshField.html" class="extype" name="scalismo.mesh.ScalarMeshField">ScalarMeshField</a>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshField.S">S</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Reads a ScalarMeshField from file.</p><div class="fullcomment"><div class="comment cmt"><p>Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file</p></div></div>
+    </li><li name="scalismo.io.MeshIO#readScalarMeshFieldAsType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="readScalarMeshFieldAsType[S](file:java.io.File)(implicitevidence$4:scalismo.common.Scalar[S],implicitevidence$5:reflect.runtime.universe.TypeTag[S],implicitevidence$6:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.mesh.ScalarMeshField[S]]"></a>
+      <a id="readScalarMeshFieldAsType[S](File)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[ScalarMeshField[S]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readScalarMeshFieldAsType</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshFieldAsType.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshFieldAsType.S">S</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshFieldAsType.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/ScalarMeshField.html" class="extype" name="scalismo.mesh.ScalarMeshField">ScalarMeshField</a>[<span class="extype" name="scalismo.io.MeshIO.readScalarMeshFieldAsType.S">S</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -431,46 +454,46 @@ mirroring magic.</p><p>*
               
         </dd></dl></div>
     </li><li name="scalismo.io.MeshIO#writeHDF5" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeHDF5(surface:scalismo.mesh.TriangleMesh,file:java.io.File):scala.util.Try[Unit]"></a>
-      <a id="writeHDF5(TriangleMesh,File):Try[Unit]"></a>
+      <a id="writeHDF5(surface:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],file:java.io.File):scala.util.Try[Unit]"></a>
+      <a id="writeHDF5(TriangleMesh[_3D],File):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeHDF5</span><span class="params">(<span name="surface">surface: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">writeHDF5</span><span class="params">(<span name="surface">surface: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.io.MeshIO#writeMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeMesh(mesh:scalismo.mesh.TriangleMesh,file:java.io.File):scala.util.Try[Unit]"></a>
-      <a id="writeMesh(TriangleMesh,File):Try[Unit]"></a>
+      <a id="writeMesh(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],file:java.io.File):scala.util.Try[Unit]"></a>
+      <a id="writeMesh(TriangleMesh[_3D],File):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeMesh</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">writeMesh</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.io.MeshIO#writeSTL" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeSTL(surface:scalismo.mesh.TriangleMesh,file:java.io.File):scala.util.Try[Unit]"></a>
-      <a id="writeSTL(TriangleMesh,File):Try[Unit]"></a>
+      <a id="writeSTL(surface:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],file:java.io.File):scala.util.Try[Unit]"></a>
+      <a id="writeSTL(TriangleMesh[_3D],File):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeSTL</span><span class="params">(<span name="surface">surface: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">writeSTL</span><span class="params">(<span name="surface">surface: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.io.MeshIO#writeScalarMeshField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeScalarMeshField[S](meshData:scalismo.mesh.ScalarMeshField[S],file:java.io.File)(implicitevidence$1:scalismo.common.Scalar[S],implicitevidence$2:reflect.runtime.universe.TypeTag[S],implicitevidence$3:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
+      <a id="writeScalarMeshField[S](meshData:scalismo.mesh.ScalarMeshField[S],file:java.io.File)(implicitevidence$7:scalismo.common.Scalar[S],implicitevidence$8:reflect.runtime.universe.TypeTag[S],implicitevidence$9:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
       <a id="writeScalarMeshField[S](ScalarMeshField[S],File)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -483,20 +506,20 @@ mirroring magic.</p><p>*
       </h4>
       
     </li><li name="scalismo.io.MeshIO#writeVTK" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeVTK(surface:scalismo.mesh.TriangleMesh,file:java.io.File):scala.util.Try[Unit]"></a>
-      <a id="writeVTK(TriangleMesh,File):Try[Unit]"></a>
+      <a id="writeVTK(surface:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],file:java.io.File):scala.util.Try[Unit]"></a>
+      <a id="writeVTK(TriangleMesh[_3D],File):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeVTK</span><span class="params">(<span name="surface">surface: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">writeVTK</span><span class="params">(<span name="surface">surface: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.io.MeshIO#writeVTK" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeVTK[S](meshData:scalismo.mesh.ScalarMeshField[S],file:java.io.File)(implicitevidence$4:scalismo.common.Scalar[S],implicitevidence$5:reflect.runtime.universe.TypeTag[S],implicitevidence$6:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
+      <a id="writeVTK[S](meshData:scalismo.mesh.ScalarMeshField[S],file:java.io.File)(implicitevidence$10:scalismo.common.Scalar[S],implicitevidence$11:reflect.runtime.universe.TypeTag[S],implicitevidence$12:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
       <a id="writeVTK[S](ScalarMeshField[S],File)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">

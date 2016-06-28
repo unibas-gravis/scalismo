@@ -360,8 +360,8 @@ If you wish instead to favour the qform transform, you can do so by setting a fl
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.io.ImageIO#read2DScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="read2DScalarImage[S](file:java.io.File)(implicitevidence$14:scalismo.common.Scalar[S],implicitevidence$15:scala.reflect.ClassTag[S],implicitevidence$16:reflect.runtime.universe.TypeTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._2D,S]]"></a>
+    </li><li name="scalismo.io.ImageIO#read2DScalarImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="read2DScalarImage[S](file:java.io.File)(implicitevidence$20:scalismo.common.Scalar[S],implicitevidence$21:scala.reflect.ClassTag[S],implicitevidence$22:reflect.runtime.universe.TypeTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._2D,S]]"></a>
       <a id="read2DScalarImage[S](File)(Scalar[S],ClassTag[S],scala.reflect.api.JavaUniverse.TypeTag[S]):Try[DiscreteScalarImage[_2D,S]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -372,7 +372,22 @@ If you wish instead to favour the qform transform, you can do so by setting a fl
         <span class="name">read2DScalarImage</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.io.ImageIO.read2DScalarImage.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.io.ImageIO.read2DScalarImage.S">S</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="scalismo.io.ImageIO.read2DScalarImage.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../image/DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>, <span class="extype" name="scalismo.io.ImageIO.read2DScalarImage.S">S</span>]]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Read a 2D Scalar Image</p><div class="fullcomment"><div class="comment cmt"><p>Read a 2D Scalar Image</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>Voxel type of the image</p></dd><dt class="param">file</dt><dd class="cmt"><p>image file to be read</p></dd></dl></div>
+    </li><li name="scalismo.io.ImageIO#read2DScalarImageAsType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="read2DScalarImageAsType[S](file:java.io.File)(implicitevidence$23:scalismo.common.Scalar[S],implicitevidence$24:reflect.runtime.universe.TypeTag[S],implicitevidence$25:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._2D,S]]"></a>
+      <a id="read2DScalarImageAsType[S](File)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[DiscreteScalarImage[_2D,S]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">read2DScalarImageAsType</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.io.ImageIO.read2DScalarImageAsType.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="scalismo.io.ImageIO.read2DScalarImageAsType.S">S</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.io.ImageIO.read2DScalarImageAsType.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../image/DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>, <span class="extype" name="scalismo.io.ImageIO.read2DScalarImageAsType.S">S</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Read a 2D Scalar Image, and possibly convert it to the requested voxel type.</p><div class="fullcomment"><div class="comment cmt"><p>Read a 2D Scalar Image, and possibly convert it to the requested voxel type.</p><p>This method is similar to the <a href="#read2DScalarImage[S](file:java.io.File)(implicitevidence$20:scalismo.common.Scalar[S],implicitevidence$21:scala.reflect.ClassTag[S],implicitevidence$22:reflect.runtime.universe.TypeTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._2D,S]]" class="extmbr" name="scalismo.io.ImageIO#read2DScalarImage">read2DScalarImage</a> method, except that it will convert the image to the requested voxel type if
+the type in the file is different, whereas <a href="#read2DScalarImage[S](file:java.io.File)(implicitevidence$20:scalismo.common.Scalar[S],implicitevidence$21:scala.reflect.ClassTag[S],implicitevidence$22:reflect.runtime.universe.TypeTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._2D,S]]" class="extmbr" name="scalismo.io.ImageIO#read2DScalarImage">read2DScalarImage</a> will throw an exception in that case.
+</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>Voxel type of the image</p></dd><dt class="param">file</dt><dd class="cmt"><p>image file to be read</p></dd></dl></div>
     </li><li name="scalismo.io.ImageIO#read3DScalarImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="read3DScalarImage[S](file:java.io.File,resampleOblique:Boolean,favourQform:Boolean)(implicitevidence$11:scalismo.common.Scalar[S],implicitevidence$12:reflect.runtime.universe.TypeTag[S],implicitevidence$13:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,S]]"></a>
       <a id="read3DScalarImage[S](File,Boolean,Boolean)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[DiscreteScalarImage[_3D,S]]"></a>
@@ -386,6 +401,21 @@ If you wish instead to favour the qform transform, you can do so by setting a fl
       </span>
       </h4>
       <p class="shortcomment cmt">Read a 3D Scalar Image</p><div class="fullcomment"><div class="comment cmt"><p>Read a 3D Scalar Image</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>Voxel type of the image</p></dd><dt class="param">file</dt><dd class="cmt"><p>image file to be read</p></dd><dt class="param">resampleOblique</dt><dd class="cmt"><p>flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above <a href="" class="extype" name="scalismo.io.ImageIO">ImageIO</a>.</p></dd><dt class="param">favourQform</dt><dd class="cmt"><p>flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above <a href="" class="extype" name="scalismo.io.ImageIO">ImageIO</a>.</p></dd></dl></div>
+    </li><li name="scalismo.io.ImageIO#read3DScalarImageAsType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="read3DScalarImageAsType[S](file:java.io.File,resampleOblique:Boolean,favourQform:Boolean)(implicitevidence$14:scalismo.common.Scalar[S],implicitevidence$15:reflect.runtime.universe.TypeTag[S],implicitevidence$16:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,S]]"></a>
+      <a id="read3DScalarImageAsType[S](File,Boolean,Boolean)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[DiscreteScalarImage[_3D,S]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">read3DScalarImageAsType</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="resampleOblique">resampleOblique: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="favourQform">favourQform: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.io.ImageIO.read3DScalarImageAsType.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="scalismo.io.ImageIO.read3DScalarImageAsType.S">S</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.io.ImageIO.read3DScalarImageAsType.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../image/DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.io.ImageIO.read3DScalarImageAsType.S">S</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Read a 3D Scalar Image, and possibly convert it to the requested voxel type.</p><div class="fullcomment"><div class="comment cmt"><p>Read a 3D Scalar Image, and possibly convert it to the requested voxel type.</p><p>This method is similar to the <a href="#read3DScalarImage[S](file:java.io.File,resampleOblique:Boolean,favourQform:Boolean)(implicitevidence$11:scalismo.common.Scalar[S],implicitevidence$12:reflect.runtime.universe.TypeTag[S],implicitevidence$13:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,S]]" class="extmbr" name="scalismo.io.ImageIO#read3DScalarImage">read3DScalarImage</a> method, except that it will convert the image to the requested voxel type if
+the type in the file is different, whereas <a href="#read3DScalarImage[S](file:java.io.File,resampleOblique:Boolean,favourQform:Boolean)(implicitevidence$11:scalismo.common.Scalar[S],implicitevidence$12:reflect.runtime.universe.TypeTag[S],implicitevidence$13:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,S]]" class="extmbr" name="scalismo.io.ImageIO#read3DScalarImage">read3DScalarImage</a> will throw an exception in that case.
+</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>Voxel type of the image</p></dd><dt class="param">file</dt><dd class="cmt"><p>image file to be read</p></dd><dt class="param">resampleOblique</dt><dd class="cmt"><p>flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above <a href="" class="extype" name="scalismo.io.ImageIO">ImageIO</a>.</p></dd><dt class="param">favourQform</dt><dd class="cmt"><p>flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above <a href="" class="extype" name="scalismo.io.ImageIO">ImageIO</a>.</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -470,7 +500,7 @@ If you wish instead to favour the qform transform, you can do so by setting a fl
               
         </dd></dl></div>
     </li><li name="scalismo.io.ImageIO#writeNifti" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeNifti[S](img:scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,S],file:java.io.File)(implicitevidence$20:scalismo.common.Scalar[S],implicitevidence$21:reflect.runtime.universe.TypeTag[S],implicitevidence$22:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
+      <a id="writeNifti[S](img:scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,S],file:java.io.File)(implicitevidence$32:scalismo.common.Scalar[S],implicitevidence$33:reflect.runtime.universe.TypeTag[S],implicitevidence$34:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
       <a id="writeNifti[S](DiscreteScalarImage[_3D,S],File)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -483,7 +513,7 @@ If you wish instead to favour the qform transform, you can do so by setting a fl
       </h4>
       
     </li><li name="scalismo.io.ImageIO#writeVTK" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeVTK[D&lt;:scalismo.geometry.Dim,S](img:scalismo.image.DiscreteScalarImage[D,S],file:java.io.File)(implicitevidence$23:scalismo.geometry.NDSpace[D],implicitevidence$24:scalismo.utils.CanConvertToVtk[D],implicitevidence$25:scalismo.common.Scalar[S],implicitevidence$26:reflect.runtime.universe.TypeTag[S],implicitevidence$27:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
+      <a id="writeVTK[D&lt;:scalismo.geometry.Dim,S](img:scalismo.image.DiscreteScalarImage[D,S],file:java.io.File)(implicitevidence$35:scalismo.geometry.NDSpace[D],implicitevidence$36:scalismo.utils.CanConvertToVtk[D],implicitevidence$37:scalismo.common.Scalar[S],implicitevidence$38:reflect.runtime.universe.TypeTag[S],implicitevidence$39:scala.reflect.ClassTag[S]):scala.util.Try[Unit]"></a>
       <a id="writeVTK[D&lt;:Dim,S](DiscreteScalarImage[D,S],File)(NDSpace[D],CanConvertToVtk[D],Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">

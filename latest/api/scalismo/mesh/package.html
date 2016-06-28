@@ -58,7 +58,72 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scalismo.mesh.ScalarMeshField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scalismo.mesh.BarycentricCoordinates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BarycentricCoordinatesextendsProductwithSerializable"></a>
+      <a id="BarycentricCoordinates:BarycentricCoordinates"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BarycentricCoordinates.html"><span class="name">BarycentricCoordinates</span></a><span class="params">(<span name="a">a: <span class="extype" name="scala.Double">Double</span></span>, <span name="b">b: <span class="extype" name="scala.Double">Double</span></span>, <span name="c">c: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">barycentric coordinates: localization within triangles</p>
+    </li><li name="scalismo.mesh.ConstantProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ConstantProperty[A]extendsMeshSurfaceProperty[A]withProductwithSerializable"></a>
+      <a id="ConstantProperty[A]:ConstantProperty[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ConstantProperty.html"><span class="name">ConstantProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="scalismo.mesh.ConstantProperty.A">A</span></span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.ConstantProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">constant property value on complete surface</p>
+    </li><li name="scalismo.mesh.Interpolator" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Interpolator[A]extendsAnyRef"></a>
+      <a id="Interpolator[A]:Interpolator[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Interpolator.html"><span class="name">Interpolator</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">defines (convex) interpolation between two values</p>
+    </li><li name="scalismo.mesh.MappedSurfaceProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MappedSurfaceProperty[A,B]extendsMeshSurfaceProperty[B]withProductwithSerializable"></a>
+      <a id="MappedSurfaceProperty[A,B]:MappedSurfaceProperty[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="MappedSurfaceProperty.html"><span class="name">MappedSurfaceProperty</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="values">values: <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.MappedSurfaceProperty.A">A</span>]</span>, <span name="f">f: (<span class="extype" name="scalismo.mesh.MappedSurfaceProperty.A">A</span>) ⇒ <span class="extype" name="scalismo.mesh.MappedSurfaceProperty.B">B</span></span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.MappedSurfaceProperty.B">B</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">function indirection for surface access</p>
+    </li><li name="scalismo.mesh.MeshSurfaceProperty" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MeshSurfaceProperty[A]extendsAnyRef"></a>
+      <a id="MeshSurfaceProperty[A]:MeshSurfaceProperty[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MeshSurfaceProperty.html"><span class="name">MeshSurfaceProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">general property defined on the surface of a mesh</p>
+    </li><li name="scalismo.mesh.ScalarMeshField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ScalarMeshField[S]extendsDiscreteScalarField[scalismo.geometry._3D,S]withProductwithSerializable"></a>
       <a id="ScalarMeshField[S]:ScalarMeshField[S]"></a>
       <h4 class="signature">
@@ -67,10 +132,23 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="ScalarMeshField.html"><span class="name">ScalarMeshField</span></a><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="ScalarMeshField.html"><span class="name">ScalarMeshField</span></a><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">3-dimensional triangle mesh with scalar values associated to mesh points.</p>
+    </li><li name="scalismo.mesh.SurfacePointProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SurfacePointProperty[A]extendsMeshSurfaceProperty[A]withProductwithSerializable"></a>
+      <a id="SurfacePointProperty[A]:SurfacePointProperty[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SurfacePointProperty.html"><span class="name">SurfacePointProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>, <span name="pointData">pointData: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="Interpolator.html" class="extype" name="scalismo.mesh.Interpolator">Interpolator</a>[<span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span>]</span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">property per vertex, with interpolation</p>
     </li><li name="scalismo.mesh.TriangleCell" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TriangleCellextendsCellwithProductwithSerializable"></a>
       <a id="TriangleCell:TriangleCell"></a>
@@ -84,19 +162,84 @@
       </span>
       </h4>
       <p class="comment cmt">Triangle cell in a triangle mesh.</p>
-    </li><li name="scalismo.mesh.TriangleMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TriangleMeshextendsUnstructuredPointsDomain3DwithProductwithSerializable"></a>
-      <a id="TriangleMesh:TriangleMesh"></a>
+    </li><li name="scalismo.mesh.TriangleId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleIdextendsAnyValwithProductwithSerializable"></a>
+      <a id="TriangleId:TriangleId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleId.html"><span class="name">TriangleId</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleListextendsProductwithSerializable"></a>
+      <a id="TriangleList:TriangleList"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="TriangleMesh.html"><span class="name">TriangleMesh</span></a><span class="result"> extends <a href="../common/UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="TriangleList.html"><span class="name">TriangleList</span></a><span class="params">(<span name="triangles">triangles: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="TriangleCell.html" class="extype" name="scalismo.mesh.TriangleCell">TriangleCell</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      <p class="comment cmt">3-dimensional triangle mesh.</p>
+      <p class="comment cmt">express a triangulation, contains only triangle information, no points</p>
+    </li><li name="scalismo.mesh.TriangleMesh" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TriangleMesh[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="TriangleMesh[D&lt;:Dim]:TriangleMesh[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh.html"><span class="name">TriangleMesh</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleMesh2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleMesh2DextendsTriangleMesh[scalismo.geometry._2D]withProductwithSerializable"></a>
+      <a id="TriangleMesh2D:TriangleMesh2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh2D.html"><span class="name">TriangleMesh2D</span></a><span class="params">(<span name="pointSet">pointSet: <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>, <span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>)</span><span class="result"> extends <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleMesh3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleMesh3DextendsTriangleMesh[scalismo.geometry._3D]withProductwithSerializable"></a>
+      <a id="TriangleMesh3D:TriangleMesh3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh3D.html"><span class="name">TriangleMesh3D</span></a><span class="params">(<span name="pointSet">pointSet: <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>)</span><span class="result"> extends <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Standard 3D Gravis mesh, geometry only</p>
+    </li><li name="scalismo.mesh.TriangleProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleProperty[A]extendsMeshSurfaceProperty[A]withProductwithSerializable"></a>
+      <a id="TriangleProperty[A]:TriangleProperty[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleProperty.html"><span class="name">TriangleProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>, <span name="triangleData">triangleData: (<a href="TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a>) ⇒ <span class="extype" name="scalismo.mesh.TriangleProperty.A">A</span></span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.TriangleProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">property constant per triangle</p>
     </li></ol>
             </div>
 
@@ -104,7 +247,33 @@
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scalismo.mesh.Mesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scalismo.mesh.BarycentricCoordinates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BarycentricCoordinates"></a>
+      <a id="BarycentricCoordinates:BarycentricCoordinates"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="BarycentricCoordinates$.html"><span class="name">BarycentricCoordinates</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">barycentric coordinates: localization within triangles</p>
+    </li><li name="scalismo.mesh.Interpolator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Interpolator"></a>
+      <a id="Interpolator:Interpolator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Interpolator$.html"><span class="name">Interpolator</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.Mesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Mesh"></a>
       <a id="Mesh:Mesh"></a>
       <h4 class="signature">
@@ -131,6 +300,45 @@
       </span>
       </h4>
       <p class="comment cmt">Implements utility methods for evaluating similarity of <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> instances</p>
+    </li><li name="scalismo.mesh.SurfacePointProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SurfacePointProperty"></a>
+      <a id="SurfacePointProperty:SurfacePointProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SurfacePointProperty$.html"><span class="name">SurfacePointProperty</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleId"></a>
+      <a id="TriangleId:TriangleId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleId$.html"><span class="name">TriangleId</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleList"></a>
+      <a id="TriangleList:TriangleList"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleList$.html"><span class="name">TriangleList</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scalismo.mesh.TriangleMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TriangleMesh"></a>
       <a id="TriangleMesh:TriangleMesh"></a>
@@ -140,10 +348,36 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="TriangleMesh$.html"><span class="name">TriangleMesh</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="TriangleMesh$.html"><span class="name">TriangleMesh</span></a>
       </span>
       </h4>
-      <p class="comment cmt">Factory for <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> instances.</p>
+      
+    </li><li name="scalismo.mesh.TriangleMesh3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleMesh3D"></a>
+      <a id="TriangleMesh3D:TriangleMesh3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh3D$.html"><span class="name">TriangleMesh3D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.mesh.TriangleProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleProperty"></a>
+      <a id="TriangleProperty:TriangleProperty"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleProperty$.html"><span class="name">TriangleProperty</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scalismo.mesh.kdtree" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="kdtree"></a>
       <a id="kdtree:kdtree"></a>

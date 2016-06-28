@@ -41,7 +41,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="SearchPointSampler.html" class="extype" name="scalismo.statisticalmodel.asm.SearchPointSampler">SearchPointSampler</a>, (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="SearchPointSampler.html" class="extype" name="scalismo.statisticalmodel.asm.SearchPointSampler">SearchPointSampler</a>, (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -167,15 +167,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionSearchPointSampler#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(mesh:scalismo.mesh.TriangleMesh,pointId:scalismo.common.PointId):scala.collection.immutable.Seq[scalismo.geometry.Point[scalismo.geometry._3D]]"></a>
-      <a id="apply(TriangleMesh,PointId):Seq[Point[_3D]]"></a>
+      <a id="apply(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],pointId:scalismo.common.PointId):scala.collection.immutable.Seq[scalismo.geometry.Point[scalismo.geometry._3D]]"></a>
+      <a id="apply(TriangleMesh[_3D],PointId):Seq[Point[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="pointId">pointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
+        <span class="name">apply</span><span class="params">(<span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="pointId">pointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.NormalDirectionSearchPointSampler">NormalDirectionSearchPointSampler</a> → Function2</dd></dl></div>
@@ -213,14 +213,14 @@
         </dd></dl></div>
     </li><li name="scala.Function2#curried" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="curried:T1=&gt;(T2=&gt;R)"></a>
-      <a id="curried:(TriangleMesh)⇒(PointId)⇒Seq[Point[_3D]]"></a>
+      <a id="curried:(TriangleMesh[_3D])⇒(PointId)⇒Seq[Point[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">curried</span><span class="result">: (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>) ⇒ (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
+        <span class="name">curried</span><span class="result">: (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function2</dd><dt>Annotations</dt><dd>
@@ -378,14 +378,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function2 → AnyRef → Any</dd></dl></div>
     </li><li name="scala.Function2#tupled" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="tupled:((T1,T2))=&gt;R"></a>
-      <a id="tupled:((TriangleMesh,PointId))⇒Seq[Point[_3D]]"></a>
+      <a id="tupled:((TriangleMesh[_3D],PointId))⇒Seq[Point[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">tupled</span><span class="result">: ((<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
+        <span class="name">tupled</span><span class="result">: ((<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function2</dd><dt>Annotations</dt><dd>
@@ -469,7 +469,7 @@
             </div><div class="parent" name="scalismo.statisticalmodel.asm.SearchPointSampler">
               <h3>Inherited from <a href="SearchPointSampler.html" class="extype" name="scalismo.statisticalmodel.asm.SearchPointSampler">SearchPointSampler</a></h3>
             </div><div class="parent" name="scala.Function2">
-              <h3>Inherited from (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</h3>
+              <h3>Inherited from (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.collection.immutable.Seq">Seq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

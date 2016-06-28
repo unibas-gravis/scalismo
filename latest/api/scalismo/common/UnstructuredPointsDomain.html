@@ -44,7 +44,7 @@
           <div class="superTypes hiddenContent"><a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>], <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="UnstructuredPointsDomain1D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain1D">UnstructuredPointsDomain1D</a>, <a href="UnstructuredPointsDomain2D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain2D">UnstructuredPointsDomain2D</a>, <a href="UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a></div>
+          <div class="subClasses hiddenContent"><a href="UnstructuredPointsDomain1D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain1D">UnstructuredPointsDomain1D</a>, <a href="UnstructuredPointsDomain2D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain2D">UnstructuredPointsDomain2D</a>, <a href="UnstructuredPointsDomain3D.html" class="extype" name="scalismo.common.UnstructuredPointsDomain3D">UnstructuredPointsDomain3D</a></div>
         </div></div>
         
 
@@ -100,19 +100,6 @@
       </h4>
       <p class="shortcomment cmt">Returns the smallest continuous box domain that fully contains all the domain points.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the smallest continuous box domain that fully contains all the domain points.</p><p>The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes)
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteDomain#transform" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="transform(t:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.common.DiscreteDomain[D]"></a>
-      <a id="transform((Point[D])⇒Point[D]):DiscreteDomain[D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">transform</span><span class="params">(<span name="t">t: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -498,6 +485,19 @@ within th e domain is also returned.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.common.UnstructuredPointsDomain#transform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="transform(transform:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.common.UnstructuredPointsDomain[D]"></a>
+      <a id="transform((Point[D])⇒Point[D]):UnstructuredPointsDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transform</span><span class="params">(<span name="transform">transform: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a> → <a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

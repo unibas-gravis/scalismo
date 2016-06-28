@@ -267,15 +267,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.utils.MeshConversion#meshToVtkPolyData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="meshToVtkPolyData(mesh:scalismo.mesh.TriangleMesh,template:Option[vtk.vtkPolyData]):vtk.vtkPolyData"></a>
-      <a id="meshToVtkPolyData(TriangleMesh,Option[vtkPolyData]):vtkPolyData"></a>
+      <a id="meshToVtkPolyData(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],template:Option[vtk.vtkPolyData]):vtk.vtkPolyData"></a>
+      <a id="meshToVtkPolyData(TriangleMesh[_3D],Option[vtkPolyData]):vtkPolyData"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">meshToVtkPolyData</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="template">template: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="vtk.vtkPolyData">vtkPolyData</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>
+        <span class="name">meshToVtkPolyData</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="template">template: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="vtk.vtkPolyData">vtkPolyData</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>
       </span>
       </h4>
       
@@ -358,28 +358,41 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.utils.MeshConversion#vtkPolyDataToCorrectedTriangleMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="vtkPolyDataToCorrectedTriangleMesh(pd:vtk.vtkPolyData):scala.util.Try[scalismo.mesh.TriangleMesh]"></a>
-      <a id="vtkPolyDataToCorrectedTriangleMesh(vtkPolyData):Try[TriangleMesh]"></a>
+      <a id="vtkPolyDataToCorrectedTriangleMesh(pd:vtk.vtkPolyData):scala.util.Try[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]]"></a>
+      <a id="vtkPolyDataToCorrectedTriangleMesh(vtkPolyData):Try[TriangleMesh[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">vtkPolyDataToCorrectedTriangleMesh</span><span class="params">(<span name="pd">pd: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>
+        <span class="name">vtkPolyDataToCorrectedTriangleMesh</span><span class="params">(<span name="pd">pd: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.utils.MeshConversion#vtkPolyDataToScalarMeshField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="vtkPolyDataToScalarMeshField[S](pd:vtk.vtkPolyData)(implicitevidence$6:scalismo.common.Scalar[S],implicitevidence$7:reflect.runtime.universe.TypeTag[S],implicitevidence$8:scala.reflect.ClassTag[S]):scala.util.Try[scalismo.mesh.ScalarMeshField[S]]"></a>
+      <a id="vtkPolyDataToScalarMeshField[S](vtkPolyData)(Scalar[S],scala.reflect.api.JavaUniverse.TypeTag[S],ClassTag[S]):Try[ScalarMeshField[S]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vtkPolyDataToScalarMeshField</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="pd">pd: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.utils.MeshConversion.vtkPolyDataToScalarMeshField.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.api.TypeTags.TypeTag">scala.reflect.api.JavaUniverse.TypeTag</span>[<span class="extype" name="scalismo.utils.MeshConversion.vtkPolyDataToScalarMeshField.S">S</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.utils.MeshConversion.vtkPolyDataToScalarMeshField.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/ScalarMeshField.html" class="extype" name="scalismo.mesh.ScalarMeshField">ScalarMeshField</a>[<span class="extype" name="scalismo.utils.MeshConversion.vtkPolyDataToScalarMeshField.S">S</span>]]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.utils.MeshConversion#vtkPolyDataToTriangleMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="vtkPolyDataToTriangleMesh(pd:vtk.vtkPolyData):scala.util.Try[scalismo.mesh.TriangleMesh]"></a>
-      <a id="vtkPolyDataToTriangleMesh(vtkPolyData):Try[TriangleMesh]"></a>
+      <a id="vtkPolyDataToTriangleMesh(pd:vtk.vtkPolyData):scala.util.Try[scalismo.mesh.TriangleMesh[scalismo.geometry._3D]]"></a>
+      <a id="vtkPolyDataToTriangleMesh(vtkPolyData):Try[TriangleMesh[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">vtkPolyDataToTriangleMesh</span><span class="params">(<span name="pd">pd: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>]</span>
+        <span class="name">vtkPolyDataToTriangleMesh</span><span class="params">(<span name="pd">pd: <span class="extype" name="vtk.vtkPolyData">vtkPolyData</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       

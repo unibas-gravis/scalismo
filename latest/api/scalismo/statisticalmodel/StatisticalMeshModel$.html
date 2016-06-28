@@ -151,15 +151,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(referenceMesh:scalismo.mesh.TriangleMesh,gp:scalismo.statisticalmodel.LowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
-      <a id="apply(TriangleMesh,LowRankGaussianProcess[_3D,_3D]):StatisticalMeshModel"></a>
+      <a id="apply(referenceMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],gp:scalismo.statisticalmodel.LowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
+      <a id="apply(TriangleMesh[_3D],LowRankGaussianProcess[_3D,_3D]):StatisticalMeshModel"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="gp">gp: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
+        <span class="name">apply</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="gp">gp: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">creates a StatisticalMeshModel by discretizing the given Gaussian Process on the points of the reference mesh.</p>
@@ -177,15 +177,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#augmentModel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="augmentModel(model:scalismo.statisticalmodel.StatisticalMeshModel,biasModel:scalismo.statisticalmodel.GaussianProcess[scalismo.geometry._3D,scalismo.geometry._3D],numBasisFunctions:Int):scalismo.statisticalmodel.StatisticalMeshModel"></a>
-      <a id="augmentModel(StatisticalMeshModel,GaussianProcess[_3D,_3D],Int):StatisticalMeshModel"></a>
+      <a id="augmentModel(model:scalismo.statisticalmodel.StatisticalMeshModel,biasModel:scalismo.statisticalmodel.LowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
+      <a id="augmentModel(StatisticalMeshModel,LowRankGaussianProcess[_3D,_3D]):StatisticalMeshModel"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">augmentModel</span><span class="params">(<span name="model">model: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>, <span name="biasModel">biasModel: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="numBasisFunctions">numBasisFunctions: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
+        <span class="name">augmentModel</span><span class="params">(<span name="model">model: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>, <span name="biasModel">biasModel: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt"> Adds a bias model to the given statistical shape model
@@ -225,15 +225,15 @@
 All points of the reference mesh are considered for computing the PCA
 </p></div></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#createUsingPCA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="createUsingPCA(referenceMesh:scalismo.mesh.TriangleMesh,fields:Seq[scalismo.common.VectorField[scalismo.geometry._3D,scalismo.geometry._3D]]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
-      <a id="createUsingPCA(TriangleMesh,Seq[VectorField[_3D,_3D]]):StatisticalMeshModel"></a>
+      <a id="createUsingPCA(referenceMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],fields:Seq[scalismo.common.VectorField[scalismo.geometry._3D,scalismo.geometry._3D]]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
+      <a id="createUsingPCA(TriangleMesh[_3D],Seq[VectorField[_3D,_3D]]):StatisticalMeshModel"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">createUsingPCA</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="fields">fields: <span class="extype" name="scala.Seq">Seq</span>[<a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
+        <span class="name">createUsingPCA</span><span class="params">(<span name="referenceMesh">referenceMesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="fields">fields: <span class="extype" name="scala.Seq">Seq</span>[<a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.</p>
@@ -448,7 +448,26 @@ All points of the reference mesh are considered for computing the PCA
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scalismo.statisticalmodel.StatisticalMeshModel#augmentModel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="augmentModel(model:scalismo.statisticalmodel.StatisticalMeshModel,biasModel:scalismo.statisticalmodel.GaussianProcess[scalismo.geometry._3D,scalismo.geometry._3D],numBasisFunctions:Int):scalismo.statisticalmodel.StatisticalMeshModel"></a>
+      <a id="augmentModel(StatisticalMeshModel,GaussianProcess[_3D,_3D],Int):StatisticalMeshModel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 20-04-2016) Please use the new method augmentModel(model,biasModel : LowRankGaussianProcess)">augmentModel</span><span class="params">(<span name="model">model: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>, <span name="biasModel">biasModel: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="numBasisFunctions">numBasisFunctions: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 20-04-2016)</i> Please use the new method augmentModel(model,biasModel : LowRankGaussianProcess)</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

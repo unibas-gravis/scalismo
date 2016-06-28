@@ -35,12 +35,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ScalarMeshField</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ScalarMeshField</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>3-dimensional triangle mesh with scalar values associated to mesh points.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>type of the scalar values defined over the mesh (Short, Int, Float, Double)
-</p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>3-dimensional triangle mesh with scalar values associated to mesh points.
+</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>type of the scalar values defined over the mesh (Short, Int, Float, Double)</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>], <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>], (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -81,7 +81,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.mesh.ScalarMeshField#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(mesh:scalismo.mesh.TriangleMesh,data:scalismo.common.ScalarArray[S])(implicitevidence$1:scalismo.common.Scalar[S],implicitevidence$2:scala.reflect.ClassTag[S]):scalismo.mesh.ScalarMeshField[S]"></a>
+      <a id="&lt;init&gt;(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],data:scalismo.common.ScalarArray[S])(implicitevidence$1:scalismo.common.Scalar[S],implicitevidence$2:scala.reflect.ClassTag[S]):scalismo.mesh.ScalarMeshField[S]"></a>
       <a id="&lt;init&gt;:ScalarMeshField[S]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -89,7 +89,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ScalarMeshField</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span>
+        <span class="name">ScalarMeshField</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.mesh.ScalarMeshField.S">S</span>]</span>)</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a scalar mesh data given a triangle mesh and an array of values.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a scalar mesh data given a triangle mesh and an array of values.
@@ -283,15 +283,15 @@ The number of values and mesh points must be equal.
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.mesh.ScalarMeshField">ScalarMeshField</a> → <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a></dd></dl></div>
     </li><li name="scalismo.mesh.ScalarMeshField#domain" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="domain:scalismo.mesh.TriangleMesh"></a>
-      <a id="domain:TriangleMesh"></a>
+      <a id="domain:scalismo.common.UnstructuredPointsDomain[scalismo.geometry._3D]"></a>
+      <a id="domain:UnstructuredPointsDomain[_3D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">domain</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>
+        <span class="name">domain</span><span class="result">: <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.mesh.ScalarMeshField">ScalarMeshField</a> → <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
@@ -449,15 +449,15 @@ The number of values and mesh points must be equal.
       </h4>
       <p class="shortcomment cmt">map the function f over the values, but ensures that the result is scalar valued as well</p><div class="fullcomment"><div class="comment cmt"><p>map the function f over the values, but ensures that the result is scalar valued as well</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.mesh.ScalarMeshField">ScalarMeshField</a> → <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a></dd></dl></div>
     </li><li name="scalismo.mesh.ScalarMeshField#mesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="mesh:scalismo.mesh.TriangleMesh"></a>
-      <a id="mesh:TriangleMesh"></a>
+      <a id="mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
+      <a id="mesh:TriangleMesh[_3D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">mesh</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>
+        <span class="name">mesh</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4>
       

@@ -280,6 +280,22 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#marginalLikelihood" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="marginalLikelihood[D&lt;:scalismo.geometry.Dim,DO&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.GaussianProcess[D,DO],trainingData:IndexedSeq[(scalismo.geometry.Point[D],scalismo.geometry.Vector[DO],scalismo.statisticalmodel.NDimensionalNormalDistribution[DO])])(implicitevidence$7:scalismo.geometry.NDSpace[D],implicitevidence$8:scalismo.geometry.NDSpace[DO]):Double"></a>
+      <a id="marginalLikelihood[D&lt;:Dim,DO&lt;:Dim](GaussianProcess[D,DO],IndexedSeq[(Point[D],Vector[DO],NDimensionalNormalDistribution[DO])])(NDSpace[D],NDSpace[DO]):Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">marginalLikelihood</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="DO">DO &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.DO">DO</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>], <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.DO">DO</span>], <a href="NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.DO">DO</span>])]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>]</span>, <span name="arg1">arg1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.DO">DO</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">* Computes the marginal likelihood of the observed data, according to the given GP.</p><div class="fullcomment"><div class="comment cmt"><p>* Computes the marginal likelihood of the observed data, according to the given GP.</p><p>This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
+</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process</p></dd><dt class="param">trainingData</dt><dd class="cmt"><p>Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.</p></dd></dl><dl class="attributes block"> <dt>To do</dt><dd><span class="cmt"><p>The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
+      with a Cholesky decomposition would be more efficient.
+</p></span></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
