@@ -208,4 +208,6 @@ case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], co
   override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d) }
 
   override def mahalanobisDistance(x: Vector[D]): Double = impl.mahalanobisDistance(x.toBreezeVector)
+
+  def toMultivariateNormalDistribution: MultivariateNormalDistribution = impl
 }
