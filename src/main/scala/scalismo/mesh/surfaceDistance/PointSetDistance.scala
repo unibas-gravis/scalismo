@@ -16,7 +16,7 @@
 package scalismo.mesh.surfaceDistance
 
 import breeze.numerics._
-import BSDistance.{Distance2, DistanceSqr, Index, _}
+import BSDistance.{Distance2, Index, _}
 import scalismo.geometry.{Point, Vector, _3D}
 
 

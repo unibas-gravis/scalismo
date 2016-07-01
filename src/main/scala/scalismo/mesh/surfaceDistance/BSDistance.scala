@@ -15,31 +15,32 @@
  */
 package scalismo.mesh.surfaceDistance
 
-import breeze.linalg.{DenseMatrix, inv}
 import breeze.numerics.abs
 import scalismo.geometry.{Vector, _3D}
 import scalismo.mesh.surfaceDistance.ClosestPointType._
 
 
-
-object BSDistance {
+/**
+  * Collection of helper classes and functions for bounding spheres.
+  */
+private object BSDistance {
 
   /**
     * Holds triangles and precalculated vectors.
     */
-  private[surfaceDistance] case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
+  case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
 
   /**
     * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
     */
-  private[surfaceDistance] case class BC(var a: Double, var b: Double)
+  case class BC(var a: Double, var b: Double)
 
 
   /**
     * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.
     */
   @inline
-  private[surfaceDistance] def calculateBarycentricCoordinates(triangle: Triangle, p: Vector[_3D]): (Double, Double, Double) = {
+  def calculateBarycentricCoordinates(triangle: Triangle, p: Vector[_3D]): (Double, Double, Double) = {
     val x = triangle.a - p
     val ab2 = triangle.ab dot triangle.ab
     val abac = triangle.ab dot triangle.ac
@@ -56,20 +57,20 @@ object BSDistance {
 
 
   // mutable classes
-  private[surfaceDistance] case class Index(var idx: Int)
-  private[surfaceDistance] case class Distance2(var distance2: Double)
-  private[surfaceDistance] case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
+  case class Index(var idx: Int)
+  case class Distance2(var distance2: Double)
+  case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
 
   // immutable classes
-  private[surfaceDistance] case class DistanceSqr(val distance2: Double)
-  private[surfaceDistance] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
+  case class DistanceSqr(val distance2: Double)
+  case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
 
 
   /**
     * Finds closest point to triangle.
     */
   @inline
-  private[surfaceDistance] def toTriangle(p: Vector[_3D], triangle: Triangle): ClosestPoint = {
+  def toTriangle(p: Vector[_3D], triangle: Triangle): ClosestPoint = {
 
     if (abs(triangle.ab(0)) + abs(triangle.ab(1)) + abs(triangle.ab(2)) < 1.0e-12) {
       // Degenerated case where a and b are the same points
@@ -152,7 +153,7 @@ object BSDistance {
   }
 
   @inline
-  private[surfaceDistance] def toLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): ClosestPoint = {
+  def toLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): ClosestPoint = {
     val dir = pt2 - pt1 // line direction
     val len2 = dir.norm2
     if (len2 < Double.MinPositiveValue) {
@@ -175,7 +176,7 @@ object BSDistance {
   }
 
   @inline
-  private[surfaceDistance] def squaredDistanceClosestPointAndBCOnLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): (Double, Vector[_3D], Double) = {
+  def squaredDistanceClosestPointAndBCOnLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): (Double, Vector[_3D], Double) = {
     val dir = pt2 - pt1 // line direction
     val len2 = dir.norm2
     if (len2 < Double.MinPositiveValue) {
@@ -196,7 +197,7 @@ object BSDistance {
   }
 
   @inline
-  private[surfaceDistance] def squaredDistanceAndClosestPointOnLine(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): (Double, Vector[_3D]) = {
+  def squaredDistanceAndClosestPointOnLine(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): (Double, Vector[_3D]) = {
     val dir = (pt2 - pt1).normalize // line direction
     val x = p - pt1 // vector from the point to one point on the line
     val s = dir.dot(x) // length of projection of x onto the line
@@ -205,7 +206,7 @@ object BSDistance {
   }
 
   @inline
-  private[surfaceDistance] def squaredDistanceToLine(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): Double = {
+  def squaredDistanceToLine(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): Double = {
     val t1 = p - pt1
     val t2 = pt2 - pt1
 
@@ -215,18 +216,18 @@ object BSDistance {
   }
 
   @inline
-  private[surfaceDistance] def squaredDistanceToLineDirection(p: Vector[_3D], pointOnLine: Vector[_3D], direction: Vector[_3D]): Double = {
+  def squaredDistanceToLineDirection(p: Vector[_3D], pointOnLine: Vector[_3D], direction: Vector[_3D]): Double = {
     val v = pointOnLine - p
     (v - direction * (direction.dot(v) / direction.norm2)).norm2
   }
 
   @inline
-  private[surfaceDistance] def squaredDistanceToPoint(p: Vector[_3D], pt: Vector[_3D]): Double = {
+  def squaredDistanceToPoint(p: Vector[_3D], pt: Vector[_3D]): Double = {
     (p - pt).norm2
   }
 
   @inline
-  private[surfaceDistance] def toPoint(p: Vector[_3D], pt: Vector[_3D]): Distance2 = {
+  def toPoint(p: Vector[_3D], pt: Vector[_3D]): Distance2 = {
     Distance2((p - pt).norm2)
   }
 

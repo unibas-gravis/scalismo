@@ -20,8 +20,6 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPointsDomain}
 import scalismo.geometry.{Dim, Point, Vector, _3D}
 import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh3D}
-import scalismo.mesh.kdtree.Metric
-import scalismo.mesh.surfaceDistance._
 import scalismo.mesh.surfaceDistance.BSDistance.Triangle
 
 import scala.util.Random

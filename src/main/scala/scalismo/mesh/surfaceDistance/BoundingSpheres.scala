@@ -18,7 +18,6 @@ package scalismo.mesh.surfaceDistance
 import breeze.linalg.max
 import breeze.numerics.{abs, pow, sqrt}
 import scalismo.geometry.{Point, Vector, _3D}
-import scalismo.mesh.TriangleMesh3D
 import scalismo.mesh.surfaceDistance.BSDistance.Triangle
 
 import scala.annotation.tailrec
@@ -27,17 +26,23 @@ import scala.annotation.tailrec
 /**
   * Bounding sphere node of the tree structure.
   *
-  * @center Center of bounding sphere.
-  * @r2 Squared radius of bounding sphere.
-  * @idx Index of entity used to form leave.
+  * @param center Center of bounding sphere.
+  * @param r2 Squared radius of bounding sphere.
+  * @param idx Index of entity used to form leave.
   */
-abstract class BoundingSphere(val center: Vector[_3D],
+private abstract class BoundingSphere(val center: Vector[_3D],
                               val r2: Double,
                               val idx: Int,
                               val left: BoundingSphere,
                               val right: BoundingSphere) {
+  /**
+    * true if left child sphere exists
+    */
   def hasLeft: Boolean
 
+  /**
+    * true if right child sphere exists
+    */
   def hasRight: Boolean
 }
 
@@ -45,30 +50,42 @@ abstract class BoundingSphere(val center: Vector[_3D],
 /**
   * Factory for the BoundingSphere search structure.
   */
-object BoundingSpheres {
+private object BoundingSpheres {
 
+  /**
+    * Create search index from list of points.
+    */
   def createForPoints(pointList: Seq[Point[_3D]]): BoundingSphere = {
-    val leaves = Sphere.fromPoints(pointList)
-    val root = buildSpheres(leaves)
+    val spheres = pointList.map(p => Sphere.fromPoint(p))
+    val root = buildSearchIndex(spheres)
     root
   }
 
+  /**
+    * Create search index from list of triangles.
+    */
   def createForTriangles(triangleList: Seq[Triangle]): BoundingSphere = {
-    val leaves = Sphere.fromTriangles(triangleList)
-    val root = buildSpheres(leaves)
+    val leaves = triangleList.map(t => Sphere.fromTriangle(t))
+    val root = buildSearchIndex(leaves)
     root
   }
 
-  private[surfaceDistance] def buildSpheres(leaves: IndexedSeq[Sphere]): BoundingSphere = {
-    val binarySphereLeaves = leaves.zipWithIndex.map(l => new BoundingSphereLeave(l._1.center, l._1.r2, l._2))
+  /**
+    * build search index for spheres
+    */
+  def buildSearchIndex(spheres: Seq[Sphere]): BoundingSphere = {
+    val binarySphereLeaves = spheres.zipWithIndex.map(l => new BoundingSphereLeave(l._1.center, l._1.r2, l._2))
     buildTree(binarySphereLeaves)
   }
 
 
-  private[surfaceDistance] final def buildTree(partitions: IndexedSeq[BoundingSphere]): BoundingSphere = {
+  /**
+    * build search index recursively
+    */
+  final def buildTree(partitions: Seq[BoundingSphere]): BoundingSphere = {
     partitions.length match {
       case 1 =>
-        partitions(0)
+        partitions.head
 
       case _ =>
         val centers = partitions.map(s => s.center)
@@ -79,9 +96,12 @@ object BoundingSpheres {
   }
 
 
-  def mergeNearestSpherePairs(partitions: IndexedSeq[BoundingSphere], nearestPointIndex: IndexedSeq[Int]): IndexedSeq[BoundingSphere] = {
-    val used = Array.fill[Boolean](nearestPointIndex.length)(false)
-    val mergedTrees = nearestPointIndex.zipWithIndex.map { p =>
+  /**
+    * merge partitions according to nearestSphereIndex
+    */
+  def mergeNearestSpherePairs(partitions: Seq[BoundingSphere], nearestSphereIndex: Seq[Int]): Seq[BoundingSphere] = {
+    val used = Array.fill[Boolean](nearestSphereIndex.length)(false)
+    val mergedTrees = nearestSphereIndex.zipWithIndex.map { p =>
       if (p._1 != p._2) {
         // do not merge sphere with itself
         if (!used(p._1) && !used(p._2)) {
@@ -101,8 +121,10 @@ object BoundingSpheres {
     subtrees
   }
 
-
-  private[surfaceDistance] def createSubtree(a: BoundingSphere, b: BoundingSphere): BoundingSphere = {
+  /**
+    * merge two bounding spheres
+    */
+  def createSubtree(a: BoundingSphere, b: BoundingSphere): BoundingSphere = {
     val ab = b.center - a.center
     val dist2 = ab.norm2
 
@@ -126,7 +148,10 @@ object BoundingSpheres {
   }
 
 
-  private[surfaceDistance] def calculateNearestPointPairs(points: IndexedSeq[Vector[_3D]]): IndexedSeq[Int] = {
+  /**
+    * calculate index of nearest points pairs
+    */
+  def calculateNearestPointPairs(points: Seq[Vector[_3D]]): Seq[Int] = {
     val matchedPoints = Array.fill[Int](points.length)(-1)
     val pointsWithIndex = points.zipWithIndex
 
@@ -134,8 +159,11 @@ object BoundingSpheres {
     matchedPoints.toIndexedSeq
   }
 
+  /**
+    * match points recursively to get n/2 pairs and an optional single point
+    */
   @tailrec
-  private[surfaceDistance] final def matchPoints(points: IndexedSeq[(Vector[_3D], Int)], matchedPoints: Array[Int]): Unit = {
+  final def matchPoints(points: Seq[(Vector[_3D], Int)], matchedPoints: Array[Int]): Unit = {
     points.length match {
 
       case 0 =>
@@ -155,9 +183,12 @@ object BoundingSpheres {
     }
   }
 
+  /**
+    * Find best point pairs, some points might not be matched
+    */
   @inline
-  private[surfaceDistance] def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: IndexedSeq[(Double, Int, ((Vector[_3D], Int), Int))],
-                                                                     sortedPoints: IndexedSeq[(Vector[_3D], Int)],
+  def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((Vector[_3D], Int), Int))],
+                                                                     sortedPoints: Seq[(Vector[_3D], Int)],
                                                                      matchedPoints: Array[Int]
                                                                     ): Array[Boolean] = {
     val chosen = Array.fill[Boolean](closestPointPairs.length)(false)
@@ -179,8 +210,11 @@ object BoundingSpheres {
     chosen
   }
 
+  /**
+    * Find for each point the closest neighbour
+    */
   @inline
-  private[surfaceDistance] def findClosestPointPairs(sortedPoints: IndexedSeq[(Vector[_3D], Int)]) = {
+  def findClosestPointPairs(sortedPoints: Seq[(Vector[_3D], Int)]) = {
     sortedPoints.zipWithIndex.map {
       e =>
         val spIndex = e._2
@@ -227,53 +261,75 @@ object BoundingSpheres {
 }
 
 
+/**
+  * Inner node of the search index.
+  */
 private class BoundingSphereSplit(center: Vector[_3D],
                                   r2: Double,
                                   idx: Int,
                                   left: BoundingSphere,
                                   right: BoundingSphere
-                                 ) extends BoundingSphere(center, r2, idx, left, right) {
+                                 )
+  extends BoundingSphere(center, r2, idx, left, right) {
   override def hasLeft: Boolean = left != null
 
   override def hasRight: Boolean = right != null
 }
 
+/**
+  * Leave node of the search index.
+  */
 private class BoundingSphereLeave(center: Vector[_3D],
                                   r2: Double,
                                   idx: Int
-                                 ) extends BoundingSphere(center, r2, idx, null, null) {
+                                 )
+  extends BoundingSphere(center, r2, idx, null, null) {
+
   override def hasLeft: Boolean = false
 
   override def hasRight: Boolean = false
 }
 
+/**
+  * Helper class to build BoundingSphereLeaves
+  */
 private case class Sphere(center: Vector[_3D], r2: Double)
 
+/**
+  * Factory for Sphere class.
+  */
 private object Sphere {
 
-  def fromPoints(points: Seq[Point[_3D]]): IndexedSeq[Sphere] = {
-    val centers = points.map(_.toVector)
-    val r2s = IndexedSeq.fill(centers.size)(1.0e-6)
-    centers.zip(r2s).map(a => new Sphere(a._1, a._2)).toIndexedSeq
+  /**
+    * Create spheres around points with radius.
+    */
+  def fromPoint(point: Point[_3D], radius: Double = 1.0e-6): Sphere = {
+    Sphere(point.toVector, radius)
   }
 
-  def fromLines(mesh: TriangleMesh3D): IndexedSeq[Sphere] = {
-    val centers = mesh.pointSet.points.toIndexedSeq
-    val r2s = IndexedSeq.fill(centers.size)(1.0e-6)
-    centers.zip(r2s).map(a => new Sphere(a._1.toVector, a._2))
+  /**
+    * Create spheres around a line.
+    */
+  def fromLine(line: (Point[_3D], Point[_3D])): Sphere = {
+    val a = line._1.toVector
+    val b = line._2.toVector
+    val c = (a + b) * 0.5
+    val r = max((a - c).norm2, (b - c).norm2)
+    Sphere(c, r)
+
   }
 
-  def fromTriangles(triangleList: Seq[Triangle]): IndexedSeq[Sphere] = {
-    val spheres = triangleList.map { t =>
-      BoundingSpheresHelper.triangleCircumSphere(t.a, t.b, t.c)
-    }
-    spheres.map(a => new Sphere(a._1, a._2)).toIndexedSeq
+  /**
+    * Create sphere around a triangle
+    */
+  def fromTriangle(triangle: Triangle): Sphere = {
+    val sphere = triangleCircumSphere(triangle.a, triangle.b, triangle.c)
+    new Sphere(sphere._1, sphere._2)
   }
-}
 
-
-private object BoundingSpheresHelper {
-
+  /**
+    * Calculate sphere around three points, e.g. a triangle
+    */
   def triangleCircumSphere(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D]): (Vector[_3D], Double) = {
     // rather complex function taken from c++ ... TODO: should be checked if we cant reach the result more easily, pay attention to possible numerical problems
     var center = a
