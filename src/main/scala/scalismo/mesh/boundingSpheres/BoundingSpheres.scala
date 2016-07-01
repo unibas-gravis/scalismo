@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.mesh.surfaceDistance
+package scalismo.mesh.boundingSpheres
 
 import breeze.linalg.max
 import breeze.numerics.{abs, pow, sqrt}
 import scalismo.geometry.{Point, Vector, _3D}
-import scalismo.mesh.surfaceDistance.BSDistance.Triangle
-
 import scala.annotation.tailrec
+
+/**
+  * The idea for the bounding spheres is taken from the following paper of D. Maier, J. Hesser, R. Männer:
+  * Fast and Accurate Closest Point Search on Triangulated Surfaces and its Application to Head Motion Estimation
+  */
+
 
 
 /**

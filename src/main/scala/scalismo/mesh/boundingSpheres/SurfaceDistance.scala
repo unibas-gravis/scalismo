@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.mesh.surfaceDistance
+package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
 import scalismo.geometry.{Dim, Point, Vector, _3D}
 import scalismo.mesh.{TriangleId, TriangleMesh3D}
-import scalismo.mesh.surfaceDistance.BSDistance._
+import scalismo.mesh.boundingSpheres.BSDistance._
 
 
 /**
@@ -32,6 +32,7 @@ import ClosestPointType._
 
 /**
   * Descritpion of a closest point
+ *
   * @param distance2 the squared distance
   * @param pt the coordinates
   * @param ptType on which geometric entity of the surface the closest point lies

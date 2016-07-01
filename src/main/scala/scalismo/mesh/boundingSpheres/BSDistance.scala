@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.mesh.surfaceDistance
+package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
 import scalismo.geometry.{Vector, _3D}
-import scalismo.mesh.surfaceDistance.ClosestPointType._
+import scalismo.mesh.boundingSpheres.ClosestPointType._
 
+
+/**
+  * Holds triangles and precalculated vectors.
+  */
+private case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
+
+/**
+  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
+  */
+private case class BC(var a: Double, var b: Double)
 
 /**
   * Collection of helper classes and functions for bounding spheres.
   */
 private object BSDistance {
-
-  /**
-    * Holds triangles and precalculated vectors.
-    */
-  case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
-
-  /**
-    * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
-    */
-  case class BC(var a: Double, var b: Double)
-
 
   /**
     * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.

@@ -13,33 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.mesh.surfaceDistance
+package scalismo.mesh.boundingSpheres
 
 import breeze.numerics._
 import BSDistance.{Distance2, Index, _}
 import scalismo.geometry.{Point, Vector, _3D}
+import scalismo.mesh.TriangleMesh
 
 
-case class PointSetDistance(private val bs: BoundingSphere,
-                            private val points: Seq[Point[_3D]]) {
-  val pointList = points.map(_.toVector).toIndexedSeq
-  var lastIdx: Int = 0
+trait PointSetDistance {
+  def closestPoint(point: Point[_3D]): (Point[_3D], Double, Int)
+}
 
 
-  def closestPoint(point: Point[_3D]): (Double, Point[_3D], Int) = {
-    val p = point.toVector
-    val index = Index(lastIdx)
-    val lastP = pointList(lastIdx)
-    val lastD = toPoint(lastP, p)
-    val d: Distance2 = new Distance2(lastD.distance2)
-    distanceToPartition(p, bs, d, index)
-    (d.distance2, pointList(index.idx).toPoint, index.idx)
+/**
+  * PointSetDistance
+  */
+object PointSetDistance {
+
+  /**
+    * Create PointSetDistance for a list of points.
+    */
+  def fromPointList(points: Seq[Point[_3D]]): PointSetDistance = {
+    val bs = BoundingSpheres.createForPoints(points)
+    new PointSetDistanceImplementation(bs, points)
   }
 
-  def distanceToPartition(point: Vector[_3D],
-                          partition: BoundingSphere,
-                          result: Distance2,
-                          index: Index): Unit = {
+  /**
+    * Create PointSetDistance for a list of points.
+    */
+  def fromMesh(mesh: TriangleMesh[_3D] ): PointSetDistance = {
+    val points = mesh.pointSet.points.toSeq
+    val bs = BoundingSpheres.createForPoints(points)
+    new PointSetDistanceImplementation(bs, points)
+  }
+}
+
+/**
+  * Class to calculate distance to a point set.
+  */
+private class PointSetDistanceImplementation(private val bs: BoundingSphere,
+                                             private val points: Seq[Point[_3D]])
+  extends PointSetDistance {
+
+
+  /**
+    * find closest point function
+    */
+  def closestPoint(point: Point[_3D]): (Point[_3D], Double, Int) = {
+    val p = point.toVector
+    val lastP = pointList(lastIdx.idx)
+    val lastD = toPoint(lastP, p)
+    val d: Distance2 = new Distance2(lastD.distance2)
+    distanceToPartition(p, bs, d, lastIdx)
+    (pointList(lastIdx.idx).toPoint, d.distance2, lastIdx.idx)
+  }
+
+  private val lastIdx: Index = Index(0)
+  private val pointList = points.map(_.toVector).toIndexedSeq
+
+  private def distanceToPartition(point: Vector[_3D],
+                                  partition: BoundingSphere,
+                                  result: Distance2,
+                                  index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toPoint(point, pointList(partition.idx))
@@ -105,11 +141,5 @@ case class PointSetDistance(private val bs: BoundingSphere,
     }
   }
 
-}
-
-object PointSetDistance {
-  implicit def closestPointDistance(ps: PointSetDistance, point: Vector[_3D], idx: Int): Distance2 = {
-    BSDistance.toPoint(point, ps.pointList(idx))
-  }
 }
 

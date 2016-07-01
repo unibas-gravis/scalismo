@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.mesh.surfaceDistance
+package scalismo.mesh.boundingSpheres
 
 import breeze.linalg.{max, min}
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPointsDomain}
 import scalismo.geometry.{Dim, Point, Vector, _3D}
 import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh3D}
-import scalismo.mesh.surfaceDistance.BSDistance.Triangle
 
 import scala.util.Random
 
@@ -38,11 +37,11 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
     Vector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
-  def randomTriangle(offset: Double = 0.0, scale: Double = 1.0): Triangle = {
+  private def randomTriangle(offset: Double = 0.0, scale: Double = 1.0): Triangle = {
     val a = randomVector(offset, scale)
     val b = randomVector(offset, scale)
     val c = randomVector(offset, scale)
-    BSDistance.Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+    Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
   }
 
   def aeqV[D <: Dim](a: Vector[D], b: Vector[D], theta: Double = 1.0e-8): Boolean = {
@@ -190,8 +189,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
       val points = (for (i <- 0 until 10000) yield randomPoint())
       val pd = UnstructuredPointsDomain(points)
 
-      val bs = BoundingSpheres.createForPoints(points)
-      val md = PointSetDistance(bs, points)
+      val md = PointSetDistance.fromPointList(points)
 
       (0 until 100) foreach { i =>
         val p = randomPoint()
@@ -201,10 +199,10 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
 
 
         val vdist = (vpt.point - p).norm2
-        val cdist = (cp._2 - p).norm2
+        val cdist = (cp._1 - p).norm2
 
         vdist shouldBe cdist
-        vpt.point shouldBe cp._2
+        vpt.point shouldBe cp._1
       }
 
     }
@@ -217,7 +215,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
         val a = randomVector()
         val b = randomVector()
         val c = randomVector()
-        BSDistance.Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
       }
 
       val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
