@@ -337,12 +337,12 @@ object ValueClassScalarArray {
 /** Factory for ScalarArray instances. */
 object ScalarArray {
 
-//  /**
-//   * Converts a native array of scalar values to the corresponding [[ScalarArray]] instance
-//   * @param array a native array of scalar values
-//   * @tparam T the type of the scalar data
-//   * @return the corresponding [[ScalarArray]] instance, containing the same data as <code>array</code>
-//   */
+  //  /**
+  //   * Converts a native array of scalar values to the corresponding [[ScalarArray]] instance
+  //   * @param array a native array of scalar values
+  //   * @tparam T the type of the scalar data
+  //   * @return the corresponding [[ScalarArray]] instance, containing the same data as <code>array</code>
+  //   */
   def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
     val scalar = implicitly[Scalar[T]]
     scalar match {

@@ -19,7 +19,6 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.numerics.sqrt
 import scalismo.common._
-import scalismo.common.CreateUnstructuredPointsDomain._
 import scalismo.geometry.Vector._
 import scalismo.geometry._
 import scalismo.mesh._
