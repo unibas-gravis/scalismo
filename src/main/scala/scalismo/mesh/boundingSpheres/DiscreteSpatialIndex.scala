@@ -16,66 +16,67 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics._
-import BSDistance.{Distance2, Index, _}
-import scalismo.geometry.{Point, Vector, _3D}
+import BSDistance.{ Distance2, Index, _ }
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.mesh.TriangleMesh
 
-
-trait PointSetDistance {
-  def closestPoint(point: Point[_3D]): (Point[_3D], Double, Int)
+/**
+ * SpatialIndex for a set of points
+ */
+trait DiscreteSpatialIndex {
+  def closestPoint(point: Point[_3D]): ClosestPointIsPoint
 }
 
-
 /**
-  * PointSetDistance
-  */
-object PointSetDistance {
+ * SpatialIndex for a set of points.
+ */
+object DiscreteSpatialIndex {
 
   /**
-    * Create PointSetDistance for a list of points.
-    */
-  def fromPointList(points: Seq[Point[_3D]]): PointSetDistance = {
-    val bs = BoundingSpheres.createForPoints(points)
-    new PointSetDistanceImplementation(bs, points)
+   * Create PointSetDistance for a list of points.
+   */
+  def fromPointList[A <: Traversable[Point[_3D]]](points: A): DiscreteSpatialIndex = {
+    val pts = points.toIndexedSeq
+    val bs = BoundingSpheres.createForPoints(pts)
+    new DiscreteSpatialIndexImplementation(bs, pts)
   }
 
   /**
-    * Create PointSetDistance for a list of points.
-    */
-  def fromMesh(mesh: TriangleMesh[_3D] ): PointSetDistance = {
+   * Create PointSetDistance for a list of points.
+   */
+  def fromMesh(mesh: TriangleMesh[_3D]): DiscreteSpatialIndex = {
     val points = mesh.pointSet.points.toSeq
     val bs = BoundingSpheres.createForPoints(points)
-    new PointSetDistanceImplementation(bs, points)
+    new DiscreteSpatialIndexImplementation(bs, points)
   }
 }
 
 /**
-  * Class to calculate distance to a point set.
-  */
-private class PointSetDistanceImplementation(private val bs: BoundingSphere,
-                                             private val points: Seq[Point[_3D]])
-  extends PointSetDistance {
-
+ * Class to calculate distance to a point set.
+ */
+private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
+  private val points: Seq[Point[_3D]])
+    extends DiscreteSpatialIndex {
 
   /**
-    * find closest point function
-    */
-  def closestPoint(point: Point[_3D]): (Point[_3D], Double, Int) = {
+   * find closest point function
+   */
+  def closestPoint(point: Point[_3D]): ClosestPointIsPoint = {
     val p = point.toVector
     val lastP = pointList(lastIdx.idx)
     val lastD = toPoint(lastP, p)
     val d: Distance2 = new Distance2(lastD.distance2)
     distanceToPartition(p, bs, d, lastIdx)
-    (pointList(lastIdx.idx).toPoint, d.distance2, lastIdx.idx)
+    ClosestPointIsPoint(pointList(lastIdx.idx).toPoint, d.distance2, lastIdx.idx)
   }
 
   private val lastIdx: Index = Index(0)
   private val pointList = points.map(_.toVector).toIndexedSeq
 
   private def distanceToPartition(point: Vector[_3D],
-                                  partition: BoundingSphere,
-                                  result: Distance2,
-                                  index: Index): Unit = {
+    partition: BoundingSphere,
+    result: Distance2,
+    index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toPoint(point, pointList(partition.idx))

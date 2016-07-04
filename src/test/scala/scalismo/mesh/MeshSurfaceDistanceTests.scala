@@ -15,15 +15,15 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import breeze.linalg.{max, min}
+import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{Dim, Point, Vector, _3D}
-import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh3D}
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
+import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 
 import scala.util.Random
 
-class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
+class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
   implicit val rnd = Random
 
@@ -56,8 +56,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
     a - b < theta
   }
 
-
-  describe( "The SurfaceDistance" ) {
+  describe("The SurfaceDistance") {
 
     it("should use correct barycentric coordinate for points on a line") {
       (0 until 100) foreach { j =>
@@ -95,8 +94,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
         }
       }
     }
-
-
 
     it("should use correct barycentric coordinate for points away from the line") {
       (0 until 100) foreach { j =>
@@ -138,27 +135,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
       }
     }
 
-
-
-    it("should use correct barycentric coordinates for points in triangle plane ") {
-      (0 until 100) foreach { j =>
-        val pairs = IndexedSeq((0.0, 1.0), (10.0, 10.0), (100.0, 100.0), (-10.0, 10.0))
-        pairs.foreach { pair =>
-          val tri = randomTriangle(pair._1, pair._2)
-          (0 until 100) foreach { i =>
-            val s = rgen()
-            val t = rgen()
-
-            val p = tri.a + tri.ab * s + tri.ac * t
-
-            val res = BSDistance.calculateBarycentricCoordinates(tri, p)
-            s shouldBe res._1 +- 1.0e-8
-            t shouldBe res._2 +- 1.0e-8
-          }
-        }
-      }
-    }
-
     it("should return the correct barycentric coordinates in a triangle") {
       (0 until 100) foreach { j =>
         val pairs = IndexedSeq((0, 1), (10, 10), (100, 100), (-10, 10))
@@ -179,64 +155,27 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
             pt(1) shouldBe ct.pt(1) +- 1.0e-8
             pt(2) shouldBe ct.pt(2) +- 1.0e-8
 
-                      }
+          }
         }
       }
     }
 
-    it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
-      Random.setSeed(42)
-      val points = (for (i <- 0 until 10000) yield randomPoint())
-      val pd = UnstructuredPointsDomain(points)
+    it("should use correct barycentric coordinates for points in triangle plane ") {
+      (0 until 100) foreach { j =>
+        val pairs = IndexedSeq((0.0, 1.0), (10.0, 10.0), (100.0, 100.0), (-10.0, 10.0))
+        pairs.foreach { pair =>
+          val tri = randomTriangle(pair._1, pair._2)
+          (0 until 100) foreach { i =>
+            val s = rgen()
+            val t = rgen()
 
-      val md = PointSetDistance.fromPointList(points)
+            val p = tri.a + tri.ab * s + tri.ac * t
 
-      (0 until 100) foreach { i =>
-        val p = randomPoint()
-        val vpt = pd.findClosestPoint(p)
-
-        val cp = md.closestPoint(p)
-
-
-        val vdist = (vpt.point - p).norm2
-        val cdist = (cp._1 - p).norm2
-
-        vdist shouldBe cdist
-        vpt.point shouldBe cp._1
-      }
-
-    }
-
-    it("should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles") {
-      Random.setSeed(42)
-
-      val triangles = (0 until 100) map { j =>
-        // test if two function lead to same cp
-        val a = randomVector()
-        val b = randomVector()
-        val c = randomVector()
-        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
-      }
-
-      val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
-
-      val pd = UnstructuredPointsDomain(points)
-
-      val sd = SurfaceDistance.fromTriangleMesh3D(TriangleMesh3D(
-        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
-
-      (0 until 1000) foreach { i =>
-        val p = randomVector()
-
-        // findClosestPoint from UnstructuredPointsDomain
-        val vp = pd.findClosestPoint(p.toPoint)
-        val vd = (vp.point - p.toPoint).norm2
-
-        val ge = sd.getClosestPoint(p.toPoint)
-
-        require(vd >= ge._2)
+            val res = BSDistance.calculateBarycentricCoordinates(tri, p)
+            s shouldBe res._1 +- 1.0e-8
+            t shouldBe res._2 +- 1.0e-8
+          }
+        }
       }
     }
 
@@ -260,9 +199,63 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
       }
     }
 
+    it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
+      Random.setSeed(42)
+      val points = (for (i <- 0 until 10000) yield randomPoint())
+      val pd = UnstructuredPointsDomain(points)
+
+      val md = DiscreteSpatialIndex.fromPointList(points)
+
+      (0 until 100) foreach { i =>
+        val p = randomPoint()
+
+        val vpt = pd.findClosestPoint(p)
+        val vdist = (vpt.point - p).norm2
+
+        val cp = md.closestPoint(p)
+
+        vdist shouldBe cp.distance2
+        vpt.point shouldBe cp.point
+      }
+
+    }
+
+    it("should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles") {
+      Random.setSeed(42)
+
+      val triangles = (0 until 100) map { j =>
+        // test if two function lead to same cp
+        val a = randomVector()
+        val b = randomVector()
+        val c = randomVector()
+        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+      }
+
+      val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
+
+      val pd = UnstructuredPointsDomain(points)
+
+      val sd = SurfaceSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
+        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
+        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
+      ))
+
+      (0 until 1000) foreach { i =>
+        val p = randomVector()
+
+        // findClosestPoint from UnstructuredPointsDomain
+        val vp = pd.findClosestPoint(p.toPoint)
+        val vd = (vp.point - p.toPoint).norm2
+
+        val ge = sd.getClosestPoint(p.toPoint)
+
+        require(vd >= ge._2)
+      }
+    }
+
   }
 
-  describe( "The BoundingSphere" ) {
+  describe("The BoundingSphere") {
 
     it("should find the correct closest points pairs in a sorted list") {
 
@@ -287,11 +280,11 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite  {
       val centers = (0 until 10000) map { i =>
         randomVector()
       }
-      val list = centers.sortBy( a => a(1) ).zipWithIndex
+      val list = centers.sortBy(a => a(1)).zipWithIndex
 
       val matches = BoundingSpheres.findClosestPointPairs(list)
       val testMatches = bruteForcePairFinder(list)
-      matches.zip(testMatches).foreach{ res =>
+      matches.zip(testMatches).foreach { res =>
         val m = res._1
         val t = res._2
         m._1 shouldBe t._1

@@ -16,28 +16,27 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
-import scalismo.geometry.{Vector, _3D}
+import scalismo.geometry.{ Vector, _3D }
 import scalismo.mesh.boundingSpheres.ClosestPointType._
 
-
 /**
-  * Holds triangles and precalculated vectors.
-  */
+ * Holds triangles and precalculated vectors.
+ */
 private case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
 
 /**
-  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
-  */
+ * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
+ */
 private case class BC(var a: Double, var b: Double)
 
 /**
-  * Collection of helper classes and functions for bounding spheres.
-  */
+ * Collection of helper classes and functions for bounding spheres.
+ */
 private object BSDistance {
 
   /**
-    * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.
-    */
+   * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.
+   */
   @inline
   def calculateBarycentricCoordinates(triangle: Triangle, p: Vector[_3D]): (Double, Double, Double) = {
     val x = triangle.a - p
@@ -46,14 +45,12 @@ private object BSDistance {
     val ac2 = triangle.ac dot triangle.ac
     val xab = x dot triangle.ab
     val xac = x dot triangle.ac
-    val x2 = x dot x
     val div = ab2 * ac2 - abac * abac
     val s = (abac * xac - ac2 * xab) / div
     val t = (abac * xab - ab2 * xac) / div
     val st = s + t
     (s, t, st)
   }
-
 
   // mutable classes
   case class Index(var idx: Int)
@@ -64,21 +61,20 @@ private object BSDistance {
   case class DistanceSqr(val distance2: Double)
   case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
 
-
   /**
-    * Finds closest point to triangle.
-    */
+   * Finds closest point to triangle.
+   */
   @inline
-  def toTriangle(p: Vector[_3D], triangle: Triangle): ClosestPoint = {
+  def toTriangle(p: Vector[_3D], triangle: Triangle): ClosestPointMeta = {
 
     if (abs(triangle.ab(0)) + abs(triangle.ab(1)) + abs(triangle.ab(2)) < 1.0e-12) {
       // Degenerated case where a and b are the same points
       val r = squaredDistanceClosestPointAndBCOnLineSegment(p, triangle.c, triangle.a)
-      ClosestPoint(r._1, r._2, ON_LINE, (r._3, 0), (2, -1))
+      ClosestPointMeta(r._1, r._2, ON_LINE, (r._3, 0), (2, -1))
     } else if (abs(triangle.ac(0)) + abs(triangle.ac(1)) + abs(triangle.ac(2)) < 1.0e-12) {
       // degenerated case where a and c are the same points
       val r = squaredDistanceClosestPointAndBCOnLineSegment(p, triangle.a, triangle.b)
-      ClosestPoint(r._1, r._2, ON_LINE, (r._3, 0), (0, -1))
+      ClosestPointMeta(r._1, r._2, ON_LINE, (r._3, 0), (0, -1))
     } else {
       // regular case
 
@@ -113,21 +109,21 @@ private object BSDistance {
             // region 0
             val nearest = triangle.a + triangle.ab * s + triangle.ac * t
             val dist2 = squaredDistanceToPoint(nearest, p)
-            ClosestPoint(dist2, nearest, IN_TRIANGLE, (s, t), (-1, -1))
+            ClosestPointMeta(dist2, nearest, IN_TRIANGLE, (s, t), (-1, -1))
           } else {
             // region 5
             val r = squaredDistanceClosestPointAndBCOnLineSegment(p, triangle.a, triangle.b)
-            ClosestPoint(r._1, r._2, ON_LINE, (r._3, 0), (0, -1))
+            ClosestPointMeta(r._1, r._2, ON_LINE, (r._3, 0), (0, -1))
           }
         } else {
           if (t > 0) {
             // region 3
             val r = squaredDistanceClosestPointAndBCOnLineSegment(p, triangle.c, triangle.a)
-            ClosestPoint(r._1, r._2, ON_LINE, (r._3, 0), (2, -1))
+            ClosestPointMeta(r._1, r._2, ON_LINE, (r._3, 0), (2, -1))
           } else {
             // region 4
             val dist2 = squaredDistanceToPoint(triangle.a, p)
-            ClosestPoint(dist2, triangle.a, POINT, (0.0, 0.0), (0, -1))
+            ClosestPointMeta(dist2, triangle.a, POINT, (0.0, 0.0), (0, -1))
           }
         }
       } else {
@@ -135,16 +131,16 @@ private object BSDistance {
           if (t > 0) {
             // region 1
             val r = squaredDistanceClosestPointAndBCOnLineSegment(p, triangle.b, triangle.c)
-            ClosestPoint(r._1, r._2, ON_LINE, (r._3, 0), (1, -1))
+            ClosestPointMeta(r._1, r._2, ON_LINE, (r._3, 0), (1, -1))
           } else {
             // region 6
             val dist2 = squaredDistanceToPoint(triangle.b, p)
-            ClosestPoint(dist2, triangle.b, POINT, (1.0, 0.0), (1, -1))
+            ClosestPointMeta(dist2, triangle.b, POINT, (1.0, 0.0), (1, -1))
           }
         } else {
           // region 2
           val dist2 = squaredDistanceToPoint(triangle.c, p)
-          ClosestPoint(dist2, triangle.c, POINT, (0.0, 1.0), (2, -1))
+          ClosestPointMeta(dist2, triangle.c, POINT, (0.0, 1.0), (2, -1))
         }
       }
 
@@ -152,24 +148,24 @@ private object BSDistance {
   }
 
   @inline
-  def toLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): ClosestPoint = {
+  def toLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): ClosestPointMeta = {
     val dir = pt2 - pt1 // line direction
     val len2 = dir.norm2
     if (len2 < Double.MinPositiveValue) {
       val nearest = (pt1 + pt2) * 0.5
-      ClosestPoint(squaredDistanceToPoint(nearest, p), nearest, ON_LINE, (0.5, 0.0), (0, -1))
+      ClosestPointMeta(squaredDistanceToPoint(nearest, p), nearest, ON_LINE, (0.5, 0.0), (0, -1))
     } else {
       val s = dir.dot(p - pt1)
       val bc = s / len2
       if (bc > 0.0) {
         if (bc < 1.0) {
           val nearest = pt1 + dir * bc
-          ClosestPoint(squaredDistanceToPoint(p, nearest), nearest, ON_LINE, (bc, 0.0), (0, -1))
+          ClosestPointMeta(squaredDistanceToPoint(p, nearest), nearest, ON_LINE, (bc, 0.0), (0, -1))
         } else {
-          ClosestPoint(squaredDistanceToPoint(p, pt2), pt2, POINT, (bc, 0.0), (1, -1))
+          ClosestPointMeta(squaredDistanceToPoint(p, pt2), pt2, POINT, (bc, 0.0), (1, -1))
         }
       } else {
-        ClosestPoint(squaredDistanceToPoint(p, pt1), pt1, POINT, (bc, 0.0), (0, -1))
+        ClosestPointMeta(squaredDistanceToPoint(p, pt1), pt1, POINT, (bc, 0.0), (0, -1))
       }
     }
   }

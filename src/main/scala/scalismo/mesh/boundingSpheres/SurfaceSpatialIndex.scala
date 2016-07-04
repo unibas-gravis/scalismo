@@ -16,71 +16,46 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
-import scalismo.geometry.{Dim, Point, Vector, _3D}
-import scalismo.mesh.{TriangleId, TriangleMesh3D}
+import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.mesh.{ TriangleId, TriangleMesh3D }
 import scalismo.mesh.boundingSpheres.BSDistance._
 
-
 /**
-  * Type of the closest point. At the moment the names are only suited for a triangular mesh.
-  */
-object ClosestPointType extends Enumeration {
-  type ClosestPointType = Value
-  val POINT, ON_LINE, IN_TRIANGLE = Value
-}
-import ClosestPointType._
-
-/**
-  * Descritpion of a closest point
- *
-  * @param distance2 the squared distance
-  * @param pt the coordinates
-  * @param ptType on which geometric entity of the surface the closest point lies
-  * @param bc the barycentric coordinates of the point. The interpretation depends on the ptType.
-  * @param idx the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
-  */
-case class ClosestPoint(val distance2: Double,
-                        pt: Vector[_3D],
-                        ptType: ClosestPointType,
-                        bc: (Double, Double),
-                        idx: (Int, Int))
-
-/**
-  * SurfaceDistance trait with the basic queries defined.
-  */
-trait SurfaceDistance[D <: Dim] {
+ * SurfaceDistance trait with the basic queries defined.
+ */
+trait SurfaceSpatialIndex[D <: Dim] {
 
   /**
-    * Query the shortest distance for a point to a surface.
-    *
-    * @return Squared distance.
-    */
+   * Query the shortest distance for a point to a surface.
+   *
+   * @return Squared distance.
+   */
   def getShortestDistance(pt: Point[D]): Double
 
   /**
-    * Query the closest point on a surface.
-    *
-    * @return The closest point and the squared distance.
-    */
+   * Query the closest point on a surface.
+   *
+   * @return The closest point and the squared distance.
+   */
   def getClosestPoint(pt: Point[D]): (Point[D], Double)
 
   /**
-    * Query the closest point on a surface.
-    *
-    * @return A desciption of the closest point.
-    */
+   * Query the closest point on a surface.
+   *
+   * @return A desciption of the closest point.
+   */
   def getClosestPointMeta(pt: Point[D]): ClosestPoint
 }
 
 /**
-  * Surface distance factory object.
-  */
-object SurfaceDistance {
+ * Surface distance factory object.
+ */
+object SurfaceSpatialIndex {
 
   /**
-    * Creates SurfaceDistance for a TriangleMesh3D.
-    */
-  def fromTriangleMesh3D(mesh: TriangleMesh3D): SurfaceDistance[_3D] = {
+   * Creates SurfaceDistance for a TriangleMesh3D.
+   */
+  def fromTriangleMesh3D(mesh: TriangleMesh3D): SurfaceSpatialIndex[_3D] = {
 
     // build triangle list (use only Vector[_3D], no Points)
     val triangles = mesh.triangulation.triangles.map { t =>
@@ -103,39 +78,63 @@ object SurfaceDistance {
     val bs = BoundingSpheres.createForTriangles(triangles)
 
     // new distance object
-    new TriangleMesh3DSurfaceDistance(bs, mesh, triangles)
+    new TriangleMesh3DSpatialIndex(bs, mesh, triangles)
   }
 
 }
 
+/**
+ * Type of the closest point. At the moment the names are only suited for a triangular mesh.
+ */
+private object ClosestPointType extends Enumeration {
+  type ClosestPointType = Value
+  val POINT, ON_LINE, IN_TRIANGLE = Value
+}
+
+import ClosestPointType._
 
 /**
-  * Surface distance implementation for TriangleMesh3D.
-  */
-private case class TriangleMesh3DSurfaceDistance(bs: BoundingSphere,
-                                                 mesh: TriangleMesh3D,
-                                                 triangles: IndexedSeq[Triangle])
-  extends SurfaceDistance[_3D] {
+ * Descritpion of a closest point
+ *
+ * @param distance2 the squared distance
+ * @param pt        the coordinates
+ * @param ptType    on which geometric entity of the surface the closest point lies
+ * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
+ * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
+ */
+private case class ClosestPointMeta(val distance2: Double,
+  pt: Vector[_3D],
+  ptType: ClosestPointType,
+  bc: (Double, Double),
+  idx: (Int, Int))
+
+/**
+ * Surface distance implementation for TriangleMesh3D.
+ */
+private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
+  mesh: TriangleMesh3D,
+  triangles: IndexedSeq[Triangle])
+    extends SurfaceSpatialIndex[_3D] {
 
   /**
-    * Calculates the squared closest distance to the surface.
-    */
+   * Calculates the squared closest distance to the surface.
+   */
   override def getShortestDistance(point: Point[_3D]): Double = {
     _getClosestPoint(point)
     res.distance2
   }
 
   /**
-    * Calculates the point and the squared closest distance to the surface.
-    */
+   * Calculates the point and the squared closest distance to the surface.
+   */
   override def getClosestPoint(point: Point[_3D]): (Point[_3D], Double) = {
     _getClosestPoint(point)
     (res.pt.toPoint, res.distance2)
   }
 
   /**
-    * Returns a description of the closest Point on the surface.
-    */
+   * Returns a description of the closest Point on the surface.
+   */
   override def getClosestPointMeta(point: Point[_3D]): ClosestPoint = {
 
     _getClosestPoint(point)
@@ -144,27 +143,25 @@ private case class TriangleMesh3DSurfaceDistance(bs: BoundingSphere,
     val triangle = mesh.triangulation.triangle(TriangleId(lastIdx.idx))
     res.ptType match {
 
-      case POINT => res.idx = (triangle.pointIds(res.idx._1).id, -1)
+      case POINT => ClosestPointIsPoint(res.pt.toPoint, res.distance2, triangle.pointIds(res.idx._1).id)
 
       case ON_LINE => res.idx match {
-        case (0, _) => res.idx = (triangle.pointIds(0).id, triangle.pointIds(1).id)
-        case (1, _) => res.idx = (triangle.pointIds(1).id, triangle.pointIds(2).id)
-        case (2, _) => res.idx = (triangle.pointIds(2).id, triangle.pointIds(0).id)
+        case (0, _) => ClosestPointOnLine(res.pt.toPoint, res.distance2, (triangle.pointIds(0).id, triangle.pointIds(1).id), res.bc.a)
+        case (1, _) => ClosestPointOnLine(res.pt.toPoint, res.distance2, (triangle.pointIds(1).id, triangle.pointIds(2).id), res.bc.a)
+        case (2, _) => ClosestPointOnLine(res.pt.toPoint, res.distance2, (triangle.pointIds(2).id, triangle.pointIds(0).id), res.bc.a)
         case _ => throw (new RuntimeException("not a valid line index"))
       }
 
-      case IN_TRIANGLE => res.idx = (lastIdx.idx, -1)
+      case IN_TRIANGLE => ClosestPointInTriangle(res.pt.toPoint, res.distance2, lastIdx.idx, (res.bc.a, res.bc.b))
 
       case _ => throw (new RuntimeException("not a valid PointType"))
     }
 
-    // return result
-    ClosestPoint(res.distance2, res.pt, res.ptType, (res.bc.a,res.bc.b), res.idx)
   }
 
   /**
-    * Finds the closest point on the surface.
-    */
+   * Finds the closest point on the surface.
+   */
   private def _getClosestPoint(point: Point[_3D]): Unit = {
     val p = point.toVector
 
@@ -176,19 +173,17 @@ private case class TriangleMesh3DSurfaceDistance(bs: BoundingSphere,
     distanceToPartition(p, bs, res, lastIdx)
   }
 
-
   /** @note both values contain a mutable state, this is needed to improve speed when having many queries with successive near points. */
   private val lastIdx: Index = Index(0)
   private val res = CP(Double.MaxValue, Vector(-1, -1, -1), POINT, BC(0, 0), (-1, -1))
 
-
   /**
-    * Search for the closest point recursively
-    */
+   * Search for the closest point recursively
+   */
   private def distanceToPartition(point: Vector[_3D],
-                                  partition: BoundingSphere,
-                                  result: CP,
-                                  index: Index): Unit = {
+    partition: BoundingSphere,
+    result: CP,
+    index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toTriangle(point, triangles(partition.idx))
@@ -254,17 +249,14 @@ private case class TriangleMesh3DSurfaceDistance(bs: BoundingSphere,
   }
 
   /**
-    * Helper function to update the mutable case class with immutable sibling.
-    */
-  private def updateCP(result: CP, res: ClosestPoint): Unit = {
+   * Helper function to update the mutable case class with immutable sibling.
+   */
+  private def updateCP(result: CP, res: ClosestPointMeta): Unit = {
     result.distance2 = res.distance2
-    result.bc = BC(res.bc._1,res.bc._2)
+    result.bc = BC(res.bc._1, res.bc._2)
     result.idx = res.idx
     result.pt = res.pt
     result.ptType = res.ptType
   }
 }
-
-
-
 
