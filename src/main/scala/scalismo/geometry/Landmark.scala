@@ -16,7 +16,7 @@
 package scalismo.geometry
 
 import scalismo.io.LandmarkIO
-import scalismo.statisticalmodel.NDimensionalNormalDistribution
+import scalismo.statisticalmodel.MultivariateNormalDistribution
 
-case class Landmark[D <: Dim: NDSpace](id: String, point: Point[D], description: Option[String] = None, uncertainty: Option[NDimensionalNormalDistribution[D]] = None)
+case class Landmark[D <: Dim: NDSpace](id: String, point: Point[D], description: Option[String] = None, uncertainty: Option[MultivariateNormalDistribution] = None)
 
