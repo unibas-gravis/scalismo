@@ -17,9 +17,11 @@ package scalismo.io
 
 import java.io.{ ByteArrayOutputStream, File, InputStream }
 
+import breeze.linalg.DenseVector
+import breeze.math.MutableOptimizationSpace.DenseDoubleOptimizationSpace
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.statisticalmodel.NDimensionalNormalDistribution
+import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 import scala.io.Source
 import scala.language.implicitConversions
@@ -94,11 +96,11 @@ class LandmarkIOTests extends ScalismoTestSuite {
      * SIMPLE JSON LANDMARKS
      */
 
-    def distWithDefaultVectors(d1: Double, d2: Double, d3: Double): NDimensionalNormalDistribution[_3D] = {
-      val axes = List(Vector(1, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1))
+    def distWithDefaultVectors(d1: Double, d2: Double, d3: Double): MultivariateNormalDistribution = {
+      val axes = List(DenseVector[Double](1, 0, 0), DenseVector[Double](0, 1, 0), DenseVector[Double](0, 0, 1))
       val devs = List(d1, d2, d3)
       val data = axes zip devs
-      NDimensionalNormalDistribution(Vector(0, 0, 0), data)
+      MultivariateNormalDistribution(DenseVector[Double](0, 0, 0), data)
     }
 
     val jsonLm1 = Landmark("one", Point(1, 2, 3))

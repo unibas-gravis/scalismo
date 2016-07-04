@@ -16,7 +16,8 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector, det, inv }
+import breeze.linalg._
+import scalismo.geometry.Vector
 import scalismo.geometry._
 
 import scala.util.Try
@@ -153,6 +154,25 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
 
 object MultivariateNormalDistribution {
 
+  def apply(mean: DenseVector[Double], principalComponents: Seq[(DenseVector[Double], Double)]): MultivariateNormalDistribution = {
+
+    val dim = mean.length
+    require(principalComponents.length == dim)
+
+    val cov: DenseMatrix[Double] = {
+      val d2 = diag(DenseVector[Double](principalComponents.map(_._2).toArray))
+
+      // stack pcs
+      val u = principalComponents.tail.foldLeft(principalComponents.head._1.toDenseMatrix) {
+        case (m: DenseMatrix[Double], pc: (DenseVector[Double], Double)) =>
+          DenseMatrix.vertcat(m, pc._1.toDenseMatrix)
+      }
+
+      u * d2 * u.t
+    }
+    MultivariateNormalDistribution(mean, cov)
+  }
+
   def estimateFromData(samples: Seq[DenseVector[Double]]): MultivariateNormalDistribution = {
 
     val numSamples = samples.length
@@ -174,6 +194,7 @@ object MultivariateNormalDistribution {
 
 }
 
+@deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.", "0.13.0")
 object NDimensionalNormalDistribution {
   def apply[D <: Dim: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Double)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
@@ -192,6 +213,7 @@ object NDimensionalNormalDistribution {
   }
 }
 
+@deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.", "0.13.0")
 case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], cov: SquareMatrix[D])
     extends MultivariateNormalDistributionLike[Vector[D], SquareMatrix[D]] {
 

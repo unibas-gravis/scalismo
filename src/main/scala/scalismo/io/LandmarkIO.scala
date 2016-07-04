@@ -17,8 +17,9 @@ package scalismo.io
 
 import java.io._
 
+import breeze.linalg.DenseVector
 import scalismo.geometry._
-import scalismo.statisticalmodel.NDimensionalNormalDistribution
+import scalismo.statisticalmodel.MultivariateNormalDistribution
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 
@@ -33,15 +34,16 @@ object LandmarkIO {
 
   private implicit val uncertaintyProtocol = jsonFormat2(Uncertainty.apply)
 
-  private implicit def u2m[D <: Dim: NDSpace](u: Uncertainty): NDimensionalNormalDistribution[D] = {
-    val dim = implicitly[NDSpace[D]].dimensionality
-    val pcs: Seq[Vector[D]] = u.pcvectors.take(dim).map { l => Vector(l.take(dim).toArray) }
+  private implicit def u2m(u: Uncertainty): MultivariateNormalDistribution = {
+    val dim = u.stddevs.size
+    val pcs: Seq[DenseVector[Double]] = u.pcvectors.take(dim).map { l => DenseVector(l.take(dim).toArray) }
     val variances: Seq[Double] = u.stddevs.take(dim).map(f => f * f)
-    val mean: Vector[D] = Vector(Array.fill(dim)(0.0f))
-    NDimensionalNormalDistribution(mean, pcs.zip(variances))
+    val mean: DenseVector[Double] = DenseVector.zeros(dim)
+    MultivariateNormalDistribution(mean, pcs.zip(variances))
+
   }
 
-  private implicit def m2u[D <: Dim: NDSpace](m: NDimensionalNormalDistribution[D]): Uncertainty = {
+  private implicit def m2u(m: MultivariateNormalDistribution): Uncertainty = {
     val (pcs, variances) = m.principalComponents.unzip
     val stdDevs: List[Double] = variances.map(Math.sqrt(_)).toList
     val pcList: List[List[Double]] = pcs.map(v => v.toArray.toList).toList
