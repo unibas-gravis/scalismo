@@ -55,6 +55,23 @@ class MeshIOTests extends ScalismoTestSuite {
       val failed = MeshIO.readHDF5(new File(path))
       failed.isFailure should be(true)
     }
+
+    it("yields the original polyline when reading  and writing a polyLine in 2D") {
+      val path = getClass.getResource("/linemesh.vtk").getPath
+      val origMesh = MeshIO.readPolyLine2D(new File(path)).get
+
+      val tmpFile = File.createTempFile("mesh", ".vtk")
+      val writeStatus = MeshIO.writePolyLine(origMesh, tmpFile)
+      writeStatus.isSuccess should be(true)
+
+      val meshTry = MeshIO.readPolyLine2D(tmpFile)
+      meshTry.isSuccess should be(true)
+      meshTry.map { mesh =>
+        mesh should equal(origMesh)
+      }
+
+    }
+
   }
 
   describe("ScalarMeshField IO") {

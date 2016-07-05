@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{ PointId, RealSpace }
+import scalismo.common.{ UnstructuredPointsDomain, PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 

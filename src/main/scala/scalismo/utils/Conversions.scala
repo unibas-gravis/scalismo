@@ -168,32 +168,7 @@ object MeshConversion {
 
     val vtkType = newPd.GetPoints().GetDataType()
 
-    val pointsArray: Array[Float] = if (vtkType == VtkHelpers.VTK_FLOAT) {
-      // "usual" case: Mesh datatype is Float
-      val pointsArrayVtk = newPd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
-      pointsArrayVtk.GetJavaArray()
-    } else {
-      // "unusual" case: any other datatype
-      import ImageIO.ScalarType
-      val sa: ScalarArray[Any] = VtkHelpers.vtkDataArrayToScalarArray(vtkType, newPd.GetPoints().GetData()).get
-      val fsa: ScalarArray[Float] = ScalarType.fromVtkId(vtkType) match {
-        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map[Float](_.toFloat)
-        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map[Float](_.toFloat)
-        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map[Float](_.toFloat)
-        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map[Float](_.toFloat)
-        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map[Float](_.toFloat)
-        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map[Float](_.toFloat)
-        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map[Float](_.toFloat)
-        case _ => throw new UnsupportedOperationException("Unsupported scalar type")
-      }
-      fsa match {
-        // the first case should always match, but we have a (less efficient) backup strategy just in case
-        case psa: PrimitiveScalarArray[Float] => psa.rawData
-        case _ => fsa.iterator.toArray
-      }
-    }
-
-    val points = pointsArray.grouped(3).map(p => Point(p(0), p(1), p(2)))
+    val points = vtkConvertPoints[_3D](newPd)
 
     val idList = new vtkIdList()
     val cells = for (i <- 0 until numPolys) yield {
@@ -206,6 +181,40 @@ object MeshConversion {
     }
     idList.Delete()
     (points, cells)
+  }
+
+  private[scalismo] def vtkConvertPoints[D <: Dim: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
+    val vtkType = pd.GetPoints().GetDataType()
+
+    val pointsArray: Array[Float] = if (vtkType == VtkHelpers.VTK_FLOAT) {
+      // "usual" case: Mesh datatype is Float
+      val pointsArrayVtk = pd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
+      pointsArrayVtk.GetJavaArray()
+    } else {
+      // "unusual" case: any other datatype
+      import ImageIO.ScalarType
+      val sa = VtkHelpers.vtkDataArrayToScalarArray(vtkType, pd.GetPoints().GetData()).get
+      val fsa: ScalarArray[Float] = ScalarType.fromVtkId(vtkType) match {
+        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map[Float](_.toFloat)
+        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map[Float](_.toFloat)
+        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map[Float](_.toFloat)
+        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map[Float](_.toFloat)
+        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map[Float](_.toFloat)
+        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map[Float](_.toFloat)
+        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map[Float](_.toFloat)
+        case _ => throw new scala.UnsupportedOperationException("Unsupported scalar type")
+      }
+      fsa match {
+        // the first case should always match, but we have a (less efficient) backup strategy just in case
+        case psa: PrimitiveScalarArray[Float] => psa.rawData
+        case _ => fsa.iterator.toArray
+      }
+    }
+
+    // vtk point are alwyas 3D. Therefore we take all three coordinates out of the array but,
+    // if we are in 2D, take only the first 2. Finally, we need to convert them from float to double.
+    pointsArray.grouped(3)
+      .map(p => Point(p.take(NDSpace[D].dimensionality).toArray.map(_.toDouble)))
   }
 
   def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh[_3D]] = {
@@ -280,6 +289,61 @@ object MeshConversion {
       ScalarMeshField(mesh, scalarData)
     }
   }
+
+  def vtkPolyDataToPolyLine[D <: Dim: NDSpace: PolyLine.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[PolyLine[D]] = {
+    val lines = pd.GetLines()
+    val numPolys = lines.GetNumberOfCells()
+    val points = vtkConvertPoints[D](pd)
+    val idList = new vtkIdList()
+    val cellsOrFailure = Try {
+      for (i <- 0 until numPolys) yield {
+        pd.GetCellPoints(i, idList)
+        if (idList.GetNumberOfIds() != 2) {
+          throw new scala.Exception("Not a poly line")
+        } else {
+          LineCell(PointId(idList.GetId(0)), PointId(idList.GetId(1)))
+        }
+      }
+    }
+    idList.Delete()
+
+    cellsOrFailure.map(cells => PolyLine(UnstructuredPointsDomain[D](points.toIndexedSeq), LineList(cells)))
+  }
+
+  def polyLineToVtkPolyData[D <: Dim](mesh: PolyLine[D], template: Option[vtkPolyData] = None): vtkPolyData = {
+
+    val pd = new vtkPolyData
+
+    template match {
+      case Some(tpl) =>
+        // copy triangles from template if given; actual points are set unconditionally in code below.
+        pd.ShallowCopy(tpl)
+      case None =>
+        val lines = new vtkCellArray
+        lines.SetNumberOfCells(mesh.lines.size)
+        lines.Initialize()
+        for ((cell, cell_id) <- mesh.lines.zipWithIndex) {
+          val line = new vtkLine()
+
+          line.GetPointIds().SetId(0, cell.ptId1.id)
+          line.GetPointIds().SetId(1, cell.ptId2.id)
+          lines.InsertNextCell(line)
+        }
+        lines.Squeeze()
+        pd.SetLines(lines)
+    }
+
+    // set points. As vtk knows only about 3D poitns, we lift our 2D points to 3D-
+    val meshPointsIn3D = mesh.pointSet.points.map(p => Point(p(0), p(1), 0f))
+    val pointDataArray = meshPointsIn3D.toIndexedSeq.toArray.flatMap(_.toArray).map(_.toFloat)
+    val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
+    val pointsVTK = new vtkPoints
+    pointsVTK.SetData(pointDataArrayVTK)
+    pd.SetPoints(pointsVTK)
+
+    pd
+  }
+
 }
 
 trait CanConvertToVtk[D <: Dim] {
