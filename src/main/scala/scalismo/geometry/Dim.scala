@@ -15,6 +15,8 @@
  */
 package scalismo.geometry
 
+import scalismo.mesh.{ TriangleMesh, PolyLine }
+
 /** a marker trait only meant to distinguish the dimension */
 sealed trait Dim
 
