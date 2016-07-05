@@ -169,6 +169,6 @@ case class MappedSurfaceProperty[@specialized(Double, Float, Int, Boolean) A, @s
   /// access via triangle coordinates
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): B = f(values.onSurface(triangleId, bcc))
 
-  override val triangulation: TriangleList = values.triangulation
+  override def triangulation: TriangleList = values.triangulation
 }
 
