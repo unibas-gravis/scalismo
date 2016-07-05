@@ -50,7 +50,7 @@ object TriangleMesh {
   }
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  trait Create[D <: Dim] extends CreateUnstructuredPointsDomain[D] {
+  trait Create[D <: Dim] extends UnstructuredPointsDomain.Create[D] {
     def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
   }
 

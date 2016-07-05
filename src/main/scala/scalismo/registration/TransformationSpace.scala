@@ -35,11 +35,10 @@ trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 
 object Transformation {
 
-
   /**
-    * Create a transformation defined on the whole real space with the given function
-    */
-  def apply[D <: Dim](t : Point[D] => Point[D]) : Transformation[D] = {
+   * Create a transformation defined on the whole real space with the given function
+   */
+  def apply[D <: Dim](t: Point[D] => Point[D]): Transformation[D] = {
     new Transformation[D] {
       override val f: (Point[D]) => Point[D] = t
 
