@@ -33,10 +33,10 @@ case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends 
 }
 
 trait TriangleMesh[D <: Dim] {
-
   def triangulation: TriangleList
   def pointSet: UnstructuredPointsDomain[D]
   def transform(transform: Point[D] => Point[D]): TriangleMesh[D]
+
 }
 
 object TriangleMesh {
