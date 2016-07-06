@@ -75,13 +75,13 @@ object UnstructuredPointsDomain {
     unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain3D]
   }
 
-  def apply[D <: Dim: NDSpace: UnstructuredPointsDomain.Create](points: IndexedSeq[Point[D]]): UnstructuredPointsDomain[D] = {
-    UnstructuredPointsDomain.Create[D].create(points)
+  def apply[D <: Dim: NDSpace](points: IndexedSeq[Point[D]])(implicit creator: Create[D]): UnstructuredPointsDomain[D] = {
+    creator.create(points)
   }
 
-  def fromGenerator[D <: Dim: UnstructuredPointsDomain.Create](generator: PointGenerator[D], numberOfPoints: Int) = {
+  def fromGenerator[D <: Dim](generator: PointGenerator[D], numberOfPoints: Int)(implicit creator: Create[D]) = {
     val points = Iterator.continually(generator()).take(numberOfPoints).toIndexedSeq
-    UnstructuredPointsDomain.Create[D].create(points)
+    creator.create(points)
   }
 
   trait Create[D <: Dim] {
@@ -89,9 +89,6 @@ object UnstructuredPointsDomain {
   }
 
   object Create {
-
-    def apply[D <: Dim](implicit ud: Create[D]): Create[D] = ud
-
     implicit object CreateUnstructuredPointsDomain1D extends Create[_1D] {
       override def create(points: IndexedSeq[Point[_1D]]) = new UnstructuredPointsDomain1D(points)
     }

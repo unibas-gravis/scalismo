@@ -103,6 +103,34 @@ object MeshIO {
     }
   }
 
+  def readLineMesh2D(file: File): Try[LineMesh[_2D]] = {
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".vtk") => readLineMeshVTK(file)
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+
+  }
+
+  def readLineMesh3D(file: File): Try[LineMesh[_3D]] = {
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".vtk") => readLineMeshVTK(file)
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+  }
+
+  def writeLineMesh[D <: Dim](polyLine: LineMesh[D], file: File): Try[Unit] = {
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".vtk") => writeLineMeshVTK(polyLine, file)
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+  }
+
   def writeMesh(mesh: TriangleMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -268,5 +296,33 @@ object MeshIO {
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
+
+  private def readLineMeshVTK[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
+    val vtkReader = new vtkPolyDataReader()
+    vtkReader.SetFileName(file.getAbsolutePath)
+    vtkReader.Update()
+    val errCode = vtkReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read vtk mesh (received error code $errCode"))
+    }
+
+    val vtkPd = vtkReader.GetOutput()
+    val correctedMesh = for {
+      polyline <- MeshConversion.vtkPolyDataToPolyLine[D](vtkPd)
+    } yield {
+      LineMesh.enforceConsistentCellDirections[D](polyline)
+    }
+    vtkReader.Delete()
+    vtkPd.Delete()
+    correctedMesh
+  }
+
+  private[this] def writeLineMeshVTK[D <: Dim](mesh: LineMesh[D], file: File): Try[Unit] = {
+    val vtkPd = MeshConversion.lineMeshToVTKPolyData(mesh)
+    val err = writeVTKPdasVTK(vtkPd, file)
+    vtkPd.Delete()
+    err
+  }
+
 }
 
