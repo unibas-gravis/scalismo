@@ -7,7 +7,7 @@ import scalismo.common.PointId
  */
 trait LineContourProperty[A] {
 
-  def topology : LineList
+  def topology: LineList
 
   /** access via line coordinates */
   def onContour(lineId: LineId, bcc: LineCoordinates): A
@@ -22,7 +22,6 @@ trait LineContourProperty[A] {
 /** function indirection for contour access */
 case class MappedContourProperty[A, B](values: LineContourProperty[A], f: A => B)
     extends LineContourProperty[B] {
-
 
   override def topology = values.topology
 
