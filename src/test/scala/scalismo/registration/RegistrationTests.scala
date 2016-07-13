@@ -95,6 +95,21 @@ class RegistrationTests extends ScalismoTestSuite {
         p(2) should be(mesh.pointSet.point(id)(2) +- 0.0001)
       }
     }
+
+    it("can retrieve correct transformation when requested with a different center") {
+
+      // pick any center
+      val anyCenter = Point(1254, 488, 78)
+      val newCenterRegResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq, anyCenter)
+
+      val rigidRegNewCenterTransformed = mesh transform newCenterRegResult
+      for ((p, i) <- rigidRegNewCenterTransformed.pointSet.points.zipWithIndex) {
+        val id = PointId(i)
+        p(0) should be(rigidTransformed.pointSet.point(id)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.pointSet.point(id)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.pointSet.point(id)(2) +- 0.0001)
+      }
+    }
   }
 
   describe("A 2D similarity landmark based registration") {

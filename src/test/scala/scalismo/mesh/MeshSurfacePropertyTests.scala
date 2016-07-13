@@ -31,8 +31,8 @@ class MeshSurfacePropertyTests extends ScalismoTestSuite {
     }
 
     it("should interpolate point values inside the triangles") {
-      pointProperty(TriangleId(0), BarycentricCoordinates.center) shouldBe (values(0)+values(1)+values(2))/3.0
-      pointProperty(TriangleId(1), BarycentricCoordinates.center) shouldBe (values(2)+values(1)+values(3))/3.0
+      pointProperty(TriangleId(0), BarycentricCoordinates.center) shouldBe (values(0) + values(1) + values(2)) / 3.0
+      pointProperty(TriangleId(1), BarycentricCoordinates.center) shouldBe (values(2) + values(1) + values(3)) / 3.0
     }
 
     it("returns the same values used at construction") {
@@ -43,7 +43,7 @@ class MeshSurfacePropertyTests extends ScalismoTestSuite {
   describe("A MappedMeshSurfaceProperty") {
     // negative values
     val f = (d: Double) => -d
-    val mappedProperty: MeshSurfaceProperty[Double] = pointProperty.map{f}
+    val mappedProperty: MeshSurfaceProperty[Double] = pointProperty.map { f }
 
     it("applies function f as expected") {
       mappedProperty(TriangleId(1), BarycentricCoordinates.v1) shouldBe -values(1)
