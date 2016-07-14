@@ -70,10 +70,10 @@ object LandmarkRegistration {
    * @param targetLms target landmarks to be mapped to
    */
 
-  def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]], targetLms: Seq[Landmark[_3D]]): RigidTransformation[_3D] = {
+  def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]], targetLms: Seq[Landmark[_3D]], center: Point[_3D] = origin3D): RigidTransformation[_3D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs = commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
-    LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq)
+    LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
   }
 
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])], center: Point[_3D] = origin3D): RigidTransformation[_3D] = {
