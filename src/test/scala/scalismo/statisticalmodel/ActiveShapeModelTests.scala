@@ -4,11 +4,11 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._3D
+import scalismo.geometry.{ Point, _3D }
 import scalismo.io.{ ImageIO, MeshIO, StatismoIO }
 import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
-import scalismo.registration.{ RigidTransformationSpace, LandmarkRegistration }
+import scalismo.registration.{ LandmarkRegistration, RigidTransformationSpace }
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
 
@@ -41,7 +41,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val asm = ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)
 
       // align the model
-      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq)
+      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq, Point(0, 0, 0))
       val alignedASM = asm.transform(alignment)
 
     }
