@@ -76,12 +76,31 @@ object LandmarkRegistration {
     LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
   }
 
+  /**
+   * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   *
+   * @param landmarks sequence of corresponding landmarks
+   * @param center center of rotation to be used for the rigid transformation
+   */
+
   def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])], center: Point[_3D]): RigidTransformation[_3D] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks, center)
     val optimalParameters = DenseVector.vertcat(t, rotparams)
     val rigidSpace = RigidTransformationSpace[_3D](center)
     rigidSpace.transformForParameters(optimalParameters)
   }
+
+  /**
+   * Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   *
+   * Attention: the center of rotation used for the rigid transformation here is the origin of the 3D space
+   *
+   * @param landmarks sequence of corresponding landmarks
+   */
+
+  def rigid3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = rigid3DLandmarkRegistration(landmarks, origin3D)
+
+  def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])]): ParametricTransformation[_3D] = similarity3DLandmarkRegistration(landmarks, origin3D)
 
   def similarity3DLandmarkRegistration(landmarks: IndexedSeq[(Point[_3D], Point[_3D])], center: Point[_3D]): ParametricTransformation[_3D] = {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, center, similarityFlag = true)
