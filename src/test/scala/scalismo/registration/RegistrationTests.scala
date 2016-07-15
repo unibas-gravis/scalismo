@@ -70,7 +70,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
     val rigidTransformed = mesh transform trans
 
-    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq)
+    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq, Point(0, 0, 0))
 
     //should not test on parameters here since many euler angles can lead to the same rotation matrix
     val rigidRegTransformed = mesh transform regResult
@@ -152,7 +152,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val translatedRotatedScaled = mesh transform trans
 
-      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq)
+      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq, Point(0, 0, 0))
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regSim = mesh transform regResult

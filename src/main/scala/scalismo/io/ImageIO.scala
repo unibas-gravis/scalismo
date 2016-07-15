@@ -372,7 +372,7 @@ object ImageIO {
       val scaledPS = origPs.map(anisotropicScaling)
       val imgPs = origPs.map(transVoxelToWorld)
 
-      val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq)
+      val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point(0, 0, 0))
       val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
       val rotationResiduals = rigidReg.parameters(3 to 5).toArray.map { a =>

@@ -134,7 +134,7 @@ object DataCollection {
       // align all shape to it and create a transformation from the mean to the aligned shape 
       val alignedShapesTransformations = dc.dataItems.zip(allShapesPoints).par.map {
         case (item, points) =>
-          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints))
+          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints), Point(0, 0, 0))
           val alignedPoints = points.map(transform)
 
           val t = meanShapePoints.zip(alignedPoints).toMap

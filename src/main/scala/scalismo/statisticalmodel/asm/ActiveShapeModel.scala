@@ -182,7 +182,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     } else Try {
 
       val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (statisticalModel.referenceMesh.pointSet.point(refPtId), tgtPt) }
-      val bestRigidTransform = LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts)
+      val bestRigidTransform = LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts, poseTransform.rotation.center)
 
       val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) => (refPtId, bestRigidTransform.inverse(tgtPt)) }
       val bestReconstruction = statisticalModel.posterior(refPtIdsWithTargetPtAtModelSpace, 1e-5).mean
