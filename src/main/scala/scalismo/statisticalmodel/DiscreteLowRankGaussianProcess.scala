@@ -405,8 +405,8 @@ object DiscreteLowRankGaussianProcess {
     }
 
     def demean(X: DenseMatrix[Double]): (DenseMatrix[Double], DenseVector[Double]) = {
-      val X0 = X.map(_.toDouble) // will be the demeaned result matrix
-      val m: DenseVector[Double] = breeze.stats.mean(X0(::, *)).toDenseVector
+      val X0 = X // will be the demeaned result matrix
+      val m: DenseVector[Double] = breeze.stats.mean(X0(::, *)).inner
       for (i <- 0 until X0.rows) {
         X0(i, ::) := X0(i, ::) - m.t
       }

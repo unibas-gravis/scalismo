@@ -13,7 +13,7 @@ import sbtbuildinfo.Plugin._
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
   val buildVersion = "develop-SNAPSHOT"
-  val buildScalaVersion = "2.10.5"
+  val buildScalaVersion = "2.11.7"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
@@ -66,12 +66,11 @@ object Resolvers {
 object Dependencies {
   import BuildSettings.scalismoPlatform
   val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze" % "0.11.2"
-  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.11.2"
+  val breezeMath = "org.scalanlp" %% "breeze" % "0.12"
+  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.12"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "3.0.+"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "3.0.+" % "test"
-  val spire = "org.spire-math" %% "spire" % "0.9.0"
   val slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
 }
 
@@ -113,7 +112,6 @@ object STKBuild extends Build {
     scalismoNativeStub,
     scalismoNativeImpl,
     sprayJson,
-    spire,
     slf4jNop
   )
 }
