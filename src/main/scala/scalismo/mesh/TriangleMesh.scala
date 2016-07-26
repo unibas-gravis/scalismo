@@ -80,7 +80,7 @@ object TriangleMesh {
 
 case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
 
-  val position = SurfacePointProperty(triangulation, pointSet.point _)
+  val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val triangles = triangulation.triangles
   val cells = triangles
 
@@ -198,7 +198,7 @@ object TriangleMesh3D {
 }
 
 case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
-  val position = SurfacePointProperty(triangulation, pointSet.point _)
+  val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
 
   override def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh2D = {
     TriangleMesh2D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq), triangulation)
