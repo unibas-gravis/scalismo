@@ -224,7 +224,7 @@ abstract class RotationSpace[D <: Dim: NDSpace] extends TransformationSpace[D] w
    * Returns a rotation transform corresponding to the given parameters.
    *
    *  Rotation parameters for _2D : a scalar indicating the rotation angle in radians
-   *  Rotation parameters for _3D : Euler angles
+   *  Rotation parameters for _3D : Euler angles in x-convention (rotation around Z axis first, around Y axis second, around X axis third)
    */
   override def transformForParameters(p: ParameterVector): RotationTransform[D]
 
@@ -343,7 +343,7 @@ object RotationSpace {
 
   private[scalismo] def eulerAnglesToRotMatrix3D(p: DenseVector[Double]): SquareMatrix[_3D] = {
     val rotMatrix = {
-      // rotation matrix according to the "x-convention" where Phi is rotation over x-axis, theta over y, and psi over z
+      // rotation matrix according to the "x-convention" 
       val cospsi = Math.cos(p(2))
       val sinpsi = Math.sin(p(2))
 
@@ -487,7 +487,11 @@ object RotationTransform {
 
   /**
    *  Factory method to create a 3-dimensional rotation transform around a center (default at origin) when
-   *  given the Euler angles
+   *  given the Euler angles according to the x-convention
+    *  @param phi rotation around the Z axis
+    *  @param theta rotation around the Y axis
+    *  @param psi rotation around the X axis
+    *
    */
   def apply(phi: Double, theta: Double, psi: Double, centre: Point[_3D] = Point(0.0, 0.0, 0.0)): RotationTransform[_3D] = {
     val rotMatrix = RotationSpace.eulerAnglesToRotMatrix3D(DenseVector(phi, theta, psi))
