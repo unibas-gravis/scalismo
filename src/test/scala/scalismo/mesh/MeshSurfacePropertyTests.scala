@@ -34,10 +34,6 @@ class MeshSurfacePropertyTests extends ScalismoTestSuite {
       pointProperty(TriangleId(0), BarycentricCoordinates.center) shouldBe (values(0) + values(1) + values(2)) / 3.0
       pointProperty(TriangleId(1), BarycentricCoordinates.center) shouldBe (values(2) + values(1) + values(3)) / 3.0
     }
-
-    it("returns the same values used at construction") {
-      pointProperty.toIndexedSeq shouldBe values
-    }
   }
 
   describe("A MappedMeshSurfaceProperty") {
