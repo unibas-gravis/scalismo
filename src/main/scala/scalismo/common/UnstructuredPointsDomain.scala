@@ -19,6 +19,7 @@ package scalismo.common
 import scalismo.common.UnstructuredPointsDomain.Create
 import scalismo.geometry._
 import scalismo.mesh.kdtree.KDTreeMap
+import scalismo.mesh.kdtree.RegionBuilder
 
 import scala.language.implicitConversions
 
@@ -47,6 +48,17 @@ sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace: Create] privat
       case Some(id) => PointWithId(pt, id)
       case None => kdtreeLookup(pt)
     }
+  }
+
+  def findPointsInRegion(region: BoxDomain[D]): Seq[PointWithId[D]] = {
+
+    val dim = implicitly[NDSpace[D]]
+    val regionBuilder = new RegionBuilder[Point[D]]
+    val a = region.origin
+    val b = region.origin + region.extent
+    val reg = (0 until dim.dimensionality).foldLeft[RegionBuilder[Point[D]]](regionBuilder) { case (rg, dim) => rg.from(a, dim).to(b, dim) }
+    kdTreeMap.regionQuery(reg).map { case (p, id) => PointWithId(p, PointId(id)) }
+
   }
 
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = {

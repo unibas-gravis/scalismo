@@ -488,10 +488,10 @@ object RotationTransform {
   /**
    *  Factory method to create a 3-dimensional rotation transform around a center (default at origin) when
    *  given the Euler angles according to the x-convention
-    *  @param phi rotation around the Z axis
-    *  @param theta rotation around the Y axis
-    *  @param psi rotation around the X axis
-    *
+   *  @param phi rotation around the Z axis
+   *  @param theta rotation around the Y axis
+   *  @param psi rotation around the X axis
+   *
    */
   def apply(phi: Double, theta: Double, psi: Double, centre: Point[_3D] = Point(0.0, 0.0, 0.0)): RotationTransform[_3D] = {
     val rotMatrix = RotationSpace.eulerAnglesToRotMatrix3D(DenseVector(phi, theta, psi))
