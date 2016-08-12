@@ -158,14 +158,17 @@ object GaussianProcess {
 
     // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
 
-    val (ptIds, ys, errorDistributions) = trainingData.unzip3
+    val (xs, ys, errorDistributions) = trainingData.unzip3
+    val meanValues = xs.map(gp.mean)
+    val mVec = DiscreteField.vectorize[D, Value](meanValues)
     val yVec = DiscreteField.vectorize[D, Value](ys)
+    val yVecZeroMean = yVec - mVec
 
     val Ky = DenseMatrix.zeros[Double](trainingData.size * outputDim, trainingData.size * outputDim)
 
-    for ((ptIdI, i) <- ptIds.zipWithIndex; (ptIdJ, j) <- ptIds.zipWithIndex) {
+    for ((xI, i) <- xs.zipWithIndex; (xJ, j) <- xs.zipWithIndex) {
 
-      val covBlock = gp.cov(ptIdI, ptIdJ)
+      val covBlock = gp.cov(xI, xJ)
 
       val Kyyp = if (i == j) {
         // in this case add observation uncertainty
@@ -181,7 +184,7 @@ object GaussianProcess {
 
     val KyInv = inv(Ky)
     val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
-    val margLikehood = ((yVec.t * KyInv * yVec) * -0.5) - (0.5 * math.log(det(Ky))) - const
+    val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * math.log(det(Ky))) - const
     margLikehood
   }
 
