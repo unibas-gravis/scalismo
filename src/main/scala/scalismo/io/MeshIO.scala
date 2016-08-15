@@ -122,7 +122,7 @@ object MeshIO {
     }
   }
 
-  def writeLineMesh[D <: Dim](polyLine: LineMesh[D], file: File): Try[Unit] = {
+  def writeLineMesh[D <: Dim: NDSpace](polyLine: LineMesh[D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeLineMeshVTK(polyLine, file)
@@ -317,7 +317,7 @@ object MeshIO {
     correctedMesh
   }
 
-  private[this] def writeLineMeshVTK[D <: Dim](mesh: LineMesh[D], file: File): Try[Unit] = {
+  private[this] def writeLineMeshVTK[D <: Dim: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.lineMeshToVTKPolyData(mesh)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()

@@ -290,7 +290,7 @@ object MeshConversion {
     }
   }
 
-  def vtkPolyDataToPolyLine[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
+  def vtkPolyDataToLineMesh[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
     val lines = pd.GetLines()
     val numPolys = lines.GetNumberOfCells()
     val points = vtkConvertPoints[D](pd)
@@ -310,7 +310,7 @@ object MeshConversion {
     cellsOrFailure.map(cells => LineMesh(UnstructuredPointsDomain[D](points.toIndexedSeq), LineList(cells)))
   }
 
-  def lineMeshToVTKPolyData[D <: Dim](mesh: LineMesh[D], template: Option[vtkPolyData] = None): vtkPolyData = {
+  def lineMeshToVTKPolyData[D <: Dim: NDSpace](mesh: LineMesh[D], template: Option[vtkPolyData] = None): vtkPolyData = {
 
     val pd = new vtkPolyData
 
@@ -334,7 +334,12 @@ object MeshConversion {
     }
 
     // set points. As vtk knows only about 3D poitns, we lift our 2D points to 3D-
-    val meshPointsIn3D = mesh.pointSet.points.map(p => Point(p(0), p(1), 0f))
+    val pointDim = NDSpace[D].dimensionality
+    val meshPointsIn3D = if (pointDim == 2) {
+      mesh.pointSet.points.map(p => Point(p(0), p(1), 0f))
+    } else {
+      mesh.pointSet.points.map(p => Point(p(0), p(1), p(2)))
+    }
     val pointDataArray = meshPointsIn3D.toIndexedSeq.toArray.flatMap(_.toArray).map(_.toFloat)
     val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.FloatIsScalar.createArray(pointDataArray), 3)
     val pointsVTK = new vtkPoints
