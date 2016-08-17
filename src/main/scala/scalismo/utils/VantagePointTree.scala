@@ -126,13 +126,13 @@ private class CandidatesEpsRegion[A](override val maxDistance: Double) extends C
 
 object VantagePointTree {
   /** build a Vantage Point tree with given metric (must be a metric!), uses random pivot elements */
-  def apply[A](data: Iterable[A], metric: Metric[A])(implicit rnd: Random): VantagePointTree[A] = recursiveTreeBuilder(data, metric, randomPivotSelector[A])
+  def apply[A](data: Iterable[A], metric: Metric[A])(implicit rnd: Random = new Random()): VantagePointTree[A] = recursiveTreeBuilder(data, metric, randomPivotSelector[A])
 
   /** build a Vantage Point tree with given metric (must be a metric!) and pivot selector */
   def apply[A](data: Iterable[A], metric: Metric[A], pivotSelector: Iterable[A] => A): VantagePointTree[A] = recursiveTreeBuilder(data, metric, pivotSelector)
 
   /** select a random element as pivot */
-  def randomPivotSelector[A](points: Iterable[A])(implicit rnd: Random): A = {
+  def randomPivotSelector[A](points: Iterable[A])(implicit rnd: Random = new Random()): A = {
     rnd.shuffle(points).head
   }
 
@@ -140,7 +140,7 @@ object VantagePointTree {
   def firstPivotSelector[A](points: Iterable[A]): A = points.head
 
   /** select central element as pivot */
-  def centralPivotSelector[A](metric: Metric[A], samples: Int)(points: Iterable[A])(implicit rnd: Random): A = points.toSeq match {
+  def centralPivotSelector[A](metric: Metric[A], samples: Int)(points: Iterable[A])(implicit rnd: Random = new Random()): A = points.toSeq match {
     case Seq() => throw new RuntimeException("cannot select from empty seq!")
     case head +: Seq() => head
     case first +: second +: Seq() => first
