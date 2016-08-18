@@ -28,7 +28,7 @@ trait TransitionRatio[A] {
 }
 
 /** symmetric transition: equal forward and backward transition probability */
-trait SymmetricTransition[A] extends TransitionRatio[A] {
+trait SymmetricTransitionRatio[A] extends TransitionRatio[A] {
   override def logTransitionRatio(from: A, to: A) = 0.0
 }
 
@@ -53,7 +53,10 @@ trait TransitionProbability[A] extends TransitionRatio[A] {
 }
 
 /** trait to express a unit transition probability (rarely appropriate) */
-trait UnitTransition[A] extends TransitionProbability[A] with SymmetricTransition[A] {
+trait UnitTransition[A] extends TransitionProbability[A] with SymmetricTransitionRatio[A] {
   /** fixed unit value for transition probability - careful when in use with correction */
   override def logTransitionProbability(from: A, to: A) = 0.0
 }
+
+/** trait to express a symmetric transition probability (normal perturbation for example)*/
+trait SymmetricTransition[A] extends TransitionProbability[A] with SymmetricTransitionRatio[A]
