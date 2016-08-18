@@ -15,7 +15,7 @@
  */
 package scalismo.sampling.proposals
 
-import scalismo.sampling.{ ProposalGenerator, SymmetricTransitionRatio, TransitionProbability }
+import scalismo.sampling.{ ProposalGenerator, SymmetricTransition, SymmetricTransitionRatio, TransitionProbability }
 
 import scala.util.Random
 
@@ -78,7 +78,7 @@ object MixtureProposal {
   def fromSymmetricProposals[A](proposals: (Double, ProposalGenerator[A] with SymmetricTransitionRatio[A])*)(implicit rnd: Random): MixtureProposal[A] with SymmetricTransitionRatio[A] = new MixtureProposal[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
 
   /** mixture of symmetric proposals (mixture distribution) with a transition probability */
-  def fromSymmetricProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with TransitionProbability[A] with SymmetricTransitionRatio[A])*)(implicit rnd: Random): MixtureProposal[A] with TransitionProbability[A] with SymmetricTransitionRatio[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
+  def fromSymmetricProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with SymmetricTransition[A])*)(implicit rnd: Random): MixtureProposal[A] with SymmetricTransition[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq) with SymmetricTransition[A]
 
   /** create a mixture proposal using the simplified operator syntax: 0.4 *: prop1 + 0.6 *: prop2 */
   def apply[A](builder: implicits.MixtureBuilder[A])(implicit rnd: Random): MixtureProposal[A] with TransitionProbability[A] = builder.toMixtureProposal
