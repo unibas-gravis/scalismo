@@ -11,8 +11,11 @@ import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
 import scalismo.registration.{ LandmarkRegistration, RigidTransformationSpace }
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
+import scalismo.utils.Random
 
 class ActiveShapeModelTests extends ScalismoTestSuite {
+
+  implicit val random = Random(42)
 
   describe("An active shape model") {
 
@@ -20,7 +23,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val imagePreprocessor = GaussianGradientImagePreprocessor(0.1f)
       // number of points should usually be an odd number, so that the profiles are centered on the profiled points
       val featureExtractor = NormalDirectionFeatureExtractor(numberOfPoints = 5, spacing = 1.0)
-      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, numberOfPoints = 1000, seed = 42)
+      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, numberOfPoints = 1000)
       val searchMethod = NormalDirectionSearchPointSampler(numberOfPoints = 31, searchDistance = 6)
       val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 

@@ -16,15 +16,13 @@
 package scalismo.utils
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{ Point, _3D }
 
 import scala.collection.immutable.IndexedSeq
 
 class RandomTests extends ScalismoTestSuite {
 
-
   describe("A random source") {
-
 
     it("should yield a deterministic sequence when correctly seeded") {
 
@@ -36,13 +34,13 @@ class RandomTests extends ScalismoTestSuite {
 
     }
 
-    it ("should yield a random sequence when no implicit is defined") {
+    it("should yield a random sequence when no implicit is defined") {
 
-      def randomNumbersNotSeeded()  = {
+      def randomNumbersNotSeeded() = {
         val r = implicitly[Random]
         (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUnform(0, 1).draw())
       }
-      randomNumbersNotSeeded() should not equal(randomNumbersNotSeeded())
+      randomNumbersNotSeeded() should not equal (randomNumbersNotSeeded())
     }
   }
 }

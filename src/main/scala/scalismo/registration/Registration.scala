@@ -18,9 +18,10 @@ package scalismo.registration
 
 import TransformationSpace.ParameterVector
 import breeze.linalg.{ DenseVector, convert }
-import scalismo.geometry.{ Point, NDSpace, Dim }
+import scalismo.geometry.{ _3D, Point, NDSpace, Dim }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
+import scalismo.utils.Random
 
 case class RegistrationConfiguration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](
   optimizer: Optimizer,
@@ -101,7 +102,17 @@ object Registration {
 
     val numberOfPoints = sampler.numberOfPoints
     def volumeOfSampleRegion = sampler.volumeOfSampleRegion
-    override lazy val sample: IndexedSeq[(Point[D], Double)] = sampler.sample
+    var lastSampledPoints: Option[IndexedSeq[(Point[D], Double)]] = None
+
+    override def sample()(implicit rnd: Random): IndexedSeq[(Point[D], Double)] = {
+      lastSampledPoints match {
+        case Some(lastSampledPoints) => lastSampledPoints
+        case None => {
+          lastSampledPoints = Some(sampler.sample())
+          lastSampledPoints.get
+        }
+      }
+    }
   }
 
 }

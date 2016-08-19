@@ -19,15 +19,15 @@ import breeze.stats.distributions.{ ThreadLocalRandomGenerator, RandBasis }
 import org.apache.commons.math3.random.MersenneTwister
 
 /**
-  * A thin wrapper around different random number generators.
-  *
-  * The purpose of this class is to allow for a unified way of declaring methods that need a source
-  * of randomness. The idea is that any method that needs a source of randomness takes an implicit instance to this class as an argument.
-  * If the user does not specify an own implicit instance, the default source in the companion object is used.
-  * If the result should be deterministic, the user can define his/her own implicit instance with a fixed seed.
-  *
-  * @param seed The seed for the Random number generator
-  */
+ * A thin wrapper around different random number generators.
+ *
+ * The purpose of this class is to allow for a unified way of declaring methods that need a source
+ * of randomness. The idea is that any method that needs a source of randomness takes an implicit instance to this class as an argument.
+ * If the user does not specify an own implicit instance, the default source in the companion object is used.
+ * If the result should be deterministic, the user can define his/her own implicit instance with a fixed seed.
+ *
+ * @param seed The seed for the Random number generator
+ */
 case class Random(seed: Long) {
 
   private val randBasis: RandBasis = new RandBasis(new ThreadLocalRandomGenerator(new MersenneTwister(seed)))

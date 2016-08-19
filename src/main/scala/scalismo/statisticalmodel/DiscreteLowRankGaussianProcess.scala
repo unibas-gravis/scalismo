@@ -190,11 +190,11 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
 
       override val numberOfPoints = nNystromPoints
       val p = volumeOfSampleRegion / numberOfPoints
-      val randGen = new util.Random()
+
       val domainPoints = domain.points.toIndexedSeq
 
-      override def sample = {
-        val sampledPtIds = for (_ <- 0 until nNystromPoints) yield randGen.nextInt(domain.numberOfPoints)
+      override def sample()(implicit rand: Random) = {
+        val sampledPtIds = for (_ <- 0 until nNystromPoints) yield rand.scalaRandom.nextInt(domain.numberOfPoints)
         sampledPtIds.map(ptId => (domainPoints(ptId), p))
       }
     }
