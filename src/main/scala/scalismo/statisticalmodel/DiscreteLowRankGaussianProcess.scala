@@ -17,7 +17,6 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ diag, *, DenseMatrix, DenseVector }
-import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
@@ -27,7 +26,7 @@ import scalismo.registration.Transformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess._
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => DiscreteEigenpair }
-import scalismo.utils.Memoize
+import scalismo.utils.{ Random, Memoize }
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -102,8 +101,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
    */
-  override def sample: DiscreteField[D, Value] = {
-    val coeffs = for (_ <- 0 until rank) yield Gaussian(0, 1).draw()
+  override def sample()(implicit random: Random): DiscreteField[D, Value] = {
+    val coeffs = for (_ <- 0 until rank) yield random.breezeRandomGaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 

@@ -23,6 +23,7 @@ import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
 import scalismo.registration.{ LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation }
 import scalismo.statisticalmodel.{ MultivariateNormalDistribution, StatisticalMeshModel }
+import scalismo.utils.Random
 
 import scala.collection.immutable
 import scala.util.{ Failure, Try }
@@ -84,10 +85,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
   /**
    * Returns a random sample mesh from the shape model, along with randomly sampled feature profiles at the profile points
    */
-  def sample(): ASMSample = {
+  def sample(implicit rand: Random): ASMSample = {
     val sampleMesh = statisticalModel.sample
     val randomProfilePoints = profiles.data.map(p => sampleMesh.pointSet.point(p.pointId))
-    val randomFeatures = profiles.data.map(_.distribution.sample())
+    val randomFeatures = profiles.data.map(_.distribution.sample)
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
   }
@@ -96,10 +97,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
    * Utility function that allows to randomly sample different feature profiles, while keeping the profile points
    * Meant to allow to easily inspect/debug the feature distribution
    */
-  def sampleFeaturesOnly(): ASMSample = {
+  def sampleFeaturesOnly(implicit rand: Random): ASMSample = {
     val smean = statisticalModel.mean
     val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
-    val randomFeatures = profiles.data.map(_.distribution.sample())
+    val randomFeatures = profiles.data.map(_.distribution.sample)
     val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(smean, featureField, featureExtractor)
   }

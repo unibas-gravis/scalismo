@@ -16,8 +16,7 @@
 package scalismo.sampling.proposals
 
 import scalismo.sampling.{ ProposalGenerator, SymmetricTransition, TransitionProbability }
-
-import scala.util.Random
+import scalismo.utils.Random
 
 /** mixture of proposals: mixture distribution of multiple proposal distributions */
 class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(implicit rnd: Random)
@@ -38,7 +37,7 @@ class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(
   private var lastActive = 0
 
   override def propose(current: A): A = {
-    val r = rnd.nextDouble()
+    val r = rnd.scalaRandom.nextDouble()
     val i = p.indexWhere(p => p >= r) // find first element larger than random, use l
     lastActive = i
     generators(i).propose(current)

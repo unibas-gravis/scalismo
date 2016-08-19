@@ -16,9 +16,9 @@
 package scalismo.mesh
 
 import scalismo.geometry.{ Point, _2D, _3D, Vector }
+import scalismo.utils.Random
 
 import scala.annotation.switch
-import scala.util.Random
 
 /** barycentric coordinates: localization within triangles */
 case class BarycentricCoordinates(a: Double, b: Double, c: Double) {
@@ -101,12 +101,9 @@ object BarycentricCoordinates {
   }
 
   /** Generate random barycentric coordinates, guaranteed to lie within the triangle, uniform distribution */
-  def randomUniform(seed: Int): BarycentricCoordinates = randomUniform(new Random(seed))
-
-  /** Generate random barycentric coordinates, guaranteed to lie within the triangle, uniform distribution */
-  def randomUniform(generator: Random): BarycentricCoordinates = {
-    val s = generator.nextDouble()
-    val t = generator.nextDouble()
+  def randomUniform(implicit random: Random): BarycentricCoordinates = {
+    val s = random.scalaRandom.nextDouble()
+    val t = random.scalaRandom.nextDouble()
     if (s + t < 1.0)
       new BarycentricCoordinates(s, t, 1.0 - s - t)
     else

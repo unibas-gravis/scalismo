@@ -20,6 +20,7 @@ import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
+import scalismo.utils.Random
 
 /**
  * A representation of a gaussian process, which is only defined on a discrete domain.
@@ -36,7 +37,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
 
   val outputDim = vectorizer.dim
 
-  def sample: DiscreteField[D, Value] = {
+  def sample()(implicit rand: Random): DiscreteField[D, Value] = {
     // define the mean and kernel matrix for the given points and construct the
     // corresponding MV Normal distribution, from which we then sample
 
@@ -45,7 +46,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
 
     val mvNormal = MultivariateNormalDistribution(mu, K)
 
-    val sampleVec = mvNormal.sample()
+    val sampleVec = mvNormal.sample
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     DiscreteField.createFromDenseVector[D, Value](domain, sampleVec)

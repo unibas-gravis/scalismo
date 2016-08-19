@@ -18,8 +18,7 @@ package scalismo.sampling.proposals
 import scalismo.sampling._
 import scalismo.sampling.algorithms.MetropolisHastings
 import scalismo.sampling.loggers.{ AcceptRejectLogger, SilentLogger }
-
-import scala.util.Random
+import scalismo.utils.Random
 
 /** Metropolis Filter Proposal with no correction */
 class MetropolisFilterProposal[A](val generator: ProposalGenerator[A] with TransitionRatio[A],

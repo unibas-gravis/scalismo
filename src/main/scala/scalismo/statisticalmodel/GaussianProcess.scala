@@ -20,7 +20,7 @@ import scalismo.common._
 import scalismo.geometry.Vector
 import scalismo.geometry._
 import scalismo.kernels._
-
+import scalismo.utils.Random
 /**
  * A gaussian process from a D dimensional input space, whose input values are points,
  * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
@@ -40,8 +40,8 @@ class GaussianProcess[D <: Dim: NDSpace, Value] protected (val mean: Field[D, Va
    *
    * Sample values of the Gaussian process evaluated at the given points.
    */
-  def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteField[D, Value] = {
-    this.marginal(domain).sample
+  def sampleAtPoints(domain: DiscreteDomain[D])(implicit rand: Random): DiscreteField[D, Value] = {
+    this.marginal(domain).sample()
   }
 
   /**

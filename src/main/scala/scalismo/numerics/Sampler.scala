@@ -15,7 +15,6 @@
  */
 package scalismo.numerics
 
-import breeze.stats.distributions.RandBasis
 import org.apache.commons.math3.random.MersenneTwister
 import java.util
 
@@ -24,6 +23,7 @@ import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.GaussianProcess
+import scalismo.utils.Random
 
 /** sample generator typeclass */
 trait Sampler[D <: Dim] {
@@ -48,7 +48,7 @@ case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extend
   }
 }
 
-case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoints: Int) extends Sampler[D] {
+case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[D] {
 
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
@@ -56,7 +56,7 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   val ndSpace = implicitly[NDSpace[D]]
 
   val randGens = for (i <- (0 until ndSpace.dimensionality)) yield {
-    breeze.stats.distributions.Uniform(domain.origin(i), domain.oppositeCorner(i))
+    rand.breezeRandomUnform(domain.origin(i), domain.oppositeCorner(i))
   }
 
   override def sample = {
@@ -64,7 +64,7 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   }
 }
 
-case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int)(implicit rand: Random) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.area
   val mt = new MersenneTwister()
@@ -73,7 +73,7 @@ case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, see
   val volumeOfSampleRegion = mesh.area
   def sample = {
     val points = mesh.pointSet.points.toIndexedSeq
-    val distrDim1 = breeze.stats.distributions.Uniform(0, mesh.pointSet.numberOfPoints)(new RandBasis(mt))
+    val distrDim1 = rand.breezeRandomUnform(0, mesh.pointSet.numberOfPoints)
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
   }
@@ -111,7 +111,7 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, Vector
   }
 }
 
-case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int)(implicit rnd: Random) extends Sampler[_3D] {
 
   override val volumeOfSampleRegion: Double = mesh.area
 
@@ -122,16 +122,14 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, se
       sum + mesh.computeTriangleArea(cell)
   }.tail.toArray
 
-  val random = new scala.util.Random(seed)
-
   override def sample = {
     val samplePoints = {
       for (i <- 0 until numberOfPoints) yield {
-        val drawnValue = random.nextDouble() * mesh.area
+        val drawnValue = rnd.scalaRandom.nextDouble() * mesh.area
         val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
         val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
         assert(index >= 0 && index < accumulatedAreas.length)
-        mesh.samplePointInTriangleCell(mesh.cells(index), random.nextInt())
+        mesh.samplePointInTriangleCell(mesh.cells(index))
       }
     }
 
@@ -150,10 +148,10 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
   val volumeOfSampleRegion = mesh.area
   val p = 1.0 / mesh.area
 
-  scala.util.Random.setSeed(seed)
+  implicit val random = Random(42)
   val meshPoints = mesh.pointSet.points.toIndexedSeq
   val samplePoints = for (i <- 0 until numberOfPoints) yield {
-    val idx = scala.util.Random.nextInt(mesh.pointSet.numberOfPoints)
+    val idx = random.scalaRandom.nextInt(mesh.pointSet.numberOfPoints)
     meshPoints(idx)
   }
   assert(samplePoints.size == numberOfPoints)

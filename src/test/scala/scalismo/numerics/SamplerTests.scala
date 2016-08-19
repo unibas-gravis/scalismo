@@ -21,19 +21,17 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
-import scalismo.utils.Memoize
-
-import scala.util.Random
+import scalismo.utils.{ Random, Memoize }
 
 class SamplerTests extends ScalismoTestSuite {
+
+  implicit val random: Random = Random(42)
 
   val facepath = getClass.getResource("/facemesh.stl").getPath
   val facemesh = MeshIO.readMesh(new File(facepath)).get
 
   describe("A uniform sampler") {
     it("yields approximately uniformly spaced points") {
-
-      val random = new Random()
 
       // precalculate values needed for determining if a point lies in a (triangle) cell.
       case class CellInfo(a: Point[_3D], b: Point[_3D], c: Point[_3D], v0: Vector[_3D], v1: Vector[_3D], dot00: Double, dot01: Double, dot11: Double)
@@ -88,13 +86,13 @@ class SamplerTests extends ScalismoTestSuite {
           } else false
         }
 
-        val sampler = UniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.nextInt())
+        val sampler = UniformMeshSampler3D(facemesh, numSamplingPoints, seed = random.scalaRandom.nextInt())
         val (samplePoints, _) = sampler.sample.unzip
         //        println(s"total number of points: ${facemesh.numberOfPoints}")
 
         def randomArea(mesh: TriangleMesh[_3D], targetRatio: Double): (IndexedSeq[Int], Double) = {
           val cellAreas = facemesh.cells.map(facemesh.computeTriangleArea)
-          val cellIdWithArea = random.shuffle(facemesh.cells.indices zip cellAreas)
+          val cellIdWithArea = random.scalaRandom.shuffle(facemesh.cells.indices zip cellAreas)
 
           var areaRemaining = mesh.area * targetRatio
           val areaCellIds = cellIdWithArea.takeWhile {

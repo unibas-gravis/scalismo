@@ -17,9 +17,9 @@ package scalismo.sampling.algorithms
 
 import scalismo.sampling._
 import scalismo.sampling.loggers.{ AcceptRejectLogger, SilentLogger }
+import scalismo.utils.Random
 
 import scala.math.exp
-import scala.util.Random
 
 /**
  * Metropolis algorithm (MCMC), provides samples from the evaluator distribution by drawing from generator and stochastic accept/reject decisions
@@ -38,7 +38,7 @@ class Metropolis[A] protected (val generator: ProposalGenerator[A] with Symmetri
     // acceptance probability
     val a = proposalP - currentP
     // accept or reject
-    if (a > 0.0 || random.nextDouble() < exp(a)) {
+    if (a > 0.0 || random.scalaRandom.nextDouble() < exp(a)) {
       logger.accept(current, proposal, generator, evaluator)
       proposal
     } else {
@@ -76,7 +76,7 @@ class MetropolisHastings[A] protected (val generator: ProposalGenerator[A] with 
     val a = proposalP - currentP - t
 
     // accept or reject
-    if (a > 0.0 || random.nextDouble() < exp(a)) {
+    if (a > 0.0 || random.scalaRandom.nextDouble() < exp(a)) {
       logger.accept(current, proposal, generator, evaluator)
       proposal
     } else {
