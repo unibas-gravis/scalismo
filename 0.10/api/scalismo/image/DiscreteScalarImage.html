@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>DiscreteScalarImage - scalismo.image.DiscreteScalarImage</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -28,17 +24,9 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="DiscreteScalarImage$.html" title="See companion object"><img alt="Class/Object" src="../../lib/class_to_object_big.png" /></a>
+        <a href="DiscreteScalarImage$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.image">image</a></p>
-        <h1><a href="DiscreteScalarImage$.html" title="See companion object">DiscreteScalarImage</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="DiscreteScalarImage$.html" title="See companion object">object DiscreteScalarImage</a>
-            | <a href="package.html" class="extype" name="scalismo.image">package image</a>
-          </div></span></h3><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+        <h1><a href="DiscreteScalarImage$.html" title="Go to companion">DiscreteScalarImage</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -47,14 +35,15 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">DiscreteScalarImage</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
+        <span class="name">DiscreteScalarImage</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>] with <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A scalar valued discrete image.
-</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the pixel (needs to implement Scalar).</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the pixel (needs to implement Scalar).
+</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>], (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -72,7 +61,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.image.DiscreteScalarImage"><span>DiscreteScalarImage</span></li><li class="in" name="scalismo.image.DiscreteImage"><span>DiscreteImage</span></li><li class="in" name="scalismo.common.DiscreteField"><span>DiscreteField</span></li><li class="in" name="scala.PartialFunction"><span>PartialFunction</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.image.DiscreteScalarImage"><span>DiscreteScalarImage</span></li><li class="in" name="scalismo.image.DiscreteImage"><span>DiscreteImage</span></li><li class="in" name="scalismo.common.DiscreteScalarField"><span>DiscreteScalarField</span></li><li class="in" name="scalismo.common.DiscreteField"><span>DiscreteField</span></li><li class="in" name="scala.PartialFunction"><span>PartialFunction</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,6 +69,7 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -102,11 +92,7 @@
       <span class="symbol">
         <span class="name">DiscreteScalarImage</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>, <span name="arg1">arg1: <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>, <span name="arg2">arg2: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>, <span name="arg3">arg3: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@&lt;init&gt;(domain:scalismo.image.DiscreteImageDomain[D],data:scalismo.common.ScalarArray[A])(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitevidence$2:scalismo.image.DiscreteScalarImage.Create[D],implicitevidence$3:scalismo.common.Scalar[A],implicitevidence$4:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">domain</dt><dd class="cmt"><p>The domain over which this image is defined</p></dd><dt class="param">data</dt><dd class="cmt"><p>The values for each grid points.</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li></ol>
             </div>
@@ -126,11 +112,7 @@
       <span class="symbol">
         <span class="name">interpolate</span><span class="params">(<span name="order">order: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@interpolate(order:Int):scalismo.image.DifferentiableScalarImage[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order</p>
     </li></ol>
             </div>
@@ -138,6 +120,19 @@
         <div id="values" class="values members">
               <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -148,12 +143,8 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -165,13 +156,22 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -182,12 +182,8 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.PartialFunction#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen[C](k:B=&gt;C):PartialFunction[A,C]"></a>
       <a id="andThen[C]((A)⇒C):PartialFunction[PointId,C]"></a>
@@ -199,14 +195,10 @@
       <span class="symbol">
         <span class="name">andThen</span><span class="tparams">[<span name="C">C</span>]</span><span class="params">(<span name="k">k: (<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>) ⇒ <span class="extype" name="scala.PartialFunction.andThen.C">C</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scala.PartialFunction.andThen.C">C</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@andThen[C](k:B=&gt;C):PartialFunction[A,C]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction → Function1</dd></dl></div>
     </li><li name="scalismo.image.DiscreteImage#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(idx:scalismo.geometry.IntVector[D]):A"></a>
+      <a id="apply(idx:scalismo.geometry.IntVector[D]):Pixel"></a>
       <a id="apply(IntVector[D]):A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -216,13 +208,9 @@
       <span class="symbol">
         <span class="name">apply</span><span class="params">(<span name="idx">idx: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@apply(idx:scalismo.geometry.IntVector[D]):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.common.DiscreteScalarField#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(ptId:scalismo.common.PointId):A"></a>
       <a id="apply(PointId):A"></a>
       <h4 class="signature">
@@ -233,12 +221,8 @@
       <span class="symbol">
         <span class="name">apply</span><span class="params">(<span name="ptId">ptId: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@apply(ptId:scalismo.common.PointId):A" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → Function1</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → Function1</dd></dl></div>
     </li><li name="scala.PartialFunction#applyOrElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="applyOrElse[A1&lt;:A,B1&gt;:B](x:A1,default:A1=&gt;B1):B1"></a>
       <a id="applyOrElse[A1&lt;:PointId,B1&gt;:A](A1,(A1)⇒B1):B1"></a>
@@ -250,11 +234,7 @@
       <span class="symbol">
         <span class="name">applyOrElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span></span>]</span><span class="params">(<span name="x">x: <span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span></span>, <span name="default">default: (<span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span>) ⇒ <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@applyOrElse[A1&lt;:A,B1&gt;:B](x:A1,default:A1=&gt;B1):B1" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -267,13 +247,9 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.common.DiscreteScalarField#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="canEqual(other:Any):Boolean"></a>
       <a id="canEqual(Any):Boolean"></a>
       <h4 class="signature">
@@ -284,12 +260,8 @@
       <span class="symbol">
         <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@canEqual(other:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -301,11 +273,7 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -324,32 +292,11 @@
       <span class="symbol">
         <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@compose[A](g:A=&gt;T1):A=&gt;R" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.image.DiscreteScalarImage#data" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="data:scalismo.common.ScalarArray[A]"></a>
-      <a id="data:ScalarArray[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">data</span><span class="result">: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@data:scalismo.common.ScalarArray[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">The values for each grid points.</p><div class="fullcomment"><div class="comment cmt"><p>The values for each grid points.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteImage#dimensionality" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dimensionality:Int"></a>
       <a id="dimensionality:Int"></a>
@@ -361,11 +308,7 @@
       <span class="symbol">
         <span class="name">dimensionality</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@dimensionality:Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteScalarImage#domain" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="domain:scalismo.image.DiscreteImageDomain[D]"></a>
@@ -378,12 +321,8 @@
       <span class="symbol">
         <span class="name">domain</span><span class="result">: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@domain:scalismo.image.DiscreteImageDomain[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">The domain over which this image is defined</p><div class="fullcomment"><div class="comment cmt"><p>The domain over which this image is defined</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">The domain over which this image is defined</p><div class="fullcomment"><div class="comment cmt"><p>The domain over which this image is defined</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a> → <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -395,13 +334,9 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.common.DiscreteScalarField#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(other:Any):Boolean"></a>
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
@@ -412,12 +347,8 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@equals(other:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -429,11 +360,7 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -452,11 +379,7 @@
       <span class="symbol">
         <span class="name">foreach</span><span class="params">(<span name="f">f: (<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@foreach(f:A=&gt;Unit):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
@@ -469,29 +392,21 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
+    </li><li name="scalismo.common.DiscreteScalarField#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode:Int"></a>
+      <a id="hashCode:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+        <span class="name">hashCode</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.image.DiscreteScalarImage#interpolateNearestNeighbor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="interpolateNearestNeighbor():scalismo.common.ScalarField[D,A]"></a>
       <a id="interpolateNearestNeighbor():ScalarField[D,A]"></a>
@@ -503,12 +418,8 @@
       <span class="symbol">
         <span class="name">interpolateNearestNeighbor</span><span class="params">()</span><span class="result">: <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@interpolateNearestNeighbor():scalismo.common.ScalarField[D,A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Returns a continuous scalar field.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>, use <span class="extype" name="interpolate(0)">interpolate(0)</span> instead</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
+      </h4>
+      <p class="shortcomment cmt">Returns a continuous scalar field.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>, use <span class="extype" name="interpolate(0)">interpolate(0)</span> instead</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteImage#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isDefinedAt(idx:scalismo.geometry.IntVector[D]):Boolean"></a>
       <a id="isDefinedAt(IntVector[D]):Boolean"></a>
@@ -520,13 +431,9 @@
       <span class="symbol">
         <span class="name">isDefinedAt</span><span class="params">(<span name="idx">idx: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@isDefinedAt(idx:scalismo.geometry.IntVector[D]):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.common.DiscreteScalarField#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isDefinedAt(ptId:scalismo.common.PointId):Boolean"></a>
       <a id="isDefinedAt(PointId):Boolean"></a>
       <h4 class="signature">
@@ -537,12 +444,8 @@
       <span class="symbol">
         <span class="name">isDefinedAt</span><span class="params">(<span name="ptId">ptId: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@isDefinedAt(ptId:scalismo.common.PointId):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → PartialFunction</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → PartialFunction</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -554,11 +457,7 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.PartialFunction#lift" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="lift:A=&gt;Option[B]"></a>
@@ -571,13 +470,9 @@
       <span class="symbol">
         <span class="name">lift</span><span class="result">: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@lift:A=&gt;Option[B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
-    </li><li name="scalismo.image.DiscreteScalarImage#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="scalismo.image.DiscreteScalarImage#map" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="map[B](f:A=&gt;B)(implicitevidence$5:scalismo.common.Scalar[B],implicitevidence$6:scala.reflect.ClassTag[B]):scalismo.image.DiscreteScalarImage[D,B]"></a>
       <a id="map[B]((A)⇒B)(Scalar[B],ClassTag[B]):DiscreteScalarImage[D,B]"></a>
       <h4 class="signature">
@@ -588,12 +483,8 @@
       <span class="symbol">
         <span class="name">map</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>) ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.map.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.map.B">B</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.map.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.map.B">B</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@map[B](f:A=&gt;B)(implicitevidence$5:scalismo.common.Scalar[B],implicitevidence$6:scala.reflect.ClassTag[B]):scalismo.image.DiscreteScalarImage[D,B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">returns a new image whose whose pixel values have been mapped using the function f</p>
+      </h4>
+      <p class="shortcomment cmt">returns a new image whose whose pixel values have been mapped using the function f</p><div class="fullcomment"><div class="comment cmt"><p>returns a new image whose whose pixel values have been mapped using the function f</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteScalarImage#ndSpace" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ndSpace:scalismo.geometry.NDSpace[D]"></a>
       <a id="ndSpace:NDSpace[D]"></a>
@@ -605,11 +496,7 @@
       <span class="symbol">
         <span class="name">ndSpace</span><span class="result">: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@ndSpace:scalismo.geometry.NDSpace[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a> → <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -622,11 +509,7 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -639,11 +522,7 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -656,11 +535,7 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.PartialFunction#orElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="orElse[A1&lt;:A,B1&gt;:B](that:PartialFunction[A1,B1]):PartialFunction[A1,B1]"></a>
@@ -673,11 +548,7 @@
       <span class="symbol">
         <span class="name">orElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span></span>]</span><span class="params">(<span name="that">that: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@orElse[A1&lt;:A,B1&gt;:B](that:PartialFunction[A1,B1]):PartialFunction[A1,B1]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#pointsWithIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pointsWithIds:Iterator[(scalismo.geometry.Point[D],Int)]"></a>
@@ -690,11 +561,7 @@
       <span class="symbol">
         <span class="name">pointsWithIds</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>], <span class="extype" name="scala.Int">Int</span>)]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@pointsWithIds:Iterator[(scalismo.geometry.Point[D],Int)]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#pointsWithValues" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pointsWithValues:Iterator[(scalismo.geometry.Point[D],A)]"></a>
@@ -707,11 +574,7 @@
       <span class="symbol">
         <span class="name">pointsWithValues</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>], <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>)]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@pointsWithValues:Iterator[(scalismo.geometry.Point[D],A)]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteScalarImage#resample" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="resample(newDomain:scalismo.image.DiscreteImageDomain[D],interpolationDegree:Int,outsideValue:Float):scalismo.image.DiscreteScalarImage[D,A]"></a>
@@ -724,11 +587,7 @@
       <span class="symbol">
         <span class="name">resample</span><span class="params">(<span name="newDomain">newDomain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>]</span>, <span name="interpolationDegree">interpolationDegree: <span class="extype" name="scala.Int">Int</span></span>, <span name="outsideValue">outsideValue: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@resample(newDomain:scalismo.image.DiscreteImageDomain[D],interpolationDegree:Int,outsideValue:Float):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain</p>
     </li><li name="scala.PartialFunction#runWith" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="runWith[U](action:B=&gt;U):A=&gt;Boolean"></a>
@@ -741,11 +600,7 @@
       <span class="symbol">
         <span class="name">runWith</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="action">action: (<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>) ⇒ <span class="extype" name="scala.PartialFunction.runWith.U">U</span></span>)</span><span class="result">: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@runWith[U](action:B=&gt;U):A=&gt;Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -758,11 +613,7 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.Function1#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -775,13 +626,9 @@
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#values" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.common.DiscreteScalarField#values" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="values:Iterator[A]"></a>
       <a id="values:Iterator[A]"></a>
       <h4 class="signature">
@@ -792,12 +639,8 @@
       <span class="symbol">
         <span class="name">values</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@values:Iterator[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#valuesWithIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="valuesWithIds:Iterator[(A,scalismo.common.PointId)]"></a>
       <a id="valuesWithIds:Iterator[(A,PointId)]"></a>
@@ -809,11 +652,7 @@
       <span class="symbol">
         <span class="name">valuesWithIds</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>, <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@valuesWithIds:Iterator[(A,scalismo.common.PointId)]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -826,11 +665,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -849,11 +684,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -872,11 +703,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.image.DiscreteScalarImage@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -895,6 +722,8 @@
         <div id="inheritedMembers">
         <div class="parent" name="scalismo.image.DiscreteImage">
               <h3>Inherited from <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</h3>
+            </div><div class="parent" name="scalismo.common.DiscreteScalarField">
+              <h3>Inherited from <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</h3>
             </div><div class="parent" name="scalismo.common.DiscreteField">
               <h3>Inherited from <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</h3>
             </div><div class="parent" name="scala.PartialFunction">
@@ -921,7 +750,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

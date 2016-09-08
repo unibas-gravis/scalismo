@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>NormalDirectionFeatureExtractor - scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor</title>
@@ -8,11 +9,6 @@
           
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../index.html';
@@ -28,17 +24,9 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="NormalDirectionFeatureExtractor$.html" title="See companion object"><img alt="Class/Object" src="../../../lib/class_to_object_big.png" /></a>
+        <a href="NormalDirectionFeatureExtractor$.html" title="Go to companion"><img src="../../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../../package.html" class="extype" name="scalismo">scalismo</a>.<a href="../package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a>.<a href="package.html" class="extype" name="scalismo.statisticalmodel.asm">asm</a></p>
-        <h1><a href="NormalDirectionFeatureExtractor$.html" title="See companion object">NormalDirectionFeatureExtractor</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="NormalDirectionFeatureExtractor$.html" title="See companion object">object NormalDirectionFeatureExtractor</a>
-            | <a href="package.html" class="extype" name="scalismo.statisticalmodel.asm">package asm</a>
-          </div></span></h3><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+        <h1><a href="NormalDirectionFeatureExtractor$.html" title="Go to companion">NormalDirectionFeatureExtractor</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -47,13 +35,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Double">Double</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name='<span class="name"><a href="NormalDirectionFeatureExtractor$.html">NormalDirectionFeatureExtractor.IOMetadata_Default</a></span>'>...</span></span>)</span><span class="result"> extends <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Float">Float</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name="NormalDirectionFeatureExtractor.IOMetadata_Default">...</span></span>)</span><span class="result"> extends <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a>, <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a>, (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a>, <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a>, (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -79,6 +67,7 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -91,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(numberOfPoints:Int,spacing:Double,ioMetadata:scalismo.statisticalmodel.asm.IOMetadata):scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor"></a>
+      <a id="&lt;init&gt;(numberOfPoints:Int,spacing:Float,ioMetadata:scalismo.statisticalmodel.asm.IOMetadata):scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor"></a>
       <a id="&lt;init&gt;:NormalDirectionFeatureExtractor"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -99,13 +88,9 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Double">Double</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name='<span class="name"><a href="NormalDirectionFeatureExtractor$.html">NormalDirectionFeatureExtractor.IOMetadata_Default</a></span>'>...</span></span>)</span>
+        <span class="name">NormalDirectionFeatureExtractor</span><span class="params">(<span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="spacing">spacing: <span class="extype" name="scala.Float">Float</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name="NormalDirectionFeatureExtractor.IOMetadata_Default">...</span></span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@&lt;init&gt;(numberOfPoints:Int,spacing:Double,ioMetadata:scalismo.statisticalmodel.asm.IOMetadata):scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -117,6 +102,19 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -127,12 +125,8 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -144,13 +138,22 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@##():Int" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -161,33 +164,26 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(image:scalismo.statisticalmodel.asm.PreprocessedImage,point:scalismo.geometry.Point[scalismo.geometry._3D],mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],profilePointId:scalismo.common.PointId):Option[breeze.linalg.DenseVector[Double]]"></a>
-      <a id="apply(PreprocessedImage,Point[_3D],TriangleMesh[_3D],PointId):Option[DenseVector[Double]]"></a>
+      <a id="apply(image:scalismo.statisticalmodel.asm.PreprocessedImage,point:scalismo.geometry.Point[scalismo.geometry._3D],mesh:scalismo.mesh.TriangleMesh,profilePointId:scalismo.common.PointId):Option[breeze.linalg.DenseVector[Float]]"></a>
+      <a id="apply(PreprocessedImage,Point[_3D],TriangleMesh,PointId):Option[DenseVector[Float]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="image">image: <a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a></span>, <span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
+        <span class="name">apply</span><span class="params">(<span name="image">image: <a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a></span>, <span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@apply(image:scalismo.statisticalmodel.asm.PreprocessedImage,point:scalismo.geometry.Point[scalismo.geometry._3D],mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],profilePointId:scalismo.common.PointId):Option[breeze.linalg.DenseVector[Double]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Actually extracts features from an image.</p><div class="fullcomment"><div class="comment cmt"><p>Actually extracts features from an image.
 The image and featurePoint arguments are arguably necessary for all feature extractor implementations. The additional two parameters (mesh and point id)
 are passed in because the feature extractor might need that information. For instance, the NormalDirectionFeatureExtractor needs that information to
 determine the &quot;spatial orientation&quot; of the line on which the image points to be examined have to lie.
-</p></div><dl class="paramcmts block"><dt class="param">image</dt><dd class="cmt"><p>the image to extract features in</p></dd><dt class="param">mesh</dt><dd class="cmt"><p>a mesh instance in correspondence with the image</p></dd><dt class="param">profilePointId</dt><dd class="cmt"><p>a point id on the mesh, corresponding to a profiled point id.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor">NormalDirectionFeatureExtractor</a> → <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a> → Function4</dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">image</dt><dd class="cmt"><p>the image to extract features in</p></dd><dt class="param">mesh</dt><dd class="cmt"><p>a mesh instance in correspondence with the image</p></dd><dt class="param">profilePointId</dt><dd class="cmt"><p>a point id on the mesh, corresponding to a profiled point id.</p></dd><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor">NormalDirectionFeatureExtractor</a> → <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a> → Function4</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -199,11 +195,7 @@ determine the &quot;spatial orientation&quot; of the line on which the image poi
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -216,11 +208,7 @@ determine the &quot;spatial orientation&quot; of the line on which the image poi
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@clone():Object" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -230,20 +218,16 @@ determine the &quot;spatial orientation&quot; of the line on which the image poi
         </dd></dl></div>
     </li><li name="scala.Function4#curried" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="curried:T1=&gt;(T2=&gt;(T3=&gt;(T4=&gt;R)))"></a>
-      <a id="curried:(PreprocessedImage)⇒(Point[_3D])⇒(TriangleMesh[_3D])⇒(PointId)⇒Option[DenseVector[Double]]"></a>
+      <a id="curried:(PreprocessedImage)⇒(Point[_3D])⇒(TriangleMesh)⇒(PointId)⇒Option[DenseVector[Float]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">curried</span><span class="result">: (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>) ⇒ (<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
+        <span class="name">curried</span><span class="result">: (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>) ⇒ (<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ (<a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>) ⇒ (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@curried:T1=&gt;(T2=&gt;(T3=&gt;(T4=&gt;R)))" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function4</dd><dt>Annotations</dt><dd>
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
@@ -259,33 +243,26 @@ determine the &quot;spatial orientation&quot; of the line on which the image poi
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#featurePoints" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="featurePoints(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],profilePointId:scalismo.common.PointId,centerPoint:scalismo.geometry.Point[scalismo.geometry._3D]):Option[scala.collection.immutable.IndexedSeq[scalismo.geometry.Point[scalismo.geometry._3D]]]"></a>
-      <a id="featurePoints(TriangleMesh[_3D],PointId,Point[_3D]):Option[IndexedSeq[Point[_3D]]]"></a>
+      <a id="featurePoints(mesh:scalismo.mesh.TriangleMesh,profilePointId:scalismo.common.PointId,centerPoint:scalismo.geometry.Point[scalismo.geometry._3D]):Option[scala.collection.immutable.IndexedSeq[scalismo.geometry.Point[scalismo.geometry._3D]]]"></a>
+      <a id="featurePoints(TriangleMesh,PointId,Point[_3D]):Option[IndexedSeq[Point[_3D]]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">featurePoints</span><span class="params">(<span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="centerPoint">centerPoint: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]]</span>
+        <span class="name">featurePoints</span><span class="params">(<span name="mesh">mesh: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="profilePointId">profilePointId: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="centerPoint">centerPoint: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@featurePoints(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],profilePointId:scalismo.common.PointId,centerPoint:scalismo.geometry.Point[scalismo.geometry._3D]):Option[scala.collection.immutable.IndexedSeq[scalismo.geometry.Point[scalismo.geometry._3D]]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Return the points at which feature components are extracted for a given mesh and point.</p><div class="fullcomment"><div class="comment cmt"><p>Return the points at which feature components are extracted for a given mesh and point.
 This is mainly intended for visualization, and only really makes sense if there exists a one-to-one correspondence
 between such points and the actual feature components returned by the <code>apply()</code>.</p><p>In other words: if a particular implementation uses a method for determining features where there is no correspondence
 between the feature components and particular points, the method should return <span class="extype" name="None">None</span>. Otherwise, it should return
-Some(IndexedSeq(...)), where the length of the sequence matches the length of the feature vector.</p><p>For the difference between profilePointId and featurePoint, see the documentation of the apply method.</p></div><dl class="paramcmts block"><dt class="param">mesh</dt><dd class="cmt"><p>the mesh to determine the feature points for</p></dd><dt class="param">profilePointId</dt><dd class="cmt"><p>the profile point id to determine the feature points for</p></dd><dt>returns</dt><dd class="cmt"><p>a sequence of points, or <span class="extype" name="None">None</span> if there is no sensible correspondence between feature and points, as outlined above.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor">NormalDirectionFeatureExtractor</a> → <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a></dd></dl></div>
+Some(IndexedSeq(...)), where the length of the sequence matches the length of the feature vector.</p><p>For the difference between profilePointId and featurePoint, see the documentation of the apply method.</p></div><dl class="paramcmts block"><dt class="param">mesh</dt><dd class="cmt"><p>the mesh to determine the feature points for</p></dd><dt class="param">profilePointId</dt><dd class="cmt"><p>the profile point id to determine the feature points for</p></dd><dt>returns</dt><dd class="cmt"><p>a sequence of points, or <span class="extype" name="None">None</span> if there is no sensible correspondence between feature and points, as outlined above.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor">NormalDirectionFeatureExtractor</a> → <a href="FeatureExtractor.html" class="extype" name="scalismo.statisticalmodel.asm.FeatureExtractor">FeatureExtractor</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -297,11 +274,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -320,11 +293,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#ioMetadata" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ioMetadata:scalismo.statisticalmodel.asm.IOMetadata"></a>
@@ -337,11 +306,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">ioMetadata</span><span class="result">: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@ioMetadata:scalismo.statisticalmodel.asm.IOMetadata" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor">NormalDirectionFeatureExtractor</a> → <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -354,11 +319,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -371,11 +332,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -388,11 +345,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@notify():Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -405,11 +358,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#numberOfPoints" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="numberOfPoints:Int"></a>
@@ -422,28 +371,20 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">numberOfPoints</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@numberOfPoints:Int" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor#spacing" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="spacing:Double"></a>
-      <a id="spacing:Double"></a>
+      <a id="spacing:Float"></a>
+      <a id="spacing:Float"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">spacing</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">spacing</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@spacing:Double" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -456,11 +397,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.Function4#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -473,28 +410,20 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@toString():String" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function4 → AnyRef → Any</dd></dl></div>
     </li><li name="scala.Function4#tupled" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="tupled:((T1,T2,T3,T4))=&gt;R"></a>
-      <a id="tupled:((PreprocessedImage,Point[_3D],TriangleMesh[_3D],PointId))⇒Option[DenseVector[Double]]"></a>
+      <a id="tupled:((PreprocessedImage,Point[_3D],TriangleMesh,PointId))⇒Option[DenseVector[Float]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">tupled</span><span class="result">: ((<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
+        <span class="name">tupled</span><span class="result">: ((<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@tupled:((T1,T2,T3,T4))=&gt;R" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function4</dd><dt>Annotations</dt><dd>
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
@@ -510,11 +439,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@wait():Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -533,11 +458,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -556,11 +477,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.statisticalmodel.asm.NormalDirectionFeatureExtractor@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -590,7 +507,7 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
             </div><div class="parent" name="scalismo.statisticalmodel.asm.HasIOMetadata">
               <h3>Inherited from <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></h3>
             </div><div class="parent" name="scala.Function4">
-              <h3>Inherited from (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</h3>
+              <h3>Inherited from (<a href="PreprocessedImage.html" class="extype" name="scalismo.statisticalmodel.asm.PreprocessedImage">PreprocessedImage</a>, <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
@@ -611,7 +528,6 @@ Some(IndexedSeq(...)), where the length of the sequence matches the length of th
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
     </body>
       </html>

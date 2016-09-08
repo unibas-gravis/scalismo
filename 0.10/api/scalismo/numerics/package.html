@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>numerics - scalismo.numerics</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -28,13 +24,9 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img alt="Package" src="../../lib/package_big.png" />
+        <img src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
-        <h1>numerics</h1><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+        <h1>numerics</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -67,7 +59,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="scalismo.numerics.CostFunction" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="CostFunctionextendsscalismo.registration.TransformationSpace.ParameterVector=&gt;(Double,breeze.linalg.DenseVector[Double])"></a>
+      <a id="CostFunctionextendsscalismo.registration.TransformationSpace.ParameterVector=&gt;(Float,breeze.linalg.DenseVector[Float])"></a>
       <a id="CostFunction:CostFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -75,13 +67,9 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="CostFunction.html"><span class="name">CostFunction</span></a><span class="result"> extends (<a href="../registration/TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a>) ⇒ (<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>])</span>
+        <a href="CostFunction.html"><span class="name">CostFunction</span></a><span class="result"> extends (<a href="../registration/TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Float]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a>) ⇒ (<span class="extype" name="scala.Float">Float</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>])</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@CostFunctionextendsscalismo.registration.TransformationSpace.ParameterVector=&gt;(Double,breeze.linalg.DenseVector[Double])" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.FixedPointsMeshSampler3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="FixedPointsMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable"></a>
@@ -92,13 +80,9 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="FixedPointsMeshSampler3D.html"><span class="name">FixedPointsMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="FixedPointsMeshSampler3D.html"><span class="name">FixedPointsMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@FixedPointsMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.FixedPointsUniformMeshSampler3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="FixedPointsUniformMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable"></a>
@@ -109,13 +93,9 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="FixedPointsUniformMeshSampler3D.html"><span class="name">FixedPointsUniformMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="FixedPointsUniformMeshSampler3D.html"><span class="name">FixedPointsUniformMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@FixedPointsUniformMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.GradientDescentOptimizer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="GradientDescentOptimizerextendsOptimizerwithProductwithSerializable"></a>
@@ -128,11 +108,7 @@
       <span class="symbol">
         <a href="GradientDescentOptimizer.html"><span class="name">GradientDescentOptimizer</span></a><span class="params">(<span name="numIterations">numIterations: <span class="extype" name="scala.Int">Int</span></span>, <span name="stepLength">stepLength: <span class="extype" name="scala.Double">Double</span></span>, <span name="withLineSearch">withLineSearch: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="robinsMonroe">robinsMonroe: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="stepDecreaseCoeff">stepDecreaseCoeff: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">0.0</span></span>)</span><span class="result"> extends <a href="Optimizer.html" class="extype" name="scalismo.numerics.Optimizer">Optimizer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@GradientDescentOptimizerextendsOptimizerwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.GridSampler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="GridSampler[D&lt;:scalismo.geometry.Dim]extendsSampler[D]withProductwithSerializable"></a>
@@ -145,11 +121,7 @@
       <span class="symbol">
         <a href="GridSampler.html"><span class="name">GridSampler</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="../image/DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.numerics.GridSampler.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.numerics.GridSampler.D">D</span>]</span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.numerics.GridSampler.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@GridSampler[D&lt;:scalismo.geometry.Dim]extendsSampler[D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.Integrator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Integrator[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable"></a>
@@ -162,11 +134,7 @@
       <span class="symbol">
         <a href="Integrator.html"><span class="name">Integrator</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="sampler">sampler: <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.numerics.Integrator.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.numerics.Integrator.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@Integrator[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.LBFGSOptimizer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LBFGSOptimizerextendsOptimizerwithProductwithSerializable"></a>
@@ -177,13 +145,9 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="LBFGSOptimizer.html"><span class="name">LBFGSOptimizer</span></a><span class="params">(<span name="numIterations">numIterations: <span class="extype" name="scala.Int">Int</span></span>, <span name="m">m: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>, <span name="tolerance">tolerance: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1e-5</span></span>)</span><span class="result"> extends <a href="Optimizer.html" class="extype" name="scalismo.numerics.Optimizer">Optimizer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="LBFGSOptimizer.html"><span class="name">LBFGSOptimizer</span></a><span class="params">(<span name="numIterations">numIterations: <span class="extype" name="scala.Int">Int</span></span>, <span name="m">m: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>, <span name="tolerance">tolerance: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1.0E-5</span></span>)</span><span class="result"> extends <a href="Optimizer.html" class="extype" name="scalismo.numerics.Optimizer">Optimizer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@LBFGSOptimizerextendsOptimizerwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.Optimizer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="OptimizerextendsAnyRef"></a>
@@ -196,29 +160,8 @@
       <span class="symbol">
         <a href="Optimizer.html"><span class="name">Optimizer</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@OptimizerextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
-    </li><li name="scalismo.numerics.PivotedCholesky" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="PivotedCholeskyextendsProductwithSerializable"></a>
-      <a id="PivotedCholesky:PivotedCholesky"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="PivotedCholesky.html"><span class="name">PivotedCholesky</span></a><span class="params">(<span name="L">L: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>, <span name="p">p: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="tr">tr: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@PivotedCholeskyextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Result object for the pivoted cholesky of a matrix A</p><div class="fullcomment"><div class="comment cmt"><p>Result object for the pivoted cholesky of a matrix A</p></div><dl class="paramcmts block"><dt class="param">L</dt><dd class="cmt"><p>The (first m columns) of a lower triangular matrix L, for which LL' = A_m \approx A.</p></dd><dt class="param">p</dt><dd class="cmt"><p>The pivot</p></dd><dt class="param">tr</dt><dd class="cmt"><p>: The trace of the matrix (A_m - A) (i.e. the approximation error)</p></dd></dl></div>
     </li><li name="scalismo.numerics.PointsWithLikelyCorrespondenceSampler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PointsWithLikelyCorrespondenceSamplerextendsSampler[scalismo.geometry._3D]withProductwithSerializable"></a>
       <a id="PointsWithLikelyCorrespondenceSampler:PointsWithLikelyCorrespondenceSampler"></a>
@@ -228,13 +171,9 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="PointsWithLikelyCorrespondenceSampler.html"><span class="name">PointsWithLikelyCorrespondenceSampler</span></a><span class="params">(<span name="gp">gp: <a href="../statisticalmodel/GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="refmesh">refmesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="targetMesh">targetMesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="maxMd">maxMd: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="PointsWithLikelyCorrespondenceSampler.html"><span class="name">PointsWithLikelyCorrespondenceSampler</span></a><span class="params">(<span name="gp">gp: <a href="../statisticalmodel/GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="refmesh">refmesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="targetMesh">targetMesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="maxMd">maxMd: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@PointsWithLikelyCorrespondenceSamplerextendsSampler[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.RandomMeshSampler3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RandomMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable"></a>
@@ -245,13 +184,9 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RandomMeshSampler3D.html"><span class="name">RandomMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RandomMeshSampler3D.html"><span class="name">RandomMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@RandomMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.Sampler" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Sampler[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
@@ -264,12 +199,8 @@
       <span class="symbol">
         <a href="Sampler.html"><span class="name">Sampler</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@Sampler[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">sample generator typeclass</p>
+      </h4>
+      <p class="comment cmt">sample generator typeclass</p>
     </li><li name="scalismo.numerics.UniformMeshSampler3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="UniformMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable"></a>
       <a id="UniformMeshSampler3D:UniformMeshSampler3D"></a>
@@ -279,13 +210,9 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="UniformMeshSampler3D.html"><span class="name">UniformMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="UniformMeshSampler3D.html"><span class="name">UniformMeshSampler3D</span></a><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>, <span name="seed">seed: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@UniformMeshSampler3DextendsSampler[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.UniformSampler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="UniformSampler[D&lt;:scalismo.geometry.Dim]extendsSampler[D]withProductwithSerializable"></a>
@@ -298,11 +225,7 @@
       <span class="symbol">
         <a href="UniformSampler.html"><span class="name">UniformSampler</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="../common/BoxDomain.html" class="extype" name="scalismo.common.BoxDomain">BoxDomain</a>[<span class="extype" name="scalismo.numerics.UniformSampler.D">D</span>]</span>, <span name="numberOfPoints">numberOfPoints: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$2">evidence$2: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.numerics.UniformSampler.D">D</span>]</span>)</span><span class="result"> extends <a href="Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.numerics.UniformSampler.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@UniformSampler[D&lt;:scalismo.geometry.Dim]extendsSampler[D]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -322,11 +245,7 @@
       <span class="symbol">
         <a href="BSpline$.html"><span class="name">BSpline</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@BSpline" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.Optimizer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Optimizer"></a>
@@ -339,28 +258,7 @@
       <span class="symbol">
         <a href="Optimizer$.html"><span class="name">Optimizer</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@Optimizer" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="scalismo.numerics.PivotedCholesky" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PivotedCholesky"></a>
-      <a id="PivotedCholesky:PivotedCholesky"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="PivotedCholesky$.html"><span class="name">PivotedCholesky</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@PivotedCholesky" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.numerics.RandomSVD" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RandomSVD"></a>
@@ -373,12 +271,8 @@
       <span class="symbol">
         <a href="RandomSVD$.html"><span class="name">RandomSVD</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.numerics.package@RandomSVD" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implementation of a Randomized approach for SVD,
+      </h4>
+      <p class="comment cmt">Implementation of a Randomized approach for SVD,
 as proposed in
 Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions
 N Halko, PG Martinsson, JA Tropp - SIAM review, 2011 - SIAM
@@ -408,7 +302,6 @@ N Halko, PG Martinsson, JA Tropp - SIAM review, 2011 - SIAM
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

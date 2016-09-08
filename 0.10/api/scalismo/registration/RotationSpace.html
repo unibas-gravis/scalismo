@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>RotationSpace - scalismo.registration.RotationSpace</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -28,17 +24,9 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="RotationSpace$.html" title="See companion object"><img alt="Class/Object" src="../../lib/class_to_object_big.png" /></a>
+        <a href="RotationSpace$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.registration">registration</a></p>
-        <h1><a href="RotationSpace$.html" title="See companion object">RotationSpace</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="RotationSpace$.html" title="See companion object">object RotationSpace</a>
-            | <a href="package.html" class="extype" name="scalismo.registration">package registration</a>
-          </div></span></h3><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+        <h1><a href="RotationSpace$.html" title="Go to companion">RotationSpace</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -79,6 +67,7 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -101,11 +90,7 @@
       <span class="symbol">
         <span class="name">RotationSpace</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@&lt;init&gt;()(implicitevidence$4:scalismo.geometry.NDSpace[D]):scalismo.registration.RotationSpace[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -113,21 +98,17 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="scalismo.registration.TransformationSpace.JacobianImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="JacobianImage=scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Double]"></a>
-      <a id="JacobianImage:JacobianImage"></a>
+      <a id="JacobianImage=scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Float]"></a>
+      <a id="JacobianImage:(Point[D])⇒DenseMatrix[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">JacobianImage</span><span class="result"> = (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">JacobianImage</span><span class="result"> = (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@JacobianImage=scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a></dd></dl></div>
     </li><li name="scalismo.registration.RotationSpace.T" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="T=scalismo.registration.RotationTransform[D]"></a>
@@ -140,11 +121,7 @@
       <span class="symbol">
         <span class="name">T</span><span class="result"> = <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@T=scalismo.registration.RotationTransform[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Type of parametric transforms generated by this space</p><div class="fullcomment"><div class="comment cmt"><p>Type of parametric transforms generated by this space</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.RotationSpace">RotationSpace</a> → <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a> → <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a></dd></dl></div>
     </li></ol>
             </div>
@@ -162,11 +139,7 @@
       <span class="symbol">
         <span class="name">centre</span><span class="result">: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@centre:scalismo.geometry.Point[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Centre of rotation.</p><div class="fullcomment"><div class="comment cmt"><p>Centre of rotation. All rotations generated by this parametric space will be around this indicated Point</p></div></div>
     </li><li name="scalismo.registration.TransformationSpace#parametersDimensionality" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="parametersDimensionality:Int"></a>
@@ -179,28 +152,20 @@
       <span class="symbol">
         <span class="name">parametersDimensionality</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@parametersDimensionality:Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a></dd></dl></div>
     </li><li name="scalismo.registration.TransformationSpace#takeDerivativeWRTParameters" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="takeDerivativeWRTParameters(alpha:scalismo.registration.TransformationSpace.ParameterVector):TransformationSpace.this.JacobianImage"></a>
-      <a id="takeDerivativeWRTParameters(ParameterVector):JacobianImage"></a>
+      <a id="takeDerivativeWRTParameters(alpha:scalismo.registration.TransformationSpace.ParameterVector):scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Float]"></a>
+      <a id="takeDerivativeWRTParameters(ParameterVector):(Point[D])⇒DenseMatrix[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">takeDerivativeWRTParameters</span><span class="params">(<span name="alpha">alpha: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: <a href="#JacobianImage=scalismo.geometry.Point[D]=&gt;breeze.linalg.DenseMatrix[Double]" class="extmbr" name="scalismo.registration.RotationSpace.JacobianImage">JacobianImage</a></span>
+        <span class="name">takeDerivativeWRTParameters</span><span class="params">(<span name="alpha">alpha: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Float]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]) ⇒ <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@takeDerivativeWRTParameters(alpha:scalismo.registration.TransformationSpace.ParameterVector):TransformationSpace.this.JacobianImage" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">returns a function providing the Jacobian at a requested point.</p><div class="fullcomment"><div class="comment cmt"><p>returns a function providing the Jacobian at a requested point. This is used when optimizing over the parameters, e.g. during registration</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a></dd></dl></div>
     </li><li name="scalismo.registration.RotationSpace#transformForParameters" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="transformForParameters(p:scalismo.registration.TransformationSpace.ParameterVector):scalismo.registration.RotationTransform[D]"></a>
@@ -211,15 +176,11 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">transformForParameters</span><span class="params">(<span name="p">p: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>
+        <span class="name">transformForParameters</span><span class="params">(<span name="p">p: <a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Float]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a></span>)</span><span class="result">: <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@transformForParameters(p:scalismo.registration.TransformationSpace.ParameterVector):scalismo.registration.RotationTransform[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Returns a rotation transform corresponding to the given parameters.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a rotation transform corresponding to the given parameters.</p><p> Rotation parameters for _2D : a scalar indicating the rotation angle in radians
- Rotation parameters for _3D : Euler angles in x-convention (rotation around Z axis first, around Y axis second, around X axis third)
+ Rotation parameters for _3D : Euler angles
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.RotationSpace">RotationSpace</a> → <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a></dd></dl></div>
     </li></ol>
             </div>
@@ -227,6 +188,19 @@
         <div id="values" class="values members">
               <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -237,12 +211,8 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -254,13 +224,22 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -271,12 +250,8 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -288,11 +263,7 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -305,11 +276,7 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -328,11 +295,7 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -345,11 +308,7 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -362,11 +321,7 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -385,11 +340,7 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -402,28 +353,20 @@
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.registration.RotationSpace#identityTransformParameters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="identityTransformParameters:breeze.linalg.DenseVector[Double]"></a>
-      <a id="identityTransformParameters:DenseVector[Double]"></a>
+      <a id="identityTransformParameters:breeze.linalg.DenseVector[Float]"></a>
+      <a id="identityTransformParameters:DenseVector[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">identityTransformParameters</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">identityTransformParameters</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@identityTransformParameters:breeze.linalg.DenseVector[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">returns the parameters corresponding the identity transform in this space</p><div class="fullcomment"><div class="comment cmt"><p>returns the parameters corresponding the identity transform in this space</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.RotationSpace">RotationSpace</a> → <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -436,11 +379,7 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -453,11 +392,7 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -470,11 +405,7 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -487,11 +418,7 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.registration.DifferentiableTransforms#product" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="product(that:scalismo.registration.TransformationSpace[D]withscalismo.registration.DifferentiableTransforms[D]):scalismo.registration.ProductTransformationSpace[D,Nothing,Nothing]"></a>
@@ -504,11 +431,7 @@
       <span class="symbol">
         <span class="name">product</span><span class="params">(<span name="that">that: <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>)</span><span class="result">: <a href="ProductTransformationSpace.html" class="extype" name="scalismo.registration.ProductTransformationSpace">ProductTransformationSpace</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>, <span class="extype" name="scala.Nothing">Nothing</span>, <span class="extype" name="scala.Nothing">Nothing</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@product(that:scalismo.registration.TransformationSpace[D]withscalismo.registration.DifferentiableTransforms[D]):scalismo.registration.ProductTransformationSpace[D,Nothing,Nothing]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">Produces a ProductTransformationSpace combining self with the space passed as argument</p><div class="fullcomment"><div class="comment cmt"><p>Produces a ProductTransformationSpace combining self with the space passed as argument</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -521,11 +444,7 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -538,11 +457,7 @@
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -555,11 +470,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -578,11 +489,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -601,11 +508,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RotationSpace@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -646,7 +549,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

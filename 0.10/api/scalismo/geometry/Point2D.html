@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>Point2D - scalismo.geometry.Point2D</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -28,17 +24,9 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="Point2D$.html" title="See companion object"><img alt="Class/Object" src="../../lib/class_to_object_big.png" /></a>
+        <img src="../../lib/class_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.geometry">geometry</a></p>
-        <h1><a href="Point2D$.html" title="See companion object">Point2D</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="Point2D$.html" title="See companion object">object Point2D</a>
-            | <a href="package.html" class="extype" name="scalismo.geometry">package geometry</a>
-          </div></span></h3><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+        <h1>Point2D</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -47,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Point2D</span><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>, <span name="y">y: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Point2D</span><span class="params">(<span name="x">x: <span class="extype" name="scala.Float">Float</span></span>, <span name="y">y: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result"> extends <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -79,6 +67,7 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -91,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.geometry.Point2D#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(x:Double,y:Double):scalismo.geometry.Point2D"></a>
+      <a id="&lt;init&gt;(x:Float,y:Float):scalismo.geometry.Point2D"></a>
       <a id="&lt;init&gt;:Point2D"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -99,13 +88,9 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Point2D</span><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>, <span name="y">y: <span class="extype" name="scala.Double">Double</span></span>)</span>
+        <span class="name">Point2D</span><span class="params">(<span name="x">x: <span class="extype" name="scala.Float">Float</span></span>, <span name="y">y: <span class="extype" name="scala.Float">Float</span></span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@&lt;init&gt;(x:Double,y:Double):scalismo.geometry.Point2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -117,6 +102,19 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -127,12 +125,8 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -144,11 +138,7 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="+(that:scalismo.geometry.Vector[scalismo.geometry._2D]):scalismo.geometry.Point2D"></a>
@@ -161,11 +151,7 @@
       <span class="symbol">
         <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@+(that:scalismo.geometry.Vector[scalismo.geometry._2D]):scalismo.geometry.Point2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#-" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="-(that:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.geometry.Vector2D"></a>
@@ -178,11 +164,7 @@
       <span class="symbol">
         <span title="gt4s: $minus" class="name">-</span><span class="params">(<span name="that">that: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="Vector2D.html" class="extype" name="scalismo.geometry.Vector2D">Vector2D</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@-(that:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.geometry.Vector2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#-" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="-(that:scalismo.geometry.Vector[scalismo.geometry._2D]):scalismo.geometry.Point2D"></a>
@@ -195,13 +177,22 @@
       <span class="symbol">
         <span title="gt4s: $minus" class="name">-</span><span class="params">(<span name="that">that: <a href="Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@-(that:scalismo.geometry.Vector[scalismo.geometry._2D]):scalismo.geometry.Point2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -212,28 +203,20 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(i:Int):Double"></a>
-      <a id="apply(Int):Double"></a>
+      <a id="apply(i:Int):Float"></a>
+      <a id="apply(Int):Float"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">apply</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@apply(i:Int):Double" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -246,11 +229,7 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -263,11 +242,7 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -281,16 +256,12 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
         <span class="name">dimensionality</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@dimensionality:Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -303,11 +274,7 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -320,11 +287,7 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -343,11 +306,7 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -360,45 +319,33 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.geometry.Point#map" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="map(f:Double=&gt;Double):scalismo.geometry.Point[D]"></a>
-      <a id="map((Double)⇒Double):Point[_2D]"></a>
+      <a id="map(f:Float=&gt;Float):scalismo.geometry.Point[D]"></a>
+      <a id="map((Float)⇒Float):Point[_2D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">map</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Double">Double</span>) ⇒ <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+        <span class="name">map</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Float">Float</span>) ⇒ <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@map(f:Double=&gt;Double):scalismo.geometry.Point[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#mapWithIndex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mapWithIndex(f:(Double,Int)=&gt;Double):scalismo.geometry.Point2D"></a>
-      <a id="mapWithIndex((Double,Int)⇒Double):Point2D"></a>
+      <a id="mapWithIndex(f:(Float,Int)=&gt;Float):scalismo.geometry.Point2D"></a>
+      <a id="mapWithIndex((Float,Int)⇒Float):Point2D"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">mapWithIndex</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="scala.Int">Int</span>) ⇒ <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a></span>
+        <span class="name">mapWithIndex</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Float">Float</span>, <span class="extype" name="scala.Int">Int</span>) ⇒ <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@mapWithIndex(f:(Double,Int)=&gt;Double):scalismo.geometry.Point2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -411,11 +358,7 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -428,11 +371,7 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -445,11 +384,7 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -462,45 +397,33 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#toArray" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toArray:Array[Double]"></a>
-      <a id="toArray:Array[Double]"></a>
+      <a id="toArray:Array[Float]"></a>
+      <a id="toArray:Array[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toArray</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">toArray</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@toArray:Array[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scalismo.geometry.Point#toBreezeVector" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toBreezeVector:breeze.linalg.DenseVector[Double]"></a>
-      <a id="toBreezeVector:DenseVector[Double]"></a>
+      <a id="toBreezeVector:breeze.linalg.DenseVector[Float]"></a>
+      <a id="toBreezeVector:DenseVector[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toBreezeVector</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">toBreezeVector</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@toBreezeVector:breeze.linalg.DenseVector[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#toVector" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toVector:scalismo.geometry.Vector2D"></a>
@@ -513,11 +436,7 @@
       <span class="symbol">
         <span class="name">toVector</span><span class="result">: <a href="Vector2D.html" class="extype" name="scalismo.geometry.Vector2D">Vector2D</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@toVector:scalismo.geometry.Vector2D" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point2D">Point2D</a> → <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -530,11 +449,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -553,11 +468,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -576,11 +487,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -589,38 +496,30 @@
               
         </dd></dl></div>
     </li><li name="scalismo.geometry.Point2D#x" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="x:Double"></a>
-      <a id="x:Double"></a>
+      <a id="x:Float"></a>
+      <a id="x:Float"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">x</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">x</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@x:Double" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.geometry.Point2D#y" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="y:Double"></a>
-      <a id="y:Double"></a>
+      <a id="y:Float"></a>
+      <a id="y:Float"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">y</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">y</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@y:Double" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -630,21 +529,17 @@
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
               <ol><li name="scalismo.geometry.Point#data" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="data:Array[Double]"></a>
-      <a id="data:Array[Double]"></a>
+      <a id="data:Array[Float]"></a>
+      <a id="data:Array[Float]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version ) real data is now private, use toArray">data</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version ) real data is now private, use toArray">data</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Float">Float</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.geometry.Point2D@data:Array[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a></dd><dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
               
@@ -684,7 +579,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

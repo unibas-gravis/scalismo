@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>SampleCovarianceKernel - scalismo.kernels.SampleCovarianceKernel</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -28,15 +24,9 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img alt="Class" src="../../lib/class_big.png" />
+        <img src="../../lib/class_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.kernels">kernels</a></p>
-        <h1>SampleCovarianceKernel</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="scalismo.kernels">package kernels</a>
-          </div></span></h3><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+        <h1>SampleCovarianceKernel</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -45,13 +35,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">SampleCovarianceKernel</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="ts">ts: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]]</span>, <span name="cacheSizeHint">cacheSizeHint: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">100000</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result"> extends <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">SampleCovarianceKernel</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="ts">ts: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]]</span>, <span name="cacheSizeHint">cacheSizeHint: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">100000</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result"> extends <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -77,6 +67,7 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -99,11 +90,7 @@
       <span class="symbol">
         <span class="name">SampleCovarianceKernel</span><span class="params">(<span name="ts">ts: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]]</span>, <span name="cacheSizeHint">cacheSizeHint: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">100000</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@&lt;init&gt;(ts:IndexedSeq[scalismo.registration.Transformation[D]],cacheSizeHint:Int)(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.kernels.SampleCovarianceKernel[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -115,6 +102,19 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -125,12 +125,8 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -142,64 +138,61 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#*" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="*(s:Double):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
-      <a id="*(Double):MatrixValuedPDKernel[D]"></a>
+      <a id="*(s:Double):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
+      <a id="*(Double):MatrixValuedPDKernel[D,D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
+        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@*(s:Double):scalismo.kernels.MatrixValuedPDKernel[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#*" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="*(that:scalismo.kernels.MatrixValuedPDKernel[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
-      <a id="*(MatrixValuedPDKernel[D]):MatrixValuedPDKernel[D]"></a>
+      <a id="*(that:scalismo.kernels.MatrixValuedPDKernel[D,DO]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
+      <a id="*(MatrixValuedPDKernel[D,D]):MatrixValuedPDKernel[D,D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="that">that: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
+        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="that">that: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@*(that:scalismo.kernels.MatrixValuedPDKernel[D]):scalismo.kernels.MatrixValuedPDKernel[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="+(that:scalismo.kernels.MatrixValuedPDKernel[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
-      <a id="+(MatrixValuedPDKernel[D]):MatrixValuedPDKernel[D]"></a>
+      <a id="+(that:scalismo.kernels.MatrixValuedPDKernel[D,DO]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
+      <a id="+(MatrixValuedPDKernel[D,D]):MatrixValuedPDKernel[D,D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
+        <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@+(that:scalismo.kernels.MatrixValuedPDKernel[D]):scalismo.kernels.MatrixValuedPDKernel[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -210,28 +203,20 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):breeze.linalg.DenseMatrix[Double]"></a>
-      <a id="apply(Point[D],Point[D]):DenseMatrix[Double]"></a>
+      <a id="apply(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):scalismo.geometry.SquareMatrix[DO]"></a>
+      <a id="apply(Point[D],Point[D]):SquareMatrix[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@apply(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):breeze.linalg.DenseMatrix[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -244,11 +229,7 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.kernels.SampleCovarianceKernel#cacheSizeHint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="cacheSizeHint:Int"></a>
@@ -261,11 +242,7 @@
       <span class="symbol">
         <span class="name">cacheSizeHint</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@cacheSizeHint:Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -278,11 +255,7 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -291,38 +264,30 @@
               
         </dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="compose(phi:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
-      <a id="compose((Point[D])⇒Point[D]):MatrixValuedPDKernel[D]"></a>
+      <a id="compose(phi:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
+      <a id="compose((Point[D])⇒Point[D]):MatrixValuedPDKernel[D,D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="params">(<span name="phi">phi: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
+        <span class="name">compose</span><span class="params">(<span name="phi">phi: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@compose(phi:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.kernels.MatrixValuedPDKernel[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#discretize" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="discretize(domain:scalismo.common.DiscreteDomain[D]):scalismo.kernels.DiscreteMatrixValuedPDKernel[D]"></a>
-      <a id="discretize(DiscreteDomain[D]):DiscreteMatrixValuedPDKernel[D]"></a>
+      <a id="discretize(domain:scalismo.common.DiscreteDomain[D]):scalismo.kernels.DiscreteMatrixValuedPDKernel[D,DO]"></a>
+      <a id="discretize(DiscreteDomain[D]):DiscreteMatrixValuedPDKernel[D,D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">discretize</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteMatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.DiscreteMatrixValuedPDKernel">DiscreteMatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
+        <span class="name">discretize</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteMatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.DiscreteMatrixValuedPDKernel">DiscreteMatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@discretize(domain:scalismo.common.DiscreteDomain[D]):scalismo.kernels.DiscreteMatrixValuedPDKernel[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <p class="shortcomment cmt">discretize the kernel at the given points
 </p><div class="fullcomment"><div class="comment cmt"><p>discretize the kernel at the given points
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
@@ -337,11 +302,7 @@
       <span class="symbol">
         <span class="name">domain</span><span class="result">: <a href="../common/Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@domain:scalismo.common.Domain[D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.kernels.SampleCovarianceKernel">SampleCovarianceKernel</a> → <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -354,11 +315,7 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -371,11 +328,7 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -394,11 +347,7 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -411,62 +360,46 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.kernels.SampleCovarianceKernel#k" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="k(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):breeze.linalg.DenseMatrix[Double]"></a>
-      <a id="k(Point[D],Point[D]):DenseMatrix[Double]"></a>
+      <a id="k(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):scalismo.geometry.SquareMatrix[D]"></a>
+      <a id="k(Point[D],Point[D]):SquareMatrix[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">k</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">k</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@k(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):breeze.linalg.DenseMatrix[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.kernels.SampleCovarianceKernel">SampleCovarianceKernel</a> → <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scalismo.kernels.SampleCovarianceKernel#mu" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="mu(x:scalismo.geometry.Point[D]):breeze.linalg.DenseVector[Double]"></a>
-      <a id="mu(Point[D]):DenseVector[Double]"></a>
+      <a id="mu(x:scalismo.geometry.Point[D]):scalismo.geometry.Vector[D]"></a>
+      <a id="mu(Point[D]):Vector[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">mu</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">mu</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>)</span><span class="result">: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@mu(x:scalismo.geometry.Point[D]):breeze.linalg.DenseVector[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.kernels.SampleCovarianceKernel#mu_memoized" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="mu_memoized:scalismo.utils.Memoize[scalismo.geometry.Point[D],breeze.linalg.DenseVector[Double]]"></a>
-      <a id="mu_memoized:Memoize[Point[D],DenseVector[Double]]"></a>
+      <a id="mu_memoized:scalismo.utils.Memoize[scalismo.geometry.Point[D],scalismo.geometry.Vector[D]]"></a>
+      <a id="mu_memoized:Memoize[Point[D],Vector[D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">mu_memoized</span><span class="result">: <a href="../utils/Memoize.html" class="extype" name="scalismo.utils.Memoize">Memoize</a>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>], <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
+        <span class="name">mu_memoized</span><span class="result">: <a href="../utils/Memoize.html" class="extype" name="scalismo.utils.Memoize">Memoize</a>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>], <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@mu_memoized:scalismo.utils.Memoize[scalismo.geometry.Point[D],breeze.linalg.DenseVector[Double]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -479,11 +412,7 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -496,11 +425,7 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -513,13 +438,9 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.kernels.SampleCovarianceKernel#outputDim" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.kernels.MatrixValuedPDKernel#outputDim" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="outputDim:Int"></a>
       <a id="outputDim:Int"></a>
       <h4 class="signature">
@@ -530,12 +451,8 @@
       <span class="symbol">
         <span class="name">outputDim</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@outputDim:Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.kernels.SampleCovarianceKernel">SampleCovarianceKernel</a> → <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -547,11 +464,7 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.kernels.SampleCovarianceKernel#ts" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ts:IndexedSeq[scalismo.registration.Transformation[D]]"></a>
@@ -564,11 +477,7 @@
       <span class="symbol">
         <span class="name">ts</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@ts:IndexedSeq[scalismo.registration.Transformation[D]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scalismo.kernels.SampleCovarianceKernel#ts_memoized" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ts_memoized:IndexedSeq[scalismo.utils.Memoize[scalismo.geometry.Point[D],scalismo.geometry.Point[D]]]"></a>
@@ -581,11 +490,7 @@
       <span class="symbol">
         <span class="name">ts_memoized</span><span class="result">: <span class="extype" name="scala.collection.IndexedSeq">IndexedSeq</span>[<a href="../utils/Memoize.html" class="extype" name="scalismo.utils.Memoize">Memoize</a>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@ts_memoized:IndexedSeq[scalismo.utils.Memoize[scalismo.geometry.Point[D],scalismo.geometry.Point[D]]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -598,11 +503,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -621,11 +522,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -644,11 +541,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.SampleCovarianceKernel@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -674,7 +567,7 @@
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="scalismo.kernels.MatrixValuedPDKernel">
-              <h3>Inherited from <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</h3>
+              <h3>Inherited from <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>, <span class="extype" name="scalismo.kernels.SampleCovarianceKernel.D">D</span>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
@@ -695,7 +588,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>
