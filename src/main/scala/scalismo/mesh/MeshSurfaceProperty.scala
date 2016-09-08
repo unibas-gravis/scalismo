@@ -29,25 +29,25 @@ trait MeshSurfaceProperty[@specialized(Double, Float, Int, Boolean) A] {
 
   /** map a surface property through a function */
   def map[@specialized(Double, Float, Int, Boolean) B](f: A => B): MeshSurfaceProperty[B] = MappedSurfaceProperty(this, f)
+
+  /** triangulation: domain of surface property */
+  def triangulation: TriangleList
 }
 
 /** constant property value on complete surface */
-case class ConstantProperty[@specialized(Double, Float, Int, Boolean) A](value: A)
+case class ConstantProperty[@specialized(Double, Float, Int, Boolean) A](override val triangulation: TriangleList, value: A)
     extends MeshSurfaceProperty[A] {
 
   def atPoint(pointId: PointId): A = value
 
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): A = value
 
-  override def map[@specialized(Double, Float, Int, Boolean) B](f: A => B): ConstantProperty[B] = ConstantProperty(f(value))
+  override def map[@specialized(Double, Float, Int, Boolean) B](f: A => B): ConstantProperty[B] = ConstantProperty(triangulation, f(value))
 }
 
 /** property per vertex, with interpolation */
-case class SurfacePointProperty[@specialized(Double, Float, Int, Boolean) A](triangulation: TriangleList, pointData: PointId => A)(implicit ops: Interpolator[A])
-    //case class SurfacePointProperty[+A](triangulation: TriangleList, pointData: IndexedSeq[A])(implicit ops: Interpolator[A])
+case class SurfacePointProperty[@specialized(Double, Float, Int, Boolean) A](override val triangulation: TriangleList, pointData: PointId => A)(implicit val interpolator: Interpolator[A])
     extends MeshSurfaceProperty[A] {
-  //require(triangulation.pointIds.size == pointData.length, "Triangulation is not compatible with data")
-  //require(triangulation.pointIds.forall(id => pointData.isDefinedAt(id.id)), "Triangulation is not compatible with data")
 
   def atPoint(pointId: PointId): A = pointData(pointId)
 
@@ -121,7 +121,7 @@ object SurfacePointProperty {
 }
 
 /** property constant per triangle */
-case class TriangleProperty[@specialized(Double, Float, Int, Boolean) A](triangulation: TriangleList, triangleData: TriangleId => A)
+case class TriangleProperty[@specialized(Double, Float, Int, Boolean) A](override val triangulation: TriangleList, triangleData: TriangleId => A)
     extends MeshSurfaceProperty[A] {
 
   def apply(triangleId: TriangleId): A = triangleData(triangleId)
@@ -168,5 +168,7 @@ case class MappedSurfaceProperty[@specialized(Double, Float, Int, Boolean) A, @s
     extends MeshSurfaceProperty[B] {
   /// access via triangle coordinates
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): B = f(values.onSurface(triangleId, bcc))
+
+  override def triangulation: TriangleList = values.triangulation
 }
 

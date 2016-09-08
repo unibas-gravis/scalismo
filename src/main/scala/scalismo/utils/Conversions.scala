@@ -175,15 +175,15 @@ object MeshConversion {
     } else {
       // "unusual" case: any other datatype
       import ImageIO.ScalarType
-      val sa = VtkHelpers.vtkDataArrayToScalarArray(vtkType, newPd.GetPoints().GetData()).get
+      val sa: ScalarArray[Any] = VtkHelpers.vtkDataArrayToScalarArray(vtkType, newPd.GetPoints().GetData()).get
       val fsa: ScalarArray[Float] = ScalarType.fromVtkId(vtkType) match {
-        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map(_.toFloat)
-        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map(_.toFloat)
-        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map(_.toFloat)
-        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map(_.toFloat)
-        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map(_.toFloat)
-        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map(_.toFloat)
-        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map(_.toFloat)
+        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map[Float](_.toFloat)
+        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map[Float](_.toFloat)
+        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map[Float](_.toFloat)
+        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map[Float](_.toFloat)
+        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map[Float](_.toFloat)
+        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map[Float](_.toFloat)
+        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map[Float](_.toFloat)
         case _ => throw new UnsupportedOperationException("Unsupported scalar type")
       }
       fsa match {

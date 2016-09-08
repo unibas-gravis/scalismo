@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.geometry._3D
+import scalismo.geometry.{ _3D, Vector }
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 
@@ -35,7 +35,7 @@ object Crossvalidation {
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
-  def leaveOneOutCrossvalidation[A](dataCollection: DataCollection, evalFun: EvaluationFunction[A], biasModelAndRank: Option[(GaussianProcess[_3D, _3D], Int)] = None) = {
+  def leaveOneOutCrossvalidation[A](dataCollection: DataCollection, evalFun: EvaluationFunction[A], biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None) = {
     nFoldCrossvalidation(dataCollection.size, dataCollection, evalFun, biasModelAndRank)
   }
 
@@ -49,7 +49,10 @@ object Crossvalidation {
    * @returns a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set,
    * or an error if the model building for a fold failed.
    */
-  def nFoldCrossvalidation[A](numFolds: Int, dc: DataCollection, evalFun: EvaluationFunction[A], biasModelAndRank: Option[(GaussianProcess[_3D, _3D], Int)] = None): Seq[Try[Seq[A]]] = {
+  def nFoldCrossvalidation[A](numFolds: Int,
+    dc: DataCollection,
+    evalFun: EvaluationFunction[A],
+    biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None): Seq[Try[Seq[A]]] = {
 
     val folds = dc.createCrossValidationFolds(numFolds)
     val evalResultsForFolds = for (fold <- folds) yield {

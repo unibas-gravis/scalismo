@@ -18,13 +18,13 @@ package scalismo.statisticalmodel.dataset
 import java.io.File
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.VectorField
+import scalismo.common.{ Field, VectorField }
 import scalismo.geometry._
 import scalismo.io.MeshIO
-import scalismo.kernels.{ GaussianKernel, DiagonalKernel }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
 import scalismo.mesh.MeshMetrics
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.statisticalmodel.{ StatisticalMeshModel, GaussianProcess }
+import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 
 class DataCollectionTests extends ScalismoTestSuite {
 
@@ -109,19 +109,19 @@ class DataCollectionTests extends ScalismoTestSuite {
 
   describe("Generalization") {
 
-    val zeroMean = VectorField(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
-    val matrixValuedGaussian = DiagonalKernel[_3D](GaussianKernel(25) * 20)
-    val bias: GaussianProcess[_3D, _3D] = GaussianProcess(zeroMean, matrixValuedGaussian)
+    val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
+    val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
+    val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
     val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {
       val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get }
-      assert(gens.forall(_ == gens(0)))
+      assert(gens.forall(_ - gens(0) < 1.0e-14))
     }
 
     it("gives the same values when evaluated 10 times on augmented model") {
       val gens = (0 until 10) map { _ => ModelMetrics.generalization(augmentedModel, Fixture.testDC).get }
-      assert(gens.forall(_ == gens(0)))
+      assert(gens.forall(_ - gens(0) < 1.0e-14))
     }
 
     it("improves when the model is augmented with a Gaussian") {

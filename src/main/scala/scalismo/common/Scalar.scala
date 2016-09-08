@@ -174,7 +174,7 @@ object Scalar {
  * @tparam S the type of the contained data.
  */
 
-sealed trait ScalarArray[S] {
+sealed trait ScalarArray[S] extends IndexedSeq[S] {
   /**
    * Returns the <code>index</code>th element of the array
    * @param index the index of the value to return
@@ -191,14 +191,14 @@ sealed trait ScalarArray[S] {
   /**
    * Returns the length of the data array. This is an alias for [[ScalarArray#length]]
    */
-  final lazy val size = length
+  override final lazy val size = length
 
   /**
    * Determines if <code>index</code> lies within the bounds of the array
    * @param index the index in the array for which to check if it lies within the array bounds
    * @return <code>true</code> if <code>index</code> lies within the array bounds, <code>false</code> otherwise.
    */
-  final def isDefinedAt(index: Int): Boolean = index < size && index >= 0
+  override final def isDefinedAt(index: Int): Boolean = index < size && index >= 0
 
   /**
    * Maps this [[ScalarArray]] to another [[ScalarArray]] using the given mapping function
@@ -337,12 +337,12 @@ object ValueClassScalarArray {
 /** Factory for ScalarArray instances. */
 object ScalarArray {
 
-  /**
-   * Converts a native array of scalar values to the corresponding [[ScalarArray]] instance
-   * @param array a native array of scalar values
-   * @tparam T the type of the scalar data
-   * @return the corresponding [[ScalarArray]] instance, containing the same data as <code>array</code>
-   */
+  //  /**
+  //   * Converts a native array of scalar values to the corresponding [[ScalarArray]] instance
+  //   * @param array a native array of scalar values
+  //   * @tparam T the type of the scalar data
+  //   * @return the corresponding [[ScalarArray]] instance, containing the same data as <code>array</code>
+  //   */
   def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
     val scalar = implicitly[Scalar[T]]
     scalar match {
@@ -351,13 +351,4 @@ object ScalarArray {
     }
   }
 
-  object implicits {
-    import Scalar._
-    import scala.language.implicitConversions
-    implicit def scalarArrayFromByteArray(data: Array[Byte]): ScalarArray[Byte] = ByteIsScalar.createArray(data)
-    implicit def scalarArrayFromShortArray(data: Array[Short]): ScalarArray[Short] = ShortIsScalar.createArray(data)
-    implicit def scalarArrayFromIntArray(data: Array[Int]): ScalarArray[Int] = IntIsScalar.createArray(data)
-    implicit def scalarArrayFromFloatArray(data: Array[Float]): ScalarArray[Float] = FloatIsScalar.createArray(data)
-    implicit def scalarArrayFromDoubleArray(data: Array[Double]): ScalarArray[Double] = DoubleIsScalar.createArray(data)
-  }
 }

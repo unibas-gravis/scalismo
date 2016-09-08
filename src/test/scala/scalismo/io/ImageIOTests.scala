@@ -153,7 +153,6 @@ class ImageIOTests extends ScalismoTestSuite {
     }
 
     it("can be stored to VTK and re-read in right precision") {
-      import scalismo.common.ScalarArray.implicits._
       val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), IntVector(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
       val discreteImage = DiscreteScalarImage(domain, values)
@@ -216,7 +215,7 @@ class ImageIOTests extends ScalismoTestSuite {
           val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data.get(i, j, k, d)
           data.hashCode()
         }
-        val nh = n.dataAsScalarArray[Short].map(_.toDouble).iterator.toArray.deep.hashCode()
+        val nh = n.dataAsScalarArray[Short].map[Double](_.toDouble).iterator.toArray.deep.hashCode()
         nh should equal(oh)
       }
 

@@ -15,25 +15,28 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.DenseVector
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
 import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.kernels.{ GaussianKernel, MatrixValuedPDKernel, DiagonalKernel }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel }
 import scalismo.numerics.{ GridSampler, UniformSampler }
 
 import scala.language.implicitConversions
+import scala.util.Random
 
 class GaussianProcessTests extends ScalismoTestSuite {
   implicit def doubleToFloat(d: Double): Float = d.toFloat
+
   implicit def intToPointId(i: Int): PointId = PointId(i)
+
   implicit def intSeqToPointId(i: Seq[Int]): Seq[PointId] = i.map(PointId)
 
   describe("samples from a gaussian process") {
 
-    def testVarianceForGP(gp: GaussianProcess[_1D, _1D], domain: BoxDomain[_1D]): Unit = {
+    def testVarianceForGP(gp: GaussianProcess[_1D, Vector[_1D]], domain: BoxDomain[_1D]): Unit = {
       val numPoints = 3
       val sampler = UniformSampler(domain, numPoints)
 
@@ -60,16 +63,16 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("have the correct mean and variance for a full gp") {
       val domain = BoxDomain(Point(-1.0), Point(1.0))
-      val m = VectorField(domain, (_: Point[_1D]) => Vector(0))
-      val k = DiagonalKernel[_1D](GaussianKernel[_1D](2.0))
-      val gp = GaussianProcess[_1D, _1D](m, k)
+      val m = Field(domain, (_: Point[_1D]) => Vector(0))
+      val k = DiagonalKernel(GaussianKernel[_1D](2.0), 1)
+      val gp = GaussianProcess[_1D, Vector[_1D]](m, k)
       testVarianceForGP(gp, domain)
     }
 
     it("have the correct mean and variance for a low-rank gp") {
       val domain = BoxDomain(Point(-1.0), Point(1.0))
-      val m = VectorField(domain, (_: Point[_1D]) => Vector(0))
-      val k = DiagonalKernel[_1D](GaussianKernel[_1D](2.0))
+      val m: Field[_1D, Vector[_1D]] with Object { val f: (Point[_1D]) => Vector[_1D]; def domain: Domain[_1D] } = Field(domain, (_: Point[_1D]) => Vector(0))
+      val k: DiagonalKernel[_1D] = DiagonalKernel(GaussianKernel[_1D](2.0), 1)
       val sampler = UniformSampler(domain, 500)
       val lgp = LowRankGaussianProcess.approximateGP(GaussianProcess(m, k), sampler, 100)
 
@@ -78,8 +81,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("yields the same values as the original gp at the given points") {
       val domain = BoxDomain(Point(-2.0f, 1.0f), Point(1.0f, 2.0f))
-      val m = VectorField(domain, (_: Point[_2D]) => Vector(0.0f, 0.0f))
-      val gp = GaussianProcess(m, DiagonalKernel[_2D](GaussianKernel[_2D](1.0)))
+      val m = Field(domain, (_: Point[_2D]) => Vector(0.0f, 0.0f))
+      val gp = GaussianProcess(m, DiagonalKernel(GaussianKernel[_2D](1.0), 2))
 
       val testPts = IndexedSeq(Point(-1.0f, 1.5f), Point(0.0f, 1.7f))
       val discreteGP = gp.marginal(UnstructuredPointsDomain(testPts))
@@ -97,8 +100,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
   describe("A Gaussian process regression") {
     it("keeps the landmark points fixed for a 1D case") {
       val domain = BoxDomain(-5.0, 5.0)
-      val kernel = DiagonalKernel[_1D](GaussianKernel[_1D](5))
-      val gp = GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel)
+      val kernel = DiagonalKernel(GaussianKernel[_1D](5), 1)
+      val gp = GaussianProcess(Field(domain, (_: Point[_1D]) => Vector(0f)), kernel)
       val gpLowRank = LowRankGaussianProcess.approximateGP(gp, UniformSampler(domain, 500), 100)
 
       val trainingData = IndexedSeq((-3.0, 1.0), (-1.0, 3.0), (0.0, -1.0), (1.0, -1.0), (3.0, 0.0)).map(t => (Point(t._1), Vector(t._2)))
@@ -113,8 +116,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("yields a larger posterior variance for points that are less strongly constrained") {
       val domain = BoxDomain(-5.0, 5.0)
-      val kernel = DiagonalKernel[_1D](GaussianKernel[_1D](1.0))
-      val gp = GaussianProcess(VectorField(domain, (_: Point[_1D]) => Vector(0f)), kernel)
+      val kernel = DiagonalKernel(GaussianKernel[_1D](1.0), 1)
+      val gp = GaussianProcess(Field(domain, (_: Point[_1D]) => Vector(0f)), kernel)
       val gpLowRank = LowRankGaussianProcess.approximateGP(gp, UniformSampler(domain, 500), 100)
 
       val pt1 = -3.0
@@ -122,7 +125,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val pt2 = 1.0
       val val2 = -1.0
       def errorForSigma(sigma2: Double) = {
-        NDimensionalNormalDistribution(Vector(0.0), SquareMatrix.eye[_1D] * sigma2)
+        MultivariateNormalDistribution(DenseVector(0.0), DenseMatrix.eye[Double](1) * sigma2)
       }
       val trainingData = IndexedSeq((pt1, val1, 0.1), (pt2, val2, 2.0))
         .map(t => (Point(t._1), Vector(t._2), errorForSigma(t._3)))
@@ -135,9 +138,9 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the landmark points fixed for a 2D case") {
       val domain = BoxDomain((-5.0, -5.0), (5.0, 5.0))
-      val gp = GaussianProcess[_2D, _2D](VectorField(domain, _ => Vector(0.0, 0.0)),
-        DiagonalKernel[_2D](GaussianKernel[_2D](5)))
-      val gpLowRank = LowRankGaussianProcess.approximateGP[_2D, _2D](gp, UniformSampler(domain, 400), 100)
+      val gp = GaussianProcess[_2D, Vector[_2D]](Field(domain, _ => Vector(0.0, 0.0)),
+        DiagonalKernel(GaussianKernel[_2D](5), 2))
+      val gpLowRank = LowRankGaussianProcess.approximateGP[_2D, Vector[_2D]](gp, UniformSampler(domain, 400), 100)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0), Vector(1.0, 1.0)), (Point(-1.0, 3.0), Vector(0.0, -1.0)))
 
@@ -155,9 +158,9 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the landmark points fixed for a 3D case") {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val gp = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
-        DiagonalKernel[_3D](GaussianKernel[_3D](5)))
-      val gpLowRank = LowRankGaussianProcess.approximateGP[_3D, _3D](gp, UniformSampler(domain, 6 * 6 * 6), 50)
+      val gp = GaussianProcess[_3D, Vector[_3D]](Field(domain, _ => Vector(0.0, 0.0, 0.0)),
+        DiagonalKernel(GaussianKernel[_3D](5), 3))
+      val gpLowRank = LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](gp, UniformSampler(domain, 6 * 6 * 6), 50)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), Vector(1.0, 1.0, 2.0)), (Point(-1.0, 3.0, 0.0), Vector(0.0, -1.0, 0.0)))
       val posteriorGPLowRank = gpLowRank.posterior(trainingData, 1e-5)
@@ -180,13 +183,13 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     object Fixture {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val gp = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
-        DiagonalKernel[_3D](GaussianKernel[_3D](5)))
+      val gp = GaussianProcess[_3D, Vector[_3D]](Field(domain, _ => Vector(0.0, 0.0, 0.0)),
+        DiagonalKernel(GaussianKernel[_3D](5), 3))
 
-      val moreComplexGP = GaussianProcess[_3D, _3D](VectorField(domain, _ => Vector(0.0, 0.0, 0.0)),
-        DiagonalKernel[_3D](GaussianKernel[_3D](5) + GaussianKernel[_3D](2.5) * 2 + GaussianKernel[_3D](0.5) * 1))
+      val moreComplexGP = GaussianProcess[_3D, Vector[_3D]](Field(domain, _ => Vector(0.0, 0.0, 0.0)),
+        DiagonalKernel(GaussianKernel[_3D](5) + GaussianKernel[_3D](2.5) * 2 + GaussianKernel[_3D](0.5) * 1, 3))
 
-      val littleNoise = NDimensionalNormalDistribution(Vector(0, 0, 0), SquareMatrix((1f, 0, 0), (0, 1f, 0), (0, 0, 1f)))
+      val littleNoise = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
       val discreteDomain = UnstructuredPointsDomain(IndexedSeq(Point(-3.0, -3.0, -1.0), Point(-1.0, 3.0, 0.0)))
       val dataOnMean = discreteDomain.points.toIndexedSeq.map { p => (p, Vector(0.0, 0.0, 0.0), littleNoise) }
     }
@@ -218,9 +221,9 @@ class GaussianProcessTests extends ScalismoTestSuite {
     object Fixture {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
       val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), IntVector(7, 7, 7)))
-      val kernel = DiagonalKernel[_3D](GaussianKernel[_3D](10))
+      val kernel = DiagonalKernel(GaussianKernel[_3D](10), 3)
       val gp = {
-        LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 200)
+        LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 200)
       }
     }
 
@@ -271,7 +274,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("yields the same covariance as given by the kernel for a real matrix valued kernel (with nondiagonal block structure)") {
 
-      val covKernel = new MatrixValuedPDKernel[_3D, _3D] {
+      val covKernel = new MatrixValuedPDKernel[_3D] {
         val f0 = (pt: Point[_3D]) => pt.toBreezeVector
         val f1 = (pt: Point[_3D]) => Point(pt(0) * 2, pt(1) * 0.5, pt(2) * 3).toBreezeVector
         val f = (pt1: Point[_3D], pt2: Point[_3D]) => {
@@ -281,15 +284,17 @@ class GaussianProcessTests extends ScalismoTestSuite {
         override val domain = RealSpace[_3D]
 
         override def k(x: Point[_3D], y: Point[_3D]) = {
-          SquareMatrix[_3D](f(x, y).data)
+          f(x, y)
         }
+
+        override def outputDim = 3
       }
 
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
       val sampler = UniformSampler(domain, 7 * 7 * 7)
       val kernel = covKernel
       val gp = {
-        LowRankGaussianProcess.approximateGP[_3D, _3D](GaussianProcess(VectorField(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 5)
+        LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 5)
       }
       val fewPointsSampler = UniformSampler(domain, 2 * 2 * 2)
       val pts = fewPointsSampler.sample.map(_._1)
@@ -307,8 +312,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
       val sampler = UniformSampler(domain, 6 * 6 * 6)
-      val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
-      val gp = GaussianProcess(mean, DiagonalKernel[_3D](GaussianKernel[_3D](5)))
+      val mean = Field[_3D, Vector[_3D]](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
+      val gp = GaussianProcess(mean, DiagonalKernel(GaussianKernel[_3D](5), 3))
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 100)
 
       val discretizationPoints = sampler.sample.map(_._1)
@@ -333,8 +338,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
     object Fixture {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
       val sampler = UniformSampler(domain, 6 * 6 * 6)
-      val mean = VectorField[_3D, _3D](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
-      val gp = GaussianProcess(mean, DiagonalKernel[_3D](GaussianKernel[_3D](5)))
+      val mean = Field[_3D, Vector[_3D]](RealSpace[_3D], _ => Vector(0.0, 0.0, 0.0))
+      val gp = GaussianProcess(mean, DiagonalKernel(GaussianKernel[_3D](5), 3))
 
       val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, 200)
 
@@ -342,7 +347,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val discreteLowRankGp = DiscreteLowRankGaussianProcess(UnstructuredPointsDomain(discretizationPoints), lowRankGp)
 
       val trainingData = IndexedSeq((0, Vector.zeros[_3D]), (discretizationPoints.size / 2, Vector.zeros[_3D]), (discretizationPoints.size - 1, Vector.zeros[_3D])).map { case (i, v) => (PointId(i), v) }
-      val cov = NDimensionalNormalDistribution(Vector.zeros[_3D], SquareMatrix.eye[_3D] * 1e-5)
+      val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3) * 1e-5)
 
       val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
       val trainingDataGP = trainingData.map { case (ptId, v) => (discretizationPoints(ptId.id), v) }
@@ -407,18 +412,18 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val dgp2 = dgp1.marginal(Seq(1))
       val dgp3 = f.discreteLowRankGp.marginal(Seq(1))
 
-      dgp2.mean.asBreezeVector should equal(dgp3.mean.asBreezeVector)
+      DiscreteField.vectorize[_3D, Vector[_3D]](dgp2.mean) should equal(DiscreteField.vectorize[_3D, Vector[_3D]](dgp3.mean))
       dgp2.cov.asBreezeMatrix should equal(dgp3.cov.asBreezeMatrix)
       dgp2.domain should equal(dgp3.domain)
     }
 
-    it("yields the same result for the marginal as the discretegp") {
+    it("yields the same result for the marginal as the discrete gp") {
       val f = Fixture
 
       val domain = UnstructuredPointsDomain(f.discretizationPoints)
       val dgp1 = f.lowRankGp.marginal(domain).marginal(Seq(0, 1, 2))
       val dgp2 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
-      dgp1.mean.asBreezeVector should equal(dgp2.mean.asBreezeVector)
+      DiscreteField.vectorize[_3D, Vector[_3D]](dgp1.mean) should equal(DiscreteField.vectorize[_3D, Vector[_3D]](dgp2.mean))
       dgp1.cov.asBreezeMatrix should equal(dgp2.cov.asBreezeMatrix)
       dgp1.domain should equal(dgp2.domain)
     }
@@ -429,12 +434,11 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val logpdfmean = discreteGP.logpdf(discreteGP.mean)
 
-      val s = (0 until 10) map { _ =>
+      (0 until 10) foreach { _ =>
         val logpdfSample = discreteGP.logpdf(discreteGP.sample)
-        logpdfmean >= logpdfSample
+        logpdfmean should be >= logpdfSample
       }
 
-      assert(s.forall(e => e))
     }
 
     it("yields the same values on the discrete points when interpolated with nearest neighbor") {
@@ -445,7 +449,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val discreteInstance = f.discreteLowRankGp.instance(coeffs)
       val contInterpolatedInstance = interpolatedGP.instance(coeffs)
-      f.discreteLowRankGp.domain.pointsWithId.forall { case (p, i) => discreteInstance(i) == contInterpolatedInstance(p) }
+      f.discreteLowRankGp.domain.pointsWithId.foreach { case (p, i) => discreteInstance(i) shouldBe contInterpolatedInstance(p) }
     }
 
     it("yields the same posterior values on the discrete points when interpolated with nearest neighbor") {
@@ -460,7 +464,26 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val originalPosteriorInstance = orignalLowRankPosterior.instance(coeffs)
       val interpolatedPosteriorInstance = interpolatedGPPosterior.instance(coeffs)
 
-      f.discreteLowRankGp.domain.points.forall { p => originalPosteriorInstance(p) == interpolatedPosteriorInstance(p) }
+      f.discreteLowRankGp.domain.points.foreach { p =>
+        val orig = originalPosteriorInstance(p)
+        val intp = interpolatedPosteriorInstance(p)
+        orig(0) shouldBe intp(0) +- 1.0e-10
+        orig(1) shouldBe intp(1) +- 1.0e-10
+        orig(2) shouldBe intp(2) +- 1.0e-10
+      }
+    }
+
+    it("yields the same values for an instance at a point when either only the point or the complete instance is calculated") {
+      val f = Fixture
+      val gp = f.discreteLowRankGp
+      val points = (0 until 1000) map { i => Random.nextInt(gp._domain.numberOfPoints) }
+      points.foreach { pid =>
+        val k = gp.rank
+        val gaussRNG = breeze.stats.distributions.Gaussian(0, 1)
+        val coeffs = DenseVector.rand(k, gaussRNG)
+        val instance = gp.instance(coeffs)
+        instance.data(pid) shouldBe gp.instanceAtPoint(coeffs, pid)
+      }
     }
 
   }

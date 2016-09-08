@@ -224,10 +224,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
 
       if (bestFeatureDistance <= config.featureDistanceThreshold) {
         val refPoint = this.refPoint(profileId)
-
         /** Attention: checking for the deformation vector's pdf needs to be done in the model space !**/
         val inversePoseTransform = poseTransform.inverse
-        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance(inversePoseTransform(bestPoint) - refPoint)
+        val bestPointDistance = statisticalModel.gp.marginal(pointId).mahalanobisDistance((inversePoseTransform(bestPoint) - refPoint).toBreezeVector)
+
         if (bestPointDistance <= config.pointDistanceThreshold) {
           Some(bestPoint)
         } else {

@@ -36,6 +36,17 @@ trait Transformation[D <: Dim] extends Field[D, Point[D]] {}
 object Transformation {
 
   /**
+   * Create a transformation defined on the whole real space with the given function
+   */
+  def apply[D <: Dim](t: Point[D] => Point[D]): Transformation[D] = {
+    new Transformation[D] {
+      override val f: (Point[D]) => Point[D] = t
+
+      override def domain: Domain[D] = RealSpace[D]
+    }
+  }
+
+  /**
    * Returns a new transformation that memoizes (caches) the values that have already been
    * computed. The size of the cache used is given by the argument cacheSizeHint.
    */

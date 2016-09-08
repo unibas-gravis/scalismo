@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.geometry
+package scalismo.common
 
-import scalismo.io.LandmarkIO
-import scalismo.statisticalmodel.MultivariateNormalDistribution
+import breeze.linalg.DenseVector
 
-case class Landmark[D <: Dim: NDSpace](id: String, point: Point[D], description: Option[String] = None, uncertainty: Option[MultivariateNormalDistribution] = None)
+trait Vectorizer[Value] {
+  def dim: Int
 
+  def vectorize(v: Value): DenseVector[Double]
+
+  def unvectorize(d: DenseVector[Double]): Value
+
+}

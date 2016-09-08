@@ -64,13 +64,13 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
     }
   }
 
-  describe("An NDimensionalNormalDistribution") {
+  describe("An MultivariateNormalDistribution") {
     it("returns the same principal components it was constructed with") {
-      val axes = List(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))
+      val axes = List(DenseVector[Double](1.0, 0.0, 0.0), DenseVector[Double](0.0, 1.0, 0.0), DenseVector[Double](0.0, 0.0, 1.0))
       // these are knowingly not sorted
       val variances = List(1.0, 4.0, 3.0)
       val data = axes zip variances
-      val n = NDimensionalNormalDistribution(Vector(0.0, 0.0, 0.0), data)
+      val n = MultivariateNormalDistribution(DenseVector[Double](0.0, 0.0, 0.0), data)
       // to compare however, we must ensure that both are sorted
       n.principalComponents should equal(data.sortBy(x => x._2).reverse)
     }
