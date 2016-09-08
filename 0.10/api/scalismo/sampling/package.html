@@ -1,0 +1,325 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>sampling - scalismo.sampling</title>
+          <meta name="description" content="sampling - scalismo.sampling" />
+          <meta name="keywords" content="sampling scalismo.sampling" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scalismo.sampling.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
+        <h1>sampling</h1><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sampling</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.sampling.DistributionEvaluator" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DistributionEvaluator[A]extendsAnyRef"></a>
+      <a id="DistributionEvaluator[A]:DistributionEvaluator[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DistributionEvaluator.html"><span class="name">DistributionEvaluator</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@DistributionEvaluator[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">a probability or density</p>
+    </li><li name="scalismo.sampling.GradientEvaluator" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="GradientEvaluator[A]extendsAnyRef"></a>
+      <a id="GradientEvaluator[A]:GradientEvaluator[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="GradientEvaluator.html"><span class="name">GradientEvaluator</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@GradientEvaluator[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">gradient evaluator, used together with DistributionEvaluator</p>
+    </li><li name="scalismo.sampling.MarkovChain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MarkovChain[A]extendsAnyRef"></a>
+      <a id="MarkovChain[A]:MarkovChain[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MarkovChain.html"><span class="name">MarkovChain</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@MarkovChain[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">basic Markov Chain trait: provides a next sample</p>
+    </li><li name="scalismo.sampling.ProposalGenerator" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ProposalGenerator[A]extendsAnyRef"></a>
+      <a id="ProposalGenerator[A]:ProposalGenerator[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ProposalGenerator.html"><span class="name">ProposalGenerator</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@ProposalGenerator[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">proposal distribution sampler for Metropolis-Hastings MCMC</p>
+    </li><li name="scalismo.sampling.SymmetricTransition" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SymmetricTransition[A]extendsTransitionRatio[A]"></a>
+      <a id="SymmetricTransition[A]:SymmetricTransition[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SymmetricTransition.html"><span class="name">SymmetricTransition</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a>[<span class="extype" name="scalismo.sampling.SymmetricTransition.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@SymmetricTransition[A]extendsTransitionRatio[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">symmetric transition: equal forward and backward transition probability</p>
+    </li><li name="scalismo.sampling.TransitionProbability" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TransitionProbability[A]extendsTransitionRatio[A]"></a>
+      <a id="TransitionProbability[A]:TransitionProbability[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TransitionProbability.html"><span class="name">TransitionProbability</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a>[<span class="extype" name="scalismo.sampling.TransitionProbability.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@TransitionProbability[A]extendsTransitionRatio[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">expresses transition probability between two states</p>
+    </li><li name="scalismo.sampling.TransitionRatio" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TransitionRatio[A]extendsAnyRef"></a>
+      <a id="TransitionRatio[A]:TransitionRatio[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TransitionRatio.html"><span class="name">TransitionRatio</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@TransitionRatio[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">ratio of forward and backwards proposal probability/density</p>
+    </li><li name="scalismo.sampling.UnitTransition" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="UnitTransition[A]extendsTransitionProbability[A]withSymmetricTransition[A]"></a>
+      <a id="UnitTransition[A]:UnitTransition[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="UnitTransition.html"><span class="name">UnitTransition</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.UnitTransition.A">A</span>] with <a href="SymmetricTransition.html" class="extype" name="scalismo.sampling.SymmetricTransition">SymmetricTransition</a>[<span class="extype" name="scalismo.sampling.UnitTransition.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@UnitTransition[A]extendsTransitionProbability[A]withSymmetricTransition[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">trait to express a unit transition probability (rarely appropriate)</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scalismo.sampling.MarkovChain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MarkovChain"></a>
+      <a id="MarkovChain:MarkovChain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="MarkovChain$.html"><span class="name">MarkovChain</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@MarkovChain" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.algorithms" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="algorithms"></a>
+      <a id="algorithms:algorithms"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="algorithms/package.html"><span class="name">algorithms</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@algorithms" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.evaluators" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="evaluators"></a>
+      <a id="evaluators:evaluators"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="evaluators/package.html"><span class="name">evaluators</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@evaluators" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.loggers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="loggers"></a>
+      <a id="loggers:loggers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="loggers/package.html"><span class="name">loggers</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@loggers" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="proposals"></a>
+      <a id="proposals:proposals"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="proposals/package.html"><span class="name">proposals</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.sampling.package@proposals" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

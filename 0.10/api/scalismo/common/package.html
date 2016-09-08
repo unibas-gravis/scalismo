@@ -1,0 +1,794 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>common - scalismo.common</title>
+          <meta name="description" content="common - scalismo.common" />
+          <meta name="keywords" content="common scalismo.common" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scalismo.common.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
+        <h1>common</h1><span class="permalink">
+      <a href="../../index.html#scalismo.common.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">common</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.common.AbstractScalarArray" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="AbstractScalarArray[S,U]extendsScalarArray[S]withProductwithSerializable"></a>
+      <a id="AbstractScalarArray[S,U]:AbstractScalarArray[S,U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="AbstractScalarArray.html"><span class="name">AbstractScalarArray</span></a><span class="tparams">[<span name="S">S</span>, <span name="U">U</span>]</span><span class="params">(<span name="rawData">rawData: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scalismo.common.AbstractScalarArray.U">U</span>]</span>)</span><span class="result"> extends <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.common.AbstractScalarArray.S">S</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@AbstractScalarArray[S,U]extendsScalarArray[S]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Basic implementation of <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>, common to both primitive and value-class scalar arrays.</p><div class="fullcomment"><div class="comment cmt"><p>Basic implementation of <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>, common to both primitive and value-class scalar arrays.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the type of the contained data.</p></dd><dt class="tparam">U</dt><dd class="cmt"><p>the type of the underlying contained raw data</p></dd><dt class="param">rawData</dt><dd class="cmt"><p>the actual raw data contained in the array</p></dd></dl></div>
+    </li><li name="scalismo.common.BoxDomain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BoxDomain[D&lt;:scalismo.geometry.Dim]extendsDomain[D]"></a>
+      <a id="BoxDomain[D&lt;:Dim]:BoxDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BoxDomain.html"><span class="name">BoxDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.common.BoxDomain.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@BoxDomain[D&lt;:scalismo.geometry.Dim]extendsDomain[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.BoxDomain1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoxDomain1DextendsBoxDomain[scalismo.geometry._1D]withProductwithSerializable"></a>
+      <a id="BoxDomain1D:BoxDomain1D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BoxDomain1D.html"><span class="name">BoxDomain1D</span></a><span class="params">(<span name="origin">origin: <a href="../geometry/Point1D.html" class="extype" name="scalismo.geometry.Point1D">Point1D</a></span>, <span name="oppositeCorner">oppositeCorner: <a href="../geometry/Point1D.html" class="extype" name="scalismo.geometry.Point1D">Point1D</a></span>)</span><span class="result"> extends <a href="BoxDomain.html" class="extype" name="scalismo.common.BoxDomain">BoxDomain</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@BoxDomain1DextendsBoxDomain[scalismo.geometry._1D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.BoxDomain2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoxDomain2DextendsBoxDomain[scalismo.geometry._2D]withProductwithSerializable"></a>
+      <a id="BoxDomain2D:BoxDomain2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BoxDomain2D.html"><span class="name">BoxDomain2D</span></a><span class="params">(<span name="origin">origin: <a href="../geometry/Point2D.html" class="extype" name="scalismo.geometry.Point2D">Point2D</a></span>, <span name="oppositeCorner">oppositeCorner: <a href="../geometry/Point2D.html" class="extype" name="scalismo.geometry.Point2D">Point2D</a></span>)</span><span class="result"> extends <a href="BoxDomain.html" class="extype" name="scalismo.common.BoxDomain">BoxDomain</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@BoxDomain2DextendsBoxDomain[scalismo.geometry._2D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.BoxDomain3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoxDomain3DextendsBoxDomain[scalismo.geometry._3D]withProductwithSerializable"></a>
+      <a id="BoxDomain3D:BoxDomain3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BoxDomain3D.html"><span class="name">BoxDomain3D</span></a><span class="params">(<span name="origin">origin: <a href="../geometry/Point3D.html" class="extype" name="scalismo.geometry.Point3D">Point3D</a></span>, <span name="oppositeCorner">oppositeCorner: <a href="../geometry/Point3D.html" class="extype" name="scalismo.geometry.Point3D">Point3D</a></span>)</span><span class="result"> extends <a href="BoxDomain.html" class="extype" name="scalismo.common.BoxDomain">BoxDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@BoxDomain3DextendsBoxDomain[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.Cell" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CellextendsAnyRef"></a>
+      <a id="Cell:Cell"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Cell.html"><span class="name">Cell</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@CellextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.DiscreteDomain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DiscreteDomain[D&lt;:scalismo.geometry.Dim]extendsEquals"></a>
+      <a id="DiscreteDomain[D&lt;:Dim]:DiscreteDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteDomain.html"><span class="name">DiscreteDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.Equals">Equals</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteDomain[D&lt;:scalismo.geometry.Dim]extendsEquals" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.DiscreteField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteField[D&lt;:scalismo.geometry.Dim,A]extendsPartialFunction[scalismo.common.PointId,A]"></a>
+      <a id="DiscreteField[D&lt;:Dim,A]:DiscreteField[D,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteField.html"><span class="name">DiscreteField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.common.DiscreteField.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteField[D&lt;:scalismo.geometry.Dim,A]extendsPartialFunction[scalismo.common.PointId,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Defines a discrete set of values, where each associated to a point of the domain.</p>
+    </li><li name="scalismo.common.DiscreteScalarField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteScalarField[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteField[D,A]"></a>
+      <a id="DiscreteScalarField[D&lt;:Dim,A]:DiscreteScalarField[D,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteScalarField.html"><span class="name">DiscreteScalarField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.common.DiscreteScalarField.D">D</span>, <span class="extype" name="scalismo.common.DiscreteScalarField.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteScalarField[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteField[D,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p>
+    </li><li name="scalismo.common.DiscreteVectorField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteVectorField[D&lt;:scalismo.geometry.Dim,DO&lt;:scalismo.geometry.Dim]extendsDiscreteField[D,scalismo.geometry.Vector[DO]]"></a>
+      <a id="DiscreteVectorField[D&lt;:Dim,DO&lt;:Dim]:DiscreteVectorField[D,DO]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteVectorField.html"><span class="name">DiscreteVectorField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="DO">DO &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.common.DiscreteVectorField.D">D</span>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.common.DiscreteVectorField.DO">DO</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteVectorField[D&lt;:scalismo.geometry.Dim,DO&lt;:scalismo.geometry.Dim]extendsDiscreteField[D,scalismo.geometry.Vector[DO]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p>
+    </li><li name="scalismo.common.Domain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Domain[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="Domain[D&lt;:Dim]:Domain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Domain.html"><span class="name">Domain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Domain[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.Field" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Field[D&lt;:scalismo.geometry.Dim,A]extendsscalismo.geometry.Point[D]=&gt;A"></a>
+      <a id="Field[D&lt;:Dim,A]:Field[D,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Field.html"><span class="name">Field</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.Field.D">D</span>]) ⇒ <span class="extype" name="scalismo.common.Field.A">A</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Field[D&lt;:scalismo.geometry.Dim,A]extendsscalismo.geometry.Point[D]=&gt;A" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An image is simply a function from points to values, together with a domain on which the
+function is defined.</p>
+    </li><li name="scalismo.common.PointGenerator" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PointGenerator[D&lt;:scalismo.geometry.Dim]extends()=&gt;scalismo.geometry.Point[D]"></a>
+      <a id="PointGenerator[D&lt;:Dim]:PointGenerator[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PointGenerator.html"><span class="name">PointGenerator</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends () ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.PointGenerator.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@PointGenerator[D&lt;:scalismo.geometry.Dim]extends()=&gt;scalismo.geometry.Point[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.PointId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PointIdextendsAnyValwithProductwithSerializable"></a>
+      <a id="PointId:PointId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="PointId.html"><span class="name">PointId</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@PointIdextendsAnyValwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.PointWithId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PointWithId[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable"></a>
+      <a id="PointWithId[D&lt;:Dim]:PointWithId[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="PointWithId.html"><span class="name">PointWithId</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.PointWithId.D">D</span>]</span>, <span name="id">id: <a href="PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@PointWithId[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.PrimitiveScalar" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="PrimitiveScalar[S&lt;:AnyVal]extendsScalar[S]"></a>
+      <a id="PrimitiveScalar[S&lt;:AnyVal]:PrimitiveScalar[S]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PrimitiveScalar.html"><span class="name">PrimitiveScalar</span></a><span class="tparams">[<span name="S">S &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>]</span><span class="result"> extends <a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.common.PrimitiveScalar.S">S</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@PrimitiveScalar[S&lt;:AnyVal]extendsScalar[S]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait signifying that the data is scalar, and of a primitive JVM type.</p><div class="fullcomment"><div class="comment cmt"><p>Trait signifying that the data is scalar, and of a primitive JVM type.
+</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the (primitive) type of the actual scalar data.</p></dd></dl></div>
+    </li><li name="scalismo.common.PrimitiveScalarArray" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PrimitiveScalarArray[S&lt;:AnyVal]extendsAbstractScalarArray[S,S]"></a>
+      <a id="PrimitiveScalarArray[S&lt;:AnyVal]:PrimitiveScalarArray[S]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PrimitiveScalarArray.html"><span class="name">PrimitiveScalarArray</span></a><span class="tparams">[<span name="S">S &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>]</span><span class="result"> extends <a href="AbstractScalarArray.html" class="extype" name="scalismo.common.AbstractScalarArray">AbstractScalarArray</a>[<span class="extype" name="scalismo.common.PrimitiveScalarArray.S">S</span>, <span class="extype" name="scalismo.common.PrimitiveScalarArray.S">S</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@PrimitiveScalarArray[S&lt;:AnyVal]extendsAbstractScalarArray[S,S]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a> containing data of a native primitive data type.</p><div class="fullcomment"><div class="comment cmt"><p>A <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a> containing data of a native primitive data type.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the type of the contained data.</p></dd></dl></div>
+    </li><li name="scalismo.common.RealSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RealSpace[D&lt;:scalismo.geometry.Dim]extendsDomain[D]"></a>
+      <a id="RealSpace[D&lt;:Dim]:RealSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RealSpace.html"><span class="name">RealSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.common.RealSpace.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@RealSpace[D&lt;:scalismo.geometry.Dim]extendsDomain[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.Scalar" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Scalar[S]extendsAny"></a>
+      <a id="Scalar[S]:Scalar[S]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Scalar.html"><span class="name">Scalar</span></a><span class="tparams">[<span name="S">S</span>]</span><span class="result"> extends <span class="extype" name="scala.Any">Any</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Scalar[S]extendsAny" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait signifying that the data is scalar (i.e., numeric).</p><div class="fullcomment"><div class="comment cmt"><p>Trait signifying that the data is scalar (i.e., numeric).</p><p>Note that while unsigned integral types (UByte, UShort, UInt, ULong) are supported,
+some operations may be significantly slower than when using the built-in primitive
+(signed) data types. In other words, it may be worthwile to directly map the
+data to a signed type after reading, then working with the signed data.
+</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the type of the actual scalar data.</p></dd></dl></div>
+    </li><li name="scalismo.common.ScalarArray" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ScalarArray[S]extendsIndexedSeq[S]"></a>
+      <a id="ScalarArray[S]:ScalarArray[S]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalarArray.html"><span class="name">ScalarArray</span></a><span class="tparams">[<span name="S">S</span>]</span><span class="result"> extends <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scalismo.common.ScalarArray.S">S</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@ScalarArray[S]extendsIndexedSeq[S]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Class representing an array of scalar data.</p><div class="fullcomment"><div class="comment cmt"><p>Class representing an array of scalar data. Only a subset of the array and generic collections operations is supported,
+and the data should be treated as immutable. For instance, data values can be accessed by index, but not updated.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the type of the contained data.</p></dd></dl></div>
+    </li><li name="scalismo.common.ScalarField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalarField[D&lt;:scalismo.geometry.Dim,A]extendsField[D,A]withProductwithSerializable"></a>
+      <a id="ScalarField[D&lt;:Dim,A]:ScalarField[D,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalarField.html"><span class="name">ScalarField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]</span>, <span name="f">f: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]) ⇒ <span class="extype" name="scalismo.common.ScalarField.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.common.ScalarField.A">A</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.common.ScalarField.A">A</span>]</span>)</span><span class="result"> extends <a href="Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@ScalarField[D&lt;:scalismo.geometry.Dim,A]extendsField[D,A]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A scalar valued field.</p>
+    </li><li name="scalismo.common.UnstructuredPointsDomain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="UnstructuredPointsDomain[D&lt;:scalismo.geometry.Dim]extendsDiscreteDomain[D]"></a>
+      <a id="UnstructuredPointsDomain[D&lt;:Dim]:UnstructuredPointsDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnstructuredPointsDomain.html"><span class="name">UnstructuredPointsDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.common.UnstructuredPointsDomain.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@UnstructuredPointsDomain[D&lt;:scalismo.geometry.Dim]extendsDiscreteDomain[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.UnstructuredPointsDomain1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnstructuredPointsDomain1DextendsUnstructuredPointsDomain[scalismo.geometry._1D]"></a>
+      <a id="UnstructuredPointsDomain1D:UnstructuredPointsDomain1D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnstructuredPointsDomain1D.html"><span class="name">UnstructuredPointsDomain1D</span></a><span class="result"> extends <a href="UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@UnstructuredPointsDomain1DextendsUnstructuredPointsDomain[scalismo.geometry._1D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.UnstructuredPointsDomain2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnstructuredPointsDomain2DextendsUnstructuredPointsDomain[scalismo.geometry._2D]"></a>
+      <a id="UnstructuredPointsDomain2D:UnstructuredPointsDomain2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnstructuredPointsDomain2D.html"><span class="name">UnstructuredPointsDomain2D</span></a><span class="result"> extends <a href="UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@UnstructuredPointsDomain2DextendsUnstructuredPointsDomain[scalismo.geometry._2D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.UnstructuredPointsDomain3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnstructuredPointsDomain3DextendsUnstructuredPointsDomain[scalismo.geometry._3D]"></a>
+      <a id="UnstructuredPointsDomain3D:UnstructuredPointsDomain3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnstructuredPointsDomain3D.html"><span class="name">UnstructuredPointsDomain3D</span></a><span class="result"> extends <a href="UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@UnstructuredPointsDomain3DextendsUnstructuredPointsDomain[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.ValueClassScalar" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ValueClassScalar[S&lt;:AnyVal,U&lt;:AnyVal]extendsScalar[S]"></a>
+      <a id="ValueClassScalar[S&lt;:AnyVal,U&lt;:AnyVal]:ValueClassScalar[S,U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueClassScalar.html"><span class="name">ValueClassScalar</span></a><span class="tparams">[<span name="S">S &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>, <span name="U">U &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>]</span><span class="result"> extends <a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.common.ValueClassScalar.S">S</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@ValueClassScalar[S&lt;:AnyVal,U&lt;:AnyVal]extendsScalar[S]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait signifying that the data is scalar, and is using a value class to &quot;wrap&quot; the values of
+an underlying primitive type.</p><div class="fullcomment"><div class="comment cmt"><p>Trait signifying that the data is scalar, and is using a value class to &quot;wrap&quot; the values of
+an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the exposed (value class) type of the scalar data.</p></dd><dt class="tparam">U</dt><dd class="cmt"><p>the underlying (primitive) type of the actual stored values.</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://docs.scala-lang.org/overviews/core/value-classes.html">Value Classes and Universal Traits</a></p></span></dd></dl></div>
+    </li><li name="scalismo.common.ValueClassScalarArray" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ValueClassScalarArray[S&lt;:AnyVal,U&lt;:AnyVal]extendsAbstractScalarArray[S,U]"></a>
+      <a id="ValueClassScalarArray[S&lt;:AnyVal,U&lt;:AnyVal]:ValueClassScalarArray[S,U]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueClassScalarArray.html"><span class="name">ValueClassScalarArray</span></a><span class="tparams">[<span name="S">S &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>, <span name="U">U &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>]</span><span class="result"> extends <a href="AbstractScalarArray.html" class="extype" name="scalismo.common.AbstractScalarArray">AbstractScalarArray</a>[<span class="extype" name="scalismo.common.ValueClassScalarArray.S">S</span>, <span class="extype" name="scalismo.common.ValueClassScalarArray.U">U</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@ValueClassScalarArray[S&lt;:AnyVal,U&lt;:AnyVal]extendsAbstractScalarArray[S,U]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a> containing data of a value class type, which can be mapped from/to an underlying primitive data type.</p><div class="fullcomment"><div class="comment cmt"><p>A <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a> containing data of a value class type, which can be mapped from/to an underlying primitive data type.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the type of the array's data</p></dd><dt class="tparam">U</dt><dd class="cmt"><p>the type of the underlying contained raw data</p></dd></dl></div>
+    </li><li name="scalismo.common.VectorField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VectorField[D&lt;:scalismo.geometry.Dim,DO&lt;:scalismo.geometry.Dim]extendsField[D,scalismo.geometry.Vector[DO]]withProductwithSerializable"></a>
+      <a id="VectorField[D&lt;:Dim,DO&lt;:Dim]:VectorField[D,DO]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VectorField.html"><span class="name">VectorField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="DO">DO &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="Domain.html" class="extype" name="scalismo.common.Domain">Domain</a>[<span class="extype" name="scalismo.common.VectorField.D">D</span>]</span>, <span name="f">f: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.VectorField.D">D</span>]) ⇒ <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.common.VectorField.DO">DO</span>]</span>)</span><span class="result"> extends <a href="Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.common.VectorField.D">D</span>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.common.VectorField.DO">DO</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@VectorField[D&lt;:scalismo.geometry.Dim,DO&lt;:scalismo.geometry.Dim]extendsField[D,scalismo.geometry.Vector[DO]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An vector valued image.</p>
+    </li><li name="scalismo.common.Vectorizer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Vectorizer[Value]extendsAnyRef"></a>
+      <a id="Vectorizer[Value]:Vectorizer[Value]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Vectorizer.html"><span class="name">Vectorizer</span></a><span class="tparams">[<span name="Value">Value</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Vectorizer[Value]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scalismo.common.BoxDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoxDomain"></a>
+      <a id="BoxDomain:BoxDomain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="BoxDomain$.html"><span class="name">BoxDomain</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@BoxDomain" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.DiscreteField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteField"></a>
+      <a id="DiscreteField:DiscreteField"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteField$.html"><span class="name">DiscreteField</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteField" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.DiscreteScalarField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteScalarField"></a>
+      <a id="DiscreteScalarField:DiscreteScalarField"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteScalarField$.html"><span class="name">DiscreteScalarField</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteScalarField" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.DiscreteVectorField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteVectorField"></a>
+      <a id="DiscreteVectorField:DiscreteVectorField"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteVectorField$.html"><span class="name">DiscreteVectorField</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@DiscreteVectorField" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.Domain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Domain"></a>
+      <a id="Domain:Domain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Domain$.html"><span class="name">Domain</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Domain" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.Field" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Field"></a>
+      <a id="Field:Field"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Field$.html"><span class="name">Field</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Field" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Utility functions to create and manipulate images
+</p>
+    </li><li name="scalismo.common.RealSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RealSpace"></a>
+      <a id="RealSpace:RealSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RealSpace$.html"><span class="name">RealSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@RealSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.Scalar" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Scalar"></a>
+      <a id="Scalar:Scalar"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Scalar$.html"><span class="name">Scalar</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@Scalar" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.ScalarArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalarArray"></a>
+      <a id="ScalarArray:ScalarArray"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalarArray$.html"><span class="name">ScalarArray</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@ScalarArray" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for ScalarArray instances.</p>
+    </li><li name="scalismo.common.UnstructuredPointsDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnstructuredPointsDomain"></a>
+      <a id="UnstructuredPointsDomain:UnstructuredPointsDomain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="UnstructuredPointsDomain$.html"><span class="name">UnstructuredPointsDomain</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@UnstructuredPointsDomain" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.common.ValueClassScalarArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValueClassScalarArray"></a>
+      <a id="ValueClassScalarArray:ValueClassScalarArray"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ValueClassScalarArray$.html"><span class="name">ValueClassScalarArray</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.package@ValueClassScalarArray" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for ValueClassScalarArray instances.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
