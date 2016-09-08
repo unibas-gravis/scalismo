@@ -24,7 +24,7 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../lib/trait_big.png" />
+        <img src="../../lib/class_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.image">image</a></p>
         <h1>DiscreteImage</h1>
       </div>
@@ -32,18 +32,18 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">DiscreteImage</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Pixel">Pixel</span>]</span><span class="result"> extends <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
+        <span class="name">DiscreteImage</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Basic interface for a discrete image of arbitrary Pixel type
-</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">Pixel</dt><dd class="cmt"><p>The type of the pixel (usually a scalar or a vector)
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the pixel (usually a scalar or a vector)
 </p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>], (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>], <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>], (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
           <div class="subClasses hiddenContent"><a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a></div>
@@ -82,99 +82,30 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        
-
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="scala.Function1#apply" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="apply(v1:T1):R"></a>
-      <a id="apply(PointId):Pixel"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="scalismo.image.DiscreteImage#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(domain:scalismo.image.DiscreteImageDomain[D],values:IndexedSeq[A])(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.image.DiscreteImage[D,A]"></a>
+      <a id="&lt;init&gt;:DiscreteImage[D,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="v1">v1: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span></span>
+        <span class="name">DiscreteImage</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>, <span name="values">values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>)</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd></dl></div>
-    </li><li name="scalismo.image.DiscreteImage#domain" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="domain:scalismo.image.DiscreteImageDomain[D]"></a>
-      <a id="domain:DiscreteImageDomain[D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">domain</span><span class="result">: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a> → <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#interpolateNearestNeighbor" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="interpolateNearestNeighbor():scalismo.common.Field[D,A]"></a>
-      <a id="interpolateNearestNeighbor():Field[D,Pixel]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">interpolateNearestNeighbor</span><span class="params">()</span><span class="result">: <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns a continuous field, where the value at each point is that of the closest point in the discrete set
-*
-</p><div class="fullcomment"><div class="comment cmt"><p>Returns a continuous field, where the value at each point is that of the closest point in the discrete set
-*
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
-    </li><li name="scala.PartialFunction#isDefinedAt" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="isDefinedAt(x:A):Boolean"></a>
-      <a id="isDefinedAt(PointId):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">isDefinedAt</span><span class="params">(<span name="x">x: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
-    </li><li name="scalismo.image.DiscreteImage#ndSpace" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="ndSpace:scalismo.geometry.NDSpace[D]"></a>
-      <a id="ndSpace:NDSpace[D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">ndSpace</span><span class="result">: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
-    </li><li name="scalismo.common.DiscreteField#values" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="values:Iterator[A]"></a>
-      <a id="values:Iterator[Pixel]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">values</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
+      <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
 
+        
+
+        
+
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -242,40 +173,53 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.PartialFunction#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen[C](k:B=&gt;C):PartialFunction[A,C]"></a>
-      <a id="andThen[C]((Pixel)⇒C):PartialFunction[PointId,C]"></a>
+      <a id="andThen[C]((A)⇒C):PartialFunction[PointId,C]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">andThen</span><span class="tparams">[<span name="C">C</span>]</span><span class="params">(<span name="k">k: (<span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>) ⇒ <span class="extype" name="scala.PartialFunction.andThen.C">C</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scala.PartialFunction.andThen.C">C</span>]</span>
+        <span class="name">andThen</span><span class="tparams">[<span name="C">C</span>]</span><span class="params">(<span name="k">k: (<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>) ⇒ <span class="extype" name="scala.PartialFunction.andThen.C">C</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scala.PartialFunction.andThen.C">C</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction → Function1</dd></dl></div>
     </li><li name="scalismo.image.DiscreteImage#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(idx:scalismo.geometry.IntVector[D]):Pixel"></a>
-      <a id="apply(IntVector[D]):Pixel"></a>
+      <a id="apply(idx:scalismo.geometry.IntVector[D]):A"></a>
+      <a id="apply(IntVector[D]):A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="idx">idx: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span></span>
+        <span class="name">apply</span><span class="params">(<span name="idx">idx: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="scalismo.image.DiscreteImage.A">A</span></span>
       </span>
       </h4>
       
-    </li><li name="scala.PartialFunction#applyOrElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="applyOrElse[A1&lt;:A,B1&gt;:B](x:A1,default:A1=&gt;B1):B1"></a>
-      <a id="applyOrElse[A1&lt;:PointId,B1&gt;:Pixel](A1,(A1)⇒B1):B1"></a>
+    </li><li name="scalismo.common.DiscreteField#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="apply(ptId:scalismo.common.PointId):A"></a>
+      <a id="apply(PointId):A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">applyOrElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span></span>]</span><span class="params">(<span name="x">x: <span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span></span>, <span name="default">default: (<span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span>) ⇒ <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>
+        <span class="name">apply</span><span class="params">(<span name="ptId">ptId: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scalismo.image.DiscreteImage.A">A</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → Function1</dd></dl></div>
+    </li><li name="scala.PartialFunction#applyOrElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="applyOrElse[A1&lt;:A,B1&gt;:B](x:A1,default:A1=&gt;B1):B1"></a>
+      <a id="applyOrElse[A1&lt;:PointId,B1&gt;:A](A1,(A1)⇒B1):B1"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">applyOrElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="scalismo.image.DiscreteImage.A">A</span></span>]</span><span class="params">(<span name="x">x: <span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span></span>, <span name="default">default: (<span class="extype" name="scala.PartialFunction.applyOrElse.A1">A1</span>) ⇒ <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction.applyOrElse.B1">B1</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -292,6 +236,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scalismo.common.DiscreteField#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(other:Any):Boolean"></a>
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -313,20 +270,33 @@
         </dd></dl></div>
     </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a>
-      <a id="compose[A]((A)⇒PointId):(A)⇒Pixel"></a>
+      <a id="compose[A]((A)⇒PointId):(A)⇒A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span></span>
+        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="scalismo.image.DiscreteImage.A">A</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="scalismo.common.DiscreteField#data" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="data:IndexedSeq[A]"></a>
+      <a id="data:IndexedSeq[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">data</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteImage#dimensionality" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="dimensionality:Int"></a>
       <a id="dimensionality:Int"></a>
@@ -353,8 +323,8 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
+    </li><li name="scalismo.common.DiscreteField#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(other:Any):Boolean"></a>
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -362,10 +332,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">equals</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -387,14 +357,14 @@
         </dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="foreach(f:A=&gt;Unit):Unit"></a>
-      <a id="foreach((Pixel)⇒Unit):Unit"></a>
+      <a id="foreach((A)⇒Unit):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">foreach</span><span class="params">(<span name="f">f: (<span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">foreach</span><span class="params">(<span name="f">f: (<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
@@ -424,6 +394,23 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.common.DiscreteField#interpolateNearestNeighbor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="interpolateNearestNeighbor():scalismo.common.Field[D,A]"></a>
+      <a id="interpolateNearestNeighbor():Field[D,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">interpolateNearestNeighbor</span><span class="params">()</span><span class="result">: <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a continuous field, where the value at each point is that of the closest point in the discrete set
+*
+</p><div class="fullcomment"><div class="comment cmt"><p>Returns a continuous field, where the value at each point is that of the closest point in the discrete set
+*
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.image.DiscreteImage#isDefinedAt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="isDefinedAt(idx:scalismo.geometry.IntVector[D]):Boolean"></a>
       <a id="isDefinedAt(IntVector[D]):Boolean"></a>
@@ -437,6 +424,19 @@
       </span>
       </h4>
       
+    </li><li name="scalismo.common.DiscreteField#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isDefinedAt(ptId:scalismo.common.PointId):Boolean"></a>
+      <a id="isDefinedAt(PointId):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isDefinedAt</span><span class="params">(<span name="ptId">ptId: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → PartialFunction</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -452,17 +452,30 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.PartialFunction#lift" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="lift:A=&gt;Option[B]"></a>
-      <a id="lift:(PointId)⇒Option[Pixel]"></a>
+      <a id="lift:(PointId)⇒Option[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">lift</span><span class="result">: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
+        <span class="name">lift</span><span class="result">: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
+    </li><li name="scalismo.image.DiscreteImage#ndSpace" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ndSpace:scalismo.geometry.NDSpace[D]"></a>
+      <a id="ndSpace:NDSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ndSpace</span><span class="result">: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -504,14 +517,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.PartialFunction#orElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="orElse[A1&lt;:A,B1&gt;:B](that:PartialFunction[A1,B1]):PartialFunction[A1,B1]"></a>
-      <a id="orElse[A1&lt;:PointId,B1&gt;:Pixel](PartialFunction[A1,B1]):PartialFunction[A1,B1]"></a>
+      <a id="orElse[A1&lt;:PointId,B1&gt;:A](PartialFunction[A1,B1]):PartialFunction[A1,B1]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">orElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span></span>]</span><span class="params">(<span name="that">that: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>
+        <span class="name">orElse</span><span class="tparams">[<span name="A1">A1 &lt;: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="B1">B1 &gt;: <span class="extype" name="scalismo.image.DiscreteImage.A">A</span></span>]</span><span class="params">(<span name="that">that: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="scala.PartialFunction.orElse.A1">A1</span>, <span class="extype" name="scala.PartialFunction.orElse.B1">B1</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -530,27 +543,27 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#pointsWithValues" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pointsWithValues:Iterator[(scalismo.geometry.Point[D],A)]"></a>
-      <a id="pointsWithValues:Iterator[(Point[D],Pixel)]"></a>
+      <a id="pointsWithValues:Iterator[(Point[D],A)]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">pointsWithValues</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>], <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>)]</span>
+        <span class="name">pointsWithValues</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>], <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>)]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.PartialFunction#runWith" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="runWith[U](action:B=&gt;U):A=&gt;Boolean"></a>
-      <a id="runWith[U]((Pixel)⇒U):(PointId)⇒Boolean"></a>
+      <a id="runWith[U]((A)⇒U):(PointId)⇒Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">runWith</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="action">action: (<span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>) ⇒ <span class="extype" name="scala.PartialFunction.runWith.U">U</span></span>)</span><span class="result">: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">runWith</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="action">action: (<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>) ⇒ <span class="extype" name="scala.PartialFunction.runWith.U">U</span></span>)</span><span class="result">: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>PartialFunction</dd></dl></div>
@@ -582,14 +595,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.common.DiscreteField#valuesWithIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="valuesWithIds:Iterator[(A,scalismo.common.PointId)]"></a>
-      <a id="valuesWithIds:Iterator[(Pixel,PointId)]"></a>
+      <a id="valuesWithIds:Iterator[(A,PointId)]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">valuesWithIds</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>, <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)]</span>
+        <span class="name">valuesWithIds</span><span class="result">: <span class="extype" name="scala.collection.Iterator">Iterator</span>[(<span class="extype" name="scalismo.image.DiscreteImage.A">A</span>, <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
@@ -660,11 +673,11 @@
 
         <div id="inheritedMembers">
         <div class="parent" name="scalismo.common.DiscreteField">
-              <h3>Inherited from <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</h3>
+              <h3>Inherited from <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</h3>
             </div><div class="parent" name="scala.PartialFunction">
-              <h3>Inherited from <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</h3>
+              <h3>Inherited from <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</h3>
             </div><div class="parent" name="scala.Function1">
-              <h3>Inherited from (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span></h3>
+              <h3>Inherited from (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.image.DiscreteImage.A">A</span></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

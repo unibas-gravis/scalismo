@@ -35,13 +35,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">GaussianProcess</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="DO">DO &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">GaussianProcess</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A gaussian process from a D dimensional input space, whose input values are points,
 to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
-</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the input space</p></dd><dt class="tparam">DO</dt><dd class="cmt"><p>The dimensionality of the output space
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the input space
 </p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -86,15 +86,15 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.statisticalmodel.GaussianProcess#&lt;init&gt;" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(mean:scalismo.common.VectorField[D,DO],cov:scalismo.kernels.MatrixValuedPDKernel[D,DO])(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitevidence$2:scalismo.geometry.NDSpace[DO]):scalismo.statisticalmodel.GaussianProcess[D,DO]"></a>
-      <a id="&lt;init&gt;:GaussianProcess[D,DO]"></a>
+      <a id="&lt;init&gt;(mean:scalismo.common.Field[D,Value],cov:scalismo.kernels.MatrixValuedPDKernel[D])(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
+      <a id="&lt;init&gt;:GaussianProcess[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">GaussianProcess</span><span class="params">(<span name="mean">mean: <a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>, <span name="cov">cov: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>, <span name="arg1">arg1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>)</span>
+        <span class="name">GaussianProcess</span><span class="params">(<span name="mean">mean: <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>, <span name="cov">cov: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>)</span>
       </span>
       </h4>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">mean</dt><dd class="cmt"><p>The mean function</p></dd><dt class="param">cov</dt><dd class="cmt"><p>The covariance function. Needs to be positive definite</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
@@ -205,31 +205,18 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
               
         </dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#cov" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="cov:scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
-      <a id="cov:MatrixValuedPDKernel[D,DO]"></a>
+      <a id="cov:scalismo.kernels.MatrixValuedPDKernel[D]"></a>
+      <a id="cov:MatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">cov</span><span class="result">: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">cov</span><span class="result">: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The covariance function.</p><div class="fullcomment"><div class="comment cmt"><p>The covariance function. Needs to be positive definite</p></div></div>
-    </li><li name="scalismo.statisticalmodel.GaussianProcess#dimOps" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="dimOps:scalismo.geometry.NDSpace[DO]"></a>
-      <a id="dimOps:NDSpace[DO]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">dimOps</span><span class="result">: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#domain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="domain:scalismo.common.Domain[D]"></a>
       <a id="domain:Domain[D]"></a>
@@ -328,43 +315,43 @@ to a DO dimensional output space. The output space is a Euclidean vector space o
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#marginal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="marginal(pt:scalismo.geometry.Point[D]):scalismo.statisticalmodel.NDimensionalNormalDistribution[DO]"></a>
-      <a id="marginal(Point[D]):NDimensionalNormalDistribution[DO]"></a>
+      <a id="marginal(pt:scalismo.geometry.Point[D]):scalismo.statisticalmodel.MultivariateNormalDistribution"></a>
+      <a id="marginal(Point[D]):MultivariateNormalDistribution"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">marginal</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">marginal</span><span class="params">(<span name="pt">pt: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Compute the marginal distribution at a single point.</p>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#marginal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="marginal(domain:scalismo.common.DiscreteDomain[D]):scalismo.statisticalmodel.DiscreteGaussianProcess[D,DO]"></a>
-      <a id="marginal(DiscreteDomain[D]):DiscreteGaussianProcess[D,DO]"></a>
+      <a id="marginal(domain:scalismo.common.DiscreteDomain[D]):scalismo.statisticalmodel.DiscreteGaussianProcess[D,Value]"></a>
+      <a id="marginal(DiscreteDomain[D]):DiscreteGaussianProcess[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">marginal</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteGaussianProcess">DiscreteGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">marginal</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteGaussianProcess">DiscreteGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Compute the marginal distribution for the given points.</p><div class="fullcomment"><div class="comment cmt"><p>Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
 is defined by the given points.
 </p></div></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#mean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="mean:scalismo.common.VectorField[D,DO]"></a>
-      <a id="mean:VectorField[D,DO]"></a>
+      <a id="mean:scalismo.common.Field[D,Value]"></a>
+      <a id="mean:Field[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">mean</span><span class="result">: <a href="../common/VectorField.html" class="extype" name="scalismo.common.VectorField">VectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">mean</span><span class="result">: <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The mean function</p>
@@ -407,31 +394,44 @@ is defined by the given points.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.statisticalmodel.GaussianProcess#posterior" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="posterior(trainingData:IndexedSeq[(scalismo.geometry.Point[D],scalismo.geometry.Vector[DO],scalismo.statisticalmodel.NDimensionalNormalDistribution[DO])]):scalismo.statisticalmodel.GaussianProcess[D,DO]"></a>
-      <a id="posterior(IndexedSeq[(Point[D],Vector[DO],NDimensionalNormalDistribution[DO])]):GaussianProcess[D,DO]"></a>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#outputDim" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="outputDim:Int"></a>
+      <a id="outputDim:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>], <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>], <a href="NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>])]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">outputDim</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#posterior" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="posterior(trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
+      <a id="posterior(IndexedSeq[(Point[D],Value,MultivariateNormalDistribution)]):GaussianProcess[D,Value]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The posterior distribution of the gaussian process, with respect to the given trainingData.</p><div class="fullcomment"><div class="comment cmt"><p>The posterior distribution of the gaussian process, with respect to the given trainingData.
 It is computed using Gaussian process regression.
 </p></div></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#posterior" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="posterior(trainingData:IndexedSeq[(scalismo.geometry.Point[D],scalismo.geometry.Vector[DO])],sigma2:Double):scalismo.statisticalmodel.GaussianProcess[D,DO]"></a>
-      <a id="posterior(IndexedSeq[(Point[D],Vector[DO])],Double):GaussianProcess[D,DO]"></a>
+      <a id="posterior(trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value)],sigma2:Double):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
+      <a id="posterior(IndexedSeq[(Point[D],Value)],Double):GaussianProcess[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>], <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>])]</span>, <span name="sigma2">sigma2: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>)]</span>, <span name="sigma2">sigma2: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The posterior distribution of the gaussian process, with respect to the given trainingData.</p><div class="fullcomment"><div class="comment cmt"><p>The posterior distribution of the gaussian process, with respect to the given trainingData.
@@ -439,15 +439,15 @@ It is computed using Gaussian process regression.
 We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
 </p></div></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#sampleAtPoints" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="sampleAtPoints(domain:scalismo.common.DiscreteDomain[D]):scalismo.common.DiscreteVectorField[D,DO]"></a>
-      <a id="sampleAtPoints(DiscreteDomain[D]):DiscreteVectorField[D,DO]"></a>
+      <a id="sampleAtPoints(domain:scalismo.common.DiscreteDomain[D]):scalismo.common.DiscreteField[D,Value]"></a>
+      <a id="sampleAtPoints(DiscreteDomain[D]):DiscreteField[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sampleAtPoints</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="../common/DiscreteVectorField.html" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.DO">DO</span>]</span>
+        <span class="name">sampleAtPoints</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>]</span>)</span><span class="result">: <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Sample values of the Gaussian process evaluated at the given points.</p>
@@ -477,6 +477,19 @@ We assume that the trainingData is subject to isotropic Gaussian noise with vari
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#vectorizer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="vectorizer:scalismo.common.Vectorizer[Value]"></a>
+      <a id="vectorizer:Vectorizer[Value]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vectorizer</span><span class="result">: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.Value">Value</span>]</span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

@@ -35,11 +35,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">NDimensionalNormalDistribution</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="mean">mean: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]</span>, <span name="cov">cov: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$2">evidence$2: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistributionLike">MultivariateNormalDistributionLike</span>[<a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>], <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.13.0) Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.">NDimensionalNormalDistribution</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="mean">mean: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]</span>, <span name="cov">cov: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$2">evidence$2: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistributionLike">MultivariateNormalDistributionLike</span>[<a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>], <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.13.0)</i> Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistributionLike">MultivariateNormalDistributionLike</span>[<a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>], <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution.D">D</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -412,6 +415,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.NDimensionalNormalDistribution#toMultivariateNormalDistribution" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toMultivariateNormalDistribution:scalismo.statisticalmodel.MultivariateNormalDistribution"></a>
+      <a id="toMultivariateNormalDistribution:MultivariateNormalDistribution"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toMultivariateNormalDistribution</span><span class="result">: <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

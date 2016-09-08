@@ -2,17 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>GaussianProcess - scalismo.statisticalmodel.GaussianProcess</title>
-          <meta name="description" content="GaussianProcess - scalismo.statisticalmodel.GaussianProcess" />
-          <meta name="keywords" content="GaussianProcess scalismo.statisticalmodel.GaussianProcess" />
+          <title>DiscreteFeatureField - scalismo.statisticalmodel.asm.DiscreteFeatureField</title>
+          <meta name="description" content="DiscreteFeatureField - scalismo.statisticalmodel.asm.DiscreteFeatureField" />
+          <meta name="keywords" content="DiscreteFeatureField scalismo.statisticalmodel.asm.DiscreteFeatureField" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
       <script type="text/javascript">
          if(top === self) {
-            var url = '../../index.html';
-            var hash = 'scalismo.statisticalmodel.GaussianProcess$';
+            var url = '../../../index.html';
+            var hash = 'scalismo.statisticalmodel.asm.DiscreteFeatureField$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -24,9 +24,9 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="GaussianProcess.html" title="Go to companion"><img src="../../lib/object_to_class_big.png" /></a>
-        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></p>
-        <h1><a href="GaussianProcess.html" title="Go to companion">GaussianProcess</a></h1>
+        <a href="DiscreteFeatureField.html" title="Go to companion"><img src="../../../lib/object_to_class_big.png" /></a>
+        <p id="owner"><a href="../../package.html" class="extype" name="scalismo">scalismo</a>.<a href="../package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a>.<a href="package.html" class="extype" name="scalismo.statisticalmodel.asm">asm</a></p>
+        <h1><a href="DiscreteFeatureField.html" title="Go to companion">DiscreteFeatureField</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,12 +35,11 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">GaussianProcess</span>
+        <span class="name">DiscreteFeatureField</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Factory methods for creating Gaussian processes
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -60,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.statisticalmodel.GaussianProcess"><span>GaussianProcess</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.statisticalmodel.asm.DiscreteFeatureField"><span>DiscreteFeatureField</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -151,19 +150,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.statisticalmodel.GaussianProcess#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[D&lt;:scalismo.geometry.Dim,Value](mean:scalismo.common.Field[D,Value],cov:scalismo.kernels.MatrixValuedPDKernel[D])(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
-      <a id="apply[D&lt;:Dim,Value](Field[D,Value],MatrixValuedPDKernel[D])(NDSpace[D],Vectorizer[Value]):GaussianProcess[D,Value]"></a>
+    </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply[D&lt;:scalismo.geometry.Dim](domain:scalismo.common.DiscreteDomain[D],values:IndexedSeq[breeze.linalg.DenseVector[Double]])(implicitevidence$2:scalismo.geometry.NDSpace[D]):scalismo.statisticalmodel.asm.DiscreteFeatureField[D]"></a>
+      <a id="apply[D&lt;:Dim](DiscreteDomain[D],IndexedSeq[DenseVector[Double]])(NDSpace[D]):DiscreteFeatureField[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="mean">mean: <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.Value">Value</span>]</span>, <span name="cov">cov: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.Value">Value</span>]</span>)</span><span class="result">: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.Value">Value</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="../../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.apply.D">D</span>]</span>, <span name="values">values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.apply.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteFeatureField.html" class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField">DiscreteFeatureField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.apply.D">D</span>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.</p>
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -189,7 +188,7 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
@@ -234,7 +233,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -280,22 +279,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.statisticalmodel.GaussianProcess#marginalLikelihood" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="marginalLikelihood[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):Double"></a>
-      <a id="marginalLikelihood[D&lt;:Dim,Value](GaussianProcess[D,Value],IndexedSeq[(Point[D],Value,MultivariateNormalDistribution)])(NDSpace[D],Vectorizer[Value]):Double"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">marginalLikelihood</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.Value">Value</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.Value">Value</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">* Computes the marginal likelihood of the observed data, according to the given GP.</p><div class="fullcomment"><div class="comment cmt"><p>* Computes the marginal likelihood of the observed data, according to the given GP.</p><p>This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
-</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process</p></dd><dt class="param">trainingData</dt><dd class="cmt"><p>Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.</p></dd></dl><dl class="attributes block"> <dt>To do</dt><dd><span class="cmt"><p>The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
-      with a Cholesky decomposition would be more efficient.
-</p></span></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -335,21 +318,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.statisticalmodel.GaussianProcess#regression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
-      <a id="regression[D&lt;:Dim,Value](GaussianProcess[D,Value],IndexedSeq[(Point[D],Value,MultivariateNormalDistribution)])(NDSpace[D],Vectorizer[Value]):GaussianProcess[D,Value]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">regression</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>]</span>)</span><span class="result">: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">* Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.</p><div class="fullcomment"><div class="comment cmt"><p>* Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
-</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process</p></dd><dt class="param">trainingData</dt><dd class="cmt"><p>Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -462,6 +430,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
     </body>
       </html>

@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Landmark</span><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="point">point: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="uncertainty">uncertainty: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]] = <span class="symbol">scala.None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Landmark</span><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="point">point: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="uncertainty">uncertainty: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>] = <span class="symbol">scala.None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.geometry.Landmark#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(id:String,point:scalismo.geometry.Point[D],description:Option[String],uncertainty:Option[scalismo.statisticalmodel.NDimensionalNormalDistribution[D]])(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.geometry.Landmark[D]"></a>
+      <a id="&lt;init&gt;(id:String,point:scalismo.geometry.Point[D],description:Option[String],uncertainty:Option[scalismo.statisticalmodel.MultivariateNormalDistribution])(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.geometry.Landmark[D]"></a>
       <a id="&lt;init&gt;:Landmark[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Landmark</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="point">point: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="uncertainty">uncertainty: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]] = <span class="symbol">scala.None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>)</span>
+        <span class="name">Landmark</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="point">point: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="uncertainty">uncertainty: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>] = <span class="symbol">scala.None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>)</span>
       </span>
       </h4>
       
@@ -348,15 +348,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.geometry.Landmark#uncertainty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="uncertainty:Option[scalismo.statisticalmodel.NDimensionalNormalDistribution[D]]"></a>
-      <a id="uncertainty:Option[NDimensionalNormalDistribution[D]]"></a>
+      <a id="uncertainty:Option[scalismo.statisticalmodel.MultivariateNormalDistribution]"></a>
+      <a id="uncertainty:Option[MultivariateNormalDistribution]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">uncertainty</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]]</span>
+        <span class="name">uncertainty</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>]</span>
       </span>
       </h4>
       

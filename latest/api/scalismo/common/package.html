@@ -162,13 +162,13 @@
       </span>
       </h4>
       
-    </li><li name="scalismo.common.DiscreteField" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+    </li><li name="scalismo.common.DiscreteField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DiscreteField[D&lt;:scalismo.geometry.Dim,A]extendsPartialFunction[scalismo.common.PointId,A]"></a>
       <a id="DiscreteField[D&lt;:Dim,A]:DiscreteField[D,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
         <a href="DiscreteField.html"><span class="name">DiscreteField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <span class="extype" name="scalismo.common.DiscreteField.A">A</span>]</span>
@@ -320,7 +320,7 @@ function is defined.</p>
       </h4>
       <p class="comment cmt">Trait signifying that the data is scalar (i.</p>
     </li><li name="scalismo.common.ScalarArray" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ScalarArray[S]extendsAnyRef"></a>
+      <a id="ScalarArray[S]extendsIndexedSeq[S]"></a>
       <a id="ScalarArray[S]:ScalarArray[S]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -328,7 +328,7 @@ function is defined.</p>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ScalarArray.html"><span class="name">ScalarArray</span></a><span class="tparams">[<span name="S">S</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="ScalarArray.html"><span class="name">ScalarArray</span></a><span class="tparams">[<span name="S">S</span>]</span><span class="result"> extends <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scalismo.common.ScalarArray.S">S</span>]</span>
       </span>
       </h4>
       <p class="comment cmt">Class representing an array of scalar data.</p>
@@ -437,6 +437,19 @@ an underlying primitive type.</p>
       </span>
       </h4>
       <p class="comment cmt">An vector valued image.</p>
+    </li><li name="scalismo.common.Vectorizer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Vectorizer[Value]extendsAnyRef"></a>
+      <a id="Vectorizer[Value]:Vectorizer[Value]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Vectorizer.html"><span class="name">Vectorizer</span></a><span class="tparams">[<span name="Value">Value</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
     </li></ol>
             </div>
 
@@ -467,6 +480,19 @@ an underlying primitive type.</p>
       </span>
       <span class="symbol">
         <a href="CreateUnstructuredPointsDomain$.html"><span class="name">CreateUnstructuredPointsDomain</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.common.DiscreteField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteField"></a>
+      <a id="DiscreteField:DiscreteField"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteField$.html"><span class="name">DiscreteField</span></a>
       </span>
       </h4>
       

@@ -35,16 +35,16 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">MatrixValuedPDKernel</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="DO">DO &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">MatrixValuedPDKernel</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="DiagonalKernel.html" class="extype" name="scalismo.kernels.DiagonalKernel">DiagonalKernel</a>, <a href="MultiScaleKernel.html" class="extype" name="scalismo.kernels.MultiScaleKernel">MultiScaleKernel</a>, <a href="SampleCovarianceKernel.html" class="extype" name="scalismo.kernels.SampleCovarianceKernel">SampleCovarianceKernel</a>, <a href="UncorrelatedKernel.html" class="extype" name="scalismo.kernels.UncorrelatedKernel">UncorrelatedKernel</a></div>
+          <div class="subClasses hiddenContent"><a href="DiagonalKernel.html" class="extype" name="scalismo.kernels.DiagonalKernel">DiagonalKernel</a>, <a href="MultiScaleKernel.html" class="extype" name="scalismo.kernels.MultiScaleKernel">MultiScaleKernel</a>, <a href="SampleCovarianceKernel.html" class="extype" name="scalismo.kernels.SampleCovarianceKernel">SampleCovarianceKernel</a></div>
         </div></div>
         
 
@@ -83,15 +83,15 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.kernels.MatrixValuedPDKernel#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;()(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitevidence$2:scalismo.geometry.NDSpace[DO]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
-      <a id="&lt;init&gt;:MatrixValuedPDKernel[D,DO]"></a>
+      <a id="&lt;init&gt;()(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
+      <a id="&lt;init&gt;:MatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">MatrixValuedPDKernel</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>, <span name="arg1">arg1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>)</span>
+        <span class="name">MatrixValuedPDKernel</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span>
       </span>
       </h4>
       
@@ -116,18 +116,31 @@
       </h4>
       
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#k" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="k(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):scalismo.geometry.SquareMatrix[DO]"></a>
-      <a id="k(Point[D],Point[D]):SquareMatrix[DO]"></a>
+      <a id="k(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):breeze.linalg.DenseMatrix[Double]"></a>
+      <a id="k(Point[D],Point[D]):DenseMatrix[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">k</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span class="name">k</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="scalismo.kernels.MatrixValuedPDKernel#outputDim" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="outputDim:Int"></a>
+      <a id="outputDim:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">outputDim</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
     </li></ol>
             </div>
 
@@ -173,41 +186,41 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#*" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="*(s:Double):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
-      <a id="*(Double):MatrixValuedPDKernel[D,DO]"></a>
+      <a id="*(s:Double):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
+      <a id="*(Double):MatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#*" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="*(that:scalismo.kernels.MatrixValuedPDKernel[D,DO]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
-      <a id="*(MatrixValuedPDKernel[D,DO]):MatrixValuedPDKernel[D,DO]"></a>
+      <a id="*(that:scalismo.kernels.MatrixValuedPDKernel[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
+      <a id="*(MatrixValuedPDKernel[D]):MatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#+" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="+(that:scalismo.kernels.MatrixValuedPDKernel[D,DO]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
-      <a id="+(MatrixValuedPDKernel[D,DO]):MatrixValuedPDKernel[D,DO]"></a>
+      <a id="+(that:scalismo.kernels.MatrixValuedPDKernel[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
+      <a id="+(MatrixValuedPDKernel[D]):MatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span title="gt4s: $plus" class="name">+</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>
       </span>
       </h4>
       
@@ -238,15 +251,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):scalismo.geometry.SquareMatrix[DO]"></a>
-      <a id="apply(Point[D],Point[D]):SquareMatrix[DO]"></a>
+      <a id="apply(x:scalismo.geometry.Point[D],y:scalismo.geometry.Point[D]):breeze.linalg.DenseMatrix[Double]"></a>
+      <a id="apply(Point[D],Point[D]):DenseMatrix[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="x">x: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>, <span name="y">y: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
       
@@ -283,28 +296,28 @@
               
         </dd></dl></div>
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#compose" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="compose(phi:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.kernels.MatrixValuedPDKernel[D,DO]"></a>
-      <a id="compose((Point[D])⇒Point[D]):MatrixValuedPDKernel[D,DO]"></a>
+      <a id="compose(phi:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.kernels.MatrixValuedPDKernel[D]"></a>
+      <a id="compose((Point[D])⇒Point[D]):MatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="params">(<span name="phi">phi: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span class="name">compose</span><span class="params">(<span name="phi">phi: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>
       </span>
       </h4>
       
     </li><li name="scalismo.kernels.MatrixValuedPDKernel#discretize" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="discretize(domain:scalismo.common.DiscreteDomain[D]):scalismo.kernels.DiscreteMatrixValuedPDKernel[D,DO]"></a>
-      <a id="discretize(DiscreteDomain[D]):DiscreteMatrixValuedPDKernel[D,DO]"></a>
+      <a id="discretize(domain:scalismo.common.DiscreteDomain[D]):scalismo.kernels.DiscreteMatrixValuedPDKernel[D]"></a>
+      <a id="discretize(DiscreteDomain[D]):DiscreteMatrixValuedPDKernel[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">discretize</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteMatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.DiscreteMatrixValuedPDKernel">DiscreteMatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>, <span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.DO">DO</span>]</span>
+        <span class="name">discretize</span><span class="params">(<span name="domain">domain: <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteMatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.DiscreteMatrixValuedPDKernel">DiscreteMatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.MatrixValuedPDKernel.D">D</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">discretize the kernel at the given points
@@ -432,19 +445,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.kernels.MatrixValuedPDKernel#outputDim" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="outputDim:Int"></a>
-      <a id="outputDim:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">outputDim</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4>
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

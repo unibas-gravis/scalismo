@@ -212,21 +212,21 @@ produce a new mesh.
         <span class="name">coefficients</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#coefficients(s:scalismo.common.DiscreteVectorField[D,DO]):breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#coefficients">DiscreteLowRankGaussianProcess.coefficients</a>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#coefficients(s:scalismo.common.DiscreteField[D,Value]):breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#coefficients">DiscreteLowRankGaussianProcess.coefficients</a>
 </p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#cov" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="cov(ptId1:scalismo.common.PointId,ptId2:scalismo.common.PointId):scalismo.geometry.SquareMatrix[scalismo.geometry._3D]"></a>
-      <a id="cov(PointId,PointId):SquareMatrix[_3D]"></a>
+      <a id="cov(ptId1:scalismo.common.PointId,ptId2:scalismo.common.PointId):breeze.linalg.DenseMatrix[Double]"></a>
+      <a id="cov(PointId,PointId):DenseMatrix[Double]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cov</span><span class="params">(<span name="ptId1">ptId1: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="ptId2">ptId2: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <a href="../geometry/SquareMatrix.html" class="extype" name="scalismo.geometry.SquareMatrix">SquareMatrix</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">cov</span><span class="params">(<span name="ptId1">ptId1: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="ptId2">ptId2: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">The covariance between two points of the  mesh with given point id.</p><div class="fullcomment"><div class="comment cmt"><p>The covariance between two points of the  mesh with given point id.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#cov:scalismo.kernels.DiscreteMatrixValuedPDKernel[D,DO]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#cov">DiscreteLowRankGaussianProcess.cov</a>
+      <p class="shortcomment cmt">The covariance between two points of the  mesh with given point id.</p><div class="fullcomment"><div class="comment cmt"><p>The covariance between two points of the  mesh with given point id.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#cov:scalismo.kernels.DiscreteMatrixValuedPDKernel[D]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#cov">DiscreteLowRankGaussianProcess.cov</a>
 </p></span></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -274,15 +274,15 @@ produce a new mesh.
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#gp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="gp:scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry._3D]"></a>
-      <a id="gp:DiscreteLowRankGaussianProcess[_3D,_3D]"></a>
+      <a id="gp:scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry.Vector[scalismo.geometry._3D]]"></a>
+      <a id="gp:DiscreteLowRankGaussianProcess[_3D,Vector[_3D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">gp</span><span class="result">: <a href="DiscreteLowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess">DiscreteLowRankGaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">gp</span><span class="result">: <a href="DiscreteLowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess">DiscreteLowRankGaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       
@@ -298,7 +298,7 @@ produce a new mesh.
         <span class="name">instance</span><span class="params">(<span name="c">c: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p><div class="fullcomment"><div class="comment cmt"><p>returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#instance(c:breeze.linalg.DenseVector[Double]):scalismo.common.DiscreteVectorField[D,DO]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#instance">DiscreteLowRankGaussianProcess.instance</a>
+      <p class="shortcomment cmt">returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p><div class="fullcomment"><div class="comment cmt"><p>returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#instance(c:breeze.linalg.DenseVector[Double]):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#instance">DiscreteLowRankGaussianProcess.instance</a>
 </p></span></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -330,7 +330,7 @@ produce a new mesh.
  to any cells anymore. Therefore 2 behaviours are supported by this method :</p><p> 1- in case some of the indicated pointIds remain after clipping and do form a mesh, a marginal model is returned only for those points
  2- in case none of the indicated points remain (they are not meshed), a reference mesh with all indicated point Ids and no cells is constructed and a marginal
  over this new reference is returned
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#marginal(pointIds:Seq[scalismo.common.PointId])(implicitdomainCreator:scalismo.common.CreateUnstructuredPointsDomain[D]):scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[D,DO]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#marginal">DiscreteLowRankGaussianProcess.marginal</a>
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#marginal(pointIds:Seq[scalismo.common.PointId])(implicitdomainCreator:scalismo.common.CreateUnstructuredPointsDomain[D]):scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#marginal">DiscreteLowRankGaussianProcess.marginal</a>
 </p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#mean" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="mean:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
@@ -344,7 +344,7 @@ produce a new mesh.
         <span class="name">mean</span><span class="result">: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">The mean shape</p><div class="fullcomment"><div class="comment cmt"><p>The mean shape</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#mean:scalismo.common.DiscreteVectorField[D,DO]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#mean">DiscreteLowRankGaussianProcess.mean</a>
+      <p class="shortcomment cmt">The mean shape</p><div class="fullcomment"><div class="comment cmt"><p>The mean shape</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#mean:scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#mean">DiscreteLowRankGaussianProcess.mean</a>
 </p></span></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -399,15 +399,15 @@ produce a new mesh.
       </h4>
       <p class="shortcomment cmt">returns the probability density for an instance of the model</p><div class="fullcomment"><div class="comment cmt"><p>returns the probability density for an instance of the model</p></div><dl class="paramcmts block"><dt class="param">instanceCoefficients</dt><dd class="cmt"><p>coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method</p></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#posterior" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="posterior(trainingData:IndexedSeq[(scalismo.common.PointId,scalismo.geometry.Point[scalismo.geometry._3D],scalismo.statisticalmodel.NDimensionalNormalDistribution[scalismo.geometry._3D])]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
-      <a id="posterior(IndexedSeq[(PointId,Point[_3D],NDimensionalNormalDistribution[_3D])]):StatisticalMeshModel"></a>
+      <a id="posterior(trainingData:IndexedSeq[(scalismo.common.PointId,scalismo.geometry.Point[scalismo.geometry._3D],scalismo.statisticalmodel.MultivariateNormalDistribution)]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
+      <a id="posterior(IndexedSeq[(PointId,Point[_3D],MultivariateNormalDistribution)]):StatisticalMeshModel"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="NDimensionalNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.NDimensionalNormalDistribution">NDimensionalNormalDistribution</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
+        <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Similar to <span class="extype" name="DiscreteLowRankGaussianProcess.posterior(Int,">Point[_3D], Double)</span>], but the training data is defined by specifying the target point instead of the displacement vector
@@ -438,7 +438,7 @@ produce a new mesh.
         <span class="name">project</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../mesh/TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#project(s:scalismo.common.DiscreteVectorField[D,DO]):scalismo.common.DiscreteVectorField[D,DO]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#project">DiscreteLowRankGaussianProcess.project</a>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#project(s:scalismo.common.DiscreteField[D,Value]):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#project">DiscreteLowRankGaussianProcess.project</a>
 </p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#rank" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rank:Int"></a>
@@ -478,7 +478,7 @@ produce a new mesh.
         <span class="name">sample</span><span class="result">: <a href="../mesh/TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">draws a random shape.</p><div class="fullcomment"><div class="comment cmt"><p>draws a random shape.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#sample:scalismo.common.DiscreteVectorField[D,DO]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#sample">DiscreteLowRankGaussianProcess.sample</a>
+      <p class="shortcomment cmt">draws a random shape.</p><div class="fullcomment"><div class="comment cmt"><p>draws a random shape.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#sample:scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#sample">DiscreteLowRankGaussianProcess.sample</a>
 </p></span></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>

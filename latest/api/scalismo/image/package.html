@@ -115,16 +115,16 @@ A discrete image can be converted to a continuous image by using an interpolatio
       </h4>
       <p class="comment cmt">A scalar image that is once differentiable
 </p>
-    </li><li name="scalismo.image.DiscreteImage" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DiscreteImage[D&lt;:scalismo.geometry.Dim,Pixel]extendsDiscreteField[D,Pixel]"></a>
-      <a id="DiscreteImage[D&lt;:Dim,Pixel]:DiscreteImage[D,Pixel]"></a>
+    </li><li name="scalismo.image.DiscreteImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteField[D,A]"></a>
+      <a id="DiscreteImage[D&lt;:Dim,A]:DiscreteImage[D,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DiscreteImage.html"><span class="name">DiscreteImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Pixel">Pixel</span>]</span><span class="result"> extends <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
+        <a href="DiscreteImage.html"><span class="name">DiscreteImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.A">A</span>]</span>
       </span>
       </h4>
       <p class="comment cmt">Basic interface for a discrete image of arbitrary Pixel type
@@ -182,7 +182,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
       </h4>
       
     </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DiscreteScalarImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteScalarField[D,A]withDiscreteImage[D,A]"></a>
+      <a id="DiscreteScalarImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteImage[D,A]"></a>
       <a id="DiscreteScalarImage[D&lt;:Dim,A]:DiscreteScalarImage[D,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -190,7 +190,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DiscreteScalarImage.html"><span class="name">DiscreteScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>] with <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
+        <a href="DiscreteScalarImage.html"><span class="name">DiscreteScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
       </span>
       </h4>
       <p class="comment cmt">A scalar valued discrete image.</p>

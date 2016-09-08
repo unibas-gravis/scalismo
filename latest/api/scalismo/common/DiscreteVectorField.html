@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.common.DiscreteVectorField#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(domain:scalismo.common.DiscreteDomain[D],data:IndexedSeq[scalismo.geometry.Vector[DO]])(implicitevidence$9:scalismo.geometry.NDSpace[D],implicitevidence$10:scalismo.geometry.NDSpace[DO]):scalismo.common.DiscreteVectorField[D,DO]"></a>
+      <a id="&lt;init&gt;(domain:scalismo.common.DiscreteDomain[D],data:IndexedSeq[scalismo.geometry.Vector[DO]])(implicitevidence$12:scalismo.geometry.NDSpace[D],implicitevidence$13:scalismo.geometry.NDSpace[DO]):scalismo.common.DiscreteVectorField[D,DO]"></a>
       <a id="&lt;init&gt;:DiscreteVectorField[D,DO]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -191,7 +191,7 @@
         <span class="name">apply</span><span class="params">(<span name="ptId">ptId: <a href="PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.common.DiscreteVectorField.DO">DO</span>]</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a> → Function1</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a> → <a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → Function1</dd></dl></div>
     </li><li name="scala.PartialFunction#applyOrElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="applyOrElse[A1&lt;:A,B1&gt;:B](x:A1,default:A1=&gt;B1):B1"></a>
       <a id="applyOrElse[A1&lt;:PointId,B1&gt;:Vector[DO]](A1,(A1)⇒B1):B1"></a>
@@ -231,6 +231,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scalismo.common.DiscreteField#canEqual" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(other:Any):Boolean"></a>
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -266,19 +279,6 @@
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.common.DiscreteVectorField#domain" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="domain:scalismo.common.DiscreteDomain[D]"></a>
-      <a id="domain:DiscreteDomain[D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">domain</span><span class="result">: <a href="DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.common.DiscreteVectorField.D">D</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a> → <a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -292,8 +292,8 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
+    </li><li name="scalismo.common.DiscreteField#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(other:Any):Boolean"></a>
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -301,10 +301,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">equals</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -392,7 +392,7 @@
         <span class="name">isDefinedAt</span><span class="params">(<span name="ptId">ptId: <a href="PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a> → PartialFunction</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.common.DiscreteVectorField">DiscreteVectorField</a> → <a href="DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a> → PartialFunction</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>

@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>implicits - scalismo.common.ScalarArray.implicits</title>
-          <meta name="description" content="implicits - scalismo.common.ScalarArray.implicits" />
-          <meta name="keywords" content="implicits scalismo.common.ScalarArray.implicits" />
+          <title>Point3DVectorizer - scalismo.geometry.Point.Point3DVectorizer</title>
+          <meta name="description" content="Point3DVectorizer - scalismo.geometry.Point.Point3DVectorizer" />
+          <meta name="keywords" content="Point3DVectorizer scalismo.geometry.Point.Point3DVectorizer" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'scalismo.common.ScalarArray$$implicits$';
+            var hash = 'scalismo.geometry.Point$$Point3DVectorizer$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -25,23 +25,23 @@
         <body class="value">
       <div id="definition">
         <img src="../../lib/object_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.common">common</a>.<a href="ScalarArray$.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a></p>
-        <h1>implicits</h1>
+        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.geometry">geometry</a>.<a href="Point$.html" class="extype" name="scalismo.geometry.Point">Point</a></p>
+        <h1>Point3DVectorizer</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">implicit </span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">implicits</span>
+        <span class="name">Point3DVectorizer</span><span class="result"> extends <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.common.ScalarArray.implicits"><span>implicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.geometry.Point.Point3DVectorizer"><span>Point3DVectorizer</span></li><li class="in" name="scalismo.common.Vectorizer"><span>Vectorizer</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -182,6 +182,19 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scalismo.geometry.Point.Point3DVectorizer#dim" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="dim:Int"></a>
+      <a id="dim:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dim</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point.Point3DVectorizer">Point3DVectorizer</a> → <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -305,71 +318,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.common.ScalarArray.implicits#scalarArrayFromByteArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="scalarArrayFromByteArray(data:Array[Byte]):scalismo.common.ScalarArray[Byte]"></a>
-      <a id="scalarArrayFromByteArray(Array[Byte]):ScalarArray[Byte]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">scalarArrayFromByteArray</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]</span>)</span><span class="result">: <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scala.Byte">Byte</span>]</span>
-      </span>
-      </h4>
-      
-    </li><li name="scalismo.common.ScalarArray.implicits#scalarArrayFromDoubleArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="scalarArrayFromDoubleArray(data:Array[Double]):scalismo.common.ScalarArray[Double]"></a>
-      <a id="scalarArrayFromDoubleArray(Array[Double]):ScalarArray[Double]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">scalarArrayFromDoubleArray</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scala.Double">Double</span>]</span>
-      </span>
-      </h4>
-      
-    </li><li name="scalismo.common.ScalarArray.implicits#scalarArrayFromFloatArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="scalarArrayFromFloatArray(data:Array[Float]):scalismo.common.ScalarArray[Float]"></a>
-      <a id="scalarArrayFromFloatArray(Array[Float]):ScalarArray[Float]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">scalarArrayFromFloatArray</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Float">Float</span>]</span>)</span><span class="result">: <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scala.Float">Float</span>]</span>
-      </span>
-      </h4>
-      
-    </li><li name="scalismo.common.ScalarArray.implicits#scalarArrayFromIntArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="scalarArrayFromIntArray(data:Array[Int]):scalismo.common.ScalarArray[Int]"></a>
-      <a id="scalarArrayFromIntArray(Array[Int]):ScalarArray[Int]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">scalarArrayFromIntArray</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="result">: <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scala.Int">Int</span>]</span>
-      </span>
-      </h4>
-      
-    </li><li name="scalismo.common.ScalarArray.implicits#scalarArrayFromShortArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="scalarArrayFromShortArray(data:Array[Short]):scalismo.common.ScalarArray[Short]"></a>
-      <a id="scalarArrayFromShortArray(Array[Short]):ScalarArray[Short]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">scalarArrayFromShortArray</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Short">Short</span>]</span>)</span><span class="result">: <a href="ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scala.Short">Short</span>]</span>
-      </span>
-      </h4>
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -396,6 +344,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.geometry.Point.Point3DVectorizer#unvectorize" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unvectorize(d:breeze.linalg.DenseVector[Double]):scalismo.geometry.Point[scalismo.geometry._3D]"></a>
+      <a id="unvectorize(DenseVector[Double]):Point[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unvectorize</span><span class="params">(<span name="d">d: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point.Point3DVectorizer">Point3DVectorizer</a> → <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a></dd></dl></div>
+    </li><li name="scalismo.geometry.Point.Point3DVectorizer#vectorize" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="vectorize(pt:scalismo.geometry.Point[scalismo.geometry._3D]):breeze.linalg.DenseVector[Double]"></a>
+      <a id="vectorize(Point[_3D]):DenseVector[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">vectorize</span><span class="params">(<span name="pt">pt: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.geometry.Point.Point3DVectorizer">Point3DVectorizer</a> → <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -462,7 +436,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scalismo.common.Vectorizer">
+              <h3>Inherited from <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

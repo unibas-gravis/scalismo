@@ -80,7 +80,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="ConstantProperty.html"><span class="name">ConstantProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="scalismo.mesh.ConstantProperty.A">A</span></span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.ConstantProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="ConstantProperty.html"><span class="name">ConstantProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>, <span name="value">value: <span class="extype" name="scalismo.mesh.ConstantProperty.A">A</span></span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.ConstantProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">constant property value on complete surface</p>
@@ -145,7 +145,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="SurfacePointProperty.html"><span class="name">SurfacePointProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>, <span name="pointData">pointData: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ops">ops: <a href="Interpolator.html" class="extype" name="scalismo.mesh.Interpolator">Interpolator</a>[<span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span>]</span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="SurfacePointProperty.html"><span class="name">SurfacePointProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="triangulation">triangulation: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>, <span name="pointData">pointData: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="interpolator">interpolator: <a href="Interpolator.html" class="extype" name="scalismo.mesh.Interpolator">Interpolator</a>[<span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span>]</span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.SurfacePointProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">property per vertex, with interpolation</p>
@@ -300,6 +300,19 @@
       </span>
       </h4>
       <p class="comment cmt">Implements utility methods for evaluating similarity of <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> instances</p>
+    </li><li name="scalismo.mesh.ScalarMeshField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalarMeshField"></a>
+      <a id="ScalarMeshField:ScalarMeshField"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalarMeshField$.html"><span class="name">ScalarMeshField</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scalismo.mesh.SurfacePointProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SurfacePointProperty"></a>
       <a id="SurfacePointProperty:SurfacePointProperty"></a>

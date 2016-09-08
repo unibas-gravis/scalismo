@@ -85,15 +85,15 @@
       </h4>
       
     </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DiscreteFeatureField[D&lt;:scalismo.geometry.Dim]extendsDiscreteField[D,breeze.linalg.DenseVector[Double]]withProductwithSerializable"></a>
+      <a id="DiscreteFeatureField[D&lt;:scalismo.geometry.Dim]extendsDiscreteField[D,breeze.linalg.DenseVector[Double]]"></a>
       <a id="DiscreteFeatureField[D&lt;:Dim]:DiscreteFeatureField[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DiscreteFeatureField.html"><span class="name">DiscreteFeatureField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="domain">domain: <a href="../../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>, <span name="_values">_values: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>]</span>)</span><span class="result"> extends <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="DiscreteFeatureField.html"><span class="name">DiscreteFeatureField</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.statisticalmodel.asm.DiscreteFeatureField.D">D</span>, <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]]</span>
       </span>
       </h4>
       <p class="comment cmt">Class of Discrete Fields where to each point, a DenseVector of arbitrary dimensionality is associated.</p>
@@ -362,7 +362,7 @@ and returns a PreprocessedImage which will serve as input to a <a href="FeatureE
       </h4>
       
     </li><li name="scalismo.statisticalmodel.asm.Profiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ProfilesextendsProductwithSerializable"></a>
+      <a id="ProfilesextendsTraversable[scalismo.statisticalmodel.asm.Profile]withProductwithSerializable"></a>
       <a id="Profiles:Profiles"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -370,7 +370,7 @@ and returns a PreprocessedImage which will serve as input to a <a href="FeatureE
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Profiles.html"><span class="name">Profiles</span></a><span class="params">(<span name="data">data: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Profiles.html"><span class="name">Profiles</span></a><span class="params">(<span name="data">data: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Traversable">Traversable</span>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -404,6 +404,19 @@ and returns a PreprocessedImage which will serve as input to a <a href="FeatureE
       </span>
       <span class="symbol">
         <a href="ActiveShapeModel$.html"><span class="name">ActiveShapeModel</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scalismo.statisticalmodel.asm.DiscreteFeatureField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteFeatureField"></a>
+      <a id="DiscreteFeatureField:DiscreteFeatureField"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteFeatureField$.html"><span class="name">DiscreteFeatureField</span></a>
       </span>
       </h4>
       
