@@ -19,13 +19,13 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry.{ Point, _3D }
 
 import scala.collection.immutable.IndexedSeq
-import scala.util.Random
 
 class VantagePointTreeTests extends ScalismoTestSuite {
 
   // seeded random generator
-  implicit val rnd = new Random(1024L)
-  def randomPoint()(implicit rnd: Random): Point[_3D] = Point(rnd.nextDouble(), rnd.nextDouble(), rnd.nextDouble())
+  implicit val rnd = Random(42)
+
+  def randomPoint()(implicit rnd: Random): Point[_3D] = Point(rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble())
 
   // test size, VP size, lookup size
   val n = 50

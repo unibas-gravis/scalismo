@@ -26,6 +26,7 @@ import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.dataset.DataCollection
+import scalismo.utils.Random
 
 import scala.util.{ Failure, Success, Try }
 
@@ -57,7 +58,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    * draws a random shape.
    * @see [[DiscreteLowRankGaussianProcess.sample]]
    */
-  def sample = warpReference(gp.sample)
+  def sample()(implicit rand: Random) = warpReference(gp.sample())
 
   /**
    * returns the probability density for an instance of the model
@@ -235,7 +236,7 @@ object StatisticalMeshModel {
     )
     val newCov = modelGP.cov + biasModel.cov
     val newGP = GaussianProcess(newMean, newCov)
-    val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, 2 * numBasisFunctions, 42)
+    val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, 2 * numBasisFunctions)
     val newLowRankGP = LowRankGaussianProcess.approximateGP(newGP, sampler, numBasisFunctions)
     StatisticalMeshModel(model.referenceMesh, newLowRankGP)
   }

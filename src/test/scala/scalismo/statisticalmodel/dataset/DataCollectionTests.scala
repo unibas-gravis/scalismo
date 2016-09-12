@@ -25,10 +25,13 @@ import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
 import scalismo.mesh.MeshMetrics
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
 import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
+import scalismo.utils.Random
 
 class DataCollectionTests extends ScalismoTestSuite {
 
   describe("A datacollection") {
+
+    implicit val random = Random(42)
 
     val transformations = for (i <- 0 until 10) yield TranslationTransform(Vector(i.toDouble, 0.0, 0.0))
     val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)

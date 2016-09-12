@@ -20,14 +20,13 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.{ Dim, Point, Vector, _3D }
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
-
-import scala.util.Random
+import scalismo.utils.Random
 
 class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
-  implicit val rnd = Random
+  implicit val rnd = Random(42)
 
-  def rgen(offset: Double = 0.0, scale: Double = 1.0) = Random.nextDouble() * scale + offset
+  def rgen(offset: Double = 0.0, scale: Double = 1.0) = rnd.scalaRandom.nextDouble() * scale + offset
 
   def randomPoint(offset: Double = 0.0, scale: Double = 1.0)(implicit rnd: Random): Point[_3D] = {
     Point(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
@@ -200,7 +199,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
-      Random.setSeed(42)
+
       val points = (for (i <- 0 until 10000) yield randomPoint())
       val pd = UnstructuredPointsDomain(points)
 
@@ -221,7 +220,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles") {
-      Random.setSeed(42)
 
       val triangles = (0 until 100) map { j =>
         // test if two function lead to same cp

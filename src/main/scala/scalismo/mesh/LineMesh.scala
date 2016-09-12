@@ -19,8 +19,6 @@ package scalismo.mesh
 import scalismo.common.{ PointId, UnstructuredPointsDomain, Cell }
 import scalismo.geometry._
 
-import scala.util.Random
-
 /**
  * Represents a line segment defined by two points.
  */

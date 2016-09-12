@@ -22,9 +22,9 @@ import scalismo.geometry.{ Dim, Point, _3D }
 import scalismo.io.MeshIO
 import scalismo.mesh.{ MeshMetrics, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.registration.{ LandmarkRegistration, Transformation }
+import scalismo.utils.Random
 
 import scala.annotation.tailrec
-import scala.util.Random
 
 private[dataset] case class CrossvalidationFold(trainingData: DataCollection, testingData: DataCollection)
 
@@ -47,13 +47,13 @@ case class DataItem[D <: Dim](info: String, transformation: Transformation[D])
  * @param dataItems Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
  * other elements of the dataset.
  */
-case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[_3D]]) {
+case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[_3D]])(implicit random: Random) {
 
   val size: Int = dataItems.size
 
   private[dataset] def createCrossValidationFolds(nFolds: Int): Seq[CrossvalidationFold] = {
 
-    val shuffledDataItems = Random.shuffle(dataItems)
+    val shuffledDataItems = random.scalaRandom.shuffle(dataItems)
     val foldSize = shuffledDataItems.size / nFolds
     val dataGroups = shuffledDataItems.grouped(foldSize).toSeq
 

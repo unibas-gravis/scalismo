@@ -16,8 +16,7 @@
 package scalismo.sampling.proposals
 
 import scalismo.sampling.{ ProposalGenerator, TransitionProbability }
-
-import scala.util.Random
+import scalismo.utils.Random
 
 /**
  * Container for multiple ProposalGenerators stacked together, applied one after the other

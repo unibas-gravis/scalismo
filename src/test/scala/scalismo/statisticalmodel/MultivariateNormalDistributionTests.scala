@@ -18,8 +18,12 @@ package scalismo.statisticalmodel
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
+import scalismo.utils.Random
 
 class MultivariateNormalDistributionTests extends ScalismoTestSuite {
+
+  implicit val random = Random(42)
+
   describe("A 1D Multivariate normal") {
     it("should give the same pdf values as breeze Gaussian with the same parameters") {
       val mvn = new MultivariateNormalDistribution(DenseVector(2.0), DenseMatrix(3.0))

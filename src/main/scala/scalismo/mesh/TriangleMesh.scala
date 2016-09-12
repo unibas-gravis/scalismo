@@ -18,6 +18,7 @@ package scalismo.mesh
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.geometry.Vector._
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
 
@@ -175,14 +176,13 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
    *  @param t Triangle cell in which to draw a random point
    *  @param seed Seed value for the random generator
    */
-  def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
+  def samplePointInTriangleCell(t: TriangleCell)(implicit rnd: Random): Point[_3D] = {
     val A = pointSet.point(t.ptId1).toVector
     val B = pointSet.point(t.ptId2).toVector
     val C = pointSet.point(t.ptId3).toVector
 
-    val rand = new scala.util.Random(seed)
-    val u = rand.nextDouble()
-    val d = rand.nextDouble()
+    val u = rnd.scalaRandom.nextDouble()
+    val d = rnd.scalaRandom.nextDouble()
     val v = if (d + u <= 1.0) d else 1.0 - u
 
     val s = A * u + B * v + C * (1.0 - (u + v))
