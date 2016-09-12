@@ -19,7 +19,7 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Field, PointId, RealSpace, VectorField }
+import scalismo.common.{ Field, PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel }

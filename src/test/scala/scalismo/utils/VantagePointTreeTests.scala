@@ -19,7 +19,6 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry.{ Point, _3D }
 
 import scala.collection.immutable.IndexedSeq
-import scala.util.Random
 
 class VantagePointTreeTests extends ScalismoTestSuite {
 
