@@ -25,7 +25,7 @@ import scala.math.exp
  * Metropolis algorithm (MCMC), provides samples from the evaluator distribution by drawing from generator and stochastic accept/reject decisions
  * generator needs to be symmetric
  */
-class Metropolis[A] protected (val generator: ProposalGenerator[A] with SymmetricTransition[A],
+class Metropolis[A] protected (val generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
     val evaluator: DistributionEvaluator[A],
     val logger: AcceptRejectLogger[A])(implicit val random: Random) extends MarkovChain[A] {
   // next sample
@@ -50,12 +50,12 @@ class Metropolis[A] protected (val generator: ProposalGenerator[A] with Symmetri
 
 object Metropolis {
   /** create a Metropolis MCMC chain, needs a symmetric proposal distribution, with logger attached */
-  def apply[A](generator: ProposalGenerator[A] with SymmetricTransition[A],
+  def apply[A](generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
     evaluator: DistributionEvaluator[A],
     logger: AcceptRejectLogger[A])(implicit random: Random) = new Metropolis[A](generator, evaluator, logger)
 
   /** create a Metropolis MCMC chain without a logger */
-  def apply[A](generator: ProposalGenerator[A] with SymmetricTransition[A],
+  def apply[A](generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
     evaluator: DistributionEvaluator[A])(implicit random: Random) = new Metropolis[A](generator, evaluator, new SilentLogger[A]())
 }
 

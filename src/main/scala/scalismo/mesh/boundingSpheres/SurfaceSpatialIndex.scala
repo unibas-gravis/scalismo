@@ -30,7 +30,7 @@ trait SurfaceSpatialIndex[D <: Dim] {
    *
    * @return Squared distance.
    */
-  def getShortestDistance(pt: Point[D]): Double
+  def getSquaredShortestDistance(pt: Point[D]): Double
 
   /**
    * Query the closest point on a surface.
@@ -119,7 +119,7 @@ private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
   /**
    * Calculates the squared closest distance to the surface.
    */
-  override def getShortestDistance(point: Point[_3D]): Double = {
+  override def getSquaredShortestDistance(point: Point[_3D]): Double = {
     _getClosestPoint(point)
     res.distance2
   }
