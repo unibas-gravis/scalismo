@@ -227,7 +227,7 @@ object StatisticalMeshModel {
    */
 
   @deprecated("Please use the new method augmentModel(model,biasModel : LowRankGaussianProcess)", "20-04-2016")
-  def augmentModel(model: StatisticalMeshModel, biasModel: GaussianProcess[_3D, Vector[_3D]], numBasisFunctions: Int): StatisticalMeshModel = {
+  def augmentModel(model: StatisticalMeshModel, biasModel: GaussianProcess[_3D, Vector[_3D]], numBasisFunctions: Int)(implicit rand: Random): StatisticalMeshModel = {
 
     val modelGP = model.gp.interpolateNearestNeighbor
     // TODO: check if there is a better alternative (move method to Field?)

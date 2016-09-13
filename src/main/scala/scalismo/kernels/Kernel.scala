@@ -22,6 +22,7 @@ import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
 import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
+import scalismo.utils.Random
 
 abstract class PDKernel[D <: Dim] {
   self =>
@@ -254,13 +255,12 @@ object Kernel {
 
   def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
     numBasisFunctions: Int,
-    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]): KLBasis[D, Value] = {
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
 
-    val (ptsForNystrom, _) = sampler.sample.unzip
-
+    val (ptsForNystrom, _) = sampler.sample().unzip
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 

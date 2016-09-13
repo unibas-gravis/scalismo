@@ -182,7 +182,7 @@ object LowRankGaussianProcess {
    */
   def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
-    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
+    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, numBasisFunctions, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
