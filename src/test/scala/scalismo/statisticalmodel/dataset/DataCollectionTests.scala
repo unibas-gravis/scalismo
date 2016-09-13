@@ -18,11 +18,12 @@ package scalismo.statisticalmodel.dataset
 import java.io.File
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Field, VectorField }
+import scalismo.common.{ Vectorizer, Field, VectorField }
 import scalismo.geometry._
 import scalismo.io.MeshIO
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
+import scalismo.kernels.{ Kernel, DiagonalKernel, GaussianKernel }
 import scalismo.mesh.MeshMetrics
+import scalismo.numerics.UniformMeshSampler3D
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
 import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 import scalismo.utils.Random
@@ -112,10 +113,12 @@ class DataCollectionTests extends ScalismoTestSuite {
 
   describe("Generalization") {
 
+    implicit val random = Random(42)
+
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
     val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
-    val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)
+    val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)(random)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {
       val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get }
@@ -132,6 +135,7 @@ class DataCollectionTests extends ScalismoTestSuite {
       (0 until 10) foreach { i =>
         val genAugmented = ModelMetrics.generalization(augmentedModel, Fixture.testDC).get
         val genOriginal = ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get
+
         assert(genAugmented < genOriginal)
       }
     }
