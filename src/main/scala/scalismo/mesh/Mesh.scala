@@ -15,9 +15,10 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{ UnstructuredPointsDomain, PointId, RealSpace }
+import scalismo.common.{ PointId, RealSpace, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
+import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex
 
 /**
  * Defines utility functions on [[TriangleMesh]] instances
@@ -28,13 +29,12 @@ object Mesh {
    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
   def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableScalarImage[_3D] = {
+    val spIndex = SurfaceSpatialIndex.fromTriangleMesh3D(mesh)
 
-    def dist(pt: Point[_3D]): Float = {
-      val closestPt = mesh.pointSet.findClosestPoint(pt).point
-      Math.sqrt(Math.pow(closestPt(0) - pt(0), 2) + Math.pow(closestPt(1) - pt(1), 2) + Math.pow(closestPt(2) - pt(2), 2)).toFloat
-    }
+    def dist(pt: Point[_3D]): Float = Math.sqrt(spIndex.getSquaredShortestDistance(pt)).toFloat
+
     def grad(pt: Point[_3D]) = {
-      val closestPt = mesh.pointSet.findClosestPoint(pt).point
+      val closestPt = spIndex.getClosestPoint(pt)._1
       val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
