@@ -121,7 +121,7 @@ private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
    */
   override def getSquaredShortestDistance(point: Point[_3D]): Double = {
     _getClosestPoint(point)
-    res.distance2
+    res.get().distance2
   }
 
   /**
@@ -129,7 +129,7 @@ private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
    */
   override def getClosestPoint(point: Point[_3D]): (Point[_3D], Double) = {
     _getClosestPoint(point)
-    (res.pt.toPoint, res.distance2)
+    (res.get().pt.toPoint, res.get().distance2)
   }
 
   /**
@@ -140,19 +140,19 @@ private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
     _getClosestPoint(point)
 
     // handle found point type
-    val triangle = mesh.triangulation.triangle(TriangleId(lastIdx.idx))
-    res.ptType match {
+    val triangle = mesh.triangulation.triangle(TriangleId(lastIdx.get().idx))
+    res.get().ptType match {
 
-      case POINT => ClosestPointIsPoint(res.pt.toPoint, res.distance2, triangle.pointIds(res.idx._1).id)
+      case POINT => ClosestPointIsPoint(res.get().pt.toPoint, res.get().distance2, triangle.pointIds(res.get().idx._1).id)
 
-      case ON_LINE => res.idx match {
-        case (0, _) => ClosestPointOnLine(res.pt.toPoint, res.distance2, (triangle.pointIds(0).id, triangle.pointIds(1).id), res.bc.a)
-        case (1, _) => ClosestPointOnLine(res.pt.toPoint, res.distance2, (triangle.pointIds(1).id, triangle.pointIds(2).id), res.bc.a)
-        case (2, _) => ClosestPointOnLine(res.pt.toPoint, res.distance2, (triangle.pointIds(2).id, triangle.pointIds(0).id), res.bc.a)
+      case ON_LINE => res.get().idx match {
+        case (0, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (triangle.pointIds(0).id, triangle.pointIds(1).id), res.get().bc.a)
+        case (1, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (triangle.pointIds(1).id, triangle.pointIds(2).id), res.get().bc.a)
+        case (2, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (triangle.pointIds(2).id, triangle.pointIds(0).id), res.get().bc.a)
         case _ => throw (new RuntimeException("not a valid line index"))
       }
 
-      case IN_TRIANGLE => ClosestPointInTriangle(res.pt.toPoint, res.distance2, lastIdx.idx, (res.bc.a, res.bc.b))
+      case IN_TRIANGLE => ClosestPointInTriangle(res.get().pt.toPoint, res.get().distance2, lastIdx.get().idx, (res.get().bc.a, res.get().bc.b))
 
       case _ => throw (new RuntimeException("not a valid PointType"))
     }
@@ -166,16 +166,24 @@ private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
     val p = point.toVector
 
     // last triangle might be a good candidate
-    val result = BSDistance.toTriangle(point.toVector, triangles(lastIdx.idx))
-    updateCP(res, result)
+    val result = BSDistance.toTriangle(point.toVector, triangles(lastIdx.get().idx))
+    updateCP(res.get(), result)
 
     // search for true candidate
-    distanceToPartition(p, bs, res, lastIdx)
+    distanceToPartition(p, bs, res.get(), lastIdx.get())
   }
 
   /** @note both values contain a mutable state, this is needed to improve speed when having many queries with successive near points. */
-  private val lastIdx: Index = Index(0)
-  private val res = CP(Double.MaxValue, Vector(-1, -1, -1), POINT, BC(0, 0), (-1, -1))
+  private val lastIdx: ThreadLocal[Index] = new ThreadLocal[Index]() {
+    override protected def initialValue(): Index = {
+      return new Index(0);
+    }
+  }
+  private val res: ThreadLocal[CP] = new ThreadLocal[CP]() {
+    override protected def initialValue(): CP = {
+      return new CP(Double.MaxValue, Vector(-1, -1, -1), POINT, BC(0, 0), (-1, -1));
+    }
+  }
 
   /**
    * Search for the closest point recursively
