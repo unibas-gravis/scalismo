@@ -200,7 +200,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
 
-      val points = (for (i <- 0 until 10000) yield randomPoint())
+      val points = for (i <- 0 until 10000) yield randomPoint()
       val pd = UnstructuredPointsDomain(points)
 
       val md = DiscreteSpatialIndex.fromPointList(points)
@@ -251,6 +251,70 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
+    it("should return the same closest point on surface result when processing points in parallel") {
+
+      val triangles = (0 until 100) map { j =>
+        // test if two function lead to same cp
+        val a = randomVector()
+        val b = randomVector()
+        val c = randomVector()
+        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+      }
+
+      val sd = SurfaceSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
+        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
+        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
+      ))
+
+      val queries = (0 until 100000) map { i =>
+        randomVector()
+      }
+
+      val cpsSeq = queries.map(q => sd.getClosestPoint(q.toPoint))
+      val cpsPar = queries.par.map(q => sd.getClosestPoint(q.toPoint))
+
+      cpsSeq.zip(cpsPar) foreach { pair =>
+        val seq = pair._1
+        val par = pair._2
+        require(seq._1 == par._1)
+        require(seq._2 == par._2)
+      }
+
+    }
+
+    it("should return the same closest point result when processing points in parallel") {
+
+      val triangles = (0 until 100) map { j =>
+        // test if two function lead to same cp
+        val a = randomVector()
+        val b = randomVector()
+        val c = randomVector()
+        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+      }
+
+      val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
+
+      val sd = DiscreteSpatialIndex.fromMesh(TriangleMesh3D(
+        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
+        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
+      ))
+
+      val queries = (0 until 100000) map { i =>
+        randomVector()
+      }
+
+      val cpsSeq = queries.map(q => sd.closestPoint(q.toPoint))
+      val cpsPar = queries.par.map(q => sd.closestPoint(q.toPoint))
+
+      cpsSeq.zip(cpsPar) foreach { pair =>
+        val seq = pair._1
+        val par = pair._2
+        require(seq.point == par.point)
+        require(seq.idx == par.idx)
+        require(seq.distance2 == par.distance2)
+      }
+    }
+
   }
 
   describe("The BoundingSphere") {
@@ -263,7 +327,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
           val basePoint = e._1._1
           var bestIndex = (spIndex + 1) % sortedPoints.length
           var d = (basePoint - sortedPoints(bestIndex)._1).norm2
-          (0 until sortedPoints.length) foreach { j =>
+          sortedPoints.indices foreach { j =>
             val runningPoint = sortedPoints(j)._1
             val t = (basePoint - runningPoint).norm2
             if (t < d && j != spIndex) {

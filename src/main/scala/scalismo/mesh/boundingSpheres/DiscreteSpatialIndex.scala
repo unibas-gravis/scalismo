@@ -63,14 +63,18 @@ private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
    */
   def closestPoint(point: Point[_3D]): ClosestPointIsPoint = {
     val p = point.toVector
-    val lastP = pointList(lastIdx.idx)
+    val lastP = pointList(lastIdx.get().idx)
     val lastD = toPoint(lastP, p)
     val d: Distance2 = new Distance2(lastD.distance2)
-    distanceToPartition(p, bs, d, lastIdx)
-    ClosestPointIsPoint(pointList(lastIdx.idx).toPoint, d.distance2, lastIdx.idx)
+    distanceToPartition(p, bs, d, lastIdx.get())
+    ClosestPointIsPoint(pointList(lastIdx.get().idx).toPoint, d.distance2, lastIdx.get().idx)
   }
 
-  private val lastIdx: Index = Index(0)
+  private val lastIdx: ThreadLocal[Index] = new ThreadLocal[Index]() {
+    override protected def initialValue(): Index = {
+      return new Index(0);
+    }
+  }
   private val pointList = points.map(_.toVector).toIndexedSeq
 
   private def distanceToPartition(point: Vector[_3D],
