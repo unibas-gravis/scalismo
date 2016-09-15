@@ -16,6 +16,7 @@
 package scalismo.mesh
 
 import breeze.linalg.CSCMatrix
+import scalismo.common.PointId
 import scalismo.geometry.Dim
 
 import scala.collection.mutable
@@ -24,14 +25,14 @@ import scala.collection.Map
 /**
  * MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.
  */
-trait MeshBoundary {
+trait MeshBoundaryPredicates {
 
   /**
    * Check if the point with given index is on the boundary of the underlaying mesh.
    *
    * @return True if point is part of the boundary.
    */
-  def pointIsOnBoundary(id: Int): Boolean
+  def pointIsOnBoundary(id: PointId): Boolean
 
   /**
    * Check if the edge between the two points with given indices is on the boundary of the underlaying mesh.
@@ -40,21 +41,21 @@ trait MeshBoundary {
    *       edges not in the mesh.
    * @return True if the edge is part of the boundary.
    */
-  def edgeIsOnBoundary(id1: Int, id2: Int): Boolean
+  def edgeIsOnBoundary(id1: PointId, id2: PointId): Boolean
 
 }
 
 /**
  * The TriangularMeshBoundary can be queried if a triangle has one side in common with the mesh boundary.
  */
-trait TriangularMeshBoundary extends MeshBoundary {
+trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
 
   /**
    * Check if the triangle with given index is on the boundary of the underlaying mesh.
    *
    * @return True if the triangle has at least one border in common with the boundary.
    */
-  def triangleIsOnBoundary(id: Int): Boolean
+  def triangleIsOnBoundary(id: TriangleId): Boolean
 }
 
 /**
@@ -62,27 +63,27 @@ trait TriangularMeshBoundary extends MeshBoundary {
  *
  * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh.
  */
-private class BoundaryOfATriangleMesh(private var vertexIsOnBorder: IndexedSeq[Boolean],
-    private var edgeIsOnBorder: CSCMatrix[Boolean],
-    private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundary {
+private class BoundaryOfATriangleMeshPredicates(private var vertexIsOnBorder: IndexedSeq[Boolean],
+                                                private var edgeIsOnBorder: CSCMatrix[Boolean],
+                                                private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundaryPredicates {
 
-  override def pointIsOnBoundary(id: Int): Boolean = {
-    return vertexIsOnBorder(id)
+  override def pointIsOnBoundary(id: PointId): Boolean = {
+    return vertexIsOnBorder(id.id)
   }
 
-  override def edgeIsOnBoundary(id1: Int, id2: Int): Boolean = {
-    return edgeIsOnBorder(id1, id2);
+  override def edgeIsOnBoundary(id1: PointId, id2: PointId): Boolean = {
+    return edgeIsOnBorder(id1.id, id2.id);
   }
 
-  override def triangleIsOnBoundary(id: Int): Boolean = {
-    return triangleIsOnBorder(id)
+  override def triangleIsOnBoundary(id: TriangleId): Boolean = {
+    return triangleIsOnBorder(id.id)
   }
 }
 
 /**
  * Factory for mesh boundaries.
  */
-object MeshBoundaryFactory {
+object MeshBoundaryPredicates {
 
   /**
    * Build boundary index for triangle mesh.
@@ -90,7 +91,7 @@ object MeshBoundaryFactory {
    * @param mesh Incoming triangle mesh.
    * @return Boundary that can be queried for by index for points, edges, and triangles.
    */
-  def triangularMeshBoundary[D <: Dim](mesh: TriangleMesh[D]): TriangularMeshBoundary = {
+  def apply[D <: Dim](mesh: TriangleMesh[D]): TriangularMeshBoundaryPredicates = {
 
     val points = mesh.pointSet.points.toIndexedSeq
     val nPts = points.length
@@ -143,7 +144,7 @@ object MeshBoundaryFactory {
       }
     }
 
-    new BoundaryOfATriangleMesh(
+    new BoundaryOfATriangleMeshPredicates(
       pointOnBorder.toIndexedSeq,
       edgeOnBorder,
       triangleOnBorder.toIndexedSeq
