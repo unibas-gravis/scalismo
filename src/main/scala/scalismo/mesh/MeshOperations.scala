@@ -22,8 +22,10 @@ object MeshOperations {
 }
 
 class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
-  lazy val triangles = BoundingSpheres.triangleListFromTriangleMesh3D(mesh)
-  lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
+
+  private lazy val triangles = BoundingSpheres.triangleListFromTriangleMesh3D(mesh)
+  private lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
+
   lazy val intersect = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
   lazy val closestPointOnSurface = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
 }
