@@ -22,7 +22,7 @@ import scalismo.mesh.boundingSpheres.ClosestPointType._
 /**
  * Holds triangles and precalculated vectors.
  */
-private case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
+private[mesh] case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
 
 /**
  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
@@ -53,13 +53,13 @@ private object BSDistance {
   }
 
   // mutable classes
-  case class Index(var idx: Int)
-  case class Distance2(var distance2: Double)
-  case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
+  private[boundingSpheres] case class Index(var idx: Int)
+  private[boundingSpheres] case class Distance2(var distance2: Double)
+  private[boundingSpheres] case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
 
   // immutable classes
-  case class DistanceSqr(val distance2: Double)
-  case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
+  private[boundingSpheres] case class DistanceSqr(val distance2: Double)
+  private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
 
   /**
    * Finds closest point to triangle.

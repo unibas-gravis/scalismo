@@ -111,9 +111,9 @@ private case class ClosestPointMeta(val distance2: Double,
 /**
  * Surface distance implementation for TriangleMesh3D.
  */
-private case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
+private[mesh] case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
   mesh: TriangleMesh3D,
-  triangles: IndexedSeq[Triangle])
+  triangles: Seq[Triangle])
     extends SurfaceSpatialIndex[_3D] {
 
   /**

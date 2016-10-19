@@ -64,8 +64,8 @@ trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
  * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh.
  */
 private class BoundaryOfATriangleMeshPredicates(private var vertexIsOnBorder: IndexedSeq[Boolean],
-                                                private var edgeIsOnBorder: CSCMatrix[Boolean],
-                                                private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundaryPredicates {
+    private var edgeIsOnBorder: CSCMatrix[Boolean],
+    private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
     return vertexIsOnBorder(id.id)

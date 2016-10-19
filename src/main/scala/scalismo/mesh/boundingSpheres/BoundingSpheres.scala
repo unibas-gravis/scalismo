@@ -18,9 +18,12 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.max
 import breeze.numerics.{ abs, pow, sqrt }
 import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.mesh.TriangleMesh3D
+
 import scala.annotation.tailrec
 
 /**
+ * The idea is that we wrap all elementes in hierarchical spheres as we usually can handle queries to a sphere very easily.
  * The idea for the bounding spheres is taken from the following paper of D. Maier, J. Hesser, R. Männer:
  * Fast and Accurate Closest Point Search on Triangulated Surfaces and its Application to Head Motion Estimation
  */
@@ -29,10 +32,10 @@ import scala.annotation.tailrec
  * Bounding sphere node of the tree structure.
  *
  * @param center Center of bounding sphere.
- * @param r2 Squared radius of bounding sphere.
- * @param idx Index of entity used to form leave.
+ * @param r2     Squared radius of bounding sphere.
+ * @param idx    Index of entity used to form leave.
  */
-private abstract class BoundingSphere(val center: Vector[_3D],
+private[mesh]  abstract class BoundingSphere(val center: Vector[_3D],
     val r2: Double,
     val idx: Int,
     val left: BoundingSphere,
@@ -51,7 +54,31 @@ private abstract class BoundingSphere(val center: Vector[_3D],
 /**
  * Factory for the BoundingSphere search structure.
  */
-private object BoundingSpheres {
+private[mesh] object BoundingSpheres {
+
+  /**
+   * Creates a list of triangles with precalculated values.
+   */
+  def triangleListFromTriangleMesh3D(mesh: TriangleMesh3D): Seq[Triangle] = {
+
+    // build triangle list (use only Vector[_3D], no Points)
+    val triangles = mesh.triangulation.triangles.map { t =>
+
+      val a = mesh.pointSet.point(t.ptId1).toVector
+      val b = mesh.pointSet.point(t.ptId2).toVector
+      val c = mesh.pointSet.point(t.ptId3).toVector
+      val ab = b - a
+      val ac = c - a
+
+      new Triangle(
+        a, b, c,
+        ab, ac,
+        ab.crossproduct(ac)
+      )
+
+    }
+    triangles
+  }
 
   /**
    * Create search index from list of points.
