@@ -16,8 +16,8 @@
 package scalismo.mesh.boundingSpheres
 
 import scalismo.common.PointId
-import scalismo.geometry.{Point, _3D}
-import scalismo.mesh.{BarycentricCoordinates, TriangleId}
+import scalismo.geometry.{ Point, _3D }
+import scalismo.mesh.{ BarycentricCoordinates, TriangleId }
 
 class ClosestPoint(val point: Point[_3D],
     val distance2: Double) {

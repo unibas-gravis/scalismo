@@ -35,7 +35,7 @@ import scala.annotation.tailrec
  * @param r2     Squared radius of bounding sphere.
  * @param idx    Index of entity used to form leave.
  */
-private[mesh]  abstract class BoundingSphere(val center: Vector[_3D],
+private[mesh] abstract class BoundingSphere(val center: Vector[_3D],
     val r2: Double,
     val idx: Int,
     val left: BoundingSphere,

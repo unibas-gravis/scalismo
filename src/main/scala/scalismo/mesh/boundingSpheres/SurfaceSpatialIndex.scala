@@ -17,8 +17,8 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
 import scalismo.common.PointId
-import scalismo.geometry.{Dim, Point, Vector, _3D}
-import scalismo.mesh.{BarycentricCoordinates, TriangleId, TriangleMesh3D}
+import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 import scalismo.mesh.boundingSpheres.BSDistance._
 
 /**

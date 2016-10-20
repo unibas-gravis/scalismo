@@ -16,39 +16,37 @@
 package scalismo.mesh
 
 import scalismo.common.PointId
-import scalismo.geometry.{Point, Vector, _3D}
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.mesh.boundingSpheres._
-
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
 }
 
-
 class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
 
   /**
-    * Bounding spheres based mesh operations
-    */
+   * Bounding spheres based mesh operations
+   */
   private lazy val triangles = BoundingSpheres.triangleListFromTriangleMesh3D(mesh)
   private lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
 
   private lazy val intersect: TriangulatedSurfaceIntersectionIndex[_3D] = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
-  def hasIntersection(point: Point[_3D], direction: Vector[_3D]) = intersect.hasIntersection(point,direction)
-  def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point,direction)
+  def hasIntersection(point: Point[_3D], direction: Vector[_3D]) = intersect.hasIntersection(point, direction)
+  def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
   def getIntersectionPointsOnSurface(point: Point[_3D], direction: Vector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
 
   private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
   def shortestDistanceToSurface(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
-  def closestPointOnSurfaceWithSquaredDistance(point: Point[_3D]): (Point[_3D],Double) = closestPointOnSurface.getClosestPoint(point)
+  def closestPointOnSurfaceWithSquaredDistance(point: Point[_3D]): (Point[_3D], Double) = closestPointOnSurface.getClosestPoint(point)
   def closestPointOnSurface(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPointMeta(point)
 
   /**
-    * Boundary predicates
-    */
+   * Boundary predicates
+   */
   private lazy val boundary: TriangularMeshBoundaryPredicates = MeshBoundaryPredicates(mesh)
   def pointIsOnBoundary(pid: PointId): Boolean = boundary.pointIsOnBoundary(pid)
   def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
   def triangleIsOnBoundary(tid: TriangleId): Boolean = boundary.triangleIsOnBoundary(tid: TriangleId)
-  
+
 }
