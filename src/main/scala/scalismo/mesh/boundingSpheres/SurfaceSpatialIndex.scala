@@ -16,8 +16,9 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
-import scalismo.mesh.{ TriangleId, TriangleMesh3D }
+import scalismo.common.PointId
+import scalismo.geometry.{Dim, Point, Vector, _3D}
+import scalismo.mesh.{BarycentricCoordinates, TriangleId, TriangleMesh3D}
 import scalismo.mesh.boundingSpheres.BSDistance._
 
 /**
@@ -143,16 +144,16 @@ private[mesh] case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
     val triangle = mesh.triangulation.triangle(TriangleId(lastIdx.get().idx))
     res.get().ptType match {
 
-      case POINT => ClosestPointIsPoint(res.get().pt.toPoint, res.get().distance2, triangle.pointIds(res.get().idx._1).id)
+      case POINT => ClosestPointIsPoint(res.get().pt.toPoint, res.get().distance2, PointId(triangle.pointIds(res.get().idx._1).id))
 
       case ON_LINE => res.get().idx match {
-        case (0, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (triangle.pointIds(0).id, triangle.pointIds(1).id), res.get().bc.a)
-        case (1, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (triangle.pointIds(1).id, triangle.pointIds(2).id), res.get().bc.a)
-        case (2, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (triangle.pointIds(2).id, triangle.pointIds(0).id), res.get().bc.a)
+        case (0, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(0).id), PointId(triangle.pointIds(1).id)), res.get().bc.a)
+        case (1, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(1).id), PointId(triangle.pointIds(2).id)), res.get().bc.a)
+        case (2, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(2).id), PointId(triangle.pointIds(0).id)), res.get().bc.a)
         case _ => throw (new RuntimeException("not a valid line index"))
       }
 
-      case IN_TRIANGLE => ClosestPointInTriangle(res.get().pt.toPoint, res.get().distance2, lastIdx.get().idx, (res.get().bc.a, res.get().bc.b))
+      case IN_TRIANGLE => ClosestPointInTriangle(res.get().pt.toPoint, res.get().distance2, TriangleId(lastIdx.get().idx), BarycentricCoordinates(1.0 - res.get().bc.a - res.get().bc.b, res.get().bc.a, res.get().bc.b))
 
       case _ => throw (new RuntimeException("not a valid PointType"))
     }

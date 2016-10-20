@@ -15,17 +15,31 @@
  */
 package scalismo.mesh
 
-import scalismo.mesh.boundingSpheres.{ BoundingSpheres, LineTriangleMesh3DIntersectionIndex, TriangleMesh3DSpatialIndex }
+import scalismo.geometry.{Point, Vector, _3D}
+import scalismo.mesh.boundingSpheres._
+
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
 }
 
+
 class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
 
+  /**
+    * Bounding spheres based mesh operations
+    */
   private lazy val triangles = BoundingSpheres.triangleListFromTriangleMesh3D(mesh)
   private lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
 
-  lazy val intersect = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
-  lazy val closestPointOnSurface = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
+  private lazy val intersect: TriangulatedSurfaceIntersectionIndex[_3D] = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
+  def hasIntersection(point: Point[_3D], direction: Vector[_3D]) = intersect.hasIntersection(point,direction)
+  def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point,direction)
+  def getIntersectionPointsOnSurface(point: Point[_3D], direction: Vector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
+
+  private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
+  def shortestDistanceToSurface(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
+  def closestPointOnSurfaceWithSquaredDistance(point: Point[_3D]): (Point[_3D],Double) = closestPointOnSurface.getClosestPoint(point)
+  def closestPointOnSurface(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPointMeta(point)
+
 }

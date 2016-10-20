@@ -15,7 +15,9 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import scalismo.geometry.{ Point, _3D }
+import scalismo.common.PointId
+import scalismo.geometry.{Point, _3D}
+import scalismo.mesh.{BarycentricCoordinates, TriangleId}
 
 class ClosestPoint(val point: Point[_3D],
     val distance2: Double) {
@@ -28,14 +30,14 @@ class ClosestPoint(val point: Point[_3D],
 
 case class ClosestPointIsPoint(override val point: Point[_3D],
   override val distance2: Double,
-  idx: Int) extends ClosestPoint(point, distance2)
+  idx: PointId) extends ClosestPoint(point, distance2)
 
 case class ClosestPointOnLine(override val point: Point[_3D],
   override val distance2: Double,
-  idx: (Int, Int),
+  idx: (PointId, PointId),
   bc: Double) extends ClosestPoint(point, distance2)
 
 case class ClosestPointInTriangle(override val point: Point[_3D],
   override val distance2: Double,
-  idx: Int,
-  bc: (Double, Double)) extends ClosestPoint(point, distance2)
+  idx: TriangleId,
+  bc: BarycentricCoordinates) extends ClosestPoint(point, distance2)
