@@ -15,6 +15,7 @@
  */
 package scalismo.mesh
 
+import scalismo.common.PointId
 import scalismo.geometry.{Point, Vector, _3D}
 import scalismo.mesh.boundingSpheres._
 
@@ -42,4 +43,12 @@ class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
   def closestPointOnSurfaceWithSquaredDistance(point: Point[_3D]): (Point[_3D],Double) = closestPointOnSurface.getClosestPoint(point)
   def closestPointOnSurface(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPointMeta(point)
 
+  /**
+    * Boundary predicates
+    */
+  private lazy val boundary: TriangularMeshBoundaryPredicates = MeshBoundaryPredicates(mesh)
+  def pointIsOnBoundary(pid: PointId): Boolean = boundary.pointIsOnBoundary(pid)
+  def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
+  def triangleIsOnBoundary(tid: TriangleId): Boolean = boundary.triangleIsOnBoundary(tid: TriangleId)
+  
 }
