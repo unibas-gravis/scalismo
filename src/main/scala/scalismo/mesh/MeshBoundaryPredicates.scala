@@ -28,16 +28,16 @@ import scala.collection.Map
 trait MeshBoundaryPredicates {
 
   /**
-   * Check if the point with given index is on the boundary of the underlaying mesh.
+   * Check if the point with given index is on the boundary of the underlying mesh.
    *
    * @return True if point is part of the boundary.
    */
   def pointIsOnBoundary(id: PointId): Boolean
 
   /**
-   * Check if the edge between the two points with given indices is on the boundary of the underlaying mesh.
+   * Check if the edge between the two points with given indices is on the boundary of the underlying mesh.
    *
-   * @note This method does not check weather there exists a nedge between the two points. You will get false for all
+   * @note This method does not check weather there exists an edge between the two points. You will get false for all
    *       edges not in the mesh.
    * @return True if the edge is part of the boundary.
    */
@@ -51,7 +51,7 @@ trait MeshBoundaryPredicates {
 trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
 
   /**
-   * Check if the triangle with given index is on the boundary of the underlaying mesh.
+   * Check if the triangle with given index is on the boundary of the underlying mesh.
    *
    * @return True if the triangle has at least one border in common with the boundary.
    */
@@ -63,20 +63,21 @@ trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
  *
  * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh.
  */
-private class BoundaryOfATriangleMeshPredicates(private var vertexIsOnBorder: IndexedSeq[Boolean],
+private class BoundaryOfATriangleMeshPredicates(
+    private var vertexIsOnBorder: IndexedSeq[Boolean],
     private var edgeIsOnBorder: CSCMatrix[Boolean],
     private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
-    return vertexIsOnBorder(id.id)
+    vertexIsOnBorder(id.id)
   }
 
   override def edgeIsOnBoundary(id1: PointId, id2: PointId): Boolean = {
-    return edgeIsOnBorder(id1.id, id2.id);
+    edgeIsOnBorder(id1.id, id2.id)
   }
 
   override def triangleIsOnBoundary(id: TriangleId): Boolean = {
-    return triangleIsOnBorder(id.id)
+    triangleIsOnBorder(id.id)
   }
 }
 
@@ -104,8 +105,8 @@ object MeshBoundaryPredicates {
     val triangleOnBorder = new Array[Boolean](nTriangles)
 
     val edgeOnBorderBuilder = new CSCMatrix.Builder[Boolean](nPts, nPts)
-    triangles.map { triangle =>
-      edgesOfATriangle.map { edge =>
+    triangles.foreach { triangle =>
+      edgesOfATriangle.foreach { edge =>
         val v1 = triangle.pointIds(edge._1).id
         val v2 = triangle.pointIds(edge._2).id
         edgeOnBorderBuilder.add(v1, v2, false)
@@ -116,8 +117,8 @@ object MeshBoundaryPredicates {
 
     // edges from only a single triangle lie on the border,
     // edges contained in two triangles are not on a border
-    triangles.map { triangle =>
-      edgesOfATriangle.map { edge =>
+    triangles.foreach { triangle =>
+      edgesOfATriangle.foreach { edge =>
         val v1 = triangle.pointIds(edge._1).id
         val v2 = triangle.pointIds(edge._2).id
         edgeOnBorderTmp(v1, v2) = !edgeOnBorderTmp(v1, v2)
@@ -130,10 +131,10 @@ object MeshBoundaryPredicates {
 
     // points at one end of a border edge are also on the border,
     // triangles with one side on the border are also on the border
-    triangles.zipWithIndex.map { t =>
+    triangles.zipWithIndex.foreach { t =>
       val triangle = t._1
       val tIdx = t._2
-      edgesOfATriangle.map { edge =>
+      edgesOfATriangle.foreach { edge =>
         val v1 = triangle.pointIds(edge._1).id
         val v2 = triangle.pointIds(edge._2).id
         if (edgeOnBorder(v1, v2)) {

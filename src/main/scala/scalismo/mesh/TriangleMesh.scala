@@ -85,7 +85,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
   val triangles = triangulation.triangles
   val cells = triangles
 
-  lazy val operations = MeshOperations(this)
+  lazy val operations: TriangleMesh3DOperations = MeshOperations(this)
 
   lazy val boundingBox = pointSet.boundingBox
 

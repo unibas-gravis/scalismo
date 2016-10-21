@@ -32,7 +32,7 @@ class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
   private lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
 
   private lazy val intersect: TriangulatedSurfaceIntersectionIndex[_3D] = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
-  def hasIntersection(point: Point[_3D], direction: Vector[_3D]) = intersect.hasIntersection(point, direction)
+  def hasIntersection(point: Point[_3D], direction: Vector[_3D]): Boolean = intersect.hasIntersection(point, direction)
   def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
   def getIntersectionPointsOnSurface(point: Point[_3D], direction: Vector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
 
