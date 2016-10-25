@@ -58,8 +58,8 @@ private object BSDistance {
   private[boundingSpheres] case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
 
   // immutable classes
-  private[boundingSpheres] case class DistanceSqr(val distance2: Double)
-  private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
+  private[boundingSpheres] case class DistanceSqr(distance2: Double)
+  private[boundingSpheres] case class DistanceSqrAndPoint(distance2: Double, pt: Vector[_3D])
 
   /**
    * Finds closest point to triangle.
@@ -207,7 +207,7 @@ private object BSDistance {
 
     val D = t1.crossproduct(t2)
 
-    return D.norm2 / t1.norm2
+    D.norm2 / t1.norm2
   }
 
   @inline

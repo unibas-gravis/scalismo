@@ -76,8 +76,8 @@ object MeshMetrics {
    * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
    */
   def diceCoefficient(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D])(implicit rand: Random): Double = {
-    val imgA = Mesh.meshToBinaryImage(m1)
-    val imgB = Mesh.meshToBinaryImage(m2)
+    val imgA = m1.operations.toBinaryImage
+    val imgB = m2.operations.toBinaryImage
 
     def minPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.min(pt1(0), pt2(0)), math.min(pt1(1), pt2(1)), math.min(pt1(2), pt2(2)))
     def maxPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.max(pt1(0), pt2(0)), math.max(pt1(1), pt2(1)), math.max(pt1(2), pt2(2)))

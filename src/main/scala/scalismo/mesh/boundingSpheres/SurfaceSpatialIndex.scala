@@ -49,9 +49,34 @@ trait SurfaceSpatialIndex[D <: Dim] {
 }
 
 /**
- * Surface distance factory object.
+ * Type of the closest point. At the moment the names are only suited for a triangular mesh.
  */
-object SurfaceSpatialIndex {
+private object ClosestPointType extends Enumeration {
+  type ClosestPointType = Value
+  val POINT, ON_LINE, IN_TRIANGLE = Value
+}
+
+import ClosestPointType._
+
+/**
+ * Descritpion of a closest point
+ *
+ * @param distance2 the squared distance
+ * @param pt        the coordinates
+ * @param ptType    on which geometric entity of the surface the closest point lies
+ * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
+ * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
+ */
+private case class ClosestPointMeta(distance2: Double,
+  pt: Vector[_3D],
+  ptType: ClosestPointType,
+  bc: (Double, Double),
+  idx: (Int, Int))
+
+/**
+ * Companion object for the surface distance implementation for TriangleMesh3D.
+ */
+object TriangleMesh3DSpatialIndex {
 
   /**
    * Creates SurfaceDistance for a TriangleMesh3D.
@@ -85,36 +110,11 @@ object SurfaceSpatialIndex {
 }
 
 /**
- * Type of the closest point. At the moment the names are only suited for a triangular mesh.
- */
-private object ClosestPointType extends Enumeration {
-  type ClosestPointType = Value
-  val POINT, ON_LINE, IN_TRIANGLE = Value
-}
-
-import ClosestPointType._
-
-/**
- * Descritpion of a closest point
- *
- * @param distance2 the squared distance
- * @param pt        the coordinates
- * @param ptType    on which geometric entity of the surface the closest point lies
- * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
- * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
- */
-private case class ClosestPointMeta(val distance2: Double,
-  pt: Vector[_3D],
-  ptType: ClosestPointType,
-  bc: (Double, Double),
-  idx: (Int, Int))
-
-/**
  * Surface distance implementation for TriangleMesh3D.
  */
-private[mesh] case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
-  mesh: TriangleMesh3D,
-  triangles: Seq[Triangle])
+private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
+  private val mesh: TriangleMesh3D,
+  private val triangles: Seq[Triangle])
     extends SurfaceSpatialIndex[_3D] {
 
   /**
@@ -150,12 +150,12 @@ private[mesh] case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
         case (0, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(0).id), PointId(triangle.pointIds(1).id)), res.get().bc.a)
         case (1, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(1).id), PointId(triangle.pointIds(2).id)), res.get().bc.a)
         case (2, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(2).id), PointId(triangle.pointIds(0).id)), res.get().bc.a)
-        case _ => throw (new RuntimeException("not a valid line index"))
+        case _ => throw new RuntimeException("not a valid line index")
       }
 
       case IN_TRIANGLE => ClosestPointInTriangle(res.get().pt.toPoint, res.get().distance2, TriangleId(lastIdx.get().idx), BarycentricCoordinates(1.0 - res.get().bc.a - res.get().bc.b, res.get().bc.a, res.get().bc.b))
 
-      case _ => throw (new RuntimeException("not a valid PointType"))
+      case _ => throw new RuntimeException("not a valid PointType")
     }
 
   }
@@ -177,12 +177,12 @@ private[mesh] case class TriangleMesh3DSpatialIndex(bs: BoundingSphere,
   /** @note both values contain a mutable state, this is needed to improve speed when having many queries with successive near points. */
   private val lastIdx: ThreadLocal[Index] = new ThreadLocal[Index]() {
     override protected def initialValue(): Index = {
-      return new Index(0);
+      new Index(0)
     }
   }
   private val res: ThreadLocal[CP] = new ThreadLocal[CP]() {
     override protected def initialValue(): CP = {
-      return new CP(Double.MaxValue, Vector(-1, -1, -1), POINT, BC(0, 0), (-1, -1));
+      new CP(Double.MaxValue, Vector(-1, -1, -1), POINT, BC(0, 0), (-1, -1))
     }
   }
 

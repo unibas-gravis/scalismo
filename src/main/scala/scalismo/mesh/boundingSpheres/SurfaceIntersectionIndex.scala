@@ -18,6 +18,12 @@ package scalismo.mesh.boundingSpheres
 import scalismo.geometry.{ Dim, Point, Vector, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 
+/**
+ * The SurfaceIntersectionIndex supports queries about the intersection of a line
+ * with a surface. The surface is used to build up he index. For
+ * lines in (point,direction) format one can ask if there exists any and also for
+ * the complete list of intersection points.
+ */
 trait SurfaceIntersectionIndex[D <: Dim] {
 
   def hasIntersection(point: Point[D], direction: Vector[D]): Boolean
@@ -26,12 +32,20 @@ trait SurfaceIntersectionIndex[D <: Dim] {
 
 }
 
+/**
+ * The TriangulatedSurfaceIntersectionIndex is a specialization of the SurfaceIntersectionIndex
+ * for TriangleMeshs. The additional query return the intersection points in the
+ * (TriangleId,BarycentricCoordinates) format.
+ */
 trait TriangulatedSurfaceIntersectionIndex[D <: Dim] extends SurfaceIntersectionIndex[D] {
 
   def getSurfaceIntersectionPoints(point: Point[D], direction: Vector[D]): Seq[(TriangleId, BarycentricCoordinates)]
 }
 
-object LineSurfaceIntersectionIndexBuilder {
+/**
+ * LineTriangleMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D.
+ */
+object LineTriangleMesh3DIntersectionIndex {
 
   /**
    * Creates SurfaceDistance for a TriangleMesh3D.
@@ -65,12 +79,15 @@ object LineSurfaceIntersectionIndexBuilder {
 
 }
 
-private[mesh] case class LineTriangleMesh3DIntersectionIndex(private val boundingSphere: BoundingSphere,
+/**
+ * LineTriangleMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D.
+ */
+private[mesh] class LineTriangleMesh3DIntersectionIndex(private val boundingSphere: BoundingSphere,
     private val mesh: TriangleMesh3D,
     private val triangles: Seq[Triangle]) extends TriangulatedSurfaceIntersectionIndex[_3D] {
 
   override def hasIntersection(point: Point[_3D], direction: Vector[_3D]): Boolean = {
-    intersectWithLine(point.toVector, direction, boundingSphere).size > 0
+    intersectWithLine(point.toVector, direction, boundingSphere).nonEmpty
   }
 
   override def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = {

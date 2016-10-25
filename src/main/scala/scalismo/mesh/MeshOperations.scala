@@ -15,15 +15,21 @@
  */
 package scalismo.mesh
 
-import scalismo.common.PointId
+import scalismo.common.{ PointId, RealSpace }
 import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh.boundingSpheres._
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
 }
 
-class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
+class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
+
+  /**
+   * Calculated data from mesh
+   */
+  private lazy val meshPoints = mesh.pointSet.points.toIndexedSeq
 
   /**
    * Bounding spheres based mesh operations
@@ -49,4 +55,112 @@ class TriangleMesh3DOperations(mesh: TriangleMesh3D) {
   def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
   def triangleIsOnBoundary(tid: TriangleId): Boolean = boundary.triangleIsOnBoundary(tid: TriangleId)
 
+  /**
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
+   * All cells containing deleted points are also deleted.
+   * @todo use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
+   */
+  def clip(clipPointPredicate: Point[_3D] => Boolean): TriangleMesh[_3D] = {
+    // predicate tested at the beginning, once.
+    val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
+
+    val remainingPointTriplet = mesh.cells.par.map {
+      cell =>
+        val points = cell.pointIds.map(pointId => meshPoints(pointId.id))
+        (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
+    }.filter(_._2).map(_._1)
+
+    val points = remainingPointTriplet.flatten.distinct
+    val pt2Id = points.zipWithIndex.toMap
+    val cells = remainingPointTriplet.map { case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2)))) }
+
+    TriangleMesh3D(points.toIndexedSeq, TriangleList(cells.toIndexedSeq))
+  }
+
+  /**
+   * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
+   */
+  def toDistanceImage: DifferentiableScalarImage[_3D] = {
+    def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurface(pt)).toFloat
+
+    def grad(pt: Point[_3D]) = {
+      val closestPt = closestPointOnSurfaceWithSquaredDistance(pt)._1
+      val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
+      grad * (1.0 / grad.norm)
+    }
+
+    DifferentiableScalarImage(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
+  }
+
+  /**
+   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[RealSpace]] , where the mesh surface is used to split the image domain.
+   * Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
+   * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
+   *
+   */
+  def toBinaryImage: ScalarImage[_3D] = {
+    def inside(pt: Point[_3D]): Short = {
+      val closestMeshPt = mesh.pointSet.findClosestPoint(pt)
+      val dotprod = mesh.vertexNormals(closestMeshPt.id) dot (closestMeshPt.point - pt)
+      if (dotprod > 0.0) 1 else 0
+    }
+
+    ScalarImage(RealSpace[_3D], (pt: Point[_3D]) => inside(pt))
+  }
+
+  /**
+   * mask points behind clipping plane
+   *
+   * @param point  point in clipping plane
+   * @param normal normal vector of clipping plane
+   */
+  def maskWithPlane(point: Point[_3D], normal: Vector[_3D]): MeshCompactifier = {
+    val n = normal.normalize
+    maskPoints(
+      (pid: PointId) => (mesh.pointSet.point(pid) - point).dot(n) >= 0.0
+    )
+  }
+
+  /**
+   * Mask reduces the pointSet and triangulation of a mesh to keep only those parts
+   * that evaluate to true for the passed in predicate.
+   * @param pointFilter predicate that maps 3d locations to boolean ('true' = keep location).
+   */
+  def maskSpatially(pointFilter: (Point[_3D]) => Boolean): MeshCompactifier = {
+    mask((pid: PointId) => pointFilter(mesh.pointSet.point(pid)), _ => true)
+  }
+
+  /**
+   * Mask reduces the pointSet and triangulation of a mesh to keep only those parts
+   * that evaluate to true for the passed in predicate.
+   * @param pointFilter Predicate that maps PointId to boolean ('true' = keep location).
+   */
+  def maskPoints(pointFilter: (PointId) => Boolean): MeshCompactifier = {
+    mask(pointFilter, _ => true)
+  }
+
+  /**
+   * Mask a mesh to a subset of the triangles.
+   * @param triangleFilter Predicate that maps TriangleId to boolean ('true' = keep triangle).
+   */
+  def maskTriangles(triangleFilter: (TriangleId) => Boolean): MeshCompactifier = {
+    mask(_ => true, triangleFilter)
+  }
+
+  /**
+   * Mask a mesh to a subset of points and triangles.
+   * @param pointFilter Predicate that maps PointId to boolean ('true' = keep location).
+   * @param triangleFilter Predicate that maps TriangleId to boolean ('true' = keep triangle).
+   */
+  def mask(pointFilter: (PointId) => Boolean, triangleFilter: (TriangleId) => Boolean): MeshCompactifier = {
+    MeshCompactifier(mesh, pointFilter, triangleFilter)
+  }
+
+  /**
+   * Reduces the triangle and points so that only used and valid locations and triangles remain.
+   */
+  def compact: MeshCompactifier = {
+    mask(_ => true, _ => true)
+  }
 }
+
