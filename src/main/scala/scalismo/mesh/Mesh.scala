@@ -35,7 +35,7 @@ object Mesh {
     def dist(pt: Point[_3D]): Float = Math.sqrt(spIndex.getSquaredShortestDistance(pt)).toFloat
 
     def grad(pt: Point[_3D]) = {
-      val closestPt = spIndex.getClosestPoint(pt)._1
+      val closestPt = spIndex.getClosestPoint(pt).point
       val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }

@@ -43,8 +43,8 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   def getIntersectionPointsOnSurface(point: Point[_3D], direction: Vector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
 
   private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
-  def shortestDistanceToSurface(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
-  def closestPointOnSurfaceWithSquaredDistance(point: Point[_3D]): (Point[_3D], Double) = closestPointOnSurface.getClosestPoint(point)
+  def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
+  def closestPoint(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPoint(point)
   def closestPointOnSurface(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPointMeta(point)
 
   /**
@@ -81,10 +81,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
   def toDistanceImage: DifferentiableScalarImage[_3D] = {
-    def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurface(pt)).toFloat
+    def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurfaceSquared(pt)).toFloat
 
     def grad(pt: Point[_3D]) = {
-      val closestPt = closestPointOnSurfaceWithSquaredDistance(pt)._1
+      val closestPt = closestPoint(pt).point
       val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }

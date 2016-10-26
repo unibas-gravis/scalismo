@@ -38,7 +38,7 @@ trait SurfaceSpatialIndex[D <: Dim] {
    *
    * @return The closest point and the squared distance.
    */
-  def getClosestPoint(pt: Point[D]): (Point[D], Double)
+  def getClosestPoint(pt: Point[D]): ClosestPoint
 
   /**
    * Query the closest point on a surface.
@@ -128,9 +128,9 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   /**
    * Calculates the point and the squared closest distance to the surface.
    */
-  override def getClosestPoint(point: Point[_3D]): (Point[_3D], Double) = {
+  override def getClosestPoint(point: Point[_3D]): ClosestPoint = {
     _getClosestPoint(point)
-    (res.get().pt.toPoint, res.get().distance2)
+    new ClosestPoint(res.get().pt.toPoint, res.get().distance2)
   }
 
   /**
@@ -144,7 +144,7 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
     val triangle = mesh.triangulation.triangle(TriangleId(lastIdx.get().idx))
     res.get().ptType match {
 
-      case POINT => ClosestPointIsPoint(res.get().pt.toPoint, res.get().distance2, PointId(triangle.pointIds(res.get().idx._1).id))
+      case POINT => ClosestPointIsVertex(res.get().pt.toPoint, res.get().distance2, PointId(triangle.pointIds(res.get().idx._1).id))
 
       case ON_LINE => res.get().idx match {
         case (0, _) => ClosestPointOnLine(res.get().pt.toPoint, res.get().distance2, (PointId(triangle.pointIds(0).id), PointId(triangle.pointIds(1).id)), res.get().bc.a)

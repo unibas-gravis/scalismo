@@ -20,24 +20,24 @@ import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId }
 
 class ClosestPoint(val point: Point[_3D],
-    val distance2: Double) {
+    val distanceSquared: Double) {
   def <(that: ClosestPoint) = {
-    this.distance2 < that.distance2
+    this.distanceSquared < that.distanceSquared
   }
 
   def toPoint() = point
 }
 
-case class ClosestPointIsPoint(override val point: Point[_3D],
-  override val distance2: Double,
-  idx: PointId) extends ClosestPoint(point, distance2)
+case class ClosestPointIsVertex(override val point: Point[_3D],
+  override val distanceSquared: Double,
+  idx: PointId) extends ClosestPoint(point, distanceSquared)
 
 case class ClosestPointOnLine(override val point: Point[_3D],
-  override val distance2: Double,
+  override val distanceSquared: Double,
   idx: (PointId, PointId),
-  bc: Double) extends ClosestPoint(point, distance2)
+  bc: Double) extends ClosestPoint(point, distanceSquared)
 
 case class ClosestPointInTriangle(override val point: Point[_3D],
-  override val distance2: Double,
+  override val distanceSquared: Double,
   idx: TriangleId,
-  bc: BarycentricCoordinates) extends ClosestPoint(point, distance2)
+  bc: BarycentricCoordinates) extends ClosestPoint(point, distanceSquared)
