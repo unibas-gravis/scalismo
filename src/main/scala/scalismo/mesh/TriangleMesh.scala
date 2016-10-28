@@ -85,6 +85,8 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
   val triangles = triangulation.triangles
   val cells = triangles
 
+  lazy val operations: TriangleMesh3DOperations = MeshOperations(this)
+
   lazy val boundingBox = pointSet.boundingBox
 
   /** Get all cell normals as a surface property */
@@ -174,7 +176,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
    *  A uniform distribution is used for sampling points.
    *
    *  @param t Triangle cell in which to draw a random point
-   *  @param seed Seed value for the random generator
+   *  @param rnd implicit Random object
    */
   def samplePointInTriangleCell(t: TriangleCell)(implicit rnd: Random): Point[_3D] = {
     val A = pointSet.point(t.ptId1).toVector
