@@ -18,6 +18,7 @@ package scalismo.mesh
 
 import scalismo.common.{ PointId, UnstructuredPointsDomain, Cell }
 import scalismo.geometry._
+import scala.language.implicitConversions
 
 /**
  * Represents a line segment defined by two points.

@@ -18,6 +18,7 @@ package scalismo.mesh
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.geometry.Point
+import scala.language.implicitConversions
 
 class MeshBoundaryTests extends ScalismoTestSuite {
 

@@ -53,13 +53,13 @@ private object BSDistance {
   }
 
   // mutable classes
-  case class Index(var idx: Int)
-  case class Distance2(var distance2: Double)
-  case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
+  private[boundingSpheres] case class Index(var idx: Int)
+  private[boundingSpheres] case class Distance2(var distance2: Double)
+  private[boundingSpheres] case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
 
   // immutable classes
-  case class DistanceSqr(val distance2: Double)
-  case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
+  private[boundingSpheres] case class DistanceSqr(val distance2: Double)
+  private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
 
   /**
    * Finds closest point to triangle.

@@ -25,7 +25,7 @@ import scalismo.kernels.{ Kernel, DiagonalKernel, GaussianKernel }
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.UniformMeshSampler3D
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
+import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess, StatisticalMeshModel }
 import scalismo.utils.Random
 
 class DataCollectionTests extends ScalismoTestSuite {
@@ -118,7 +118,8 @@ class DataCollectionTests extends ScalismoTestSuite {
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
     val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
-    val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, bias, Fixture.pcaModel.rank + 5)(random)
+    val biasLowRank = LowRankGaussianProcess.approximateGP(bias, UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500), Fixture.pcaModel.rank + 5)
+    val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, biasLowRank)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {
       val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get }
