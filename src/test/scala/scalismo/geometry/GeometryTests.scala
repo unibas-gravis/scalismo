@@ -17,11 +17,13 @@ package scalismo.geometry
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
-import scala.util.Random
 
 class GeometryTests extends ScalismoTestSuite {
+
+  implicit val random = Random(42)
 
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p
@@ -29,7 +31,7 @@ class GeometryTests extends ScalismoTestSuite {
   val vGeneric: Vector[_3D] = v
 
   def checkPoint[D <: Dim: NDSpace]() = {
-    def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextDouble()))
+    def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val pt = randomPoint()
 
     describe(s"A random nD Point $pt (n=${NDSpace[D].dimensionality})") {
@@ -84,7 +86,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkPoint[_3D]()
 
   def checkVector[D <: Dim: NDSpace]() = {
-    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextDouble()))
+    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val v = randomVector()
 
     describe(s"A random nD Vector $v (n=${NDSpace[D].dimensionality})") {
@@ -140,7 +142,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("inner product probably (1 example) fulfills dot(a*v,w) == a*dot(v,w)") {
-        val a = scala.util.Random.nextDouble()
+        val a = random.scalaRandom.nextDouble()
         val w = randomVector()
         (v * a).dot(w) - a * v.dot(w) should be < 1.0e-4
       }
@@ -174,7 +176,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("has norm which probably (1 example) fulfills (a*v).norm == |a|*v.norm(v)") {
-        val a = scala.util.Random.nextDouble()
+        val a = random.scalaRandom.nextDouble()
         (v * a).norm - math.abs(a) * v.norm should be <= 1e-6
       }
 
@@ -182,7 +184,7 @@ class GeometryTests extends ScalismoTestSuite {
         v.norm2 should be(v.dot(v))
       }
 
-      val f = math.max(1e-10, scala.util.Random.nextDouble())
+      val f = math.max(1e-10, random.scalaRandom.nextDouble())
       it(s"fulfills norm((v*f)/f - v) ~ 0 (f=$f)") {
         ((v * f) / f - v).norm should be(0.0 +- 1e-4)
       }
@@ -195,7 +197,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkVector[_3D]()
 
   def checkIndex[D <: Dim: NDSpace]() = {
-    def randomIndex(): IntVector[D] = IntVector[D](Array.fill(NDSpace[D].dimensionality)(scala.util.Random.nextInt()))
+    def randomIndex(): IntVector[D] = IntVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextInt()))
     val ind = randomIndex()
 
     describe(s"A random nD Index $ind (n=${NDSpace[D].dimensionality})") {

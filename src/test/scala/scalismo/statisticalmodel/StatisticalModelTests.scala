@@ -22,9 +22,12 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.StatismoIO
 import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
 class StatisticalModelTests extends ScalismoTestSuite {
+
+  implicit val random = Random(42)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 
@@ -34,7 +37,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       for (i <- 0 until 10) {
         val coeffsData = (0 until oldModel.rank).map { _ =>
-          breeze.stats.distributions.Gaussian(0, 1).draw()
+          random.breezeRandomGaussian(0, 1).draw()
         }
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)

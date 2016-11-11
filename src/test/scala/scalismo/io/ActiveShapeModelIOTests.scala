@@ -37,7 +37,7 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
     val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
-    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100, 42).sample.unzip
+    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100).sample.unzip
     val pointIds = sprofilePoints.map { point => shapeModel.referenceMesh.pointSet.findClosestPoint(point).id }
     val dists = for (i <- pointIds.indices) yield new MultivariateNormalDistribution(DenseVector.ones[Double](3) * i.toDouble, DenseMatrix.eye[Double](3) * i.toDouble)
     val profiles = new Profiles(pointIds.to[immutable.IndexedSeq].zip(dists).map { case (i, d) => Profile(i, d) })

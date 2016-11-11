@@ -19,6 +19,7 @@ import scalismo.common.BoxDomain
 import scalismo.geometry.{ Point, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
+import scalismo.utils.Random
 
 /**
  * Implements utility methods for evaluating similarity of [[TriangleMesh]] instances
@@ -48,7 +49,7 @@ object MeshMetrics {
     require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
 
     val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
-    val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks)
+    val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
     val m1w = m1.transform(t)
     avgDistance(m1w, m2)
   }
@@ -74,7 +75,7 @@ object MeshMetrics {
   /**
    * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
    */
-  def diceCoefficient(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
+  def diceCoefficient(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D])(implicit rand: Random): Double = {
     val imgA = Mesh.meshToBinaryImage(m1)
     val imgB = Mesh.meshToBinaryImage(m2)
 
@@ -86,7 +87,7 @@ object MeshMetrics {
     val evaluationRegion = BoxDomain(minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
 
     val sampler = UniformSampler[_3D](evaluationRegion, 10000)
-    val samplePts = sampler.sample.map(_._1)
+    val samplePts = sampler.sample()(rand).map(_._1)
 
     val numSamplesInA = samplePts.map(imgA).sum
     val numSamplesInB = samplePts.map(imgB).sum

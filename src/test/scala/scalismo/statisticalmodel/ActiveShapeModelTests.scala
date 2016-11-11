@@ -4,23 +4,26 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._3D
+import scalismo.geometry.{ Point, _3D }
 import scalismo.io.{ ImageIO, MeshIO, StatismoIO }
 import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
-import scalismo.registration.{ RigidTransformationSpace, LandmarkRegistration }
+import scalismo.registration.{ LandmarkRegistration, RigidTransformationSpace }
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
+import scalismo.utils.Random
 
 class ActiveShapeModelTests extends ScalismoTestSuite {
 
   describe("An active shape model") {
 
+    implicit val random = Random(42)
+
     object Fixture {
       val imagePreprocessor = GaussianGradientImagePreprocessor(0.1f)
       // number of points should usually be an odd number, so that the profiles are centered on the profiled points
       val featureExtractor = NormalDirectionFeatureExtractor(numberOfPoints = 5, spacing = 1.0)
-      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, numberOfPoints = 1000, seed = 42)
+      def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, numberOfPoints = 1000)
       val searchMethod = NormalDirectionSearchPointSampler(numberOfPoints = 31, searchDistance = 6)
       val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 
@@ -41,14 +44,14 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val asm = ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)
 
       // align the model
-      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq)
+      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq, Point(0, 0, 0))
       val alignedASM = asm.transform(alignment)
 
     }
     it("Can be built, transformed and correctly fitted from/to artificial data") {
 
       val fit = Fixture.alignedASM.fit(Fixture.targetImage, Fixture.searchMethod, 20, Fixture.fittingConfig).get.mesh
-      assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.95)
+      assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.94)
     }
 
     it("Can be transformed correctly from within the fitting") {

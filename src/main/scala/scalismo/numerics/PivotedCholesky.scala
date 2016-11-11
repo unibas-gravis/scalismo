@@ -21,16 +21,45 @@ import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.numerics.pow
 import scalismo.geometry._
 import scalismo.kernels.{ MatrixValuedPDKernel, PDKernel }
-import scalismo.utils.Benchmark
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Result object for the pivoted cholesky of a matrix A
- *
- * @param L  The (first m columns) of a lower triangular matrix L, for which LL' = A_m \approx A.
- * @param p  The pivot
+ * @param L The (first m columns) of a lower triangular matrix L, for which LL' = A_m \approx A.
+ * @param p The pivot
  * @param tr : The trace of the matrix (A_m - A) (i.e. the approximation error)
  */
 case class PivotedCholesky(L: DenseMatrix[Double], p: IndexedSeq[Int], tr: Double)
+
+private class PivotedCholeskyFactor(d: Int, sizeHint: Int = 20) {
+  val cols = new ArrayBuffer[DenseVector[Double]](sizeHint)
+
+  def apply(row: Int, col: Int): Double = cols(col)(row)
+
+  def col(i: Int): DenseVector[Double] = cols(i)
+
+  def addCol(vec: DenseVector[Double]): Unit = {
+    require(vec.length == d)
+    cols += vec
+  }
+
+  def setCol(col: Int, vec: DenseVector[Double]): Unit = {
+    require(col >= 0 && col < cols.size + 1)
+    require(vec.length == d)
+    if (col < cols.size)
+      cols(col) = vec
+    else
+      cols += vec
+  }
+
+  def toDenseMatrix: DenseMatrix[Double] = {
+    val m = DenseMatrix.zeros[Double](d, cols.size)
+    for (i <- cols.indices) {
+      m(::, i) := cols(i)
+    }
+    m
+  }
+}
 
 object PivotedCholesky {
 
@@ -47,13 +76,18 @@ object PivotedCholesky {
     stoppingCriterion: StoppingCriterion): PivotedCholesky = {
 
     val n = xs.size
+    val p = scala.collection.mutable.ArrayBuffer.range(0, n)
+    val d = scala.collection.mutable.ArrayBuffer.tabulate(n)(i => kernel(xs(i), xs(i)))
 
-    val p = scala.collection.mutable.IndexedSeq.range(0, n)
+    def swapP(k: Int, pivl: Int) = {
 
-    val diagData = for (x <- xs) yield kernel(x, x)
-    val d = DenseVector[Double](diagData.toArray)
+      val tmp = p(k)
+      p(k) = p(pivl)
+      p(pivl) = tmp
 
-    var tr: Double = breeze.linalg.sum(d)
+    }
+
+    var tr: Double = d.sum
     var k = 0
 
     val (tolerance, maxNumEigenfunctions) = stoppingCriterion match {
@@ -62,49 +96,42 @@ object PivotedCholesky {
       case NumberOfEigenfunctions(numEigenfuns) => (1e-15, numEigenfuns)
     }
 
-    // The matrix will hold the result (i.e. LL' is the resulting kernel matrix). As we do not know the
-    // number of columns we compute until we have the desired accuracy, the matrix is updated in each iteration.
-    var L: DenseMatrix[Double] = null
+    val L = new PivotedCholeskyFactor(n, n)
 
-    // we either loop until we have the required number of eigenfunction, the precition or
-    // the trace is not decreasing anymore (which is a sign of numerical instabilities)
     while (k < n && k < maxNumEigenfunctions && tr >= tolerance) {
 
-      L = if (k == 0) {
-        DenseMatrix.zeros[Double](n, 1)
-      } else {
-        val Lnew = DenseMatrix.zeros[Double](n, k + 1)
-        Lnew(::, 0 until k) := L(::, 0 until k)
-        Lnew
+      val S = DenseVector.zeros[Double](n)
+
+      val pivl = (k until n).map(i => (i, d(p(i)))).maxBy(_._2)._1
+
+      swapP(k, pivl)
+
+      val D = Math.sqrt(d(p(k)))
+      S(p(k)) = D
+
+      var c = 0
+      while (c < k) {
+        val tmp = L(p(k), c)
+        for (r <- (k + 1 until n).par) {
+          S(p(r)) += L(p(r), c) * tmp
+        }
+        c += 1
       }
 
-      // get biggest element for pivot and switch
-      val pivl = /*k + */ (k until n).map(i => (i, d(p(i)))).maxBy(_._2)._1
+      tr = d(p(k))
 
-      val tmp = p(k)
-      p(k) = p(pivl)
-      p(pivl) = tmp
-      //println("dpk: " + d(p(k)))
+      for (r <- (k + 1 until n)) {
+        S(p(r)) = (kernel(xs(p(r)), xs(p(k))) - S(p(r))) / D
+        d(p(r)) = d(p(r)) - (S(p(r)) * S(p(r)))
+        tr += d(p(r))
+      }
 
-      L(p(k), k) = Math.sqrt(d(p(k)))
-      val Adata = p.slice(k + 1, n).par.map(i => kernel(xs(i), xs(p(k))))
-      val AMat = DenseMatrix.create(n - k - 1, 1, Adata.toArray)
-      L(p.slice(k + 1, n), IndexedSeq(k)) := AMat / L(p(k), k)
-
-      // update L
-      val rhs = (L(p.slice(k + 1, n), IndexedSeq.range(0, k)).toDenseMatrix * L(IndexedSeq(p(k)), IndexedSeq.range(0, k)).toDenseMatrix.t) / L(p(k), k)
-      L(p.slice(k + 1, n), IndexedSeq(k)) := (L(p.slice(k + 1, n), IndexedSeq(k)).toDenseMatrix - rhs)
-
-      // update d
-      val lll = L(p.slice(k, n), IndexedSeq(k)).flatten().toDenseVector.map(e => Math.pow(e, 2))
-      val ddd = d(p.slice(k, n)).toDenseVector
-      d(p.slice(k, n)) := ddd - lll
-      tr = breeze.linalg.sum(d(p.slice(k, n)).toDenseVector)
-
+      L.addCol(DenseVector(S.toArray))
+      //      println(s"Pivoted Cholesky : Iteration: $k | Trace: $tr")
       k += 1
     }
 
-    PivotedCholesky(L, p, tr)
+    PivotedCholesky(L.toDenseMatrix, p, tr)
 
   }
 

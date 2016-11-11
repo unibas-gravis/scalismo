@@ -18,6 +18,7 @@ package scalismo.mesh
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.geometry.Vector._
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
 
@@ -33,10 +34,10 @@ case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends 
 }
 
 trait TriangleMesh[D <: Dim] {
-
   def triangulation: TriangleList
   def pointSet: UnstructuredPointsDomain[D]
   def transform(transform: Point[D] => Point[D]): TriangleMesh[D]
+
 }
 
 object TriangleMesh {
@@ -50,7 +51,7 @@ object TriangleMesh {
   }
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  trait Create[D <: Dim] extends CreateUnstructuredPointsDomain[D] {
+  trait Create[D <: Dim] extends UnstructuredPointsDomain.Create[D] {
     def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
   }
 
@@ -80,7 +81,7 @@ object TriangleMesh {
 
 case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
 
-  val position = SurfacePointProperty(triangulation, pointSet.point _)
+  val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val triangles = triangulation.triangles
   val cells = triangles
 
@@ -175,14 +176,13 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
    *  @param t Triangle cell in which to draw a random point
    *  @param seed Seed value for the random generator
    */
-  def samplePointInTriangleCell(t: TriangleCell, seed: Int): Point[_3D] = {
+  def samplePointInTriangleCell(t: TriangleCell)(implicit rnd: Random): Point[_3D] = {
     val A = pointSet.point(t.ptId1).toVector
     val B = pointSet.point(t.ptId2).toVector
     val C = pointSet.point(t.ptId3).toVector
 
-    val rand = new scala.util.Random(seed)
-    val u = rand.nextDouble()
-    val d = rand.nextDouble()
+    val u = rnd.scalaRandom.nextDouble()
+    val d = rnd.scalaRandom.nextDouble()
     val v = if (d + u <= 1.0) d else 1.0 - u
 
     val s = A * u + B * v + C * (1.0 - (u + v))
@@ -198,7 +198,7 @@ object TriangleMesh3D {
 }
 
 case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
-  val position = SurfacePointProperty(triangulation, pointSet.point _)
+  val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
 
   override def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh2D = {
     TriangleMesh2D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq), triangulation)

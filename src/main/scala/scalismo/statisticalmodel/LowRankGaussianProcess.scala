@@ -17,14 +17,13 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ diag, DenseMatrix, DenseVector }
-import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
-import scalismo.utils.Memoize
+import scalismo.utils.{ Random, Memoize }
 
 /**
  *
@@ -66,17 +65,17 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
   /**
    * A random sample of the gaussian process
    */
-  def sample: Field[D, Value] = {
-    val coeffs = for (_ <- klBasis.indices) yield Gaussian(0, 1).draw()
+  def sample()(implicit rand: Random): Field[D, Value] = {
+    val coeffs = for (_ <- klBasis.indices) yield rand.breezeRandomGaussian(0, 1).draw()
     instance(DenseVector(coeffs.toArray))
   }
 
   /**
    * A random sample evaluated at the given points
    */
-  override def sampleAtPoints(domain: DiscreteDomain[D]): DiscreteField[D, Value] = {
+  override def sampleAtPoints(domain: DiscreteDomain[D])(implicit rand: Random): DiscreteField[D, Value] = {
     // TODO check that points are part of the domain
-    val aSample = sample
+    val aSample = sample()
     val values = domain.points.map(pt => aSample(pt))
     DiscreteField(domain, values.toIndexedSeq)
   }
@@ -183,7 +182,7 @@ object LowRankGaussianProcess {
    */
   def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
-    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
+    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, numBasisFunctions, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }

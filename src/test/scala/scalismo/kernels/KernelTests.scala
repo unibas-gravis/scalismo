@@ -67,7 +67,7 @@ class KernelTests extends ScalismoTestSuite {
 
       val sampleTransformations = for (i <- (0 until 5000).par) yield {
         // TODO: gp.sample() should (arguably) accept seed.
-        val sample: (Point[_3D] => Vector[_3D]) = gp.sample
+        val sample: (Point[_3D] => Vector[_3D]) = gp.sample()
         new Transformation[_3D] {
           override val domain = RealSpace[_3D]
           override val f = (x: Point[_3D]) => x + sample(x)

@@ -19,6 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg._
 import scalismo.geometry.Vector
 import scalismo.geometry._
+import scalismo.utils.Random
 
 import scala.util.Try
 
@@ -37,7 +38,7 @@ private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
 
   def mahalanobisDistance(x: V): Double
 
-  def sample(): V
+  def sample()(implicit rand: Random): V
 }
 
 case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseMatrix[Double])
@@ -100,9 +101,9 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
     math.sqrt(x0 dot (covInv * x0))
   }
 
-  override def sample(): DenseVector[Double] = {
+  override def sample()(implicit rand: Random): DenseVector[Double] = {
 
-    val normalSamples = for (i <- 0 until dim) yield breeze.stats.distributions.Gaussian(0, 1).draw()
+    val normalSamples = for (i <- 0 until dim) yield rand.breezeRandomGaussian(0, 1).draw()
     val u = DenseVector[Double](normalSamples.toArray)
 
     mean + (root * u)
@@ -225,7 +226,7 @@ case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], co
 
   override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def sample(): Vector[D] = Vector.fromBreezeVector(impl.sample())
+  override def sample()(implicit rand: Random): Vector[D] = Vector.fromBreezeVector(impl.sample)
 
   override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d) }
 

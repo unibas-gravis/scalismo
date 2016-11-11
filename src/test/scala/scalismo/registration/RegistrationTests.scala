@@ -19,16 +19,19 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Field, PointId, RealSpace, VectorField }
+import scalismo.common.{ Field, PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
 import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
 
 class RegistrationTests extends ScalismoTestSuite {
+
+  implicit val random = Random(42)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 
@@ -70,7 +73,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
     val rigidTransformed = mesh transform trans
 
-    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq)
+    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq, Point(0, 0, 0))
 
     //should not test on parameters here since many euler angles can lead to the same rotation matrix
     val rigidRegTransformed = mesh transform regResult
@@ -93,6 +96,21 @@ class RegistrationTests extends ScalismoTestSuite {
         p(0) should be(mesh.pointSet.point(id)(0) +- 0.0001)
         p(1) should be(mesh.pointSet.point(id)(1) +- 0.0001)
         p(2) should be(mesh.pointSet.point(id)(2) +- 0.0001)
+      }
+    }
+
+    it("can retrieve correct transformation when requested with a different center") {
+
+      // pick any center
+      val anyCenter = Point(1254, 488, 78)
+      val newCenterRegResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq, anyCenter)
+
+      val rigidRegNewCenterTransformed = mesh transform newCenterRegResult
+      for ((p, i) <- rigidRegNewCenterTransformed.pointSet.points.zipWithIndex) {
+        val id = PointId(i)
+        p(0) should be(rigidTransformed.pointSet.point(id)(0) +- 0.0001)
+        p(1) should be(rigidTransformed.pointSet.point(id)(1) +- 0.0001)
+        p(2) should be(rigidTransformed.pointSet.point(id)(2) +- 0.0001)
       }
     }
   }
@@ -137,7 +155,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val translatedRotatedScaled = mesh transform trans
 
-      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq)
+      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq, Point(0, 0, 0))
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regSim = mesh transform regResult
