@@ -12,7 +12,7 @@ import sbtbuildinfo.Plugin._
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildVersion = "0.14.0-RC1"
+  val buildVersion = "0.14.0"
   val buildScalaVersion = "2.11.7"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
