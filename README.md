@@ -18,6 +18,7 @@ We aim to achieve these properties by leveraging two core technologies:
 
 * [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
 * [Setup a project using Scalismo](https://github.com/unibas-gravis/scalismo/wiki/Setup-a-project-using-Scalismo)
+* [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
 * [Tutorial (Graphical tool: Scalismo Lab)](https://github.com/unibas-gravis/scalismo/wiki/scalismoLab)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
 
@@ -40,8 +41,9 @@ The current maintainers of the project (people who can merge pull requests) are:
 
 * [Ghazi Bouabene](https://github.com/ghazi-bouabene)
 * [Thomas Gerig](https://github.com/gerith)
-* [Christoph Langguth](https://github.com/clangguth)
 * [Marcel Luethi](https://github.com/marcelluethi)
+* [Andreas Forster](https://github.com/Andreas-Forster)
+* [Sandro Schoenborn](https://github.com/sschoenborn)
 
 ## Related Projects
 Scalismo is closely related to the 

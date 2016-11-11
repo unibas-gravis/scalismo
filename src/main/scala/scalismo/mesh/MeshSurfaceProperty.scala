@@ -146,5 +146,6 @@ case class MappedSurfaceProperty[A, B](values: MeshSurfaceProperty[A], f: A => B
   override def triangulation: TriangleList = values.triangulation
 
   override def map[C](g: B => C): MappedSurfaceProperty[A, C] = MappedSurfaceProperty(values, g compose f)
+
 }
 

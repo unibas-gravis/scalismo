@@ -17,7 +17,8 @@ package scalismo.statisticalmodel.dataset
 
 import scalismo.geometry.{ _3D, Vector }
 import scalismo.mesh.TriangleMesh
-import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
+import scalismo.numerics.UniformMeshSampler3D
+import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess, StatisticalMeshModel }
 
 import scala.util.Try
 
@@ -58,8 +59,16 @@ object Crossvalidation {
     val evalResultsForFolds = for (fold <- folds) yield {
       val td = fold.trainingData
       StatisticalMeshModel.createUsingPCA(td).map { pcaModel =>
-        val model = if (biasModelAndRank.isDefined) StatisticalMeshModel.augmentModel(pcaModel, biasModelAndRank.get._1, biasModelAndRank.get._2) else pcaModel
+
+        val model = if (biasModelAndRank.isDefined) {
+          val (biasModel, rankBiasModel) = biasModelAndRank.get
+          val biasModelLowRank = LowRankGaussianProcess.approximateGP(biasModel, UniformMeshSampler3D(pcaModel.referenceMesh, 1000), numBasisFunctions = rankBiasModel)
+          StatisticalMeshModel.augmentModel(pcaModel, biasModelLowRank)
+        } else {
+          pcaModel
+        }
         val evalResults = for (testingItem <- fold.testingData.dataItems) yield {
+
           val testMesh = dc.reference.transform(testingItem.transformation)
           evalFun(model, testMesh)
         }

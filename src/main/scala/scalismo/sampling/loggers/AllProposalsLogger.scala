@@ -16,6 +16,7 @@
 package scalismo.sampling.loggers
 
 import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
+import scala.language.implicitConversions
 
 class AllProposalsLogger[A](logger: ChainStateLogger[A]) extends AcceptRejectLogger[A] {
   override def accept(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
