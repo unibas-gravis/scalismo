@@ -1,3 +1,4 @@
+import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
 import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
@@ -8,51 +9,27 @@ import com.typesafe.sbt.SbtGit.git
 import com.banno.license.Plugin.LicenseKeys._
 import com.banno.license.Licenses._
 import sbtbuildinfo.Plugin._
-
+import com.typesafe.sbt.SbtGit.useJGit
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildVersion = "develop-SNAPSHOT"
   val buildScalaVersion = "2.11.7"
 
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
-    version := buildVersion,
     scalaVersion := buildScalaVersion,
     crossScalaVersions := Seq("2.10.5", "2.11.7"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
-    shellPrompt := ShellPrompt.buildShellPrompt)
+    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
+  )
 
   // nativelibs implementation to use (e.g., "linux64"). If not explicitly set, use "all"
   // which contains all supported platforms.
   val scalismoPlatform = {
     val env = System.getenv("SCALISMO_PLATFORM")
     if (env != null) env else "all"
-  }
-}
-
-// Shell prompt which shows the current project,
-// git branch and build version
-object ShellPrompt {
-  val buildShellPrompt = {
-    (state: State) =>
-      {
-        val currProject = Project.extract(state).currentProject.id
-        "%s:%s:%s> ".format(
-          currProject, currBranch, BuildSettings.buildVersion)
-      }
-  }
-  def currBranch = (
-    ("git status -sb" lines_! devnull headOption)
-    getOrElse "-" stripPrefix "## ")
-
-  object devnull extends ProcessLogger {
-    def info(s: => String) {}
-    def error(s: => String) {}
-    def buffer[T](f: => T): T = f
   }
 }
 
@@ -98,13 +75,19 @@ object STKBuild extends Build {
       Seq(
         git.remoteRepo := "git@github.com:unibas-gravis/scalismo.git"
       )++
+      Seq(
+        git.useGitDescribe := true,
+        useJGit
+      ) ++
       buildInfoSettings ++
       Seq(
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion),
       buildInfoPackage := "scalismo"
       )
-)
+).enablePlugins(GitBranchPrompt, GitVersioning)
+
+
   // Sub-project specific dependencies
   val commonDeps = Seq(
     scalatest,
