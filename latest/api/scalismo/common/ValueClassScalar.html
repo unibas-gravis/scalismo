@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>ValueClassScalar - scalismo.common.ValueClassScalar</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,15 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../lib/class_big.png" />
+        <img alt="Class" src="../../lib/class_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.common">common</a></p>
-        <h1>ValueClassScalar</h1>
+        <h1>ValueClassScalar</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="scalismo.common">package common</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -40,14 +50,13 @@
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Trait signifying that the data is scalar, and is using a value class to &quot;wrap&quot; the values of
-an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the exposed (value class) type of the scalar data.</p></dd><dt class="tparam">U</dt><dd class="cmt"><p>the underlying (primitive) type of the actual stored values.</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://docs.scala-lang.org/overviews/core/value-classes.html">Value Classes and Universal Traits</a>
-</p></span></dd></dl><div class="toggleContainer block">
+an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tparam">S</dt><dd class="cmt"><p>the exposed (value class) type of the scalar data.</p></dd><dt class="tparam">U</dt><dd class="cmt"><p>the underlying (primitive) type of the actual stored values.</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="http://docs.scala-lang.org/overviews/core/value-classes.html">Value Classes and Universal Traits</a></p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.common.ValueClassScalar.S">S</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
-          <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="Scalar$$UByteIsScalar.html" class="extype" name="scalismo.common.Scalar.UByteIsScalar">UByteIsScalar</a>, <a href="Scalar$$UIntIsScalar.html" class="extype" name="scalismo.common.Scalar.UIntIsScalar">UIntIsScalar</a>, <a href="Scalar$$UShortIsScalar.html" class="extype" name="scalismo.common.Scalar.UShortIsScalar">UShortIsScalar</a></div>
-        </div></div>
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="Scalar$$UByteIsScalar.html" class="extype" name="scalismo.common.Scalar.UByteIsScalar">UByteIsScalar</a>, <a href="Scalar$$UIntIsScalar.html" class="extype" name="scalismo.common.Scalar.UIntIsScalar">UIntIsScalar</a>, <a href="Scalar$$UShortIsScalar.html" class="extype" name="scalismo.common.Scalar.UShortIsScalar">UShortIsScalar</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -72,7 +81,6 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -95,7 +103,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">ValueClassScalar</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.common.ValueClassScalar.U">U</span>]</span>)</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@&lt;init&gt;()(implicitevidence$2:scala.reflect.ClassTag[U]):scalismo.common.ValueClassScalar[S,U]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt"></p>
     </li></ol>
             </div>
@@ -115,7 +127,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">createArray</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scalismo.common.ValueClassScalar.U">U</span>]</span>)</span><span class="result">: <a href="ValueClassScalarArray.html" class="extype" name="scalismo.common.ValueClassScalarArray">ValueClassScalarArray</a>[<span class="extype" name="scalismo.common.ValueClassScalar.S">S</span>, <span class="extype" name="scalismo.common.ValueClassScalar.U">U</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@createArray(data:Array[U]):scalismo.common.ValueClassScalarArray[S,U]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.common.Scalar#fromByte" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromByte(n:Byte):S"></a>
@@ -128,7 +144,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromByte</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Byte">Byte</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromByte(n:Byte):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#fromDouble" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromDouble(n:Double):S"></a>
@@ -141,7 +161,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromDouble</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromDouble(n:Double):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#fromFloat" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromFloat(n:Float):S"></a>
@@ -154,7 +178,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromFloat</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromFloat(n:Float):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#fromInt" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromInt(n:Int):S"></a>
@@ -167,7 +195,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromInt</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromInt(n:Int):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#fromLong" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromLong(n:Long):S"></a>
@@ -180,7 +212,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromLong</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromLong(n:Long):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#fromShort" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromShort(n:Short):S"></a>
@@ -193,7 +229,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromShort</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Short">Short</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromShort(n:Short):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.ValueClassScalar#fromUnderlying" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="fromUnderlying(u:U):S"></a>
@@ -206,7 +246,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">fromUnderlying</span><span class="params">(<span name="u">u: <span class="extype" name="scalismo.common.ValueClassScalar.U">U</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@fromUnderlying(u:U):S" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="package.html" class="extype" name="scalismo.common">scalismo.common</a>] </dd></dl></div>
     </li><li name="scalismo.common.Scalar#toByte" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toByte(a:S):Byte"></a>
@@ -219,7 +263,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toByte</span><span class="params">(<span name="a">a: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scala.Byte">Byte</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toByte(a:S):Byte" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#toDouble" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toDouble(a:S):Double"></a>
@@ -232,7 +280,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toDouble</span><span class="params">(<span name="a">a: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toDouble(a:S):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#toFloat" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toFloat(a:S):Float"></a>
@@ -245,7 +297,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toFloat</span><span class="params">(<span name="a">a: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toFloat(a:S):Float" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#toInt" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toInt(a:S):Int"></a>
@@ -258,7 +314,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toInt</span><span class="params">(<span name="a">a: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toInt(a:S):Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#toLong" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toLong(a:S):Long"></a>
@@ -271,7 +331,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toLong</span><span class="params">(<span name="a">a: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toLong(a:S):Long" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.Scalar#toShort" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toShort(a:S):Short"></a>
@@ -284,7 +348,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toShort</span><span class="params">(<span name="a">a: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scala.Short">Short</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toShort(a:S):Short" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a></dd></dl></div>
     </li><li name="scalismo.common.ValueClassScalar#toUnderlying" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="toUnderlying(s:S):U"></a>
@@ -297,7 +365,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toUnderlying</span><span class="params">(<span name="s">s: <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <span class="extype" name="scalismo.common.ValueClassScalar.U">U</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toUnderlying(s:S):U" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="package.html" class="extype" name="scalismo.common">scalismo.common</a>] </dd></dl></div>
     </li></ol>
             </div>
@@ -305,19 +377,6 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
         <div id="values" class="values members">
               <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -328,8 +387,12 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -341,22 +404,13 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -367,8 +421,12 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -380,7 +438,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -393,7 +455,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -412,7 +478,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">convertArray</span><span class="tparams">[<span name="C">C</span>]</span><span class="params">(<span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scalismo.common.ValueClassScalar.convertArray.C">C</span>]</span>, <span name="f">f: (<span class="extype" name="scalismo.common.ValueClassScalar.convertArray.C">C</span>) ⇒ <span class="extype" name="scalismo.common.ValueClassScalar.S">S</span></span>)</span><span class="result">: <a href="ValueClassScalarArray.html" class="extype" name="scalismo.common.ValueClassScalarArray">ValueClassScalarArray</a>[<span class="extype" name="scalismo.common.ValueClassScalar.S">S</span>, <span class="extype" name="scalismo.common.ValueClassScalar.U">U</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@convertArray[C](data:Array[C],f:C=&gt;S):scalismo.common.ValueClassScalarArray[S,U]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../package.html" class="extype" name="scalismo">scalismo</a>] </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -425,7 +495,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -438,7 +512,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -451,7 +529,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -470,7 +552,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -483,7 +569,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -496,7 +586,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -509,7 +603,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -522,7 +620,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -535,7 +637,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -548,7 +654,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -561,7 +671,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -574,7 +688,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -593,7 +711,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -612,7 +734,11 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.common.ValueClassScalar@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -651,6 +777,7 @@ an underlying primitive type.</p></div><dl class="paramcmts block"><dt class="tp
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

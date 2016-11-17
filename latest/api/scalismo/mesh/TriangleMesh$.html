@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>TriangleMesh - scalismo.mesh.TriangleMesh</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,17 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="TriangleMesh.html" title="Go to companion"><img src="../../lib/object_to_trait_big.png" /></a>
+        <a href="TriangleMesh.html" title="See companion trait"><img alt="Object/Trait" src="../../lib/object_to_trait_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.mesh">mesh</a></p>
-        <h1><a href="TriangleMesh.html" title="Go to companion">TriangleMesh</a></h1>
+        <h1><a href="TriangleMesh.html" title="See companion trait">TriangleMesh</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="TriangleMesh.html" title="See companion trait">trait TriangleMesh</a>
+            | <a href="package.html" class="extype" name="scalismo.mesh">package mesh</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -67,7 +79,6 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -82,7 +93,7 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="scalismo.mesh.TriangleMesh.Create" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Create[D&lt;:scalismo.geometry.Dim]extendsCreateUnstructuredPointsDomain[D]"></a>
+      <a id="Create[D&lt;:scalismo.geometry.Dim]extendsUnstructuredPointsDomain.Create[D]"></a>
       <a id="Create[D&lt;:Dim]:Create[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -90,10 +101,14 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="TriangleMesh$$Create.html"><span class="name">Create</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/CreateUnstructuredPointsDomain.html" class="extype" name="scalismo.common.CreateUnstructuredPointsDomain">CreateUnstructuredPointsDomain</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.Create.D">D</span>]</span>
+        <a href="TriangleMesh$$Create.html"><span class="name">Create</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/UnstructuredPointsDomain$$Create.html" class="extype" name="scalismo.common.UnstructuredPointsDomain.Create">common.UnstructuredPointsDomain.Create</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.Create.D">D</span>]</span>
       </span>
-      </h4>
-      <p class="comment cmt">Typeclass for creating domains of arbitrary dimensionality</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@Create[D&lt;:scalismo.geometry.Dim]extendsUnstructuredPointsDomain.Create[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Typeclass for creating domains of arbitrary dimensionality</p>
     </li><li name="scalismo.mesh.TriangleMesh.Create2D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Create2DextendsTriangleMesh.Create[scalismo.geometry._2D]"></a>
       <a id="Create2D:Create2D"></a>
@@ -105,7 +120,11 @@
       <span class="symbol">
         <a href="TriangleMesh$$Create2D.html"><span class="name">Create2D</span></a><span class="result"> extends <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@Create2DextendsTriangleMesh.Create[scalismo.geometry._2D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.mesh.TriangleMesh.Create3D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Create3DextendsTriangleMesh.Create[scalismo.geometry._3D]"></a>
@@ -118,7 +137,11 @@
       <span class="symbol">
         <a href="TriangleMesh$$Create3D.html"><span class="name">Create3D</span></a><span class="result"> extends <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@Create3DextendsTriangleMesh.Create[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li></ol>
             </div>
@@ -128,19 +151,6 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -151,8 +161,12 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -164,22 +178,13 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -190,8 +195,12 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.mesh.TriangleMesh#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="apply[D&lt;:scalismo.geometry.Dim](points:IndexedSeq[scalismo.geometry.Point[D]],topology:scalismo.mesh.TriangleList)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitcreator:scalismo.mesh.TriangleMesh.Create[D]):scalismo.mesh.TriangleMesh[D]"></a>
       <a id="apply[D&lt;:Dim](IndexedSeq[Point[D]],TriangleList)(NDSpace[D],Create[D]):TriangleMesh[D]"></a>
@@ -203,7 +212,11 @@
       <span class="symbol">
         <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="points">points: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]]</span>, <span name="topology">topology: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>, <span name="creator">creator: <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@apply[D&lt;:scalismo.geometry.Dim](points:IndexedSeq[scalismo.geometry.Point[D]],topology:scalismo.mesh.TriangleList)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitcreator:scalismo.mesh.TriangleMesh.Create[D]):scalismo.mesh.TriangleMesh[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.mesh.TriangleMesh#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="apply[D&lt;:scalismo.geometry.Dim](pointSet:scalismo.common.UnstructuredPointsDomain[D],topology:scalismo.mesh.TriangleList)(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitcreator:scalismo.mesh.TriangleMesh.Create[D]):scalismo.mesh.TriangleMesh[D]"></a>
@@ -216,7 +229,11 @@
       <span class="symbol">
         <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="pointSet">pointSet: <a href="../common/UnstructuredPointsDomain.html" class="extype" name="scalismo.common.UnstructuredPointsDomain">UnstructuredPointsDomain</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>, <span name="topology">topology: <a href="TriangleList.html" class="extype" name="scalismo.mesh.TriangleList">TriangleList</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>, <span name="creator">creator: <a href="TriangleMesh$$Create.html" class="extype" name="scalismo.mesh.TriangleMesh.Create">Create</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<span class="extype" name="scalismo.mesh.TriangleMesh.apply.D">D</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@apply[D&lt;:scalismo.geometry.Dim](pointSet:scalismo.common.UnstructuredPointsDomain[D],topology:scalismo.mesh.TriangleList)(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitcreator:scalismo.mesh.TriangleMesh.Create[D]):scalismo.mesh.TriangleMesh[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -229,7 +246,11 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -242,7 +263,11 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -261,7 +286,11 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -274,7 +303,11 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -287,7 +320,11 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -306,7 +343,11 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -319,7 +360,11 @@
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -332,7 +377,11 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -345,7 +394,11 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -358,7 +411,11 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -371,7 +428,11 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.mesh.TriangleMesh#parametricToConcreteType2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="parametricToConcreteType2D(triangleMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._2D]):scalismo.mesh.TriangleMesh2D"></a>
@@ -384,7 +445,11 @@
       <span class="symbol">
         <span class="name">parametricToConcreteType2D</span><span class="params">(<span name="triangleMesh">triangleMesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="TriangleMesh2D.html" class="extype" name="scalismo.mesh.TriangleMesh2D">TriangleMesh2D</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@parametricToConcreteType2D(triangleMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._2D]):scalismo.mesh.TriangleMesh2D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.mesh.TriangleMesh#parametricToConcreteType3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="parametricToConcreteType3D(triangleMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.mesh.TriangleMesh3D"></a>
@@ -397,7 +462,11 @@
       <span class="symbol">
         <span class="name">parametricToConcreteType3D</span><span class="params">(<span name="triangleMesh">triangleMesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@parametricToConcreteType3D(triangleMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.mesh.TriangleMesh3D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -410,7 +479,11 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -423,7 +496,11 @@
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -436,7 +513,11 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -455,7 +536,11 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -474,7 +559,11 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.TriangleMesh$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -511,6 +600,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

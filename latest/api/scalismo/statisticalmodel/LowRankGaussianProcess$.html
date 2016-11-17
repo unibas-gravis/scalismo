@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>LowRankGaussianProcess - scalismo.statisticalmodel.LowRankGaussianProcess</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,17 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="LowRankGaussianProcess.html" title="Go to companion"><img src="../../lib/object_to_class_big.png" /></a>
+        <a href="LowRankGaussianProcess.html" title="See companion class"><img alt="Object/Class" src="../../lib/object_to_class_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></p>
-        <h1><a href="LowRankGaussianProcess.html" title="Go to companion">LowRankGaussianProcess</a></h1>
+        <h1><a href="LowRankGaussianProcess.html" title="See companion class">LowRankGaussianProcess</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="LowRankGaussianProcess.html" title="See companion class">class LowRankGaussianProcess</a>
+            | <a href="package.html" class="extype" name="scalismo.statisticalmodel">package statisticalmodel</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -68,7 +80,6 @@
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -93,7 +104,11 @@
       <span class="symbol">
         <a href="LowRankGaussianProcess$$Eigenpair.html"><span class="name">Eigenpair</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="eigenvalue">eigenvalue: <span class="extype" name="scala.Double">Double</span></span>, <span name="eigenfunction">eigenfunction: <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair.Value">Value</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@Eigenpair[D&lt;:scalismo.geometry.Dim,Value]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="KLBasis[D&lt;:scalismo.geometry.Dim,Value]=Seq[scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair[D,Value]]"></a>
@@ -106,7 +121,11 @@
       <span class="symbol">
         <span class="name">KLBasis</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="result"> = <span class="extype" name="scala.collection.Seq">Seq</span>[<a href="LowRankGaussianProcess$$Eigenpair.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair">Eigenpair</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis.Value">Value</span>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@KLBasis[D&lt;:scalismo.geometry.Dim,Value]=Seq[scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair[D,Value]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li></ol>
             </div>
@@ -116,19 +135,6 @@
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -139,8 +145,12 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -152,22 +162,13 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -178,24 +179,31 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#approximateGP" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="approximateGP[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],sampler:scalismo.numerics.Sampler[D],numBasisFunctions:Int)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
-      <a id="approximateGP[D&lt;:Dim,Value](GaussianProcess[D,Value],Sampler[D],Int)(NDSpace[D],Vectorizer[Value]):LowRankGaussianProcess[D,Value]"></a>
+      <a id="approximateGP[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],sampler:scalismo.numerics.Sampler[D],numBasisFunctions:Int)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
+      <a id="approximateGP[D&lt;:Dim,Value](GaussianProcess[D,Value],Sampler[D],Int)(NDSpace[D],Vectorizer[Value],Random):LowRankGaussianProcess[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">approximateGP</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>]</span>, <span name="numBasisFunctions">numBasisFunctions: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>
+        <span class="name">approximateGP</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>]</span>, <span name="numBasisFunctions">numBasisFunctions: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>, <span name="rand">rand: <a href="../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@approximateGP[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],sampler:scalismo.numerics.Sampler[D],numBasisFunctions:Int)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Perform a low-rank approximation of the Gaussian process using the Nystrom method.</p><div class="fullcomment"><div class="comment cmt"><p>Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
 are sampled using the given sample.
-</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process to approximate</p></dd><dt class="param">sampler</dt><dd class="cmt"><p>determines which points will be used as samples for the nystrom approximation.</p></dd><dt class="param">numBasisFunctions</dt><dd class="cmt"><p>The number of basis functions to approximate.
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process to approximate</p></dd><dt class="param">sampler</dt><dd class="cmt"><p>determines which points will be used as samples for the nystrom approximation.</p></dd><dt class="param">numBasisFunctions</dt><dd class="cmt"><p>The number of basis functions to approximate.</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -207,7 +215,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -220,7 +232,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -239,7 +255,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a>
@@ -252,7 +272,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -265,7 +289,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -284,7 +312,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -297,7 +329,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -310,7 +346,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -323,7 +363,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -336,7 +380,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -349,7 +397,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#regression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
@@ -362,10 +414,13 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">regression</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>]</span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">* Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.</p><div class="fullcomment"><div class="comment cmt"><p>* Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
-</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process</p></dd><dt class="param">trainingData</dt><dd class="cmt"><p>Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process</p></dd><dt class="param">trainingData</dt><dd class="cmt"><p>Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -377,7 +432,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
@@ -390,7 +449,11 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#transform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="transform[D&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]],rigidTransform:scalismo.registration.RigidTransformation[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[scalismo.geometry.Vector[D]]):scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]]"></a>
@@ -403,8 +466,12 @@ are sampled using the given sample.
       <span class="symbol">
         <span class="name">transform</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="gp">gp: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]]</span>, <span name="rigidTransform">rigidTransform: <a href="../registration/RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]]</span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">perform a rigid transformation of the gaussian process, i.</p><div class="fullcomment"><div class="comment cmt"><p>perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@transform[D&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]],rigidTransform:scalismo.registration.RigidTransformation[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[scalismo.geometry.Vector[D]]):scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">perform a rigid transformation of the gaussian process, i.e.</p><div class="fullcomment"><div class="comment cmt"><p>perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
 vectors are transformed along the domain.
 </p></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -418,7 +485,11 @@ vectors are transformed along the domain.
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -437,7 +508,11 @@ vectors are transformed along the domain.
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -456,7 +531,11 @@ vectors are transformed along the domain.
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -493,6 +572,7 @@ vectors are transformed along the domain.
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

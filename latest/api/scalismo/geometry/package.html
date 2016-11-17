@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>geometry - scalismo.geometry</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,13 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img src="../../lib/package_big.png" />
+        <img alt="Package" src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
-        <h1>geometry</h1>
+        <h1>geometry</h1><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -69,8 +77,12 @@
       <span class="symbol">
         <a href="Coordinate.html"><span class="name">Coordinate</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="S">S</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">The basic n-tuple in R<sup>n</sup> with scalar type S
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Coordinate[D&lt;:scalismo.geometry.Dim,S]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The basic n-tuple in R<sup>n</sup> with scalar type S
 </p>
     </li><li name="scalismo.geometry.Dim" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DimextendsAnyRef"></a>
@@ -83,8 +95,12 @@
       <span class="symbol">
         <a href="Dim.html"><span class="name">Dim</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">a marker trait only meant to distinguish the dimension</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@DimextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">a marker trait only meant to distinguish the dimension</p>
     </li><li name="scalismo.geometry.IntVector" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="IntVector[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
       <a id="IntVector[D&lt;:Dim]:IntVector[D]"></a>
@@ -96,7 +112,11 @@
       <span class="symbol">
         <a href="IntVector.html"><span class="name">IntVector</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@IntVector[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.IntVector1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="IntVector1DextendsIntVector[scalismo.geometry._1D]withProductwithSerializable"></a>
@@ -109,8 +129,12 @@
       <span class="symbol">
         <a href="IntVector1D.html"><span class="name">IntVector1D</span></a><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">1D point</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@IntVector1DextendsIntVector[scalismo.geometry._1D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">1D point</p>
     </li><li name="scalismo.geometry.IntVector2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="IntVector2DextendsIntVector[scalismo.geometry._2D]withProductwithSerializable"></a>
       <a id="IntVector2D:IntVector2D"></a>
@@ -122,8 +146,12 @@
       <span class="symbol">
         <a href="IntVector2D.html"><span class="name">IntVector2D</span></a><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>, <span name="j">j: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">2D point</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@IntVector2DextendsIntVector[scalismo.geometry._2D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">2D point</p>
     </li><li name="scalismo.geometry.IntVector3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="IntVector3DextendsIntVector[scalismo.geometry._3D]withProductwithSerializable"></a>
       <a id="IntVector3D:IntVector3D"></a>
@@ -135,8 +163,12 @@
       <span class="symbol">
         <a href="IntVector3D.html"><span class="name">IntVector3D</span></a><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>, <span name="j">j: <span class="extype" name="scala.Int">Int</span></span>, <span name="k">k: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">3D point</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@IntVector3DextendsIntVector[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">3D point</p>
     </li><li name="scalismo.geometry.Landmark" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Landmark[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable"></a>
       <a id="Landmark[D&lt;:Dim]:Landmark[D]"></a>
@@ -146,9 +178,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Landmark.html"><span class="name">Landmark</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="point">point: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="uncertainty">uncertainty: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>] = <span class="symbol">scala.None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Landmark.html"><span class="name">Landmark</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="point">point: <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>, <span name="description">description: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="uncertainty">uncertainty: <span class="extype" name="scala.Option">Option</span>[<a href="../statisticalmodel/MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>] = <span class="symbol">None</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.geometry.Landmark.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Landmark[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.NDSpace" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="NDSpace[D&lt;:scalismo.geometry.Dim]extendsVector.Create[D]withPoint.Create[D]withIntVector.Create[D]"></a>
@@ -161,7 +197,11 @@
       <span class="symbol">
         <a href="NDSpace.html"><span class="name">NDSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="Vector$$Create.html" class="extype" name="scalismo.geometry.Vector.Create">Create</a>[<span class="extype" name="scalismo.geometry.NDSpace.D">D</span>] with <a href="Point$$Create.html" class="extype" name="scalismo.geometry.Point.Create">Create</a>[<span class="extype" name="scalismo.geometry.NDSpace.D">D</span>] with <a href="IntVector$$Create.html" class="extype" name="scalismo.geometry.IntVector.Create">Create</a>[<span class="extype" name="scalismo.geometry.NDSpace.D">D</span>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@NDSpace[D&lt;:scalismo.geometry.Dim]extendsVector.Create[D]withPoint.Create[D]withIntVector.Create[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Point" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Point[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
@@ -174,8 +214,12 @@
       <span class="symbol">
         <a href="Point.html"><span class="name">Point</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">An n-dimensional Point
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An n-dimensional Point
 </p>
     </li><li name="scalismo.geometry.Point1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point1DextendsPoint[scalismo.geometry._1D]withProductwithSerializable"></a>
@@ -188,8 +232,12 @@
       <span class="symbol">
         <a href="Point1D.html"><span class="name">Point1D</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">1D point</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point1DextendsPoint[scalismo.geometry._1D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">1D point</p>
     </li><li name="scalismo.geometry.Point2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point2DextendsPoint[scalismo.geometry._2D]withProductwithSerializable"></a>
       <a id="Point2D:Point2D"></a>
@@ -201,8 +249,12 @@
       <span class="symbol">
         <a href="Point2D.html"><span class="name">Point2D</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>, <span name="y">y: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">2D point</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point2DextendsPoint[scalismo.geometry._2D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">2D point</p>
     </li><li name="scalismo.geometry.Point3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point3DextendsPoint[scalismo.geometry._3D]withProductwithSerializable"></a>
       <a id="Point3D:Point3D"></a>
@@ -214,9 +266,13 @@
       <span class="symbol">
         <a href="Point3D.html"><span class="name">Point3D</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>, <span name="y">y: <span class="extype" name="scala.Double">Double</span></span>, <span name="z">z: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">3D point</p>
-    </li><li name="scalismo.geometry.SquareMatrix" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point3DextendsPoint[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">3D point</p>
+    </li><li name="scalismo.geometry.SquareMatrix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="SquareMatrix[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
       <a id="SquareMatrix[D&lt;:Dim]:SquareMatrix[D]"></a>
       <h4 class="signature">
@@ -227,8 +283,13 @@
       <span class="symbol">
         <a href="SquareMatrix.html"><span class="name">SquareMatrix</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Simple square matrix class of dimension D x D.</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@SquareMatrix[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Simple square matrix class of dimension D x D.</p><div class="fullcomment"><div class="comment cmt"><p>Simple square matrix class of dimension D x D. The data is stored in column major ordering
+</p></div></div>
     </li><li name="scalismo.geometry.Vector" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Vector[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
       <a id="Vector[D&lt;:Dim]:Vector[D]"></a>
@@ -240,8 +301,12 @@
       <span class="symbol">
         <a href="Vector.html"><span class="name">Vector</span></a><span class="tparams">[<span name="D">D &lt;: <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">An n-dimensional Vector
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An n-dimensional Vector
 </p>
     </li><li name="scalismo.geometry.Vector1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector1DextendsVector[scalismo.geometry._1D]withProductwithSerializable"></a>
@@ -254,8 +319,12 @@
       <span class="symbol">
         <a href="Vector1D.html"><span class="name">Vector1D</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">1D Vector</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector1DextendsVector[scalismo.geometry._1D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">1D Vector</p>
     </li><li name="scalismo.geometry.Vector2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector2DextendsVector[scalismo.geometry._2D]withProductwithSerializable"></a>
       <a id="Vector2D:Vector2D"></a>
@@ -267,8 +336,12 @@
       <span class="symbol">
         <a href="Vector2D.html"><span class="name">Vector2D</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>, <span name="y">y: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">2D Vector</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector2DextendsVector[scalismo.geometry._2D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">2D Vector</p>
     </li><li name="scalismo.geometry.Vector3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector3DextendsVector[scalismo.geometry._3D]withProductwithSerializable"></a>
       <a id="Vector3D:Vector3D"></a>
@@ -280,8 +353,12 @@
       <span class="symbol">
         <a href="Vector3D.html"><span class="name">Vector3D</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Double">Double</span></span>, <span name="y">y: <span class="extype" name="scala.Double">Double</span></span>, <span name="z">z: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">3D Vector</p>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector3DextendsVector[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">3D Vector</p>
     </li><li name="scalismo.geometry._1D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="_1DextendsDim"></a>
       <a id="_1D:_1D"></a>
@@ -293,7 +370,11 @@
       <span class="symbol">
         <a href="_1D.html"><span class="name">_1D</span></a><span class="result"> extends <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@_1DextendsDim" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry._2D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="_2DextendsDim"></a>
@@ -306,7 +387,11 @@
       <span class="symbol">
         <a href="_2D.html"><span class="name">_2D</span></a><span class="result"> extends <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@_2DextendsDim" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry._3D" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="_3DextendsDim"></a>
@@ -319,7 +404,11 @@
       <span class="symbol">
         <a href="_3D.html"><span class="name">_3D</span></a><span class="result"> extends <a href="Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@_3DextendsDim" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li></ol>
             </div>
@@ -339,7 +428,11 @@
       <span class="symbol">
         <a href="Dim$.html"><span class="name">Dim</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Dim" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.IntVector" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="IntVector"></a>
@@ -352,7 +445,11 @@
       <span class="symbol">
         <a href="IntVector$.html"><span class="name">IntVector</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@IntVector" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.NDSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NDSpace"></a>
@@ -365,7 +462,11 @@
       <span class="symbol">
         <a href="NDSpace$.html"><span class="name">NDSpace</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@NDSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Point" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point"></a>
@@ -378,7 +479,11 @@
       <span class="symbol">
         <a href="Point$.html"><span class="name">Point</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Point1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point1D"></a>
@@ -391,7 +496,11 @@
       <span class="symbol">
         <a href="Point1D$.html"><span class="name">Point1D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point1D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Point2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point2D"></a>
@@ -404,7 +513,11 @@
       <span class="symbol">
         <a href="Point2D$.html"><span class="name">Point2D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point2D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Point3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Point3D"></a>
@@ -417,7 +530,11 @@
       <span class="symbol">
         <a href="Point3D$.html"><span class="name">Point3D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Point3D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.SquareMatrix" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SquareMatrix"></a>
@@ -430,7 +547,11 @@
       <span class="symbol">
         <a href="SquareMatrix$.html"><span class="name">SquareMatrix</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@SquareMatrix" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Vector" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector"></a>
@@ -443,7 +564,11 @@
       <span class="symbol">
         <a href="Vector$.html"><span class="name">Vector</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Vector1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector1D"></a>
@@ -456,7 +581,11 @@
       <span class="symbol">
         <a href="Vector1D$.html"><span class="name">Vector1D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector1D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Vector2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector2D"></a>
@@ -469,7 +598,11 @@
       <span class="symbol">
         <a href="Vector2D$.html"><span class="name">Vector2D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector2D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.geometry.Vector3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Vector3D"></a>
@@ -482,7 +615,11 @@
       <span class="symbol">
         <a href="Vector3D$.html"><span class="name">Vector3D</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.geometry.package@Vector3D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li></ol>
             </div>
@@ -509,6 +646,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>

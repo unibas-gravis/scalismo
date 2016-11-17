@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>filter - scalismo.image.filter</title>
@@ -9,6 +8,11 @@
           
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../index.html';
@@ -24,9 +28,13 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img src="../../../lib/package_big.png" />
+        <img alt="Package" src="../../../lib/package_big.png" />
         <p id="owner"><a href="../../package.html" class="extype" name="scalismo">scalismo</a>.<a href="../package.html" class="extype" name="scalismo.image">image</a></p>
-        <h1>filter</h1>
+        <h1>filter</h1><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -58,7 +66,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="scalismo.image.filter.BoxedFilter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="scalismo.image.filter.BoxedFilter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="BoxedFilter[D&lt;:scalismo.geometry.Dim]extendsFilter[D]withProductwithSerializable"></a>
       <a id="BoxedFilter[D&lt;:Dim]:BoxedFilter[D]"></a>
       <h4 class="signature">
@@ -69,8 +77,12 @@
       <span class="symbol">
         <a href="BoxedFilter.html"><span class="name">BoxedFilter</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="width">width: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.filter.BoxedFilter.D">D</span>]</span>)</span><span class="result"> extends <a href="Filter.html" class="extype" name="scalismo.image.filter.Filter">Filter</a>[<span class="extype" name="scalismo.image.filter.BoxedFilter.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">D- dimensional box Blurring Filter to be used in a convolution.</p>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package@BoxedFilter[D&lt;:scalismo.geometry.Dim]extendsFilter[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">D- dimensional box Blurring Filter to be used in a convolution.</p><div class="fullcomment"><div class="comment cmt"><p>D- dimensional box Blurring Filter to be used in a convolution. The filter has a value 1 in its support and 0 otherwise</p></div><dl class="paramcmts block"><dt class="param">width</dt><dd class="cmt"><p>Defines the width of the filter support</p></dd></dl></div>
     </li><li name="scalismo.image.filter.Filter" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Filter[D&lt;:scalismo.geometry.Dim]extendsscalismo.geometry.Point[D]=&gt;Float"></a>
       <a id="Filter[D&lt;:Dim]:Filter[D]"></a>
@@ -82,10 +94,14 @@
       <span class="symbol">
         <a href="Filter.html"><span class="name">Filter</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends (<a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.filter.Filter.D">D</span>]) ⇒ <span class="extype" name="scala.Float">Float</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Trait for filters to be used in a convolution
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package@Filter[D&lt;:scalismo.geometry.Dim]extendsscalismo.geometry.Point[D]=&gt;Float" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for filters to be used in a convolution
 </p>
-    </li><li name="scalismo.image.filter.GaussianFilter1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="scalismo.image.filter.GaussianFilter1D" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="GaussianFilter1DextendsFilter[scalismo.geometry._1D]withProductwithSerializable"></a>
       <a id="GaussianFilter1D:GaussianFilter1D"></a>
       <h4 class="signature">
@@ -96,9 +112,14 @@
       <span class="symbol">
         <a href="GaussianFilter1D.html"><span class="name">GaussianFilter1D</span></a><span class="params">(<span name="stddev">stddev: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Filter.html" class="extype" name="scalismo.image.filter.Filter">Filter</a>[<a href="../../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">One dimensional Gaussian Blur Filter to be used in a convolution</p>
-    </li><li name="scalismo.image.filter.GaussianFilter2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package@GaussianFilter1DextendsFilter[scalismo.geometry._1D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">One dimensional Gaussian Blur Filter to be used in a convolution</p><div class="fullcomment"><div class="comment cmt"><p>One dimensional Gaussian Blur Filter to be used in a convolution</p></div><dl class="paramcmts block"><dt class="param">stddev</dt><dd class="cmt"><p>Standard deviation of the Gaussian to be used.
+The extent of the support of the Filter is fixed to be 6 times the standard deviation (3 stddev on each direction)</p></dd></dl></div>
+    </li><li name="scalismo.image.filter.GaussianFilter2D" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="GaussianFilter2DextendsFilter[scalismo.geometry._2D]withProductwithSerializable"></a>
       <a id="GaussianFilter2D:GaussianFilter2D"></a>
       <h4 class="signature">
@@ -109,9 +130,14 @@
       <span class="symbol">
         <a href="GaussianFilter2D.html"><span class="name">GaussianFilter2D</span></a><span class="params">(<span name="stddev">stddev: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Filter.html" class="extype" name="scalismo.image.filter.Filter">Filter</a>[<a href="../../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">2 dimensional Gaussian blur filter.</p>
-    </li><li name="scalismo.image.filter.GaussianFilter3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package@GaussianFilter2DextendsFilter[scalismo.geometry._2D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">2 dimensional Gaussian blur filter.</p><div class="fullcomment"><div class="comment cmt"><p>2 dimensional Gaussian blur filter. See <a href="GaussianFilter1D.html" class="extype" name="scalismo.image.filter.GaussianFilter1D">GaussianFilter1D</a>
+</p></div></div>
+    </li><li name="scalismo.image.filter.GaussianFilter3D" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="GaussianFilter3DextendsFilter[scalismo.geometry._3D]withProductwithSerializable"></a>
       <a id="GaussianFilter3D:GaussianFilter3D"></a>
       <h4 class="signature">
@@ -122,8 +148,13 @@
       <span class="symbol">
         <a href="GaussianFilter3D.html"><span class="name">GaussianFilter3D</span></a><span class="params">(<span name="stddev">stddev: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="Filter.html" class="extype" name="scalismo.image.filter.Filter">Filter</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">3 dimensional Gaussian blur filter.</p>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package@GaussianFilter3DextendsFilter[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">3 dimensional Gaussian blur filter.</p><div class="fullcomment"><div class="comment cmt"><p>3 dimensional Gaussian blur filter. See <a href="GaussianFilter1D.html" class="extype" name="scalismo.image.filter.GaussianFilter1D">GaussianFilter1D</a>
+</p></div></div>
     </li></ol>
             </div>
 
@@ -142,7 +173,11 @@
       <span class="symbol">
         <a href="DiscreteImageFilter$.html"><span class="name">DiscreteImageFilter</span></a>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.image.filter.package@DiscreteImageFilter" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li></ol>
             </div>
@@ -169,6 +204,7 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
+
+
     </body>
       </html>

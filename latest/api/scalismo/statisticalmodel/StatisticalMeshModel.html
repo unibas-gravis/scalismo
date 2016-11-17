@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
           <title>StatisticalMeshModel - scalismo.statisticalmodel.StatisticalMeshModel</title>
@@ -9,6 +8,11 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -24,9 +28,17 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="StatisticalMeshModel$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
+        <a href="StatisticalMeshModel$.html" title="See companion object"><img alt="Class/Object" src="../../lib/class_to_object_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></p>
-        <h1><a href="StatisticalMeshModel$.html" title="Go to companion">StatisticalMeshModel</a></h1>
+        <h1><a href="StatisticalMeshModel$.html" title="See companion object">StatisticalMeshModel</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="StatisticalMeshModel$.html" title="See companion object">object StatisticalMeshModel</a>
+            | <a href="package.html" class="extype" name="scalismo.statisticalmodel">package statisticalmodel</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       </div>
 
       <h4 id="signature" class="signature">
@@ -42,8 +54,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A StatisticalMeshModel is isomorphic to a <a href="DiscreteLowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess">DiscreteLowRankGaussianProcess</a>. The difference is that while the DiscreteLowRankGaussianProcess
 models defomation fields, the StatisticalMeshModel applies the deformation fields to a mesh, and warps the mesh with the deformation fields to
 produce a new mesh.
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess">DiscreteLowRankGaussianProcess</a>
-</p></span></dd></dl><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess">DiscreteLowRankGaussianProcess</a></p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -71,7 +82,6 @@ produce a new mesh.
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -90,19 +100,6 @@ produce a new mesh.
         <div id="values" class="values members">
               <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
@@ -113,8 +110,12 @@ produce a new mesh.
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <a id="##():Int"></a>
@@ -126,22 +127,13 @@ produce a new mesh.
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
@@ -152,8 +144,12 @@ produce a new mesh.
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -165,7 +161,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#changeReference" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="changeReference(t:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
@@ -178,7 +178,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">changeReference</span><span class="params">(<span name="t">t: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@changeReference(t:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Warps the reference mesh with the given transform.</p><div class="fullcomment"><div class="comment cmt"><p>Warps the reference mesh with the given transform. The space spanned by the model is not affected.
 </p></div></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -192,7 +196,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -211,9 +219,12 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">coefficients</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#coefficients(s:scalismo.common.DiscreteField[D,Value]):breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#coefficients">DiscreteLowRankGaussianProcess.coefficients</a>
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@coefficients(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):breeze.linalg.DenseVector[Double]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#coefficients(s:scalismo.common.DiscreteField[D,Value]):breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#coefficients">DiscreteLowRankGaussianProcess.coefficients</a></p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#cov" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="cov(ptId1:scalismo.common.PointId,ptId2:scalismo.common.PointId):breeze.linalg.DenseMatrix[Double]"></a>
       <a id="cov(PointId,PointId):DenseMatrix[Double]"></a>
@@ -225,9 +236,12 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">cov</span><span class="params">(<span name="ptId1">ptId1: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="ptId2">ptId2: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="breeze.linalg.DenseMatrix">DenseMatrix</span>[<span class="extype" name="scala.Double">Double</span>]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">The covariance between two points of the  mesh with given point id.</p><div class="fullcomment"><div class="comment cmt"><p>The covariance between two points of the  mesh with given point id.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#cov:scalismo.kernels.DiscreteMatrixValuedPDKernel[D]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#cov">DiscreteLowRankGaussianProcess.cov</a>
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@cov(ptId1:scalismo.common.PointId,ptId2:scalismo.common.PointId):breeze.linalg.DenseMatrix[Double]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The covariance between two points of the  mesh with given point id.</p><div class="fullcomment"><div class="comment cmt"><p>The covariance between two points of the  mesh with given point id.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#cov:scalismo.kernels.DiscreteMatrixValuedPDKernel[D]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#cov">DiscreteLowRankGaussianProcess.cov</a></p></span></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -239,7 +253,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -252,7 +270,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -271,7 +293,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#gp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="gp:scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry.Vector[scalismo.geometry._3D]]"></a>
@@ -284,7 +310,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">gp</span><span class="result">: <a href="DiscreteLowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess">DiscreteLowRankGaussianProcess</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@gp:scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[scalismo.geometry._3D,scalismo.geometry.Vector[scalismo.geometry._3D]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#instance" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="instance(c:breeze.linalg.DenseVector[Double]):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
@@ -297,9 +327,12 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">instance</span><span class="params">(<span name="c">c: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p><div class="fullcomment"><div class="comment cmt"><p>returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#instance(c:breeze.linalg.DenseVector[Double]):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#instance">DiscreteLowRankGaussianProcess.instance</a>
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@instance(c:breeze.linalg.DenseVector[Double]):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p><div class="fullcomment"><div class="comment cmt"><p>returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#instance(c:breeze.linalg.DenseVector[Double]):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#instance">DiscreteLowRankGaussianProcess.instance</a></p></span></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -311,7 +344,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#marginal" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="marginal(ptIds:IndexedSeq[scalismo.common.PointId]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
@@ -324,14 +361,17 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">marginal</span><span class="params">(<span name="ptIds">ptIds: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@marginal(ptIds:IndexedSeq[scalismo.common.PointId]):scalismo.statisticalmodel.StatisticalMeshModel" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt"> Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference</p><div class="fullcomment"><div class="comment cmt"><p> Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference</p><p> This method proceeds by clipping the reference mesh to keep only the indicated point identifiers, and then marginalizing the
  GP over those points. Notice that when clipping, not all indicated point ids will be part of the clipped mesh, as some points may not belong
  to any cells anymore. Therefore 2 behaviours are supported by this method :</p><p> 1- in case some of the indicated pointIds remain after clipping and do form a mesh, a marginal model is returned only for those points
  2- in case none of the indicated points remain (they are not meshed), a reference mesh with all indicated point Ids and no cells is constructed and a marginal
  over this new reference is returned
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#marginal(pointIds:Seq[scalismo.common.PointId])(implicitdomainCreator:scalismo.common.CreateUnstructuredPointsDomain[D]):scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#marginal">DiscreteLowRankGaussianProcess.marginal</a>
-</p></span></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#marginal(pointIds:Seq[scalismo.common.PointId])(implicitdomainCreator:scalismo.common.UnstructuredPointsDomain.Create[D]):scalismo.statisticalmodel.DiscreteLowRankGaussianProcess[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#marginal">DiscreteLowRankGaussianProcess.marginal</a></p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#mean" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="mean:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
       <a id="mean:TriangleMesh[_3D]"></a>
@@ -343,9 +383,12 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">mean</span><span class="result">: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">The mean shape</p><div class="fullcomment"><div class="comment cmt"><p>The mean shape</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#mean:scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#mean">DiscreteLowRankGaussianProcess.mean</a>
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@mean:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The mean shape</p><div class="fullcomment"><div class="comment cmt"><p>The mean shape</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#mean:scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#mean">DiscreteLowRankGaussianProcess.mean</a></p></span></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -357,7 +400,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
@@ -370,7 +417,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
@@ -383,7 +434,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#pdf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="pdf(instanceCoefficients:breeze.linalg.DenseVector[Double]):Double"></a>
@@ -396,7 +451,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">pdf</span><span class="params">(<span name="instanceCoefficients">instanceCoefficients: <span class="extype" name="breeze.linalg.DenseVector">DenseVector</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@pdf(instanceCoefficients:breeze.linalg.DenseVector[Double]):Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">returns the probability density for an instance of the model</p><div class="fullcomment"><div class="comment cmt"><p>returns the probability density for an instance of the model</p></div><dl class="paramcmts block"><dt class="param">instanceCoefficients</dt><dd class="cmt"><p>coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method</p></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#posterior" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="posterior(trainingData:IndexedSeq[(scalismo.common.PointId,scalismo.geometry.Point[scalismo.geometry._3D],scalismo.statisticalmodel.MultivariateNormalDistribution)]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
@@ -409,7 +468,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@posterior(trainingData:IndexedSeq[(scalismo.common.PointId,scalismo.geometry.Point[scalismo.geometry._3D],scalismo.statisticalmodel.MultivariateNormalDistribution)]):scalismo.statisticalmodel.StatisticalMeshModel" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Similar to <span class="extype" name="DiscreteLowRankGaussianProcess.posterior(Int,">Point[_3D], Double)</span>], but the training data is defined by specifying the target point instead of the displacement vector
 </p>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#posterior" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
@@ -423,7 +486,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">posterior</span><span class="params">(<span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>, <span name="sigma2">sigma2: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@posterior(trainingData:IndexedSeq[(scalismo.common.PointId,scalismo.geometry.Point[scalismo.geometry._3D])],sigma2:Double):scalismo.statisticalmodel.StatisticalMeshModel" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">Similar to <span class="extype" name="DiscreteLowRankGaussianProcess.posterior(Int,">Point[_3D])], sigma2: Double)</span>, but the training data is defined by specifying the target point instead of the displacement vector
 </p>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#project" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -437,9 +504,12 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">project</span><span class="params">(<span name="mesh">mesh: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../mesh/TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
       </span>
-      </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#project(s:scalismo.common.DiscreteField[D,Value]):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#project">DiscreteLowRankGaussianProcess.project</a>
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@project(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.mesh.TriangleMesh3D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#project(s:scalismo.common.DiscreteField[D,Value]):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#project">DiscreteLowRankGaussianProcess.project</a></p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#rank" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rank:Int"></a>
       <a id="rank:Int"></a>
@@ -451,7 +521,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">rank</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@rank:Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#rank:Int" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#rank">scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.rank</a></p></span></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#referenceMesh" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="referenceMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
@@ -464,22 +538,29 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">referenceMesh</span><span class="result">: <a href="../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@referenceMesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#sample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="sample:scalismo.mesh.TriangleMesh3D"></a>
-      <a id="sample:TriangleMesh3D"></a>
+      <a id="sample()(implicitrand:scalismo.utils.Random):scalismo.mesh.TriangleMesh3D"></a>
+      <a id="sample()(Random):TriangleMesh3D"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">sample</span><span class="result">: <a href="../mesh/TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
+        <span class="name">sample</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="rand">rand: <a href="../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span><span class="result">: <a href="../mesh/TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>
       </span>
-      </h4>
-      <p class="shortcomment cmt">draws a random shape.</p><div class="fullcomment"><div class="comment cmt"><p>draws a random shape.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#sample:scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#sample">DiscreteLowRankGaussianProcess.sample</a>
-</p></span></dd></dl></div>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@sample()(implicitrand:scalismo.utils.Random):scalismo.mesh.TriangleMesh3D" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">draws a random shape.</p><div class="fullcomment"><div class="comment cmt"><p>draws a random shape.</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="DiscreteLowRankGaussianProcess.html#sample()(implicitrandom:scalismo.utils.Random):scalismo.common.DiscreteField[D,Value]" class="extmbr" name="scalismo.statisticalmodel.DiscreteLowRankGaussianProcess#sample">DiscreteLowRankGaussianProcess.sample</a></p></span></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -491,7 +572,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.StatisticalMeshModel#transform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="transform(rigidTransform:scalismo.registration.RigidTransformation[scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel"></a>
@@ -504,7 +589,11 @@ produce a new mesh.
       <span class="symbol">
         <span class="name">transform</span><span class="params">(<span name="rigidTransform">rigidTransform: <a href="../registration/RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@transform(rigidTransform:scalismo.registration.RigidTransformation[scalismo.geometry._3D]):scalismo.statisticalmodel.StatisticalMeshModel" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <p class="shortcomment cmt">transform the statistical mesh model using the given rigid transform.</p><div class="fullcomment"><div class="comment cmt"><p>transform the statistical mesh model using the given rigid transform.
 The spanned shape space is not affected by this operations.
 </p></div></div>
@@ -519,7 +608,11 @@ The spanned shape space is not affected by this operations.
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -538,7 +631,11 @@ The spanned shape space is not affected by this operations.
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -557,7 +654,11 @@ The spanned shape space is not affected by this operations.
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.StatisticalMeshModel@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -602,6 +703,7 @@ The spanned shape space is not affected by this operations.
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+
+
     </body>
       </html>
