@@ -62,7 +62,6 @@ private object BSDistance {
   private[boundingSpheres] case class DistanceSqr(val distance2: Double)
   private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
 
-
   /**
    * Finds closest point to triangle.
    */
