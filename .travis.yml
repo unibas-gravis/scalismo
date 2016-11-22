@@ -4,7 +4,7 @@ env:
  - SCALISMO_PLATFORM=linux64
 
 ## Caching seems to cause problems of its own, so we leave it commented for now.
-## We use travis_wait instead (see below in the script: section) to give the build more time. 
+## We use travis_wait instead (see below in the script: section) to give the build more time.
 #cache:
 #  directories:
 #  - $HOME/.ivy2
@@ -21,4 +21,4 @@ script:
   - jdk_switcher use oraclejdk8
   - travis_wait sbt ++$TRAVIS_SCALA_VERSION update
   - sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
-
+  - sbt scalariformFormat && git diff --exit-code   # fails build if scalariform results in changes to the code
