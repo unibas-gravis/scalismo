@@ -47,8 +47,8 @@ object Dependencies {
   val breezeMath = "org.scalanlp" %% "breeze" % "0.12"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.12"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
-  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "3.0.+"
-  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "3.0.+" % "test"
+  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "3.0.0"
+  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "3.0.0" % "test"
   val slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
 }
 
