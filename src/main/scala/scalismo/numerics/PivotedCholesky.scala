@@ -110,6 +110,7 @@ object PivotedCholesky {
       S(p(k)) = D
 
       var c = 0
+
       while (c < k) {
         val tmp = L(p(k), c)
         for (r <- (k + 1 until n).par) {
@@ -120,19 +121,21 @@ object PivotedCholesky {
 
       tr = d(p(k))
 
-      for (r <- (k + 1 until n)) {
+      val t = for (r <- (k + 1 until n).par) yield {
         S(p(r)) = (kernel(xs(p(r)), xs(p(k))) - S(p(r))) / D
         d(p(r)) = d(p(r)) - (S(p(r)) * S(p(r)))
-        tr += d(p(r))
+        d(p(r))
       }
 
+      val ts = if (!t.isEmpty) t.reduce(_ + _) else 0.0
+
+      tr = tr + ts
+
       L.addCol(DenseVector(S.toArray))
-      //      println(s"Pivoted Cholesky : Iteration: $k | Trace: $tr")
       k += 1
     }
 
     PivotedCholesky(L.toDenseMatrix, p, tr)
-
   }
 
   def computeApproximateCholesky[D <: Dim: NDSpace, DO <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
