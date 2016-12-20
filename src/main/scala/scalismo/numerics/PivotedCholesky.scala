@@ -90,6 +90,8 @@ object PivotedCholesky {
     var tr: Double = d.sum
     var k = 0
 
+    val ids = (k until n)
+
     val (tolerance, maxNumEigenfunctions) = stoppingCriterion match {
       case AbsoluteTolerance(t) => (t, n)
       case RelativeTolerance(t) => (tr * t, n)
@@ -109,11 +111,14 @@ object PivotedCholesky {
       val D = Math.sqrt(d(p(k)))
       S(p(k)) = D
 
+      val pointIds = ids.splitAt(k + 1)._2
+      val chunks = pointIds.grouped(n / Runtime.getRuntime().availableProcessors()).toIndexedSeq.par
+
       var c = 0
 
       while (c < k) {
         val tmp = L(p(k), c)
-        for (r <- (k + 1 until n).par) {
+        for (r <- pointIds.par) {
           S(p(r)) += L(p(r), c) * tmp
         }
         c += 1
@@ -121,15 +126,26 @@ object PivotedCholesky {
 
       tr = d(p(k))
 
-      val t = for (r <- (k + 1 until n).par) yield {
-        S(p(r)) = (kernel(xs(p(r)), xs(p(k))) - S(p(r))) / D
-        d(p(r)) = d(p(r)) - (S(p(r)) * S(p(r)))
-        d(p(r))
+      def sumChunk(ids: IndexedSeq[Int]): Double = {
+
+        var s = 0.0
+        var r = ids.head
+        while (r <= ids.last) {
+
+          S(p(r)) = (kernel(xs(p(r)), xs(p(k))) - S(p(r))) / D
+          d(p(r)) = d(p(r)) - (S(p(r)) * S(p(r)))
+          s += d(p(r))
+          r += 1
+
+        }
+        s
       }
 
-      val ts = if (!t.isEmpty) t.reduce(_ + _) else 0.0
+      val chunksum = for (pointChunk <- chunks) yield {
+        sumChunk(pointChunk)
+      }
 
-      tr = tr + ts
+      tr = tr + chunksum.sum
 
       L.addCol(DenseVector(S.toArray))
       k += 1
