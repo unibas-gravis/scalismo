@@ -76,7 +76,8 @@ object STKBuild extends Build {
         git.remoteRepo := "git@github.com:unibas-gravis/scalismo.git"
       )++
       Seq(
-        git.useGitDescribe := true,
+        git.baseVersion := "develop",
+        git.useGitDescribe := false,
         useJGit
       ) ++
       buildInfoSettings ++
