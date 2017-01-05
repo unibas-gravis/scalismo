@@ -1,0 +1,401 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>image - scalismo.image</title>
+          <meta name="description" content="image - scalismo.image" />
+          <meta name="keywords" content="image scalismo.image" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scalismo.image.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
+        <h1>image</h1><span class="permalink">
+      <a href="../../index.html#scalismo.image.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">image</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains classes for representing discrete and continuous images as well as filters for filtering both types of images.</p><p>In this library, the standard type of images are just functions, defined on some domain.
+There is also the more traditional discrete image type, which represents image data on a regular pixel/voxel grid.</p><p>DiscreteImages are mainly used for reading/writing and simple manipulation of image values. The continuous representation
+of images is much more flexible and most method for manipulating images are defined only on this image type.
+A discrete image can be converted to a continuous image by using an interpolation procedure:</p><pre><span class="kw">val</span> domain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">255</span>,<span class="num">255</span>))
+<span class="kw">val</span> di = DiscreteScalarImage(domain)(<span class="num">0</span>)
+<span class="kw">val</span> discreteImage =  DiscreteScalarImage(domain, (_ : Point[_2D]) <span class="kw">=&gt;</span> <span class="num">1.0</span>f)
+<span class="kw">val</span> continuousImage = discreteImage.interpolate(<span class="num">3</span>)</pre><p>To get back the discrete representation, we can sample the image values on a regular grid:</p><pre><span class="kw">val</span> newDomain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">128</span>,<span class="num">128</span>))
+<span class="kw">val</span> resampledDiscreteImage = continuousImage.sample(domain, <span class="num">0</span>)</pre></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scalismo.image"><span>image</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.image.CreateDiscreteImageDomain" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CreateDiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="CreateDiscreteImageDomain[D&lt;:Dim]:CreateDiscreteImageDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateDiscreteImageDomain.html"><span class="name">CreateDiscreteImageDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@CreateDiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Typeclass for creating domains of arbitrary dimensionality</p>
+    </li><li name="scalismo.image.DifferentiableScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DifferentiableScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarImage[D]"></a>
+      <a id="DifferentiableScalarImage[D&lt;:Dim]:DifferentiableScalarImage[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DifferentiableScalarImage.html"><span class="name">DifferentiableScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DifferentiableScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarImage[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A scalar image that is once differentiable
+</p>
+    </li><li name="scalismo.image.DiscreteImage" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="DiscreteImage[D&lt;:scalismo.geometry.Dim,Pixel]extendsDiscreteField[D,Pixel]"></a>
+      <a id="DiscreteImage[D&lt;:Dim,Pixel]:DiscreteImage[D,Pixel]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImage.html"><span class="name">DiscreteImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Pixel">Pixel</span>]</span><span class="result"> extends <a href="../common/DiscreteField.html" class="extype" name="scalismo.common.DiscreteField">DiscreteField</a>[<span class="extype" name="scalismo.image.DiscreteImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteImage.Pixel">Pixel</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteImage[D&lt;:scalismo.geometry.Dim,Pixel]extendsDiscreteField[D,Pixel]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Basic interface for a discrete image of arbitrary Pixel type
+</p><div class="fullcomment"><div class="comment cmt"><p>Basic interface for a discrete image of arbitrary Pixel type
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">Pixel</dt><dd class="cmt"><p>The type of the pixel (usually a scalar or a vector)</p></dd></dl></div>
+    </li><li name="scalismo.image.DiscreteImageDomain" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="DiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsDiscreteDomain[D]withEquals"></a>
+      <a id="DiscreteImageDomain[D&lt;:Dim]:DiscreteImageDomain[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain.html"><span class="name">DiscreteImageDomain</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/DiscreteDomain.html" class="extype" name="scalismo.common.DiscreteDomain">DiscreteDomain</a>[<span class="extype" name="scalismo.image.DiscreteImageDomain.D">D</span>] with <span class="extype" name="scala.Equals">Equals</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain[D&lt;:scalismo.geometry.Dim]extendsDiscreteDomain[D]withEquals" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Defines points in D dimension which are aligned on a regular grid.</p><div class="fullcomment"><div class="comment cmt"><p>Defines points in D dimension which are aligned on a regular grid.</p><p>The grid points are defined by specifying an origin, a spacing between the grid points,
+and the size (number of points) in each direction.</p><p>A global coordinate system is assumed, and all units are measured in mm.
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the domain</p></dd></dl></div>
+    </li><li name="scalismo.image.DiscreteImageDomain1D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain1DextendsDiscreteImageDomain[scalismo.geometry._1D]withProductwithSerializable"></a>
+      <a id="DiscreteImageDomain1D:DiscreteImageDomain1D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain1D.html"><span class="name">DiscreteImageDomain1D</span></a><span class="params">(<span name="size">size: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>]</span>, <span name="indexToPhysicalCoordinateTransform">indexToPhysicalCoordinateTransform: <a href="../registration/AnisotropicSimilarityTransformation.html" class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation">AnisotropicSimilarityTransformation</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>]</span>)</span><span class="result"> extends <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain1DextendsDiscreteImageDomain[scalismo.geometry._1D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.image.DiscreteImageDomain2D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain2DextendsDiscreteImageDomain[scalismo.geometry._2D]withProductwithSerializable"></a>
+      <a id="DiscreteImageDomain2D:DiscreteImageDomain2D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain2D.html"><span class="name">DiscreteImageDomain2D</span></a><span class="params">(<span name="size">size: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>, <span name="indexToPhysicalCoordinateTransform">indexToPhysicalCoordinateTransform: <a href="../registration/AnisotropicSimilarityTransformation.html" class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation">AnisotropicSimilarityTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result"> extends <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain2DextendsDiscreteImageDomain[scalismo.geometry._2D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.image.DiscreteImageDomain3D" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain3DextendsDiscreteImageDomain[scalismo.geometry._3D]withProductwithSerializable"></a>
+      <a id="DiscreteImageDomain3D:DiscreteImageDomain3D"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain3D.html"><span class="name">DiscreteImageDomain3D</span></a><span class="params">(<span name="size">size: <a href="../geometry/IntVector.html" class="extype" name="scalismo.geometry.IntVector">IntVector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="indexToPhysicalCoordinateTransform">indexToPhysicalCoordinateTransform: <a href="../registration/AnisotropicSimilarityTransformation.html" class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation">AnisotropicSimilarityTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result"> extends <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain3DextendsDiscreteImageDomain[scalismo.geometry._3D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="DiscreteScalarImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteScalarField[D,A]withDiscreteImage[D,A]"></a>
+      <a id="DiscreteScalarImage[D&lt;:Dim,A]:DiscreteScalarImage[D,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteScalarImage.html"><span class="name">DiscreteScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/DiscreteScalarField.html" class="extype" name="scalismo.common.DiscreteScalarField">DiscreteScalarField</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>] with <a href="DiscreteImage.html" class="extype" name="scalismo.image.DiscreteImage">DiscreteImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteScalarImage[D&lt;:scalismo.geometry.Dim,A]extendsDiscreteScalarField[D,A]withDiscreteImage[D,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A scalar valued discrete image.</p><div class="fullcomment"><div class="comment cmt"><p>A scalar valued discrete image.
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the pixel (needs to implement Scalar).</p></dd></dl></div>
+    </li><li name="scalismo.image.ScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarField[D,Float]"></a>
+      <a id="ScalarImage[D&lt;:Dim]:ScalarImage[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalarImage.html"><span class="name">ScalarImage</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.ScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@ScalarImage[D&lt;:scalismo.geometry.Dim]extendsScalarField[D,Float]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An image whose values are scalar.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scalismo.image.CreateDiscreteImageDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CreateDiscreteImageDomain"></a>
+      <a id="CreateDiscreteImageDomain:CreateDiscreteImageDomain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateDiscreteImageDomain$.html"><span class="name">CreateDiscreteImageDomain</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@CreateDiscreteImageDomain" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.image.DifferentiableScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DifferentiableScalarImage"></a>
+      <a id="DifferentiableScalarImage:DifferentiableScalarImage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DifferentiableScalarImage$.html"><span class="name">DifferentiableScalarImage</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DifferentiableScalarImage" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory methods to create a differentiableScalarImage
+</p>
+    </li><li name="scalismo.image.DiscreteImageDomain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteImageDomain"></a>
+      <a id="DiscreteImageDomain:DiscreteImageDomain"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteImageDomain$.html"><span class="name">DiscreteImageDomain</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteImageDomain" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory methods for creating DiscreteImageDomain objects
+</p>
+    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteScalarImage"></a>
+      <a id="DiscreteScalarImage:DiscreteScalarImage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteScalarImage$.html"><span class="name">DiscreteScalarImage</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@DiscreteScalarImage" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.</p>
+    </li><li name="scalismo.image.ScalarImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalarImage"></a>
+      <a id="ScalarImage:ScalarImage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalarImage$.html"><span class="name">ScalarImage</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@ScalarImage" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory methods for creating scalar images
+</p>
+    </li><li name="scalismo.image.filter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="filter"></a>
+      <a id="filter:filter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="filter/package.html"><span class="name">filter</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.image.package@filter" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

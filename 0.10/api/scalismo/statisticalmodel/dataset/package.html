@@ -1,0 +1,249 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>dataset - scalismo.statisticalmodel.dataset</title>
+          <meta name="description" content="dataset - scalismo.statisticalmodel.dataset" />
+          <meta name="keywords" content="dataset scalismo.statisticalmodel.dataset" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'scalismo.statisticalmodel.dataset.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="scalismo">scalismo</a>.<a href="../package.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></p>
+        <h1>dataset</h1><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dataset</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains classes for handling datasets of registered meshes and building PCA model out of them.</p><p>The most important class of this package is the <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a>.</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scalismo.statisticalmodel.dataset"><span>dataset</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.statisticalmodel.dataset.DataCollection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DataCollectionextendsProductwithSerializable"></a>
+      <a id="DataCollection:DataCollection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DataCollection.html"><span class="name">DataCollection</span></a><span class="params">(<span name="reference">reference: <a href="../../mesh/TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a></span>, <span name="dataItems">dataItems: <span class="extype" name="scala.Seq">Seq</span>[<a href="DataItem.html" class="extype" name="scalismo.statisticalmodel.dataset.DataItem">DataItem</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@DataCollectionextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Data-structure for handling a dataset of registered 3D meshes.</p><div class="fullcomment"><div class="comment cmt"><p>Data-structure for handling a dataset of registered 3D meshes. All pre-implemented operations such as building a
+PCA model or performing a Generalized Procrustes Analysis require a DataCollection as input
+</p></div><dl class="paramcmts block"><dt class="param">reference</dt><dd class="cmt"><p>The reference mesh of the dataset. This is the mesh that was registered to all other items of the dataset.</p></dd><dt class="param">dataItems</dt><dd class="cmt"><p>Sequence of data items containing the required transformations to apply to the reference mesh in order to obtain
+other elements of the dataset.</p></dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.dataset.DataItem" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DataItem[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable"></a>
+      <a id="DataItem[D&lt;:Dim]:DataItem[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DataItem.html"><span class="name">DataItem</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="transformation">transformation: <a href="../../registration/Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.statisticalmodel.dataset.DataItem.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@DataItem[D&lt;:scalismo.geometry.Dim]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A registered item in a dataset.</p><div class="fullcomment"><div class="comment cmt"><p>A registered item in a dataset.
+</p></div><dl class="paramcmts block"><dt class="param">info</dt><dd class="cmt"><p>A human-readable description of the processing the data item went through. Current implemented methods on data collections,
+ such as <a href="DataCollection$.html#gpa(dc:scalismo.statisticalmodel.dataset.DataCollection,maxIteration:Int,haltDistance:Double):scalismo.statisticalmodel.dataset.DataCollection" class="extmbr" name="scalismo.statisticalmodel.dataset.DataCollection#gpa">DataCollection.gpa</a> will increment this description</p></dd><dt class="param">transformation</dt><dd class="cmt"><p>Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
+ This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item.</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scalismo.statisticalmodel.dataset.Crossvalidation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Crossvalidation"></a>
+      <a id="Crossvalidation:Crossvalidation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Crossvalidation$.html"><span class="name">Crossvalidation</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@Crossvalidation" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements utility functions for evaluating the quality of a registered dataset
+</p>
+    </li><li name="scalismo.statisticalmodel.dataset.DataCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DataCollection"></a>
+      <a id="DataCollection:DataCollection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DataCollection$.html"><span class="name">DataCollection</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@DataCollection" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements utility functions on <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> instances
+</p>
+    </li><li name="scalismo.statisticalmodel.dataset.ModelMetrics" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ModelMetrics"></a>
+      <a id="ModelMetrics:ModelMetrics"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ModelMetrics$.html"><span class="name">ModelMetrics</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@ModelMetrics" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements utility functions for evaluating the quality of a <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a>
+</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scalismo.statisticalmodel.dataset.PCAModel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PCAModel"></a>
+      <a id="PCAModel:PCAModel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PCAModel$.html"><span class="name deprecated" title="Deprecated: (Since version 0.10.0) Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.">PCAModel</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.statisticalmodel.dataset.package@PCAModel" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implements utility functions for building a <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a> from a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> containing a reference and items in correspondence.</p><div class="fullcomment"><div class="comment cmt"><p>Implements utility functions for building a <a href="../StatisticalMeshModel.html" class="extype" name="scalismo.statisticalmodel.StatisticalMeshModel">StatisticalMeshModel</a> from a <a href="DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a> containing a reference and items in correspondence.
+This object is deprecated and its methods moved to StatisticalMeshModel. The object will be removed in future versions.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.10.0)</i> Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.</p></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
