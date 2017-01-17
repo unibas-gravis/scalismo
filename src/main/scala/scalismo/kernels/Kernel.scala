@@ -18,7 +18,7 @@ package scalismo.kernels
 import breeze.linalg.{ DenseMatrix, DenseVector, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
+import scalismo.numerics.PivotedCholesky.{ NumberOfEigenfunctions, RelativeTolerance }
 import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
@@ -253,6 +253,55 @@ object Kernel {
     kxs
   }
 
+  /**
+   * Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding
+   * to kernel k. The number of leading eigenfunctions is at most n, where n is the number of points sampled.
+   * If the eigenvalues are decaying quickly, it can be much smaller than n.
+   *
+   * @param k (matrix-valued) kernel
+   * @param sampler  A point sampler, which determines the points that are used to compute the approximation.
+   * @return The leading eigenvalue / eigenfunction pairs
+   */
+  def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random): KLBasis[D, Value] = {
+
+    // procedure for the nystrom approximation as described in
+    // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
+
+    val (ptsForNystrom, _) = sampler.sample().unzip
+    // depending on the sampler, it may happen that we did not sample all the points we wanted
+    val effectiveNumberOfPointsSampled = ptsForNystrom.size
+
+    val K = computeKernelMatrix(ptsForNystrom, k)
+    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, RelativeTolerance(1e-8))
+
+    val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
+    val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
+
+    val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled) * pinv(diag(lambdaMat(0 until numParams)))
+
+    def computePhis(x: Point[D]): DenseMatrix[Double] = computeKernelVectorFor(x, ptsForNystrom, k) * W
+    val computePhisMemoized = Memoize(computePhis, 1000)
+
+    def phi(i: Int)(x: Point[D]) = {
+      val value = computePhisMemoized(x)
+      // extract the right entry for the i-th phi function
+      vectorizer.unvectorize(value(::, i).toDenseVector)
+    }
+
+    for (i <- 0 until numParams) yield {
+      Eigenpair(lambda(i), Field(k.domain, phi(i) _))
+    }
+  }
+
+  /**
+   * Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding
+   * to kernel k.
+   * @param k (matrix-valued) kernel
+   * @param numBasisFunctions  the number of leading basis functions to be computed
+   * @param sampler  A point sampler, which determines the points that are used to compute the approximation.
+   * @return The leading eigenvalue / eigenfunction pairs
+   */
   def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
     numBasisFunctions: Int,
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random): KLBasis[D, Value] = {
@@ -264,7 +313,8 @@ object Kernel {
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
-    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, NumberOfEigenfunctions(numBasisFunctions))
+    val K = computeKernelMatrix(ptsForNystrom, k)
+    val (uMat, lambdaMat, _) = RandomSVD.computeSVD(K, numBasisFunctions)
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
