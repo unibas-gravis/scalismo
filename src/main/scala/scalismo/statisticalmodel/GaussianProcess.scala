@@ -97,7 +97,7 @@ object GaussianProcess {
   }
 
   /**
-   * Craetes a new zero-mean Gaussian process with the given covariance function.
+   * Creates a new zero-mean Gaussian process with the given covariance function.
    */
   def apply[D <: Dim: NDSpace, Value](cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
     val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
