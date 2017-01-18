@@ -92,8 +92,17 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]) = {
+  def apply[D <: Dim: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
     new GaussianProcess[D, Value](mean, cov)
+  }
+
+  /**
+   * Craetes a new zero-mean Gaussian process with the given covariance function.
+   */
+  def apply[D <: Dim: NDSpace, Value](cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
+    val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
+    val zeroField = Field[D, Value](RealSpace[D], (p: Point[D]) => zeroVec)
+    GaussianProcess[D, Value](zeroField, cov)
   }
 
   /**
