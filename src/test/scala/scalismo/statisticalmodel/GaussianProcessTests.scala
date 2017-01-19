@@ -141,8 +141,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the landmark points fixed for a 2D case") {
       val domain = BoxDomain((-5.0, -5.0), (5.0, 5.0))
-      val gp = GaussianProcess[_2D, Vector[_2D]](Field(domain, _ => Vector(0.0, 0.0)),
-        DiagonalKernel(GaussianKernel[_2D](5), 2))
+      val gp = GaussianProcess[_2D, Vector[_2D]](DiagonalKernel(GaussianKernel[_2D](5), 2))
       val gpLowRank = LowRankGaussianProcess.approximateGP[_2D, Vector[_2D]](gp, UniformSampler(domain, 400), 100)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0), Vector(1.0, 1.0)), (Point(-1.0, 3.0), Vector(0.0, -1.0)))
@@ -161,8 +160,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the landmark points fixed for a 3D case") {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val gp = GaussianProcess[_3D, Vector[_3D]](Field(domain, _ => Vector(0.0, 0.0, 0.0)),
-        DiagonalKernel(GaussianKernel[_3D](5), 3))
+      val gp = GaussianProcess[_3D, Vector[_3D]](DiagonalKernel(GaussianKernel[_3D](5), 3))
       val gpLowRank = LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](gp, UniformSampler(domain, 6 * 6 * 6), 50)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), Vector(1.0, 1.0, 2.0)), (Point(-1.0, 3.0, 0.0), Vector(0.0, -1.0, 0.0)))
@@ -186,11 +184,9 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     object Fixture {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val gp = GaussianProcess[_3D, Vector[_3D]](Field(domain, _ => Vector(0.0, 0.0, 0.0)),
-        DiagonalKernel(GaussianKernel[_3D](5), 3))
+      val gp = GaussianProcess[_3D, Vector[_3D]](DiagonalKernel(GaussianKernel[_3D](5), 3))
 
-      val moreComplexGP = GaussianProcess[_3D, Vector[_3D]](Field(domain, _ => Vector(0.0, 0.0, 0.0)),
-        DiagonalKernel(GaussianKernel[_3D](5) + GaussianKernel[_3D](2.5) * 2 + GaussianKernel[_3D](0.5) * 1, 3))
+      val moreComplexGP = GaussianProcess[_3D, Vector[_3D]](DiagonalKernel(GaussianKernel[_3D](5) + GaussianKernel[_3D](2.5) * 2 + GaussianKernel[_3D](0.5) * 1, 3))
 
       val littleNoise = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
       val discreteDomain = UnstructuredPointsDomain(IndexedSeq(Point(-3.0, -3.0, -1.0), Point(-1.0, 3.0, 0.0)))
