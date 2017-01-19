@@ -138,6 +138,5 @@ class KernelTransformationTests extends ScalismoTestSuite {
       eigPairsLessSmooth.size should be > eigPairsMoreSmooth.size
     }
 
-
   }
 }
