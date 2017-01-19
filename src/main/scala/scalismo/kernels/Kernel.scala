@@ -273,7 +273,10 @@ object Kernel {
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
     val K = computeKernelMatrix(ptsForNystrom, k)
-    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, RelativeTolerance(1e-8))
+
+    // we compute the eigenvectors only approximately, to a tolerance of 1e-5. As the nystrom approximation is
+    // anyway not exact, this should be sufficient for all practical cases.
+    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, RelativeTolerance(1e-5))
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
