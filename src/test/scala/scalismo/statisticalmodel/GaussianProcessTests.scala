@@ -222,7 +222,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), IntVector(7, 7, 7)))
       val kernel = DiagonalKernel(GaussianKernel[_3D](10), 3)
       val gp = {
-        LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 200)
+        LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, (_: Point[_3D]) => Vector(0.0, 0.0, 0.0)), kernel), sampler, 200)
       }
     }
 
@@ -293,7 +293,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val sampler = UniformSampler(domain, 7 * 7 * 7)
       val kernel = covKernel
       val gp = {
-        LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, _ => Vector(0.0, 0.0, 0.0)), kernel), sampler, 5)
+        LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, (_: Point[_3D]) => Vector(0.0, 0.0, 0.0)), kernel), sampler, 5)
       }
       val fewPointsSampler = UniformSampler(domain, 2 * 2 * 2)
       val pts = fewPointsSampler.sample.map(_._1)

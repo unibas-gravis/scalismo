@@ -18,7 +18,7 @@ package scalismo.kernels
 import breeze.linalg.{ DenseMatrix, DenseVector, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
+import scalismo.numerics.PivotedCholesky.{ NumberOfEigenfunctions, RelativeTolerance }
 import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
@@ -253,8 +253,16 @@ object Kernel {
     kxs
   }
 
+  /**
+   * Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding
+   * to kernel k. The number of leading eigenfunctions is at most n, where n is the number of points sampled.
+   * If the eigenvalues are decaying quickly, it can be much smaller than n.
+   *
+   * @param k (matrix-valued) kernel
+   * @param sampler  A point sampler, which determines the points that are used to compute the approximation.
+   * @return The leading eigenvalue / eigenfunction pairs
+   */
   def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
-    numBasisFunctions: Int,
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in
@@ -264,7 +272,11 @@ object Kernel {
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
 
-    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, NumberOfEigenfunctions(numBasisFunctions))
+    val K = computeKernelMatrix(ptsForNystrom, k)
+
+    // we compute the eigenvectors only approximately, to a tolerance of 1e-5. As the nystrom approximation is
+    // anyway not exact, this should be sufficient for all practical cases.
+    val (uMat, lambdaMat) = PivotedCholesky.computeApproximateEig(k, ptsForNystrom, 1.0, RelativeTolerance(1e-5))
 
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size

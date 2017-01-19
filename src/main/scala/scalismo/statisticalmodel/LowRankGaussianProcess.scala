@@ -20,6 +20,7 @@ import breeze.linalg.{ diag, DenseMatrix, DenseVector }
 import scalismo.common._
 import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
+import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
@@ -183,7 +184,21 @@ object LowRankGaussianProcess {
   def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
     numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
-    val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, numBasisFunctions, sampler)
+    val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
+    new LowRankGaussianProcess[D, Value](gp.mean, kltBasis.take(numBasisFunctions))
+  }
+
+  /**
+   * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
+   * are sampled using the given sample.
+   *
+   * @param gp                The gaussian process to approximate
+   * @param sampler           determines which points will be used as samples for the nystrom approximation.
+   * @
+   */
+  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+    val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
 
