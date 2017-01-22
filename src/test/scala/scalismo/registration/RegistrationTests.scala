@@ -49,7 +49,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
         val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
 
-        val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints))
+        val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
 
         val alignedPoints = points.map((pt: Point[_2D]) => regResult(pt))
 
@@ -131,7 +131,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
         val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
 
-        val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints))
+        val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
 
         val alignedPoints = points.map(regResult)
         transformedPoints(0)(0) should be(alignedPoints(0)(0) +- 0.0001)
