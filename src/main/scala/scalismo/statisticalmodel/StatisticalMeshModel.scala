@@ -108,7 +108,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    */
   def project(mesh: TriangleMesh[_3D]) = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
-    val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
+    val dvf = DiscreteField(referenceMesh.pointSet, displacements)
     warpReference(gp.project(dvf))
   }
 
@@ -117,7 +117,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    */
   def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
-    val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
+    val dvf = DiscreteField(referenceMesh.pointSet, displacements)
     gp.coefficients(dvf)
   }
 
