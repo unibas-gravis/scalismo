@@ -475,8 +475,8 @@ class GeometryTests extends ScalismoTestSuite {
       lm.point should equal(transformedLm.point)
 
       // the uncertainty is transformed stochastically. We therefore do not require strict equivalence
-      breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-2
-      breeze.linalg.sum((lm.uncertainty.get.cov - transformedLm.uncertainty.get.cov).toDenseMatrix) should be < 1e-2
+      breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-1
+      breeze.linalg.sum((lm.uncertainty.get.cov - transformedLm.uncertainty.get.cov).toDenseMatrix) should be < 1e-1
     }
 
     it("is correctly transformed using a rigid transform") {
@@ -491,14 +491,13 @@ class GeometryTests extends ScalismoTestSuite {
       rigidTransform(lm.point) should equal(transformedLm.point)
 
       // the uncertainty is transformed stochastically. We therefore do not require strict equivalence
-      breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-2
+      breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-1
 
       // a rigid transformation retains the variance
       for (i <- 0 until 2) {
         lm.uncertainty.get.principalComponents(i)._2 should be(transformedLm.uncertainty.get.principalComponents(i)._2 +- 1e-1)
       }
     }
-
 
   }
 

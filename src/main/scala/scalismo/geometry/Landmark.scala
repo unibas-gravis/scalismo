@@ -33,15 +33,15 @@ case class Landmark[D <: Dim: NDSpace](id: String, point: Point[D], description:
     val transformedUncertainty = uncertainty match {
       case Some(uncertainty) => {
 
-        // in order to understand what the new uncertainty is, we simply
-        // sample from the current distribution a few points and then
-        // estimate the new uncertainty from it.
+        // in order to transform the uncertainty, we simulate random landmark points
+        // and estimate their distribution.
         val transformedPoints = for (i <- 0 until 500) yield {
-          val pt = NDSpace[D].createPoint(uncertainty.sample()(random).toArray)
-          transformation(pt)
+          val sampledPoint = point + NDSpace[D].createVector(uncertainty.sample()(random).toArray)
+          transformation(sampledPoint)
         }
-        val newCov = MultivariateNormalDistribution.estimateFromData(transformedPoints.map(_.toBreezeVector)).cov
-        Some(MultivariateNormalDistribution(uncertainty.mean, newCov))
+        val newUncertainty = MultivariateNormalDistribution.estimateFromData(transformedPoints.map(_.toBreezeVector))
+        val newMean = newUncertainty.mean - transformedPoint.toBreezeVector
+        Some(MultivariateNormalDistribution(newMean, newUncertainty.cov))
       }
       case None => None
     }
