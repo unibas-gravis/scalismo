@@ -659,7 +659,7 @@ trait RigidTransformation[D <: Dim] extends CompositeTransformation[D] with CanI
   def rotation: RotationTransform[D]
   def inverse: RigidTransformation[D]
 
-}Anisotropic
+}
 
 /** Factory for [[RigidTransformation]] instances. */
 object RigidTransformation {
@@ -723,23 +723,21 @@ private class SimilarityTransformationRigidFollowingScaling[D <: Dim: NDSpace](v
   override def inverse: SimilarityTransformation[D] = new SimilarityTransformationScalingFollowingRigid(scaling.inverse, rigidTransformation.inverse)
 }
 
-
-
 /**
-  * Parametric transformation space producing similarity transforms.
-  *
-  * @constructor Returns a parametric space generating anisotropic similarity transforms
-  * @param center : center of rotation used in the rigid transform
-  */
-case class SimilarityTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace : ScalingSpace.Create](center: Point[D])
-  extends ProductTransformationSpace[D, ScalingTransformation[D], RigidTransformation[D]](ScalingSpace[D](), RigidTransformationSpace[D](center)) {
+ * Parametric transformation space producing similarity transforms.
+ *
+ * @constructor Returns a parametric space generating anisotropic similarity transforms
+ * @param center : center of rotation used in the rigid transform
+ */
+case class SimilarityTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace: ScalingSpace.Create](center: Point[D])
+    extends ProductTransformationSpace[D, ScalingTransformation[D], RigidTransformation[D]](ScalingSpace[D](), RigidTransformationSpace[D](center)) {
 
   /**
-    * Returns a D-dimensional c similarity transform that performs the rigid transofrmation first, then a scaling.
-    *
-    * @param p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
-    *
-    */
+   * Returns a D-dimensional c similarity transform that performs the rigid transofrmation first, then a scaling.
+   *
+   * @param p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
+   *
+   */
   override def transformForParameters(p: ParameterVector): SimilarityTransformation[D] = {
     val (scalingP, rigidP) = splitProductParameterVector(p)
     val rigidTransformation = RigidTransformationSpace[D](center).transformForParameters(rigidP)
