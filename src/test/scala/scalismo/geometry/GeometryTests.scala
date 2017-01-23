@@ -17,6 +17,8 @@ package scalismo.geometry
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
+import scalismo.registration._
+import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -458,4 +460,45 @@ class GeometryTests extends ScalismoTestSuite {
       }
     }
   }
+
+  describe("a 2D landmark") {
+
+    val pcs = Seq((DenseVector(1.0, 0.0), 2.0), (DenseVector(0.0, 1.0), 0.5))
+    val lm = Landmark("a", Point2D(1, 1), None, Some(MultivariateNormalDistribution(DenseVector.zeros[Double](2), pcs)))
+
+    it("is correctly transformed using an identity transform") {
+
+      val transformedLm = lm.transform(Transformation((p: Point[_2D]) => p))
+
+      lm.id should equal(transformedLm.id)
+      lm.description should equal(transformedLm.description)
+      lm.point should equal(transformedLm.point)
+
+      // the uncertainty is transformed stochastically. We therefore do not require strict equivalence
+      breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-1
+      breeze.linalg.sum((lm.uncertainty.get.cov - transformedLm.uncertainty.get.cov).toDenseMatrix) should be < 1e-1
+    }
+
+    it("is correctly transformed using a rigid transform") {
+
+      val rigidTransform = RigidTransformation(TranslationTransform(Vector2D(2, 3)),
+        RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
+
+      val transformedLm = lm.transform(rigidTransform)
+
+      lm.id should equal(transformedLm.id)
+      lm.description should equal(transformedLm.description)
+      rigidTransform(lm.point) should equal(transformedLm.point)
+
+      // the uncertainty is transformed stochastically. We therefore do not require strict equivalence
+      breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-1
+
+      // a rigid transformation retains the variance
+      for (i <- 0 until 2) {
+        lm.uncertainty.get.principalComponents(i)._2 should be(transformedLm.uncertainty.get.principalComponents(i)._2 +- 1e-1)
+      }
+    }
+
+  }
+
 }
