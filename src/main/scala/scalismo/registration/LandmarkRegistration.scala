@@ -76,6 +76,11 @@ object LandmarkRegistration {
     LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
   }
 
+  @deprecated("Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]], targetLms: Seq[Landmark[_3D]]): RigidTransformation[_3D] = {
+    LandmarkRegistration.rigid3DLandmarkRegistration(originalLms, targetLms, center = origin3D)
+  }
+
   /**
    * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
@@ -90,14 +95,10 @@ object LandmarkRegistration {
     rigidSpace.transformForParameters(optimalParameters)
   }
 
-  /**
-   * Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
-   *
-   * Attention: the center of rotation used for the rigid transformation here is the origin of the 3D space
-   *
-   * @param landmarks sequence of corresponding landmarks
-   */
-  def rigid3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = rigid3DLandmarkRegistration(landmarks, origin3D)
+  @deprecated("Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def rigid3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = {
+    LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, center = origin3D)
+  }
 
   /**
    * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
@@ -113,6 +114,11 @@ object LandmarkRegistration {
     rigidSpace.transformForParameters(optimalParameters)
   }
 
+  @deprecated("Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def rigid2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])]): RigidTransformation[_2D] = {
+    rigid2DLandmarkRegistration(landmarks, center = origin2D)
+  }
+
   /**
    * Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
@@ -125,15 +131,10 @@ object LandmarkRegistration {
     LandmarkRegistration.rigid2DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
   }
 
-  /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
-   * into the corresponding target points (second elements of the tuples).
-   *
-   * Attention: the center of rotation used for the rigid transformation here is the origin of the 3D space
-   *
-   * @param landmarks sequence of corresponding landmarks
-   */
-  def similarity3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])]): ParametricTransformation[_3D] = similarity3DLandmarkRegistration(landmarks, origin3D)
+  @deprecated("Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def rigid2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]], targetLms: Seq[Landmark[_2D]]): RigidTransformation[_2D] = {
+    LandmarkRegistration.rigid2DLandmarkRegistration(originalLms, targetLms, center = origin2D)
+  }
 
   /**
    * Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
@@ -152,6 +153,11 @@ object LandmarkRegistration {
     SimilarityTransformation(scalingTransform, rigidTransform)
   }
 
+  @deprecated("Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def similarity3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])]): SimilarityTransformation[_3D] = {
+    similarity3DLandmarkRegistration(landmarks, origin3D)
+  }
+
   /**
    * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
@@ -162,6 +168,11 @@ object LandmarkRegistration {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs = commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
     LandmarkRegistration.similarity3DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
+  }
+
+  @deprecated("Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def similarity3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]], targetLms: Seq[Landmark[_3D]]): SimilarityTransformation[_3D] = {
+    similarity3DLandmarkRegistration(originalLms, targetLms, origin3D)
   }
 
   /**
@@ -176,6 +187,11 @@ object LandmarkRegistration {
     LandmarkRegistration.similarity2DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
   }
 
+  @deprecated("Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def similarity2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]], targetLms: Seq[Landmark[_2D]]): SimilarityTransformation[_2D] = {
+    LandmarkRegistration.similarity2DLandmarkRegistration(originalLms, targetLms, center = origin2D)
+  }
+
   def similarity2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])], center: Point[_2D]): SimilarityTransformation[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, similarityFlag = true, center = center)
 
@@ -184,6 +200,11 @@ object LandmarkRegistration {
 
     val scalingTransform = ScalingTransformation[_2D](s)
     SimilarityTransformation(scalingTransform, rigidTransform)
+  }
+
+  @deprecated("Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
+  def similarity2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])]): SimilarityTransformation[_2D] = {
+    LandmarkRegistration.similarity2DLandmarkRegistration(landmarks, center = origin2D)
   }
 
   def rotationMatrixToAngle2D(rotMat: DenseMatrix[Double]) = {
