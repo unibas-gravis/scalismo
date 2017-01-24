@@ -265,12 +265,12 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("A 3D similarity transform") {
 
-    val rigidTransformation = RigidTransformation(TranslationTransform(Vector3D(2.0, 5.0, 0.0)), RotationTransform(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
+    val rigidTransformation = RigidTransformation(TranslationTransform(Vector3D(2.0, 5.0, 1.0)), RotationTransform(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
     val similarityTransform = SimilarityTransformation(ScalingTransformation[_3D](2.0), rigidTransformation)
 
     it("correctly transforms a 3D point") {
-      val point = Point(1.0, 1.0, 0.0)
-      val correctlyTransformedPoint = Point(2.0, 12.0, 0.0)
+      val point = Point(1.0, 1.0, 1.0)
+      val correctlyTransformedPoint = Point(2.0, 12.0, 4.0)
       (similarityTransform(point) - correctlyTransformedPoint).norm should be < 1e-5
     }
 

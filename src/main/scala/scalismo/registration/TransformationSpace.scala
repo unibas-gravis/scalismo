@@ -718,7 +718,7 @@ private class SimilarityTransformationScalingFollowingRigid[D <: Dim: NDSpace](v
 
 private class SimilarityTransformationRigidFollowingScaling[D <: Dim: NDSpace](val rigidTransformation: RigidTransformation[D],
   val scaling: ScalingTransformation[D])
-    extends CompositeTransformation[D](scaling, rigidTransformation) with SimilarityTransformation[D] {
+    extends CompositeTransformation[D](rigidTransformation, scaling) with SimilarityTransformation[D] {
 
   override def inverse: SimilarityTransformation[D] = new SimilarityTransformationScalingFollowingRigid(scaling.inverse, rigidTransformation.inverse)
 }
@@ -733,9 +733,9 @@ case class SimilarityTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace:
     extends ProductTransformationSpace[D, ScalingTransformation[D], RigidTransformation[D]](ScalingSpace[D](), RigidTransformationSpace[D](center)) {
 
   /**
-   * Returns a D-dimensional c similarity transform that performs the rigid transofrmation first, then a scaling.
+   * Returns a D-dimensional similarity transform that performs the rigid transformation first, then a scaling.
    *
-   * @param p parameter vector for the transform. This must be a concatenation of the rigid transform parameters first, then scaling parameters
+   * @param p parameter vector for the transform. This must be a concatenation of the scaling parameters, followed by the rigid parameters
    *
    */
   override def transformForParameters(p: ParameterVector): SimilarityTransformation[D] = {
