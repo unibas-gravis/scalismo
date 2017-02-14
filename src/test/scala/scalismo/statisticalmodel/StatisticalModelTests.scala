@@ -79,6 +79,16 @@ class StatisticalModelTests extends ScalismoTestSuite {
       compareModels(model, newModel)
     }
 
+    it("has the right rank when reduced") {
+      val path = getClass.getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+
+      val newRank = model.rank / 2
+      val truncatedModel = model.truncate(newRank)
+      truncatedModel.rank should equal(newRank)
+
+    }
+
     //    it("can write a changed mean statistical mode, read it and still yield the same space") {
     //      val tmpStatismoFile = File.createTempFile("statModel", ".h5")
     //      tmpStatismoFile.deleteOnExit()

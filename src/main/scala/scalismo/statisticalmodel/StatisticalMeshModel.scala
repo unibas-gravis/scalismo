@@ -104,6 +104,15 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
   }
 
   /**
+   * Returns a reduced rank model, using only the leading basis functions.
+   *
+   * @param newRank: The rank of the new model.
+   */
+  def truncate(newRank: Int): StatisticalMeshModel = {
+    new StatisticalMeshModel(referenceMesh, gp.truncate(newRank))
+  }
+
+  /**
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
   def project(mesh: TriangleMesh[_3D]) = {
