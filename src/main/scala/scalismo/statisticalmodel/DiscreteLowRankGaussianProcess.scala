@@ -119,6 +119,15 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   }
 
   /**
+   * Returns a reduced rank model, using only the leading basis function of the Karhunen-loeve expansion.
+   *
+   * @param newRank: The rank of the new Gaussian process.
+   */
+  def truncate(rank: Int) = {
+    DiscreteLowRankGaussianProcess[D, Value](mean, klBasis.take(rank))
+  }
+
+  /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
   override def project(s: DiscreteField[D, Value]): DiscreteField[D, Value] = {

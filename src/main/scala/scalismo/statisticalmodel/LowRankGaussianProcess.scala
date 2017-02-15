@@ -82,6 +82,15 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
   }
 
   /**
+   * Returns a reduced rank model, using only the leading basis function of the Karhunen-loeve expansion.
+   *
+   * @param newRank: The rank of the new Gaussian process.
+   */
+  def truncate(newRank: Int): LowRankGaussianProcess[D, Value] = {
+    new LowRankGaussianProcess(mean, klBasis.take(newRank))
+  }
+
+  /**
    * Returns the sample of the gaussian process that best explains the given training data. It is assumed that the training data (values)
    * are subject to 0 mean Gaussian noise
    *

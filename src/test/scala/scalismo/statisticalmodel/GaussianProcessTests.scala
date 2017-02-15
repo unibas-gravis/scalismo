@@ -15,12 +15,15 @@
  */
 package scalismo.statisticalmodel
 
+import _root_.java.io.File
+
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
 import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
+import scalismo.io.StatismoIO
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel }
 import scalismo.numerics.{ GridSampler, UniformSampler }
 import scalismo.utils.Random
@@ -238,6 +241,15 @@ class GaussianProcessTests extends ScalismoTestSuite {
       for (i <- 0 until coeffs.size) {
         computedCoeffs(i) should be(coeffs(i) +- 1e-2)
       }
+    }
+
+    it("has the right rank when reduced") {
+      val gp = Fixture.gp
+
+      val newRank = gp.rank / 2
+      val truncatedGP = gp.truncate(newRank)
+      truncatedGP.rank should equal(newRank)
+
     }
 
     it("yields the same object when a sample from the model is projected") {
