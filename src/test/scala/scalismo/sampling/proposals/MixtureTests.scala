@@ -18,8 +18,8 @@ package scalismo.sampling.proposals
 
 import scalismo.ScalismoTestSuite
 import scalismo.sampling.evaluators.GaussianEvaluator
-import scalismo.sampling.proposals.MixtureProposal.{SymmetricProposalGenerator, SymmetricProposalGeneratorWithTransition}
-import scalismo.sampling.{ProposalGenerator, SymmetricTransitionRatio, TransitionProbability, proposals}
+import scalismo.sampling.proposals.MixtureProposal.{ SymmetricProposalGenerator, SymmetricProposalGeneratorWithTransition }
+import scalismo.sampling.{ ProposalGenerator, SymmetricTransitionRatio, TransitionProbability, proposals }
 import scalismo.utils.Random
 
 class MixtureTests extends ScalismoTestSuite {
@@ -93,17 +93,17 @@ class MixtureTests extends ScalismoTestSuite {
 
       it("discards symmetry if a proposal is not symmetric") {
         val mixture = MixtureProposal(0.25 *: symProposal + plainProposal * 0.75)
-        mixture should not be a [SymmetricTransitionRatio[_]]
+        mixture should not be a[SymmetricTransitionRatio[_]]
       }
 
       it("discards transition probability if a proposal does not provide it") {
         val mixture = MixtureProposal(0.25 *: symTransProposal + plainProposal * 0.75)
-        mixture should not be a [TransitionProbability[_]]
+        mixture should not be a[TransitionProbability[_]]
       }
 
       it("properly interprets nested coefficients") {
         val mixture = MixtureProposal((plainProposal + plainProposal * 0.5) * 0.6 + 0.4 *: plainProposal)
-        mixture.asInstanceOf[MixtureProposal[Double]].mixtureFactors shouldBe IndexedSeq(1.0/1.5 * 0.6, 0.5 / 1.5 * 0.6, 0.4)
+        mixture.asInstanceOf[MixtureProposal[Double]].mixtureFactors shouldBe IndexedSeq(1.0 / 1.5 * 0.6, 0.5 / 1.5 * 0.6, 0.4)
       }
     }
   }
