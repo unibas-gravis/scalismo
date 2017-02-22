@@ -23,7 +23,6 @@ import scalismo.statisticalmodel.MultivariateNormalDistribution
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 
-import scala.collection.immutable
 import scala.io.Source
 import scala.language.{ implicitConversions, reflectiveCalls }
 import scala.util.{ Failure, Try }
@@ -74,11 +73,11 @@ object LandmarkIO {
    * This simply avoids having to specify the Landmark[D] type all the time.
    */
 
-  def readLandmarksJson[D <: Dim: NDSpace](file: File): Try[immutable.Seq[Landmark[D]]] = {
+  def readLandmarksJson[D <: Dim: NDSpace](file: File): Try[Seq[Landmark[D]]] = {
     readLandmarksJsonFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.Seq[Landmark[D]]] = {
+  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
       result <- Try {
@@ -91,15 +90,9 @@ object LandmarkIO {
     } yield result
   }
 
-  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
-  def writeLandmarksJson[D <: Dim: NDSpace](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksJson(landmarks, file)
+  def writeLandmarksJson[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
 
-  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
-  def writeLandmarksJsonToStream[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksJsonToStream(landmarks, stream)
-
-  def writeLandmarksJson[D <: Dim: NDSpace](landmarks: immutable.Seq[Landmark[D]], file: File): Try[Unit] = writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
-
-  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]])(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](stream: OutputStream, landmarks: Seq[Landmark[D]])(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
       writer.println(landmarks.toJson.toString())
@@ -110,7 +103,7 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksJsonToStream[D <: Dim: NDSpace](landmarks: immutable.Seq[Landmark[D]], stream: OutputStream): Try[Unit] = Try {
+  def writeLandmarksJsonToStream[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = Try {
     implicit val e = LandmarkJsonFormat[D]()
     writeLandmarksJsonToStreamP(stream, landmarks)
   }.flatten
@@ -123,18 +116,18 @@ object LandmarkIO {
    * ****************************************************************************************************************
    */
 
-  def readLandmarksCsv[D <: Dim: NDSpace](file: File): Try[immutable.Seq[Landmark[D]]] = {
+  def readLandmarksCsv[D <: Dim: NDSpace](file: File): Try[Seq[Landmark[D]]] = {
     readLandmarksCsvFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksCsvFromSource[D <: Dim: NDSpace](source: Source): Try[immutable.Seq[Landmark[D]]] = {
+  def readLandmarksCsvFromSource[D <: Dim: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
     val items = implicitly[NDSpace[D]].dimensionality
     for (landmarks <- readLandmarksCsvRaw(source)) yield {
       for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
     }
   }
 
-  private def readLandmarksCsvRaw(source: Source): Try[immutable.Seq[(String, Array[Double])]] = {
+  private def readLandmarksCsvRaw(source: Source): Try[Seq[(String, Array[Double])]] = {
     val result = Try {
       val landmarks = for (line <- source.getLines() if line.nonEmpty && line(0) != '#') yield {
         val elements = line.split(',')
@@ -148,17 +141,11 @@ object LandmarkIO {
     result
   }
 
-  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
-  def writeLandmarksCsv[D <: Dim](file: File, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksCsv(landmarks, file)
-
-  @deprecated("Use method with the same name and inverted order of parameters. This method wil be removed in future versions.", "0.10.0")
-  def writeLandmarksCsvToStream[D <: Dim](stream: OutputStream, landmarks: immutable.Seq[Landmark[D]]): Try[Unit] = writeLandmarksCsvToStream(landmarks, stream)
-
-  def writeLandmarksCsv[D <: Dim](landmarks: immutable.Seq[Landmark[D]], file: File): Try[Unit] = {
+  def writeLandmarksCsv[D <: Dim](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = {
     writeLandmarksCsvToStream(landmarks, new FileOutputStream(file))
   }
 
-  def writeLandmarksCsvToStream[D <: Dim](landmarks: immutable.Seq[Landmark[D]], stream: OutputStream): Try[Unit] = {
+  def writeLandmarksCsvToStream[D <: Dim](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = {
     Try {
       val out = new PrintWriter(stream, true)
       for (landmark <- landmarks) {
