@@ -92,7 +92,7 @@ object LandmarkIO {
 
   def writeLandmarksJson[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
 
-  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](stream: OutputStream, landmarks: Seq[Landmark[D]])(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream)(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
       writer.println(landmarks.toJson.toString())
@@ -105,7 +105,7 @@ object LandmarkIO {
 
   def writeLandmarksJsonToStream[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = Try {
     implicit val e = LandmarkJsonFormat[D]()
-    writeLandmarksJsonToStreamP(stream, landmarks)
+    writeLandmarksJsonToStreamP(landmarks, stream)
   }.flatten
 
   /**
