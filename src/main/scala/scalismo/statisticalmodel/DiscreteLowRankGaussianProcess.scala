@@ -266,13 +266,13 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Double]): DenseVector[Double] = {
     require(rank == alpha.size)
 
-    basisMatrix * (stddev :* alpha) + meanVector
+    basisMatrix * (stddev *:* alpha) + meanVector
   }
 
   protected[statisticalmodel] def instanceVectorAtPoint(alpha: DenseVector[Double], pid: PointId): DenseVector[Double] = {
     require(rank == alpha.size)
     val range = pid.id * vectorizer.dim until (pid.id + 1) * vectorizer.dim
-    basisMatrix(range, ::) * (stddev :* alpha) + meanVector(range)
+    basisMatrix(range, ::) * (stddev *:* alpha) + meanVector(range)
   }
 
   private[this] val stddev = variance.map(x => math.sqrt(x))

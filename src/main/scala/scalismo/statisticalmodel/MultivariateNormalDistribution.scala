@@ -135,13 +135,13 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
     val (obsIdx: IndexedSeq[Int], obsVals: IndexedSeq[Double]) = observations.unzip
     val unknownIdx = (0 until mean.length).filter(e => !obsIdx.contains(e))
 
-    val meanUn = mean(unknownIdx)
-    val meanObs = mean(obsIdx)
+    val meanUn = mean(unknownIdx).toDenseVector
+    val meanObs = mean(obsIdx).toDenseVector
 
-    val covUnUn = cov(unknownIdx, unknownIdx)
-    val covUnObs = cov(unknownIdx, obsIdx)
-    val covObsUn = cov(obsIdx, unknownIdx)
-    val covObsObs = cov(obsIdx, obsIdx)
+    val covUnUn = cov(unknownIdx, unknownIdx).toDenseMatrix
+    val covUnObs = cov(unknownIdx, obsIdx).toDenseMatrix
+    val covObsUn = cov(obsIdx, unknownIdx).toDenseMatrix
+    val covObsObs = cov(obsIdx, obsIdx).toDenseMatrix
 
     val diff = DenseVector(obsVals.toArray) - meanObs
     val mprod = covUnObs * inv(covObsObs.toDenseMatrix)
@@ -149,7 +149,7 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
 
     val newCov = covUnUn - mprod * covObsUn
 
-    MultivariateNormalDistribution(newMean.toDenseVector, newCov.toDenseMatrix)
+    MultivariateNormalDistribution(newMean, newCov)
   }
 
 }
