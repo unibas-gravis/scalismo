@@ -15,6 +15,7 @@
  */
 package scalismo.numerics
 
+import breeze.stats.distributions.Uniform
 import org.apache.commons.math3.random.MersenneTwister
 import java.util
 
@@ -56,7 +57,7 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   override def sample()(implicit rand: Random) = {
     val ndSpace = implicitly[NDSpace[D]]
     val randGens = for (i <- (0 until ndSpace.dimensionality)) yield {
-      rand.breezeRandomUniform(domain.origin(i), domain.oppositeCorner(i))
+      Uniform(domain.origin(i), domain.oppositeCorner(i))(rand.breezeRandBasis)
     }
 
     for (_ <- 0 until numberOfPoints) yield (Point.apply[D](randGens.map(r => r.draw()).toArray), p)
@@ -71,7 +72,7 @@ case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, see
   val volumeOfSampleRegion = mesh.area
   def sample()(implicit rand: Random) = {
     val points = mesh.pointSet.points.toIndexedSeq
-    val distrDim1 = rand.breezeRandomUniform(0, mesh.pointSet.numberOfPoints)
+    val distrDim1 = Uniform(0, mesh.pointSet.numberOfPoints)(rand.breezeRandBasis)
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
     pts
   }
