@@ -28,7 +28,7 @@ class RandomTests extends ScalismoTestSuite {
 
       def randomNumbersSeeded() = {
         val r = Random(42)
-        (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUnform(0, 1).draw())
+        (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUniform(0, 1).draw())
       }
       randomNumbersSeeded() should equal(randomNumbersSeeded())
 
@@ -38,7 +38,7 @@ class RandomTests extends ScalismoTestSuite {
 
       def randomNumbersNotSeeded() = {
         val r = implicitly[Random]
-        (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUnform(0, 1).draw())
+        (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUniform(0, 1).draw())
       }
       randomNumbersNotSeeded() should not equal (randomNumbersNotSeeded())
     }
