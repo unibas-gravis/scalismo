@@ -34,10 +34,12 @@ case class Random(seed: Long) {
 
   val scalaRandom: scala.util.Random = new scala.util.Random(seed)
 
+  @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Gaussian")
   def breezeRandomGaussian(mu: Double, sigma: Double): breeze.stats.distributions.Rand[Double] = {
     breeze.stats.distributions.Gaussian(mu, sigma)(breezeRandBasis)
   }
 
+  @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Uniform")
   def breezeRandomUniform(a: Double, b: Double): breeze.stats.distributions.Rand[Double] = {
     breeze.stats.distributions.Uniform(a, b)(breezeRandBasis)
   }

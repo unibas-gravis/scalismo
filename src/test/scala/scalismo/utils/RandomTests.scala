@@ -15,10 +15,8 @@
  */
 package scalismo.utils
 
+import breeze.stats.distributions.{ Gaussian, Uniform }
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{ Point, _3D }
-
-import scala.collection.immutable.IndexedSeq
 
 class RandomTests extends ScalismoTestSuite {
 
@@ -28,7 +26,9 @@ class RandomTests extends ScalismoTestSuite {
 
       def randomNumbersSeeded() = {
         val r = Random(42)
-        (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUniform(0, 1).draw())
+        val standardNormal = Gaussian(0, 1)(r.breezeRandBasis)
+        val uniform = Uniform(0, 1)(r.breezeRandBasis)
+        (r.scalaRandom.nextInt, standardNormal.draw(), uniform.draw())
       }
       randomNumbersSeeded() should equal(randomNumbersSeeded())
 
@@ -38,7 +38,9 @@ class RandomTests extends ScalismoTestSuite {
 
       def randomNumbersNotSeeded() = {
         val r = implicitly[Random]
-        (r.scalaRandom.nextInt, r.breezeRandomGaussian(0, 1).draw(), r.breezeRandomUniform(0, 1).draw())
+        val standardNormal = Gaussian(0, 1)(r.breezeRandBasis)
+        val uniform = Uniform(0, 1)(r.breezeRandBasis)
+        (r.scalaRandom.nextInt, standardNormal.draw(), uniform.draw())
       }
       randomNumbersNotSeeded() should not equal (randomNumbersNotSeeded())
     }

@@ -16,7 +16,8 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ diag, DenseMatrix, DenseVector }
+import breeze.linalg.{ DenseMatrix, DenseVector, diag }
+import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
@@ -24,7 +25,7 @@ import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
-import scalismo.utils.{ Random, Memoize }
+import scalismo.utils.{ Memoize, Random }
 
 /**
  *
@@ -67,7 +68,8 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
    * A random sample of the gaussian process
    */
   def sample()(implicit rand: Random): Field[D, Value] = {
-    val coeffs = for (_ <- klBasis.indices) yield rand.breezeRandomGaussian(0, 1).draw()
+    val standardNormal = Gaussian(0, 1)(rand.breezeRandBasis)
+    val coeffs = standardNormal.sample(klBasis.length)
     instance(DenseVector(coeffs.toArray))
   }
 
