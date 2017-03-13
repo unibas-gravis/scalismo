@@ -417,7 +417,7 @@ class GeometryTests extends ScalismoTestSuite {
 
     it("can be multiplied (elementwise) with another matrix") {
       val m1 = m :* m
-      val m2 = m.toBreezeMatrix :* m.toBreezeMatrix
+      val m2 = m.toBreezeMatrix *:* m.toBreezeMatrix
       for (i <- 0 until 3; j <- 0 until 3) {
         m1(i, j) should be(m2(i, j) +- 1e-8)
       }

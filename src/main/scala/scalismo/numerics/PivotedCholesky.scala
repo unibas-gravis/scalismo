@@ -186,7 +186,7 @@ object PivotedCholesky {
 
     val PivotedCholesky(l, _, _) = computeApproximateCholeskyGeneric(k, xs, sc)
 
-    val LD = l(::, 0 until l.cols).t :* D
+    val LD = l(::, 0 until l.cols).t *:* D
     val phi: DenseMatrix[Double] = LD * l(::, 0 until l.cols)
 
     val SVD(v, _, _) = breeze.linalg.svd(phi)

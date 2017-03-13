@@ -105,7 +105,7 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace] {
   def *(that: MatrixValuedPDKernel[D]): MatrixValuedPDKernel[D] = {
     assert(this.outputDim == that.outputDim)
     new MatrixValuedPDKernel[D] {
-      override def k(x: Point[D], y: Point[D]) = self.k(x, y) :* that.k(x, y)
+      override def k(x: Point[D], y: Point[D]) = self.k(x, y) *:* that.k(x, y)
 
       override def domain = Domain.intersection(self.domain, that.domain)
 

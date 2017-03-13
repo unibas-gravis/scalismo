@@ -44,8 +44,8 @@ object Resolvers {
 object Dependencies {
   import BuildSettings.scalismoPlatform
   val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze" % "0.12"
-  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.12"
+  val breezeMath = "org.scalanlp" %% "breeze" % "0.13"
+  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.13"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "3.0.0"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "3.0.0" % "test"
