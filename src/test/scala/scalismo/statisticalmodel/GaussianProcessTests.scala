@@ -18,6 +18,7 @@ package scalismo.statisticalmodel
 import _root_.java.io.File
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.common._
 import scalismo.geometry.Point.implicits._
@@ -371,7 +372,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val gp = f.discreteLowRankGp.interpolateNystrom(100)
       val discreteGp = gp.discretize(UnstructuredPointsDomain(f.discretizationPoints))
 
-      val gaussRNG = random.breezeRandomGaussian(0, 1)
+      val gaussRNG = Gaussian(0, 1)(random.breezeRandBasis)
       val coeffs = DenseVector.rand(gp.rank, gaussRNG)
 
       val sample = gp.instance(coeffs)
@@ -455,7 +456,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yields the same values on the discrete points when interpolated with nearest neighbor") {
       val f = Fixture
       val interpolatedGP = f.discreteLowRankGp.interpolateNearestNeighbor
-      val gaussRNG = random.breezeRandomGaussian(0, 1)
+      val gaussRNG = Gaussian(0, 1)(random.breezeRandBasis)
       val coeffs = DenseVector.rand(interpolatedGP.rank, gaussRNG)
 
       val discreteInstance = f.discreteLowRankGp.instance(coeffs)
@@ -469,7 +470,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val orignalLowRankPosterior = f.lowRankGp.posterior(f.trainingDataLowRankGP)
       val interpolatedGPPosterior = f.discreteLowRankGp.interpolateNearestNeighbor.posterior(f.trainingDataLowRankGP)
 
-      val gaussRNG = random.breezeRandomGaussian(0, 1)
+      val gaussRNG = Gaussian(0, 1)(random.breezeRandBasis)
       val coeffs = DenseVector.rand(orignalLowRankPosterior.rank, gaussRNG)
 
       val originalPosteriorInstance = orignalLowRankPosterior.instance(coeffs)
@@ -490,7 +491,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val points = (0 until 1000) map { i => random.scalaRandom.nextInt(gp._domain.numberOfPoints) }
       points.foreach { pid =>
         val k = gp.rank
-        val gaussRNG = random.breezeRandomGaussian(0, 1)
+        val gaussRNG = Gaussian(0, 1)(random.breezeRandBasis)
         val coeffs = DenseVector.rand(k, gaussRNG)
         val instance = gp.instance(coeffs)
         instance.data(pid) shouldBe gp.instanceAtPoint(coeffs, pid)

@@ -17,6 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
 import breeze.linalg._
+import breeze.stats.distributions.Gaussian
 import scalismo.geometry.Vector
 import scalismo.geometry._
 import scalismo.utils.Random
@@ -102,8 +103,8 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
   }
 
   override def sample()(implicit rand: Random): DenseVector[Double] = {
-
-    val normalSamples = for (i <- 0 until dim) yield rand.breezeRandomGaussian(0, 1).draw()
+    val standardNormal = Gaussian(0, 1)(rand.breezeRandBasis)
+    val normalSamples = standardNormal.sample(dim)
     val u = DenseVector[Double](normalSamples.toArray)
 
     mean + (root * u)

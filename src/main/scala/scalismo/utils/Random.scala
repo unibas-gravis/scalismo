@@ -30,22 +30,24 @@ import org.apache.commons.math3.random.MersenneTwister
  */
 case class Random(seed: Long) {
 
-  private val randBasis: RandBasis = new RandBasis(new ThreadLocalRandomGenerator(new MersenneTwister(seed)))
+  implicit val breezeRandBasis: RandBasis = new RandBasis(new ThreadLocalRandomGenerator(new MersenneTwister(seed)))
 
   val scalaRandom: scala.util.Random = new scala.util.Random(seed)
 
-  def breezeRandomGaussian(mu: Double, sigma2: Double): breeze.stats.distributions.Rand[Double] = {
-    breeze.stats.distributions.Gaussian(mu, sigma2)(randBasis)
+  @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Gaussian")
+  def breezeRandomGaussian(mu: Double, sigma: Double): breeze.stats.distributions.Rand[Double] = {
+    breeze.stats.distributions.Gaussian(mu, sigma)(breezeRandBasis)
   }
 
-  def breezeRandomUnform(a: Double, b: Double): breeze.stats.distributions.Rand[Double] = {
-    breeze.stats.distributions.Uniform(a, b)(randBasis)
+  @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Uniform")
+  def breezeRandomUniform(a: Double, b: Double): breeze.stats.distributions.Rand[Double] = {
+    breeze.stats.distributions.Uniform(a, b)(breezeRandBasis)
   }
 
 }
 
 object Random {
 
-  implicit val randomGenerator = Random(System.currentTimeMillis())
+  implicit val randomGenerator = Random(System.nanoTime())
 
 }

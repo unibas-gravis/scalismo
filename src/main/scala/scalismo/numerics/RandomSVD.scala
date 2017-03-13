@@ -17,8 +17,9 @@ package scalismo.numerics
 
 import breeze.linalg.qr.QR
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ diag, DenseMatrix, DenseVector, norm }
-import scalismo.utils.{ Random, Benchmark }
+import breeze.linalg.{ DenseMatrix, DenseVector, diag, norm }
+import breeze.stats.distributions.Gaussian
+import scalismo.utils.{ Benchmark, Random }
 
 /**
  * Implementation of a Randomized approach for SVD,
@@ -36,7 +37,7 @@ object RandomSVD {
     val l = k + 5
     val m = A.rows
 
-    val standardNormal = rand.breezeRandomGaussian(0, 1)
+    val standardNormal = Gaussian(0, 1)(rand.breezeRandBasis)
 
     // create a gaussian random matrix
     val Omega = DenseMatrix.zeros[Double](m, l).map(_ => standardNormal.draw())
