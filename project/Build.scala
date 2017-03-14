@@ -21,8 +21,14 @@ object BuildSettings {
     organization := buildOrganization,
     scalaVersion := buildScalaVersion,
     crossScalaVersions := Seq("2.11.8", "2.12.1"),
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.8")
+    javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2,  11)) => Seq("-source", "1.6", "-target", "1.6")
+      case _ => Seq("-source", "1.8", "-target", "1.8")
+    }),
+    scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2,  11)) =>  Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
+      case _ => Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.8")
+    })
   )
 
   // nativelibs implementation to use (e.g., "linux64"). If not explicitly set, use "all"
