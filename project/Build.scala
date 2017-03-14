@@ -13,16 +13,16 @@ import com.typesafe.sbt.SbtGit.useJGit
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildScalaVersion = "2.12.1"
+  val buildScalaVersion = "2.11.8"
 
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.11.7"),
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
+    crossScalaVersions := Seq("2.11.8", "2.12.1"),
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.8")
   )
 
   // nativelibs implementation to use (e.g., "linux64"). If not explicitly set, use "all"
