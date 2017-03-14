@@ -23,16 +23,16 @@ class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(
     extends ProposalGenerator[A] {
 
   /** mixture components */
-  val generators = proposals.map(_._2)
+  val generators: IndexedSeq[ProposalGenerator[A]] = proposals.map(_._2)
 
-  val mixtureFactors = {
+  val mixtureFactors: IndexedSeq[Double] = {
     val f = proposals.map(_._1)
     val totalP = f.sum
     f.map(c => c / totalP)
   }
 
   // cumsum
-  protected val p = mixtureFactors.scanLeft(0.0)((t, p) => t + p).tail
+  protected val p: IndexedSeq[Double] = mixtureFactors.scanLeft(0.0)((t, p) => t + p).tail
   // keep state: last active proposal, useful for printing only
   private var lastActive = 0
 
@@ -43,14 +43,14 @@ class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(
     generators(i).propose(current)
   }
 
-  override def toString = generators(lastActive).toString
+  override def toString: String = generators(lastActive).toString
 }
 
 /** mixture with transition probabilities */
 private class MixtureProposalWithTransition[A](proposals: IndexedSeq[(Double, ProposalGenerator[A] with TransitionProbability[A])])(implicit rnd: Random)
     extends MixtureProposal[A](proposals) with TransitionProbability[A] {
 
-  override val generators = proposals.map(_._2)
+  override val generators: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]] = proposals.map(_._2)
 
   override def logTransitionProbability(from: A, to: A): Double = {
     val transitions = generators.map(g => g.logTransitionProbability(from, to))
