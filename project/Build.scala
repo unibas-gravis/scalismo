@@ -40,11 +40,7 @@ object BuildSettings {
 }
 
 object Resolvers {
-  private val sonatypeSnapshots = "Sonatype SNAPSHOTs" at "https://oss.sonatype.org/content/repositories/snapshots/"
-  private val sonatypeRelease = "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-  private val scalismoPublic = "scalismo" at "http://shapemodelling.cs.unibas.ch/repository/public"
-
-  val stkResolvers = Seq(scalismoPublic, sonatypeSnapshots, sonatypeRelease)
+   val stkResolvers = Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("releases"), Resolver.sonatypeRepo("snapshots"))
 }
 
 object Dependencies {
@@ -53,8 +49,9 @@ object Dependencies {
   val breezeMath = "org.scalanlp" %% "breeze" % "0.13"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.13"
   val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
-  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "3.0.0"
-  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "3.0.0" % "test"
+  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0"
+  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test"
+
   val slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
 }
 
