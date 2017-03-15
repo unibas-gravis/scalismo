@@ -26,9 +26,9 @@ class MetropolisFilterProposal[A](val generator: ProposalGenerator[A] with Trans
   val logger: AcceptRejectLogger[A])(implicit random: Random)
     extends ProposalGenerator[A] with UnitTransition[A] {
 
-  private val mH = MetropolisHastings(generator, evaluator, logger)
+  private val mH = MetropolisHastings(generator, evaluator)
 
-  override def propose(current: A): A = mH.next(current)
+  override def propose(current: A): A = mH.next(current, logger)
 
   override def toString = s"MetropolisFilterProposal($generator,$evaluator)"
 }
@@ -49,9 +49,9 @@ class CorrectedMetropolisFilterProposal[A](val generator: ProposalGenerator[A] w
   val logger: AcceptRejectLogger[A])(implicit random: Random)
     extends ProposalGenerator[A] with TransitionProbability[A] {
 
-  private val mH = MetropolisHastings(generator, evaluator, logger)
+  private val mH = MetropolisHastings(generator, evaluator)
 
-  override def propose(current: A): A = mH.next(current)
+  override def propose(current: A): A = mH.next(current, logger)
 
   override def logTransitionRatio(from: A, to: A): Double = {
     evaluator.logValue(to) - evaluator.logValue(from)
