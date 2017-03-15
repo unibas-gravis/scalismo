@@ -38,7 +38,7 @@ trait TransitionProbability[A] extends TransitionRatio[A] {
   def logTransitionProbability(from: A, to: A): Double
 
   /** transition ratio forward probability / backward probability */
-  override def logTransitionRatio(from: A, to: A) = {
+  override def logTransitionRatio(from: A, to: A): Double = {
     val fw = logTransitionProbability(from, to)
     val bw = logTransitionProbability(to, from)
 
@@ -51,12 +51,3 @@ trait TransitionProbability[A] extends TransitionRatio[A] {
       0.0
   }
 }
-
-/** trait to express a unit transition probability (rarely appropriate) */
-trait UnitTransition[A] extends TransitionProbability[A] with SymmetricTransitionRatio[A] {
-  /** fixed unit value for transition probability - careful when in use with correction */
-  override def logTransitionProbability(from: A, to: A) = 0.0
-}
-
-/** trait to express a symmetric transition probability (normal perturbation for example)*/
-trait SymmetricTransition[A] extends TransitionProbability[A] with SymmetricTransitionRatio[A]
