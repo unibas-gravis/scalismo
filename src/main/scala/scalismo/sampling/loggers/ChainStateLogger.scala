@@ -17,7 +17,7 @@ package scalismo.sampling.loggers
 
 import scala.language.implicitConversions
 
-/* side-effects-based logging facility, be careful when doing something advanced with Markov Chains (such as parallel chains on a single object) */
+/* side-effects-based logging facility */
 
 trait ChainStateLogger[A] extends RichLogger[A] {
   def logState(sample: A): Unit
@@ -29,13 +29,27 @@ trait RichLogger[A] {
 }
 
 object ChainStateLogger {
-
-  // implicit enrichment of others loggers
+  /** implicit conversions to attach a logger to a chain iterator or sub sample a logger */
   object implicits {
     implicit def richLogger[A](logger: ChainStateLogger[A]): RichLogger[A] = new RichLogger[A](logger)
 
     class RichLogger[A](logger: ChainStateLogger[A]) {
       def subSampled(stepping: Int) = SteppedChainStateLogger(stepping, logger)
     }
+
+    /** implicit attachment of a ChainStateLogger to an iterator */
+    implicit class RichIterator[A](chainIterator: Iterator[A]) {
+      def loggedWith(logger: ChainStateLogger[A]): Iterator[A] = {
+        new Iterator[A] {
+          override def hasNext: Boolean = chainIterator.hasNext
+          override def next(): A = {
+            val sample = chainIterator.next()
+            logger.logState(sample)
+            sample
+          }
+        }
+      }
+    }
+
   }
 }

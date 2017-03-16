@@ -26,10 +26,16 @@ import scala.math.exp
  * generator needs to be symmetric
  */
 class Metropolis[A] protected (val generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
-    val evaluator: DistributionEvaluator[A],
-    val logger: AcceptRejectLogger[A])(implicit val random: Random) extends MarkovChain[A] {
+    val evaluator: DistributionEvaluator[A])(implicit val random: Random) extends MarkovChain[A] {
+
+  /** internal fallback logger which does nothing */
+  private lazy val silentLogger: AcceptRejectLogger[A] = new SilentLogger[A]()
+
+  /** start a logged iterator */
+  def iterator(start: A, logger: AcceptRejectLogger[A]): Iterator[A] = Iterator.iterate(start) { next(_, logger) }
+
   // next sample
-  override def next(current: A): A = {
+  def next(current: A, logger: AcceptRejectLogger[A]): A = {
     // reference p value
     val currentP = evaluator.logValue(current)
     // proposal
@@ -46,25 +52,27 @@ class Metropolis[A] protected (val generator: ProposalGenerator[A] with Symmetri
       current
     }
   }
+
+  override def next(current: A): A = next(current, silentLogger)
 }
 
 object Metropolis {
   /** create a Metropolis MCMC chain, needs a symmetric proposal distribution, with logger attached */
   def apply[A](generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
-    evaluator: DistributionEvaluator[A],
-    logger: AcceptRejectLogger[A])(implicit random: Random) = new Metropolis[A](generator, evaluator, logger)
-
-  /** create a Metropolis MCMC chain without a logger */
-  def apply[A](generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
-    evaluator: DistributionEvaluator[A])(implicit random: Random) = new Metropolis[A](generator, evaluator, new SilentLogger[A]())
+    evaluator: DistributionEvaluator[A])(implicit random: Random) = new Metropolis[A](generator, evaluator)
 }
 
 /** Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a proposal distribution */
 class MetropolisHastings[A] protected (val generator: ProposalGenerator[A] with TransitionRatio[A],
-    val evaluator: DistributionEvaluator[A],
-    val logger: AcceptRejectLogger[A])(implicit val random: Random) extends MarkovChain[A] {
-  /** next sample in Markov Chain */
-  override def next(current: A): A = {
+    val evaluator: DistributionEvaluator[A])(implicit val random: Random) extends MarkovChain[A] {
+
+  private lazy val silentLogger = new SilentLogger[A]()
+
+  /** start a logged iterator */
+  def iterator(start: A, logger: AcceptRejectLogger[A]): Iterator[A] = Iterator.iterate(start) { next(_, logger) }
+
+  // next sample
+  def next(current: A, logger: AcceptRejectLogger[A]): A = {
     // reference p value
     val currentP = evaluator.logValue(current)
     // proposal
@@ -84,14 +92,13 @@ class MetropolisHastings[A] protected (val generator: ProposalGenerator[A] with 
       current
     }
   }
+
+  /** next sample in chain */
+  override def next(current: A): A = next(current, silentLogger)
 }
 
 object MetropolisHastings {
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A],
-    evaluator: DistributionEvaluator[A],
-    logger: AcceptRejectLogger[A])(implicit random: Random) = new MetropolisHastings[A](generator, evaluator, logger)
-
-  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A],
-    evaluator: DistributionEvaluator[A])(implicit random: Random) = new MetropolisHastings[A](generator, evaluator, new SilentLogger[A]())
+    evaluator: DistributionEvaluator[A])(implicit random: Random) = new MetropolisHastings[A](generator, evaluator)
 }
 
