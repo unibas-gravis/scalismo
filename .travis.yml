@@ -14,8 +14,7 @@ env:
 #  - rm -f $HOME/.ivy2/.*.lock $HOME/.ivy2/*.lock
 
 scala:
-  - 2.10.4
-#  - 2.11.4
+  - 2.12.1
 
 script:
   - jdk_switcher use oraclejdk8

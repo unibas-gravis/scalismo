@@ -13,16 +13,22 @@ import com.typesafe.sbt.SbtGit.useJGit
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildScalaVersion = "2.11.7"
+  val buildScalaVersion = "2.11.8"
 
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.10.5", "2.11.7"),
-    javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
+    crossScalaVersions := Seq("2.11.8", "2.12.1"),
+    javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2,  11)) => Seq("-source", "1.6", "-target", "1.6")
+      case _ => Seq("-source", "1.8", "-target", "1.8")
+    }),
+    scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2,  11)) =>  Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
+      case _ => Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.8")
+    })
   )
 
   // nativelibs implementation to use (e.g., "linux64"). If not explicitly set, use "all"
@@ -39,12 +45,13 @@ object Resolvers {
 
 object Dependencies {
   import BuildSettings.scalismoPlatform
-  val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "0.13"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.13"
-  val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test"
+
   val slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
 }
 
