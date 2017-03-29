@@ -250,6 +250,16 @@ object MeshIO {
   private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh[_3D]] = {
     val stlReader = new vtkSTLReader()
     stlReader.SetFileName(file.getAbsolutePath)
+
+    stlReader.MergingOn()
+
+    // With the default point locator, it may happen that the stlReader merges
+    // points that are very close by but not identical. To make sure that this never happens
+    // we explicitly specify the tolerance.
+    val pointLocator = new vtkMergePoints()
+    pointLocator.SetTolerance(0.0)
+
+    stlReader.SetLocator(pointLocator)
     stlReader.Update()
     val errCode = stlReader.GetErrorCode()
     if (errCode != 0) {
