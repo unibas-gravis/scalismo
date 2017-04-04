@@ -15,7 +15,6 @@ object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
   val buildScalaVersion = "2.11.8"
 
-  val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
@@ -70,7 +69,6 @@ object STKBuild extends Build {
       libraryDependencies ++= commonDeps,
       resolvers ++= stkResolvers,
       parallelExecution in Test := false,
-      publishTo := Some(publishURL),
       EclipseKeys.withSource := true)
       ++ site.settings
       ++ site.includeScaladoc()
