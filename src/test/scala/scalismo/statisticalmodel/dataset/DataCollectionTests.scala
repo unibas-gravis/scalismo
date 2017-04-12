@@ -22,11 +22,11 @@ import scalismo.common.{ Vectorizer, Field, VectorField }
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.kernels.{ Kernel, DiagonalKernel, GaussianKernel }
-import scalismo.mesh.MeshMetrics
+import scalismo.mesh.{ TriangleMesh, MeshMetrics }
 import scalismo.numerics.UniformMeshSampler3D
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
 import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess, StatisticalMeshModel }
-import scalismo.utils.Random
+import scalismo.utils.{ Benchmark, Memoize, Random }
 
 class DataCollectionTests extends ScalismoTestSuite {
 
@@ -79,6 +79,37 @@ class DataCollectionTests extends ScalismoTestSuite {
 
     }
 
+    it("returns a mean that is closer to in average distance to all other items than the other items") {
+      def averageDistanceToAllMeshes(testMesh: TriangleMesh[_3D]) = {
+        val distancesMeshesInDC = for (transformation <- dataCollection.dataItems.map(_.transformation)) yield {
+          val mesh = dataCollection.reference.transform(transformation)
+          MeshMetrics.procrustesDistance(mesh, testMesh)
+        }
+        distancesMeshesInDC.sum / distancesMeshesInDC.size
+      }
+
+      val avgDistForMean = averageDistanceToAllMeshes(dataCollection.meanSurface)
+
+      for (transformation <- dataCollection.dataItems.map(_.transformation)) {
+        val mesh = dataCollection.reference.transform(transformation)
+
+        if (averageDistanceToAllMeshes(mesh) > 1e-10) {
+          averageDistanceToAllMeshes(mesh) should be > (avgDistForMean)
+        }
+      }
+    }
+
+    it("returns a mean surface, which is the arithmetic mean of the meshes represented by the collection") {
+      val computedMean = dataCollection.meanSurface
+      val meshes = dataCollection.dataItems.map(di => dataCollection.reference.transform(di.transformation))
+
+      for (pointId <- util.Random.shuffle(dataCollection.reference.pointSet.pointIds.toIndexedSeq).take(100)) {
+        val pointsOnMeshes = meshes.map(mesh => mesh.pointSet.point(pointId))
+        val meanOfPoint = pointsOnMeshes.foldLeft(Point(0, 0, 0))((acc, p) => acc + p.toVector / pointsOnMeshes.size)
+        (computedMean.pointSet.point(pointId) - meanOfPoint).norm should be < 1e-5
+      }
+    }
+
   }
 
   object Fixture {
@@ -102,11 +133,32 @@ class DataCollectionTests extends ScalismoTestSuite {
   }
 
   describe("GPA") {
-    it("leads to smaller average distances to collection's reference") {
+    it("leads to a data collection that is on average closer to the mean than the original data collection") {
+      val gpaDC = DataCollection.gpa(Fixture.dc, maxIteration = 3)
+      val gpaMean = gpaDC.meanSurface
+
+      def surfaceDist(mesh1: TriangleMesh[_3D], mesh2: TriangleMesh[_3D]): Double = {
+        val dists = for ((pt1, pt2) <- mesh1.pointSet.points.zip(mesh2.pointSet.points)) yield {
+          (pt1 - pt2).norm
+        }
+        dists.sum
+      }
+
+      def averageDistanceToAllMeshes(dc: DataCollection, testMesh: TriangleMesh[_3D]) = {
+        val distancesMeshesInDC = for (dataItem <- dc.dataItems) yield {
+          val mesh = dc.reference.transform(dataItem.transformation)
+          surfaceDist(mesh, testMesh)
+        }
+        distancesMeshesInDC.sum / distancesMeshesInDC.size
+      }
+
+      averageDistanceToAllMeshes(Fixture.dc, Fixture.dc.meanSurface) should be > averageDistanceToAllMeshes(gpaDC, gpaMean)
+    }
+
+    it("keeps the reference shape unchanged") {
       val gpaDC = DataCollection.gpa(Fixture.dc)
-      val errSumDC = Fixture.dc.dataItems.map(i => MeshMetrics.avgDistance(Fixture.dc.reference, Fixture.dc.reference.transform(i.transformation))).sum
-      val errSumGpaDC = gpaDC.dataItems.map(i => MeshMetrics.avgDistance(gpaDC.reference, gpaDC.reference.transform(i.transformation))).sum
-      assert(errSumGpaDC < errSumDC)
+
+      gpaDC.reference should equal(Fixture.dc.reference)
     }
 
   }
