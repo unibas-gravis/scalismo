@@ -19,7 +19,7 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{ Point, Point3D, Vector, _3D }
 import scalismo.io.MeshIO
 
 class MeshMetricsTests extends ScalismoTestSuite {
@@ -37,6 +37,11 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("should be 0 for a translated mesh") {
       MeshMetrics.procrustesDistance(mesh, translatedMesh) should be(0.0 +- 1e-5)
+    }
+
+    it("should be symmetric") {
+      val deformedMesh = mesh.transform((pt: Point[_3D]) => Point3D(pt.x * 1.2, pt.y * 0.9, pt.z * 1.0))
+      MeshMetrics.procrustesDistance(mesh, deformedMesh) should be(MeshMetrics.procrustesDistance(deformedMesh, mesh) +- 1e-5)
     }
 
   }

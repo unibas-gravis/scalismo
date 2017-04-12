@@ -42,16 +42,23 @@ object MeshMetrics {
   }
 
   /**
-   * Returns the average mesh distance after performing a rigid alignment between the two meshes.
-   * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
+   * Computes the procrustes distance between two meshes; I.e. the root mean squared error between
+   * corresponding points once the meshes have been aligned rigidly.
+   * Note! In contrast to the standard definition of procruses distance, we use the mean squared distance
+   * and not the sum of squared distances, as otherwise the distance would depend on the number of points
+   * that are sampled.
    */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
 
     val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
-    val m1w = m1.transform(t)
-    avgDistance(m1w, m2)
+    val m1Aligned = m1.transform(t)
+    var accumulatedDistance = 0.0
+    for ((pt1, pt2) <- m1Aligned.pointSet.points.zip(m2.pointSet.points)) {
+      accumulatedDistance += (pt1 - pt2).norm2
+    }
+    Math.sqrt(accumulatedDistance / m1.pointSet.numberOfPoints)
   }
 
   /**
