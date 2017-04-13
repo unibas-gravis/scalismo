@@ -19,7 +19,7 @@ import scalismo.common.PointId
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId }
 
-class ClosestPoint(val point: Point[_3D],
+sealed class ClosestPoint(val point: Point[_3D],
     val distanceSquared: Double) {
   def <(that: ClosestPoint) = {
     this.distanceSquared < that.distanceSquared
