@@ -671,6 +671,8 @@ object RigidTransformation {
   def apply[D <: Dim: NDSpace](rotationTransform: RotationTransform[D], translationTransform: TranslationTransform[D]): RigidTransformation[D] =
     new RigidTransformationRotationFollowingTranslation(rotationTransform, translationTransform)
 
+  def Identity[D <: Dim: NDSpace: CreateRotationSpace] = RigidTransformationSpace.apply[D]().transformForParameters(RigidTransformationSpace.apply[D]().identityTransformParameters)
+
 }
 
 private class RigidTransformationTranslationFollowingRotation[D <: Dim: NDSpace](val translation: TranslationTransform[D], val rotation: RotationTransform[D])
