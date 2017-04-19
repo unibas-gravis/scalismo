@@ -18,7 +18,7 @@ package scalismo.sampling.loggers
 import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
 
 object SilentLogger {
-  def apply[A] = new SilentLogger[A]()
+  def apply[A]() = new SilentLogger[A]()
 }
 
 /** silent logger, does nothing */
