@@ -25,22 +25,26 @@ import scala.language.higherKinds
 import breeze.linalg.DenseVector
 
 trait ImageMetric[D <: Dim] {
+
+  /**
+   * Computes the metric value M[img1 . transformation, img2] (where a . b denotes composition)
+   */
   def value(img1: ScalarImage[D], img2: ScalarImage[D], transform: Transformation[D]): Double
   implicit def ndSpace: NDSpace[D]
 
   /**
-   * Implementations of this method should return the full derivations
-   * i.e: (d/dMovingImage M(fixed,moving)(x)) * (d/dx(movingImage(transform(x))))
+   * Computes the derivative of the metric value M[img1 . transformation, img2], with respect to
+   * the transform parameters, for the given transformation space and the transformation defined
+   * at the current parameter values.
    */
-  def takeDerivativeWRTToTransform(movingImage: DifferentiableScalarImage[D], fixedImage: ScalarImage[D], transform: Transformation[D]): Point[D] => Option[DenseVector[Float]]
-  def sampler: Sampler[D]
-  val integrator = Integrator(sampler)
+  def takeDerivativeWRTToTransform(movingImage: DifferentiableScalarImage[D], fixedImage: ScalarImage[D],
+    transformationSpace: TransformationSpace[D], params: DenseVector[Double]): DenseVector[Double]
+
 }
 
-//case class MeanSquaresMetricConfiguration extends MetricConfiguration 
-
 case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D]) extends ImageMetric[D] {
-  // val configuration : MetricConfiguration
+
+  private val integrator = Integrator(sampler)
 
   override val ndSpace = implicitly[NDSpace[D]]
 
@@ -50,19 +54,26 @@ case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D]) extends Ima
 
     integrator.integrateScalar(square(warpedImage - movingImage)) / integrator.sampler.volumeOfSampleRegion
   }
+  // compute the derivative of the cost function
+  def takeDerivativeWRTToTransform(fixedImage: DifferentiableScalarImage[D], movingImage: ScalarImage[D],
+    transformationSpace: TransformationSpace[D], params: DenseVector[Double]): DenseVector[Double] = {
 
-  def takeDerivativeWRTToTransform(fixedImage: DifferentiableScalarImage[D], movingImage: ScalarImage[D], transform: Transformation[D]) = {
+    val transform = transformationSpace.transformForParameters(params)
+
     val movingGradientImage = fixedImage.differentiate
-    val warpedImage = fixedImage.compose(transform)
+    val warpedImage = fixedImage.compose(transform) // compute the derivative of the cost function
     val dDMovingImage = (warpedImage - movingImage) * (2f / sampler.volumeOfSampleRegion)
+
+    val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
 
     val fullMetricGradient = (x: Point[D]) => {
       val domain = Domain.intersection(warpedImage.domain, dDMovingImage.domain)
       if (domain.isDefinedAt(x))
-        Some(movingGradientImage(transform(x)).toFloatBreezeVector * dDMovingImage(x))
+        Some(dTransformSpaceDAlpha(x).t * (movingGradientImage(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector)
       else None
     }
 
-    fullMetricGradient
+    integrator.integrateVector(fullMetricGradient, params.size)
+
   }
 }

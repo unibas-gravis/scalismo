@@ -63,14 +63,8 @@ object Registration {
           val value = errorVal + config.regularizationWeight * regularizer(params)
 
           // compute the derivative of the cost function
-          val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
+          val gradient = config.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformationSpace, params)
 
-          val metricDerivative = config.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformation)
-          // the first derivative (after applying the chain rule) at each point
-          val parametricTransformGradient = (x: Point[D]) => metricDerivative(x).map {
-            dM => convert(dTransformSpaceDAlpha(x).t, Float) * dM
-          }
-          val gradient = convert(integrationStrategy.integrateVector(parametricTransformGradient, params.size), Double)
           val dR = regularizer.takeDerivative(params)
 
           (value, gradient + dR * config.regularizationWeight)
@@ -91,6 +85,7 @@ object Registration {
   def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](configuration: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D]): TS#T = {
+
     val regStates = iterations(configuration)(fixedImage, movingImage)
     regStates.toSeq.last.registrationResult
   }
