@@ -47,33 +47,17 @@ object Registration {
         def onlyValue(params: ParameterVector): Double = {
           val transformation = transformationSpace.transformForParameters(params)
 
-          config.metric.value(movingImage, fixedImage, transformation) + config.regularizationWeight * regularizer(params)
+          config.metric.value(fixedImage, movingImage, transformation) + config.regularizationWeight * regularizer(params)
         }
         def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
-          // create a new sampler, that simply caches the points and returns the same points in every call
-          // this means, we are always using the same samples for computing the integral over the values
-          // and the gradient
-          val sampleStrategy = new SampleOnceSampler(config.metric.sampler)
-          val integrationStrategy = Integrator[D](sampleStrategy)
-
           // compute the value of the cost function
           val transformation = Transformation.memoize(transformationSpace.transformForParameters(params), 100000)
-          val errorVal = config.metric.value(movingImage, fixedImage, transformation)
-          val value = errorVal + config.regularizationWeight * regularizer(params)
-
-          // compute the derivative of the cost function
-          val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
-
-          val metricDerivative = config.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformation)
-          // the first derivative (after applying the chain rule) at each point
-          val parametricTransformGradient = (x: Point[D]) => metricDerivative(x).map {
-            dM => convert(dTransformSpaceDAlpha(x).t, Float) * dM
-          }
-          val gradient = convert(integrationStrategy.integrateVector(parametricTransformGradient, params.size), Double)
+          val metricValueAndDerivative = config.metric.computeValueAndDerivative(fixedImage, movingImage, transformationSpace, params)
+          val value = metricValueAndDerivative.value + config.regularizationWeight * regularizer(params)
           val dR = regularizer.takeDerivative(params)
 
-          (value, gradient + dR * config.regularizationWeight)
+          (value, metricValueAndDerivative.derivative + dR * config.regularizationWeight)
         }
       }
 
@@ -91,28 +75,9 @@ object Registration {
   def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](configuration: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D]): TS#T = {
+
     val regStates = iterations(configuration)(fixedImage, movingImage)
     regStates.toSeq.last.registrationResult
-  }
-
-  // This class ensures that we are always getting the same points when we call sample.
-  // This is important because we want the derivative to be evaluated at the same points as the
-  // value of the metric, in our registration code.
-  private case class SampleOnceSampler[D <: Dim](sampler: Sampler[D]) extends Sampler[D] {
-
-    val numberOfPoints = sampler.numberOfPoints
-    def volumeOfSampleRegion = sampler.volumeOfSampleRegion
-    var lastSampledPoints: Option[IndexedSeq[(Point[D], Double)]] = None
-
-    override def sample()(implicit rnd: Random): IndexedSeq[(Point[D], Double)] = {
-      lastSampledPoints match {
-        case Some(lastSampledPoints) => lastSampledPoints
-        case None => {
-          lastSampledPoints = Some(sampler.sample())
-          lastSampledPoints.get
-        }
-      }
-    }
   }
 
 }
