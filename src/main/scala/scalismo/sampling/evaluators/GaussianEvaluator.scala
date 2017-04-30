@@ -19,7 +19,7 @@ import scalismo.sampling.DistributionEvaluator
 
 /** 1D Gaussian distribution */
 case class GaussianEvaluator(mean: Double, sdev: Double) extends DistributionEvaluator[Double] {
-  val normalizer = -0.5 * math.log(2 * math.Pi) - math.log(sdev)
+  val normalizer: Double = -0.5 * math.log(2 * math.Pi) - math.log(sdev)
 
   /** log probability/density of sample */
   override def logValue(sample: Double): Double = -0.5 * (sample - mean) * (sample - mean) / sdev / sdev + normalizer
@@ -27,7 +27,7 @@ case class GaussianEvaluator(mean: Double, sdev: Double) extends DistributionEva
 
 object GaussianEvaluator {
   /** probability density of 1D Gaussian distribution */
-  def probability(x: Double, mean: Double, sdev: Double): Double = {
+  def logDensity(x: Double, mean: Double, sdev: Double): Double = {
     -0.5 * math.log(2 * math.Pi) - math.log(sdev) - 0.5 * (x - mean) * (x - mean) / sdev / sdev
   }
 }

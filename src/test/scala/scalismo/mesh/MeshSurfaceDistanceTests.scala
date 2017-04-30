@@ -213,7 +213,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
         val cp = md.closestPoint(p)
 
-        vdist shouldBe cp.distance2
+        vdist shouldBe cp.distanceSquared
         vpt.point shouldBe cp.point
       }
 
@@ -233,7 +233,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       val pd = UnstructuredPointsDomain(points)
 
-      val sd = SurfaceSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
+      val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
         TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
       ))
@@ -247,7 +247,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
         val ge = sd.getClosestPoint(p.toPoint)
 
-        require(vd >= ge._2)
+        require(vd >= ge.distanceSquared)
       }
     }
 
@@ -261,7 +261,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
       }
 
-      val sd = SurfaceSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
+      val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
         TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
       ))
@@ -276,8 +276,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       cpsSeq.zip(cpsPar) foreach { pair =>
         val seq = pair._1
         val par = pair._2
-        require(seq._1 == par._1)
-        require(seq._2 == par._2)
+        require(seq.point == par.point)
+        require(seq.distanceSquared == par.distanceSquared)
       }
 
     }
@@ -311,7 +311,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         val par = pair._2
         require(seq.point == par.point)
         require(seq.idx == par.idx)
-        require(seq.distance2 == par.distance2)
+        require(seq.distanceSquared == par.distanceSquared)
       }
     }
 

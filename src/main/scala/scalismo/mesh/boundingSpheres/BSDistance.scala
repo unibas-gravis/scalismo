@@ -22,7 +22,7 @@ import scalismo.mesh.boundingSpheres.ClosestPointType._
 /**
  * Holds triangles and precalculated vectors.
  */
-private case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
+private[mesh] case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
 
 /**
  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
@@ -58,6 +58,7 @@ private object BSDistance {
   private[boundingSpheres] case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
 
   // immutable classes
+
   private[boundingSpheres] case class DistanceSqr(val distance2: Double)
   private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
 
@@ -207,7 +208,7 @@ private object BSDistance {
 
     val D = t1.crossproduct(t2)
 
-    return D.norm2 / t1.norm2
+    D.norm2 / t1.norm2
   }
 
   @inline

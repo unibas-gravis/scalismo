@@ -24,11 +24,17 @@ import scalismo.utils.Random
 class MetropolisFilterProposal[A](val generator: ProposalGenerator[A] with TransitionRatio[A],
   val evaluator: DistributionEvaluator[A],
   val logger: AcceptRejectLogger[A])(implicit random: Random)
-    extends ProposalGenerator[A] with UnitTransition[A] {
+    extends ProposalGenerator[A] with TransitionProbability[A] {
 
-  private val mH = MetropolisHastings(generator, evaluator, logger)
+  private val mH = MetropolisHastings(generator, evaluator)
 
-  override def propose(current: A): A = mH.next(current)
+  override def propose(current: A): A = mH.next(current, logger)
+
+  /** rate of transition from to (log value) */
+  override def logTransitionProbability(from: A, to: A): Double = {
+    // not corrected here! filter should "multiply-in" the filtering distribution
+    0.0
+  }
 
   override def toString = s"MetropolisFilterProposal($generator,$evaluator)"
 }
@@ -49,9 +55,9 @@ class CorrectedMetropolisFilterProposal[A](val generator: ProposalGenerator[A] w
   val logger: AcceptRejectLogger[A])(implicit random: Random)
     extends ProposalGenerator[A] with TransitionProbability[A] {
 
-  private val mH = MetropolisHastings(generator, evaluator, logger)
+  private val mH = MetropolisHastings(generator, evaluator)
 
-  override def propose(current: A): A = mH.next(current)
+  override def propose(current: A): A = mH.next(current, logger)
 
   override def logTransitionRatio(from: A, to: A): Double = {
     evaluator.logValue(to) - evaluator.logValue(from)

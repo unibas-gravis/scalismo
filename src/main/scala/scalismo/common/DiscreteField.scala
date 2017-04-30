@@ -144,9 +144,7 @@ object DiscreteScalarField {
   }
 }
 
-/**
- *
- */
+@deprecated("This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])", "since 0.15")
 class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, Vector[DO]](domain, data) {
 
   override def values = data.iterator
@@ -171,6 +169,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: Discret
 
 }
 
+@deprecated("This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])", "since 0.15")
 object DiscreteVectorField {
   def apply[D <: Dim: NDSpace, DO <: Dim: NDSpace](domain: DiscreteDomain[D], data: IndexedSeq[Vector[DO]]) = {
     new DiscreteVectorField(domain, data)

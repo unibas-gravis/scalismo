@@ -25,21 +25,3 @@ trait MarkovChain[A] {
   /** provide a chain starting from current as an iterator */
   def iterator(current: A): Iterator[A] = Iterator.iterate(current)(next)
 }
-
-object MarkovChain {
-  /** fat interface with rich enhancements for Markov Chains - only implementation, not a type */
-  implicit class RichMarkovChain[A](mc: MarkovChain[A]) {
-    def loggedWith(logger: ChainStateLogger[A]): MarkovChain[A] = new LoggedMarkovChain[A](mc, logger)
-  }
-
-  class LoggedMarkovChain[A](chain: MarkovChain[A], logger: ChainStateLogger[A]) extends MarkovChain[A] {
-    /** next sample in chain */
-    override def next(current: A): A = {
-      val sample = chain.next(current)
-      logger.logState(sample)
-      sample
-    }
-
-    override def toString = chain.toString
-  }
-}

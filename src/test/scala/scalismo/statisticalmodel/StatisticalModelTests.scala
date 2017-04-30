@@ -18,6 +18,7 @@ package scalismo.statisticalmodel
 import java.io.File
 
 import breeze.linalg.DenseVector
+import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.StatismoIO
@@ -36,9 +37,8 @@ class StatisticalModelTests extends ScalismoTestSuite {
     def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel) {
 
       for (i <- 0 until 10) {
-        val coeffsData = (0 until oldModel.rank).map { _ =>
-          random.breezeRandomGaussian(0, 1).draw()
-        }
+        val standardNormal = Gaussian(0, 1)(random.breezeRandBasis)
+        val coeffsData = standardNormal.sample(oldModel.rank)
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)
         val instNew = newModel.instance(coeffs)
@@ -77,6 +77,16 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val newModel = model.changeReference(t)
 
       compareModels(model, newModel)
+    }
+
+    it("has the right rank when reduced") {
+      val path = getClass.getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+
+      val newRank = model.rank / 2
+      val truncatedModel = model.truncate(newRank)
+      truncatedModel.rank should equal(newRank)
+
     }
 
     //    it("can write a changed mean statistical mode, read it and still yield the same space") {

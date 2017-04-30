@@ -16,14 +16,16 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ diag, DenseMatrix, DenseVector }
+import breeze.linalg.{ DenseMatrix, DenseVector, diag }
+import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
+import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
-import scalismo.utils.{ Random, Memoize }
+import scalismo.utils.{ Memoize, Random }
 
 /**
  *
@@ -66,7 +68,8 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
    * A random sample of the gaussian process
    */
   def sample()(implicit rand: Random): Field[D, Value] = {
-    val coeffs = for (_ <- klBasis.indices) yield rand.breezeRandomGaussian(0, 1).draw()
+    val standardNormal = Gaussian(0, 1)(rand.breezeRandBasis)
+    val coeffs = standardNormal.sample(klBasis.length)
     instance(DenseVector(coeffs.toArray))
   }
 
@@ -78,6 +81,15 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
     val aSample = sample()
     val values = domain.points.map(pt => aSample(pt))
     DiscreteField(domain, values.toIndexedSeq)
+  }
+
+  /**
+   * Returns a reduced rank model, using only the leading basis function of the Karhunen-loeve expansion.
+   *
+   * @param newRank: The rank of the new Gaussian process.
+   */
+  def truncate(newRank: Int): LowRankGaussianProcess[D, Value] = {
+    new LowRankGaussianProcess(mean, klBasis.take(newRank))
   }
 
   /**
@@ -183,7 +195,21 @@ object LowRankGaussianProcess {
   def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
     numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
-    val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, numBasisFunctions, sampler)
+    val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
+    new LowRankGaussianProcess[D, Value](gp.mean, kltBasis.take(numBasisFunctions))
+  }
+
+  /**
+   * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
+   * are sampled using the given sample.
+   *
+   * @param gp                The gaussian process to approximate
+   * @param sampler           determines which points will be used as samples for the nystrom approximation.
+   * @
+   */
+  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+    val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
 

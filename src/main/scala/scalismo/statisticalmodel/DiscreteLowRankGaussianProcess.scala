@@ -16,7 +16,8 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ diag, *, DenseMatrix, DenseVector }
+import breeze.linalg.{ *, DenseMatrix, DenseVector, diag }
+import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
@@ -26,7 +27,7 @@ import scalismo.registration.Transformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess._
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => DiscreteEigenpair }
-import scalismo.utils.{ Random, Memoize }
+import scalismo.utils.{ Memoize, Random }
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -102,7 +103,8 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
    */
   override def sample()(implicit random: Random): DiscreteField[D, Value] = {
-    val coeffs = for (_ <- 0 until rank) yield random.breezeRandomGaussian(0, 1).draw()
+    val standardNormal = Gaussian(0, 1)(random.breezeRandBasis)
+    val coeffs = standardNormal.sample(rank)
     instance(DenseVector(coeffs.toArray))
   }
 
@@ -116,6 +118,15 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
       val eigenFunction = DiscreteField.createFromDenseVector[D, Value](domain, basisMatrix(::, i))
       DiscreteEigenpair(eigenValue, eigenFunction)
     }
+  }
+
+  /**
+   * Returns a reduced rank model, using only the leading basis function of the Karhunen-loeve expansion.
+   *
+   * @param newRank: The rank of the new Gaussian process.
+   */
+  def truncate(rank: Int) = {
+    DiscreteLowRankGaussianProcess[D, Value](mean, klBasis.take(rank))
   }
 
   /**
@@ -255,13 +266,13 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Double]): DenseVector[Double] = {
     require(rank == alpha.size)
 
-    basisMatrix * (stddev :* alpha) + meanVector
+    basisMatrix * (stddev *:* alpha) + meanVector
   }
 
   protected[statisticalmodel] def instanceVectorAtPoint(alpha: DenseVector[Double], pid: PointId): DenseVector[Double] = {
     require(rank == alpha.size)
     val range = pid.id * vectorizer.dim until (pid.id + 1) * vectorizer.dim
-    basisMatrix(range, ::) * (stddev :* alpha) + meanVector(range)
+    basisMatrix(range, ::) * (stddev *:* alpha) + meanVector(range)
   }
 
   private[this] val stddev = variance.map(x => math.sqrt(x))

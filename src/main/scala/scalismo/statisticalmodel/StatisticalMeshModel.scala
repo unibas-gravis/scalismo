@@ -90,7 +90,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
   def marginal(ptIds: IndexedSeq[PointId]) = {
-    val clippedReference = Mesh.clipMesh(referenceMesh, p => { !ptIds.contains(referenceMesh.pointSet.findClosestPoint(p).id) })
+    val clippedReference = referenceMesh.operations.clip(p => { !ptIds.contains(referenceMesh.pointSet.findClosestPoint(p).id) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
     val remainingPtIds = clippedReference.pointSet.points.map(p => referenceMesh.pointSet.findClosestPoint(p).id).toIndexedSeq
     if (remainingPtIds.isEmpty) {
@@ -104,11 +104,20 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
   }
 
   /**
+   * Returns a reduced rank model, using only the leading basis functions.
+   *
+   * @param newRank: The rank of the new model.
+   */
+  def truncate(newRank: Int): StatisticalMeshModel = {
+    new StatisticalMeshModel(referenceMesh, gp.truncate(newRank))
+  }
+
+  /**
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
   def project(mesh: TriangleMesh[_3D]) = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
-    val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
+    val dvf = DiscreteField(referenceMesh.pointSet, displacements)
     warpReference(gp.project(dvf))
   }
 
@@ -117,7 +126,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    */
   def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = {
     val displacements = referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
-    val dvf = DiscreteVectorField(referenceMesh.pointSet, displacements)
+    val dvf = DiscreteField(referenceMesh.pointSet, displacements)
     gp.coefficients(dvf)
   }
 

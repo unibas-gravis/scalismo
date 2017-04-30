@@ -17,6 +17,7 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics._
 import BSDistance.{ Distance2, Index, _ }
+import scalismo.common.PointId
 import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.mesh.TriangleMesh
 
@@ -24,7 +25,7 @@ import scalismo.mesh.TriangleMesh
  * SpatialIndex for a set of points
  */
 trait DiscreteSpatialIndex {
-  def closestPoint(point: Point[_3D]): ClosestPointIsPoint
+  def closestPoint(point: Point[_3D]): ClosestPointIsVertex
 }
 
 /**
@@ -61,13 +62,13 @@ private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
   /**
    * find closest point function
    */
-  def closestPoint(point: Point[_3D]): ClosestPointIsPoint = {
+  def closestPoint(point: Point[_3D]): ClosestPointIsVertex = {
     val p = point.toVector
     val lastP = pointList(lastIdx.get().idx)
     val lastD = toPoint(lastP, p)
     val d: Distance2 = new Distance2(lastD.distance2)
     distanceToPartition(p, bs, d, lastIdx.get())
-    ClosestPointIsPoint(pointList(lastIdx.get().idx).toPoint, d.distance2, lastIdx.get().idx)
+    ClosestPointIsVertex(pointList(lastIdx.get().idx).toPoint, d.distance2, PointId(lastIdx.get().idx))
   }
 
   private val lastIdx: ThreadLocal[Index] = new ThreadLocal[Index]() {

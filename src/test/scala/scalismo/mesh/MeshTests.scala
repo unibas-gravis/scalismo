@@ -73,7 +73,7 @@ class MeshTests extends ScalismoTestSuite {
     it("computes the right binary image for the unit sphere") {
       val path = getClass.getResource("/unit-sphere.stl").getPath
       val spheremesh = MeshIO.readMesh(new File(path)).get
-      val binaryImg = Mesh.meshToBinaryImage(spheremesh)
+      val binaryImg = spheremesh.operations.toBinaryImage
       binaryImg(Point(0, 0, 0)) should be(1)
       binaryImg(Point(2, 0, 0)) should be(0)
     }
