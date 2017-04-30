@@ -15,7 +15,6 @@ object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
   val buildScalaVersion = "2.11.8"
 
-  val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
@@ -23,7 +22,7 @@ object BuildSettings {
     crossScalaVersions := Seq("2.11.8", "2.12.1"),
     javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2,  11)) => Seq("-source", "1.6", "-target", "1.6")
-      case _ => Seq("-source", "1.8", "-target", "1.8")
+      case _ => Seq()
     }),
     scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2,  11)) =>  Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
@@ -70,7 +69,6 @@ object STKBuild extends Build {
       libraryDependencies ++= commonDeps,
       resolvers ++= stkResolvers,
       parallelExecution in Test := false,
-      publishTo := Some(publishURL),
       EclipseKeys.withSource := true)
       ++ site.settings
       ++ site.includeScaladoc()
