@@ -99,12 +99,28 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    *
    */
   def toBinaryImage: ScalarImage[_3D] = {
+
+    val meshOps = mesh.operations
+
     def inside(pt: Point[_3D]): Short = {
-      val closestMeshPt = mesh.pointSet.findClosestPoint(pt)
-      val dotprod = mesh.vertexNormals(closestMeshPt.id) dot (closestMeshPt.point - pt)
+      val (closestPoint, normalAtClosestPoint) = meshOps.closestPointOnSurface(pt) match {
+        case ClosestPointInTriangle(closestPoint, dist, triangleId, bcc) => {
+          (closestPoint, mesh.vertexNormals.onSurface(triangleId, bcc))
+        }
+        case ClosestPointOnLine(closestPoint, _, (id1, id2), bc) => {
+          val normalPt1 = mesh.vertexNormals(id1)
+          val normalPt2 = mesh.vertexNormals(id2)
+          val averagedNormal = (normalPt1 * bc) + (normalPt2 * (1.0 - bc))
+          (closestPoint, averagedNormal / averagedNormal.norm)
+        }
+        case _ => {
+          val closestMeshPt = mesh.pointSet.findClosestPoint(pt)
+          (closestMeshPt.point, mesh.vertexNormals(closestMeshPt.id))
+        }
+      }
+      val dotprod = normalAtClosestPoint dot (closestPoint - pt)
       if (dotprod > 0.0) 1 else 0
     }
-
     ScalarImage(RealSpace[_3D], (pt: Point[_3D]) => inside(pt))
   }
 
