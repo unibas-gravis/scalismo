@@ -65,7 +65,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -78,7 +78,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -185,6 +185,26 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#approximateGP" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="approximateGP[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],sampler:scalismo.numerics.Sampler[D])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
+      <a id="approximateGP[D&lt;:Dim,Value](GaussianProcess[D,Value],Sampler[D])(NDSpace[D],Vectorizer[Value],Random):LowRankGaussianProcess[D,Value]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">approximateGP</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>, <span name="rand">rand: <a href="../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.approximateGP.Value">Value</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@approximateGP[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],sampler:scalismo.numerics.Sampler[D])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Perform a low-rank approximation of the Gaussian process using the Nystrom method.</p><div class="fullcomment"><div class="comment cmt"><p>Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
+are sampled using the given sample.
+</p></div><dl class="paramcmts block"><dt class="param">gp</dt><dd class="cmt"><p>The gaussian process to approximate</p></dd><dt class="param">sampler</dt><dd class="cmt"><p>determines which points will be used as samples for the nystrom approximation.
+@</p></dd></dl></div>
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#approximateGP" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="approximateGP[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],sampler:scalismo.numerics.Sampler[D],numBasisFunctions:Int)(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
       <a id="approximateGP[D&lt;:Dim,Value](GaussianProcess[D,Value],Sampler[D],Int)(NDSpace[D],Vectorizer[Value],Random):LowRankGaussianProcess[D,Value]"></a>
@@ -404,7 +424,7 @@ are sampled using the given sample.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#regression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
+      <a id="regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$5:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]"></a>
       <a id="regression[D&lt;:Dim,Value](LowRankGaussianProcess[D,Value],IndexedSeq[(Point[D],Value,MultivariateNormalDistribution)])(NDSpace[D],Vectorizer[Value]):LowRankGaussianProcess[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -415,7 +435,7 @@ are sampled using the given sample.
         <span class="name">regression</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>]</span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.regression.Value">Value</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$5:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.LowRankGaussianProcess[D,Value]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -456,7 +476,7 @@ are sampled using the given sample.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.LowRankGaussianProcess#transform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="transform[D&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]],rigidTransform:scalismo.registration.RigidTransformation[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[scalismo.geometry.Vector[D]]):scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]]"></a>
+      <a id="transform[D&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]],rigidTransform:scalismo.registration.RigidTransformation[D])(implicitevidence$7:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[scalismo.geometry.Vector[D]]):scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]]"></a>
       <a id="transform[D&lt;:Dim](LowRankGaussianProcess[D,Vector[D]],RigidTransformation[D])(NDSpace[D],Vectorizer[Vector[D]]):LowRankGaussianProcess[D,Vector[D]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -467,7 +487,7 @@ are sampled using the given sample.
         <span class="name">transform</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="gp">gp: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]]</span>, <span name="rigidTransform">rigidTransform: <a href="../registration/RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]]</span>)</span><span class="result">: <a href="LowRankGaussianProcess.html" class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess">LowRankGaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>, <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.statisticalmodel.LowRankGaussianProcess.transform.D">D</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@transform[D&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]],rigidTransform:scalismo.registration.RigidTransformation[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[scalismo.geometry.Vector[D]]):scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.statisticalmodel.LowRankGaussianProcess$@transform[D&lt;:scalismo.geometry.Dim](gp:scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]],rigidTransform:scalismo.registration.RigidTransformation[D])(implicitevidence$7:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[scalismo.geometry.Vector[D]]):scalismo.statisticalmodel.LowRankGaussianProcess[D,scalismo.geometry.Vector[D]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

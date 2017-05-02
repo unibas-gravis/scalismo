@@ -63,7 +63,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -76,7 +76,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -163,24 +163,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.mesh.Mesh#clipMesh" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clipMesh(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
-      <a id="clipMesh(TriangleMesh[_3D],(Point[_3D])⇒Boolean):TriangleMesh[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">clipMesh</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="clipPointPredicate">clipPointPredicate: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.Mesh$@clipMesh(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Returns a new <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> where all points satisfying the given predicate are removed.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> where all points satisfying the given predicate are removed.
-All cells containing deleted points are also deleted.</p></div></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -312,43 +294,6 @@ All cells containing deleted points are also deleted.</p></div></div>
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.mesh.Mesh#meshToBinaryImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="meshToBinaryImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.ScalarImage[scalismo.geometry._3D]"></a>
-      <a id="meshToBinaryImage(TriangleMesh[_3D]):ScalarImage[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">meshToBinaryImage</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.Mesh$@meshToBinaryImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.ScalarImage[scalismo.geometry._3D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Returns a new continuous binary <span class="extype" name="ScalarImage">ScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> , where the mesh surface is used to split the image domain.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new continuous binary <span class="extype" name="ScalarImage">ScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> , where the mesh surface is used to split the image domain.
-Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
-value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.</p></div></div>
-    </li><li name="scalismo.mesh.Mesh#meshToDistanceImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="meshToDistanceImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]"></a>
-      <a id="meshToDistanceImage(TriangleMesh[_3D]):DifferentiableScalarImage[_3D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">meshToDistanceImage</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.Mesh$@meshToDistanceImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Returns a new continuous <span class="extype" name="DifferentiableScalarImage">DifferentiableScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> which is the distance transform of the mesh
-</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -508,7 +453,75 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scalismo.mesh.Mesh#clipMesh" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clipMesh(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
+      <a id="clipMesh(TriangleMesh[_3D],(Point[_3D])⇒Boolean):TriangleMesh[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14) Is moved to TriangleMesh3DMeshOperations.">clipMesh</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="clipPointPredicate">clipPointPredicate: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.Mesh$@clipMesh(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D],clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns a new <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> where all points satisfying the given predicate are removed.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> where all points satisfying the given predicate are removed.
+All cells containing deleted points are also deleted.</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14)</i> Is moved to TriangleMesh3DMeshOperations.</p></dd></dl></div>
+    </li><li name="scalismo.mesh.Mesh#meshToBinaryImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="meshToBinaryImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.ScalarImage[scalismo.geometry._3D]"></a>
+      <a id="meshToBinaryImage(TriangleMesh[_3D]):ScalarImage[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14) Is moved to TriangleMesh3DMeshOperations.">meshToBinaryImage</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.Mesh$@meshToBinaryImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.ScalarImage[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns a new continuous binary <span class="extype" name="ScalarImage">ScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> , where the mesh surface is used to split the image domain.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new continuous binary <span class="extype" name="ScalarImage">ScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> , where the mesh surface is used to split the image domain.
+Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
+value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14)</i> Is moved to TriangleMesh3DMeshOperations.</p></dd></dl></div>
+    </li><li name="scalismo.mesh.Mesh#meshToDistanceImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="meshToDistanceImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]"></a>
+      <a id="meshToDistanceImage(TriangleMesh[_3D]):DifferentiableScalarImage[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.14) Is moved to TriangleMesh3DMeshOperations.">meshToDistanceImage</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.Mesh$@meshToDistanceImage(mesh:scalismo.mesh.TriangleMesh[scalismo.geometry._3D]):scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns a new continuous <span class="extype" name="DifferentiableScalarImage">DifferentiableScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> which is the distance transform of the mesh
+</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new continuous <span class="extype" name="DifferentiableScalarImage">DifferentiableScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> which is the distance transform of the mesh
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14)</i> Is moved to TriangleMesh3DMeshOperations.</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

@@ -62,7 +62,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -75,7 +75,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -224,23 +224,27 @@ kx = (k(x, x1), ... k(x, xm))
 since the kernel is matrix valued, kx is actually a matrix</p><p>!! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
 faster (breeze implementation detail). This should be replaced at some point
 </p></div></div>
-    </li><li name="scalismo.kernels.Kernel#computeNystromApproximation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="computeNystromApproximation[D&lt;:scalismo.geometry.Dim,Value](k:scalismo.kernels.MatrixValuedPDKernel[D],numBasisFunctions:Int,sampler:scalismo.numerics.Sampler[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis[D,Value]"></a>
-      <a id="computeNystromApproximation[D&lt;:Dim,Value](MatrixValuedPDKernel[D],Int,Sampler[D])(NDSpace[D],Vectorizer[Value],Random):KLBasis[D,Value]"></a>
+    </li><li name="scalismo.kernels.Kernel#computeNystromApproximation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="computeNystromApproximation[D&lt;:scalismo.geometry.Dim,Value](k:scalismo.kernels.MatrixValuedPDKernel[D],sampler:scalismo.numerics.Sampler[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis[D,Value]"></a>
+      <a id="computeNystromApproximation[D&lt;:Dim,Value](MatrixValuedPDKernel[D],Sampler[D])(NDSpace[D],Vectorizer[Value],Random):KLBasis[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">computeNystromApproximation</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="k">k: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>]</span>, <span name="numBasisFunctions">numBasisFunctions: <span class="extype" name="scala.Int">Int</span></span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.Value">Value</span>]</span>, <span name="rand">rand: <a href="../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span><span class="result">: <a href="../statisticalmodel/LowRankGaussianProcess$.html#KLBasis[D&lt;:scalismo.geometry.Dim,Value]=Seq[scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair[D,Value]]" class="extmbr" name="scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis">KLBasis</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>, <span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.Value">Value</span>]</span>
+        <span class="name">computeNystromApproximation</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="k">k: <a href="MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.Value">Value</span>]</span>, <span name="rand">rand: <a href="../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span><span class="result">: <a href="../statisticalmodel/LowRankGaussianProcess$.html#KLBasis[D&lt;:scalismo.geometry.Dim,Value]=Seq[scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair[D,Value]]" class="extmbr" name="scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis">KLBasis</a>[<span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.D">D</span>, <span class="extype" name="scalismo.kernels.Kernel.computeNystromApproximation.Value">Value</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.kernels.Kernel$@computeNystromApproximation[D&lt;:scalismo.geometry.Dim,Value](k:scalismo.kernels.MatrixValuedPDKernel[D],numBasisFunctions:Int,sampler:scalismo.numerics.Sampler[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis[D,Value]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.kernels.Kernel$@computeNystromApproximation[D&lt;:scalismo.geometry.Dim,Value](k:scalismo.kernels.MatrixValuedPDKernel[D],sampler:scalismo.numerics.Sampler[D])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value],implicitrand:scalismo.utils.Random):scalismo.statisticalmodel.LowRankGaussianProcess.KLBasis[D,Value]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding
+to kernel k.</p><div class="fullcomment"><div class="comment cmt"><p>Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding
+to kernel k. The number of leading eigenfunctions is at most n, where n is the number of points sampled.
+If the eigenvalues are decaying quickly, it can be much smaller than n.
+</p></div><dl class="paramcmts block"><dt class="param">k</dt><dd class="cmt"><p>(matrix-valued) kernel</p></dd><dt class="param">sampler</dt><dd class="cmt"><p>A point sampler, which determines the points that are used to compute the approximation.</p></dd><dt>returns</dt><dd class="cmt"><p>The leading eigenvalue / eigenfunction pairs</p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

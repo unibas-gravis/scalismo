@@ -45,7 +45,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ClosestPointOnLine</span><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distance2">distance2: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>, <span name="bc">bc: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ClosestPointOnLine</span><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distanceSquared">distanceSquared: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)</span>, <span name="bc">bc: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -62,7 +62,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -75,7 +75,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -89,7 +89,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.mesh.boundingSpheres.ClosestPointOnLine#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(point:scalismo.geometry.Point[scalismo.geometry._3D],distance2:Double,idx:(Int,Int),bc:Double):scalismo.mesh.boundingSpheres.ClosestPointOnLine"></a>
+      <a id="&lt;init&gt;(point:scalismo.geometry.Point[scalismo.geometry._3D],distanceSquared:Double,idx:(scalismo.common.PointId,scalismo.common.PointId),bc:Double):scalismo.mesh.boundingSpheres.ClosestPointOnLine"></a>
       <a id="&lt;init&gt;:ClosestPointOnLine"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -97,10 +97,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ClosestPointOnLine</span><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distance2">distance2: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>, <span name="bc">bc: <span class="extype" name="scala.Double">Double</span></span>)</span>
+        <span class="name">ClosestPointOnLine</span><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distanceSquared">distanceSquared: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)</span>, <span name="bc">bc: <span class="extype" name="scala.Double">Double</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.mesh.boundingSpheres.ClosestPointOnLine@&lt;init&gt;(point:scalismo.geometry.Point[scalismo.geometry._3D],distance2:Double,idx:(Int,Int),bc:Double):scalismo.mesh.boundingSpheres.ClosestPointOnLine" title="Permalink" target="_top">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.ClosestPointOnLine@&lt;init&gt;(point:scalismo.geometry.Point[scalismo.geometry._3D],distanceSquared:Double,idx:(scalismo.common.PointId,scalismo.common.PointId),bc:Double):scalismo.mesh.boundingSpheres.ClosestPointOnLine" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -239,19 +239,19 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.mesh.boundingSpheres.ClosestPointOnLine#distance2" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="distance2:Double"></a>
-      <a id="distance2:Double"></a>
+    </li><li name="scalismo.mesh.boundingSpheres.ClosestPointOnLine#distanceSquared" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="distanceSquared:Double"></a>
+      <a id="distanceSquared:Double"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">distance2</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+        <span class="name">distanceSquared</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.mesh.boundingSpheres.ClosestPointOnLine@distance2:Double" title="Permalink" target="_top">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.ClosestPointOnLine@distanceSquared:Double" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -314,18 +314,18 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.mesh.boundingSpheres.ClosestPointOnLine#idx" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="idx:(Int,Int)"></a>
-      <a id="idx:(Int,Int)"></a>
+      <a id="idx:(scalismo.common.PointId,scalismo.common.PointId)"></a>
+      <a id="idx:(PointId,PointId)"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">idx</span><span class="result">: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>
+        <span class="name">idx</span><span class="result">: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.mesh.boundingSpheres.ClosestPointOnLine@idx:(Int,Int)" title="Permalink" target="_top">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.ClosestPointOnLine@idx:(scalismo.common.PointId,scalismo.common.PointId)" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

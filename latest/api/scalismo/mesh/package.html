@@ -339,6 +339,60 @@
       </a>
     </span>
       <p class="shortcomment cmt">MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.</p>
+    </li><li name="scalismo.mesh.MeshCompactifier" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MeshCompactifierextendsMeshManipulation"></a>
+      <a id="MeshCompactifier:MeshCompactifier"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="MeshCompactifier.html"><span class="name">MeshCompactifier</span></a><span class="result"> extends <a href="MeshManipulation.html" class="extype" name="scalismo.mesh.MeshManipulation">MeshManipulation</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@MeshCompactifierextendsMeshManipulation" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">compact a mesh: remove unreferenced points and triangles with invalid points, also respects external filters for points and triangles
+</p>
+    </li><li name="scalismo.mesh.MeshManipulation" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MeshManipulationextendsAnyRef"></a>
+      <a id="MeshManipulation:MeshManipulation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MeshManipulation.html"><span class="name">MeshManipulation</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@MeshManipulationextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">a general operation on mesh, can also alter surface properties
+</p>
+    </li><li name="scalismo.mesh.MeshSurfaceCorrespondence" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MeshSurfaceCorrespondenceextendsMeshSurfaceProperty[(scalismo.mesh.TriangleId,scalismo.mesh.BarycentricCoordinates)]"></a>
+      <a id="MeshSurfaceCorrespondence:MeshSurfaceCorrespondence"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MeshSurfaceCorrespondence.html"><span class="name">MeshSurfaceCorrespondence</span></a><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[(<a href="TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a>, <a href="BarycentricCoordinates.html" class="extype" name="scalismo.mesh.BarycentricCoordinates">BarycentricCoordinates</a>)]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@MeshSurfaceCorrespondenceextendsMeshSurfaceProperty[(scalismo.mesh.TriangleId,scalismo.mesh.BarycentricCoordinates)]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">express correspondence of a triangulated surface to another triangulation, maps points on this surface to target surface
+</p>
     </li><li name="scalismo.mesh.MeshSurfaceProperty" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="MeshSurfaceProperty[A]extendsAnyRef"></a>
       <a id="MeshSurfaceProperty[A]:MeshSurfaceProperty[A]"></a>
@@ -495,6 +549,23 @@ accessible through the parameterization given by the triangulation of the mesh: 
       </a>
     </span>
       <p class="shortcomment cmt">Standard 3D Gravis mesh, geometry only</p>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleMesh3DOperationsextendsAnyRef"></a>
+      <a id="TriangleMesh3DOperations:TriangleMesh3DOperations"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh3DOperations.html"><span class="name">TriangleMesh3DOperations</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@TriangleMesh3DOperationsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scalismo.mesh.TriangleProperty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TriangleProperty[A]extendsMeshSurfaceProperty[A]withProductwithSerializable"></a>
       <a id="TriangleProperty[A]:TriangleProperty[A]"></a>
@@ -529,6 +600,25 @@ accessible through the parameterization given by the triangulation of the mesh: 
       </a>
     </span>
       <p class="shortcomment cmt">The TriangularMeshBoundary can be queried if a triangle has one side in common with the mesh boundary.</p>
+    </li><li name="scalismo.mesh.WarpedMeshSurfaceProperty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="WarpedMeshSurfaceProperty[A]extendsMeshSurfaceProperty[A]withProductwithSerializable"></a>
+      <a id="WarpedMeshSurfaceProperty[A]:WarpedMeshSurfaceProperty[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="WarpedMeshSurfaceProperty.html"><span class="name">WarpedMeshSurfaceProperty</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="underlyingProperty">underlyingProperty: <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.WarpedMeshSurfaceProperty.A">A</span>]</span>, <span name="correspondence">correspondence: <a href="MeshSurfaceCorrespondence.html" class="extype" name="scalismo.mesh.MeshSurfaceCorrespondence">MeshSurfaceCorrespondence</a></span>)</span><span class="result"> extends <a href="MeshSurfaceProperty.html" class="extype" name="scalismo.mesh.MeshSurfaceProperty">MeshSurfaceProperty</a>[<span class="extype" name="scalismo.mesh.WarpedMeshSurfaceProperty.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@WarpedMeshSurfaceProperty[A]extendsMeshSurfaceProperty[A]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">use a target surface property through a surface correspondence
+Each lookup on this surface returns the property at the corresponding point of the underlying surface</p><div class="fullcomment"><div class="comment cmt"><p>use a target surface property through a surface correspondence
+Each lookup on this surface returns the property at the corresponding point of the underlying surface</p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>type of property</p></dd><dt class="param">underlyingProperty</dt><dd class="cmt"><p>surface property on target surface (underlying)</p></dd><dt class="param">correspondence</dt><dd class="cmt"><p>surface correspondence field mapping points in this triangulation to underlying triangulation</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -690,6 +780,23 @@ accessible through the parameterization given by the triangulation of the mesh: 
       </a>
     </span>
       <p class="shortcomment cmt">Factory for mesh boundaries.</p>
+    </li><li name="scalismo.mesh.MeshCompactifier" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MeshCompactifier"></a>
+      <a id="MeshCompactifier:MeshCompactifier"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="MeshCompactifier$.html"><span class="name">MeshCompactifier</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@MeshCompactifier" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scalismo.mesh.MeshMetrics" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="MeshMetrics"></a>
       <a id="MeshMetrics:MeshMetrics"></a>
@@ -707,6 +814,23 @@ accessible through the parameterization given by the triangulation of the mesh: 
       </a>
     </span>
       <p class="shortcomment cmt">Implements utility methods for evaluating similarity of <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> instances</p>
+    </li><li name="scalismo.mesh.MeshOperations" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MeshOperations"></a>
+      <a id="MeshOperations:MeshOperations"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="MeshOperations$.html"><span class="name">MeshOperations</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.mesh.package@MeshOperations" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scalismo.mesh.ScalarMeshField" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ScalarMeshField"></a>
       <a id="ScalarMeshField:ScalarMeshField"></a>

@@ -65,7 +65,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -78,7 +78,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -148,6 +148,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.GaussianProcess#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply[D&lt;:scalismo.geometry.Dim,Value](cov:scalismo.kernels.MatrixValuedPDKernel[D])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
+      <a id="apply[D&lt;:Dim,Value](MatrixValuedPDKernel[D])(NDSpace[D],Vectorizer[Value]):GaussianProcess[D,Value]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="cov">cov: <a href="../kernels/MatrixValuedPDKernel.html" class="extype" name="scalismo.kernels.MatrixValuedPDKernel">MatrixValuedPDKernel</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.Value">Value</span>]</span>)</span><span class="result">: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.apply.Value">Value</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess$@apply[D&lt;:scalismo.geometry.Dim,Value](cov:scalismo.kernels.MatrixValuedPDKernel[D])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates a new zero-mean Gaussian process with the given covariance function.</p>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="apply[D&lt;:scalismo.geometry.Dim,Value](mean:scalismo.common.Field[D,Value],cov:scalismo.kernels.MatrixValuedPDKernel[D])(implicitevidence$2:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
       <a id="apply[D&lt;:Dim,Value](Field[D,Value],MatrixValuedPDKernel[D])(NDSpace[D],Vectorizer[Value]):GaussianProcess[D,Value]"></a>
@@ -314,7 +331,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#marginalLikelihood" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="marginalLikelihood[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):Double"></a>
+      <a id="marginalLikelihood[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$5:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):Double"></a>
       <a id="marginalLikelihood[D&lt;:Dim,Value](GaussianProcess[D,Value],IndexedSeq[(Point[D],Value,MultivariateNormalDistribution)])(NDSpace[D],Vectorizer[Value]):Double"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -325,7 +342,7 @@
         <span class="name">marginalLikelihood</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.Value">Value</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.marginalLikelihood.Value">Value</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess$@marginalLikelihood[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):Double" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess$@marginalLikelihood[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$5:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):Double" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -384,7 +401,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.statisticalmodel.GaussianProcess#regression" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
+      <a id="regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]"></a>
       <a id="regression[D&lt;:Dim,Value](GaussianProcess[D,Value],IndexedSeq[(Point[D],Value,MultivariateNormalDistribution)])(NDSpace[D],Vectorizer[Value]):GaussianProcess[D,Value]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -395,7 +412,7 @@
         <span class="name">regression</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="Value">Value</span>]</span><span class="params">(<span name="gp">gp: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>]</span>, <span name="trainingData">trainingData: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>], <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>, <a href="MultivariateNormalDistribution.html" class="extype" name="scalismo.statisticalmodel.MultivariateNormalDistribution">MultivariateNormalDistribution</a>)]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>]</span>, <span name="vectorizer">vectorizer: <a href="../common/Vectorizer.html" class="extype" name="scalismo.common.Vectorizer">Vectorizer</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>]</span>)</span><span class="result">: <a href="GaussianProcess.html" class="extype" name="scalismo.statisticalmodel.GaussianProcess">GaussianProcess</a>[<span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.D">D</span>, <span class="extype" name="scalismo.statisticalmodel.GaussianProcess.regression.Value">Value</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess$@regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$3:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.statisticalmodel.GaussianProcess$@regression[D&lt;:scalismo.geometry.Dim,Value](gp:scalismo.statisticalmodel.GaussianProcess[D,Value],trainingData:IndexedSeq[(scalismo.geometry.Point[D],Value,scalismo.statisticalmodel.MultivariateNormalDistribution)])(implicitevidence$4:scalismo.geometry.NDSpace[D],implicitvectorizer:scalismo.common.Vectorizer[Value]):scalismo.statisticalmodel.GaussianProcess[D,Value]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

@@ -66,7 +66,7 @@ generator needs to be symmetric
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -79,7 +79,7 @@ generator needs to be symmetric
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -93,7 +93,7 @@ generator needs to be symmetric
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.sampling.algorithms.Metropolis#&lt;init&gt;" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(generator:scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A],evaluator:scalismo.sampling.DistributionEvaluator[A],logger:scalismo.sampling.loggers.AcceptRejectLogger[A])(implicitrandom:scalismo.utils.Random):scalismo.sampling.algorithms.Metropolis[A]"></a>
+      <a id="&lt;init&gt;(generator:scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A],evaluator:scalismo.sampling.DistributionEvaluator[A])(implicitrandom:scalismo.utils.Random):scalismo.sampling.algorithms.Metropolis[A]"></a>
       <a id="&lt;init&gt;:Metropolis[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -101,10 +101,10 @@ generator needs to be symmetric
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Metropolis</span><span class="params">(<span name="generator">generator: <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>] with <a href="../SymmetricTransitionRatio.html" class="extype" name="scalismo.sampling.SymmetricTransitionRatio">SymmetricTransitionRatio</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>, <span name="evaluator">evaluator: <a href="../DistributionEvaluator.html" class="extype" name="scalismo.sampling.DistributionEvaluator">DistributionEvaluator</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>, <span name="logger">logger: <a href="../loggers/AcceptRejectLogger.html" class="extype" name="scalismo.sampling.loggers.AcceptRejectLogger">AcceptRejectLogger</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="random">random: <a href="../../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span>
+        <span class="name">Metropolis</span><span class="params">(<span name="generator">generator: <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>] with <a href="../SymmetricTransitionRatio.html" class="extype" name="scalismo.sampling.SymmetricTransitionRatio">SymmetricTransitionRatio</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>, <span name="evaluator">evaluator: <a href="../DistributionEvaluator.html" class="extype" name="scalismo.sampling.DistributionEvaluator">DistributionEvaluator</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="random">random: <a href="../../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.algorithms.Metropolis@&lt;init&gt;(generator:scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A],evaluator:scalismo.sampling.DistributionEvaluator[A],logger:scalismo.sampling.loggers.AcceptRejectLogger[A])(implicitrandom:scalismo.utils.Random):scalismo.sampling.algorithms.Metropolis[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#scalismo.sampling.algorithms.Metropolis@&lt;init&gt;(generator:scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A],evaluator:scalismo.sampling.DistributionEvaluator[A])(implicitrandom:scalismo.utils.Random):scalismo.sampling.algorithms.Metropolis[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -351,6 +351,23 @@ generator needs to be symmetric
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scalismo.sampling.algorithms.Metropolis#iterator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="iterator(start:A,logger:scalismo.sampling.loggers.AcceptRejectLogger[A]):Iterator[A]"></a>
+      <a id="iterator(A,AcceptRejectLogger[A]):Iterator[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">iterator</span><span class="params">(<span name="start">start: <span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span></span>, <span name="logger">logger: <a href="../loggers/AcceptRejectLogger.html" class="extype" name="scalismo.sampling.loggers.AcceptRejectLogger">AcceptRejectLogger</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.algorithms.Metropolis@iterator(start:A,logger:scalismo.sampling.loggers.AcceptRejectLogger[A]):Iterator[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">start a logged iterator</p>
     </li><li name="scalismo.sampling.MarkovChain#iterator" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="iterator(current:A):Iterator[A]"></a>
       <a id="iterator(A):Iterator[A]"></a>
@@ -368,23 +385,6 @@ generator needs to be symmetric
       </a>
     </span>
       <p class="shortcomment cmt">provide a chain starting from current as an iterator</p><div class="fullcomment"><div class="comment cmt"><p>provide a chain starting from current as an iterator</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../MarkovChain.html" class="extype" name="scalismo.sampling.MarkovChain">MarkovChain</a></dd></dl></div>
-    </li><li name="scalismo.sampling.algorithms.Metropolis#logger" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="logger:scalismo.sampling.loggers.AcceptRejectLogger[A]"></a>
-      <a id="logger:AcceptRejectLogger[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">logger</span><span class="result">: <a href="../loggers/AcceptRejectLogger.html" class="extype" name="scalismo.sampling.loggers.AcceptRejectLogger">AcceptRejectLogger</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.algorithms.Metropolis@logger:scalismo.sampling.loggers.AcceptRejectLogger[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -419,6 +419,23 @@ generator needs to be symmetric
       </a>
     </span>
       <p class="shortcomment cmt">next sample in chain</p><div class="fullcomment"><div class="comment cmt"><p>next sample in chain</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.sampling.algorithms.Metropolis">Metropolis</a> → <a href="../MarkovChain.html" class="extype" name="scalismo.sampling.MarkovChain">MarkovChain</a></dd></dl></div>
+    </li><li name="scalismo.sampling.algorithms.Metropolis#next" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="next(current:A,logger:scalismo.sampling.loggers.AcceptRejectLogger[A]):A"></a>
+      <a id="next(A,AcceptRejectLogger[A]):A"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">next</span><span class="params">(<span name="current">current: <span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span></span>, <span name="logger">logger: <a href="../loggers/AcceptRejectLogger.html" class="extype" name="scalismo.sampling.loggers.AcceptRejectLogger">AcceptRejectLogger</a>[<span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="scalismo.sampling.algorithms.Metropolis.A">A</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.algorithms.Metropolis@next(current:A,logger:scalismo.sampling.loggers.AcceptRejectLogger[A]):A" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <a id="notify():Unit"></a>

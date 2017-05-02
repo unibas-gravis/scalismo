@@ -49,7 +49,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>implicit conversions for simple building: MixtureProposal(0.5 *: prop1 + 0.25 *: prop2 + 0.25 *: prop3) - only for ProposalGenerator[A] with TransitionProbability[A]</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>implicit conversions for simple building: MixtureProposal(0.5 *: prop1 + 0.25 *: prop2 + 0.25 *: prop3) - handles all symmetry and transition traits</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -62,7 +62,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -75,7 +75,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -91,35 +91,86 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="MixtureBuilder[A]extendsAnyRef"></a>
+      <a id="MixtureBuilder[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.ProposalGenerator[A]]"></a>
       <a id="MixtureBuilder[A]:MixtureBuilder[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="MixtureProposal$$implicits$$MixtureBuilder.html"><span class="name">MixtureBuilder</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="MixtureProposal$$implicits$$MixtureBuilder.html"><span class="name">MixtureBuilder</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="MixtureProposal$$implicits$$MixtureComponentSeq.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponentSeq">MixtureComponentSeq</a>[<a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureBuilder[A]extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureBuilder[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.ProposalGenerator[A]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="MixtureComponent[A]extendsProductwithSerializable"></a>
-      <a id="MixtureComponent[A]:MixtureComponent[A]"></a>
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSym" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MixtureBuilderSym[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGenerator[A]]"></a>
+      <a id="MixtureBuilderSym[A]:MixtureBuilderSym[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="MixtureProposal$$implicits$$MixtureBuilderSym.html"><span class="name">MixtureBuilderSym</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="MixtureProposal$$implicits$$MixtureComponentSeq.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponentSeq">MixtureComponentSeq</a>[<a href="MixtureProposal$.html#SymmetricProposalGenerator[A]=scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A]" class="extmbr" name="scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGenerator">SymmetricProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSym.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureBuilderSym[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGenerator[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSymTrans" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MixtureBuilderSymTrans[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGeneratorWithTransition[A]]"></a>
+      <a id="MixtureBuilderSymTrans[A]:MixtureBuilderSymTrans[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="MixtureProposal$$implicits$$MixtureBuilderSymTrans.html"><span class="name">MixtureBuilderSymTrans</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="MixtureProposal$$implicits$$MixtureComponentSeq.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponentSeq">MixtureComponentSeq</a>[<a href="MixtureProposal$.html#SymmetricProposalGeneratorWithTransition[A]=scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A]withscalismo.sampling.TransitionProbability[A]" class="extmbr" name="scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGeneratorWithTransition">SymmetricProposalGeneratorWithTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSymTrans.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureBuilderSymTrans[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGeneratorWithTransition[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderTrans" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MixtureBuilderTrans[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.proposals.MixtureProposal.ProposalGeneratorWithTransition[A]]"></a>
+      <a id="MixtureBuilderTrans[A]:MixtureBuilderTrans[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="MixtureProposal$$implicits$$MixtureBuilderTrans.html"><span class="name">MixtureBuilderTrans</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="MixtureProposal$$implicits$$MixtureComponentSeq.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponentSeq">MixtureComponentSeq</a>[<a href="MixtureProposal$.html#ProposalGeneratorWithTransition[A]=scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.TransitionProbability[A]" class="extmbr" name="scalismo.sampling.proposals.MixtureProposal.ProposalGeneratorWithTransition">ProposalGeneratorWithTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderTrans.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureBuilderTrans[A]extendsMixtureProposal.implicits.MixtureComponentSeq[scalismo.sampling.proposals.MixtureProposal.ProposalGeneratorWithTransition[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponentSeq" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MixtureComponentSeq[A]extendsSeq[(Double,A)]"></a>
+      <a id="MixtureComponentSeq[A]:MixtureComponentSeq[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="MixtureProposal$$implicits$$MixtureComponent.html"><span class="name">MixtureComponent</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="proposal">proposal: <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent.A">A</span>] with <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent.A">A</span>]</span>, <span name="factor">factor: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1.0</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="MixtureProposal$$implicits$$MixtureComponentSeq.html"><span class="name">MixtureComponentSeq</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Double">Double</span>, <span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponentSeq.A">A</span>)]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureComponent[A]extendsProductwithSerializable" title="Permalink" target="_top">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@MixtureComponentSeq[A]extendsSeq[(Double,A)]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -381,6 +432,74 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#proposal2Builder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="proposal2Builder[A](comp:scalismo.sampling.ProposalGenerator[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder[A]"></a>
+      <a id="proposal2Builder[A](ProposalGenerator[A]):MixtureBuilder[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">proposal2Builder</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="comp">comp: <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2Builder.A">A</span>]</span>)</span><span class="result">: <a href="MixtureProposal$$implicits$$MixtureBuilder.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder">MixtureBuilder</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2Builder.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@proposal2Builder[A](comp:scalismo.sampling.ProposalGenerator[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#proposal2BuilderSym" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="proposal2BuilderSym[A](comp:scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGenerator[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSym[A]"></a>
+      <a id="proposal2BuilderSym[A](SymmetricProposalGenerator[A]):MixtureBuilderSym[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">proposal2BuilderSym</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="comp">comp: <a href="MixtureProposal$.html#SymmetricProposalGenerator[A]=scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A]" class="extmbr" name="scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGenerator">SymmetricProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2BuilderSym.A">A</span>]</span>)</span><span class="result">: <a href="MixtureProposal$$implicits$$MixtureBuilderSym.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSym">MixtureBuilderSym</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2BuilderSym.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@proposal2BuilderSym[A](comp:scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGenerator[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSym[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#proposal2BuilderSymTrans" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="proposal2BuilderSymTrans[A](comp:scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGeneratorWithTransition[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSymTrans[A]"></a>
+      <a id="proposal2BuilderSymTrans[A](SymmetricProposalGeneratorWithTransition[A]):MixtureBuilderSymTrans[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">proposal2BuilderSymTrans</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="comp">comp: <a href="MixtureProposal$.html#SymmetricProposalGeneratorWithTransition[A]=scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.SymmetricTransitionRatio[A]withscalismo.sampling.TransitionProbability[A]" class="extmbr" name="scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGeneratorWithTransition">SymmetricProposalGeneratorWithTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2BuilderSymTrans.A">A</span>]</span>)</span><span class="result">: <a href="MixtureProposal$$implicits$$MixtureBuilderSymTrans.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSymTrans">MixtureBuilderSymTrans</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2BuilderSymTrans.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@proposal2BuilderSymTrans[A](comp:scalismo.sampling.proposals.MixtureProposal.SymmetricProposalGeneratorWithTransition[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderSymTrans[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#proposal2BuilderTrans" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="proposal2BuilderTrans[A](comp:scalismo.sampling.proposals.MixtureProposal.ProposalGeneratorWithTransition[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderTrans[A]"></a>
+      <a id="proposal2BuilderTrans[A](ProposalGeneratorWithTransition[A]):MixtureBuilderTrans[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">proposal2BuilderTrans</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="comp">comp: <a href="MixtureProposal$.html#ProposalGeneratorWithTransition[A]=scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.TransitionProbability[A]" class="extmbr" name="scalismo.sampling.proposals.MixtureProposal.ProposalGeneratorWithTransition">ProposalGeneratorWithTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2BuilderTrans.A">A</span>]</span>)</span><span class="result">: <a href="MixtureProposal$$implicits$$MixtureBuilderTrans.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderTrans">MixtureBuilderTrans</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.proposal2BuilderTrans.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@proposal2BuilderTrans[A](comp:scalismo.sampling.proposals.MixtureProposal.ProposalGeneratorWithTransition[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilderTrans[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -398,57 +517,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#toBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toBuilder[A](comp:scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder[A]"></a>
-      <a id="toBuilder[A](MixtureComponent[A]):MixtureBuilder[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toBuilder</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="comp">comp: <a href="MixtureProposal$$implicits$$MixtureComponent.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent">MixtureComponent</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toBuilder.A">A</span>]</span>)</span><span class="result">: <a href="MixtureProposal$$implicits$$MixtureBuilder.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder">MixtureBuilder</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toBuilder.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@toBuilder[A](comp:scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#toComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toComponent[A](proposal:scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.TransitionProbability[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent[A]"></a>
-      <a id="toComponent[A](ProposalGenerator[A]withTransitionProbability[A]):MixtureComponent[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toComponent</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="proposal">proposal: <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toComponent.A">A</span>] with <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toComponent.A">A</span>]</span>)</span><span class="result">: <a href="MixtureProposal$$implicits$$MixtureComponent.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent">MixtureComponent</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toComponent.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@toComponent[A](proposal:scalismo.sampling.ProposalGenerator[A]withscalismo.sampling.TransitionProbability[A]):scalismo.sampling.proposals.MixtureProposal.implicits.MixtureComponent[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="scalismo.sampling.proposals.MixtureProposal.implicits#toProposal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toProposal[A](builder:scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder[A])(implicitrnd:scalismo.utils.Random):scalismo.sampling.proposals.MixtureProposal[A]withscalismo.sampling.TransitionProbability[A]"></a>
-      <a id="toProposal[A](MixtureBuilder[A])(Random):MixtureProposal[A]withTransitionProbability[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toProposal</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="builder">builder: <a href="MixtureProposal$$implicits$$MixtureBuilder.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder">MixtureBuilder</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toProposal.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="rnd">rnd: <a href="../../utils/Random.html" class="extype" name="scalismo.utils.Random">Random</a></span>)</span><span class="result">: <a href="MixtureProposal.html" class="extype" name="scalismo.sampling.proposals.MixtureProposal">MixtureProposal</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toProposal.A">A</span>] with <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MixtureProposal.implicits.toProposal.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#scalismo.sampling.proposals.MixtureProposal$$implicits$@toProposal[A](builder:scalismo.sampling.proposals.MixtureProposal.implicits.MixtureBuilder[A])(implicitrnd:scalismo.utils.Random):scalismo.sampling.proposals.MixtureProposal[A]withscalismo.sampling.TransitionProbability[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

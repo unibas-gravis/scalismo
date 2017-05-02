@@ -68,7 +68,7 @@ If the result should be deterministic, the user can define his/her own implicit 
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -81,7 +81,7 @@ If the result should be deterministic, the user can define his/her own implicit 
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -188,36 +188,19 @@ If the result should be deterministic, the user can define his/her own implicit 
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.utils.Random#breezeRandomGaussian" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="breezeRandomGaussian(mu:Double,sigma2:Double):breeze.stats.distributions.Rand[Double]"></a>
-      <a id="breezeRandomGaussian(Double,Double):Rand[Double]"></a>
+    </li><li name="scalismo.utils.Random#breezeRandBasis" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="breezeRandBasis:breeze.stats.distributions.RandBasis"></a>
+      <a id="breezeRandBasis:RandBasis"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">breezeRandomGaussian</span><span class="params">(<span name="mu">mu: <span class="extype" name="scala.Double">Double</span></span>, <span name="sigma2">sigma2: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="breeze.stats.distributions.Rand">Rand</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+        <span class="name">breezeRandBasis</span><span class="result">: <span class="extype" name="breeze.stats.distributions.RandBasis">RandBasis</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.utils.Random@breezeRandomGaussian(mu:Double,sigma2:Double):breeze.stats.distributions.Rand[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="scalismo.utils.Random#breezeRandomUnform" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="breezeRandomUnform(a:Double,b:Double):breeze.stats.distributions.Rand[Double]"></a>
-      <a id="breezeRandomUnform(Double,Double):Rand[Double]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">breezeRandomUnform</span><span class="params">(<span name="a">a: <span class="extype" name="scala.Double">Double</span></span>, <span name="b">b: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="breeze.stats.distributions.Rand">Rand</span>[<span class="extype" name="scala.Double">Double</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.utils.Random@breezeRandomUnform(a:Double,b:Double):breeze.stats.distributions.Rand[Double]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.utils.Random@breezeRandBasis:breeze.stats.distributions.RandBasis" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -495,7 +478,50 @@ If the result should be deterministic, the user can define his/her own implicit 
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scalismo.utils.Random#breezeRandomGaussian" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="breezeRandomGaussian(mu:Double,sigma:Double):breeze.stats.distributions.Rand[Double]"></a>
+      <a id="breezeRandomGaussian(Double,Double):Rand[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version since v0.15) directly use breezeRandBasis and breeze.stats.distributions.Gaussian">breezeRandomGaussian</span><span class="params">(<span name="mu">mu: <span class="extype" name="scala.Double">Double</span></span>, <span name="sigma">sigma: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="breeze.stats.distributions.Rand">Rand</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.utils.Random@breezeRandomGaussian(mu:Double,sigma:Double):breeze.stats.distributions.Rand[Double]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version since v0.15)</i> directly use breezeRandBasis and breeze.stats.distributions.Gaussian</p></dd></dl></div>
+    </li><li name="scalismo.utils.Random#breezeRandomUniform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="breezeRandomUniform(a:Double,b:Double):breeze.stats.distributions.Rand[Double]"></a>
+      <a id="breezeRandomUniform(Double,Double):Rand[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version since v0.15) directly use breezeRandBasis and breeze.stats.distributions.Uniform">breezeRandomUniform</span><span class="params">(<span name="a">a: <span class="extype" name="scala.Double">Double</span></span>, <span name="b">b: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="breeze.stats.distributions.Rand">Rand</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.utils.Random@breezeRandomUniform(a:Double,b:Double):breeze.stats.distributions.Rand[Double]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version since v0.15)</i> directly use breezeRandBasis and breeze.stats.distributions.Uniform</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

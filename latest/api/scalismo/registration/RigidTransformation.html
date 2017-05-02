@@ -47,7 +47,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">RigidTransformation</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</span>
+        <span class="name">RigidTransformation</span><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</span>
       </span>
       </h4>
       
@@ -55,7 +55,7 @@
 or vice versa. We support both (and the inverse is always the other case).</p><p>Instances of this trait exist only for <span class="extype" name="_2D">_2D</span> and <span class="extype" name="_3D">_3D</span> as <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a> is not defined for <span class="extype" name="_1D">_1D</span>
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]], (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]], (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -66,20 +66,20 @@ or vice versa. We support both (and the inverse is always the other case).</p><p
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.registration.RigidTransformation"><span>RigidTransformation</span></li><li class="in" name="scalismo.registration.CanInvert"><span>CanInvert</span></li><li class="in" name="scalismo.registration.ProductTransformation"><span>ProductTransformation</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scalismo.registration.CanDifferentiate"><span>CanDifferentiate</span></li><li class="in" name="scalismo.registration.ParametricTransformation"><span>ParametricTransformation</span></li><li class="in" name="scalismo.registration.Transformation"><span>Transformation</span></li><li class="in" name="scalismo.common.Field"><span>Field</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.registration.RigidTransformation"><span>RigidTransformation</span></li><li class="in" name="scalismo.registration.CanInvert"><span>CanInvert</span></li><li class="in" name="scalismo.registration.CompositeTransformation"><span>CompositeTransformation</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scalismo.registration.CanDifferentiate"><span>CanDifferentiate</span></li><li class="in" name="scalismo.registration.ParametricTransformation"><span>ParametricTransformation</span></li><li class="in" name="scalismo.registration.Transformation"><span>Transformation</span></li><li class="in" name="scalismo.common.Field"><span>Field</span></li><li class="in" name="scala.Function1"><span>Function1</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -96,23 +96,23 @@ or vice versa. We support both (and the inverse is always the other case).</p><p
 
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="scalismo.registration.CanInvert#inverse" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="inverse:scalismo.registration.Transformation[D]"></a>
-      <a id="inverse:Transformation[D]"></a>
+              <ol><li name="scalismo.registration.RigidTransformation#inverse" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="inverse:scalismo.registration.RigidTransformation[D]"></a>
+      <a id="inverse:RigidTransformation[D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">inverse</span><span class="result">: <a href="Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</span>
+        <span class="name">inverse</span><span class="result">: <a href="" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.RigidTransformation@inverse:scalismo.registration.Transformation[D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.RigidTransformation@inverse:scalismo.registration.RigidTransformation[D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a> → <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a></dd></dl></div>
     </li><li name="scalismo.registration.RigidTransformation#rotation" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="rotation:scalismo.registration.RotationTransform[D]"></a>
       <a id="rotation:RotationTransform[D]"></a>
@@ -302,7 +302,7 @@ if an image is accessed outside of its definition, an exception is thrown
                 <span class="name">@unspecialized</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.registration.ProductTransformation#domain" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.registration.CompositeTransformation#domain" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="domain:scalismo.common.Domain[D]"></a>
       <a id="domain:Domain[D]"></a>
       <h4 class="signature">
@@ -318,7 +318,7 @@ if an image is accessed outside of its definition, an exception is thrown
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">The domain on which the image is defined</p><div class="fullcomment"><div class="comment cmt"><p>The domain on which the image is defined</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
+      <p class="shortcomment cmt">The domain on which the image is defined</p><div class="fullcomment"><div class="comment cmt"><p>The domain on which the image is defined</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -336,7 +336,7 @@ if an image is accessed outside of its definition, an exception is thrown
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.registration.ProductTransformation#f" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.registration.CompositeTransformation#f" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="f:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]"></a>
       <a id="f:(Point[D])⇒Point[D]"></a>
       <h4 class="signature">
@@ -352,7 +352,7 @@ if an image is accessed outside of its definition, an exception is thrown
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">a function that defines the image values.</p><div class="fullcomment"><div class="comment cmt"><p>a function that defines the image values. It must be defined on the full domain</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
+      <p class="shortcomment cmt">a function that defines the image values.</p><div class="fullcomment"><div class="comment cmt"><p>a function that defines the image values. It must be defined on the full domain</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a> → <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -393,7 +393,7 @@ if an image is accessed outside of its definition, an exception is thrown
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.registration.ProductTransformation#innerTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.registration.CompositeTransformation#innerTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="innerTransform:scalismo.registration.ParametricTransformation[D]withscalismo.registration.CanDifferentiate[D]"></a>
       <a id="innerTransform:ParametricTransformation[D]withCanDifferentiate[D]"></a>
       <h4 class="signature">
@@ -409,7 +409,7 @@ if an image is accessed outside of its definition, an exception is thrown
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">transform to be applied first.</p><div class="fullcomment"><div class="comment cmt"><p>transform to be applied first. Must be a parametric differentiable transform</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a></dd></dl></div>
+      <p class="shortcomment cmt">transform to be applied first.</p><div class="fullcomment"><div class="comment cmt"><p>transform to be applied first. Must be a parametric differentiable transform</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a></dd></dl></div>
     </li><li name="scalismo.common.Field#isDefinedAt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isDefinedAt(pt:scalismo.geometry.Point[D]):Boolean"></a>
       <a id="isDefinedAt(Point[D]):Boolean"></a>
@@ -516,7 +516,7 @@ but yields none if the value is outside of the domain
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.registration.ProductTransformation#outerTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.registration.CompositeTransformation#outerTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="outerTransform:scalismo.registration.ParametricTransformation[D]withscalismo.registration.CanDifferentiate[D]"></a>
       <a id="outerTransform:ParametricTransformation[D]withCanDifferentiate[D]"></a>
       <h4 class="signature">
@@ -532,8 +532,8 @@ but yields none if the value is outside of the domain
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">transform to be applied second.</p><div class="fullcomment"><div class="comment cmt"><p>transform to be applied second. Must be a parametric differentiable transform</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a></dd></dl></div>
-    </li><li name="scalismo.registration.ProductTransformation#parameters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <p class="shortcomment cmt">transform to be applied second.</p><div class="fullcomment"><div class="comment cmt"><p>transform to be applied second. Must be a parametric differentiable transform</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a></dd></dl></div>
+    </li><li name="scalismo.registration.CompositeTransformation#parameters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="parameters:breeze.linalg.DenseVector[Double]"></a>
       <a id="parameters:DenseVector[Double]"></a>
       <h4 class="signature">
@@ -549,7 +549,7 @@ but yields none if the value is outside of the domain
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">parameters of the composed transform.</p><div class="fullcomment"><div class="comment cmt"><p>parameters of the composed transform. This is simply a concatenation of the outer and inner transform parameters</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a> → <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a></dd></dl></div>
+      <p class="shortcomment cmt">parameters of the composed transform.</p><div class="fullcomment"><div class="comment cmt"><p>parameters of the composed transform. This is simply a concatenation of the outer and inner transform parameters</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a> → <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -567,7 +567,7 @@ but yields none if the value is outside of the domain
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.registration.ProductTransformation#takeDerivative" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.registration.CompositeTransformation#takeDerivative" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="takeDerivative(x:scalismo.geometry.Point[D]):scalismo.geometry.SquareMatrix[D]"></a>
       <a id="takeDerivative(Point[D]):SquareMatrix[D]"></a>
       <h4 class="signature">
@@ -583,7 +583,7 @@ but yields none if the value is outside of the domain
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Derivative of the transform evaluated at a point</p><div class="fullcomment"><div class="comment cmt"><p>Derivative of the transform evaluated at a point</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a> → <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a></dd></dl></div>
+      <p class="shortcomment cmt">Derivative of the transform evaluated at a point</p><div class="fullcomment"><div class="comment cmt"><p>Derivative of the transform evaluated at a point</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a> → <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a></dd></dl></div>
     </li><li name="scala.Function1#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -681,8 +681,8 @@ but yields none if the value is outside of the domain
         <div id="inheritedMembers">
         <div class="parent" name="scalismo.registration.CanInvert">
               <h3>Inherited from <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</h3>
-            </div><div class="parent" name="scalismo.registration.ProductTransformation">
-              <h3>Inherited from <a href="ProductTransformation.html" class="extype" name="scalismo.registration.ProductTransformation">ProductTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</h3>
+            </div><div class="parent" name="scalismo.registration.CompositeTransformation">
+              <h3>Inherited from <a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</h3>
             </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
             </div><div class="parent" name="java.io.Serializable">

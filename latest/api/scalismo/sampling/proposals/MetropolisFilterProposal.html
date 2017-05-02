@@ -47,13 +47,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">MetropolisFilterProposal</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>] with <a href="../UnitTransition.html" class="extype" name="scalismo.sampling.UnitTransition">UnitTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>]</span>
+        <span class="name">MetropolisFilterProposal</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>] with <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>]</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Metropolis Filter Proposal with no correction</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="../UnitTransition.html" class="extype" name="scalismo.sampling.UnitTransition">UnitTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <a href="../SymmetricTransitionRatio.html" class="extype" name="scalismo.sampling.SymmetricTransitionRatio">SymmetricTransitionRatio</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <a href="../TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <a href="../TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <a href="../ProposalGenerator.html" class="extype" name="scalismo.sampling.ProposalGenerator">ProposalGenerator</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -64,20 +64,20 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="scalismo.sampling.proposals.MetropolisFilterProposal"><span>MetropolisFilterProposal</span></li><li class="in" name="scalismo.sampling.UnitTransition"><span>UnitTransition</span></li><li class="in" name="scalismo.sampling.SymmetricTransitionRatio"><span>SymmetricTransitionRatio</span></li><li class="in" name="scalismo.sampling.TransitionProbability"><span>TransitionProbability</span></li><li class="in" name="scalismo.sampling.TransitionRatio"><span>TransitionRatio</span></li><li class="in" name="scalismo.sampling.ProposalGenerator"><span>ProposalGenerator</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="scalismo.sampling.proposals.MetropolisFilterProposal"><span>MetropolisFilterProposal</span></li><li class="in" name="scalismo.sampling.TransitionProbability"><span>TransitionProbability</span></li><li class="in" name="scalismo.sampling.TransitionRatio"><span>TransitionRatio</span></li><li class="in" name="scalismo.sampling.ProposalGenerator"><span>ProposalGenerator</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -349,7 +349,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.sampling.UnitTransition#logTransitionProbability" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.sampling.proposals.MetropolisFilterProposal#logTransitionProbability" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logTransitionProbability(from:A,to:A):Double"></a>
       <a id="logTransitionProbability(A,A):Double"></a>
       <h4 class="signature">
@@ -365,8 +365,8 @@
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">fixed unit value for transition probability - careful when in use with correction</p><div class="fullcomment"><div class="comment cmt"><p>fixed unit value for transition probability - careful when in use with correction</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../UnitTransition.html" class="extype" name="scalismo.sampling.UnitTransition">UnitTransition</a> → <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a></dd></dl></div>
-    </li><li name="scalismo.sampling.SymmetricTransitionRatio#logTransitionRatio" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <p class="shortcomment cmt">rate of transition from to (log value)</p><div class="fullcomment"><div class="comment cmt"><p>rate of transition from to (log value)</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal">MetropolisFilterProposal</a> → <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a></dd></dl></div>
+    </li><li name="scalismo.sampling.TransitionProbability#logTransitionRatio" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logTransitionRatio(from:A,to:A):Double"></a>
       <a id="logTransitionRatio(A,A):Double"></a>
       <h4 class="signature">
@@ -382,7 +382,7 @@
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">total rate of transition from to, corrected for backwards transition (log value)</p><div class="fullcomment"><div class="comment cmt"><p>total rate of transition from to, corrected for backwards transition (log value)</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../SymmetricTransitionRatio.html" class="extype" name="scalismo.sampling.SymmetricTransitionRatio">SymmetricTransitionRatio</a> → <a href="../TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a></dd></dl></div>
+      <p class="shortcomment cmt">transition ratio forward probability / backward probability</p><div class="fullcomment"><div class="comment cmt"><p>transition ratio forward probability / backward probability</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a> → <a href="../TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a></dd></dl></div>
     </li><li name="scalismo.sampling.proposals.MetropolisFilterProposal#logger" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="logger:scalismo.sampling.loggers.AcceptRejectLogger[A]"></a>
       <a id="logger:AcceptRejectLogger[A]"></a>
@@ -580,11 +580,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scalismo.sampling.UnitTransition">
-              <h3>Inherited from <a href="../UnitTransition.html" class="extype" name="scalismo.sampling.UnitTransition">UnitTransition</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>]</h3>
-            </div><div class="parent" name="scalismo.sampling.SymmetricTransitionRatio">
-              <h3>Inherited from <a href="../SymmetricTransitionRatio.html" class="extype" name="scalismo.sampling.SymmetricTransitionRatio">SymmetricTransitionRatio</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>]</h3>
-            </div><div class="parent" name="scalismo.sampling.TransitionProbability">
+        <div class="parent" name="scalismo.sampling.TransitionProbability">
               <h3>Inherited from <a href="../TransitionProbability.html" class="extype" name="scalismo.sampling.TransitionProbability">TransitionProbability</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>]</h3>
             </div><div class="parent" name="scalismo.sampling.TransitionRatio">
               <h3>Inherited from <a href="../TransitionRatio.html" class="extype" name="scalismo.sampling.TransitionRatio">TransitionRatio</a>[<span class="extype" name="scalismo.sampling.proposals.MetropolisFilterProposal.A">A</span>]</h3>

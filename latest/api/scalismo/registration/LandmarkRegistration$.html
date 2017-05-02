@@ -62,7 +62,7 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
@@ -75,7 +75,7 @@
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -344,54 +344,55 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.registration.LandmarkRegistration#rigid2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rigid2DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]"></a>
-      <a id="rigid2DLandmarkRegistration(IndexedSeq[(Point[_2D],Point[_2D])],Point[_2D]):RigidTransformation[_2D]"></a>
+    </li><li name="scalismo.registration.LandmarkRegistration#rigid2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rigid2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]"></a>
+      <a id="rigid2DLandmarkRegistration(Seq[Landmark[_2D]],Seq[Landmark[_2D]],Point[_2D]):RigidTransformation[_2D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rigid2DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] = <span class="symbol">origin2D</span></span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+        <span class="name">rigid2DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid2DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="scalismo.registration.LandmarkRegistration#rigid3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rigid3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]"></a>
-      <a id="rigid3DLandmarkRegistration(IndexedSeq[(Point[_3D],Point[_3D])]):RigidTransformation[_3D]"></a>
+      <p class="shortcomment cmt">Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+</p></div><dl class="paramcmts block"><dt class="param">center</dt><dd class="cmt"><p>- center of the rotation</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#rigid2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rigid2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]"></a>
+      <a id="rigid2DLandmarkRegistration(Seq[(Point[_2D],Point[_2D])],Point[_2D]):RigidTransformation[_2D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rigid3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">rigid2DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).</p><p>Attention: the center of rotation used for the rigid transformation here is the origin of the 3D space
-</p></div><dl class="paramcmts block"><dt class="param">landmarks</dt><dd class="cmt"><p>sequence of corresponding landmarks</p></dd></dl></div>
+      <p class="shortcomment cmt">Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+</p></div><dl class="paramcmts block"><dt class="param">landmarks</dt><dd class="cmt"><p>sequence of corresponding landmarks</p></dd><dt class="param">center</dt><dd class="cmt"><p>center of rotation to be used for the rigid transformation</p></dd></dl></div>
     </li><li name="scalismo.registration.LandmarkRegistration#rigid3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rigid3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]"></a>
-      <a id="rigid3DLandmarkRegistration(IndexedSeq[(Point[_3D],Point[_3D])],Point[_3D]):RigidTransformation[_3D]"></a>
+      <a id="rigid3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]"></a>
+      <a id="rigid3DLandmarkRegistration(Seq[(Point[_3D],Point[_3D])],Point[_3D]):RigidTransformation[_3D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rigid3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">rigid3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -406,7 +407,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rigid3DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>] = <span class="symbol">origin3D</span></span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">rigid3DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
@@ -451,56 +452,78 @@ inferred based on the Landmark identifier and not their order in the sequence.
     </span>
       
     </li><li name="scalismo.registration.LandmarkRegistration#similarity2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="similarity2DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.ParametricTransformation[scalismo.geometry._2D]"></a>
-      <a id="similarity2DLandmarkRegistration(IndexedSeq[(Point[_2D],Point[_2D])],Point[_2D]):ParametricTransformation[_2D]"></a>
+      <a id="similarity2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]"></a>
+      <a id="similarity2DLandmarkRegistration(Seq[(Point[_2D],Point[_2D])],Point[_2D]):SimilarityTransformation[_2D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">similarity2DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>] = <span class="symbol">origin2D</span></span>)</span><span class="result">: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+        <span class="name">similarity2DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity2DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.ParametricTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
-    </li><li name="scalismo.registration.LandmarkRegistration#similarity3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="similarity3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.ParametricTransformation[scalismo.geometry._3D]"></a>
-      <a id="similarity3DLandmarkRegistration(IndexedSeq[(Point[_3D],Point[_3D])],Point[_3D]):ParametricTransformation[_3D]"></a>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]"></a>
+      <a id="similarity2DLandmarkRegistration(Seq[Landmark[_2D]],Seq[Landmark[_2D]],Point[_2D]):SimilarityTransformation[_2D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">similarity3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">similarity2DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.ParametricTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],center:scalismo.geometry.Point[scalismo.geometry._2D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
-    </li><li name="scalismo.registration.LandmarkRegistration#similarity3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="similarity3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.ParametricTransformation[scalismo.geometry._3D]"></a>
-      <a id="similarity3DLandmarkRegistration(IndexedSeq[(Point[_3D],Point[_3D])]):ParametricTransformation[_3D]"></a>
+      <p class="shortcomment cmt">Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+</p></div><dl class="paramcmts block"><dt class="param">center</dt><dd class="cmt"><p>- center of the rotation</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]"></a>
+      <a id="similarity3DLandmarkRegistration(Seq[Landmark[_3D]],Seq[Landmark[_3D]],Point[_3D]):SimilarityTransformation[_3D]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">similarity3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>)</span><span class="result">: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">similarity3DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity3DLandmarkRegistration(landmarks:IndexedSeq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.ParametricTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+</p></div><dl class="paramcmts block"><dt class="param">center</dt><dd class="cmt"><p>- center of the rotation</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]"></a>
+      <a id="similarity3DLandmarkRegistration(Seq[(Point[_3D],Point[_3D])],Point[_3D]):SimilarityTransformation[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">similarity3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>, <span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])],center:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
+into the corresponding target points (second elements of the tuples).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
+into the corresponding target points (second elements of the tuples).
+</p></div><dl class="paramcmts block"><dt class="param">landmarks</dt><dd class="cmt"><p>sequence of corresponding landmarks</p></dd><dt class="param">center</dt><dd class="cmt"><p>- center of the rotation</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -609,7 +632,170 @@ inferred based on the Landmark identifier and not their order in the sequence.
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scalismo.registration.LandmarkRegistration#rigid2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rigid2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]"></a>
+      <a id="rigid2DLandmarkRegistration(Seq[Landmark[_2D]],Seq[Landmark[_2D]]):RigidTransformation[_2D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center">rigid2DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#rigid2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rigid2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]"></a>
+      <a id="rigid2DLandmarkRegistration(Seq[(Point[_2D],Point[_2D])]):RigidTransformation[_2D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center">rigid2DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>])]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])]):scalismo.registration.RigidTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#rigid3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rigid3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]"></a>
+      <a id="rigid3DLandmarkRegistration(Seq[(Point[_3D],Point[_3D])]):RigidTransformation[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center">rigid3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#rigid3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rigid3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]"></a>
+      <a id="rigid3DLandmarkRegistration(Seq[Landmark[_3D]],Seq[Landmark[_3D]]):RigidTransformation[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center">rigid3DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result">: <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@rigid3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]]):scalismo.registration.RigidTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]"></a>
+      <a id="similarity2DLandmarkRegistration(Seq[(Point[_2D],Point[_2D])]):SimilarityTransformation[_2D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center">similarity2DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>])]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity2DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._2D],scalismo.geometry.Point[scalismo.geometry._2D])]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity2DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]"></a>
+      <a id="similarity2DLandmarkRegistration(Seq[Landmark[_2D]],Seq[Landmark[_2D]]):SimilarityTransformation[_2D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center">similarity2DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity2DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._2D]]):scalismo.registration.SimilarityTransformation[scalismo.geometry._2D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]"></a>
+      <a id="similarity3DLandmarkRegistration(Seq[Landmark[_3D]],Seq[Landmark[_3D]]):SimilarityTransformation[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center">similarity3DLandmarkRegistration</span><span class="params">(<span name="originalLms">originalLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>, <span name="targetLms">targetLms: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Landmark.html" class="extype" name="scalismo.geometry.Landmark">Landmark</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity3DLandmarkRegistration(originalLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]],targetLms:Seq[scalismo.geometry.Landmark[scalismo.geometry._3D]]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li><li name="scalismo.registration.LandmarkRegistration#similarity3DLandmarkRegistration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="similarity3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]"></a>
+      <a id="similarity3DLandmarkRegistration(Seq[(Point[_3D],Point[_3D])]):SimilarityTransformation[_3D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.15) Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center">similarity3DLandmarkRegistration</span><span class="params">(<span name="landmarks">landmarks: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>])]</span>)</span><span class="result">: <a href="SimilarityTransformation.html" class="extype" name="scalismo.registration.SimilarityTransformation">SimilarityTransformation</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.LandmarkRegistration$@similarity3DLandmarkRegistration(landmarks:Seq[(scalismo.geometry.Point[scalismo.geometry._3D],scalismo.geometry.Point[scalismo.geometry._3D])]):scalismo.registration.SimilarityTransformation[scalismo.geometry._3D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15)</i> Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
