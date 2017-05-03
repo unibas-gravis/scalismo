@@ -19,25 +19,43 @@ import scalismo.common.PointId
 import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId }
 
-sealed class ClosestPoint(val point: Point[_3D],
-    val distanceSquared: Double) {
-  def <(that: ClosestPoint) = {
+
+
+case class ClosestPoint(
+  val point: Point[_3D],
+  val distanceSquared: Double) {
+
+  def <(that: ClosestPointOnSurface) = {
     this.distanceSquared < that.distanceSquared
   }
 
-  def toPoint() = point
 }
 
-case class ClosestPointIsVertex(override val point: Point[_3D],
-  override val distanceSquared: Double,
-  idx: PointId) extends ClosestPoint(point, distanceSquared)
+sealed class ClosestPointOnSurface(
+  val point: Point[_3D],
+  val distanceSquared: Double) {
 
-case class ClosestPointOnLine(override val point: Point[_3D],
+  def <(that: ClosestPointOnSurface) = {
+    this.distanceSquared < that.distanceSquared
+  }
+}
+
+case class ClosestPointIsVertex(
+  override val point: Point[_3D],
+  override val distanceSquared: Double,
+  idx: PointId)
+  extends ClosestPointOnSurface(point,distanceSquared)
+
+case class ClosestPointOnLine(
+  override val point: Point[_3D],
   override val distanceSquared: Double,
   idx: (PointId, PointId),
-  bc: Double) extends ClosestPoint(point, distanceSquared)
+  bc: Double)
+  extends ClosestPointOnSurface(point,distanceSquared)
 
-case class ClosestPointInTriangle(override val point: Point[_3D],
+case class ClosestPointInTriangle(
+  override val point: Point[_3D],
   override val distanceSquared: Double,
   idx: TriangleId,
-  bc: BarycentricCoordinates) extends ClosestPoint(point, distanceSquared)
+  bc: BarycentricCoordinates)
+  extends ClosestPointOnSurface(point,distanceSquared)

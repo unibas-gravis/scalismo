@@ -45,7 +45,7 @@ trait SurfaceSpatialIndex[D <: Dim] {
    *
    * @return A desciption of the closest point.
    */
-  def getClosestPointMeta(pt: Point[D]): ClosestPoint
+  def getClosestPointOnSurface(pt: Point[D]): ClosestPointOnSurface
 }
 
 /**
@@ -136,7 +136,7 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   /**
    * Returns a description of the closest Point on the surface.
    */
-  override def getClosestPointMeta(point: Point[_3D]): ClosestPoint = {
+  override def getClosestPointOnSurface(point: Point[_3D]): ClosestPointOnSurface = {
 
     _getClosestPoint(point)
 

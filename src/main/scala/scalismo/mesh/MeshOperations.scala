@@ -45,7 +45,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
   def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
   def closestPoint(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPoint(point)
-  def closestPointOnSurface(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPointMeta(point)
+  def closestPointOnSurface(point: Point[_3D]): ClosestPointOnSurface = closestPointOnSurface.getClosestPointOnSurface(point)
 
   /**
    * Boundary predicates
