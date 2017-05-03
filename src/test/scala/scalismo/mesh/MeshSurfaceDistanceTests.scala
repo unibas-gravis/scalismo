@@ -310,7 +310,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         val seq = pair._1
         val par = pair._2
         require(seq.point == par.point)
-        require(seq.idx == par.idx)
+        require(seq.pid == par.pid)
         require(seq.distanceSquared == par.distanceSquared)
       }
     }
