@@ -156,21 +156,28 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
 
 object MultivariateNormalDistribution {
 
-  def apply(mean: DenseVector[Double], principalComponents: Seq[(DenseVector[Double], Double)]): MultivariateNormalDistribution = {
+  /**
+   * Create a multivariate normal distribution given the mean and the orthonormal directions with associated variance
+   * @param mean the mean vector
+   * @param mainAxis a sequence of tuples (phi, sigma2) where phi is a unit vector and sigma2 the variance in the direction of phi
+   */
+  def apply(mean: DenseVector[Double], mainAxis: Seq[(DenseVector[Double], Double)]): MultivariateNormalDistribution = {
 
     val dim = mean.length
-    require(principalComponents.length == dim)
+    require(mainAxis.length == dim)
 
     val cov: DenseMatrix[Double] = {
-      val d2 = diag(DenseVector[Double](principalComponents.map(_._2).toArray))
 
-      // stack pcs
-      val u = principalComponents.tail.foldLeft(principalComponents.head._1.toDenseMatrix) {
-        case (m: DenseMatrix[Double], pc: (DenseVector[Double], Double)) =>
-          DenseMatrix.vertcat(m, pc._1.toDenseMatrix)
+      val Phi = DenseMatrix.zeros[Double](dim, mainAxis.size)
+      val sigma2s = DenseVector.zeros[Double](mainAxis.size)
+
+      for (i <- 0 until mainAxis.size) {
+        val (phi, sigma2) = mainAxis(i)
+        Phi(::, i) := phi
+        sigma2s(i) = sigma2
       }
 
-      u * d2 * u.t
+      Phi * diag(sigma2s) * Phi.t
     }
     MultivariateNormalDistribution(mean, cov)
   }
