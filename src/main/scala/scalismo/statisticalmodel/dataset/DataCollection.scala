@@ -18,7 +18,7 @@ package scalismo.statisticalmodel.dataset
 import java.io.File
 
 import scalismo.common.{ RealSpace, UnstructuredPointsDomain }
-import scalismo.geometry.{ Point3D, Dim, Point, _3D }
+import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh._
 import scalismo.registration.{ LandmarkRegistration, Transformation }
@@ -93,13 +93,14 @@ case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[
 
       (pt: Point[_3D]) =>
         {
-          var meanPoint = Point3D(0, 0, 0)
+          var meanPoint = Vector3D(0, 0, 0)
           var i = 0
           while (i < dataItems.size) {
-            meanPoint += dataItems(i).transformation(pt).toVector / dataItems.size
+            meanPoint += dataItems(i).transformation(pt).toVector
             i += 1
           }
-          meanPoint
+          (meanPoint / dataItems.size).toPoint
+
         }
     }
   }
