@@ -53,7 +53,7 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
       }
     }
 
-    it("can reconstruct its covariance matrix from the principal components") {
+    it("can reconstruct its covariance matrix from the computed principal components") {
       val (pcVecs, sigma2s) = mvn.principalComponents.unzip
       val uMat = DenseMatrix.zeros[Double](mvn.dim, mvn.dim)
       val sigma2Vec = DenseVector.zeros[Double](mvn.dim)
@@ -66,6 +66,14 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
         covRec(i, j) should be(mvn.cov(i, j) +- 1e-10)
       }
     }
+
+    it("Can be constructed from the principal components") {
+
+      val mvn2 = MultivariateNormalDistribution(mvn.mean, mvn.principalComponents)
+      mvn.mean should equal(mvn2.mean)
+      breeze.linalg.sum((mvn.cov - mvn2.cov).map(Math.abs)) should be < 1e-5
+    }
+
   }
 
   describe("An MultivariateNormalDistribution") {
