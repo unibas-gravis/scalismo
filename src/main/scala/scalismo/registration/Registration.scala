@@ -23,7 +23,7 @@ import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
 import scalismo.utils.Random
 
-case class RegistrationConfiguration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](
+case class RegistrationConfiguration[D <: Dim: NDSpace, TS <: TransformationSpace[D]](
   optimizer: Optimizer,
   metric: ImageMetric[D],
   transformationSpace: TS,
@@ -32,9 +32,9 @@ case class RegistrationConfiguration[D <: Dim: NDSpace, TS <: TransformationSpac
 
 object Registration {
 
-  case class RegistrationState[D <: Dim, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](registrationResult: TS#T, optimizerState: Optimizer#State)
+  case class RegistrationState[D <: Dim, TS <: TransformationSpace[D]](registrationResult: TS#T, optimizerState: Optimizer#State)
 
-  def iterations[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](config: RegistrationConfiguration[D, TS])(
+  def iterations[D <: Dim: NDSpace, TS <: TransformationSpace[D]](config: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
     initialParameters: DenseVector[Double] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D, TS]] =
@@ -72,7 +72,7 @@ object Registration {
       }
     }
 
-  def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](configuration: RegistrationConfiguration[D, TS])(
+  def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D]](configuration: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D]): TS#T = {
 

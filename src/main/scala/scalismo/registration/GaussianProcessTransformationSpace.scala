@@ -22,7 +22,8 @@ import TransformationSpace.ParameterVector
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.geometry.Vector.VectorVectorizer
 
-class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) extends TransformationSpace[D] with DifferentiableTransforms[D] {
+class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D])
+    extends TransformationSpace[D] {
 
   override type T = GaussianProcessTransformation[D]
 
@@ -51,7 +52,8 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
 
 }
 
-class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]], alpha: ParameterVector) extends ParametricTransformation[D] with CanDifferentiate[D] {
+class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]], alpha: ParameterVector)
+    extends ParametricTransformation[D] {
 
   val instance = gp.instance(alpha)
   val parameters = alpha
@@ -62,14 +64,18 @@ class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProces
     val newPointAsVector = instance(x)
     x + newPointAsVector
   }
-  def takeDerivative(x: Point[D]) = { throw new NotImplementedError("take derivative of kernel") }
+
 }
 
 object GaussianProcessTransformation {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]], alpha: TransformationSpace.ParameterVector) = new GaussianProcessTransformation[D](gp, alpha)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]], alpha: TransformationSpace.ParameterVector) = {
+    new GaussianProcessTransformation[D](gp, alpha)
+  }
 }
 
 object GaussianProcessTransformationSpace {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) = new GaussianProcessTransformationSpace[D](gp)
+  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) = {
+    new GaussianProcessTransformationSpace[D](gp)
+  }
 }
 
