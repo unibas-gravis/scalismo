@@ -38,6 +38,10 @@ package object scalismo {
       gc.SetScheduleTime(60, TimeUnit.SECONDS)
       gc.Start()
 
+      // we need to stop the garbage collection when the JVM shutdowns.
+      // Otherwise it prevents the JVM from shutting down correctly.
+      Runtime.getRuntime().addShutdownHook(new Thread { gc.Stop() })
+
       initialized(0) = true
     }
   }
