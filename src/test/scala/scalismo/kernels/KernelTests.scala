@@ -21,6 +21,7 @@ import scalismo.geometry.{ Point, Vector, _1D, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
+import scalismo.utils.Random
 import scalismo.{ ScalismoTestSuite, geometry }
 
 class KernelTests extends ScalismoTestSuite {
@@ -57,6 +58,8 @@ class KernelTests extends ScalismoTestSuite {
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
 
+      implicit val rand = Random(42)
+
       val domain = BoxDomain(Point(-5, 1, 3), Point(100, 90, 25))
 
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
@@ -65,7 +68,7 @@ class KernelTests extends ScalismoTestSuite {
       val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
       val gp = LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, mu), k), samplerForNystromApprox, 500)
 
-      val sampleTransformations = for (i <- (0 until 5000).par) yield {
+      val sampleTransformations = for (i <- (0 until 5000)) yield {
         // TODO: gp.sample() should (arguably) accept seed.
         val sample: (Point[_3D] => Vector[_3D]) = gp.sample()
         new Transformation[_3D] {
@@ -92,10 +95,11 @@ class KernelTests extends ScalismoTestSuite {
         val gpxy = gp.cov(x, y)
         val sampleCovxy = sampleCovKernel(x, y)
         for (d1 <- 0 until 3; d2 <- 0 until 3) {
-          sampleCovxy(d1, d2) should be(gpxy(d1, d2) +- 0.2)
+          sampleCovxy(d1, d2) should be(gpxy(d1, d2) +- 0.1)
         }
       }
     }
+
   }
 
   describe("Two scalar valued kernels") {
