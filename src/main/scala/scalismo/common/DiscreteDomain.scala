@@ -70,7 +70,7 @@ trait DiscreteDomain[D <: Dim] extends Equals {
 
   override def canEqual(that: Any) = that.isInstanceOf[DiscreteDomain[D]]
 
-  override def hashCode() = points.hashCode()
+  override def hashCode() = points.toSeq.hashCode()
 
 }
 
