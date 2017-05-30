@@ -21,8 +21,11 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.io.MeshIO
+import scalismo.utils.Random
 
 class MeshMetricsTests extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
 
   val path = getClass.getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
@@ -74,7 +77,6 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("computes the right value for a unit sphere that completely overlaps itself") {
       MeshMetrics.diceCoefficient(spheremesh, spheremesh) should be(1)
-
     }
 
     it("computes the right value for a unit sphere that is shrunk by 0.5 ") {

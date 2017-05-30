@@ -21,8 +21,11 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain3D
 import scalismo.geometry.{ Point, Vector, _1D, _3D }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
+import scalismo.utils.Random
 
 class PivotedCholeskyTest extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
 
   describe("The Pivoted Cholesky ") {
 

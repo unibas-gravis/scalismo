@@ -115,7 +115,7 @@ object DataCollection {
    * Builds a [[DataCollection]] instance from a reference mesh and a sequence of meshes in correspondence.
    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
    */
-  def fromMeshSequence(referenceMesh: TriangleMesh[_3D], registeredMeshes: Seq[TriangleMesh[_3D]]): (Option[DataCollection], Seq[Throwable]) = {
+  def fromMeshSequence(referenceMesh: TriangleMesh[_3D], registeredMeshes: Seq[TriangleMesh[_3D]])(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshToTransformation(referenceMesh, _)))
     val dc = DataCollection(referenceMesh, transformations.map(DataItem("from mesh", _)))
     if (dc.size > 0) (Some(dc), errors) else (None, errors)
@@ -127,7 +127,7 @@ object DataCollection {
    *
    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
    */
-  def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File): (Option[DataCollection], Seq[Throwable]) = {
+  def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File)(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
@@ -141,12 +141,12 @@ object DataCollection {
    *
    * The reference mesh is unchanged, only the transformations in the collection are adapted
    */
-  def gpa(dc: DataCollection, maxIteration: Int = 3, haltDistance: Double = 1e-5): DataCollection = {
+  def gpa(dc: DataCollection, maxIteration: Int = 3, haltDistance: Double = 1e-5)(implicit rng: Random): DataCollection = {
     gpaComputation(dc, dc.meanSurface, maxIteration, haltDistance)
   }
 
   @tailrec
-  private def gpaComputation(dc: DataCollection, meanShape: TriangleMesh[_3D], maxIteration: Int, haltDistance: Double): DataCollection = {
+  def gpaComputation(dc: DataCollection, meanShape: TriangleMesh[_3D], maxIteration: Int, haltDistance: Double)(implicit rng: Random): DataCollection = {
 
     if (maxIteration == 0) return dc
 

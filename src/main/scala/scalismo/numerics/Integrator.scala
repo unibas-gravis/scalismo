@@ -19,8 +19,9 @@ import breeze.linalg.DenseVector
 import scalismo.common.VectorField
 import scalismo.image.ScalarImage
 import scalismo.geometry._
+import scalismo.utils.Random
 
-case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
+case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D])(implicit rng: Random) {
 
   def integrateScalar(img: ScalarImage[D]): Float = {
     integrateScalar(img.liftValues)

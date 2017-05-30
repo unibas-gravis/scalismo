@@ -26,6 +26,8 @@ import scalismo.{ ScalismoTestSuite, geometry }
 
 class KernelTests extends ScalismoTestSuite {
 
+  implicit val rng = Random(42L)
+
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {
       val gk = GaussianKernel[_1D](3.5)
@@ -57,8 +59,6 @@ class KernelTests extends ScalismoTestSuite {
 
   describe("A sample covariance kernel") {
     it("can reproduce the covariance function from random samples") {
-
-      implicit val rand = Random(42)
 
       val domain = BoxDomain(Point(-5, 1, 3), Point(100, 90, 25))
 

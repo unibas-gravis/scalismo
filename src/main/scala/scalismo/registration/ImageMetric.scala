@@ -53,7 +53,7 @@ object ImageMetric {
   case class ValueAndDerivative(value: Double, derivative: DenseVector[Double])
 }
 
-case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D]) extends ImageMetric[D] {
+case class MeanSquaresMetric[D <: Dim: NDSpace](sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
 
   override val ndSpace = implicitly[NDSpace[D]]
 

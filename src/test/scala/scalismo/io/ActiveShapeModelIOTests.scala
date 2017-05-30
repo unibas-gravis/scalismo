@@ -22,10 +22,12 @@ import scalismo.ScalismoTestSuite
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
+import scalismo.utils.Random
 
 import scala.collection.immutable
 
 class ActiveShapeModelIOTests extends ScalismoTestSuite {
+  implicit val rng = Random(42L)
 
   private def createTmpH5File(): File = {
     val f = File.createTempFile("hdf5file", ".h5")
