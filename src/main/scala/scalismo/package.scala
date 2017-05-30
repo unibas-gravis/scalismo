@@ -51,7 +51,7 @@ package object scalismo {
     val gcThread = new Thread {
       override def run() {
         while (true) {
-          TimeUnit.MILLISECONDS.sleep(gcInterval)
+          unit.sleep(gcInterval)
 
           // As vtk is very sensitive to threading issues, we run the gc on the EDT thread.
           SwingUtilities.invokeLater(new Runnable() {
