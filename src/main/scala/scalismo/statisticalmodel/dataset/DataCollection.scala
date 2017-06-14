@@ -146,7 +146,7 @@ object DataCollection {
   }
 
   @tailrec
-  def gpaComputation(dc: DataCollection, meanShape: TriangleMesh[_3D], maxIteration: Int, haltDistance: Double)(implicit rng: Random): DataCollection = {
+  private def gpaComputation(dc: DataCollection, meanShape: TriangleMesh[_3D], maxIteration: Int, haltDistance: Double)(implicit rng: Random): DataCollection = {
 
     if (maxIteration == 0) return dc
 
