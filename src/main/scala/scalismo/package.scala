@@ -39,26 +39,28 @@ package object scalismo {
       NativeLibraryBundles.initialize(mode)
 
       if (gcInterval > 0) {
-        setupVTKGCThread(gcInterval, TimeUnit.MILLISECONDS)
+        setupVTKGCThread(gcInterval)
       }
       initialized(0) = true
     }
 
   }
 
-  private def setupVTKGCThread(gcInterval: Long, unit: TimeUnit): Unit = {
+  private def setupVTKGCThread(gcInterval: Long): Unit = {
+
+    val runGC = new Runnable() {
+      override def run() {
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
+      }
+    }
 
     val gcThread = new Thread {
       override def run() {
         while (true) {
-          unit.sleep(gcInterval)
+          Thread.sleep(gcInterval)
 
           // As vtk is very sensitive to threading issues, we run the gc on the EDT thread.
-          SwingUtilities.invokeLater(new Runnable() {
-            override def run() {
-              vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
-            }
-          });
+          SwingUtilities.invokeLater(runGC);
 
         }
       }
