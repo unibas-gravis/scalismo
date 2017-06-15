@@ -35,7 +35,7 @@ case class Landmark[D <: Dim: NDSpace](id: String, point: Point[D], description:
 
         // in order to transform the uncertainty, we simulate random landmark points
         // and estimate their distribution.
-        val transformedPoints = for (i <- 0 until 500) yield {
+        val transformedPoints = for (i <- 0 until 5000) yield {
           val sampledPoint = point + NDSpace[D].createVector(uncertainty.sample()(random).toArray)
           transformation(sampledPoint)
         }
