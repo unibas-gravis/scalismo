@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent
+import java.util.concurrent.{ Executors, TimeUnit }
+import javax.swing.SwingUtilities
 
 import scalismo.support.nativelibs._
 import vtk.vtkObjectBase
@@ -28,17 +30,44 @@ package object scalismo {
    * Initialize and load the required native libraries
    *
    * @param ignoreErrors ignore failures when trying to load libraries. Only set this if you know what you are doing!
+   * @param gcInterval time interval (in milliseconds) for running the vtk garbage collection.
+   *                   A value <= 0 means that garbage collection is not run automatically.
    */
-  def initialize(ignoreErrors: Boolean = false) = initialized.synchronized {
+  def initialize(ignoreErrors: Boolean = false, gcInterval: Long = 60 * 1000) = initialized.synchronized {
     if (!initialized(0)) {
       val mode = if (ignoreErrors) InitializationMode.WARN_ON_FAIL else InitializationMode.TERMINATE_ON_FAIL
       NativeLibraryBundles.initialize(mode)
 
-      val gc = vtkObjectBase.JAVA_OBJECT_MANAGER.getAutoGarbageCollector
-      gc.SetScheduleTime(60, TimeUnit.SECONDS)
-      gc.Start()
-
+      if (gcInterval > 0) {
+        setupVTKGCThread(gcInterval)
+      }
       initialized(0) = true
     }
+
   }
+
+  private def setupVTKGCThread(gcInterval: Long): Unit = {
+
+    val runGC = new Runnable() {
+      override def run() {
+        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
+      }
+    }
+
+    val gcThread = new Thread {
+      override def run() {
+        while (true) {
+          Thread.sleep(gcInterval)
+
+          // As vtk is very sensitive to threading issues, we run the gc on the EDT thread.
+          SwingUtilities.invokeLater(runGC);
+
+        }
+      }
+    }
+
+    gcThread.setDaemon(true)
+    gcThread.start()
+  }
+
 }
