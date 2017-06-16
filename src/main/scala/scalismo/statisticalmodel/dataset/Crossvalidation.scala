@@ -15,10 +15,11 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.geometry.{ _3D, Vector }
+import scalismo.geometry.{ Vector, _3D }
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.UniformMeshSampler3D
-import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess, StatisticalMeshModel }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.utils.Random
 
 import scala.util.Try
 
@@ -36,7 +37,11 @@ object Crossvalidation {
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
-  def leaveOneOutCrossvalidation[A](dataCollection: DataCollection, evalFun: EvaluationFunction[A], biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None) = {
+  def leaveOneOutCrossvalidation[A](
+    dataCollection: DataCollection,
+    evalFun: EvaluationFunction[A],
+    biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None)(
+      implicit rng: Random) = {
     nFoldCrossvalidation(dataCollection.size, dataCollection, evalFun, biasModelAndRank)
   }
 
@@ -47,13 +52,14 @@ object Crossvalidation {
    *
    * For each testing dataset in a fold, the evalFun is called to evaluate the quality of the model built from the training set.
    *
-   * @returns a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set,
+   * @return a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set,
    * or an error if the model building for a fold failed.
    */
   def nFoldCrossvalidation[A](numFolds: Int,
     dc: DataCollection,
     evalFun: EvaluationFunction[A],
-    biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None): Seq[Try[Seq[A]]] = {
+    biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None)(
+      implicit rng: Random): Seq[Try[Seq[A]]] = {
 
     val folds = dc.createCrossValidationFolds(numFolds)
     val evalResultsForFolds = for (fold <- folds) yield {

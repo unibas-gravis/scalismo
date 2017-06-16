@@ -136,7 +136,7 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) ex
   }
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) extends Sampler[_3D] {
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rng: Random) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.area
   val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints).sample()
   override def sample()(implicit rand: Random) = samplePoints

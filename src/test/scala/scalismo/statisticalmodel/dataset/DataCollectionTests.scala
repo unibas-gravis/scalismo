@@ -30,9 +30,9 @@ import scalismo.utils.{ Benchmark, Memoize, Random }
 
 class DataCollectionTests extends ScalismoTestSuite {
 
-  describe("A datacollection") {
+  implicit val rng = Random(42L)
 
-    implicit val random = Random(42)
+  describe("A datacollection") {
 
     val transformations = for (i <- 0 until 10) yield TranslationTransform(Vector(i.toDouble, 0.0, 0.0))
     val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)
@@ -164,8 +164,6 @@ class DataCollectionTests extends ScalismoTestSuite {
   }
 
   describe("Generalization") {
-
-    implicit val random = Random(42)
 
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)

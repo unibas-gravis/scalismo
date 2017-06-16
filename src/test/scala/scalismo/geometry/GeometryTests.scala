@@ -25,7 +25,7 @@ import scala.language.implicitConversions
 
 class GeometryTests extends ScalismoTestSuite {
 
-  implicit val random = Random(42)
+  implicit val random = Random(42L)
 
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p

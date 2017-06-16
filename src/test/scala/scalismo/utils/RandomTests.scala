@@ -34,9 +34,10 @@ class RandomTests extends ScalismoTestSuite {
 
     }
 
-    it("should yield a random sequence when no implicit is defined") {
+    it("should yield a random sequence when the predefined implicit is imported") {
 
       def randomNumbersNotSeeded() = {
+        import scalismo.utils.Random.implicits._
         val r = implicitly[Random]
         val standardNormal = Gaussian(0, 1)(r.breezeRandBasis)
         val uniform = Uniform(0, 1)(r.breezeRandBasis)

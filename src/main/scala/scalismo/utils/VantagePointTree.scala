@@ -125,7 +125,7 @@ private class CandidatesEpsRegion[A](override val maxDistance: Double) extends C
 
 object VantagePointTree {
   /** build a Vantage Point tree with given metric (must be a metric!), uses random pivot elements */
-  def apply[A](data: Iterable[A], metric: Metric[A]): VantagePointTree[A] = recursiveTreeBuilder(data, metric, randomPivotSelector[A])
+  def apply[A](data: Iterable[A], metric: Metric[A])(implicit rng: Random): VantagePointTree[A] = recursiveTreeBuilder(data, metric, randomPivotSelector[A])
 
   /** build a Vantage Point tree with given metric (must be a metric!) and pivot selector */
   def apply[A](data: Iterable[A], metric: Metric[A], pivotSelector: Iterable[A] => A): VantagePointTree[A] = recursiveTreeBuilder(data, metric, pivotSelector)

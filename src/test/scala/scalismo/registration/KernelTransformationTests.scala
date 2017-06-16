@@ -25,10 +25,13 @@ import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
 import scalismo.numerics.{ GridSampler, Integrator, RandomSVD, UniformSampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
 
 class KernelTransformationTests extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 

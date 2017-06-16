@@ -194,7 +194,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, Value] private[scal
    *                       kl basis.
    */
 
-  def interpolateNystrom(nNystromPoints: Int = 2 * rank): LowRankGaussianProcess[D, Value] = {
+  def interpolateNystrom(nNystromPoints: Int = 2 * rank)(implicit rng: Random): LowRankGaussianProcess[D, Value] = {
 
     val sampler = new Sampler[D] {
       override def volumeOfSampleRegion = numberOfPoints.toDouble

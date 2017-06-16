@@ -37,7 +37,8 @@ object Registration {
   def iterations[D <: Dim: NDSpace, TS <: TransformationSpace[D]](config: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
-    initialParameters: DenseVector[Double] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D, TS]] =
+    initialParameters: DenseVector[Double] = config.transformationSpace.identityTransformParameters)(
+      implicit rng: Random): Iterator[RegistrationState[D, TS]] =
     {
       val regularizer = config.regularizer
 
@@ -74,8 +75,8 @@ object Registration {
 
   def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D]](configuration: RegistrationConfiguration[D, TS])(
     fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D]): TS#T = {
-
+    movingImage: DifferentiableScalarImage[D])(
+      implicit rng: Random): TS#T = {
     val regStates = iterations(configuration)(fixedImage, movingImage)
     regStates.toSeq.last.registrationResult
   }

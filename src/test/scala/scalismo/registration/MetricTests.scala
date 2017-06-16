@@ -21,8 +21,11 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DifferentiableScalarImage
 import scalismo.numerics.UniformSampler
+import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
 
   describe("A mean squares metric (1D)") {
     it("returns 0 if provided twice the same image") {
