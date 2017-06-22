@@ -35,9 +35,8 @@ class MetricTests extends ScalismoTestSuite {
         (x: Point[_1D]) => (x * x).toFloat,
         (x: Point[_1D]) => Vector(2.0) * x(0))
       val transSpace = TranslationSpace[_1D]
-      val identityTransform = transSpace.transformForParameters(transSpace.identityTransformParameters)
       val sampler = UniformSampler(domain, 1000)
-      MeanSquaresMetric(sampler).value(img, img, identityTransform) should be(0.0 +- 0.001)
+      MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformParameters) should be(0.0 +- 0.001)
     }
   }
 }

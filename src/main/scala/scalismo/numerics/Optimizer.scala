@@ -33,7 +33,7 @@ trait Optimizer {
   def minimize(x0: ParameterVector, c: CostFunction): ParameterVector
 }
 
-case class LBFGSOptimizer(numIterations: Int, m: Int = 10, tolerance: Double = 1e-5) extends Optimizer {
+case class LBFGSOptimizer(maxNumberOfIterations: Int, m: Int = 10, tolerance: Double = 1e-5) extends Optimizer {
   def iterations(x0: ParameterVector, c: CostFunction): Iterator[State] = {
     optimize(x0, c)
   }
@@ -49,17 +49,17 @@ case class LBFGSOptimizer(numIterations: Int, m: Int = 10, tolerance: Double = 1
         (v.toDouble, g.map(_.toDouble))
       }
     }
-    val lbfgs = new LBFGS[DenseVector[Double]](maxIter = numIterations, m = m, tolerance = tolerance)
+    val lbfgs = new LBFGS[DenseVector[Double]](maxIter = maxNumberOfIterations, m = m, tolerance = tolerance)
     for (it <- lbfgs.iterations(f, x0.map(_.toDouble)))
       yield State(it.iter, it.value, it.grad, it.x, 0)
   }
 }
 
-case class GradientDescentOptimizer(numIterations: Int,
-    stepLength: Double,
-    withLineSearch: Boolean = false,
-    robinsMonroe: Boolean = false,
-    stepDecreaseCoeff: Double = 0.0) extends Optimizer {
+case class GradientDescentOptimizer(maxNumberOfIterations: Int,
+                                    stepLength: Double,
+                                    withLineSearch: Boolean = false,
+                                    robinsMonroe: Boolean = false,
+                                    stepDecreaseCoeff: Double = 0.0) extends Optimizer {
 
   private def goldenSectionLineSearch(nbPoints: Int, xk: ParameterVector, lowerLimit: Double, upperLimit: Double, normalizedGradient: DenseVector[Double], f: CostFunction): Double = {
     val r = 0.618
@@ -120,7 +120,7 @@ case class GradientDescentOptimizer(numIterations: Int,
   private def optimize(x: ParameterVector, c: CostFunction, it: Int): Iterator[State] = {
     val (newValue, gradient) = c(x)
 
-    if (it >= numIterations) Iterator(State(it, newValue, gradient, x, stepLength))
+    if (it >= maxNumberOfIterations) Iterator(State(it, newValue, gradient, x, stepLength))
     else {
 
       if (withLineSearch) {
@@ -130,7 +130,7 @@ case class GradientDescentOptimizer(numIterations: Int,
         Iterator(State(it, newValue, gradient, newParam, step)) ++ optimize(newParam, c, it + 1)
 
       } else if (robinsMonroe) {
-        val step = stepLength / Math.pow(it + (numIterations * 0.1), stepDecreaseCoeff)
+        val step = stepLength / Math.pow(it + (maxNumberOfIterations * 0.1), stepDecreaseCoeff)
         val newParam = x - gradient * step
         Iterator(State(it, newValue, gradient, newParam, stepLength)) ++ optimize(x - gradient * step, c, it + 1)
       } else {
