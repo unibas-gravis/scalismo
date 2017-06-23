@@ -18,20 +18,20 @@ package scalismo.registration
 
 import breeze.linalg.DenseVector
 import scalismo.common.Domain
-import scalismo.geometry.{Point, NDSpace, Dim}
-import scalismo.image.{DifferentiableScalarImage, ScalarImage}
-import scalismo.numerics.{Integrator, Sampler}
+import scalismo.geometry.{ Point, NDSpace, Dim }
+import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
+import scalismo.numerics.{ Integrator, Sampler }
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.utils.Random
 
 /**
-  * The mean squares image to image metric. The distance is computed by integrating over all the points
-  * provided by the sampler.
-  */
+ * The mean squares image to image metric. The distance is computed by integrating over all the points
+ * provided by the sampler.
+ */
 case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
-                                                movingImage: DifferentiableScalarImage[D],
-                                                transformationSpace: TransformationSpace[D],
-                                                sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
+    movingImage: DifferentiableScalarImage[D],
+    transformationSpace: TransformationSpace[D],
+    sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
 
   override val ndSpace = implicitly[NDSpace[D]]
 
@@ -74,7 +74,7 @@ case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
   }
 
   private def computeDerivative(parameters: DenseVector[Double],
-                                integrator: Integrator[D]): DenseVector[Double] = {
+    integrator: Integrator[D]): DenseVector[Double] = {
 
     val transform = transformationSpace.transformForParameters(parameters)
 

@@ -24,31 +24,30 @@ import scalismo.numerics._
 import scalismo.utils.Random
 
 /**
-  * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum
-  * of a distance metric and a regularization term (weighted by a regularizationWeight).
-  *
-  * @param metric The distance metric used to compare the objects that should be registered.
-  * @param regularizer The regularizer that is used
-  * @param regularizationWeight A weight used to weight the influence of the regularizer (0 means the regularization term is not considered)
-  * @param optimizer  The optimizer used to perform the minimization of the cost function
-  */
+ * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum
+ * of a distance metric and a regularization term (weighted by a regularizationWeight).
+ *
+ * @param metric The distance metric used to compare the objects that should be registered.
+ * @param regularizer The regularizer that is used
+ * @param regularizationWeight A weight used to weight the influence of the regularizer (0 means the regularization term is not considered)
+ * @param optimizer  The optimizer used to perform the minimization of the cost function
+ */
 case class Registration[D <: Dim](metric: RegistrationMetric[D],
     regularizer: Regularizer[D],
     regularizationWeight: Double,
     optimizer: Optimizer)(implicit rng: Random) {
 
+  /**
+   * Representation of the current state of the registration.
+   * @param value The current value of the cost function
+   * @param parameters The current parameters
+   * @param optimizerState, more detailed information regarding the used optimizer.
+   */
+  case class RegistrationState(value: Double, parameters: DenseVector[Double], optimizerState: Optimizer#State)
 
   /**
-    * Representation of the current state of the registration.
-    * @param value The current value of the cost function
-    * @param parameters The current parameters
-    * @param optimizerState, more detailed information regarding the used optimizer.
-    */
-  case class RegistrationState(value : Double, parameters: DenseVector[Double], optimizerState: Optimizer#State)
-
-  /**
-    * Given a set of initial parameter, returns an iterator which can be used to drive the registration.
-    */
+   * Given a set of initial parameter, returns an iterator which can be used to drive the registration.
+   */
   def iterator(initialParameters: DenseVector[Double]): Iterator[RegistrationState] =
     {
 

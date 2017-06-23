@@ -27,14 +27,13 @@ import breeze.linalg.DenseVector
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 
 /**
-  * The basic interface for defining a metric for the scalismo registration framework.
-  * It is independent of the object representation that is used. The main assumption is
-  * that the objects are subject to a parametric transformation, and we can obtain for each
-  * fixed value of the parameters compute the value of the metric and a derivative.
-  *
-  */
+ * The basic interface for defining a metric for the scalismo registration framework.
+ * It is independent of the object representation that is used. The main assumption is
+ * that the objects are subject to a parametric transformation, and we can obtain for each
+ * fixed value of the parameters compute the value of the metric and a derivative.
+ *
+ */
 trait RegistrationMetric[D <: Dim] {
-
 
   def transformationSpace: TransformationSpace[D]
   implicit def ndSpace: NDSpace[D]
@@ -57,16 +56,14 @@ trait RegistrationMetric[D <: Dim] {
   def computeValueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative
 }
 
-
 object RegistrationMetric {
 
   case class ValueAndDerivative(value: Double, derivative: DenseVector[Double])
 }
 
-
 /**
-  * A registration metric for image to image registration.
-  */
+ * A registration metric for image to image registration.
+ */
 trait ImageMetric[D <: Dim] extends RegistrationMetric[D] {
 
   def fixedImage: ScalarImage[D]

@@ -185,7 +185,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val regIt = Registration(MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, UniformSampler(domain.boundingBox, 4000)),
         L2Regularizer[_2D](transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxIter = 300)
+        LBFGSOptimizer(maxNumberOfIterations = 300)
       ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
@@ -209,7 +209,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val regIter = Registration(metric,
         L2Regularizer(transformationSpace),
         0.0,
-        numerics.GradientDescentOptimizer(maxIter = 300, stepLength = 1e-4)
+        numerics.GradientDescentOptimizer(maxNumberOfIterations = 300, stepLength = 1e-4)
       ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIter.toSeq.last
@@ -239,7 +239,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         0.0,
-        LBFGSOptimizer(maxIter = 300)
+        LBFGSOptimizer(maxNumberOfIterations = 300)
       ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
@@ -273,7 +273,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxIter = 300)
+        LBFGSOptimizer(maxNumberOfIterations = 300)
       ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
@@ -304,7 +304,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxIter = 300)
+        LBFGSOptimizer(maxNumberOfIterations = 300)
       ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
