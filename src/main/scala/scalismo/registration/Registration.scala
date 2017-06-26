@@ -23,62 +23,53 @@ import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
 import scalismo.utils.Random
 
-case class RegistrationConfiguration[D <: Dim: NDSpace, TS <: TransformationSpace[D]](
-  optimizer: Optimizer,
-  metric: ImageMetric[D],
-  transformationSpace: TS,
-  regularizer: Regularizer,
-  regularizationWeight: Double)
+/**
+ * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum
+ * of a distance metric and a regularization term (weighted by a regularizationWeight).
+ *
+ * @param metric The distance metric used to compare the objects that should be registered.
+ * @param regularizer The regularizer that is used
+ * @param regularizationWeight A weight used to weight the influence of the regularizer (0 means the regularization term is not considered)
+ * @param optimizer  The optimizer used to perform the minimization of the cost function
+ */
+case class Registration[D <: Dim](metric: RegistrationMetric[D],
+    regularizer: Regularizer[D],
+    regularizationWeight: Double,
+    optimizer: Optimizer)(implicit rng: Random) {
 
-object Registration {
+  /**
+   * Representation of the current state of the registration.
+   * @param value The current value of the cost function
+   * @param parameters The current parameters
+   * @param optimizerState, more detailed information regarding the used optimizer.
+   */
+  case class RegistrationState(value: Double, parameters: DenseVector[Double], optimizerState: Optimizer#State)
 
-  case class RegistrationState[D <: Dim, TS <: TransformationSpace[D]](registrationResult: TS#T, optimizerState: Optimizer#State)
-
-  def iterations[D <: Dim: NDSpace, TS <: TransformationSpace[D]](config: RegistrationConfiguration[D, TS])(
-    fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D],
-    initialParameters: DenseVector[Double] = config.transformationSpace.identityTransformParameters)(
-      implicit rng: Random): Iterator[RegistrationState[D, TS]] =
+  /**
+   * Given a set of initial parameter, returns an iterator which can be used to drive the registration.
+   */
+  def iterator(initialParameters: DenseVector[Double]): Iterator[RegistrationState] =
     {
-      val regularizer = config.regularizer
-
-      val transformationSpace = config.transformationSpace
 
       val costFunction = new CostFunction {
         def onlyValue(params: ParameterVector): Double = {
-          val transformation = transformationSpace.transformForParameters(params)
-
-          config.metric.value(fixedImage, movingImage, transformation) + config.regularizationWeight * regularizer(params)
+          metric.value(params) + regularizationWeight * regularizer.value(params)
         }
         def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
           // compute the value of the cost function
-          val transformation = Transformation.memoize(transformationSpace.transformForParameters(params), 100000)
-          val metricValueAndDerivative = config.metric.computeValueAndDerivative(fixedImage, movingImage, transformationSpace, params)
-          val value = metricValueAndDerivative.value + config.regularizationWeight * regularizer(params)
+          val metricValueAndDerivative = metric.valueAndDerivative(params)
+          val value = metricValueAndDerivative.value + regularizationWeight * regularizer.value(params)
           val dR = regularizer.takeDerivative(params)
 
-          (value, metricValueAndDerivative.derivative + dR * config.regularizationWeight)
+          (value, metricValueAndDerivative.derivative + dR * regularizationWeight)
         }
       }
 
-      val optimizer = config.optimizer
       optimizer.iterations(initialParameters, costFunction).map {
         optimizerState =>
-          val optParams = optimizerState.parameters
-          val transformation = transformationSpace.transformForParameters(optParams)
-
-          val regRes = transformation
-          RegistrationState(regRes, optimizerState)
+          RegistrationState(optimizerState.value, optimizerState.parameters, optimizerState)
       }
     }
-
-  def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D]](configuration: RegistrationConfiguration[D, TS])(
-    fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D])(
-      implicit rng: Random): TS#T = {
-    val regStates = iterations(configuration)(fixedImage, movingImage)
-    regStates.toSeq.last.registrationResult
-  }
 
 }

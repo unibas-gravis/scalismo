@@ -31,7 +31,7 @@ class OptimizerTests extends ScalismoTestSuite {
 
     it("finds the correct parameter for a simple convex function") {
 
-      val optimizer = GradientDescentOptimizer(numIterations = 100, stepLength = 0.1)
+      val optimizer = GradientDescentOptimizer(maxNumberOfIterations = 100, stepLength = 0.1)
       val param = optimizer.minimize(DenseVector(1f), c)
       val value = c(param)._1
       value should be(0.0 +- 1e-5)
