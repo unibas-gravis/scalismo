@@ -46,14 +46,14 @@ trait RegistrationMetric[D <: Dim] {
   /**
    * Computes the derivative of the metric at the point given by the parameters.
    */
-  def takeDerivative(parameters: DenseVector[Double]): DenseVector[Double]
+  def derivative(parameters: DenseVector[Double]): DenseVector[Double]
 
   /**
    * Computes value and derivative in one go. It should be the same as calling value and takeDerivative
    * separately, but allows for more efficient implementations.
    *
    */
-  def computeValueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative
+  def valueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative
 }
 
 object RegistrationMetric {

@@ -41,11 +41,11 @@ case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
   }
 
   // compute the derivative of the cost function
-  def takeDerivative(parameters: DenseVector[Double]): DenseVector[Double] = {
+  def derivative(parameters: DenseVector[Double]): DenseVector[Double] = {
     computeDerivative(parameters, Integrator(sampler))
   }
 
-  override def computeValueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative = {
+  override def valueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative = {
 
     // We create a new sampler, which always returns the same points. In this way we can make sure that the
     // same sample points are used for computing the value and the derivative

@@ -58,7 +58,7 @@ case class Registration[D <: Dim](metric: RegistrationMetric[D],
         def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
           // compute the value of the cost function
-          val metricValueAndDerivative = metric.computeValueAndDerivative(params)
+          val metricValueAndDerivative = metric.valueAndDerivative(params)
           val value = metricValueAndDerivative.value + regularizationWeight * regularizer.value(params)
           val dR = regularizer.takeDerivative(params)
 
