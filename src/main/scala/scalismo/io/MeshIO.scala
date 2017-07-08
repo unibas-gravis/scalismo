@@ -15,9 +15,10 @@
  */
 package scalismo.io
 
-import java.io.{ File, IOException }
+import java.io.{File, IOException}
 
-import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
+import scalismo.color.RGBA
+import scalismo.common.{PointId, Scalar, UnstructuredPointsDomain}
 import scalismo.geometry._
 import scalismo.mesh._
 import scalismo.geometry.Point._
@@ -28,7 +29,7 @@ import vtk._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 object MeshIO {
   /**
@@ -89,6 +90,7 @@ object MeshIO {
       case f if f.endsWith(".h5") => readHDF5(file)
       case f if f.endsWith(".vtk") => readVTK(file)
       case f if f.endsWith(".stl") => readSTL(file)
+      case f if f.endsWith(".ply") => readPLY(file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
@@ -274,6 +276,49 @@ object MeshIO {
     vtkPd.Delete()
     mesh
   }
+
+  private def readPLY(file: File): Try[TriangleMesh[_3D]] = {
+    val plyReader = new vtkPLYReader()
+    plyReader.SetFileName(file.getAbsolutePath)
+
+    plyReader.Update()
+
+    val errCode = plyReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read stl mesh (received error code $errCode"))
+    }
+
+    val vtkPd = plyReader.GetOutput()
+    val meshGeometry = MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+
+    // FIXME should be depending on the array
+    val mesh = vtkPd.GetPointData().GetArrayName(0) match {
+      case "RGBA" => {
+        val s = vtkPd.GetPointData().GetArray(0)
+        val colors = for (i <- 0 until s.GetNumberOfTuples()) yield {
+          val rgba = s.GetTuple4(i)
+          RGBA(rgba(0), rgba(1), rgba(2), rgba(3))
+        }
+        // FIXME this should not be a get
+        VertexColorMesh3D(meshGeometry.get, new SurfacePointProperty[RGBA](meshGeometry.get.triangulation, colors.toIndexedSeq))
+      }
+      case "RGB" => {
+        val s = vtkPd.GetPointData().GetArray(0)
+        val colors = for (i <- 0 until s.GetNumberOfTuples()) yield {
+          val rgba = s.GetTuple3(i)
+          RGBA(rgba(0), rgba(1), rgba(2), 1.0)
+        }
+        // FIXME this should not be a get
+        VertexColorMesh3D(meshGeometry.get, new SurfacePointProperty[RGBA](meshGeometry.get.triangulation, colors.toIndexedSeq))
+      }
+      case _ => meshGeometry.get
+    }
+
+    plyReader.Delete()
+    vtkPd.Delete()
+    Success(mesh)
+  }
+
 
   def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
 
