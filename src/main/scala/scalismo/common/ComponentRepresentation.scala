@@ -16,7 +16,7 @@
 
 package scalismo.common
 
-import scalismo.geometry.{Vector, _2D, _3D}
+import scalismo.geometry.{ Vector, _2D, _3D }
 
 import scala.annotation.switch
 

@@ -19,7 +19,7 @@ package scalismo.color
 import java.awt.Color
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ComponentRepresentation, Vectorizer}
+import scalismo.common.{ ComponentRepresentation, Vectorizer }
 import scalismo.mesh.Interpolator
 
 import scala.annotation.switch
@@ -94,8 +94,10 @@ case class RGBA(r: Double, g: Double, b: Double, a: Double) {
     )
   }
 
-  /** convert to AWT default color
-    * expects a clamped color value */
+  /**
+   * convert to AWT default color
+   * expects a clamped color value
+   */
   def toAWTColor: Color = new java.awt.Color(r.toFloat, g.toFloat, b.toFloat, a.toFloat)
 }
 

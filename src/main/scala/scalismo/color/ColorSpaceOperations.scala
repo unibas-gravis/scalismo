@@ -16,7 +16,7 @@
 
 package scalismo.color
 
-import scalismo.geometry.{Dim, NDSpace, Vector}
+import scalismo.geometry.{ Dim, NDSpace, Vector }
 
 import scala.annotation.tailrec
 

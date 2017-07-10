@@ -201,13 +201,12 @@ object TriangleMesh3D {
   }
 }
 
-
 /**
-  * colored mesh with color per vertex
-  */
-case class VertexColorMesh3D(pointSet : UnstructuredPointsDomain[_3D],
-                             triangulation : TriangleList,
-                             color: SurfacePointProperty[RGBA]) extends TriangleMesh[_3D] {
+ * colored mesh with color per vertex
+ */
+case class VertexColorMesh3D(pointSet: UnstructuredPointsDomain[_3D],
+    triangulation: TriangleList,
+    color: SurfacePointProperty[RGBA]) extends TriangleMesh[_3D] {
 
   require(this.triangulation == color.triangulation)
 
@@ -217,11 +216,10 @@ case class VertexColorMesh3D(pointSet : UnstructuredPointsDomain[_3D],
 }
 
 object VertexColorMesh3D {
-  def apply(triangleMesh : TriangleMesh[_3D], color : SurfacePointProperty[RGBA]) : VertexColorMesh3D = {
+  def apply(triangleMesh: TriangleMesh[_3D], color: SurfacePointProperty[RGBA]): VertexColorMesh3D = {
     VertexColorMesh3D(triangleMesh.pointSet, triangleMesh.triangulation, color)
   }
 }
-
 
 case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
   val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)

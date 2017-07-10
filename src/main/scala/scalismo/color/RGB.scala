@@ -19,9 +19,9 @@ package scalismo.color
 import java.awt.Color
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ComponentRepresentation, Vectorizer}
+import scalismo.common.{ ComponentRepresentation, Vectorizer }
 import scalismo.geometry.Vector._
-import scalismo.geometry.{Vector, _3D}
+import scalismo.geometry.{ Vector, _3D }
 import scalismo.mesh.Interpolator
 
 import scala.annotation.switch
@@ -94,8 +94,10 @@ case class RGB(r: Double, g: Double, b: Double) {
   /** convert to standard Vector[_3D] */
   def toVector = Vector(r, g, b)
 
-  /** convert to AWT default color
-    * expects a clamped color value */
+  /**
+   * convert to AWT default color
+   * expects a clamped color value
+   */
   def toAWTColor: Color = new java.awt.Color(r.toFloat, g.toFloat, b.toFloat)
 }
 
@@ -140,9 +142,9 @@ object RGB {
 
     override def dim: Int = 3
 
-    override def vectorize(v: RGB): DenseVector[Double] = DenseVector(v.r,v.g,v.b)
+    override def vectorize(v: RGB): DenseVector[Double] = DenseVector(v.r, v.g, v.b)
 
-    override def unvectorize(d: DenseVector[Double]): RGB = RGB(d(0),d(1),d(2))
+    override def unvectorize(d: DenseVector[Double]): RGB = RGB(d(0), d(1), d(2))
   }
 
   implicit object RGBOperations extends ColorSpaceOperations[RGB] {
