@@ -47,7 +47,7 @@ abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTa
   /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
   def interpolate(order: Int): DifferentiableScalarImage[D]
 
-  /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolateGeneric(0)]] instead*/
+  /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolate(0)]] instead*/
   override def interpolateNearestNeighbor(): ScalarField[D, A] = {
     val ev = implicitly[Scalar[A]]
     ScalarField(RealSpace[D], this.interpolate(0) andThen ev.fromFloat _)
