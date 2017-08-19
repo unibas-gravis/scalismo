@@ -16,6 +16,7 @@
 package scalismo.common
 
 import breeze.linalg.DenseVector
+import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
 
 import scala.reflect.ClassTag
@@ -23,7 +24,7 @@ import scala.reflect.ClassTag
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
  */
-class DiscreteField[D <: Dim, DDomain <: DiscreteDomain[D], A](val domain: DDomain, val data: IndexedSeq[A]) extends PartialFunction[PointId, A] { self =>
+class DiscreteField[D <: Dim, +DDomain <: DiscreteDomain[D], A](val domain: DDomain, val data: IndexedSeq[A]) extends PartialFunction[PointId, A] { self =>
 
   def values: Iterator[A] = data.iterator
   override def apply(ptId: PointId) = data(ptId.id)
@@ -36,12 +37,19 @@ class DiscreteField[D <: Dim, DDomain <: DiscreteDomain[D], A](val domain: DDoma
   def foreach(f: A => Unit): Unit = values.foreach(f)
   /**
    * Returns a continuous field, where the value at each point is that of the closest point in the discrete set
-   * *
+   *
    */
+  @deprecated("please use the [[interpolate]] method with a [[NearestNeighborInterpolator]] instead", "0.16")
   def interpolateNearestNeighbor(): Field[D, A] = Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
-  // TODO conceptually, we should have a map here too, but it becomes tricky to
-  // do since the overloaded functions will all require their own version of map
-  // Maybe a trick with CanBuildFrom and Builder, similar to the scala collections would be required.
+
+  /**
+   * Interpolates the discrete field using the given interpolator.
+   * @param interpolator Implements an interpolation scheme (e.g. Nearest Neighbor, B-Spline, ...)
+   * @return A continuous field of the same type.
+   */
+  def interpolate(interpolator: FieldInterpolator[D, DDomain, A]): Field[D, A] = {
+    interpolator.interpolate(this)
+  }
 
   override def equals(other: Any): Boolean =
     other match {
@@ -127,6 +135,7 @@ class DiscreteScalarField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], A: Sc
   override def canEqual(other: Any): Boolean =
     other.isInstanceOf[DiscreteField[D, DDomain, A]]
 
+  @deprecated("please use the [interpolate] method with a [NearestNeighborInterpolator] instead", "0.16")
   override def interpolateNearestNeighbor(): ScalarField[D, A] = {
     ScalarField(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
   }
