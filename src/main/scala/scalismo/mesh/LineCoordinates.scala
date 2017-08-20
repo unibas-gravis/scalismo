@@ -16,10 +16,12 @@
 
 package scalismo.mesh
 
+import scalismo.common.interpolation.ValueInterpolator
+
 case class LineCoordinates(a: Double) {
 
   /** perform bcc interpolation: interpolate vertex values within line, needs Interpolation[T] */
-  def interpolateProperty[A](v1: A, v2: A)(implicit blender: Interpolator[A]): A = {
+  def interpolateProperty[A](v1: A, v2: A)(implicit blender: ValueInterpolator[A]): A = {
     blender.blend(v1, v2, a)
   }
 

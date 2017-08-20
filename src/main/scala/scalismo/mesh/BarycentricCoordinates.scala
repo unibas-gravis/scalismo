@@ -15,7 +15,8 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{ Point, _2D, _3D, Vector }
+import scalismo.common.interpolation.ValueInterpolator
+import scalismo.geometry.{ Point, Vector, _2D, _3D }
 import scalismo.utils.Random
 
 import scala.annotation.switch
@@ -29,7 +30,7 @@ case class BarycentricCoordinates(a: Double, b: Double, c: Double) {
   }
 
   /** perform bcc interpolation: interpolate vertex values within triangle, needs Interpolation[T] */
-  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A)(implicit blender: Interpolator[A]): A = {
+  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A)(implicit blender: ValueInterpolator[A]): A = {
     blender.barycentricInterpolation(v1, a, v2, b, v3, c)
   }
 }

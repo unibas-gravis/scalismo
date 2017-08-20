@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.mesh
+package scalismo.common.interpolation
 
-import scalismo.geometry._
 import scalismo.geometry.Vector._
+import scalismo.geometry._
 
 /** defines (convex) interpolation between two values */
-trait Interpolator[@specialized(Double, Float) A] {
+trait ValueInterpolator[@specialized(Double, Float) A] {
   def blend(obj1: A, obj2: A, l: Double): A
 
   /** mix multiple values, forms convex combination (with normalized weights) */
   // loop: better performance than list eating tailrec
-  def convexCombination(first: (A, Float), rest: (A, Float)*): A = {
+  def convexCombination(first: (A, Double), rest: (A, Double)*): A = {
     var mix: A = first._1
-    var f: Float = first._2
+    var f: Double = first._2
 
     for (next <- rest) {
       val s = f + next._2 // f+f1
@@ -51,41 +51,44 @@ trait Interpolator[@specialized(Double, Float) A] {
     var mix: A = first
     var n = 1
     for (next <- rest) {
-      mix = blend(mix, next, n.toFloat / (n + 1))
+      mix = blend(mix, next, n / (n + 1))
       n += 1
     }
     mix
   }
 }
 
-object Interpolator {
-  implicit val floatInterpolator = new Interpolator[Float] {
+object ValueInterpolator {
+
+  def apply[A](implicit ev: ValueInterpolator[A]): ValueInterpolator[A] = ev
+
+  implicit val floatInterpolator = new ValueInterpolator[Float] {
     override def blend(obj1: Float, obj2: Float, l: Double): Float = (obj1 * l + obj2 * (1.0 - l)).toFloat
   }
 
-  implicit val doubleInterpolator = new Interpolator[Double] {
+  implicit val doubleInterpolator = new ValueInterpolator[Double] {
     override def blend(obj1: Double, obj2: Double, l: Double): Double = obj1 * l + obj2 * (1.0 - l)
   }
 
-  implicit def pointBlender[D <: Dim] = new Interpolator[Point[D]] {
+  implicit def pointBlender[D <: Dim] = new ValueInterpolator[Point[D]] {
     override def blend(obj1: Point[D], obj2: Point[D], l: Double): Point[D] = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
-  implicit val pointBlender1D = new Interpolator[Point1D] {
+  implicit val pointBlender1D = new ValueInterpolator[Point1D] {
     override def blend(obj1: Point1D, obj2: Point1D, l: Double): Point1D = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
-  implicit val pointBlender2D = new Interpolator[Point2D] {
+  implicit val pointBlender2D = new ValueInterpolator[Point2D] {
     override def blend(obj1: Point2D, obj2: Point2D, l: Double): Point2D = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
-  implicit val pointBlender3D = new Interpolator[Point3D] {
+  implicit val pointBlender3D = new ValueInterpolator[Point3D] {
     override def blend(obj1: Point3D, obj2: Point3D, l: Double): Point3D = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
   // ** VectorXD **
 
-  implicit val vectorBlender1D = new Interpolator[Vector1D] {
+  implicit val vectorBlender1D = new ValueInterpolator[Vector1D] {
     override def blend(obj1: Vector1D, obj2: Vector1D, l: Double): Vector1D = Vector1D(
       obj1.x * l + obj2.x * (1.0 - l))
 
@@ -104,7 +107,7 @@ object Interpolator {
     }
   }
 
-  implicit val vectorBlender2D = new Interpolator[Vector2D] {
+  implicit val vectorBlender2D = new ValueInterpolator[Vector2D] {
     override def blend(obj1: Vector2D, obj2: Vector2D, l: Double): Vector2D = Vector2D(
       obj1.x * l + obj2.x * (1.0 - l),
       obj1.y * l + obj2.y * (1.0 - l))
@@ -127,7 +130,7 @@ object Interpolator {
     }
   }
 
-  implicit val vectorBlender3D = new Interpolator[Vector3D] {
+  implicit val vectorBlender3D = new ValueInterpolator[Vector3D] {
     override def blend(obj1: Vector3D, obj2: Vector3D, l: Double): Vector3D = Vector3D(
       obj1.x * l + obj2.x * (1.0 - l),
       obj1.y * l + obj2.y * (1.0 - l),
@@ -156,7 +159,7 @@ object Interpolator {
 
   // ** Vector[D] **
 
-  implicit val vectorBlender_1D = new Interpolator[Vector[_1D]] {
+  implicit val vectorBlender_1D = new ValueInterpolator[Vector[_1D]] {
     override def blend(obj1: Vector[_1D], obj2: Vector[_1D], l: Double): Vector[_1D] = vectorBlender1D.blend(obj1, obj2, l)
 
     override def barycentricInterpolation(v1: Vector[_1D], f1: Double, v2: Vector[_1D], f2: Double, v3: Vector[_1D], f3: Double): Vector[_1D] = vectorBlender1D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
@@ -171,7 +174,7 @@ object Interpolator {
     }
   }
 
-  implicit val vectorBlender_2D = new Interpolator[Vector[_2D]] {
+  implicit val vectorBlender_2D = new ValueInterpolator[Vector[_2D]] {
     override def blend(obj1: Vector[_2D], obj2: Vector[_2D], l: Double): Vector[_2D] = vectorBlender2D.blend(obj1, obj2, l)
 
     override def barycentricInterpolation(v1: Vector[_2D], f1: Double, v2: Vector[_2D], f2: Double, v3: Vector[_2D], f3: Double): Vector[_2D] = vectorBlender2D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
@@ -188,7 +191,7 @@ object Interpolator {
     }
   }
 
-  implicit val vectorBlender_3D = new Interpolator[Vector[_3D]] {
+  implicit val vectorBlender_3D = new ValueInterpolator[Vector[_3D]] {
     override def blend(obj1: Vector[_3D], obj2: Vector[_3D], l: Double): Vector[_3D] = vectorBlender3D.blend(obj1, obj2, l)
 
     override def barycentricInterpolation(v1: Vector[_3D], f1: Double, v2: Vector[_3D], f2: Double, v3: Vector[_3D], f3: Double): Vector[_3D] = vectorBlender3D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
