@@ -16,7 +16,7 @@
 
 package scalismo.mesh
 
-import scalismo.common.interpolation.ValueInterpolator
+import scalismo.numerics.ValueInterpolator
 
 case class LineCoordinates(a: Double) {
 

@@ -15,8 +15,8 @@
  */
 package scalismo.mesh
 
-import scalismo.common.interpolation.ValueInterpolator
 import scalismo.geometry.{ Point, Vector, _2D, _3D }
+import scalismo.numerics.ValueInterpolator
 import scalismo.utils.Random
 
 import scala.annotation.switch

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.common.interpolation
+package scalismo.numerics
 
 import scalismo.geometry.Vector._
 import scalismo.geometry._
@@ -51,7 +51,7 @@ trait ValueInterpolator[@specialized(Double, Float) A] {
     var mix: A = first
     var n = 1
     for (next <- rest) {
-      mix = blend(mix, next, n / (n + 1))
+      mix = blend(mix, next, n.toDouble / (n + 1))
       n += 1
     }
     mix

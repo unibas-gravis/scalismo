@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.PointId
-import scalismo.common.interpolation.ValueInterpolator
+import scalismo.numerics.ValueInterpolator
 
 import scala.reflect.ClassTag
 

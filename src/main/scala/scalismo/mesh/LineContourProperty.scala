@@ -1,7 +1,7 @@
 package scalismo.mesh
 
 import scalismo.common.PointId
-import scalismo.common.interpolation.ValueInterpolator
+import scalismo.numerics.ValueInterpolator
 
 /**
  * Created by marcel on 15.09.15.
