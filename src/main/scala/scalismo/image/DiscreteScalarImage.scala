@@ -18,6 +18,7 @@ package scalismo.image
 
 import breeze.linalg.DenseVector
 import scalismo.common._
+import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage.Create
 import scalismo.numerics.BSpline
@@ -44,10 +45,23 @@ abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTa
     DiscreteScalarImage(domain, data.map(f))
   }
 
+  /**
+   * Interpolates the image with the given interpolator.
+   * Note, that in contrast to the method [[DiscreteField.interpolate]] this method returns a scalar image
+   *
+   * @param interpolator The interpolator used to interpolate the image
+   * @param dummy Used to distinguish the method from the generic one inherited from [[DiscreteField]]
+   */
+  def interpolate(interpolator: FieldInterpolator[D, DiscreteImageDomain[D], A])(implicit dummy: DummyImplicit): ScalarImage[D] = {
+    val f = interpolator.interpolate(this)
+    ScalarImage(f.domain, f.f andThen (Scalar[A].toFloat))
+  }
+
   /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
   def interpolate(order: Int): DifferentiableScalarImage[D]
 
   /** Returns a continuous scalar field. If you want a nearest neighbor interpolation that returns a [[ScalarImage]], use [[interpolate(0)]] instead*/
+  @deprecated("please use the [[interpolate]] method with a [[NearestNeighborInterpolator]] instead", "0.16")
   override def interpolateNearestNeighbor(): ScalarField[D, A] = {
     val ev = implicitly[Scalar[A]]
     ScalarField(RealSpace[D], this.interpolate(0) andThen ev.fromFloat _)

@@ -19,6 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ *, DenseMatrix, DenseVector, diag }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
+import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
 import scalismo.mesh.kdtree.KDTreeMap
@@ -186,6 +187,24 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
   }
 
   /**
+   * Interpolates the gaussian process using the given interpolator. Interpolation is achieved
+   * by interoplating the mean and eigenfunctions using the given interpolator.
+   *
+   * @param interpolator the interpolator used to interpolate the mean and eigenfunctions
+   * @return a (continuous) low-rank Gaussian process
+   */
+  def interpolate(interpolator: FieldInterpolator[D, DDomain, Value]): LowRankGaussianProcess[D, Value] = {
+    val newKLBasis = for (DiscreteEigenpair(eigenVal, eigenFun) <- klBasis) yield {
+      Eigenpair(eigenVal, eigenFun.interpolate(interpolator))
+    }
+    val newMean = this.mean.interpolate(interpolator)
+
+    new InterpolatedLowRankGaussianProcess(Field(RealSpace[D], newMean), newKLBasis, this, interpolator)
+
+    new LowRankGaussianProcess[D, Value](newMean, newKLBasis)
+  }
+
+  /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]].
    * This is achieved by using a  Nystrom method for computing the kl basis.
    * The mean function is currently interpolated using a nearest neighbor approach.
@@ -193,7 +212,6 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
    * @param nNystromPoints determines how many points of the domain are used to estimate the full
    *                       kl basis.
    */
-
   def interpolateNystrom(nNystromPoints: Int = 2 * rank)(implicit rng: Random): LowRankGaussianProcess[D, Value] = {
 
     val sampler = new Sampler[D] {
@@ -237,6 +255,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
    * using nearest neigbor interpolation (for both mean and covariance function)
    */
+  @deprecated("please use the [[interpolate]] method with a [[NearestNeighborInterpolator]] instead", "0.16")
   override def interpolateNearestNeighbor: LowRankGaussianProcess[D, Value] = {
 
     val meanPD = this.mean
@@ -260,7 +279,13 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
 
       (0 until rank) map (i => Eigenpair(variance(i), Field(RealSpace[D], phi(i, findClosestPointMemo))))
     }
-    new NearestNeighbourInterpolatedLowRankGaussianProcess(Field(RealSpace[D], meanFun(findClosestPointMemo)), interpolatedKLBasis, this)
+    new InterpolatedLowRankGaussianProcess(
+      Field(RealSpace[D],
+        meanFun(findClosestPointMemo)),
+      interpolatedKLBasis,
+      this,
+      NearestNeighborInterpolator[D, Value]()
+    )
   }
 
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Double]): DenseVector[Double] = {
@@ -280,17 +305,18 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
 }
 
 /**
- * Convenience class to speedup sampling from a LowRankGaussianProcess obtained by nearest neighbor interpolation of a DiscreteLowRankGaussianProcess
+ * Convenience class to speedup sampling from a LowRankGaussianProcess obtained by an interpolation of a DiscreteLowRankGaussianProcess
  *
  */
-private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](mean: Field[D, Value],
+private[scalismo] class InterpolatedLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](mean: Field[D, Value],
   klBasis: LowRankGaussianProcess.KLBasis[D, Value],
-  discreteGP: DiscreteLowRankGaussianProcess[D, DDomain, Value])(implicit vectorizer: Vectorizer[Value])
+  discreteGP: DiscreteLowRankGaussianProcess[D, DDomain, Value],
+  interpolator: FieldInterpolator[D, DDomain, Value])(implicit vectorizer: Vectorizer[Value])
     extends LowRankGaussianProcess[D, Value](mean, klBasis) {
 
   require(klBasis.size == discreteGP.rank)
 
-  override def instance(c: DenseVector[Double]): Field[D, Value] = discreteGP.instance(c).interpolateNearestNeighbor()
+  override def instance(c: DenseVector[Double]): Field[D, Value] = discreteGP.instance(c).interpolate(interpolator)
 
   // if all training data points belong to the interpolated discrete domain, then we compute a discrete posterior GP and interpolate it
   // this way the posterior will also remain very efficient when sampling.
@@ -300,7 +326,7 @@ private[scalismo] class NearestNeighbourInterpolatedLowRankGaussianProcess[D <: 
 
     if (allInDiscrete) {
       val discreteTD = trainingData.map { case (pt, vc, nz) => (discreteGP.domain.findClosestPoint(pt).id, vc, nz) }
-      discreteGP.posterior(discreteTD).interpolateNearestNeighbor
+      discreteGP.posterior(discreteTD).interpolate(interpolator)
     } else {
       LowRankGaussianProcess.regression(this, trainingData)
     }
