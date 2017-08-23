@@ -76,7 +76,7 @@ abstract class ValueClassScalar[S <: AnyVal, U <: AnyVal: ClassTag] extends Scal
 object Scalar {
   // Not exactly sure what this is good for, but spire seems to do it everywhere
   // for performance reasons. So we just do it as well.
-  @inline final def apply[A <: AnyVal](implicit ev: Scalar[A]): Scalar[A] = ev
+  @inline final def apply[A](implicit ev: Scalar[A]): Scalar[A] = ev
 
   implicit final lazy val ByteIsScalar: PrimitiveScalar[Byte] = Numeric.ByteIsNumeric
   implicit final lazy val ShortIsScalar: PrimitiveScalar[Short] = Numeric.ShortIsNumeric
