@@ -42,8 +42,8 @@ case class Profiles(private[scalismo] val data: immutable.IndexedSeq[Profile]) e
  *
  */
 
-class DiscreteFeatureField[D <: Dim: NDSpace](domain: DiscreteDomain[D], _values: IndexedSeq[DenseVector[Double]])
-    extends DiscreteField[D, DenseVector[Double]](domain, _values) {
+class DiscreteFeatureField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D]](domain: DDomain, _values: IndexedSeq[DenseVector[Double]])
+    extends DiscreteField[D, DDomain, DenseVector[Double]](domain, _values) {
 
   override def apply(id: PointId) = _values(id.id)
 
@@ -58,5 +58,5 @@ class DiscreteFeatureField[D <: Dim: NDSpace](domain: DiscreteDomain[D], _values
 }
 
 object DiscreteFeatureField {
-  def apply[D <: Dim: NDSpace](domain: DiscreteDomain[D], values: IndexedSeq[DenseVector[Double]]) = new DiscreteFeatureField[D](domain, values)
+  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D]](domain: DDomain, values: IndexedSeq[DenseVector[Double]]) = new DiscreteFeatureField[D, DDomain](domain, values)
 }

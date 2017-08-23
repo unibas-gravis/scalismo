@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel.asm
 
 import breeze.linalg.{ DenseVector, convert }
-import scalismo.common.{ UnstructuredPointsDomain3D, PointId }
+import scalismo.common.{ PointId, UnstructuredPointsDomain, UnstructuredPointsDomain3D }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
@@ -67,7 +67,7 @@ object ActiveShapeModel {
  * the Shape Model, and a set of sample features at the profile points.
  *
  */
-case class ASMSample(mesh: TriangleMesh[_3D], featureField: DiscreteFeatureField[_3D], featureExtractor: FeatureExtractor)
+case class ASMSample(mesh: TriangleMesh[_3D], featureField: DiscreteFeatureField[_3D, UnstructuredPointsDomain[_3D]], featureExtractor: FeatureExtractor)
 
 case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Profiles, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor) {
 
@@ -78,7 +78,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val smean = statisticalModel.mean
     val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val meanFeatures = profiles.data.map(_.distribution.mean)
-    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
+    val featureField = DiscreteFeatureField[_3D, UnstructuredPointsDomain[_3D]](new UnstructuredPointsDomain3D(meanProfilePoints), meanFeatures)
     ASMSample(smean, featureField, featureExtractor)
   }
 
@@ -89,7 +89,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val sampleMesh = statisticalModel.sample()
     val randomProfilePoints = profiles.data.map(p => sampleMesh.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample)
-    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
+    val featureField = DiscreteFeatureField[_3D, UnstructuredPointsDomain[_3D]](new UnstructuredPointsDomain3D(randomProfilePoints), randomFeatures)
     ASMSample(sampleMesh, featureField, featureExtractor)
   }
 
@@ -101,7 +101,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel, profiles: Pr
     val smean = statisticalModel.mean
     val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val randomFeatures = profiles.data.map(_.distribution.sample)
-    val featureField = DiscreteFeatureField(new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
+    val featureField = DiscreteFeatureField[_3D, UnstructuredPointsDomain[_3D]](new UnstructuredPointsDomain3D(meanProfilePoints), randomFeatures)
     ASMSample(smean, featureField, featureExtractor)
   }
 

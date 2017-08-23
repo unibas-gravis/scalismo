@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{ DiscreteScalarField, PointId, Scalar, ScalarArray }
+import scalismo.common._
 import scalismo.geometry._3D
 
 import scala.reflect.ClassTag
@@ -27,7 +27,8 @@ import scala.reflect.ClassTag
  * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
  * The number of values and mesh points must be equal.
  */
-case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], override val data: ScalarArray[S]) extends DiscreteScalarField[_3D, S](mesh.pointSet, data) {
+case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], override val data: ScalarArray[S])
+    extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
   require(mesh.pointSet.numberOfPoints == data.size)
 
   override def values = data.iterator
