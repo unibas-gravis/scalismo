@@ -44,7 +44,7 @@ import scalismo.utils.{ Memoize, Random }
  * @see [[DiscreteLowRankGaussianProcess]]
  */
 
-case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value] private[scalismo] (_domain: DDomain, meanVector: DenseVector[Double], variance: DenseVector[Double], basisMatrix: DenseMatrix[Double])(override implicit val vectorizer: Vectorizer[Value])
+case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (_domain: DDomain, meanVector: DenseVector[Double], variance: DenseVector[Double], basisMatrix: DenseMatrix[Double])(override implicit val vectorizer: Vectorizer[Value])
     extends DiscreteGaussianProcess[D, DDomain, Value](DiscreteField.createFromDenseVector[D, DDomain, Value](_domain, meanVector), basisMatrixToCov(_domain, variance, basisMatrix)) {
   self =>
 
@@ -91,14 +91,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
   /**
    * Returns the probability density of the given instance
    */
-  override def pdf(instance: DiscreteField[D, DDomain, Value]): Double = pdf(coefficients(instance))
+  override def pdf(instance: DiscreteField[D, DiscreteDomain[D], Value]): Double = pdf(coefficients(instance))
 
   /**
    * Returns the log of the probability density of the instance
    *
    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
    */
-  override def logpdf(instance: DiscreteField[D, DDomain, Value]): Double = logpdf(coefficients(instance))
+  override def logpdf(instance: DiscreteField[D, DiscreteDomain[D], Value]): Double = logpdf(coefficients(instance))
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.sample]]
@@ -133,14 +133,14 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
-  override def project(s: DiscreteField[D, DDomain, Value]): DiscreteField[D, DDomain, Value] = {
+  override def project(s: DiscreteField[D, DiscreteDomain[D], Value]): DiscreteField[D, DDomain, Value] = {
     instance(coefficients(s))
   }
 
   /**
    * Discrete version of [[DiscreteLowRankGaussianProcess.coefficients(IndexedSeq[(Point[D], Vector[DO], Double)])]]
    */
-  def coefficients(s: DiscreteField[D, DDomain, Value]): DenseVector[Double] = {
+  def coefficients(s: DiscreteField[D, DiscreteDomain[D], Value]): DenseVector[Double] = {
     val sigma2 = 1e-5 // regularization weight to avoid numerical problems
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val td = s.valuesWithIds.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
@@ -334,9 +334,9 @@ private[scalismo] class InterpolatedLowRankGaussianProcess[D <: Dim: NDSpace, DD
 
 object DiscreteLowRankGaussianProcess {
 
-  case class Eigenpair[D <: Dim, DDomain <: DiscreteDomain[D], Value](eigenvalue: Double, eigenfunction: DiscreteField[D, DDomain, Value])
+  case class Eigenpair[D <: Dim, +DDomain <: DiscreteDomain[D], Value](eigenvalue: Double, eigenfunction: DiscreteField[D, DDomain, Value])
 
-  type KLBasis[D <: Dim, Dom <: DiscreteDomain[D], Value] = Seq[Eigenpair[D, Dom, Value]]
+  type KLBasis[D <: Dim, +Dom <: DiscreteDomain[D], Value] = Seq[Eigenpair[D, Dom, Value]]
 
   /**
    * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
