@@ -200,8 +200,6 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, DDomain <: Discrete
     val newMean = this.mean.interpolate(interpolator)
 
     new InterpolatedLowRankGaussianProcess(Field(RealSpace[D], newMean), newKLBasis, this, interpolator)
-
-    new LowRankGaussianProcess[D, Value](newMean, newKLBasis)
   }
 
   /**
