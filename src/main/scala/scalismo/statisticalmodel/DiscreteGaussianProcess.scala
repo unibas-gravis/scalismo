@@ -27,7 +27,7 @@ import scalismo.utils.Random
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value] private[scalismo] (val mean: DiscreteField[D, DDomain, Value],
+class DiscreteGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (val mean: DiscreteField[D, DDomain, Value],
     val cov: DiscreteMatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
   self =>
 
@@ -112,7 +112,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], V
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
 
-  def project(s: DiscreteField[D, DDomain, Value]): DiscreteField[D, DDomain, Value] = {
+  def project(s: DiscreteField[D, DiscreteDomain[D], Value]): DiscreteField[D, DDomain, Value] = {
 
     val sigma2 = 1e-5 // regularization weight to avoid numerical problems
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
@@ -124,7 +124,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], V
   /**
    * Returns the probability density of the given instance
    */
-  def pdf(instance: DiscreteField[D, DDomain, Value]): Double = {
+  def pdf(instance: DiscreteField[D, DiscreteDomain[D], Value]): Double = {
     val mvnormal = MultivariateNormalDistribution(DiscreteField.vectorize[D, Value](mean.data), cov.asBreezeMatrix)
     val instvec = DiscreteField.vectorize[D, Value](instance.data)
     mvnormal.pdf(instvec)
@@ -135,7 +135,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], V
    *
    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
    */
-  def logpdf(instance: DiscreteField[D, DDomain, Value]): Double = {
+  def logpdf(instance: DiscreteField[D, DiscreteDomain[D], Value]): Double = {
     val mvnormal = MultivariateNormalDistribution(DiscreteField.vectorize[D, Value](mean.data), cov.asBreezeMatrix)
     val instvec = DiscreteField.vectorize[D, Value](instance.data)
     mvnormal.logpdf(instvec)
