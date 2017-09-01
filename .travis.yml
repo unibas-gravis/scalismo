@@ -19,5 +19,5 @@ scala:
 script:
   - jdk_switcher use oraclejdk8
   - travis_wait sbt ++$TRAVIS_SCALA_VERSION update
-  - travis wait sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
+  - travis_wait sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
   - sbt scalariformFormat && git diff --exit-code   # fails build if scalariform results in changes to the code
