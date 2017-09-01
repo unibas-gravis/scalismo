@@ -23,9 +23,9 @@ import scalismo.numerics.ValueInterpolator
 
 trait LinearImageInterpolator[D <: Dim, A] extends FieldInterpolator[D, DiscreteImageDomain[D], A] {
 
-  implicit def ndSpace: NDSpace[D]
+  protected implicit def ndSpace: NDSpace[D]
 
-  implicit def valueInterpolator: ValueInterpolator[A]
+  protected implicit def valueInterpolator: ValueInterpolator[A]
 
   protected def pointToContinuousIndex(domain: DiscreteImageDomain[D], pt: Point[D]): Point[D] = {
     val dim = pt.dimensionality
@@ -54,8 +54,9 @@ object LinearImageInterpolator {
 
 case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImageInterpolator[_1D, A] {
 
-  override val ndSpace = NDSpace[_1D]
-  override val valueInterpolator = ValueInterpolator[A]
+  override protected val ndSpace = NDSpace[_1D]
+
+  override protected val valueInterpolator = ValueInterpolator[A]
 
   override def interpolate(df: DiscreteField[_1D, DiscreteImageDomain[_1D], A]): Field[_1D, A] = {
 
@@ -84,8 +85,9 @@ case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImage
 
 case class LinearImageInterpolator2D[A: ValueInterpolator]() extends LinearImageInterpolator[_2D, A] {
 
-  override val ndSpace = NDSpace[_2D]
-  override val valueInterpolator = ValueInterpolator[A]
+  override protected val ndSpace = NDSpace[_2D]
+
+  override protected val valueInterpolator = ValueInterpolator[A]
 
   override def interpolate(df: DiscreteField[_2D, DiscreteImageDomain[_2D], A]): Field[_2D, A] = {
 
@@ -125,8 +127,9 @@ case class LinearImageInterpolator2D[A: ValueInterpolator]() extends LinearImage
 
 case class LinearImageInterpolator3D[A: ValueInterpolator]() extends LinearImageInterpolator[_3D, A] {
 
-  override val ndSpace = NDSpace[_3D]
-  override val valueInterpolator = ValueInterpolator[A]
+  override protected val ndSpace = NDSpace[_3D]
+
+  override protected val valueInterpolator = ValueInterpolator[A]
 
   override def interpolate(df: DiscreteField[_3D, DiscreteImageDomain[_3D], A]): Field[_3D, A] = {
 
