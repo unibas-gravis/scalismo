@@ -104,26 +104,27 @@ object VtkHelpers {
     }
   }
 
-  def vtkDataArrayToScalarArray[A: TypeTag](vtkType: Int, arrayVTK: vtkDataArray): Try[ScalarArray[A]] = Try {
+  def vtkDataArrayToScalarArray[A: TypeTag: ClassTag: Scalar](vtkType: Int, arrayVTK: vtkDataArray): Try[ScalarArray[A]] = Try {
+    val scalar = Scalar[A]
     vtkType match {
       // simple cases, no magic needed
       case VTK_SHORT =>
         val p = arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray()
-        Scalar.ShortIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
+        Scalar.ShortIsScalar.createArray(p).map((s: Short) => scalar.fromShort(s))
       case VTK_INT =>
         val p = arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray()
-        Scalar.IntIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
+        Scalar.IntIsScalar.createArray(p).map((i: Int) => scalar.fromInt(i))
       case VTK_FLOAT =>
         val p = arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray()
-        Scalar.FloatIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
+        Scalar.FloatIsScalar.createArray(p).map((f: Float) => scalar.fromFloat(f))
       case VTK_DOUBLE =>
         val p = arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray()
-        Scalar.DoubleIsScalar.createArray(p).asInstanceOf[ScalarArray[A]]
+        Scalar.DoubleIsScalar.createArray(p).map((d: Double) => scalar.fromDouble(d))
       // complicated cases, so we're more explicit about what we're doing
       case VTK_CHAR =>
         val in = arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray()
         val out: Array[Byte] = ArrayUtils.fastMap[Char, Byte](in, { c => c.toByte })
-        Scalar.ByteIsScalar.createArray(out).asInstanceOf[ScalarArray[A]]
+        Scalar.ByteIsScalar.createArray(out).map((b: Byte) => scalar.fromByte(b))
       case VTK_SIGNED_CHAR =>
         val in = arrayVTK.asInstanceOf[vtkSignedCharArray]
 
@@ -135,14 +136,14 @@ object VtkHelpers {
           out(i) = in.GetValue(i).toByte
           i += 1
         }
-        Scalar.ByteIsScalar.createArray(out).asInstanceOf[ScalarArray[A]]
+        Scalar.ByteIsScalar.createArray(out).map((b: Byte) => scalar.fromByte(b))
       case VTK_UNSIGNED_CHAR =>
         val in = arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray()
-        Scalar.UByteIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
+        Scalar.UByteIsScalar.createArray(in).map((s: UByte) => scalar.fromShort(s.toShort))
       case VTK_UNSIGNED_SHORT =>
         val in = arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray()
         val chars = ArrayUtils.fastMap[Short, Char](in, _.toChar)
-        Scalar.UShortIsScalar.createArray(chars).asInstanceOf[ScalarArray[A]]
+        Scalar.UShortIsScalar.createArray(chars).map((s: UShort) => scalar.fromInt(s.toInt))
       case VTK_UNSIGNED_INT =>
         val in = arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray()
         Scalar.UIntIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
@@ -186,30 +187,7 @@ object MeshConversion {
   private[scalismo] def vtkConvertPoints[D <: Dim: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
     val vtkType = pd.GetPoints().GetDataType()
 
-    val pointsArray: Array[Float] = if (vtkType == VtkHelpers.VTK_FLOAT) {
-      // "usual" case: Mesh datatype is Float
-      val pointsArrayVtk = pd.GetPoints().GetData().asInstanceOf[vtkFloatArray]
-      pointsArrayVtk.GetJavaArray()
-    } else {
-      // "unusual" case: any other datatype
-      import ImageIO.ScalarType
-      val sa = VtkHelpers.vtkDataArrayToScalarArray(vtkType, pd.GetPoints().GetData()).get
-      val fsa: ScalarArray[Float] = ScalarType.fromVtkId(vtkType) match {
-        case ScalarType.Byte => sa.asInstanceOf[ScalarArray[Byte]].map[Float](_.toFloat)
-        case ScalarType.Short => sa.asInstanceOf[ScalarArray[Short]].map[Float](_.toFloat)
-        case ScalarType.Int => sa.asInstanceOf[ScalarArray[Int]].map[Float](_.toFloat)
-        case ScalarType.UByte => sa.asInstanceOf[ScalarArray[UByte]].map[Float](_.toFloat)
-        case ScalarType.UShort => sa.asInstanceOf[ScalarArray[UShort]].map[Float](_.toFloat)
-        case ScalarType.UInt => sa.asInstanceOf[ScalarArray[UInt]].map[Float](_.toFloat)
-        case ScalarType.Double => sa.asInstanceOf[ScalarArray[Double]].map[Float](_.toFloat)
-        case _ => throw new scala.UnsupportedOperationException("Unsupported scalar type")
-      }
-      fsa match {
-        // the first case should always match, but we have a (less efficient) backup strategy just in case
-        case psa: PrimitiveScalarArray[Float] => psa.rawData
-        case _ => fsa.iterator.toArray
-      }
-    }
+    val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()).get.toArray
 
     // vtk point are alwyas 3D. Therefore we take all three coordinates out of the array but,
     // if we are in 2D, take only the first 2. Finally, we need to convert them from float to double.

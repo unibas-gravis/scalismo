@@ -111,9 +111,13 @@ class MeshIOTests extends ScalismoTestSuite {
       val writeTry = MeshIO.writeScalarMeshField(f.meshData, tmpFile)
 
       val readTry = MeshIO.readScalarMeshFieldAsType[Float](tmpFile)
+      readTry.recover { case (t: Throwable) => { t.getMessage(); t.printStackTrace(); } }
       assert(readTry.isSuccess)
 
-      readTry.get.data == ScalarArray(f.mesh.pointSet.pointIds.map(_.id).toArray)
+      for ((origDatum, newDatum) <- f.meshData.data.zip(readTry.get.data)) {
+        origDatum.toFloat should equal(newDatum)
+      }
+
     }
 
   }
