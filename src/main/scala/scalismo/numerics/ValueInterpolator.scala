@@ -15,8 +15,10 @@
  */
 package scalismo.numerics
 
+import scalismo.common.Scalar
 import scalismo.geometry.Vector._
 import scalismo.geometry._
+import spire.math.{ UByte, UInt, UShort }
 
 /** defines (convex) interpolation between two values */
 trait ValueInterpolator[@specialized(Double, Float) A] {
@@ -68,6 +70,34 @@ object ValueInterpolator {
 
   implicit val doubleInterpolator = new ValueInterpolator[Double] {
     override def blend(obj1: Double, obj2: Double, l: Double): Double = obj1 * l + obj2 * (1.0 - l)
+  }
+
+  implicit val byteInterpolator = new ValueInterpolator[Byte] {
+    override def blend(obj1: Byte, obj2: Byte, l: Double): Byte = Math.round(obj1 * l + obj2 * (1.0 - l)).toByte
+  }
+
+  implicit val uByteInterpolator = new ValueInterpolator[UByte] {
+    override def blend(obj1: UByte, obj2: UByte, l: Double): UByte = Scalar[UByte].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
+  }
+
+  implicit val shortInterpolator = new ValueInterpolator[Short] {
+    override def blend(obj1: Short, obj2: Short, l: Double): Short = Math.round(obj1 * l + obj2 * (1.0 - l)).toShort
+  }
+
+  implicit val uShortInterpolator = new ValueInterpolator[UShort] {
+    override def blend(obj1: UShort, obj2: UShort, l: Double): UShort = Scalar[UShort].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
+  }
+
+  implicit val intInterpolator = new ValueInterpolator[Int] {
+    override def blend(obj1: Int, obj2: Int, l: Double): Int = Math.round(obj1 * l + obj2 * (1.0 - l)).toInt
+  }
+
+  implicit val uIntInterpolator = new ValueInterpolator[UInt] {
+    override def blend(obj1: UInt, obj2: UInt, l: Double): UInt = Scalar[UInt].fromLong(Math.round(obj1.toLong * l + obj2.toLong * (1.0 - l)))
+  }
+
+  implicit val longInterpolator = new ValueInterpolator[Long] {
+    override def blend(obj1: Long, obj2: Long, l: Double): Long = Math.round(obj1 * l + obj2 * (1.0 - l))
   }
 
   implicit def pointBlender[D <: Dim] = new ValueInterpolator[Point[D]] {
