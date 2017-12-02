@@ -25,7 +25,7 @@ import vtk._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
-import scala.util.{ Failure, Try }
+import scala.util.{ Failure, Success, Try }
 
 object VtkHelpers {
 
@@ -187,7 +187,15 @@ object MeshConversion {
   private[scalismo] def vtkConvertPoints[D <: Dim: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
     val vtkType = pd.GetPoints().GetDataType()
 
-    val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()).get.toArray
+    val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()) match {
+      case Success(data) => data.toArray
+      case Failure(t) => {
+        // this should actually never happen. The points array can only be float or double, and hence
+        // vtkDataArrayToScalarArray should always return success. If not, something very strange is happening,
+        // in which case we just throw the exception
+        throw t;
+      }
+    }
 
     // vtk point are alwyas 3D. Therefore we take all three coordinates out of the array but,
     // if we are in 2D, take only the first 2. Finally, we need to convert them from float to double.
