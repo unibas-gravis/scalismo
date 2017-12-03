@@ -31,7 +31,7 @@ import scalismo.utils.Random
 case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
     transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
+    sampler: Sampler[D]) extends ImageMetric[D] {
 
   override val ndSpace = implicitly[NDSpace[D]]
 
@@ -53,7 +53,7 @@ case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
       override val numberOfPoints: Int = sampler.numberOfPoints
       private val samples = sampler.sample()
 
-      override def sample()(implicit rand: Random): IndexedSeq[(Point[D], Double)] = samples
+      override def sample(): IndexedSeq[(Point[D], Double)] = samples
       override def volumeOfSampleRegion: Double = sampler.volumeOfSampleRegion
     }
 
