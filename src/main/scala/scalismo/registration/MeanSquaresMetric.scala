@@ -18,81 +18,30 @@ package scalismo.registration
 
 import breeze.linalg.DenseVector
 import scalismo.common.Domain
-import scalismo.geometry.{ Point, NDSpace, Dim }
+import scalismo.geometry.{ Dim, NDSpace, Point }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics.{ Integrator, Sampler }
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.utils.Random
 
 /**
- * The mean squares image to image metric. The distance is computed by integrating over all the points
- * provided by the sampler.
+ * The mean squares image to image metric.
+ * It is implemented as the squared loss function in terms of the pointwise pixel differences.
  */
 case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D],
-    transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
+  movingImage: DifferentiableScalarImage[D],
+  transformationSpace: TransformationSpace[D],
+  sampler: Sampler[D])(implicit random: Random)
+    extends MeanPointwiseLossMetric[D](fixedImage, movingImage, transformationSpace, sampler) {
 
   override val ndSpace = implicitly[NDSpace[D]]
 
-  def value(parameters: DenseVector[Double]) = {
-    val transform = transformationSpace.transformForParameters(parameters)
-    computeValue(parameters, Integrator(sampler))
+  override protected def lossFunction(v: Float): Float = {
+    v * v
   }
 
-  // compute the derivative of the cost function
-  def derivative(parameters: DenseVector[Double]): DenseVector[Double] = {
-    computeDerivative(parameters, Integrator(sampler))
-  }
-
-  override def valueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative = {
-
-    // We create a new sampler, which always returns the same points. In this way we can make sure that the
-    // same sample points are used for computing the value and the derivative
-    val sampleOnceSampler = new Sampler[D] {
-      override val numberOfPoints: Int = sampler.numberOfPoints
-      private val samples = sampler.sample()
-
-      override def sample()(implicit rand: Random): IndexedSeq[(Point[D], Double)] = samples
-      override def volumeOfSampleRegion: Double = sampler.volumeOfSampleRegion
-    }
-
-    val integrator = Integrator(sampleOnceSampler)
-    val value = computeValue(parameters, integrator)
-    val derivative = computeDerivative(parameters, integrator)
-    ValueAndDerivative(value, derivative)
-
-  }
-
-  private def computeValue(parameters: DenseVector[Double], integrator: Integrator[D]) = {
-
-    val transform = transformationSpace.transformForParameters(parameters)
-
-    val warpedImage = movingImage.compose(transform)
-    def square(img: ScalarImage[D]) = img :* img
-    integrator.integrateScalar(square(fixedImage - warpedImage)) / integrator.sampler.volumeOfSampleRegion
-  }
-
-  private def computeDerivative(parameters: DenseVector[Double],
-    integrator: Integrator[D]): DenseVector[Double] = {
-
-    val transform = transformationSpace.transformForParameters(parameters)
-
-    val movingImageGradient = movingImage.differentiate
-    val warpedImage = movingImage.compose(transform) // compute the derivative of the cost function
-    val dDMovingImage = (fixedImage - warpedImage) * (-2.0 / sampler.volumeOfSampleRegion)
-
-    val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(parameters)
-
-    val fullMetricGradient = (x: Point[D]) => {
-      val domain = Domain.intersection(fixedImage.domain, dDMovingImage.domain)
-      if (domain.isDefinedAt(x))
-        Some(dTransformSpaceDAlpha(x).t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector)
-      else None
-    }
-
-    integrator.integrateVector(fullMetricGradient, parameters.size)
-
+  override protected def lossFunctionDerivative(v: Float): Float = {
+    2 * v
   }
 
 }

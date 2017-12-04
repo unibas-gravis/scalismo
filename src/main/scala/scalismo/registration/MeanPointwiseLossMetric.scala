@@ -26,11 +26,11 @@ import scalismo.utils.Random
 
 /**
  * Image to image metric which applies a loss function to the pointwise pixel difference.
- * The total value of the metric is sum of this pointwise loss. The points are determined by
+ * The total value of the metric is the mean of this pointwise loss. The points are determined by
  * the sampler.
  */
 
-abstract class SumOfPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+abstract class MeanPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
     transformationSpace: TransformationSpace[D],
     sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
@@ -76,11 +76,9 @@ abstract class SumOfPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarIma
 
     val diffImage = fixedImage - warpedImage
 
-    val valueAtPoint: Point[D] => Option[Float] =
-      (pt: Point[D]) =>
-        if (diffImage.isDefinedAt(pt)) Some(lossFunction(diffImage(pt))) else None
-
-    integrator.integrateScalar(valueAtPoint)
+    //  compute the value of the integral over the domain. The multiplication with
+    // the volume is because the integrator integrates always to 1.
+    integrator.integrateScalar(diffImage.andThen(lossFunction _)) * sampler.volumeOfSampleRegion
   }
 
   private def computeDerivative(parameters: DenseVector[Double],
@@ -102,7 +100,9 @@ abstract class SumOfPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarIma
       else None
     }
 
-    integrator.integrateVector(fullMetricGradient, parameters.size)
+    //  compute the value of the integral over the domain. The multiplication with
+    // the volume is because the integrator integrates always to 1.
+    integrator.integrateVector(fullMetricGradient, parameters.size) * sampler.volumeOfSampleRegion
 
   }
 }

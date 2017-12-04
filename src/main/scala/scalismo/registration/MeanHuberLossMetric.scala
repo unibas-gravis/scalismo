@@ -28,12 +28,12 @@ import scalismo.utils.Random
  * @see SumOfPointwiseLossMetric.
  *
  */
-case class PointwiseHuberLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+case class MeanHuberLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
   movingImage: DifferentiableScalarImage[D],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D],
   delta: Double = 1.345)(implicit rng: Random)
-    extends SumOfPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
+    extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
 
   override protected def lossFunction(v: Float): Float = {
     if (v < delta)
