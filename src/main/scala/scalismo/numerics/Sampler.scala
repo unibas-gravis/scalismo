@@ -64,7 +64,7 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   }
 }
 
-case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.area
 
