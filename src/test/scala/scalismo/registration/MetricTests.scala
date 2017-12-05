@@ -119,7 +119,7 @@ class MetricTests extends ScalismoTestSuite {
         val origValue = metric.value(params)
         val grad = metric.derivative(params)
 
-        metric.value(params - grad * 1e-5) should be < origValue
+        metric.value(params - grad * 1e-1) should be < origValue
       }
     }
 

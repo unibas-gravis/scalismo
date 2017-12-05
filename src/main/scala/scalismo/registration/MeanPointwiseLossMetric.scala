@@ -41,12 +41,12 @@ abstract class MeanPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImag
   protected def lossFunctionDerivative(v: Float): Float
 
   def value(parameters: DenseVector[Double]): Double = {
-    computeValue(parameters, Integrator(sampler))
+    computeValue(parameters, sampler)
   }
 
   // compute the derivative of the cost function
   def derivative(parameters: DenseVector[Double]): DenseVector[Double] = {
-    computeDerivative(parameters, Integrator(sampler))
+    computeDerivative(parameters, sampler)
   }
 
   override def valueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative = {
@@ -61,28 +61,27 @@ abstract class MeanPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImag
       override def volumeOfSampleRegion: Double = sampler.volumeOfSampleRegion
     }
 
-    val integrator = Integrator(sampleOnceSampler)
-    val value = computeValue(parameters, integrator)
-    val derivative = computeDerivative(parameters, integrator)
+    val value = computeValue(parameters, sampleOnceSampler)
+    val derivative = computeDerivative(parameters, sampleOnceSampler)
     ValueAndDerivative(value, derivative)
 
   }
 
-  private def computeValue(parameters: DenseVector[Double], integrator: Integrator[D]) = {
+  private def computeValue(parameters: DenseVector[Double], sampler: Sampler[D]) = {
 
     val transform = transformationSpace.transformForParameters(parameters)
 
     val warpedImage = movingImage.compose(transform)
 
-    val diffImage = fixedImage - warpedImage
+    val metricValue = (fixedImage - warpedImage).andThen(lossFunction _).liftValues
 
-    //  compute the value of the integral over the domain. The multiplication with
-    // the volume is because the integrator integrates always to 1.
-    integrator.integrateScalar(diffImage.andThen(lossFunction _)) * sampler.volumeOfSampleRegion
+    // we compute the mean using a monte carlo integration
+    val samples = sampler.sample()
+    samples.par.map { case (pt, _) => metricValue(pt).getOrElse(0f) }.sum / samples.size
   }
 
   private def computeDerivative(parameters: DenseVector[Double],
-    integrator: Integrator[D]): DenseVector[Double] = {
+    sampler: Sampler[D]): DenseVector[Double] = {
 
     val transform = transformationSpace.transformForParameters(parameters)
 
@@ -100,9 +99,13 @@ abstract class MeanPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImag
       else None
     }
 
-    //  compute the value of the integral over the domain. The multiplication with
-    // the volume is because the integrator integrates always to 1.
-    integrator.integrateVector(fullMetricGradient, parameters.size) * sampler.volumeOfSampleRegion
+    // we compute the mean using a monte carlo integration
+    val samples = sampler.sample
+    val zeroVector = DenseVector.zeros[Double](transformationSpace.parametersDimensionality)
+    val gradientValues = samples.par.map { case (pt, _) => fullMetricGradient(pt).getOrElse(zeroVector) }
+
+    gradientValues.foldLeft(zeroVector)((acc, g) => acc + g) * (1.0 / samples.size)
 
   }
+
 }
