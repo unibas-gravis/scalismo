@@ -32,7 +32,7 @@ case class MeanHuberLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
   movingImage: DifferentiableScalarImage[D],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D],
-  delta: Double = 1.345)(implicit rng: Random)
+  delta: Double = 1.345)
     extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
 
   override protected def lossFunction(v: Float): Float = {

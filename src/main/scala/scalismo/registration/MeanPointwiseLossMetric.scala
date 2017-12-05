@@ -33,7 +33,7 @@ import scalismo.utils.Random
 abstract class MeanPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
     movingImage: DifferentiableScalarImage[D],
     transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D])(implicit rng: Random) extends ImageMetric[D] {
+    sampler: Sampler[D]) extends ImageMetric[D] {
 
   override val ndSpace: NDSpace[D] = implicitly[NDSpace[D]]
 
@@ -57,7 +57,7 @@ abstract class MeanPointwiseLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImag
       override val numberOfPoints: Int = sampler.numberOfPoints
       private val samples = sampler.sample()
 
-      override def sample()(implicit rand: Random): IndexedSeq[(Point[D], Double)] = samples
+      override def sample(): IndexedSeq[(Point[D], Double)] = samples
       override def volumeOfSampleRegion: Double = sampler.volumeOfSampleRegion
     }
 
