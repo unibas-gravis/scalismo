@@ -31,7 +31,7 @@ import scalismo.utils.Random
 case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
   movingImage: DifferentiableScalarImage[D],
   transformationSpace: TransformationSpace[D],
-  sampler: Sampler[D])(implicit random: Random)
+  sampler: Sampler[D])
     extends MeanPointwiseLossMetric[D](fixedImage, movingImage, transformationSpace, sampler) {
 
   override val ndSpace = implicitly[NDSpace[D]]
