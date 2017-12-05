@@ -209,7 +209,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val regIter = Registration(metric,
         L2Regularizer(transformationSpace),
         0.0,
-        numerics.GradientDescentOptimizer(maxNumberOfIterations = 300, stepLength = 1e-4)
+        numerics.LBFGSOptimizer(maxNumberOfIterations = 100)
       ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIter.toSeq.last
