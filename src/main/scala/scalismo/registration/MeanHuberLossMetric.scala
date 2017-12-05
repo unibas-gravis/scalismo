@@ -16,32 +16,34 @@
 
 package scalismo.registration
 
-import breeze.linalg.DenseVector
-import scalismo.common.Domain
-import scalismo.geometry.{ Dim, NDSpace, Point }
+import scalismo.geometry.{ Dim, NDSpace }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
-import scalismo.numerics.{ Integrator, Sampler }
-import scalismo.registration.RegistrationMetric.ValueAndDerivative
+import scalismo.numerics._
 import scalismo.utils.Random
 
 /**
- * The mean squares image to image metric.
- * It is implemented as the squared loss function in terms of the pointwise pixel differences.
+ * Image to image metric which applies the Huber Loss function to the pointwise pixel difference.
+ * The parameter delta defines the threshold. The Huber loss increases quadratically for
+ * values below this threshold and linearly for values above this threshold.
+ * @see SumOfPointwiseLossMetric.
+ *
  */
-case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+case class MeanHuberLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
   movingImage: DifferentiableScalarImage[D],
   transformationSpace: TransformationSpace[D],
-  sampler: Sampler[D])
-    extends MeanPointwiseLossMetric[D](fixedImage, movingImage, transformationSpace, sampler) {
-
-  override val ndSpace = implicitly[NDSpace[D]]
+  sampler: Sampler[D],
+  delta: Double = 1.345)
+    extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
 
   override protected def lossFunction(v: Float): Float = {
-    v * v
+    if (v < delta)
+      (v * v / 2f) / (1 + v * v)
+    else
+      (delta * (Math.abs(v) - delta / 2)).toFloat
   }
 
   override protected def lossFunctionDerivative(v: Float): Float = {
-    2 * v
+    if (v < delta) v else (delta * Math.signum(v)).toFloat
   }
 
 }

@@ -19,12 +19,13 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ Scalar, ScalarArray }
-import scalismo.mesh.ScalarMeshField
+import scalismo.geometry._3D
+import scalismo.mesh.{ ScalarMeshField, TriangleMesh }
 
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 class MeshIOTests extends ScalismoTestSuite {
 
@@ -77,9 +78,9 @@ class MeshIOTests extends ScalismoTestSuite {
   describe("ScalarMeshField IO") {
 
     object Fixture {
-      val path = getClass.getResource("/facemesh.stl").getPath
-      val mesh = MeshIO.readMesh(new File(path)).get
-      val meshData = ScalarMeshField(mesh, ScalarArray(mesh.pointSet.pointIds.map(_.id).toArray))
+      val path: String = getClass.getResource("/facemesh.stl").getPath
+      val mesh: TriangleMesh[_3D] = MeshIO.readMesh(new File(path)).get
+      val meshData: ScalarMeshField[Int] = ScalarMeshField(mesh, ScalarArray(mesh.pointSet.pointIds.map(_.id).toArray))
     }
 
     def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarMeshField[S]] = {
@@ -108,12 +109,20 @@ class MeshIOTests extends ScalismoTestSuite {
     it("can read and cast a ScalarMeshField") {
       val f = Fixture
       val tmpFile = File.createTempFile("scalarMesh", ".vtk")
-      val writeTry = MeshIO.writeScalarMeshField(f.meshData, tmpFile)
+      tmpFile.deleteOnExit()
+      MeshIO.writeScalarMeshField(f.meshData, tmpFile)
 
-      val readTry = MeshIO.readScalarMeshFieldAsType[Float](tmpFile)
-      assert(readTry.isSuccess)
+      MeshIO.readScalarMeshFieldAsType[Float](tmpFile) match {
+        case Success(meshData) =>
+          for ((origDatum, newDatum) <- f.meshData.data.zip(meshData.data)) {
+            origDatum.toFloat should equal(newDatum)
+          }
+        case Failure(t) =>
+          println(t.getMessage)
+          t.printStackTrace()
+          throw t
+      }
 
-      readTry.get.data == ScalarArray(f.mesh.pointSet.pointIds.map(_.id).toArray)
     }
 
   }

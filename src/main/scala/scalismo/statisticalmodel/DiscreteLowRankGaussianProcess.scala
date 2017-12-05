@@ -210,7 +210,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, +DDomain <: Discret
    * @param nNystromPoints determines how many points of the domain are used to estimate the full
    *                       kl basis.
    */
-  def interpolateNystrom(nNystromPoints: Int = 2 * rank)(implicit rng: Random): LowRankGaussianProcess[D, Value] = {
+  def interpolateNystrom(nNystromPoints: Int = 2 * rank)(implicit rand: Random): LowRankGaussianProcess[D, Value] = {
 
     val sampler = new Sampler[D] {
       override def volumeOfSampleRegion = numberOfPoints.toDouble
@@ -220,7 +220,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, +DDomain <: Discret
 
       val domainPoints = domain.points.toIndexedSeq
 
-      override def sample()(implicit rand: Random) = {
+      override def sample() = {
         val sampledPtIds = for (_ <- 0 until nNystromPoints) yield rand.scalaRandom.nextInt(domain.numberOfPoints)
         sampledPtIds.map(ptId => (domainPoints(ptId), p))
       }
