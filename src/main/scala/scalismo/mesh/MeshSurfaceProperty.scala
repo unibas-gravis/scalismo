@@ -16,6 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.PointId
+import scalismo.numerics.ValueInterpolator
 
 import scala.reflect.ClassTag
 
@@ -47,7 +48,7 @@ case class ConstantProperty[A](triangulation: TriangleList, value: A)
 }
 
 /** property defined per vertex, with interpolation */
-case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(implicit val interpolator: Interpolator[A])
+case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(implicit val interpolator: ValueInterpolator[A])
     extends MeshSurfaceProperty[A] {
 
   /** access surface property at vertex point */
@@ -63,12 +64,12 @@ case class SurfacePointProperty[A](triangulation: TriangleList, pointData: Index
     bcc.interpolateProperty(v1, v2, v3)
   }
 
-  def mapPoints[B](f: A => B)(implicit interpolator: Interpolator[B]) = SurfacePointProperty(triangulation, pointData.map(f))
+  def mapPoints[B](f: A => B)(implicit interpolator: ValueInterpolator[B]) = SurfacePointProperty(triangulation, pointData.map(f))
 }
 
 object SurfacePointProperty {
   /** average an arbitrary surface property at each vertex point */
-  def averagedPointProperty[A](property: MeshSurfaceProperty[A])(implicit interpolator: Interpolator[A]): SurfacePointProperty[A] = {
+  def averagedPointProperty[A](property: MeshSurfaceProperty[A])(implicit interpolator: ValueInterpolator[A]): SurfacePointProperty[A] = {
     def averager(data: IndexedSeq[A]): A = {
       data.size match {
         case 0 => throw new Exception("averaging over empty set")
@@ -86,7 +87,7 @@ object SurfacePointProperty {
    * @param interpolator interpolator
    * @return surface property which is backed by the sampled and reduced values at each vertex
    */
-  def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(implicit interpolator: Interpolator[A]): SurfacePointProperty[A] = {
+  def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(implicit interpolator: ValueInterpolator[A]): SurfacePointProperty[A] = {
     val triangulation = property.triangulation
     // get all data for a single vertex:
     def getVertex(pointId: PointId): A = {
@@ -120,7 +121,7 @@ case class TriangleProperty[A](triangulation: TriangleList, triangleData: Indexe
 
 object TriangleProperty {
   /** extract TriangleProperty from the average value of the vertices around each triangle */
-  def fromAveragedPoints[A](property: MeshSurfaceProperty[A])(implicit blender: Interpolator[A]): TriangleProperty[A] = {
+  def fromAveragedPoints[A](property: MeshSurfaceProperty[A])(implicit blender: ValueInterpolator[A]): TriangleProperty[A] = {
     val triangleData = for (t <- property.triangulation.triangleIds) yield {
       val v1 = property(t, BarycentricCoordinates.v0)
       val v2 = property(t, BarycentricCoordinates.v1)

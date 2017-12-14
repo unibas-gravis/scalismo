@@ -19,9 +19,12 @@ import breeze.linalg.DenseMatrix
 import breeze.linalg.svd.SVD
 import scalismo.ScalismoTestSuite
 import scalismo.geometry.{ Point, _1D }
-import scalismo.kernels.{ GaussianKernel, Kernel, DiagonalKernel }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
+import scalismo.utils.Random
 
 class RandomSVDTest extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
 
   describe("The random svd") {
 

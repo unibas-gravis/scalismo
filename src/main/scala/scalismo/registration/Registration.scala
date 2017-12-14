@@ -23,96 +23,53 @@ import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
 import scalismo.utils.Random
 
-case class RegistrationConfiguration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](
-  optimizer: Optimizer,
-  metric: ImageMetric[D],
-  transformationSpace: TS,
-  regularizer: Regularizer,
-  regularizationWeight: Double)
+/**
+ * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum
+ * of a distance metric and a regularization term (weighted by a regularizationWeight).
+ *
+ * @param metric The distance metric used to compare the objects that should be registered.
+ * @param regularizer The regularizer that is used
+ * @param regularizationWeight A weight used to weight the influence of the regularizer (0 means the regularization term is not considered)
+ * @param optimizer  The optimizer used to perform the minimization of the cost function
+ */
+case class Registration[D <: Dim](metric: RegistrationMetric[D],
+    regularizer: Regularizer[D],
+    regularizationWeight: Double,
+    optimizer: Optimizer)(implicit rng: Random) {
 
-object Registration {
+  /**
+   * Representation of the current state of the registration.
+   * @param value The current value of the cost function
+   * @param parameters The current parameters
+   * @param optimizerState, more detailed information regarding the used optimizer.
+   */
+  case class RegistrationState(value: Double, parameters: DenseVector[Double], optimizerState: Optimizer#State)
 
-  case class RegistrationState[D <: Dim, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](registrationResult: TS#T, optimizerState: Optimizer#State)
-
-  def iterations[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](config: RegistrationConfiguration[D, TS])(
-    fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D],
-    initialParameters: DenseVector[Double] = config.transformationSpace.identityTransformParameters): Iterator[RegistrationState[D, TS]] =
+  /**
+   * Given a set of initial parameter, returns an iterator which can be used to drive the registration.
+   */
+  def iterator(initialParameters: DenseVector[Double]): Iterator[RegistrationState] =
     {
-      val regularizer = config.regularizer
-
-      val transformationSpace = config.transformationSpace
 
       val costFunction = new CostFunction {
         def onlyValue(params: ParameterVector): Double = {
-          val transformation = transformationSpace.transformForParameters(params)
-
-          config.metric.value(movingImage, fixedImage, transformation) + config.regularizationWeight * regularizer(params)
+          metric.value(params) + regularizationWeight * regularizer.value(params)
         }
         def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
-          // create a new sampler, that simply caches the points and returns the same points in every call
-          // this means, we are always using the same samples for computing the integral over the values
-          // and the gradient
-          val sampleStrategy = new SampleOnceSampler(config.metric.sampler)
-          val integrationStrategy = Integrator[D](sampleStrategy)
-
           // compute the value of the cost function
-          val transformation = Transformation.memoize(transformationSpace.transformForParameters(params), 100000)
-          val errorVal = config.metric.value(movingImage, fixedImage, transformation)
-          val value = errorVal + config.regularizationWeight * regularizer(params)
-
-          // compute the derivative of the cost function
-          val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(params)
-
-          val metricDerivative = config.metric.takeDerivativeWRTToTransform(movingImage, fixedImage, transformation)
-          // the first derivative (after applying the chain rule) at each point
-          val parametricTransformGradient = (x: Point[D]) => metricDerivative(x).map {
-            dM => convert(dTransformSpaceDAlpha(x).t, Float) * dM
-          }
-          val gradient = convert(integrationStrategy.integrateVector(parametricTransformGradient, params.size), Double)
+          val metricValueAndDerivative = metric.valueAndDerivative(params)
+          val value = metricValueAndDerivative.value + regularizationWeight * regularizer.value(params)
           val dR = regularizer.takeDerivative(params)
 
-          (value, gradient + dR * config.regularizationWeight)
+          (value, metricValueAndDerivative.derivative + dR * regularizationWeight)
         }
       }
 
-      val optimizer = config.optimizer
       optimizer.iterations(initialParameters, costFunction).map {
         optimizerState =>
-          val optParams = optimizerState.parameters
-          val transformation = transformationSpace.transformForParameters(optParams)
-
-          val regRes = transformation
-          RegistrationState(regRes, optimizerState)
+          RegistrationState(optimizerState.value, optimizerState.parameters, optimizerState)
       }
     }
-
-  def registration[D <: Dim: NDSpace, TS <: TransformationSpace[D] with DifferentiableTransforms[D]](configuration: RegistrationConfiguration[D, TS])(
-    fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D]): TS#T = {
-    val regStates = iterations(configuration)(fixedImage, movingImage)
-    regStates.toSeq.last.registrationResult
-  }
-
-  // This class ensures that we are always getting the same points when we call sample.
-  // This is important because we want the derivative to be evaluated at the same points as the
-  // value of the metric, in our registration code.
-  private case class SampleOnceSampler[D <: Dim](sampler: Sampler[D]) extends Sampler[D] {
-
-    val numberOfPoints = sampler.numberOfPoints
-    def volumeOfSampleRegion = sampler.volumeOfSampleRegion
-    var lastSampledPoints: Option[IndexedSeq[(Point[D], Double)]] = None
-
-    override def sample()(implicit rnd: Random): IndexedSeq[(Point[D], Double)] = {
-      lastSampledPoints match {
-        case Some(lastSampledPoints) => lastSampledPoints
-        case None => {
-          lastSampledPoints = Some(sampler.sample())
-          lastSampledPoints.get
-        }
-      }
-    }
-  }
 
 }

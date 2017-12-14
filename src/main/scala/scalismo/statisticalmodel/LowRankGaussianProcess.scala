@@ -76,11 +76,11 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
   /**
    * A random sample evaluated at the given points
    */
-  override def sampleAtPoints(domain: DiscreteDomain[D])(implicit rand: Random): DiscreteField[D, Value] = {
+  override def sampleAtPoints[DDomain <: DiscreteDomain[D]](domain: DDomain)(implicit rand: Random): DiscreteField[D, DDomain, Value] = {
     // TODO check that points are part of the domain
     val aSample = sample()
     val values = domain.points.map(pt => aSample(pt))
-    DiscreteField(domain, values.toIndexedSeq)
+    DiscreteField[D, DDomain, Value](domain, values.toIndexedSeq)
   }
 
   /**
@@ -169,8 +169,8 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
   /**
    * Discretize the gaussian process on the given points.
    */
-  def discretize(domain: DiscreteDomain[D]): DiscreteLowRankGaussianProcess[D, Value] = {
-    DiscreteLowRankGaussianProcess(domain, this)
+  def discretize[DDomain <: DiscreteDomain[D]](domain: DDomain): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess[D, DDomain, Value](domain, this)
   }
 
 }

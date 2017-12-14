@@ -20,9 +20,12 @@ import scalismo.common._
 import scalismo.geometry._
 import scalismo.numerics.Integrator
 import scalismo.registration.{ CanDifferentiate, Transformation }
+
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scalismo.numerics.GridSampler
+
+import scalismo.utils.Random
 
 /**
  * An image whose values are scalar.
@@ -77,7 +80,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
    * @param  numberOfPointsPerDim Number of points to be used to approximate the filter. Depending on the
    * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation)
    */
-  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D] = {
+  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D], rng: Random): ScalarImage[D] = {
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
@@ -180,7 +183,7 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
     new DifferentiableScalarImage(newDomain, f, df)
   }
 
-  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): DifferentiableScalarImage[D] = {
+  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D], rng: Random): DifferentiableScalarImage[D] = {
 
     val convolvedImage = super.convolve(filter, numberOfPointsPerDim)
 

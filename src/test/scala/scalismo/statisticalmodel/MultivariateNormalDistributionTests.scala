@@ -37,7 +37,7 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
 
   describe("A 3D Multivariate normal") {
     val mu = DenseVector(2.0, 1.0, 3.0)
-    val X = DenseMatrix.rand[Double](3, 3)
+    val X = DenseMatrix.rand[Double](3, 3, random.breezeRandBasis.uniform)
     val cov = X.t * X
 
     val mvn = new MultivariateNormalDistribution(mu, cov)

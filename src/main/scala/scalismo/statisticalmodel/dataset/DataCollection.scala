@@ -18,11 +18,11 @@ package scalismo.statisticalmodel.dataset
 import java.io.File
 
 import scalismo.common.{ RealSpace, UnstructuredPointsDomain }
-import scalismo.geometry.{ Dim, Point, _3D }
+import scalismo.geometry._
 import scalismo.io.MeshIO
-import scalismo.mesh.{ MeshMetrics, TriangleList, TriangleMesh, TriangleMesh3D }
+import scalismo.mesh._
 import scalismo.registration.{ LandmarkRegistration, Transformation }
-import scalismo.utils.Random
+import scalismo.utils.{ Memoize, Random }
 
 import scala.annotation.tailrec
 
@@ -33,7 +33,6 @@ private[dataset] case class CrossvalidationFold(trainingData: DataCollection, te
  *
  *  @param info A human-readable description of the processing the data item went through. Current implemented methods on data collections,
  *  such as [[DataCollection.gpa]] will increment this description
- *
  *  @param transformation Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
  *  This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item.
  */
@@ -76,6 +75,35 @@ case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[
   def mapItems(f: DataItem[_3D] => DataItem[_3D]): DataCollection = {
     new DataCollection(reference, dataItems.map(f))
   }
+
+  /**
+   * Returns the mean surface computed by transforming the reference with all the transformations in the datacollection
+   */
+  def meanSurface: TriangleMesh[_3D] = {
+    val t = reference.transform(meanTransformation)
+    t
+  }
+
+  /**
+   * Returns the mean transformation from all the transformation in the datacollection
+   */
+  val meanTransformation: Transformation[_3D] = {
+
+    Transformation {
+
+      (pt: Point[_3D]) =>
+        {
+          var meanPoint = Vector3D(0, 0, 0)
+          var i = 0
+          while (i < dataItems.size) {
+            meanPoint += dataItems(i).transformation(pt).toVector
+            i += 1
+          }
+          (meanPoint / dataItems.size).toPoint
+
+        }
+    }
+  }
 }
 
 /**
@@ -87,7 +115,7 @@ object DataCollection {
    * Builds a [[DataCollection]] instance from a reference mesh and a sequence of meshes in correspondence.
    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
    */
-  def fromMeshSequence(referenceMesh: TriangleMesh[_3D], registeredMeshes: Seq[TriangleMesh[_3D]]): (Option[DataCollection], Seq[Throwable]) = {
+  def fromMeshSequence(referenceMesh: TriangleMesh[_3D], registeredMeshes: Seq[TriangleMesh[_3D]])(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshToTransformation(referenceMesh, _)))
     val dc = DataCollection(referenceMesh, transformations.map(DataItem("from mesh", _)))
     if (dc.size > 0) (Some(dc), errors) else (None, errors)
@@ -96,9 +124,10 @@ object DataCollection {
   /**
    * Builds a [[DataCollection]] instance from a reference mesh and a directory containing meshes in correspondence with the reference.
    * Only vtk and stl meshes are currently supported.
+   *
    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
    */
-  def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File): (Option[DataCollection], Seq[Throwable]) = {
+  def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File)(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
@@ -107,46 +136,43 @@ object DataCollection {
 
   /**
    * Performs a Generalized Procrustes Analysis on the data collection.
-   * This is done by repeatedly computing a new reference mesh that is the mean of all meshes in the dataset and
+   * This is done by repeatedly computing the mean of all meshes in the dataset and
    * aligning all items rigidly to the mean.
-   * The final mean mesh will be the reference of the new data collection.
    *
+   * The reference mesh is unchanged, only the transformations in the collection are adapted
    */
+  def gpa(dc: DataCollection, maxIteration: Int = 3, haltDistance: Double = 1e-5)(implicit rng: Random): DataCollection = {
+    gpaComputation(dc, dc.meanSurface, maxIteration, haltDistance)
+  }
+
   @tailrec
-  def gpa(dc: DataCollection, maxIteration: Int = 3, haltDistance: Double = 1.0): DataCollection = {
+  private def gpaComputation(dc: DataCollection, meanShape: TriangleMesh[_3D], maxIteration: Int, haltDistance: Double)(implicit rng: Random): DataCollection = {
 
     if (maxIteration == 0) return dc
 
-    val allShapesPoints = dc.dataItems.map { dataitem => dc.reference.pointSet.points.toIndexedSeq.map(dataitem.transformation) }
-    val nbShapes = dc.size
+    val referencePoints = dc.reference.pointSet.points.toIndexedSeq
+    val numberOfPoints = referencePoints.size
+    val referenceCenterOfMass = referencePoints.foldLeft(Point3D(0, 0, 0))((acc, pt) => acc + (pt.toVector / numberOfPoints))
+    val numberOfShapes = dc.size
 
-    // compute mean shape
-    val meanShapePoints = allShapesPoints.par.reduce {
-      (points1, points2) => points1.zip(points2).map(a => a._1 + a._2.toVector)
-    }.map(Point(0, 0, 0) + _.toVector * (1.0 / nbShapes.toFloat))
+    val meanShapePoints = meanShape.pointSet.points.toIndexedSeq
 
-    val newMeanMesh = TriangleMesh3D(UnstructuredPointsDomain(meanShapePoints.seq), TriangleList(dc.reference.cells))
+    // align all shape to it and create a transformation from the mean to the aligned shape
+    val dataItemsWithAlignedTransform = dc.dataItems.par.map { dataItem =>
+      val surface = dc.reference.transform(dataItem.transformation)
+      val transform = LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints), referenceCenterOfMass)
 
-    // if the new mean is close enough to the old one return
-    if (MeshMetrics.procrustesDistance(newMeanMesh, dc.reference) < haltDistance) {
-      dc
+      DataItem("gpa -> " + dataItem.info, Transformation(transform.compose(dataItem.transformation)))
+    }
+
+    val newdc = DataCollection(dc.reference, dataItemsWithAlignedTransform.toIndexedSeq)
+    val newMean = newdc.meanSurface
+
+    if (MeshMetrics.procrustesDistance(meanShape, newMean) < haltDistance) {
+      newdc
     } else {
-      // align all shape to it and create a transformation from the mean to the aligned shape 
-      val alignedShapesTransformations = dc.dataItems.zip(allShapesPoints).par.map {
-        case (item, points) =>
-          val transform = LandmarkRegistration.rigid3DLandmarkRegistration(points.zip(meanShapePoints), Point(0, 0, 0))
-          val alignedPoints = points.map(transform)
-
-          val t = meanShapePoints.zip(alignedPoints).toMap
-          val returnedTrans = new Transformation[_3D] {
-            override val domain = newMeanMesh.boundingBox
-            override val f = (x: Point[_3D]) => t(x)
-          }
-          DataItem("gpa -> " + item.info, returnedTrans)
-      }
-
-      val newdc = DataCollection(newMeanMesh, alignedShapesTransformations.toIndexedSeq)
-      gpa(newdc, maxIteration - 1)
+      gpaComputation(newdc, newMean, maxIteration - 1, haltDistance)
     }
   }
+
 }

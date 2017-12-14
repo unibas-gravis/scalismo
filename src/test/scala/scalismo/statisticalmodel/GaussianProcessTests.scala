@@ -424,7 +424,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val dgp2 = dgp1.marginal(Seq(1))
       val dgp3 = f.discreteLowRankGp.marginal(Seq(1))
 
-      DiscreteField.vectorize[_3D, Vector[_3D]](dgp2.mean) should equal(DiscreteField.vectorize[_3D, Vector[_3D]](dgp3.mean))
+      DiscreteField.vectorize[_3D, UnstructuredPointsDomain[_3D], Vector[_3D]](dgp2.mean) should equal(DiscreteField.vectorize[_3D, UnstructuredPointsDomain[_3D], Vector[_3D]](dgp3.mean))
       dgp2.cov.asBreezeMatrix should equal(dgp3.cov.asBreezeMatrix)
       dgp2.domain should equal(dgp3.domain)
     }
@@ -435,7 +435,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val domain = UnstructuredPointsDomain(f.discretizationPoints)
       val dgp1 = f.lowRankGp.marginal(domain).marginal(Seq(0, 1, 2))
       val dgp2 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
-      DiscreteField.vectorize[_3D, Vector[_3D]](dgp1.mean) should equal(DiscreteField.vectorize[_3D, Vector[_3D]](dgp2.mean))
+      DiscreteField.vectorize[_3D, UnstructuredPointsDomain[_3D], Vector[_3D]](dgp1.mean) should equal(DiscreteField.vectorize[_3D, UnstructuredPointsDomain[_3D], Vector[_3D]](dgp2.mean))
       dgp1.cov.asBreezeMatrix should equal(dgp2.cov.asBreezeMatrix)
       dgp1.domain should equal(dgp2.domain)
     }

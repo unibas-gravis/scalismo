@@ -15,17 +15,30 @@
  */
 package scalismo.registration
 
-import TransformationSpace.ParameterVector
 import breeze.linalg.DenseVector
+import scalismo.geometry.Dim
 
-trait Regularizer extends (ParameterVector => Double) {
+/**
+ * This trait defines the interface for regularizers in the scalismo registration framework.
+ * A regularizer is defined as a differentiable functions of the registration parameters.
+ *
+ */
+trait Regularizer[D <: Dim] {
 
-  def takeDerivative(p: ParameterVector): DenseVector[Double]
+  def transformationSpace: TransformationSpace[D]
+
+  def value(p: DenseVector[Double]): Double
+
+  def takeDerivative(p: DenseVector[Double]): DenseVector[Double]
 }
 
-object L2Regularizer extends Regularizer {
-  def apply(alpha: ParameterVector) = { val t = breeze.linalg.norm(alpha, 2); t * t }
+/**
+ * A regularizer which simply penalizes the squared norm of the parameters.
+ */
+case class L2Regularizer[D <: Dim](transformationSpace: TransformationSpace[D]) extends Regularizer[D] {
 
-  def takeDerivative(alpha: ParameterVector) = alpha * 2.0
+  def value(alpha: DenseVector[Double]) = { val t = breeze.linalg.norm(alpha, 2); t * t }
+
+  def takeDerivative(alpha: DenseVector[Double]) = alpha * 2.0
 
 }

@@ -34,7 +34,7 @@ trait Sampler[D <: Dim] {
    * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probability density function
    * according to which the points are sampled
    */
-  def sample()(implicit rand: Random): IndexedSeq[(Point[D], Double)]
+  def sample(): IndexedSeq[(Point[D], Double)]
 
   def volumeOfSampleRegion: Double
 }
@@ -44,17 +44,17 @@ case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extend
   override val numberOfPoints = domain.numberOfPoints
 
   val p = 1.0 / volumeOfSampleRegion
-  override def sample()(implicit rand: Random) = {
+  override def sample() = {
     domain.points.toIndexedSeq.map(pt => (pt, p))
   }
 }
 
-case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoints: Int) extends Sampler[D] {
+case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[D] {
 
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume
 
-  override def sample()(implicit rand: Random) = {
+  override def sample() = {
     val ndSpace = implicitly[NDSpace[D]]
     val randGens = for (i <- (0 until ndSpace.dimensionality)) yield {
       Uniform(domain.origin(i), domain.oppositeCorner(i))(rand.breezeRandBasis)
@@ -64,13 +64,13 @@ case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoint
   }
 }
 
-case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int) extends Sampler[_3D] {
+case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, seed: Int)(implicit rand: Random) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.area
 
   // should be replaced with real mesh volume
   val volumeOfSampleRegion = mesh.area
-  def sample()(implicit rand: Random) = {
+  def sample() = {
     val points = mesh.pointSet.points.toIndexedSeq
     val distrDim1 = Uniform(0, mesh.pointSet.numberOfPoints)(rand.breezeRandBasis)
     val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
@@ -105,12 +105,12 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, Vector
 
   override val volumeOfSampleRegion = 1.0
   override val numberOfPoints = pts.size
-  override def sample()(implicit rand: Random) = {
+  override def sample() = {
     println(s"Sampled: $numberOfPoints"); pts
   }
 }
 
-case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) extends Sampler[_3D] {
+case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[_3D] {
 
   override val volumeOfSampleRegion: Double = mesh.area
 
@@ -121,7 +121,7 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) ex
       sum + mesh.computeTriangleArea(cell)
   }.tail.toArray
 
-  override def sample()(implicit rand: Random) = {
+  override def sample() = {
     val samplePoints = {
       for (i <- 0 until numberOfPoints) yield {
         val drawnValue = rand.scalaRandom.nextDouble() * mesh.area
@@ -136,32 +136,32 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) ex
   }
 }
 
-case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) extends Sampler[_3D] {
+case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rng: Random) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.area
   val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints).sample()
-  override def sample()(implicit rand: Random) = samplePoints
+  override def sample() = samplePoints
 }
 
-case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int) extends Sampler[_3D] {
+case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[_3D] {
 
   val volumeOfSampleRegion = mesh.area
   val p = 1.0 / mesh.area
 
   val meshPoints = mesh.pointSet.points.toIndexedSeq
 
-  def samplePoints(rand: Random) = for (i <- 0 until numberOfPoints) yield {
+  def samplePoints = for (i <- 0 until numberOfPoints) yield {
     val idx = rand.scalaRandom.nextInt(mesh.pointSet.numberOfPoints)
     meshPoints(idx)
   }
 
   var lastSampledPoints: Option[IndexedSeq[(Point[_3D], Double)]] = None
 
-  def sample()(implicit rand: Random) = {
+  def sample() = {
 
     lastSampledPoints match {
       case Some(lastSampledPoints) => lastSampledPoints
       case None => {
-        val pts = samplePoints(rand).map(pt => (pt, p))
+        val pts = samplePoints.map(pt => (pt, p))
         lastSampledPoints = Some(pts)
         pts
       }

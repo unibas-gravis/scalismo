@@ -28,9 +28,10 @@ import org.apache.commons.math3.random.MersenneTwister
  *
  * @param seed The seed for the Random number generator
  */
-case class Random(seed: Long) {
 
-  implicit val breezeRandBasis: RandBasis = new RandBasis(new ThreadLocalRandomGenerator(new MersenneTwister(seed)))
+private[utils] case class RandomNumberGenerator(seed: Long) {
+
+  implicit val breezeRandBasis: RandBasis = RandBasis.withSeed(seed.toInt)
 
   val scalaRandom: scala.util.Random = new scala.util.Random(seed)
 
@@ -46,8 +47,27 @@ case class Random(seed: Long) {
 
 }
 
+@scala.annotation.implicitNotFound("missing implicit Random\nTo fix the missing implicit either use:\n\timport scalismo.utils.Random.implicits._\n...or create a seeded random object:\n\timport scalismo.utils.Random\n\timplicit val rng = Random(1024L)")
+class Random()(implicit val rng: RandomNumberGenerator) {
+
+  def scalaRandom = rng.scalaRandom
+
+  implicit def breezeRandBasis = rng.breezeRandBasis
+
+  @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Gaussian", "since v0.15")
+  def breezeRandomGaussian(mu: Double, sigma2: Double) = rng.breezeRandomGaussian(mu, sigma2)
+
+  @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Uniform", "since v0.15")
+  def breezeRandomUnform(a: Double, b: Double) = rng.breezeRandomUniform(a, b)
+}
+
 object Random {
 
-  implicit val randomGenerator = Random(System.nanoTime())
+  def apply(seed: Long) = new Random()(RandomNumberGenerator(seed))
+
+  object implicits {
+    implicit val randomGenerator = new Random()(RandomNumberGenerator(System.nanoTime()))
+  }
 
 }
+

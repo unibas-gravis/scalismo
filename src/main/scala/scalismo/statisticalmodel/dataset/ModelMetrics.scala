@@ -4,6 +4,8 @@ import scalismo.geometry._3D
 import scalismo.statisticalmodel.StatisticalMeshModel
 import scalismo.mesh.TriangleMesh
 import scalismo.mesh.MeshMetrics
+import scalismo.utils.Random
+
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
@@ -34,7 +36,7 @@ object ModelMetrics {
    *
    */
 
-  def specificity(pcaModel: StatisticalMeshModel, data: Iterable[TriangleMesh[_3D]], nbSamples: Int): Double = {
+  def specificity(pcaModel: StatisticalMeshModel, data: Iterable[TriangleMesh[_3D]], nbSamples: Int)(implicit rng: Random): Double = {
 
     (0 until nbSamples).par.map { _ =>
       val sample = pcaModel.sample

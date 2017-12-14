@@ -20,10 +20,13 @@ import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain, ScalarImage }
+import scalismo.utils.Random
 
 import scala.language.implicitConversions
 
 class IntegrationTest extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 

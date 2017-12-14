@@ -27,7 +27,7 @@ import scalismo.utils.Random
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val mean: DiscreteField[D, Value],
+class DiscreteGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (val mean: DiscreteField[D, DDomain, Value],
     val cov: DiscreteMatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
   self =>
 
@@ -37,7 +37,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
 
   val outputDim = vectorizer.dim
 
-  def sample()(implicit rand: Random): DiscreteField[D, Value] = {
+  def sample()(implicit rand: Random): DiscreteField[D, DDomain, Value] = {
     // define the mean and kernel matrix for the given points and construct the
     // corresponding MV Normal distribution, from which we then sample
 
@@ -49,7 +49,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
     val sampleVec = mvNormal.sample
 
     // The sample is a vector. We convert it back to a discreteVectorField.
-    DiscreteField.createFromDenseVector[D, Value](domain, sampleVec)
+    DiscreteField.createFromDenseVector[D, DDomain, Value](domain, sampleVec)
   }
 
   /**
@@ -63,13 +63,13 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
    * The marginal distribution for the points specified by the given point ids.
    * Note that this is again a DiscreteGaussianProcess.
    */
-  def marginal(pointIds: Seq[PointId])(implicit domainCreator: UnstructuredPointsDomain.Create[D]): DiscreteGaussianProcess[D, Value] = {
+  def marginal(pointIds: Seq[PointId])(implicit domainCreator: UnstructuredPointsDomain.Create[D]): DiscreteGaussianProcess[D, UnstructuredPointsDomain[D], Value] = {
     val domainPts = domain.points.toIndexedSeq
 
     val newPts = pointIds.map(pointId => domainPts(pointId.id)).toIndexedSeq
     val newDomain = domainCreator.create(newPts)
 
-    val newMean = DiscreteField[D, Value](newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
+    val newMean = DiscreteField[D, UnstructuredPointsDomain[D], Value](newDomain, pointIds.toIndexedSeq.map(id => mean(id)))
     val newCov = (i: PointId, j: PointId) => {
       cov(pointIds(i.id), pointIds(j.id))
     }
@@ -112,7 +112,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
    */
 
-  def project(s: DiscreteField[D, Value]): DiscreteField[D, Value] = {
+  def project(s: DiscreteField[D, DiscreteDomain[D], Value]): DiscreteField[D, DDomain, Value] = {
 
     val sigma2 = 1e-5 // regularization weight to avoid numerical problems
     val noiseDist = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
@@ -124,7 +124,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
   /**
    * Returns the probability density of the given instance
    */
-  def pdf(instance: DiscreteField[D, Value]): Double = {
+  def pdf(instance: DiscreteField[D, DiscreteDomain[D], Value]): Double = {
     val mvnormal = MultivariateNormalDistribution(DiscreteField.vectorize[D, Value](mean.data), cov.asBreezeMatrix)
     val instvec = DiscreteField.vectorize[D, Value](instance.data)
     mvnormal.pdf(instvec)
@@ -135,7 +135,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
    *
    * If you are interested in ordinal comparisons of PDFs, use this as it is numerically more stable
    */
-  def logpdf(instance: DiscreteField[D, Value]): Double = {
+  def logpdf(instance: DiscreteField[D, DiscreteDomain[D], Value]): Double = {
     val mvnormal = MultivariateNormalDistribution(DiscreteField.vectorize[D, Value](mean.data), cov.asBreezeMatrix)
     val instvec = DiscreteField.vectorize[D, Value](instance.data)
     mvnormal.logpdf(instvec)
@@ -145,22 +145,22 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, Value] private[scalismo] (val m
 
 object DiscreteGaussianProcess {
 
-  def apply[D <: Dim: NDSpace, Value](mean: DiscreteField[D, Value], cov: DiscreteMatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, Value] = {
-    new DiscreteGaussianProcess[D, Value](mean, cov)
+  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](mean: DiscreteField[D, DDomain, Value], cov: DiscreteMatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
+    new DiscreteGaussianProcess[D, DDomain, Value](mean, cov)
   }
 
-  def apply[D <: Dim: NDSpace, Value](domain: DiscreteDomain[D], gp: GaussianProcess[D, Value])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, Value] = {
+  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](domain: DDomain, gp: GaussianProcess[D, Value])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
     val domainPoints = domain.points.toIndexedSeq
 
-    val discreteMean = DiscreteField(domain, domainPoints.map(pt => gp.mean(pt)))
+    val discreteMean = DiscreteField[D, DDomain, Value](domain, domainPoints.map(pt => gp.mean(pt)))
 
     val k = (i: PointId, j: PointId) => gp.cov(domainPoints(i.id), domainPoints(j.id))
     val discreteCov = DiscreteMatrixValuedPDKernel(domain, k, gp.outputDim)
 
-    new DiscreteGaussianProcess[D, Value](discreteMean, discreteCov)
+    new DiscreteGaussianProcess[D, DDomain, Value](discreteMean, discreteCov)
   }
 
-  def regression[D <: Dim: NDSpace, Value](discreteGp: DiscreteGaussianProcess[D, Value], trainingData: IndexedSeq[(Int, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, Value] = {
+  def regression[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](discreteGp: DiscreteGaussianProcess[D, DDomain, Value], trainingData: IndexedSeq[(Int, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
 
     // TODO, this is somehow a hack to reuse the code written for the general GP regression. We should think if that has disadvantages
     // TODO We should think whether we can do it in  a conceptually more clean way.
