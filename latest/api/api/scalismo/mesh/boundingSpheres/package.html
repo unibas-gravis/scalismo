@@ -1,0 +1,301 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>boundingSpheres - scalismo.mesh.boundingSpheres</title>
+          <meta name="description" content="boundingSpheres - scalismo.mesh.boundingSpheres" />
+          <meta name="keywords" content="boundingSpheres scalismo.mesh.boundingSpheres" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'scalismo.mesh.boundingSpheres.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="scalismo">scalismo</a>.<a href="../package.html" class="extype" name="scalismo.mesh">mesh</a></p>
+        <h1>boundingSpheres</h1><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">boundingSpheres</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.mesh.boundingSpheres.ClosestPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClosestPointextendsAnyRef"></a>
+      <a id="ClosestPoint:ClosestPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClosestPoint.html"><span class="name">ClosestPoint</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@ClosestPointextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.mesh.boundingSpheres.ClosestPointInTriangle" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClosestPointInTriangleextendsClosestPointwithProductwithSerializable"></a>
+      <a id="ClosestPointInTriangle:ClosestPointInTriangle"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClosestPointInTriangle.html"><span class="name">ClosestPointInTriangle</span></a><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distanceSquared">distanceSquared: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: <a href="../TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a></span>, <span name="bc">bc: <a href="../BarycentricCoordinates.html" class="extype" name="scalismo.mesh.BarycentricCoordinates">BarycentricCoordinates</a></span>)</span><span class="result"> extends <a href="ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@ClosestPointInTriangleextendsClosestPointwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.mesh.boundingSpheres.ClosestPointIsVertex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClosestPointIsVertexextendsClosestPointwithProductwithSerializable"></a>
+      <a id="ClosestPointIsVertex:ClosestPointIsVertex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClosestPointIsVertex.html"><span class="name">ClosestPointIsVertex</span></a><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distanceSquared">distanceSquared: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result"> extends <a href="ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@ClosestPointIsVertexextendsClosestPointwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.mesh.boundingSpheres.ClosestPointOnLine" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClosestPointOnLineextendsClosestPointwithProductwithSerializable"></a>
+      <a id="ClosestPointOnLine:ClosestPointOnLine"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClosestPointOnLine.html"><span class="name">ClosestPointOnLine</span></a><span class="params">(<span name="point">point: <a href="../../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="distanceSquared">distanceSquared: <span class="extype" name="scala.Double">Double</span></span>, <span name="idx">idx: (<a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>, <a href="../../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>)</span>, <span name="bc">bc: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@ClosestPointOnLineextendsClosestPointwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.mesh.boundingSpheres.DiscreteSpatialIndex" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DiscreteSpatialIndexextendsAnyRef"></a>
+      <a id="DiscreteSpatialIndex:DiscreteSpatialIndex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteSpatialIndex.html"><span class="name">DiscreteSpatialIndex</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@DiscreteSpatialIndexextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">SpatialIndex for a set of points
+</p>
+    </li><li name="scalismo.mesh.boundingSpheres.SurfaceIntersectionIndex" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="SurfaceIntersectionIndex[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="SurfaceIntersectionIndex[D&lt;:Dim]:SurfaceIntersectionIndex[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SurfaceIntersectionIndex.html"><span class="name">SurfaceIntersectionIndex</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@SurfaceIntersectionIndex[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The SurfaceIntersectionIndex supports queries about the intersection of a line
+with a surface.</p><div class="fullcomment"><div class="comment cmt"><p>The SurfaceIntersectionIndex supports queries about the intersection of a line
+with a surface. The surface is used to build up he index. For
+lines in (point,direction) format one can ask if there exists any and also for
+the complete list of intersection points.
+</p></div></div>
+    </li><li name="scalismo.mesh.boundingSpheres.SurfaceSpatialIndex" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SurfaceSpatialIndex[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="SurfaceSpatialIndex[D&lt;:Dim]:SurfaceSpatialIndex[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SurfaceSpatialIndex.html"><span class="name">SurfaceSpatialIndex</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@SurfaceSpatialIndex[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">SurfaceDistance trait with the basic queries defined.</p>
+    </li><li name="scalismo.mesh.boundingSpheres.TriangulatedSurfaceIntersectionIndex" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TriangulatedSurfaceIntersectionIndex[D&lt;:scalismo.geometry.Dim]extendsSurfaceIntersectionIndex[D]"></a>
+      <a id="TriangulatedSurfaceIntersectionIndex[D&lt;:Dim]:TriangulatedSurfaceIntersectionIndex[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangulatedSurfaceIntersectionIndex.html"><span class="name">TriangulatedSurfaceIntersectionIndex</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="SurfaceIntersectionIndex.html" class="extype" name="scalismo.mesh.boundingSpheres.SurfaceIntersectionIndex">SurfaceIntersectionIndex</a>[<span class="extype" name="scalismo.mesh.boundingSpheres.TriangulatedSurfaceIntersectionIndex.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@TriangulatedSurfaceIntersectionIndex[D&lt;:scalismo.geometry.Dim]extendsSurfaceIntersectionIndex[D]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The TriangulatedSurfaceIntersectionIndex is a specialization of the SurfaceIntersectionIndex
+for TriangleMeshs.</p><div class="fullcomment"><div class="comment cmt"><p>The TriangulatedSurfaceIntersectionIndex is a specialization of the SurfaceIntersectionIndex
+for TriangleMeshs. The additional query return the intersection points in the
+(TriangleId,BarycentricCoordinates) format.
+</p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scalismo.mesh.boundingSpheres.DiscreteSpatialIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteSpatialIndex"></a>
+      <a id="DiscreteSpatialIndex:DiscreteSpatialIndex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DiscreteSpatialIndex$.html"><span class="name">DiscreteSpatialIndex</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@DiscreteSpatialIndex" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">SpatialIndex for a set of points.</p>
+    </li><li name="scalismo.mesh.boundingSpheres.LineTriangleMesh3DIntersectionIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LineTriangleMesh3DIntersectionIndex"></a>
+      <a id="LineTriangleMesh3DIntersectionIndex:LineTriangleMesh3DIntersectionIndex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="LineTriangleMesh3DIntersectionIndex$.html"><span class="name">LineTriangleMesh3DIntersectionIndex</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@LineTriangleMesh3DIntersectionIndex" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">LineTriangleMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D.</p>
+    </li><li name="scalismo.mesh.boundingSpheres.TriangleMesh3DSpatialIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TriangleMesh3DSpatialIndex"></a>
+      <a id="TriangleMesh3DSpatialIndex:TriangleMesh3DSpatialIndex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TriangleMesh3DSpatialIndex$.html"><span class="name">TriangleMesh3DSpatialIndex</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#scalismo.mesh.boundingSpheres.package@TriangleMesh3DSpatialIndex" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Companion object for the surface distance implementation for TriangleMesh3D.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

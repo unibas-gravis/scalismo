@@ -1,0 +1,916 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>registration - scalismo.registration</title>
+          <meta name="description" content="registration - scalismo.registration" />
+          <meta name="keywords" content="registration scalismo.registration" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'scalismo.registration.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a></p>
+        <h1>registration</h1><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">registration</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="scalismo.registration.AnisotropicScalingSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AnisotropicScalingSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]withProductwithSerializable"></a>
+      <a id="AnisotropicScalingSpace[D&lt;:Dim]:AnisotropicScalingSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="AnisotropicScalingSpace.html"><span class="name">AnisotropicScalingSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$28">evidence$28: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingSpace.D">D</span>]</span>)</span><span class="result"> extends <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingSpace.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@AnisotropicScalingSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing anisotropic scaling transforms.</p>
+    </li><li name="scalismo.registration.AnisotropicScalingTransformation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="AnisotropicScalingTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]withProductwithSerializable"></a>
+      <a id="AnisotropicScalingTransformation[D&lt;:Dim]:AnisotropicScalingTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="AnisotropicScalingTransformation.html"><span class="name">AnisotropicScalingTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="s">s: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingTransformation.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$27">evidence$27: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingTransformation.D">D</span>]</span>)</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.AnisotropicScalingTransformation.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@AnisotropicScalingTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Anisotropic scaling transform, where each dimension is scaled differently
+</p><div class="fullcomment"><div class="comment cmt"><p>Anisotropic scaling transform, where each dimension is scaled differently
+</p></div><dl class="paramcmts block"><dt class="param">s</dt><dd class="cmt"><p>Vector of the same dimensionality as the space indicating for each dimension the scaling factor</p></dd></dl></div>
+    </li><li name="scalismo.registration.AnisotropicSimilarityTransformation" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="AnisotropicSimilarityTransformation[D&lt;:scalismo.geometry.Dim]extendsCompositeTransformation[D]withCanInvert[D]"></a>
+      <a id="AnisotropicSimilarityTransformation[D&lt;:Dim]:AnisotropicSimilarityTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AnisotropicSimilarityTransformation.html"><span class="name">AnisotropicSimilarityTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformation.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@AnisotropicSimilarityTransformation[D&lt;:scalismo.geometry.Dim]extendsCompositeTransformation[D]withCanInvert[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for D-dimensional anisotropic similarity transform that is a combination of a rigid transform and anisotropic scaling.</p><div class="fullcomment"><div class="comment cmt"><p>Trait for D-dimensional anisotropic similarity transform that is a combination of a rigid transform and anisotropic scaling.</p><p>There are different possibilities to define such a similarity transform. Either we first do a rigid transform and then scaling,
+or vice versa. We support only one way where we scale first, then transform rigidly.</p><p>The order of the rigid transform in this case is also fixed : first rotate then translate.</p></div></div>
+    </li><li name="scalismo.registration.AnisotropicSimilarityTransformationSpace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="AnisotropicSimilarityTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsProductTransformationSpace[D,scalismo.registration.RigidTransformation[D],scalismo.registration.AnisotropicScalingTransformation[D]]withProductwithSerializable"></a>
+      <a id="AnisotropicSimilarityTransformationSpace[D&lt;:Dim]:AnisotropicSimilarityTransformationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="AnisotropicSimilarityTransformationSpace.html"><span class="name">AnisotropicSimilarityTransformationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformationSpace.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$31">evidence$31: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformationSpace.D">D</span>]</span>, <span name="evidence$32">evidence$32: <a href="CreateRotationSpace.html" class="extype" name="scalismo.registration.CreateRotationSpace">CreateRotationSpace</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformationSpace.D">D</span>]</span>)</span><span class="result"> extends <a href="ProductTransformationSpace.html" class="extype" name="scalismo.registration.ProductTransformationSpace">ProductTransformationSpace</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformationSpace.D">D</span>, <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformationSpace.D">D</span>], <a href="AnisotropicScalingTransformation.html" class="extype" name="scalismo.registration.AnisotropicScalingTransformation">AnisotropicScalingTransformation</a>[<span class="extype" name="scalismo.registration.AnisotropicSimilarityTransformationSpace.D">D</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@AnisotropicSimilarityTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsProductTransformationSpace[D,scalismo.registration.RigidTransformation[D],scalismo.registration.AnisotropicScalingTransformation[D]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing anisotropic similarity transforms.</p><div class="fullcomment"><div class="comment cmt"><p>Parametric transformation space producing anisotropic similarity transforms.
+</p></div><dl class="paramcmts block"><dt class="param">center</dt><dd class="cmt"><p>: center of rotation used in the rigid transform</p></dd></dl></div>
+    </li><li name="scalismo.registration.CanDifferentiate" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CanDifferentiate[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="CanDifferentiate[D&lt;:Dim]:CanDifferentiate[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CanDifferentiate.html"><span class="name">CanDifferentiate</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@CanDifferentiate[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for differentiable D-dimensional transformation</p>
+    </li><li name="scalismo.registration.CanInvert" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CanInvert[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="CanInvert[D&lt;:Dim]:CanInvert[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CanInvert.html"><span class="name">CanInvert</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@CanInvert[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for invertible D-dimensional transformation</p>
+    </li><li name="scalismo.registration.CompositeTransformation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="CompositeTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanDifferentiate[D]withProductwithSerializable"></a>
+      <a id="CompositeTransformation[D&lt;:Dim]:CompositeTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="CompositeTransformation.html"><span class="name">CompositeTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="outerTransform">outerTransform: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.CompositeTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.CompositeTransformation.D">D</span>]</span>, <span name="innerTransform">innerTransform: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.CompositeTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.CompositeTransformation.D">D</span>]</span>)</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.CompositeTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.CompositeTransformation.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@CompositeTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanDifferentiate[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"> Class defining transformations composed of two argument transforms.</p><div class="fullcomment"><div class="comment cmt"><p> Class defining transformations composed of two argument transforms.
+ The resulting transform is <code>outerTransform compose innerTransform</code>
+</p></div><dl class="paramcmts block"><dt class="param">outerTransform</dt><dd class="cmt"><p>transform to be applied second. Must be a parametric differentiable transform</p></dd><dt class="param">innerTransform</dt><dd class="cmt"><p>transform to be applied first. Must be a parametric differentiable transform</p></dd></dl></div>
+    </li><li name="scalismo.registration.CreateRotationSpace" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="CreateRotationSpace[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="CreateRotationSpace[D&lt;:Dim]:CreateRotationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateRotationSpace.html"><span class="name">CreateRotationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@CreateRotationSpace[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Type class required for the creation of D-dimensional Rotation spaces</p><div class="fullcomment"><div class="comment cmt"><p>Type class required for the creation of D-dimensional Rotation spaces</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;Rotation for dimensionality ${D} is not supported&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scalismo.registration.DifferentiableTransforms" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DifferentiableTransforms[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="DifferentiableTransforms[D&lt;:Dim]:DifferentiableTransforms[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DifferentiableTransforms.html"><span class="name">DifferentiableTransforms</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@DifferentiableTransforms[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for a parametric transformation space returning differentiable transforms</p>
+    </li><li name="scalismo.registration.GaussianProcessTransformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GaussianProcessTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanDifferentiate[D]"></a>
+      <a id="GaussianProcessTransformation[D&lt;:Dim]:GaussianProcessTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="GaussianProcessTransformation.html"><span class="name">GaussianProcessTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.GaussianProcessTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.GaussianProcessTransformation.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@GaussianProcessTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanDifferentiate[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.GaussianProcessTransformationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GaussianProcessTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]"></a>
+      <a id="GaussianProcessTransformationSpace[D&lt;:Dim]:GaussianProcessTransformationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="GaussianProcessTransformationSpace.html"><span class="name">GaussianProcessTransformationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.GaussianProcessTransformationSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.GaussianProcessTransformationSpace.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@GaussianProcessTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.ImageMetric" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ImageMetric[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="ImageMetric[D&lt;:Dim]:ImageMetric[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ImageMetric.html"><span class="name">ImageMetric</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ImageMetric[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.MeanSquaresMetric" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MeanSquaresMetric[D&lt;:scalismo.geometry.Dim]extendsImageMetric[D]withProductwithSerializable"></a>
+      <a id="MeanSquaresMetric[D&lt;:Dim]:MeanSquaresMetric[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="MeanSquaresMetric.html"><span class="name">MeanSquaresMetric</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.registration.MeanSquaresMetric.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.MeanSquaresMetric.D">D</span>]</span>)</span><span class="result"> extends <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a>[<span class="extype" name="scalismo.registration.MeanSquaresMetric.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@MeanSquaresMetric[D&lt;:scalismo.geometry.Dim]extendsImageMetric[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.ParametricTransformation" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ParametricTransformation[D&lt;:scalismo.geometry.Dim]extendsTransformation[D]"></a>
+      <a id="ParametricTransformation[D&lt;:Dim]:ParametricTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ParametricTransformation.html"><span class="name">ParametricTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="Transformation.html" class="extype" name="scalismo.registration.Transformation">Transformation</a>[<span class="extype" name="scalismo.registration.ParametricTransformation.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ParametricTransformation[D&lt;:scalismo.geometry.Dim]extendsTransformation[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.ProductTransformationSpace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ProductTransformationSpace[D&lt;:scalismo.geometry.Dim,OT&lt;:scalismo.registration.ParametricTransformation[D]withscalismo.registration.CanDifferentiate[D],IT&lt;:scalismo.registration.ParametricTransformation[D]withscalismo.registration.CanDifferentiate[D]]extendsTransformationSpace[D]withDifferentiableTransforms[D]"></a>
+      <a id="ProductTransformationSpace[D&lt;:Dim,OT&lt;:ParametricTransformation[D]withCanDifferentiate[D],IT&lt;:ParametricTransformation[D]withCanDifferentiate[D]]:ProductTransformationSpace[D,OT,IT]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ProductTransformationSpace.html"><span class="name">ProductTransformationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="OT">OT &lt;: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.ProductTransformationSpace.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.ProductTransformationSpace.D">D</span>]</span>, <span name="IT">IT &lt;: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.ProductTransformationSpace.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.ProductTransformationSpace.D">D</span>]</span>]</span><span class="result"> extends <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.ProductTransformationSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.ProductTransformationSpace.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ProductTransformationSpace[D&lt;:scalismo.geometry.Dim,OT&lt;:scalismo.registration.ParametricTransformation[D]withscalismo.registration.CanDifferentiate[D],IT&lt;:scalismo.registration.ParametricTransformation[D]withscalismo.registration.CanDifferentiate[D]]extendsTransformationSpace[D]withDifferentiableTransforms[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric Transformation Space Combining two transformation spaces passed as arguments
+</p><div class="fullcomment"><div class="comment cmt"><p>Parametric Transformation Space Combining two transformation spaces passed as arguments
+</p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>Dimensionality of the inputs to the transformations generated by this space</p></dd><dt class="tparam">OT</dt><dd class="cmt"><p>Type of the outer transformation space. This space must generate differentiable parametric transforms</p></dd><dt class="tparam">IT</dt><dd class="cmt"><p>Type of the inner transformation space. This space must generate differentiable parametric transforms</p></dd></dl></div>
+    </li><li name="scalismo.registration.RegistrationConfiguration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RegistrationConfiguration[D&lt;:scalismo.geometry.Dim,TS&lt;:scalismo.registration.TransformationSpace[D]withscalismo.registration.DifferentiableTransforms[D]]extendsProductwithSerializable"></a>
+      <a id="RegistrationConfiguration[D&lt;:Dim,TS&lt;:TransformationSpace[D]withDifferentiableTransforms[D]]:RegistrationConfiguration[D,TS]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="RegistrationConfiguration.html"><span class="name">RegistrationConfiguration</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>, <span name="TS">TS &lt;: <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.RegistrationConfiguration.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.RegistrationConfiguration.D">D</span>]</span>]</span><span class="params">(<span name="optimizer">optimizer: <a href="../numerics/Optimizer.html" class="extype" name="scalismo.numerics.Optimizer">Optimizer</a></span>, <span name="metric">metric: <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a>[<span class="extype" name="scalismo.registration.RegistrationConfiguration.D">D</span>]</span>, <span name="transformationSpace">transformationSpace: <span class="extype" name="scalismo.registration.RegistrationConfiguration.TS">TS</span></span>, <span name="regularizer">regularizer: <a href="Regularizer.html" class="extype" name="scalismo.registration.Regularizer">Regularizer</a></span>, <span name="regularizationWeight">regularizationWeight: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.RegistrationConfiguration.D">D</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RegistrationConfiguration[D&lt;:scalismo.geometry.Dim,TS&lt;:scalismo.registration.TransformationSpace[D]withscalismo.registration.DifferentiableTransforms[D]]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.Regularizer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Regularizerextendsscalismo.registration.TransformationSpace.ParameterVector=&gt;Double"></a>
+      <a id="Regularizer:Regularizer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Regularizer.html"><span class="name">Regularizer</span></a><span class="result"> extends (<a href="TransformationSpace$.html#ParameterVector=breeze.linalg.DenseVector[Double]" class="extmbr" name="scalismo.registration.TransformationSpace.ParameterVector">ParameterVector</a>) ⇒ <span class="extype" name="scala.Double">Double</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@Regularizerextendsscalismo.registration.TransformationSpace.ParameterVector=&gt;Double" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.RigidTransformation" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="RigidTransformation[D&lt;:scalismo.geometry.Dim]extendsCompositeTransformation[D]withCanInvert[D]"></a>
+      <a id="RigidTransformation[D&lt;:Dim]:RigidTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="RigidTransformation.html"><span class="name">RigidTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RigidTransformation.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RigidTransformation[D&lt;:scalismo.geometry.Dim]extendsCompositeTransformation[D]withCanInvert[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for D-dimensional rigid transform, that is a composition of rotation and translation transform.</p><div class="fullcomment"><div class="comment cmt"><p>Trait for D-dimensional rigid transform, that is a composition of rotation and translation transform.</p><p>There are different possibilities to define rigid transformations. Either we first do a translation and then a rotation,
+or vice versa. We support both (and the inverse is always the other case).</p><p>Instances of this trait exist only for <span class="extype" name="_2D">_2D</span> and <span class="extype" name="_3D">_3D</span> as <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a> is not defined for <span class="extype" name="_1D">_1D</span>
+</p></div></div>
+    </li><li name="scalismo.registration.RigidTransformationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RigidTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsProductTransformationSpace[D,scalismo.registration.TranslationTransform[D],scalismo.registration.RotationTransform[D]]"></a>
+      <a id="RigidTransformationSpace[D&lt;:Dim]:RigidTransformationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RigidTransformationSpace.html"><span class="name">RigidTransformationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ProductTransformationSpace.html" class="extype" name="scalismo.registration.ProductTransformationSpace">ProductTransformationSpace</a>[<span class="extype" name="scalismo.registration.RigidTransformationSpace.D">D</span>, <a href="TranslationTransform.html" class="extype" name="scalismo.registration.TranslationTransform">TranslationTransform</a>[<span class="extype" name="scalismo.registration.RigidTransformationSpace.D">D</span>], <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a>[<span class="extype" name="scalismo.registration.RigidTransformationSpace.D">D</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RigidTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsProductTransformationSpace[D,scalismo.registration.TranslationTransform[D],scalismo.registration.RotationTransform[D]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing rigid transforms.</p>
+    </li><li name="scalismo.registration.RotationSpace" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="RotationSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]"></a>
+      <a id="RotationSpace[D&lt;:Dim]:RotationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RotationSpace.html"><span class="name">RotationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.RotationSpace.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RotationSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing rotation transforms around a rotation centre.</p>
+    </li><li name="scalismo.registration.RotationTransform" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="RotationTransform[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]"></a>
+      <a id="RotationTransform[D&lt;:Dim]:RotationTransform[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RotationTransform.html"><span class="name">RotationTransform</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.RotationTransform.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.RotationTransform.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.RotationTransform.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RotationTransform[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">D-dimensional Rotation transform that is parametric, invertible and differentiable.</p>
+    </li><li name="scalismo.registration.ScalingSpace" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ScalingSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]"></a>
+      <a id="ScalingSpace[D&lt;:Dim]:ScalingSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalingSpace.html"><span class="name">ScalingSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.ScalingSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.ScalingSpace.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ScalingSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing isotropic scaling transforms.</p>
+    </li><li name="scalismo.registration.ScalingTransformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalingTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]"></a>
+      <a id="ScalingTransformation[D&lt;:Dim]:ScalingTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalingTransformation.html"><span class="name">ScalingTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.ScalingTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.ScalingTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.ScalingTransformation.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ScalingTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">D-dimensional isotropic scaling transform that is parametric, invertible and differentiable
+</p>
+    </li><li name="scalismo.registration.SimilarityTransformation" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SimilarityTransformation[D&lt;:scalismo.geometry.Dim]extendsCompositeTransformation[D]withCanInvert[D]"></a>
+      <a id="SimilarityTransformation[D&lt;:Dim]:SimilarityTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SimilarityTransformation.html"><span class="name">SimilarityTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="CompositeTransformation.html" class="extype" name="scalismo.registration.CompositeTransformation">CompositeTransformation</a>[<span class="extype" name="scalismo.registration.SimilarityTransformation.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.SimilarityTransformation.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@SimilarityTransformation[D&lt;:scalismo.geometry.Dim]extendsCompositeTransformation[D]withCanInvert[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.SimilarityTransformationSpace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SimilarityTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsProductTransformationSpace[D,scalismo.registration.ScalingTransformation[D],scalismo.registration.RigidTransformation[D]]withProductwithSerializable"></a>
+      <a id="SimilarityTransformationSpace[D&lt;:Dim]:SimilarityTransformationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SimilarityTransformationSpace.html"><span class="name">SimilarityTransformationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="center">center: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$24">evidence$24: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>]</span>, <span name="evidence$25">evidence$25: <a href="CreateRotationSpace.html" class="extype" name="scalismo.registration.CreateRotationSpace">CreateRotationSpace</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>]</span>, <span name="evidence$26">evidence$26: <a href="ScalingSpace$$Create.html" class="extype" name="scalismo.registration.ScalingSpace.Create">Create</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>]</span>)</span><span class="result"> extends <a href="ProductTransformationSpace.html" class="extype" name="scalismo.registration.ProductTransformationSpace">ProductTransformationSpace</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>, <a href="ScalingTransformation.html" class="extype" name="scalismo.registration.ScalingTransformation">ScalingTransformation</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>], <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a>[<span class="extype" name="scalismo.registration.SimilarityTransformationSpace.D">D</span>]] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@SimilarityTransformationSpace[D&lt;:scalismo.geometry.Dim]extendsProductTransformationSpace[D,scalismo.registration.ScalingTransformation[D],scalismo.registration.RigidTransformation[D]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing similarity transforms.</p><div class="fullcomment"><div class="comment cmt"><p>Parametric transformation space producing similarity transforms.
+</p></div><dl class="paramcmts block"><dt class="param">center</dt><dd class="cmt"><p>: center of rotation used in the rigid transform</p></dd></dl></div>
+    </li><li name="scalismo.registration.Transformation" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Transformation[D&lt;:scalismo.geometry.Dim]extendsField[D,scalismo.geometry.Point[D]]"></a>
+      <a id="Transformation[D&lt;:Dim]:Transformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Transformation.html"><span class="name">Transformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="../common/Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.registration.Transformation.D">D</span>, <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.registration.Transformation.D">D</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@Transformation[D&lt;:scalismo.geometry.Dim]extendsField[D,scalismo.geometry.Point[D]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for D-dimensional transformation that maps a D-dimensional Point to another.</p><div class="fullcomment"><div class="comment cmt"><p>Trait for D-dimensional transformation that maps a D-dimensional Point to another.
+ A transformation in our library is seen as a particular type of Field (or image)  mapping points
+ to values that are also of type <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">scalismo.geometry.Point</a>
+</p></div></div>
+    </li><li name="scalismo.registration.TransformationSpace" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TransformationSpace[D&lt;:scalismo.geometry.Dim]extendsAnyRef"></a>
+      <a id="TransformationSpace[D&lt;:Dim]:TransformationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TransformationSpace.html"><span class="name">TransformationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@TransformationSpace[D&lt;:scalismo.geometry.Dim]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for a parametric transformation space.</p><div class="fullcomment"><div class="comment cmt"><p>Trait for a parametric transformation space.</p><p> Many pre-implemented transformation spaces implement this trait : <a href="TranslationSpace.html" class="extype" name="scalismo.registration.TranslationSpace">TranslationSpace</a>, <a href="ScalingSpace.html" class="extype" name="scalismo.registration.ScalingSpace">ScalingSpace</a>, <a href="RotationSpace.html" class="extype" name="scalismo.registration.RotationSpace">RotationSpace</a> ..</p><p> Most of the basic transforms in our library (scaling, translation, rotation ..) can be created directly and do not necessarily require
+ the prior creation of a TransformationSpace.
+ Defining a TransformationSpace is mainly useful during a registration process where one optimizes over a set of parameters to retrieve
+ a desired transformation.</p></div></div>
+    </li><li name="scalismo.registration.TranslationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TranslationSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]"></a>
+      <a id="TranslationSpace[D&lt;:Dim]:TranslationSpace[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TranslationSpace.html"><span class="name">TranslationSpace</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="result"> extends <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.TranslationSpace.D">D</span>] with <a href="DifferentiableTransforms.html" class="extype" name="scalismo.registration.DifferentiableTransforms">DifferentiableTransforms</a>[<span class="extype" name="scalismo.registration.TranslationSpace.D">D</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@TranslationSpace[D&lt;:scalismo.geometry.Dim]extendsTransformationSpace[D]withDifferentiableTransforms[D]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parametric transformation space producing translation transforms
+</p>
+    </li><li name="scalismo.registration.TranslationTransform" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TranslationTransform[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]withProductwithSerializable"></a>
+      <a id="TranslationTransform[D&lt;:Dim]:TranslationTransform[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TranslationTransform.html"><span class="name">TranslationTransform</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="t">t: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<span class="extype" name="scalismo.registration.TranslationTransform.D">D</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$3">evidence$3: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.TranslationTransform.D">D</span>]</span>)</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.TranslationTransform.D">D</span>] with <a href="CanInvert.html" class="extype" name="scalismo.registration.CanInvert">CanInvert</a>[<span class="extype" name="scalismo.registration.TranslationTransform.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.TranslationTransform.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@TranslationTransform[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanInvert[D]withCanDifferentiate[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">D-dimensional translation transform that is parametric, invertible and differentiable
+</p><div class="fullcomment"><div class="comment cmt"><p>D-dimensional translation transform that is parametric, invertible and differentiable
+</p></div><dl class="paramcmts block"><dt class="param">t</dt><dd class="cmt"><p>Translation vector</p></dd></dl></div>
+    </li><li name="scalismo.registration.ProductTransformation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ProductTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanDifferentiate[D]withProductwithSerializable"></a>
+      <a id="ProductTransformation[D&lt;:Dim]:ProductTransformation[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ProductTransformation.html"><span class="name deprecated" title="Deprecated: (Since version 0.15.0) This class will be removed in the next version of scalismo. Please use CompositeTransformation instead.">ProductTransformation</span></a><span class="tparams">[<span name="D">D &lt;: <a href="../geometry/Dim.html" class="extype" name="scalismo.geometry.Dim">Dim</a></span>]</span><span class="params">(<span name="outerTransform">outerTransform: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.ProductTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.ProductTransformation.D">D</span>]</span>, <span name="innerTransform">innerTransform: <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.ProductTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.ProductTransformation.D">D</span>]</span>)</span><span class="result"> extends <a href="ParametricTransformation.html" class="extype" name="scalismo.registration.ParametricTransformation">ParametricTransformation</a>[<span class="extype" name="scalismo.registration.ProductTransformation.D">D</span>] with <a href="CanDifferentiate.html" class="extype" name="scalismo.registration.CanDifferentiate">CanDifferentiate</a>[<span class="extype" name="scalismo.registration.ProductTransformation.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ProductTransformation[D&lt;:scalismo.geometry.Dim]extendsParametricTransformation[D]withCanDifferentiate[D]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.15.0)</i> This class will be removed in the next version of scalismo. Please use CompositeTransformation instead.</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scalismo.registration.CreateRotationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CreateRotationSpace"></a>
+      <a id="CreateRotationSpace:CreateRotationSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="CreateRotationSpace$.html"><span class="name">CreateRotationSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@CreateRotationSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.GaussianProcessTransformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GaussianProcessTransformation"></a>
+      <a id="GaussianProcessTransformation:GaussianProcessTransformation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GaussianProcessTransformation$.html"><span class="name">GaussianProcessTransformation</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@GaussianProcessTransformation" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.GaussianProcessTransformationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GaussianProcessTransformationSpace"></a>
+      <a id="GaussianProcessTransformationSpace:GaussianProcessTransformationSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GaussianProcessTransformationSpace$.html"><span class="name">GaussianProcessTransformationSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@GaussianProcessTransformationSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.L2Regularizer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="L2Regularizer"></a>
+      <a id="L2Regularizer:L2Regularizer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="L2Regularizer$.html"><span class="name">L2Regularizer</span></a><span class="result"> extends <a href="Regularizer.html" class="extype" name="scalismo.registration.Regularizer">Regularizer</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@L2Regularizer" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.LandmarkRegistration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LandmarkRegistration"></a>
+      <a id="LandmarkRegistration:LandmarkRegistration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="LandmarkRegistration$.html"><span class="name">LandmarkRegistration</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@LandmarkRegistration" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.Registration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Registration"></a>
+      <a id="Registration:Registration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Registration$.html"><span class="name">Registration</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@Registration" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.RigidTransformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RigidTransformation"></a>
+      <a id="RigidTransformation:RigidTransformation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RigidTransformation$.html"><span class="name">RigidTransformation</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RigidTransformation" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="RigidTransformation.html" class="extype" name="scalismo.registration.RigidTransformation">RigidTransformation</a> instances.</p>
+    </li><li name="scalismo.registration.RigidTransformationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RigidTransformationSpace"></a>
+      <a id="RigidTransformationSpace:RigidTransformationSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RigidTransformationSpace$.html"><span class="name">RigidTransformationSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RigidTransformationSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="RigidTransformationSpace.html" class="extype" name="scalismo.registration.RigidTransformationSpace">RigidTransformationSpace</a> instances.</p>
+    </li><li name="scalismo.registration.RotationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RotationSpace"></a>
+      <a id="RotationSpace:RotationSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RotationSpace$.html"><span class="name">RotationSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RotationSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="RotationSpace.html" class="extype" name="scalismo.registration.RotationSpace">RotationSpace</a> instances.</p>
+    </li><li name="scalismo.registration.RotationTransform" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RotationTransform"></a>
+      <a id="RotationTransform:RotationTransform"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="RotationTransform$.html"><span class="name">RotationTransform</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@RotationTransform" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="RotationTransform.html" class="extype" name="scalismo.registration.RotationTransform">RotationTransform</a> instances.</p>
+    </li><li name="scalismo.registration.ScalingSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalingSpace"></a>
+      <a id="ScalingSpace:ScalingSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalingSpace$.html"><span class="name">ScalingSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ScalingSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="ScalingSpace.html" class="extype" name="scalismo.registration.ScalingSpace">ScalingSpace</a> instances.</p>
+    </li><li name="scalismo.registration.ScalingTransformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalingTransformation"></a>
+      <a id="ScalingTransformation:ScalingTransformation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalingTransformation$.html"><span class="name">ScalingTransformation</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@ScalingTransformation" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="ScalingTransformation.html" class="extype" name="scalismo.registration.ScalingTransformation">ScalingTransformation</a> instances.</p>
+    </li><li name="scalismo.registration.SimilarityTransformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SimilarityTransformation"></a>
+      <a id="SimilarityTransformation:SimilarityTransformation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SimilarityTransformation$.html"><span class="name">SimilarityTransformation</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@SimilarityTransformation" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.Transformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Transformation"></a>
+      <a id="Transformation:Transformation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Transformation$.html"><span class="name">Transformation</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@Transformation" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait for parametric D-dimensional transformation</p>
+    </li><li name="scalismo.registration.TransformationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TransformationSpace"></a>
+      <a id="TransformationSpace:TransformationSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TransformationSpace$.html"><span class="name">TransformationSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@TransformationSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="scalismo.registration.TranslationSpace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TranslationSpace"></a>
+      <a id="TranslationSpace:TranslationSpace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TranslationSpace$.html"><span class="name">TranslationSpace</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#scalismo.registration.package@TranslationSpace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Factory for <a href="TranslationSpace.html" class="extype" name="scalismo.registration.TranslationSpace">TranslationSpace</a> instances.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
