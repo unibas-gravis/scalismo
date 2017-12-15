@@ -1,42 +1,383 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>TriangleMesh3DOperations - scalismo.mesh.TriangleMesh3DOperations</title>
-          <meta name="description" content="TriangleMesh3DOperations - scalismo.mesh.TriangleMesh3DOperations" />
-          <meta name="keywords" content="TriangleMesh3DOperations scalismo.mesh.TriangleMesh3DOperations" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
       <script type="text/javascript" src="../../lib/template.js"></script>
       <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
-         if(top === self) {
-            var url = '../../index.html';
-            var hash = 'scalismo.mesh.TriangleMesh3DOperations';
-            var anchor = window.location.hash;
-            var anchor_opt = '';
-            if (anchor.length >= 1)
-              anchor_opt = '@' + anchor.substring(1);
-            window.location.href = url + '#' + hash + anchor_opt;
-         }
-   	  </script>
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
     
         </head>
-        <body class="type">
-      <div id="definition">
-        <img alt="Class" src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="scalismo">scalismo</a>.<a href="package.html" class="extype" name="scalismo.mesh">mesh</a></p>
-        <h1>TriangleMesh3DOperations</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="scalismo.mesh">package mesh</a>
-          </div></span></h3><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html">
+              <span class="name">root</span>
+            </a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.scalismo" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="scalismo"></a><a id="scalismo:scalismo"></a>
+      <span class="permalink">
+      <a href="index.html#scalismo" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html">
+              <span class="name">scalismo</span>
+            </a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="scalismo.mesh" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mesh"></a><a id="mesh:mesh"></a>
+      <span class="permalink">
+      <a href="../scalismo/index.html#mesh" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html">
+              <span class="name">mesh</span>
+            </a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="scalismo">scalismo</a></dd></dl></div>
+    </li><li name="scalismo.mesh.boundingSpheres" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="boundingSpheres"></a><a id="boundingSpheres:boundingSpheres"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/index.html#boundingSpheres" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="boundingSpheres/index.html">
+              <span class="name">boundingSpheres</span>
+            </a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="scalismo.mesh">mesh</a></dd></dl></div>
+    </li><li name="scalismo.mesh.kdtree" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="kdtree"></a><a id="kdtree:kdtree"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/index.html#kdtree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="kdtree/index.html">
+              <span class="name">kdtree</span>
+            </a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="scalismo.mesh">mesh</a></dd></dl></div>
+    </li><li class="current-entities indented2">
+                        <a class="object" href="BarycentricCoordinates$.html" title="barycentric coordinates: localization within triangles"></a>
+                        <a class="class" href="BarycentricCoordinates.html" title="barycentric coordinates: localization within triangles"></a>
+                        <a href="BarycentricCoordinates.html" title="barycentric coordinates: localization within triangles">
+                          BarycentricCoordinates
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="ConstantProperty.html" title="constant property value on complete surface"></a>
+                        <a href="ConstantProperty.html" title="constant property value on complete surface">
+                          ConstantProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="ContourPointProperty$.html" title=""></a>
+                        <a class="class" href="ContourPointProperty.html" title=""></a>
+                        <a href="ContourPointProperty.html" title="">
+                          ContourPointProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="LineCell.html" title="Represents a line segment defined by two points."></a>
+                        <a href="LineCell.html" title="Represents a line segment defined by two points.">
+                          LineCell
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="LineContourProperty.html" title="Created by marcel on 15.09.15."></a>
+                        <a href="LineContourProperty.html" title="Created by marcel on 15.09.15.">
+                          LineContourProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="LineCoordinates$.html" title=""></a>
+                        <a class="class" href="LineCoordinates.html" title=""></a>
+                        <a href="LineCoordinates.html" title="">
+                          LineCoordinates
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="LineId$.html" title=""></a>
+                        <a class="class" href="LineId.html" title=""></a>
+                        <a href="LineId.html" title="">
+                          LineId
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="LineList$.html" title=""></a>
+                        <a class="class" href="LineList.html" title="A list of lines that make up a poly line
+"></a>
+                        <a href="LineList.html" title="A list of lines that make up a poly line
+">
+                          LineList
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="LineMesh$.html" title=""></a>
+                        <a class="class" href="LineMesh.html" title=""></a>
+                        <a href="LineMesh.html" title="">
+                          LineMesh
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="LineMesh2D.html" title=""></a>
+                        <a href="LineMesh2D.html" title="">
+                          LineMesh2D
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="LineMesh3D.html" title=""></a>
+                        <a href="LineMesh3D.html" title="">
+                          LineMesh3D
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="LineProperty.html" title="property constant per line"></a>
+                        <a href="LineProperty.html" title="property constant per line">
+                          LineProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="MappedContourProperty.html" title="function indirection for contour access"></a>
+                        <a href="MappedContourProperty.html" title="function indirection for contour access">
+                          MappedContourProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="MappedSurfaceProperty.html" title="function indirection for surface access"></a>
+                        <a href="MappedSurfaceProperty.html" title="function indirection for surface access">
+                          MappedSurfaceProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="Mesh$.html" title="Defines utility functions on TriangleMesh instances
+"></a>
+                        <a href="Mesh$.html" title="Defines utility functions on TriangleMesh instances
+">
+                          Mesh
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="MeshBoundaryPredicates$.html" title="Factory for mesh boundaries."></a>
+                        <a class="trait" href="MeshBoundaryPredicates.html" title="MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh."></a>
+                        <a href="MeshBoundaryPredicates.html" title="MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.">
+                          MeshBoundaryPredicates
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="MeshCompactifier$.html" title=""></a>
+                        <a class="class" href="MeshCompactifier.html" title="compact a mesh: remove unreferenced points and triangles with invalid points, also respects external filters for points and triangles
+"></a>
+                        <a href="MeshCompactifier.html" title="compact a mesh: remove unreferenced points and triangles with invalid points, also respects external filters for points and triangles
+">
+                          MeshCompactifier
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="MeshManipulation.html" title="a general operation on mesh, can also alter surface properties
+"></a>
+                        <a href="MeshManipulation.html" title="a general operation on mesh, can also alter surface properties
+">
+                          MeshManipulation
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="MeshMetrics$.html" title="Implements utility methods for evaluating similarity of TriangleMesh instances"></a>
+                        <a href="MeshMetrics$.html" title="Implements utility methods for evaluating similarity of TriangleMesh instances">
+                          MeshMetrics
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="MeshOperations$.html" title=""></a>
+                        <a href="MeshOperations$.html" title="">
+                          MeshOperations
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="MeshSurfaceCorrespondence.html" title="express correspondence of a triangulated surface to another triangulation, maps points on this surface to target surface
+"></a>
+                        <a href="MeshSurfaceCorrespondence.html" title="express correspondence of a triangulated surface to another triangulation, maps points on this surface to target surface
+">
+                          MeshSurfaceCorrespondence
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="MeshSurfaceProperty.html" title="general property defined on the surface of a mesh
+accessible through the parameterization given by the triangulation of the mesh: TriangleId and BarycentricCoordinates inside the triangle
+"></a>
+                        <a href="MeshSurfaceProperty.html" title="general property defined on the surface of a mesh
+accessible through the parameterization given by the triangulation of the mesh: TriangleId and BarycentricCoordinates inside the triangle
+">
+                          MeshSurfaceProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="ScalarMeshField$.html" title=""></a>
+                        <a class="class" href="ScalarMeshField.html" title="3-dimensional triangle mesh with scalar values associated to mesh points."></a>
+                        <a href="ScalarMeshField.html" title="3-dimensional triangle mesh with scalar values associated to mesh points.">
+                          ScalarMeshField
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="SurfacePointProperty$.html" title=""></a>
+                        <a class="class" href="SurfacePointProperty.html" title="property defined per vertex, with interpolation"></a>
+                        <a href="SurfacePointProperty.html" title="property defined per vertex, with interpolation">
+                          SurfacePointProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="TriangleCell.html" title="Triangle cell in a triangle mesh."></a>
+                        <a href="TriangleCell.html" title="Triangle cell in a triangle mesh.">
+                          TriangleCell
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TriangleId$.html" title=""></a>
+                        <a class="class" href="TriangleId.html" title=""></a>
+                        <a href="TriangleId.html" title="">
+                          TriangleId
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TriangleList$.html" title=""></a>
+                        <a class="class" href="TriangleList.html" title="express a triangulation, contains only triangle information, no points"></a>
+                        <a href="TriangleList.html" title="express a triangulation, contains only triangle information, no points">
+                          TriangleList
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TriangleMesh$.html" title=""></a>
+                        <a class="trait" href="TriangleMesh.html" title=""></a>
+                        <a href="TriangleMesh.html" title="">
+                          TriangleMesh
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="TriangleMesh2D.html" title=""></a>
+                        <a href="TriangleMesh2D.html" title="">
+                          TriangleMesh2D
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TriangleMesh3D$.html" title=""></a>
+                        <a class="class" href="TriangleMesh3D.html" title="Standard 3D Gravis mesh, geometry only"></a>
+                        <a href="TriangleMesh3D.html" title="Standard 3D Gravis mesh, geometry only">
+                          TriangleMesh3D
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="" title=""></a>
+                        <a href="" title="">
+                          TriangleMesh3DOperations
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TriangleProperty$.html" title=""></a>
+                        <a class="class" href="TriangleProperty.html" title="property constant per triangle, no interpolation"></a>
+                        <a href="TriangleProperty.html" title="property constant per triangle, no interpolation">
+                          TriangleProperty
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="TriangularMeshBoundaryPredicates.html" title="The TriangularMeshBoundary can be queried if a triangle has one side in common with the mesh boundary."></a>
+                        <a href="TriangularMeshBoundaryPredicates.html" title="The TriangularMeshBoundary can be queried if a triangle has one side in common with the mesh boundary.">
+                          TriangularMeshBoundaryPredicates
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="WarpedMeshSurfaceProperty.html" title="use a target surface property through a surface correspondence
+Each lookup on this surface returns the property at the corresponding point of the underlying surface"></a>
+                        <a href="WarpedMeshSurfaceProperty.html" title="use a target surface property through a surface correspondence
+Each lookup on this surface returns the property at the corresponding point of the underlying surface">
+                          WarpedMeshSurfaceProperty
+                        </a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="class type">
+      <div id="definition">
+        <div class="big-circle class">c</div>
+        <p id="owner"><a href="../index.html" class="extype" name="scalismo">scalismo</a>.<a href="index.html" class="extype" name="scalismo.mesh">mesh</a></p>
+        <h1>TriangleMesh3DOperations<span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -48,50 +389,65 @@
         <span class="name">TriangleMesh3DOperations</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
+
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
-          <span class="toggle">Linear Supertypes</span>
+          <span class="toggle">
+            Linear Supertypes
+          </span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
-        <div id="order">
-              <span class="filtertype">Ordering</span>
-              <ol>
-                
-                <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By Inheritance</span></li>
-              </ol>
-            </div>
-        <div id="ancestors">
-                <span class="filtertype">Inherited<br />
-                </span>
-                <ol id="linearization">
-                  <li class="in" name="scalismo.mesh.TriangleMesh3DOperations"><span>TriangleMesh3DOperations</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
-                </ol>
-              </div><div id="ancestors">
-            <span class="filtertype"></span>
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
             <ol>
-              <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show All</span></li>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
             </ol>
           </div>
-        <div id="visbl">
-            <span class="filtertype">Visibility</span>
-            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="scalismo.mesh.TriangleMesh3DOperations"><span>TriangleMesh3DOperations</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
+              <ol>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
+              </ol>
+            </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
       </div>
 
       <div id="template">
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="scalismo.mesh.TriangleMesh3DOperations#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(mesh:scalismo.mesh.TriangleMesh3D):scalismo.mesh.TriangleMesh3DOperations"></a>
-      <a id="&lt;init&gt;:TriangleMesh3DOperations"></a>
-      <h4 class="signature">
+              <ol><li name="scalismo.mesh.TriangleMesh3DOperations#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(mesh:scalismo.mesh.TriangleMesh3D):scalismo.mesh.TriangleMesh3DOperations"></a><a id="&lt;init&gt;:TriangleMesh3DOperations"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#&lt;init&gt;(mesh:scalismo.mesh.TriangleMesh3D):scalismo.mesh.TriangleMesh3DOperations" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
@@ -99,11 +455,7 @@
       <span class="symbol">
         <span class="name">TriangleMesh3DOperations</span><span class="params">(<span name="mesh">mesh: <a href="TriangleMesh3D.html" class="extype" name="scalismo.mesh.TriangleMesh3D">TriangleMesh3D</a></span>)</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@&lt;init&gt;(mesh:scalismo.mesh.TriangleMesh3D):scalismo.mesh.TriangleMesh3DOperations" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       
     </li></ol>
             </div>
@@ -112,12 +464,16 @@
 
         
 
-        <div id="values" class="values members">
+        <div class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:Any):Boolean"></a>
-      <a id="!=(Any):Boolean"></a>
-      <h4 class="signature">
+              <ol>
+                <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -125,16 +481,15 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="##():Int"></a>
-      <a id="##():Int"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -142,16 +497,15 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:Any):Boolean"></a>
-      <a id="==(Any):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -159,16 +513,15 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asInstanceOf[T0]:T0"></a>
-      <a id="asInstanceOf[T0]:T0"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -176,16 +529,15 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#clip" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clip(clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a><a id="clip((Point[_3D])⇒Boolean):TriangleMesh[_3D]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#clip(clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#clip" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clip(clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]"></a>
-      <a id="clip((Point[_3D])⇒Boolean):TriangleMesh[_3D]"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -193,17 +545,16 @@
       <span class="symbol">
         <span class="name">clip</span><span class="params">(<span name="clipPointPredicate">clipPointPredicate: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@clip(clipPointPredicate:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.TriangleMesh[scalismo.geometry._3D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <p class="shortcomment cmt">Returns a new <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> where all points satisfying the given predicate are removed.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new <a href="TriangleMesh.html" class="extype" name="scalismo.mesh.TriangleMesh">TriangleMesh</a> where all points satisfying the given predicate are removed.
 All cells containing deleted points are also deleted.</p></div><dl class="attributes block"> <dt>To do</dt><dd><span class="cmt"><p>use MeshCompactifier to express this functionality. But first verify and test that it remains the same.</p></span></dd></dl></div>
-    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clone():Object"></a>
-      <a id="clone():AnyRef"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -211,11 +562,7 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -223,10 +570,13 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#closestPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="closestPoint(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPoint"></a>
-      <a id="closestPoint(Point[_3D]):ClosestPoint"></a>
-      <h4 class="signature">
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#closestPoint" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="closestPoint(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPoint"></a><a id="closestPoint(Point[_3D]):ClosestPoint"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#closestPoint(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPoint" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -234,33 +584,31 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">closestPoint</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="boundingSpheres/ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@closestPoint(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPoint" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#closestPointOnSurface" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="closestPointOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPointOnSurface"></a><a id="closestPointOnSurface(Point[_3D]):ClosestPointOnSurface"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#closestPointOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPointOnSurface" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#closestPointOnSurface" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="closestPointOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPoint"></a>
-      <a id="closestPointOnSurface(Point[_3D]):ClosestPoint"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">closestPointOnSurface</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="boundingSpheres/ClosestPoint.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPoint">ClosestPoint</a></span>
+        <span class="name">closestPointOnSurface</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="boundingSpheres/ClosestPointOnSurface.html" class="extype" name="scalismo.mesh.boundingSpheres.ClosestPointOnSurface">ClosestPointOnSurface</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@closestPointOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.ClosestPoint" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#compact" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="compact:scalismo.mesh.MeshCompactifier"></a><a id="compact:MeshCompactifier"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#compact:scalismo.mesh.MeshCompactifier" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#compact" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="compact:scalismo.mesh.MeshCompactifier"></a>
-      <a id="compact:MeshCompactifier"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -268,16 +616,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">compact</span><span class="result">: <a href="MeshCompactifier.html" class="extype" name="scalismo.mesh.MeshCompactifier">MeshCompactifier</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@compact:scalismo.mesh.MeshCompactifier" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <p class="shortcomment cmt">Reduces the triangle and points so that only used and valid locations and triangles remain.</p>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#edgeIsOnBoundary" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="edgeIsOnBoundary(pid1:scalismo.common.PointId,pid2:scalismo.common.PointId):Boolean"></a><a id="edgeIsOnBoundary(PointId,PointId):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#edgeIsOnBoundary(pid1:scalismo.common.PointId,pid2:scalismo.common.PointId):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <p class="shortcomment cmt">Reduces the triangle and points so that only used and valid locations and triangles remain.</p>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#edgeIsOnBoundary" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="edgeIsOnBoundary(pid1:scalismo.common.PointId,pid2:scalismo.common.PointId):Boolean"></a>
-      <a id="edgeIsOnBoundary(PointId,PointId):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -285,16 +632,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">edgeIsOnBoundary</span><span class="params">(<span name="pid1">pid1: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>, <span name="pid2">pid2: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@edgeIsOnBoundary(pid1:scalismo.common.PointId,pid2:scalismo.common.PointId):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eq(x$1:AnyRef):Boolean"></a>
-      <a id="eq(AnyRef):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -302,16 +648,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#equals(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -319,16 +664,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="finalize():Unit"></a>
-      <a id="finalize():Unit"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -336,11 +680,7 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -348,10 +688,13 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
-      <a id="getClass():Class[_]"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -359,16 +702,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#getIntersectionPoints" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getIntersectionPoints(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[scalismo.geometry.Point[scalismo.geometry._3D]]"></a><a id="getIntersectionPoints(Point[_3D],Vector[_3D]):Seq[Point[_3D]]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#getIntersectionPoints(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[scalismo.geometry.Point[scalismo.geometry._3D]]" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#getIntersectionPoints" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getIntersectionPoints(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[scalismo.geometry.Point[scalismo.geometry._3D]]"></a>
-      <a id="getIntersectionPoints(Point[_3D],Vector[_3D]):Seq[Point[_3D]]"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -376,16 +718,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">getIntersectionPoints</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="direction">direction: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@getIntersectionPoints(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[scalismo.geometry.Point[scalismo.geometry._3D]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#getIntersectionPointsOnSurface" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getIntersectionPointsOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[(scalismo.mesh.TriangleId,scalismo.mesh.BarycentricCoordinates)]"></a><a id="getIntersectionPointsOnSurface(Point[_3D],Vector[_3D]):Seq[(TriangleId,BarycentricCoordinates)]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#getIntersectionPointsOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[(scalismo.mesh.TriangleId,scalismo.mesh.BarycentricCoordinates)]" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#getIntersectionPointsOnSurface" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getIntersectionPointsOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[(scalismo.mesh.TriangleId,scalismo.mesh.BarycentricCoordinates)]"></a>
-      <a id="getIntersectionPointsOnSurface(Point[_3D],Vector[_3D]):Seq[(TriangleId,BarycentricCoordinates)]"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -393,16 +734,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">getIntersectionPointsOnSurface</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="direction">direction: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<a href="TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a>, <a href="BarycentricCoordinates.html" class="extype" name="scalismo.mesh.BarycentricCoordinates">BarycentricCoordinates</a>)]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@getIntersectionPointsOnSurface(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Seq[(scalismo.mesh.TriangleId,scalismo.mesh.BarycentricCoordinates)]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#hasIntersection" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hasIntersection(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Boolean"></a><a id="hasIntersection(Point[_3D],Vector[_3D]):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#hasIntersection(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#hasIntersection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="hasIntersection(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Boolean"></a>
-      <a id="hasIntersection(Point[_3D],Vector[_3D]):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -410,16 +750,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">hasIntersection</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="direction">direction: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@hasIntersection(point:scalismo.geometry.Point[scalismo.geometry._3D],direction:scalismo.geometry.Vector[scalismo.geometry._3D]):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#hashCode():Int" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -427,16 +766,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="isInstanceOf[T0]:Boolean"></a>
-      <a id="isInstanceOf[T0]:Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -444,16 +782,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#mask" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mask(pointFilter:scalismo.common.PointId=&gt;Boolean,triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a><a id="mask((PointId)⇒Boolean,(TriangleId)⇒Boolean):MeshCompactifier"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#mask(pointFilter:scalismo.common.PointId=&gt;Boolean,triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#mask" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="mask(pointFilter:scalismo.common.PointId=&gt;Boolean,triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a>
-      <a id="mask((PointId)⇒Boolean,(TriangleId)⇒Boolean):MeshCompactifier"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -461,16 +798,15 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">mask</span><span class="params">(<span name="pointFilter">pointFilter: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="triangleFilter">triangleFilter: (<a href="TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="MeshCompactifier.html" class="extype" name="scalismo.mesh.MeshCompactifier">MeshCompactifier</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@mask(pointFilter:scalismo.common.PointId=&gt;Boolean,triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <p class="shortcomment cmt">Mask a mesh to a subset of points and triangles.</p><div class="fullcomment"><div class="comment cmt"><p>Mask a mesh to a subset of points and triangles.</p></div><dl class="paramcmts block"><dt class="param">pointFilter</dt><dd class="cmt"><p>Predicate that maps PointId to boolean ('true' = keep location).</p></dd><dt class="param">triangleFilter</dt><dd class="cmt"><p>Predicate that maps TriangleId to boolean ('true' = keep triangle).</p></dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskPoints" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskPoints(pointFilter:scalismo.common.PointId=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a><a id="maskPoints((PointId)⇒Boolean):MeshCompactifier"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#maskPoints(pointFilter:scalismo.common.PointId=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <p class="shortcomment cmt">Mask a mesh to a subset of points and triangles.</p><div class="fullcomment"><div class="comment cmt"><p>Mask a mesh to a subset of points and triangles.</p></div><dl class="paramcmts block"><dt class="param">pointFilter</dt><dd class="cmt"><p>Predicate that maps PointId to boolean ('true' = keep location).</p></dd><dt class="param">triangleFilter</dt><dd class="cmt"><p>Predicate that maps TriangleId to boolean ('true' = keep triangle).</p></dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskPoints" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="maskPoints(pointFilter:scalismo.common.PointId=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a>
-      <a id="maskPoints((PointId)⇒Boolean):MeshCompactifier"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -478,18 +814,17 @@ All cells containing deleted points are also deleted.</p></div><dl class="attrib
       <span class="symbol">
         <span class="name">maskPoints</span><span class="params">(<span name="pointFilter">pointFilter: (<a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="MeshCompactifier.html" class="extype" name="scalismo.mesh.MeshCompactifier">MeshCompactifier</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@maskPoints(pointFilter:scalismo.common.PointId=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <p class="shortcomment cmt">Mask reduces the pointSet and triangulation of a mesh to keep only those parts
 that evaluate to true for the passed in predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Mask reduces the pointSet and triangulation of a mesh to keep only those parts
 that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts block"><dt class="param">pointFilter</dt><dd class="cmt"><p>Predicate that maps PointId to boolean ('true' = keep location).</p></dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskSpatially" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="maskSpatially(pointFilter:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a>
-      <a id="maskSpatially((Point[_3D])⇒Boolean):MeshCompactifier"></a>
-      <h4 class="signature">
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskSpatially" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskSpatially(pointFilter:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a><a id="maskSpatially((Point[_3D])⇒Boolean):MeshCompactifier"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#maskSpatially(pointFilter:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -497,18 +832,17 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">maskSpatially</span><span class="params">(<span name="pointFilter">pointFilter: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="MeshCompactifier.html" class="extype" name="scalismo.mesh.MeshCompactifier">MeshCompactifier</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@maskSpatially(pointFilter:scalismo.geometry.Point[scalismo.geometry._3D]=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <p class="shortcomment cmt">Mask reduces the pointSet and triangulation of a mesh to keep only those parts
 that evaluate to true for the passed in predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Mask reduces the pointSet and triangulation of a mesh to keep only those parts
 that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts block"><dt class="param">pointFilter</dt><dd class="cmt"><p>predicate that maps 3d locations to boolean ('true' = keep location).</p></dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskTriangles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="maskTriangles(triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a>
-      <a id="maskTriangles((TriangleId)⇒Boolean):MeshCompactifier"></a>
-      <h4 class="signature">
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskTriangles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskTriangles(triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier"></a><a id="maskTriangles((TriangleId)⇒Boolean):MeshCompactifier"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#maskTriangles(triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -516,16 +850,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">maskTriangles</span><span class="params">(<span name="triangleFilter">triangleFilter: (<a href="TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="MeshCompactifier.html" class="extype" name="scalismo.mesh.MeshCompactifier">MeshCompactifier</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@maskTriangles(triangleFilter:scalismo.mesh.TriangleId=&gt;Boolean):scalismo.mesh.MeshCompactifier" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <p class="shortcomment cmt">Mask a mesh to a subset of the triangles.</p><div class="fullcomment"><div class="comment cmt"><p>Mask a mesh to a subset of the triangles.</p></div><dl class="paramcmts block"><dt class="param">triangleFilter</dt><dd class="cmt"><p>Predicate that maps TriangleId to boolean ('true' = keep triangle).</p></dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskWithPlane" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maskWithPlane(point:scalismo.geometry.Point[scalismo.geometry._3D],normal:scalismo.geometry.Vector[scalismo.geometry._3D]):scalismo.mesh.MeshCompactifier"></a><a id="maskWithPlane(Point[_3D],Vector[_3D]):MeshCompactifier"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#maskWithPlane(point:scalismo.geometry.Point[scalismo.geometry._3D],normal:scalismo.geometry.Vector[scalismo.geometry._3D]):scalismo.mesh.MeshCompactifier" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <p class="shortcomment cmt">Mask a mesh to a subset of the triangles.</p><div class="fullcomment"><div class="comment cmt"><p>Mask a mesh to a subset of the triangles.</p></div><dl class="paramcmts block"><dt class="param">triangleFilter</dt><dd class="cmt"><p>Predicate that maps TriangleId to boolean ('true' = keep triangle).</p></dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#maskWithPlane" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="maskWithPlane(point:scalismo.geometry.Point[scalismo.geometry._3D],normal:scalismo.geometry.Vector[scalismo.geometry._3D]):scalismo.mesh.MeshCompactifier"></a>
-      <a id="maskWithPlane(Point[_3D],Vector[_3D]):MeshCompactifier"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -533,18 +866,17 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">maskWithPlane</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="normal">normal: <a href="../geometry/Vector.html" class="extype" name="scalismo.geometry.Vector">Vector</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="MeshCompactifier.html" class="extype" name="scalismo.mesh.MeshCompactifier">MeshCompactifier</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@maskWithPlane(point:scalismo.geometry.Point[scalismo.geometry._3D],normal:scalismo.geometry.Vector[scalismo.geometry._3D]):scalismo.mesh.MeshCompactifier" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <p class="shortcomment cmt">mask points behind clipping plane
 </p><div class="fullcomment"><div class="comment cmt"><p>mask points behind clipping plane
 </p></div><dl class="paramcmts block"><dt class="param">point</dt><dd class="cmt"><p>point in clipping plane</p></dd><dt class="param">normal</dt><dd class="cmt"><p>normal vector of clipping plane</p></dd></dl></div>
-    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ne(x$1:AnyRef):Boolean"></a>
-      <a id="ne(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -552,16 +884,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="notify():Unit"></a>
-      <a id="notify():Unit"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -569,16 +900,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="notifyAll():Unit"></a>
-      <a id="notifyAll():Unit"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -586,16 +916,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#pointIsOnBoundary" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pointIsOnBoundary(pid:scalismo.common.PointId):Boolean"></a><a id="pointIsOnBoundary(PointId):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#pointIsOnBoundary(pid:scalismo.common.PointId):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#pointIsOnBoundary" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="pointIsOnBoundary(pid:scalismo.common.PointId):Boolean"></a>
-      <a id="pointIsOnBoundary(PointId):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -603,16 +932,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">pointIsOnBoundary</span><span class="params">(<span name="pid">pid: <a href="../common/PointId.html" class="extype" name="scalismo.common.PointId">PointId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@pointIsOnBoundary(pid:scalismo.common.PointId):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#shortestDistanceToSurfaceSquared" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="shortestDistanceToSurfaceSquared(point:scalismo.geometry.Point[scalismo.geometry._3D]):Double"></a><a id="shortestDistanceToSurfaceSquared(Point[_3D]):Double"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#shortestDistanceToSurfaceSquared(point:scalismo.geometry.Point[scalismo.geometry._3D]):Double" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#shortestDistanceToSurfaceSquared" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="shortestDistanceToSurfaceSquared(point:scalismo.geometry.Point[scalismo.geometry._3D]):Double"></a>
-      <a id="shortestDistanceToSurfaceSquared(Point[_3D]):Double"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -620,16 +948,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">shortestDistanceToSurfaceSquared</span><span class="params">(<span name="point">point: <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@shortestDistanceToSurfaceSquared(point:scalismo.geometry.Point[scalismo.geometry._3D]):Double" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
-      <a id="synchronized[T0](⇒T0):T0"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -637,16 +964,15 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#toBinaryImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toBinaryImage:scalismo.image.ScalarImage[scalismo.geometry._3D]"></a><a id="toBinaryImage:ScalarImage[_3D]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#toBinaryImage:scalismo.image.ScalarImage[scalismo.geometry._3D]" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#toBinaryImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toBinaryImage:scalismo.image.ScalarImage[scalismo.geometry._3D]"></a>
-      <a id="toBinaryImage:ScalarImage[_3D]"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -654,18 +980,17 @@ that evaluate to true for the passed in predicate.</p></div><dl class="paramcmts
       <span class="symbol">
         <span class="name">toBinaryImage</span><span class="result">: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@toBinaryImage:scalismo.image.ScalarImage[scalismo.geometry._3D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <p class="shortcomment cmt">Returns a new continuous binary <span class="extype" name="ScalarImage">ScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> , where the mesh surface is used to split the image domain.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new continuous binary <span class="extype" name="ScalarImage">ScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> , where the mesh surface is used to split the image domain.
 Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
 value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.</p></div></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#toDistanceImage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toDistanceImage:scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]"></a>
-      <a id="toDistanceImage:DifferentiableScalarImage[_3D]"></a>
-      <h4 class="signature">
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#toDistanceImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toDistanceImage:scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]"></a><a id="toDistanceImage:DifferentiableScalarImage[_3D]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#toDistanceImage:scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -673,17 +998,16 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <span class="symbol">
         <span class="name">toDistanceImage</span><span class="result">: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@toDistanceImage:scalismo.image.DifferentiableScalarImage[scalismo.geometry._3D]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <p class="shortcomment cmt">Returns a new continuous <span class="extype" name="DifferentiableScalarImage">DifferentiableScalarImage</span> defined on 3-dimensional <span class="extype" name="RealSpace">RealSpace</span> which is the distance transform of the mesh
 </p>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
-      <a id="toString():String"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#toString():String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -691,16 +1015,15 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.mesh.TriangleMesh3DOperations#triangleIsOnBoundary" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="triangleIsOnBoundary(tid:scalismo.mesh.TriangleId):Boolean"></a><a id="triangleIsOnBoundary(TriangleId):Boolean"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#triangleIsOnBoundary(tid:scalismo.mesh.TriangleId):Boolean" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scalismo.mesh.TriangleMesh3DOperations#triangleIsOnBoundary" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="triangleIsOnBoundary(tid:scalismo.mesh.TriangleId):Boolean"></a>
-      <a id="triangleIsOnBoundary(TriangleId):Boolean"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -708,16 +1031,15 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <span class="symbol">
         <span class="name">triangleIsOnBoundary</span><span class="params">(<span name="tid">tid: <a href="TriangleId.html" class="extype" name="scalismo.mesh.TriangleId">TriangleId</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@triangleIsOnBoundary(tid:scalismo.mesh.TriangleId):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      
+      
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
       </a>
     </span>
-      
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait():Unit"></a>
-      <a id="wait():Unit"></a>
-      <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -725,11 +1047,7 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -737,10 +1055,13 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
-      <a id="wait(Long,Int):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -748,11 +1069,7 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -760,10 +1077,13 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long):Unit"></a>
-      <a id="wait(Long):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/mesh/TriangleMesh3DOperations.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -771,11 +1091,7 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#scalismo.mesh.TriangleMesh3DOperations@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -783,7 +1099,8 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
     </span>)</span>
               
         </dd></dl></div>
-    </li></ol>
+    </li>
+              </ol>
             </div>
 
         
@@ -812,7 +1129,9 @@ value 1. Hence if the mesh is a closed surface, points inside the surface have v
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+    </body>
+          </div>
+        </div>
+      </div>
     </body>
       </html>
