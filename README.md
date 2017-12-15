@@ -43,7 +43,7 @@ The current maintainers of the project (people who can merge pull requests) are:
 * [Thomas Gerig](https://github.com/gerith)
 * [Marcel Luethi](https://github.com/marcelluethi)
 * [Andreas Forster](https://github.com/Andreas-Forster)
-* [Sandro Schoenborn](https://github.com/sschoenborn)
+* [Dennis Madsen](https://github.com/madsendennis)
 
 ## Related Projects
 Scalismo is closely related to the 
