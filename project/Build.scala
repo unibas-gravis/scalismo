@@ -13,14 +13,14 @@ import sbtbuildinfo.Plugin._
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
   val buildVersion = "0.10.0"
-  val buildScalaVersion = "2.10.5"
+  val buildScalaVersion = "2.12.4"
   val publishURL = Resolver.file("file", new File("/export/contrib/statismo/repo/public"))
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.10.5", "2.11.7"),
+    crossScalaVersions := Seq("2.10.5", "2.11.7", "2.12.4"),
     javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions ++= Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
     shellPrompt := ShellPrompt.buildShellPrompt)
@@ -65,10 +65,11 @@ object Resolvers {
 
 object Dependencies {
   import BuildSettings.scalismoPlatform
-  val scalatest = "org.scalatest" %% "scalatest" % "2.2+" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze" % "0.11.2"
-  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.11.2"
-  val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
+
+  val scalatest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  val breezeMath = "org.scalanlp" %% "breeze" % "0.13"
+  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.13"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "3.0.+"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "3.0.+" % "test"
   val spire = "org.spire-math" %% "spire" % "0.9.0"

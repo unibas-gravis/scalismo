@@ -190,7 +190,7 @@ object SquareMatrix {
   }
 
   def inv[D <: Dim: NDSpace](m: SquareMatrix[D]): SquareMatrix[D] = {
-    val bm = m.toBreezeMatrix
+    val bm = m.toBreezeMatrix.map(_.toDouble)
     val bmInv: DenseMatrix[Double] = breeze.linalg.inv(bm)
     new SquareMatrix[D](bmInv.data.map(_.toFloat))
   }

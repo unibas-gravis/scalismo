@@ -79,14 +79,14 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
   describe("The mahalanobis distance") {
     it("is 0 if the mean is used") {
       val mu = DenseVector(2f, 1.0f)
-      val cov = DenseMatrix.create[Float](2, 2, Array(1, 0, 0, 1))
+      val cov = DenseMatrix.create[Float](2, 2, Array(1f, 0f, 0f, 1f))
       val mvn = new MultivariateNormalDistribution(mu, cov)
       mvn.mahalanobisDistance(mu) should be(0.0 +- 1e-5)
     }
 
     it("yields the same as the squared norm if mean 0 and identity cov is used") {
       val mu = DenseVector(0f, 0f)
-      val cov = DenseMatrix.create[Float](2, 2, Array(1, 0, 0, 1))
+      val cov = DenseMatrix.create[Float](2, 2, Array(1f, 0f, 0f, 1f))
       val mvn = new MultivariateNormalDistribution(mu, cov)
       val x = DenseVector(3f, 7f)
       mvn.mahalanobisDistance(x) should be(breeze.linalg.norm(x, 2))
@@ -94,7 +94,7 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
 
     it("increases with distance from the mean") {
       val mu = DenseVector(3f, 0f)
-      val cov = DenseMatrix.create[Float](2, 2, Array(1, 0, 0, 1))
+      val cov = DenseMatrix.create[Float](2, 2, Array(1f, 0f, 0f, 1f))
       val mvn = new MultivariateNormalDistribution(mu, cov)
       for (i <- 1 until 10) {
         mvn.mahalanobisDistance(mu + DenseVector(1f, i.toFloat)) should be > mvn.mahalanobisDistance(mu + DenseVector(1f, (i - 1).toFloat))

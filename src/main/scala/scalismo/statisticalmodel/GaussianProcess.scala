@@ -124,7 +124,7 @@ object GaussianProcess {
       K(i * outputDim until (i + 1) * outputDim, i * outputDim until (i + 1) * outputDim) += errorDist.cov.toBreezeMatrix
     }
 
-    val K_inv = breeze.linalg.inv(K)
+    val K_inv = breeze.linalg.inv(K.map(_.toDouble))
 
     def xstar(x: Point[D]) = { Kernel.computeKernelVectorFor[D, DO](x, xs, gp.cov) }
 

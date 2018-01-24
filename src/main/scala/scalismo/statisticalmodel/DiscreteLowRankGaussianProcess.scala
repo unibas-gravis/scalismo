@@ -367,7 +367,8 @@ object DiscreteLowRankGaussianProcess {
 
     def demean(X: DenseMatrix[Float]): (DenseMatrix[Double], DenseVector[Double]) = {
       val X0 = X.map(_.toDouble) // will be the demeaned result matrix
-      val m: DenseVector[Double] = breeze.stats.mean(X0(::, *)).toDenseVector
+      val m: DenseVector[Double] = breeze.stats.mean(X0(::, *)).inner
+
       for (i <- 0 until X0.rows) {
         X0(i, ::) := X0(i, ::) - m.t
       }
@@ -417,7 +418,7 @@ object DiscreteLowRankGaussianProcess {
     assert(QtL.cols == errorDistributions.size * dim)
     assert(QtL.rows == gp.rank)
     for ((errDist, i) <- errorDistributions.zipWithIndex) {
-      QtL(::, i * dim until (i + 1) * dim) := QtL(::, i * dim until (i + 1) * dim) * breeze.linalg.inv(errDist.cov.toBreezeMatrix)
+      QtL(::, i * dim until (i + 1) * dim) := QtL(::, i * dim until (i + 1) * dim) * breeze.linalg.inv(errDist.cov.toBreezeMatrix.map(_.toDouble))
     }
 
     val M = QtL * Q + DenseMatrix.eye[Double](gp.rank)
