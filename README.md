@@ -44,6 +44,7 @@ The current maintainers of the project (people who can merge pull requests) are:
 * [Marcel Luethi](https://github.com/marcelluethi)
 * [Andreas Forster](https://github.com/Andreas-Forster)
 * [Dennis Madsen](https://github.com/madsendennis)
+* [Dana Rahbani](https://github.com/DanaRahbani)
 
 ## Related Projects
 Scalismo is closely related to the 
