@@ -25,13 +25,11 @@ We aim to achieve these properties by leveraging two core technologies:
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
 
 
-## Getting involved
+## How can I help?
 While scalismo is already fully usable for shape modeling and simple image processing task, its functionality is currently targeted
-to support the needs that arise in the research at the Gravis and Vision research group.  In particular, many standard image and mesh 
-processing algorithms are missing.
+to support the needs that arise in the research at the Gravis and Vision research group. If you find that a feature is missing, please let us know about it by opening an issue and describing the missing feature. 
 
-If you find scalismo useful for your work, you can help us to make it more complete by implementing missing features, in particular 
-filters for image and mesh processing, and support for more image formats. 
+We welcome contributions to scalismo. Please check the [Contributor's guide](contributing.md) for instructions how to contribute to Scalismo. 
 
 We are also always grateful if you report bugs or if give us feedback on how you use scalismo in your work and how you think we can improve it. 
 
