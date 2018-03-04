@@ -11,7 +11,7 @@ The vision of the project is to provide an environment for modelling and image a
 
 We aim to achieve these properties by leveraging two core technologies:
 
-* A simple but versatile [mathematical approach](http://gravis.cs.unibas.ch/publications/2013/MLMI-Luethi_etal-2013.pdf) to shape modeling and registration, based on the theory of Gaussian processes.
+* A simple but versatile [mathematical approach](http://ieeexplore.ieee.org/document/8010438/) to shape modeling and registration, based on the theory of Gaussian processes.
 * The Scala and Java ecosystem for reducing the software complexity. 
 
 ## Documentation
