@@ -1,6 +1,7 @@
 package scalismo.mesh
 
 import scalismo.common.PointId
+import scalismo.numerics.ValueInterpolator
 
 /**
  * Created by marcel on 15.09.15.
@@ -29,7 +30,7 @@ case class MappedContourProperty[A, B](values: LineContourProperty[A], f: A => B
   override def onContour(lineId: LineId, bcc: LineCoordinates): B = f(values.onContour(lineId, bcc))
 }
 
-case class ContourPointProperty[A](topology: LineList, pointData: IndexedSeq[A])(implicit val interpolator: Interpolator[A])
+case class ContourPointProperty[A](topology: LineList, pointData: IndexedSeq[A])(implicit val interpolator: ValueInterpolator[A])
     extends LineContourProperty[A] {
 
   require(topology.pointIds.forall(id => pointData.isDefinedAt(id.id)), "Line topology is not compatible with data")
@@ -45,7 +46,7 @@ case class ContourPointProperty[A](topology: LineList, pointData: IndexedSeq[A])
     bcc.interpolateProperty(v1, v2)
   }
 
-  def map[B](f: A => B)(implicit interpolator: Interpolator[B]): ContourPointProperty[B] = {
+  def map[B](f: A => B)(implicit interpolator: ValueInterpolator[B]): ContourPointProperty[B] = {
     val newData = pointData map f
     ContourPointProperty(topology, newData)
   }
@@ -53,7 +54,7 @@ case class ContourPointProperty[A](topology: LineList, pointData: IndexedSeq[A])
 
 object ContourPointProperty {
 
-  def averagedPointProperty[A](linetopology: LineList, property: LineContourProperty[A])(implicit ops: Interpolator[A]): ContourPointProperty[A] = {
+  def averagedPointProperty[A](linetopology: LineList, property: LineContourProperty[A])(implicit ops: ValueInterpolator[A]): ContourPointProperty[A] = {
     def averager(data: IndexedSeq[A]): A = {
       data.size match {
         case 0 => throw new Exception("averaging over empty set")
@@ -64,7 +65,7 @@ object ContourPointProperty {
     sampleContourProperty(linetopology, property, averager)
   }
 
-  def sampleContourProperty[A](lineTopology: LineList, property: LineContourProperty[A], reducer: IndexedSeq[A] => A)(implicit ops: Interpolator[A]): ContourPointProperty[A] = {
+  def sampleContourProperty[A](lineTopology: LineList, property: LineContourProperty[A], reducer: IndexedSeq[A] => A)(implicit ops: ValueInterpolator[A]): ContourPointProperty[A] = {
 
     // get all data for a single vertex:
     def getVertex(pointId: PointId): A = {

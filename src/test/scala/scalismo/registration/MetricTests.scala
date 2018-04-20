@@ -15,12 +15,16 @@
  */
 package scalismo.registration
 
+import _root_.java.io.File
+
+import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.DifferentiableScalarImage
-import scalismo.numerics.UniformSampler
+import scalismo.image.{ DiscreteImageDomain, DifferentiableScalarImage }
+import scalismo.io.ImageIO
+import scalismo.numerics.{ LBFGSOptimizer, GridSampler, UniformSampler }
 import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
@@ -39,4 +43,100 @@ class MetricTests extends ScalismoTestSuite {
       MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformParameters) should be(0.0 +- 0.001)
     }
   }
+
+  describe("The mutual information metric") {
+    val testImgURL = getClass.getResource("/dm128.vtk").getPath
+
+    val fixedImage = ImageIO.read2DScalarImage[Float](new File(testImgURL)).get
+    val fixedImageCont = fixedImage.interpolate(3)
+    val translationSpace = TranslationSpace[_2D]
+    val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
+
+    it("has the global minimum where the images are similar") {
+
+      val metric = MutualInformationMetric[_2D](fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
+      val zeroVec = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+
+      for (_ <- 0 until 10) {
+        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+        metric.value(params) should be >= metric.value(zeroVec)
+      }
+    }
+
+    it("goes to a lower value when following the (negative) gradient") {
+
+      val metric = MutualInformationMetric[_2D](fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
+      for (_ <- 0 until 10) {
+        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+
+        val origValue = metric.value(params)
+        val grad = metric.derivative(params)
+
+        metric.value(params - grad * 1e-5) should be < origValue
+      }
+    }
+
+    it("recovers the parameters in a registration") {
+
+      val trueParams = DenseVector.ones[Double](translationSpace.parametersDimensionality)
+      val movingImage = fixedImageCont.compose(translationSpace.transformForParameters(-trueParams))
+
+      val metric = MutualInformationMetric[_2D](fixedImageCont, fixedImage.domain, movingImage, translationSpace, sampler)
+
+      val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+      val regIt = Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
+      val finalParams = regIt.toIndexedSeq.last.parameters
+
+      breeze.linalg.norm(finalParams - trueParams) should be < 1e-1
+    }
+  }
+
+  describe("The huber loss metric") {
+    val testImgURL = getClass.getResource("/dm128.vtk").getPath
+
+    val fixedImage = ImageIO.read2DScalarImage[Float](new File(testImgURL)).get
+    val fixedImageCont = fixedImage.interpolate(3)
+    val translationSpace = TranslationSpace[_2D]
+    val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
+
+    it("has the global minimum where the images are similar") {
+
+      val metric = MeanHuberLossMetric[_2D](fixedImageCont, fixedImageCont, translationSpace, sampler)
+      val zeroVec = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+
+      for (_ <- 0 until 10) {
+        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+        metric.value(params) should be >= metric.value(zeroVec)
+      }
+    }
+
+    it("goes to a lower value when following the (negative) gradient") {
+
+      val metric = MeanHuberLossMetric[_2D](fixedImageCont, fixedImageCont, translationSpace, sampler)
+      for (_ <- 0 until 10) {
+        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+
+        val origValue = metric.value(params)
+        val grad = metric.derivative(params)
+
+        metric.value(params - grad * 1e-1) should be < origValue
+      }
+    }
+
+    it("recovers the parameters in a registration") {
+
+      val trueParams = DenseVector.ones[Double](translationSpace.parametersDimensionality) * 5.0
+      val movingImage = fixedImageCont.compose(translationSpace.transformForParameters(-trueParams))
+
+      val metric = MeanHuberLossMetric[_2D](fixedImageCont, movingImage, translationSpace, sampler)
+
+      val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+      val regIt = Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
+      val regSteps = regIt.toIndexedSeq
+      val finalParams = regSteps.last.parameters
+
+      breeze.linalg.norm(finalParams - trueParams) should be < 1e-1
+    }
+  }
+
 }
