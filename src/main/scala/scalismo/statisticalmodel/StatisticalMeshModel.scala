@@ -23,7 +23,7 @@ import scalismo.geometry.Vector._
 import scalismo.geometry._
 import scalismo.mesh._
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
-import scalismo.registration.RigidTransformation
+import scalismo.registration.{ RigidTransformation, ScalingTransformation, SimilarityTransformation }
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
@@ -153,11 +153,19 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
    * The spanned shape space is not affected by this operations.
    */
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
-    val newRef = referenceMesh.transform(rigidTransform)
+    transform(SimilarityTransformation(ScalingTransformation[_3D](1.0), rigidTransform))
+  }
+
+  /**
+   * transform the statistical mesh model using the given similarity transform.
+   * The spanned shape space is affected by this operations with the scalingtransform.
+   */
+  def transform(similarityTransform: SimilarityTransformation[_3D]): StatisticalMeshModel = {
+    val newRef = referenceMesh.transform(similarityTransform)
 
     val newMean: DenseVector[Double] = {
       val newMeanVecs = for ((pt, meanAtPoint) <- gp.mean.pointsWithValues) yield {
-        rigidTransform(pt + meanAtPoint) - rigidTransform(pt)
+        similarityTransform(pt + meanAtPoint) - similarityTransform(pt)
       }
       val data = newMeanVecs.map(_.toArray).flatten.toArray
       DenseVector(data)
@@ -167,15 +175,14 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
 
     for ((Eigenpair(_, ithKlBasis), i) <- gp.klBasis.zipWithIndex) {
       val newIthBasis = for ((pt, basisAtPoint) <- ithKlBasis.pointsWithValues) yield {
-        rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
+        similarityTransform(pt + basisAtPoint) - similarityTransform(pt)
       }
       val data = newIthBasis.map(_.toArray).flatten.toArray
       newBasisMat(::, i) := DenseVector(data)
     }
-    val newGp = new DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], Vector[_3D]](gp.domain.transform(rigidTransform), newMean, gp.variance, newBasisMat)
+    val newGp = new DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], Vector[_3D]](gp.domain.transform(similarityTransform), newMean, gp.variance, newBasisMat)
 
     new StatisticalMeshModel(newRef, newGp)
-
   }
 
   /**
