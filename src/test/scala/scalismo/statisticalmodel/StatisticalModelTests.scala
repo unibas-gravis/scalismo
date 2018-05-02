@@ -22,7 +22,7 @@ import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.StatismoIO
-import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
+import scalismo.registration._
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -86,7 +86,6 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val newRank = model.rank / 2
       val truncatedModel = model.truncate(newRank)
       truncatedModel.rank should equal(newRank)
-
     }
 
     //    it("can write a changed mean statistical mode, read it and still yield the same space") {
@@ -97,6 +96,20 @@ class StatisticalModelTests extends ScalismoTestSuite {
     //      val readModel = StatismoIO.readStatismoMeshModel(tmpStatismoFile).get
     //      compareModels(model, readModel)
     //    }
+
+    it("can perform similarity transform back and forth on statistical model") {
+      val path = getClass.getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+
+      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
+      val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
+      val scalingTranform = ScalingTransformation[_3D](2)
+      val similarityTranform = SimilarityTransformation(scalingTranform, rigidTransform)
+      val inverseTransform = similarityTranform.inverse
+      val transformedModel = model.transform(similarityTranform)
+      val newModel = transformedModel.transform(inverseTransform)
+      compareModels(model, newModel)
+    }
 
   }
 
