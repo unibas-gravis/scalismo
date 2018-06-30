@@ -110,7 +110,7 @@ object DiscreteField {
  *
  */
 
-class DiscreteScalarField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: ScalarArray[A]) extends DiscreteField[D, DDomain, A](domain, data) {
+class DiscreteScalarField[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: ScalarArray[A]) extends DiscreteField[D, DDomain, A](domain, data) {
   //class DiscreteScalarField[D <: Dim: NDSpace, A: Scalar: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: ScalarArray[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
