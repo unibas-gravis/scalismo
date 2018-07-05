@@ -13,7 +13,7 @@ import com.typesafe.sbt.SbtGit.useJGit
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildScalaVersion = "2.11.8"
+  val buildScalaVersion = "2.12.6"
 
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
