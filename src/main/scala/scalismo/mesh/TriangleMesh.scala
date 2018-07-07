@@ -15,9 +15,11 @@
  */
 package scalismo.mesh
 
+import scalismo.color.RGBA
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.geometry.Vector._
+import scalismo.registration.Transformation
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -196,6 +198,26 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
 object TriangleMesh3D {
   def apply(points: IndexedSeq[Point[_3D]], topology: TriangleList): TriangleMesh3D = {
     TriangleMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), topology)
+  }
+}
+
+/**
+ * colored mesh with color per vertex
+ */
+case class VertexColorMesh3D(pointSet: UnstructuredPointsDomain[_3D],
+    triangulation: TriangleList,
+    color: SurfacePointProperty[RGBA]) extends TriangleMesh[_3D] {
+
+  require(this.triangulation == color.triangulation)
+
+  override def transform(transform: (Point[_3D]) => Point[_3D]): VertexColorMesh3D = {
+    copy(pointSet = pointSet.transform(transform))
+  }
+}
+
+object VertexColorMesh3D {
+  def apply(triangleMesh: TriangleMesh[_3D], color: SurfacePointProperty[RGBA]): VertexColorMesh3D = {
+    VertexColorMesh3D(triangleMesh.pointSet, triangleMesh.triangulation, color)
   }
 }
 
