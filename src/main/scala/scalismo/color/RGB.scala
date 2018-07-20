@@ -92,7 +92,7 @@ case class RGB(r: Double, g: Double, b: Double) {
   def toTuple: (Double, Double, Double) = (r, g, b)
 
   /** convert to standard Vector[_3D] */
-  def toVector = Vector(r, g, b)
+  def toVector: Vector[_3D] = Vector(r, g, b)
 
   /**
    * convert to AWT default color

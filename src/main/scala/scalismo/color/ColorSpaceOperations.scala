@@ -66,7 +66,7 @@ trait ColorSpaceOperations[@specialized(Double, Float) A] {
 object ColorSpaceOperations {
 
   /** implicit implementation of ColorSpaceOperations for plain Float */
-  implicit val floatColorSpace = new ColorSpaceOperations[Float] {
+  implicit val floatColorSpace: ColorSpaceOperations[Float] = new ColorSpaceOperations[Float] {
     override def add(pix1: Float, pix2: Float): Float = pix1 + pix2
     override def multiply(pix1: Float, pix2: Float): Float = pix1 * pix2
     override def dot(pix1: Float, pix2: Float): Double = pix1 * pix2
@@ -76,7 +76,7 @@ object ColorSpaceOperations {
   }
 
   /** implicit implementation of ColorSpaceOperations for plain Double */
-  implicit val doubleColorSpace = new ColorSpaceOperations[Double] {
+  implicit val doubleColorSpace: ColorSpaceOperations[Double] = new ColorSpaceOperations[Double] {
     override def add(pix1: Double, pix2: Double): Double = pix1 + pix2
     override def multiply(pix1: Double, pix2: Double): Double = pix1 * pix2
     override def dot(pix1: Double, pix2: Double): Double = pix1 * pix2
@@ -86,7 +86,7 @@ object ColorSpaceOperations {
   }
 
   /** implementation for vectors of arbitrary dimension */
-  implicit def vecColorSpaceND[D <: Dim: NDSpace] = new ColorSpaceOperations[Vector[D]] {
+  implicit def vecColorSpaceND[D <: Dim: NDSpace]: ColorSpaceOperations[Vector[D]] = new ColorSpaceOperations[Vector[D]] {
     override def add(pix1: Vector[D], pix2: Vector[D]): Vector[D] = pix1 + pix2
     override def multiply(pix1: Vector[D], pix2: Vector[D]): Vector[D] = pix1 :* pix2
     override def dot(pix1: Vector[D], pix2: Vector[D]): Double = pix1 dot pix2
@@ -96,7 +96,7 @@ object ColorSpaceOperations {
   }
 
   /** implementation for type A wrapped in Option[A] */
-  implicit def optionSpace[A](implicit ops: ColorSpaceOperations[A]) = new ColorSpaceOperations[Option[A]] {
+  implicit def optionSpace[A](implicit ops: ColorSpaceOperations[A]): ColorSpaceOperations[Option[A]] = new ColorSpaceOperations[Option[A]] {
     override def add(pix1: Option[A], pix2: Option[A]): Option[A] = for (p1 <- pix1; p2 <- pix2) yield ops.add(p1, p2)
     override def multiply(pix1: Option[A], pix2: Option[A]): Option[A] = for (p1 <- pix1; p2 <- pix2) yield ops.multiply(p1, p2)
     override def dot(pix1: Option[A], pix2: Option[A]): Double = (for (p1 <- pix1; p2 <- pix2) yield ops.dot(p1, p2)).getOrElse(0.0)
