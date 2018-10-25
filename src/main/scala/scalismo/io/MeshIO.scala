@@ -168,6 +168,11 @@ object MeshIO {
     }
   }
 
+  /**
+    * Writes a [[VertexColorMesh3D]] to a file.
+    *
+    * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
+    * */
   def writeVertexColorMesh3D(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -387,7 +392,7 @@ object MeshIO {
         case Some(("RGBA", colorArray)) => {
           val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
             val rgba = colorArray.GetTuple4(i)
-            RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3))
+            RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3) / 255.0)
           }
           Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
         }
