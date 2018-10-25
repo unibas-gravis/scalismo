@@ -19,7 +19,7 @@ package scalismo.color
 import java.awt.Color
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ComponentRepresentation, Vectorizer}
+import scalismo.common.{ ComponentRepresentation, Vectorizer }
 import scalismo.numerics.ValueInterpolator
 
 import scala.annotation.switch

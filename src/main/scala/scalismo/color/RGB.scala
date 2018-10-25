@@ -19,9 +19,9 @@ package scalismo.color
 import java.awt.Color
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ComponentRepresentation, Vectorizer}
+import scalismo.common.{ ComponentRepresentation, Vectorizer }
 import scalismo.geometry.Vector._
-import scalismo.geometry.{Vector, _3D}
+import scalismo.geometry.{ Vector, _3D }
 import scalismo.numerics.ValueInterpolator
 
 import scala.annotation.switch
