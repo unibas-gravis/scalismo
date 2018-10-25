@@ -107,7 +107,13 @@ object MeshIO {
   def readVertexColorMesh3D(file: File): Try[VertexColorMesh3D] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".ply") => readPLY(file).map(_.right.get)
+      case f if f.endsWith(".ply") => readPLY(file).map { r =>
+        r match {
+          case Right(colorMesh3D) => colorMesh3D
+          case Left(_) =>  throw new Exception("Indicated PLY file does not contain color values.")
+        }
+      }
+
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
