@@ -225,7 +225,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val domain = discreteFixedImage.domain
       val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
-      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)
       val transformationSpace = GaussianProcessTransformationSpace(lowRankGp)
 
@@ -259,7 +259,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
-      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor
 
       val transformationSpace = GaussianProcessTransformationSpace(nnInterpolatedGp)

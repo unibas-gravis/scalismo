@@ -168,7 +168,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
     val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
-    val biasLowRank = LowRankGaussianProcess.approximateGP(bias, UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500), Fixture.pcaModel.rank + 5)
+    val biasLowRank = LowRankGaussianProcess.approximateGPNystrom(bias, UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500), Fixture.pcaModel.rank + 5)
     val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, biasLowRank)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {

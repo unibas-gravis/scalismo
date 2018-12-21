@@ -246,7 +246,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, +DDomain <: Discret
       override val outputDim = self.outputDim
     }
     val gp = GaussianProcess(Field(RealSpace[D], meanFun _), covFun)
-    LowRankGaussianProcess.approximateGP[D, Value](gp, sampler, rank)
+    LowRankGaussianProcess.approximateGPNystrom[D, Value](gp, sampler, rank)
   }
 
   /**

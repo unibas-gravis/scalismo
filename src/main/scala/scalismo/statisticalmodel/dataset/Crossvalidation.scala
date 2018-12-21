@@ -68,7 +68,7 @@ object Crossvalidation {
 
         val model = if (biasModelAndRank.isDefined) {
           val (biasModel, rankBiasModel) = biasModelAndRank.get
-          val biasModelLowRank = LowRankGaussianProcess.approximateGP(biasModel, UniformMeshSampler3D(pcaModel.referenceMesh, 1000), numBasisFunctions = rankBiasModel)
+          val biasModelLowRank = LowRankGaussianProcess.approximateGPNystrom(biasModel, UniformMeshSampler3D(pcaModel.referenceMesh, 1000), numBasisFunctions = rankBiasModel)
           StatisticalMeshModel.augmentModel(pcaModel, biasModelLowRank)
         } else {
           pcaModel

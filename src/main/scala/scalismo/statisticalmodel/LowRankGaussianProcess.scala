@@ -193,11 +193,18 @@ object LowRankGaussianProcess {
    * @param sampler           determines which points will be used as samples for the nystrom approximation.
    * @param numBasisFunctions The number of basis functions to approximate.
    */
-  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGPNystrom[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
     numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis.take(numBasisFunctions))
+  }
+
+  @deprecated("the method has been renamed to approximateGPNystrom", "0.17")
+  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+                                              sampler: Sampler[D],
+                                              numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+    approximateGPNystrom(gp, sampler, numBasisFunctions)
   }
 
   /**
@@ -208,12 +215,17 @@ object LowRankGaussianProcess {
    * @param sampler           determines which points will be used as samples for the nystrom approximation.
    * @
    */
-  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGPNystrom[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
 
+  @deprecated("the method has been renamed to approximateGPNystrom", "0.17")
+  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+    approximateGPNystrom(gp, sampler)
+  }
 
   /**
     * Perform a low-rank approximation of the Gaussian process using a pivoted Cholesky approximation.
@@ -236,7 +248,7 @@ object LowRankGaussianProcess {
     *
     * @return       A low rank approximation of the Gaussian process
     */
-  def approximateGP[D <: Dim : NDSpace, DDomain <: DiscreteDomain[D], Value]
+  def approximateGPCholesky[D <: Dim : NDSpace, DDomain <: DiscreteDomain[D], Value]
   (domain: DDomain,
    gp: GaussianProcess[D, Value],
    relativeTolerance: Double,
