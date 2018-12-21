@@ -345,6 +345,54 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
   }
 
+  describe("a LowRank Gaussian Process computed with the pivoted cholesky") {
+
+    it("approximate the right amount of variance based on the relative error") {
+      val ssmPath = getClass.getResource("/facemodel.h5").getPath
+      val ssm = StatismoIO.readStatismoMeshModel(new java.io.File(ssmPath)).get
+      val nnInterpolator = NearestNeighborInterpolator[_3D, Vector[_3D]]()
+      val gpToApproximate = ssm.gp.interpolate(nnInterpolator)
+
+      val origVariance = gpToApproximate.klBasis.map(_.eigenvalue).sum
+
+      for (epsilon <- Seq(0.0, 0.1, 0.2, 0.5)) {
+        val approximatedGP = LowRankGaussianProcess.approximateGP(ssm.referenceMesh.pointSet, gpToApproximate, epsilon, nnInterpolator)
+
+        val numApproximatedBasisFunctions = approximatedGP.rank
+
+        val approxVariance = approximatedGP.klBasis.map(_.eigenvalue).sum
+
+        (origVariance - approxVariance) should be <= (epsilon * origVariance + 1e-1)
+      }
+    }
+
+    it("keeps the probability of samples unchanged") {
+      val ssmPath = getClass.getResource("/facemodel.h5").getPath
+      val fullSsm = StatismoIO.readStatismoMeshModel(new java.io.File(ssmPath)).get
+
+      // we truncate the ssm to avoid numerical error
+      val ssm = fullSsm.truncate(fullSsm.rank / 2)
+
+      val nnInterpolator = NearestNeighborInterpolator[_3D, Vector[_3D]]()
+      val gpToApproximate = ssm.gp.interpolate(nnInterpolator)
+      val approximatedGP = LowRankGaussianProcess.approximateGP(ssm.referenceMesh.pointSet, gpToApproximate, 0.0, nnInterpolator)
+
+      val rank = gpToApproximate.rank
+      for (i <- 0 until 10) yield {
+        val trueCoeffs = DenseVector.rand(rank, breeze.stats.distributions.Gaussian(0, 1))
+        val sample = ssm.gp.instance(trueCoeffs)
+        val dataPoints = sample.domain.points.toIndexedSeq.zip(sample.values.toIndexedSeq)
+        val coeffsApproximatedGp = approximatedGP.coefficients(dataPoints, 1e-5)
+
+        // as the probability is fully defined by the norm of the coefficient vector, it is sufficient to
+        // compare the norms
+        breeze.linalg.norm(coeffsApproximatedGp) should be(breeze.linalg.norm(trueCoeffs) +- 1e-1)
+      }
+
+    }
+
+  }
+
   describe("a discrete LowRank Gaussian process") {
 
     object Fixture {

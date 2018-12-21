@@ -16,16 +16,17 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector, diag }
+import breeze.linalg.{DenseMatrix, DenseVector, diag}
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
-import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
+import scalismo.common.interpolation.FieldInterpolator
+import scalismo.geometry.{Dim, NDSpace, Point, SquareMatrix, Vector}
+import scalismo.kernels.{Kernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
-import scalismo.numerics.Sampler
+import scalismo.numerics.{PivotedCholesky, Sampler}
 import scalismo.registration.RigidTransformation
-import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
-import scalismo.utils.{ Memoize, Random }
+import scalismo.statisticalmodel.LowRankGaussianProcess.{Eigenpair, KLBasis}
+import scalismo.utils.{Memoize, Random}
 
 /**
  *
@@ -211,6 +212,61 @@ object LowRankGaussianProcess {
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
+  }
+
+
+  /**
+    * Perform a low-rank approximation of the Gaussian process using a pivoted Cholesky approximation.
+    * This approximation will automatically compute the required number of basis functions, to achieve a given
+    * approximation quality.
+    *
+    * @param domain The domain on which the approximation is performed. This can, for example be the points of a mesh,
+    *               an image domain (regular grid) or any other suitable domain. Note that the number of points in this
+    *               domain influences the approximation accuracy. As the complexity of this method grows at most
+    *               linearly with the number of points, efficient approximations can be computed for domains which contain
+    *               millions of points.
+    *
+    * @param gp     The gaussian process to be approximated
+    *
+    * @param relativeTolerance  The relative tolerance defines the stopping criterion for the approximation. When we
+    *                           choose this parameter as 0.01, the method will stop computing new basis functions, when
+    *                           the variance represented by the approximated Gaussian Process is 99% of the total variance
+    *                           of the original process.
+    * @param interpolator       An interpolator used to interpolate values that lie between the points of the domain
+    *
+    * @return       A low rank approximation of the Gaussian process
+    */
+  def approximateGP[D <: Dim : NDSpace, DDomain <: DiscreteDomain[D], Value]
+  (domain: DDomain,
+   gp: GaussianProcess[D, Value],
+   relativeTolerance: Double,
+   interpolator: FieldInterpolator[D, DDomain, Value])
+  (implicit vectorizer: Vectorizer[Value], rand: Random): LowRankGaussianProcess[D, Value] = {
+
+    val (basis, scale) = PivotedCholesky.computeApproximateEig(
+      kernel = gp.cov,
+      xs = domain.points.toIndexedSeq,
+      D = 1.0,
+      stoppingCriterion = RelativeTolerance(relativeTolerance)
+    )
+
+
+    // Assemble a discrete Gaussian process from the matrix given by the pivoted cholesky and use the interpolator
+    // to interpolate it.
+    val nBasisFunctions = basis.cols
+
+    val klBasis: DiscreteLowRankGaussianProcess.KLBasis[D, DDomain, Value] = for (i <- 0 until nBasisFunctions) yield {
+      val discreteEV = DiscreteField.createFromDenseVector[D, DDomain, Value](domain, basis(::, i))
+      DiscreteLowRankGaussianProcess.Eigenpair(scale(i), discreteEV)
+    }
+
+    val mean = DiscreteField[D, DDomain, Value](domain, domain.points.toIndexedSeq.map(p => gp.mean(p)))
+
+    val dgp = DiscreteLowRankGaussianProcess[D, DDomain, Value](mean, klBasis)
+
+    // interpolate to get a continuous GP
+    dgp.interpolate(interpolator)
+
   }
 
   private def covFromKLTBasis[D <: Dim: NDSpace, Value](klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value]): MatrixValuedPDKernel[D] = {
