@@ -17,12 +17,11 @@ package scalismo.statisticalmodel.dataset
 
 import java.io.File
 
-import scalismo.common.{ RealSpace, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh._
 import scalismo.registration.{ LandmarkRegistration, Transformation }
-import scalismo.utils.{ Memoize, Random }
+import scalismo.utils.{ Random }
 
 import scala.annotation.tailrec
 
@@ -153,7 +152,6 @@ object DataCollection {
     val referencePoints = dc.reference.pointSet.points.toIndexedSeq
     val numberOfPoints = referencePoints.size
     val referenceCenterOfMass = referencePoints.foldLeft(Point3D(0, 0, 0))((acc, pt) => acc + (pt.toVector / numberOfPoints))
-    val numberOfShapes = dc.size
 
     val meanShapePoints = meanShape.pointSet.points.toIndexedSeq
 

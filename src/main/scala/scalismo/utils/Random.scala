@@ -15,8 +15,7 @@
  */
 package scalismo.utils
 
-import breeze.stats.distributions.{ ThreadLocalRandomGenerator, RandBasis }
-import org.apache.commons.math3.random.MersenneTwister
+import breeze.stats.distributions.{ RandBasis }
 
 /**
  * A thin wrapper around different random number generators.

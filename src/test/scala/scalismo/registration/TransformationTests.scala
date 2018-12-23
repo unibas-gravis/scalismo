@@ -187,18 +187,17 @@ class TransformationTests extends ScalismoTestSuite {
       }
     }
 
-    it("a rigid transformation yields the same result as the composition of rotation and translation") {
+    it("a rigid transformation yields the same result as the rigid transform composed of rotation and translation") {
 
       val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val translationParams = DenseVector(1.5, 1.0, 3.5)
       val rotation = RotationSpace[_3D](Point(0f, 0f, 0f)).transformForParameters(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
       val translation = TranslationSpace[_3D].transformForParameters(translationParams)
 
-      val composed = translation compose rotation
       val rigid = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
 
       val transformedRigid = mesh.transform(rigid)
-      val transformedComposed = mesh.transform(rigid)
+      val transformedComposed = mesh.transform(translation compose rotation)
 
       val diffNormMax = transformedRigid.pointSet.points.zip(transformedComposed.pointSet.points).map { case (p1, p2) => (p1 - p2).norm }.max
       assert(diffNormMax < 0.00001)

@@ -15,8 +15,6 @@
  */
 package scalismo.statisticalmodel
 
-import _root_.java.io.File
-
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
@@ -24,7 +22,6 @@ import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.io.StatismoIO
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel }
 import scalismo.numerics.{ GridSampler, UniformSampler }
 import scalismo.utils.Random
@@ -455,7 +452,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("yields the same values on the discrete points when interpolated with nearest neighbor") {
       val f = Fixture
-      val interpolatedGP = f.discreteLowRankGp.interpolateNearestNeighbor
+      val interpolatedGP = f.discreteLowRankGp.interpolate(NearestNeighborInterpolator())
       val gaussRNG = Gaussian(0, 1)(random.breezeRandBasis)
       val coeffs = DenseVector.rand(interpolatedGP.rank, gaussRNG)
 
@@ -468,7 +465,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val f = Fixture
 
       val orignalLowRankPosterior = f.lowRankGp.posterior(f.trainingDataLowRankGP)
-      val interpolatedGPPosterior = f.discreteLowRankGp.interpolateNearestNeighbor.posterior(f.trainingDataLowRankGP)
+      val interpolatedGPPosterior = f.discreteLowRankGp.interpolate(NearestNeighborInterpolator()).posterior(f.trainingDataLowRankGP)
 
       val gaussRNG = Gaussian(0, 1)(random.breezeRandBasis)
       val coeffs = DenseVector.rand(orignalLowRankPosterior.rank, gaussRNG)

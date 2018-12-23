@@ -65,7 +65,7 @@ private[scalismo] object Metric {
     }
   }
 
-  implicit def metricFromCoordVectorD[D <: Dim: NDSpace](implicit n: Numeric[Double]) = new Metric[Point[D], Double] {
+  implicit def metricFromCoordVectorD[D <: Dim: NDSpace] = new Metric[Point[D], Double] {
     val dim = implicitly[NDSpace[D]].dimensionality
     def distance(x: Point[D], y: Point[D]): Double = {
       var i = 0

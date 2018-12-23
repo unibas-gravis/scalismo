@@ -15,11 +15,10 @@
  */
 package scalismo.numerics
 
-import breeze.linalg.qr.QR
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector, diag, norm }
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
-import scalismo.utils.{ Benchmark, Random }
+import scalismo.utils.{ Random }
 
 /**
  * Implementation of a Randomized approach for SVD,

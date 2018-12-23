@@ -18,11 +18,10 @@ package scalismo.kernels
 import breeze.linalg.{ DenseMatrix, DenseVector, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.PivotedCholesky.{ NumberOfEigenfunctions, RelativeTolerance }
-import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
+import scalismo.numerics.PivotedCholesky.{RelativeTolerance }
+import scalismo.numerics.{ PivotedCholesky, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
-import scalismo.utils.Random
 
 abstract class PDKernel[D <: Dim] {
   self =>
@@ -179,7 +178,7 @@ case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
   override def outputDim = kernel.outputDim
 
   def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
-    var sum = DenseMatrix.zeros[Double](outputDim, outputDim)
+    val sum = DenseMatrix.zeros[Double](outputDim, outputDim)
     for (i <- min until max) {
       sum += kernel((x.toVector * Math.pow(2, i)).toPoint, (y.toVector * Math.pow(2, i)).toPoint) * scale(i)
     }
@@ -263,7 +262,7 @@ object Kernel {
    * @return The leading eigenvalue / eigenfunction pairs
    */
   def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
-    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random): KLBasis[D, Value] = {
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -271,8 +270,6 @@ object Kernel {
     val (ptsForNystrom, _) = sampler.sample().unzip
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
-
-    val K = computeKernelMatrix(ptsForNystrom, k)
 
     // we compute the eigenvectors only approximately, to a tolerance of 1e-5. As the nystrom approximation is
     // anyway not exact, this should be sufficient for all practical cases.

@@ -64,9 +64,6 @@ class IntegrationTest extends ScalismoTestSuite {
 
       val img = ScalarImage(BoxDomain(-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
 
-      val region1 = BoxDomain(-1.0f, 1.0f)
-      val region2 = BoxDomain(-8.0f, 8.0f)
-
       val numPoints = 200
       val grid1 = DiscreteImageDomain(Point(-1.0), Vector(2.0 / numPoints), IntVector(numPoints))
       val grid2 = DiscreteImageDomain(Point(-8.0), Vector(16.0 / numPoints), IntVector(numPoints))

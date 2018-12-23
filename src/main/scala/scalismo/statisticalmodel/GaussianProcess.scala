@@ -17,7 +17,6 @@ package scalismo.statisticalmodel
 
 import breeze.linalg._
 import scalismo.common._
-import scalismo.geometry.Vector
 import scalismo.geometry._
 import scalismo.kernels._
 import scalismo.utils.Random

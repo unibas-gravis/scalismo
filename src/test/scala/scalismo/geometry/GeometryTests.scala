@@ -21,8 +21,6 @@ import scalismo.registration._
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.utils.Random
 
-import scala.language.implicitConversions
-
 class GeometryTests extends ScalismoTestSuite {
 
   implicit val random = Random(42L)
@@ -69,7 +67,6 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("can map a function p.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
-        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0))
         val f = (x: Double) => 2.0 + x
         val g = (x: Double) => x - 2.0
         (pt.map(f).map(g) - pt).norm should be < 1e-4
@@ -124,7 +121,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("can map a function v.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+
         val f = (x: Double) => 2.0 + x
         val g = (x: Double) => x - 2.0
         (v.map(f).map(g) - v).norm should be < 1e-4
@@ -226,7 +223,6 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("can map a function p.map(f).map(g) == 0 (f: x => 2 + x, g: x => x - 2)") {
-        val z = IntVector[D](Array.fill(NDSpace[D].dimensionality)(0))
         val f = (x: Int) => 2 + x
         val g = (x: Int) => x - 2
         ind.map(f).map(g) should equal(ind)

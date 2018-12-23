@@ -30,10 +30,6 @@ object Crossvalidation {
 
   type EvaluationFunction[A] = (StatisticalMeshModel, TriangleMesh[_3D]) => A
 
-  private def projectIntoModel(model: StatisticalMeshModel, mesh: TriangleMesh[_3D]): TriangleMesh[_3D] = {
-    model.project(mesh)
-  }
-
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */

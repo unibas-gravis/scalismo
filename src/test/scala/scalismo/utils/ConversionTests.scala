@@ -20,8 +20,6 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry._2D
 import scalismo.io.{ ImageIO, MeshIO }
 
-import scala.language.implicitConversions
-
 class ConversionTests extends ScalismoTestSuite {
 
   describe("a Mesh ") {

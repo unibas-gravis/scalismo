@@ -17,7 +17,6 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
 import scalismo.utils.Random
 
 class MultivariateNormalDistributionTests extends ScalismoTestSuite {
@@ -117,7 +116,7 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
       val variance = 5.0
       val stddev = math.sqrt(variance)
       val mvn = new MultivariateNormalDistribution(DenseVector(0.0), DenseMatrix.create[Double](1, 1, Array(variance)))
-      mvn.mahalanobisDistance(DenseVector(math.sqrt(variance))) should be(1.0 +- 1e-5)
+      mvn.mahalanobisDistance(DenseVector(stddev)) should be(1.0 +- 1e-5)
     }
   }
 

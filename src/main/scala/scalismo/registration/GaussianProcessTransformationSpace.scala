@@ -15,7 +15,7 @@
  */
 package scalismo.registration
 
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ Dim, Point, Vector }
 import scalismo.statisticalmodel.LowRankGaussianProcess
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import TransformationSpace.ParameterVector
