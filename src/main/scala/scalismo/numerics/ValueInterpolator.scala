@@ -16,7 +16,7 @@
 package scalismo.numerics
 
 import scalismo.common.Scalar
-import scalismo.geometry.Vector._
+import scalismo.geometry.SpatialVector._
 import scalismo.geometry._
 import spire.math.{ UByte, UInt, UShort }
 
@@ -118,37 +118,37 @@ object ValueInterpolator {
 
   // ** VectorXD **
 
-  implicit val vectorBlender1D = new ValueInterpolator[Vector1D] {
-    override def blend(obj1: Vector1D, obj2: Vector1D, l: Double): Vector1D = Vector1D(
+  implicit val vectorBlender1D = new ValueInterpolator[SpatialVector1D] {
+    override def blend(obj1: SpatialVector1D, obj2: SpatialVector1D, l: Double): SpatialVector1D = SpatialVector1D(
       obj1.x * l + obj2.x * (1.0 - l))
 
-    override def barycentricInterpolation(v1: Vector1D, f1: Double, v2: Vector1D, f2: Double, v3: Vector1D, f3: Double): Vector1D = {
-      Vector1D(
+    override def barycentricInterpolation(v1: SpatialVector1D, f1: Double, v2: SpatialVector1D, f2: Double, v3: SpatialVector1D, f3: Double): SpatialVector1D = {
+      SpatialVector1D(
         v1.x * f1 + v2.x * f2 + v3.x * f3)
     }
 
-    override def average(first: Vector1D, rest: Vector1D*): Vector1D = {
+    override def average(first: SpatialVector1D, rest: SpatialVector1D*): SpatialVector1D = {
       var x: Double = first.x
       rest.foreach { v =>
         x += v.x
       }
       val n = rest.size + 1.0
-      Vector1D(x / n)
+      SpatialVector1D(x / n)
     }
   }
 
-  implicit val vectorBlender2D = new ValueInterpolator[Vector2D] {
-    override def blend(obj1: Vector2D, obj2: Vector2D, l: Double): Vector2D = Vector2D(
+  implicit val vectorBlender2D = new ValueInterpolator[SpatialVector2D] {
+    override def blend(obj1: SpatialVector2D, obj2: SpatialVector2D, l: Double): SpatialVector2D = SpatialVector2D(
       obj1.x * l + obj2.x * (1.0 - l),
       obj1.y * l + obj2.y * (1.0 - l))
 
-    override def barycentricInterpolation(v1: Vector2D, f1: Double, v2: Vector2D, f2: Double, v3: Vector2D, f3: Double): Vector2D = {
-      Vector2D(
+    override def barycentricInterpolation(v1: SpatialVector2D, f1: Double, v2: SpatialVector2D, f2: Double, v3: SpatialVector2D, f3: Double): SpatialVector2D = {
+      SpatialVector2D(
         v1.x * f1 + v2.x * f2 + v3.x * f3,
         v1.y * f1 + v2.y * f2 + v3.y * f3)
     }
 
-    override def average(first: Vector2D, rest: Vector2D*): Vector2D = {
+    override def average(first: SpatialVector2D, rest: SpatialVector2D*): SpatialVector2D = {
       var x: Double = first.x
       var y: Double = first.y
       rest.foreach { v =>
@@ -156,24 +156,24 @@ object ValueInterpolator {
         y += v.y
       }
       val n = rest.size + 1.0
-      Vector2D(x / n, y / n)
+      SpatialVector2D(x / n, y / n)
     }
   }
 
-  implicit val vectorBlender3D = new ValueInterpolator[Vector3D] {
-    override def blend(obj1: Vector3D, obj2: Vector3D, l: Double): Vector3D = Vector3D(
+  implicit val vectorBlender3D = new ValueInterpolator[SpatialVector3D] {
+    override def blend(obj1: SpatialVector3D, obj2: SpatialVector3D, l: Double): SpatialVector3D = SpatialVector3D(
       obj1.x * l + obj2.x * (1.0 - l),
       obj1.y * l + obj2.y * (1.0 - l),
       obj1.z * l + obj2.z * (1.0 - l))
 
-    override def barycentricInterpolation(v1: Vector3D, f1: Double, v2: Vector3D, f2: Double, v3: Vector3D, f3: Double): Vector3D = {
-      Vector3D(
+    override def barycentricInterpolation(v1: SpatialVector3D, f1: Double, v2: SpatialVector3D, f2: Double, v3: SpatialVector3D, f3: Double): SpatialVector3D = {
+      SpatialVector3D(
         v1.x * f1 + v2.x * f2 + v3.x * f3,
         v1.y * f1 + v2.y * f2 + v3.y * f3,
         v1.z * f1 + v2.z * f2 + v3.z * f3)
     }
 
-    override def average(first: Vector3D, rest: Vector3D*): Vector3D = {
+    override def average(first: SpatialVector3D, rest: SpatialVector3D*): SpatialVector3D = {
       var x: Double = first.x
       var y: Double = first.y
       var z: Double = first.z
@@ -183,33 +183,33 @@ object ValueInterpolator {
         z += v.z
       }
       val n = rest.size + 1.0
-      Vector3D(x / n, y / n, z / n)
+      SpatialVector3D(x / n, y / n, z / n)
     }
   }
 
   // ** Vector[D] **
 
-  implicit val vectorBlender_1D = new ValueInterpolator[Vector[_1D]] {
-    override def blend(obj1: Vector[_1D], obj2: Vector[_1D], l: Double): Vector[_1D] = vectorBlender1D.blend(obj1, obj2, l)
+  implicit val vectorBlender_1D = new ValueInterpolator[SpatialVector[_1D]] {
+    override def blend(obj1: SpatialVector[_1D], obj2: SpatialVector[_1D], l: Double): SpatialVector[_1D] = vectorBlender1D.blend(obj1, obj2, l)
 
-    override def barycentricInterpolation(v1: Vector[_1D], f1: Double, v2: Vector[_1D], f2: Double, v3: Vector[_1D], f3: Double): Vector[_1D] = vectorBlender1D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
+    override def barycentricInterpolation(v1: SpatialVector[_1D], f1: Double, v2: SpatialVector[_1D], f2: Double, v3: SpatialVector[_1D], f3: Double): SpatialVector[_1D] = vectorBlender1D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
-    override def average(first: Vector[_1D], rest: Vector[_1D]*): Vector[_1D] = {
+    override def average(first: SpatialVector[_1D], rest: SpatialVector[_1D]*): SpatialVector[_1D] = {
       var x: Double = first.x
       rest.foreach { v =>
         x += v.x
       }
       val n = rest.size + 1.0
-      Vector1D(x / n)
+      SpatialVector1D(x / n)
     }
   }
 
-  implicit val vectorBlender_2D = new ValueInterpolator[Vector[_2D]] {
-    override def blend(obj1: Vector[_2D], obj2: Vector[_2D], l: Double): Vector[_2D] = vectorBlender2D.blend(obj1, obj2, l)
+  implicit val vectorBlender_2D = new ValueInterpolator[SpatialVector[_2D]] {
+    override def blend(obj1: SpatialVector[_2D], obj2: SpatialVector[_2D], l: Double): SpatialVector[_2D] = vectorBlender2D.blend(obj1, obj2, l)
 
-    override def barycentricInterpolation(v1: Vector[_2D], f1: Double, v2: Vector[_2D], f2: Double, v3: Vector[_2D], f3: Double): Vector[_2D] = vectorBlender2D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
+    override def barycentricInterpolation(v1: SpatialVector[_2D], f1: Double, v2: SpatialVector[_2D], f2: Double, v3: SpatialVector[_2D], f3: Double): SpatialVector[_2D] = vectorBlender2D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
-    override def average(first: Vector[_2D], rest: Vector[_2D]*): Vector[_2D] = {
+    override def average(first: SpatialVector[_2D], rest: SpatialVector[_2D]*): SpatialVector[_2D] = {
       var x: Double = first.x
       var y: Double = first.y
       rest.foreach { v =>
@@ -217,16 +217,16 @@ object ValueInterpolator {
         y += v.y
       }
       val n = rest.size + 1.0
-      Vector2D(x / n, y / n)
+      SpatialVector2D(x / n, y / n)
     }
   }
 
-  implicit val vectorBlender_3D = new ValueInterpolator[Vector[_3D]] {
-    override def blend(obj1: Vector[_3D], obj2: Vector[_3D], l: Double): Vector[_3D] = vectorBlender3D.blend(obj1, obj2, l)
+  implicit val vectorBlender_3D = new ValueInterpolator[SpatialVector[_3D]] {
+    override def blend(obj1: SpatialVector[_3D], obj2: SpatialVector[_3D], l: Double): SpatialVector[_3D] = vectorBlender3D.blend(obj1, obj2, l)
 
-    override def barycentricInterpolation(v1: Vector[_3D], f1: Double, v2: Vector[_3D], f2: Double, v3: Vector[_3D], f3: Double): Vector[_3D] = vectorBlender3D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
+    override def barycentricInterpolation(v1: SpatialVector[_3D], f1: Double, v2: SpatialVector[_3D], f2: Double, v3: SpatialVector[_3D], f3: Double): SpatialVector[_3D] = vectorBlender3D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
-    override def average(first: Vector[_3D], rest: Vector[_3D]*): Vector[_3D] = {
+    override def average(first: SpatialVector[_3D], rest: SpatialVector[_3D]*): SpatialVector[_3D] = {
       var x: Double = first.x
       var y: Double = first.y
       var z: Double = first.z
@@ -236,7 +236,7 @@ object ValueInterpolator {
         z += v.z
       }
       val n = rest.size + 1.0
-      Vector3D(x / n, y / n, z / n)
+      SpatialVector3D(x / n, y / n, z / n)
     }
   }
 }

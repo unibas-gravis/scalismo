@@ -81,7 +81,7 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
 case class BoxedFilter[D <: Dim: NDSpace](width: Double) extends Filter[D] {
   def apply(p: Point[D]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2.0
-  val v = Vector[D](breeze.linalg.DenseVector.ones[Double](implicitly[NDSpace[D]].dimensionality).data)
+  val v = SpatialVector[D](breeze.linalg.DenseVector.ones[Double](implicitly[NDSpace[D]].dimensionality).data)
 
   def support = BoxDomain[D]((v * (-w)).toPoint, (v * (w)).toPoint)
 }

@@ -22,7 +22,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
 import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
+import scalismo.geometry.SpatialVector.implicits._
 import scalismo.geometry._
 import scalismo.io.ImageIO
 
@@ -60,7 +60,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       // The difference is, however , guaranteed to be smaller than the spacing in each direction. This is also
       // the difference between bounding and image box.
       newDomain.boundingBox.volume should be >= domain.boundingBox.volume
-      newDomain.boundingBox.volume should be <= BoxDomain(domain.boundingBox.origin, domain.boundingBox.oppositeCorner + Vector(1.0, 1.0)).volume
+      newDomain.boundingBox.volume should be <= BoxDomain(domain.boundingBox.origin, domain.boundingBox.oppositeCorner + SpatialVector(1.0, 1.0)).volume
     }
 
     it("identifies the closest point correctly") {

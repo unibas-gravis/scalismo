@@ -27,8 +27,8 @@ class GeometryTests extends ScalismoTestSuite {
 
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p
-  val v = Vector(0.1, 3.0, 1.1)
-  val vGeneric: Vector[_3D] = v
+  val v = SpatialVector(0.1, 3.0, 1.1)
+  val vGeneric: SpatialVector[_3D] = v
 
   def checkPoint[D <: Dim: NDSpace]() = {
     def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
@@ -85,7 +85,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkPoint[_3D]()
 
   def checkVector[D <: Dim: NDSpace]() = {
-    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
+    def randomVector(): SpatialVector[D] = SpatialVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val v = randomVector()
 
     describe(s"A random nD Vector $v (n=${NDSpace[D].dimensionality})") {
@@ -95,15 +95,15 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("fulfills v*(-1) + v*(1) == 0") {
-        v * (-1) + v * 1 should equal(Vector.zeros[D])
+        v * (-1) + v * 1 should equal(SpatialVector.zeros[D])
       }
 
       it("fulfills v - v == 0") {
-        v - v should equal(Vector.zeros[D])
+        v - v should equal(SpatialVector.zeros[D])
       }
 
       it("converts to an Array and back") {
-        Vector[D](v.toArray) should equal(v)
+        SpatialVector[D](v.toArray) should equal(v)
       }
 
       it("converts to an Array of proper length") {
@@ -111,11 +111,11 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("converts to a Breeze vector and back") {
-        Vector.fromBreezeVector[D](v.toBreezeVector) should equal(v)
+        SpatialVector.fromBreezeVector[D](v.toBreezeVector) should equal(v)
       }
 
       it("can map a constant value v.map(f) == 0 (f: x => 0.0)") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        val z = SpatialVector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
         def f(x: Double): Double = 0.0
         v.map(f) should equal(z)
       }
@@ -128,7 +128,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("can map a function using its index: v.mapWithIndex(f) == 0 (f: (x,i) => x - v(i))") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        val z = SpatialVector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
         v.mapWithIndex((x, i) => x - v(i)) should equal(z)
       }
 
@@ -166,7 +166,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("provides a zero norm for zero vectors") {
-        Vector.zeros[D].norm should be(0.0 +- 1e-10)
+        SpatialVector.zeros[D].norm should be(0.0 +- 1e-10)
       }
 
       it("has norm which probably (1 example) fulfills the triangle equality") {
@@ -282,31 +282,31 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("gives the correct norm and normsquared for various test cases") {
-      Vector(1.0).norm2 should equal(1)
-      Vector(1.0, 1.0).norm2 should equal(2)
-      Vector(1.0, 1.0, 1.0).norm2 should equal(3)
-      Vector(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 +- 1e-5)
+      SpatialVector(1.0).norm2 should equal(1)
+      SpatialVector(1.0, 1.0).norm2 should equal(2)
+      SpatialVector(1.0, 1.0, 1.0).norm2 should equal(3)
+      SpatialVector(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 +- 1e-5)
       v.norm should be(math.sqrt(v.norm2) +- 1e-5)
     }
 
     it("gives the correct dot value for the dot product") {
-      val v1 = Vector(4.9, -3.5, -1.0)
-      val v2 = Vector(3.1, 2.1, 5.0)
+      val v1 = SpatialVector(4.9, -3.5, -1.0)
+      val v2 = SpatialVector(3.1, 2.1, 5.0)
       v1 dot v2 should be(v1.toBreezeVector dot v2.toBreezeVector)
     }
 
     it("gives the correct value for the outer product") {
-      val v1 = Vector(4.0, -3.0, -1.0)
-      val v2 = Vector(3.0, 2.0, 5.0)
+      val v1 = SpatialVector(4.0, -3.0, -1.0)
+      val v2 = SpatialVector(3.0, 2.0, 5.0)
       val res = SquareMatrix((12.0, 8.0, 20.0), (-9.0, -6.0, -15.0), (-3.0, -2.0, -5.0))
       (v1 outer v2) should be(res)
     }
 
     it("gives the correct value for the cross product") {
-      val v1 = Vector(4.0, -3.0, -1.0)
-      val v2 = Vector(3.0, 2.0, 5.0)
+      val v1 = SpatialVector(4.0, -3.0, -1.0)
+      val v2 = SpatialVector(3.0, 2.0, 5.0)
       val crossPdBreeze = breeze.linalg.cross(v1.toBreezeVector, v2.toBreezeVector)
-      v1.crossproduct(v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
+      v1.crossproduct(v2) should be(SpatialVector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
     }
 
     it("can be mapped with a function f: (Double) => Double") {
@@ -338,11 +338,11 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("A 3D vector constructed from spherical coordinates is identical to the corresponding point") {
-      Vector.fromSpherical(3.0, 3.0, 5.0) shouldBe Point.fromSpherical(3.0, 3.0, 5.0).toVector
+      SpatialVector.fromSpherical(3.0, 3.0, 5.0) shouldBe Point.fromSpherical(3.0, 3.0, 5.0).toVector
     }
 
     it("A 2D vector constructed from spherical coordinates is identical to the corresponding point") {
-      Vector.fromPolar(2.0, 0.5) shouldBe Point.fromPolar(2.0, 0.5).toVector
+      SpatialVector.fromPolar(2.0, 0.5) shouldBe Point.fromPolar(2.0, 0.5).toVector
     }
   }
 
@@ -386,7 +386,7 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("can be multiplied by a vector") {
-      val v = Vector(1.0, 2.0, 3.0)
+      val v = SpatialVector(1.0, 2.0, 3.0)
       val vBreeze = DenseVector(1.0, 2.0, 3.0)
       val mxv = m * v
       val mxvBreeze = m.toBreezeMatrix * vBreeze
@@ -432,10 +432,10 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("fulfills some simple identities with ones,zeros and ident") {
-      val v = Vector(1.0, 2.0, 3.0)
+      val v = SpatialVector(1.0, 2.0, 3.0)
       SquareMatrix.eye[_3D] * v should equal(v)
-      SquareMatrix.zeros[_3D] * v should equal(Vector(0.0, 0.0, 0.0))
-      SquareMatrix.ones[_3D] * v should equal(Vector(6.0, 6.0, 6.0))
+      SquareMatrix.zeros[_3D] * v should equal(SpatialVector(0.0, 0.0, 0.0))
+      SquareMatrix.ones[_3D] * v should equal(SpatialVector(6.0, 6.0, 6.0))
     }
 
     it("yields itself when transposed twice") {
@@ -477,7 +477,7 @@ class GeometryTests extends ScalismoTestSuite {
 
     it("is correctly transformed using a rigid transform") {
 
-      val rigidTransform = RigidTransformation(TranslationTransform(Vector2D(2, 3)),
+      val rigidTransform = RigidTransformation(TranslationTransform(SpatialVector2D(2, 3)),
         RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
 
       val transformedLm = lm.transform(rigidTransform)

@@ -17,7 +17,7 @@ package scalismo.common
 
 import breeze.linalg.DenseVector
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
+import scalismo.geometry.{ Dim, NDSpace, Point, SpatialVector }
 
 import scala.reflect.ClassTag
 
@@ -155,7 +155,7 @@ object DiscreteScalarField {
 }
 
 @deprecated("This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])", "since 0.15")
-class DiscreteVectorField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], DO <: Dim: NDSpace](domain: DDomain, data: IndexedSeq[Vector[DO]]) extends DiscreteField[D, DDomain, Vector[DO]](domain, data) {
+class DiscreteVectorField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], DO <: Dim: NDSpace](domain: DDomain, data: IndexedSeq[SpatialVector[DO]]) extends DiscreteField[D, DDomain, SpatialVector[DO]](domain, data) {
 
   override def values = data.iterator
   override def apply(ptId: PointId) = data(ptId.id)
@@ -166,7 +166,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], DO <:
   }
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def map(f: Vector[DO] => Vector[DO]): DiscreteVectorField[D, DDomain, DO] = new DiscreteVectorField(domain, data.map(f))
+  def map(f: SpatialVector[DO] => SpatialVector[DO]): DiscreteVectorField[D, DDomain, DO] = new DiscreteVectorField(domain, data.map(f))
 
   def asBreezeVector: DenseVector[Double] = {
     val d = implicitly[NDSpace[DO]].dimensionality
@@ -181,7 +181,7 @@ class DiscreteVectorField[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], DO <:
 
 @deprecated("This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])", "since 0.15")
 object DiscreteVectorField {
-  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], DO <: Dim: NDSpace](domain: DDomain, data: IndexedSeq[Vector[DO]]): DiscreteVectorField[D, DDomain, DO] = {
+  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], DO <: Dim: NDSpace](domain: DDomain, data: IndexedSeq[SpatialVector[DO]]): DiscreteVectorField[D, DDomain, DO] = {
     new DiscreteVectorField(domain, data)
   }
 
@@ -195,7 +195,7 @@ object DiscreteVectorField {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =
       for (v <- vec.toArray.grouped(dim))
-        yield Vector.apply[DO](v)
+        yield SpatialVector.apply[DO](v)
 
     DiscreteVectorField[D, DDomain, DO](domain, vectors.toIndexedSeq)
   }

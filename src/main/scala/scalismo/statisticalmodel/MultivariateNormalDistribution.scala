@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg.svd.SVD
 import breeze.linalg._
 import breeze.stats.distributions.Gaussian
-import scalismo.geometry.Vector
+import scalismo.geometry.SpatialVector
 import scalismo.geometry._
 import scalismo.utils.Random
 
@@ -202,7 +202,7 @@ object MultivariateNormalDistribution {
 
 @deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.", "0.13.0")
 object NDimensionalNormalDistribution {
-  def apply[D <: Dim: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Double)]): NDimensionalNormalDistribution[D] = {
+  def apply[D <: Dim: NDSpace](mean: SpatialVector[D], principalComponents: Seq[(SpatialVector[D], Double)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
@@ -220,22 +220,22 @@ object NDimensionalNormalDistribution {
 }
 
 @deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.", "0.13.0")
-case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], cov: SquareMatrix[D])
-    extends MultivariateNormalDistributionLike[Vector[D], SquareMatrix[D]] {
+case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: SpatialVector[D], cov: SquareMatrix[D])
+    extends MultivariateNormalDistributionLike[SpatialVector[D], SquareMatrix[D]] {
 
   private val impl = MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix)
 
-  override def pdf(x: Vector[D]): Double = impl.pdf(x.toBreezeVector)
+  override def pdf(x: SpatialVector[D]): Double = impl.pdf(x.toBreezeVector)
 
-  override def logpdf(x: Vector[D]): Double = impl.logpdf(x.toBreezeVector)
+  override def logpdf(x: SpatialVector[D]): Double = impl.logpdf(x.toBreezeVector)
 
   override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def sample()(implicit rand: Random): Vector[D] = Vector.fromBreezeVector(impl.sample)
+  override def sample()(implicit rand: Random): SpatialVector[D] = SpatialVector.fromBreezeVector(impl.sample)
 
-  override def principalComponents: Seq[(Vector[D], Double)] = impl.principalComponents.map { case (v, d) => (Vector.fromBreezeVector(v), d) }
+  override def principalComponents: Seq[(SpatialVector[D], Double)] = impl.principalComponents.map { case (v, d) => (SpatialVector.fromBreezeVector(v), d) }
 
-  override def mahalanobisDistance(x: Vector[D]): Double = impl.mahalanobisDistance(x.toBreezeVector)
+  override def mahalanobisDistance(x: SpatialVector[D]): Double = impl.mahalanobisDistance(x.toBreezeVector)
 
   def toMultivariateNormalDistribution: MultivariateNormalDistribution = impl
 }

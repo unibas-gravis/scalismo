@@ -27,7 +27,7 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
 
     it("returns correct value at grid points.") {
 
-      val dom = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), IntVector(2, 2, 2))
+      val dom = DiscreteImageDomain(Point(0, 0, 0), SpatialVector(1, 1, 1), IntVector(2, 2, 2))
       val img = DiscreteScalarImage(dom, (p: Point[_3D]) => p.x)
       val img_interpolated = img.interpolate(LinearImageInterpolator[_3D, Double])
       val id = img.domain.pointId(IntVector(1, 1, 1))
@@ -39,7 +39,7 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
 
     it("correctly interpolates in 3D") {
 
-      val dom = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), IntVector(2, 2, 2))
+      val dom = DiscreteImageDomain(Point(0, 0, 0), SpatialVector(1, 1, 1), IntVector(2, 2, 2))
       val img = DiscreteScalarImage(dom, (p: Point[_3D]) => p.x)
       val img_interpolated = img.interpolate(LinearImageInterpolator[_3D, Double])
       val point = Point(0.5, 0.5, 0.5)
@@ -50,7 +50,7 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
 
     it("correctly interpolates in 2D") {
 
-      val dom = DiscreteImageDomain(Point(0, 0), Vector(1, 1), IntVector(2, 2))
+      val dom = DiscreteImageDomain(Point(0, 0), SpatialVector(1, 1), IntVector(2, 2))
       val img = DiscreteScalarImage(dom, (p: Point[_2D]) => p.x)
       val img_interpolated = img.interpolate(LinearImageInterpolator[_2D, Double])
       val point = Point(0.5, 0.5)
@@ -61,7 +61,7 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
 
     it("correctly interpolates in 1D") {
 
-      val dom = DiscreteImageDomain(Point(0), Vector(1), IntVector(2))
+      val dom = DiscreteImageDomain(Point(0), SpatialVector(1), IntVector(2))
       val img = DiscreteScalarImage(dom, (p: Point[_1D]) => p.x)
       val img_interpolated = img.interpolate(LinearImageInterpolator[_1D, Double])
       val point = Point(0.5)

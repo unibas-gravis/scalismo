@@ -34,7 +34,7 @@ class IntegrationTest extends ScalismoTestSuite {
     it("Correctly integrates x squared on interval [-1,1]") {
 
       val domain = BoxDomain(0f, 1.0f)
-      val img = DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => Vector(2f) * x(0))
+      val img = DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => SpatialVector(2f) * x(0))
 
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), IntVector(255))
       val integrator = Integrator[_1D](GridSampler(grid))
@@ -48,11 +48,11 @@ class IntegrationTest extends ScalismoTestSuite {
       val img = DifferentiableScalarImage(
         BoxDomain[_1D](-math.Pi.toFloat, math.Pi.toFloat),
         (x: Point[_1D]) => math.sin(x.toDouble).toFloat,
-        (x: Point[_1D]) => Vector(-math.cos(x.toDouble).toFloat)
+        (x: Point[_1D]) => SpatialVector(-math.cos(x.toDouble).toFloat)
       )
 
       val numPoints = 1000
-      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), Vector(2 * math.Pi.toFloat / numPoints), IntVector(numPoints))
+      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), SpatialVector(2 * math.Pi.toFloat / numPoints), IntVector(numPoints))
       val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
@@ -65,8 +65,8 @@ class IntegrationTest extends ScalismoTestSuite {
       val img = ScalarImage(BoxDomain(-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
 
       val numPoints = 200
-      val grid1 = DiscreteImageDomain(Point(-1.0), Vector(2.0 / numPoints), IntVector(numPoints))
-      val grid2 = DiscreteImageDomain(Point(-8.0), Vector(16.0 / numPoints), IntVector(numPoints))
+      val grid1 = DiscreteImageDomain(Point(-1.0), SpatialVector(2.0 / numPoints), IntVector(numPoints))
+      val grid2 = DiscreteImageDomain(Point(-8.0), SpatialVector(16.0 / numPoints), IntVector(numPoints))
       val integrator1 = Integrator(GridSampler(grid1))
       val integrator2 = Integrator(GridSampler(grid2))
       val res1 = integrator1.integrateScalar(img)

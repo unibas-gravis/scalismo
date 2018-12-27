@@ -63,7 +63,7 @@ trait BoxDomain[D <: Dim] extends Domain[D] {
     (0 until pt.dimensionality).forall(i => isInsideAxis(i))
   }
 
-  val extent: Vector[D] = oppositeCorner - origin
+  val extent: SpatialVector[D] = oppositeCorner - origin
   val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
 
 }

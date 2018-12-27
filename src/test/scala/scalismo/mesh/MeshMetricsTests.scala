@@ -19,7 +19,7 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{ Point, SpatialVector, _3D }
 import scalismo.io.MeshIO
 import scalismo.utils.Random
 
@@ -30,7 +30,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
   val path = getClass.getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
   val translationLength = 1.0
-  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0, 0.0))
+  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + SpatialVector(translationLength, 0.0, 0.0))
 
   describe("The ProcrustesDistanceMetric") {
 
@@ -62,7 +62,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("returns the max distance") {
       // create a mesh where the first vector is displaced by a value of 1
-      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.pointSet.findClosestPoint(pt).id == PointId(0)) pt + Vector(1, 0, 0) else pt)
+      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.pointSet.findClosestPoint(pt).id == PointId(0)) pt + SpatialVector(1, 0, 0) else pt)
       MeshMetrics.hausdorffDistance(mesh, newMesh) should be(1)
     }
 
@@ -90,7 +90,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
     }
 
     it("yields 0 if the volumes don't overlap") {
-      val spheremeshTranslated = spheremesh.transform(pt => pt + Vector(10, 0, 0))
+      val spheremeshTranslated = spheremesh.transform(pt => pt + SpatialVector(10, 0, 0))
       MeshMetrics.diceCoefficient(spheremesh, spheremeshTranslated) should be(0.0)
     }
 

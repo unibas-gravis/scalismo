@@ -22,7 +22,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
+import scalismo.geometry.SpatialVector.implicits._
 import scalismo.geometry._
 import scalismo.io.ImageIO
 

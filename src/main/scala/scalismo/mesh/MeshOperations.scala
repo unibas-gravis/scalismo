@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.{ PointId, RealSpace }
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{ Point, SpatialVector, _3D }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh.boundingSpheres._
 
@@ -38,9 +38,9 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   private lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
 
   private lazy val intersect: TriangulatedSurfaceIntersectionIndex[_3D] = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
-  def hasIntersection(point: Point[_3D], direction: Vector[_3D]): Boolean = intersect.hasIntersection(point, direction)
-  def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
-  def getIntersectionPointsOnSurface(point: Point[_3D], direction: Vector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
+  def hasIntersection(point: Point[_3D], direction: SpatialVector[_3D]): Boolean = intersect.hasIntersection(point, direction)
+  def getIntersectionPoints(point: Point[_3D], direction: SpatialVector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
+  def getIntersectionPointsOnSurface(point: Point[_3D], direction: SpatialVector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
 
   private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
   def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
@@ -85,7 +85,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
 
     def grad(pt: Point[_3D]) = {
       val closestPt = closestPoint(pt).point
-      val grad = Vector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
+      val grad = SpatialVector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
 
@@ -130,7 +130,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    * @param point  point in clipping plane
    * @param normal normal vector of clipping plane
    */
-  def maskWithPlane(point: Point[_3D], normal: Vector[_3D]): MeshCompactifier = {
+  def maskWithPlane(point: Point[_3D], normal: SpatialVector[_3D]): MeshCompactifier = {
     val n = normal.normalize
     maskPoints(
       (pid: PointId) => (mesh.pointSet.point(pid) - point).dot(n) >= 0.0

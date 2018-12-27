@@ -19,7 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector, diag }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
+import scalismo.geometry.{ Dim, NDSpace, Point, SpatialVector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
@@ -322,18 +322,18 @@ object LowRankGaussianProcess {
    * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
    * vectors are transformed along the domain.
    */
-  def transform[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, Vector[D]], rigidTransform: RigidTransformation[D])(implicit vectorizer: Vectorizer[Vector[D]]): LowRankGaussianProcess[D, Vector[D]] = {
+  def transform[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, SpatialVector[D]], rigidTransform: RigidTransformation[D])(implicit vectorizer: Vectorizer[SpatialVector[D]]): LowRankGaussianProcess[D, SpatialVector[D]] = {
     val invTransform = rigidTransform.inverse
 
     val newDomain = gp.domain.warp(rigidTransform)
 
-    def newMean(pt: Point[D]): Vector[D] = {
+    def newMean(pt: Point[D]): SpatialVector[D] = {
       val ptOrigGp = invTransform(pt)
       rigidTransform(ptOrigGp + gp.mean(ptOrigGp)) - rigidTransform(ptOrigGp)
     }
 
     val newBasis = for (Eigenpair(ev, phi) <- gp.klBasis) yield {
-      def newPhi(pt: Point[D]): Vector[D] = {
+      def newPhi(pt: Point[D]): SpatialVector[D] = {
         val ptOrigGp = invTransform(pt)
         rigidTransform(ptOrigGp + phi(ptOrigGp)) - pt
       }
@@ -341,7 +341,7 @@ object LowRankGaussianProcess {
       Eigenpair(ev, newBasis)
     }
 
-    new LowRankGaussianProcess[D, Vector[D]](Field(newDomain, newMean _), newBasis)
+    new LowRankGaussianProcess[D, SpatialVector[D]](Field(newDomain, newMean _), newBasis)
   }
 
 }

@@ -169,7 +169,7 @@ private class DiscreteScalarImage1D[A: Scalar: ClassTag](domain: DiscreteImageDo
     def df(x: Point[_1D]) = {
       //derivative
       val splineBasisD1: (Double => Double) = { x => (BSpline.nthOrderBSpline(degree - 1)(x + 0.5f) - BSpline.nthOrderBSpline(degree - 1)(x - 0.5f)) * (1 / domain.spacing(0)) }
-      Vector(iterateOnPoints(x, splineBasisD1).toFloat)
+      SpatialVector(iterateOnPoints(x, splineBasisD1).toFloat)
     }
     DifferentiableScalarImage(domain.boundingBox, f, df)
   }
@@ -228,7 +228,7 @@ private class DiscreteScalarImage2D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val splineBasisD2 = (x: Double, y: Double) => bSplineNthOrder(x) * (bSplineNmin1thOrder(y + 0.5f) - bSplineNmin1thOrder(y - 0.5f))
       val dfx = (iterateOnPoints(x, splineBasisD1) * (1 / domain.spacing(0))).toFloat
       val dfy = (iterateOnPoints(x, splineBasisD2) * (1 / domain.spacing(1))).toFloat
-      Vector(dfx, dfy)
+      SpatialVector(dfx, dfy)
     }
 
     DifferentiableScalarImage(domain.boundingBox, f, df)
@@ -312,7 +312,7 @@ private class DiscreteScalarImage3D[A: Scalar: ClassTag](domain: DiscreteImageDo
       val dfx = (iterateOnPoints(x, splineBasisD1) * (1 / domain.spacing(0))).toFloat
       val dfy = (iterateOnPoints(x, splineBasisD2) * (1 / domain.spacing(1))).toFloat
       val dfz = (iterateOnPoints(x, splineBasisD3) * (1 / domain.spacing(2))).toFloat
-      Vector(dfx, dfy, dfz)
+      SpatialVector(dfx, dfy, dfz)
     }
     val bbox = domain.boundingBox
     DifferentiableScalarImage(BoxDomain3D(bbox.origin, bbox.oppositeCorner), f, df)

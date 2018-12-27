@@ -77,7 +77,7 @@ case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, see
   }
 }
 
-case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, Vector[_3D]], refmesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D], maxMd: Double) extends Sampler[_3D] {
+case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, SpatialVector[_3D]], refmesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D], maxMd: Double) extends Sampler[_3D] {
 
   //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
   val meanPts = refmesh.pointSet.points.map {

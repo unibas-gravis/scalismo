@@ -28,13 +28,13 @@ class RegionQueryTest extends ScalismoTestSuite {
   val path = getClass.getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(path)).get
   val translationLength = 1.0
-  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + Vector(translationLength, 0.0, 0.0))
+  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + SpatialVector(translationLength, 0.0, 0.0))
 
   describe("The KD-tree region query") {
 
     it("finds points in the 2D bounding box region") {
 
-      val img = DiscreteImageDomain(Point(0, 0), Vector(1, 1), IntVector(10, 10))
+      val img = DiscreteImageDomain(Point(0, 0), SpatialVector(1, 1), IntVector(10, 10))
       val bigBox = img.boundingBox
       val dom = UnstructuredPointsDomain[_2D](img.points.toIndexedSeq)
 

@@ -112,24 +112,24 @@ case class ScalarField[D <: Dim, A: Scalar: ClassTag](domain: Domain[D], f: Poin
 /**
  * An vector valued image.
  */
-case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => Vector[DO]) extends Field[D, Vector[DO]] {
+case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => SpatialVector[DO]) extends Field[D, SpatialVector[DO]] {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: VectorField[D, DO]): VectorField[D, DO] = {
-    def f(x: Point[D]): Vector[DO] = this.f(x) + that.f(x)
+    def f(x: Point[D]): SpatialVector[DO] = this.f(x) + that.f(x)
     new VectorField(Domain.intersection[D](domain, that.domain), f)
   }
 
   /** subtract two images. The domain of the new image is the intersection of the domains of the individual images*/
   def -(that: VectorField[D, DO]): VectorField[D, DO] = {
-    def f(x: Point[D]): Vector[DO] = this.f(x) - that.f(x)
+    def f(x: Point[D]): SpatialVector[DO] = this.f(x) - that.f(x)
     val newDomain = Domain.intersection[D](domain, that.domain)
     new VectorField(newDomain, f)
   }
 
   /** scalar multiplication of a vector field */
   def *(s: Double): VectorField[D, DO] = {
-    def f(x: Point[D]): Vector[DO] = this.f(x) * s
+    def f(x: Point[D]): SpatialVector[DO] = this.f(x) * s
     new VectorField(domain, f)
   }
 }

@@ -32,14 +32,14 @@ case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
     sum / samples.size
   }
 
-  def integrateVector[DO <: Dim: NDSpace](img: VectorField[D, DO]): Vector[DO] = {
+  def integrateVector[DO <: Dim: NDSpace](img: VectorField[D, DO]): SpatialVector[DO] = {
     integrateVector(img.liftValues)
   }
 
-  def integrateVector[DO <: Dim: NDSpace](f: Function1[Point[D], Option[Vector[DO]]]): Vector[DO] = {
+  def integrateVector[DO <: Dim: NDSpace](f: Function1[Point[D], Option[SpatialVector[DO]]]): SpatialVector[DO] = {
     val samples = sampler.sample
 
-    val zeroVector = Vector.zeros[DO]
+    val zeroVector = SpatialVector.zeros[DO]
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }.foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1f / (sampler.numberOfPoints - 1))
   }

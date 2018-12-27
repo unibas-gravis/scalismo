@@ -203,7 +203,7 @@ class TranslationSpace[D <: Dim: NDSpace] private () extends TransformationSpace
   def parametersDimensionality: Int = implicitly[NDSpace[D]].dimensionality
   override def identityTransformParameters = DenseVector.zeros(parametersDimensionality)
   /**Returns a translation transform, where the translation vectors' coordinates are the given parameters*/
-  override def transformForParameters(p: ParameterVector): TranslationTransform[D] = TranslationTransform[D](Vector[D](p.data))
+  override def transformForParameters(p: ParameterVector): TranslationTransform[D] = TranslationTransform[D](SpatialVector[D](p.data))
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = { x: Point[D] => DenseMatrix.eye[Double](parametersDimensionality) }
 }
@@ -220,7 +220,7 @@ object TranslationSpace {
  *
  *  @param t Translation vector
  */
-case class TranslationTransform[D <: Dim: NDSpace](t: Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+case class TranslationTransform[D <: Dim: NDSpace](t: SpatialVector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override val f = (pt: Point[D]) => pt + t
   override val domain = RealSpace[D]
   override def takeDerivative(x: Point[D]): SquareMatrix[D] = SquareMatrix.eye[D]
@@ -419,7 +419,7 @@ private case class RotationTransform3D(rotMatrix: SquareMatrix[_3D], val center:
   override val f = (pt: Point[_3D]) => {
     val ptCentered = pt - center
     val rotCentered = rotMatrix * ptCentered
-    center + Vector(rotCentered(0), rotCentered(1), rotCentered(2))
+    center + SpatialVector(rotCentered(0), rotCentered(1), rotCentered(2))
   }
 
   override val domain = RealSpace[_3D]
@@ -439,7 +439,7 @@ private case class RotationTransform2D(rotMatrix: SquareMatrix[_2D], val center:
   override val f = (pt: Point[_2D]) => {
     val ptCentered = pt - center
     val rotCentered = rotMatrix * ptCentered
-    center + Vector(rotCentered(0), rotCentered(1))
+    center + SpatialVector(rotCentered(0), rotCentered(1))
   }
   override def domain = RealSpace[_2D]
 
@@ -751,7 +751,7 @@ case class SimilarityTransformationSpace[D <: Dim: NDSpace: CreateRotationSpace:
  *  @constructor creates a D-dimensional anisotropic scaling transform
  *  @param s Vector of the same dimensionality as the space indicating for each dimension the scaling factor
  */
-case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: geometry.Vector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: geometry.SpatialVector[D]) extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
   override val domain = RealSpace[D]
   override val f = (x: Point[D]) => Point((x.toVector.toBreezeVector *:* s.toBreezeVector).data)
 
@@ -760,7 +760,7 @@ case class AnisotropicScalingTransformation[D <: Dim: NDSpace](s: geometry.Vecto
 
   override def inverse: AnisotropicScalingTransformation[D] = {
     val sinv = s.toArray.map(v => if (v == 0) 0.0 else 1.0 / v)
-    new AnisotropicScalingTransformation[D](Vector[D](sinv))
+    new AnisotropicScalingTransformation[D](SpatialVector[D](sinv))
   }
 }
 /**
@@ -781,7 +781,7 @@ case class AnisotropicScalingSpace[D <: Dim: NDSpace]() extends TransformationSp
    */
   override def transformForParameters(p: ParameterVector): AnisotropicScalingTransformation[D] = {
     require(p.length == parametersDimensionality)
-    AnisotropicScalingTransformation[D](Vector(p.data.take(parametersDimensionality)))
+    AnisotropicScalingTransformation[D](SpatialVector(p.data.take(parametersDimensionality)))
   }
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = {

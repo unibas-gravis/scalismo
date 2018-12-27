@@ -28,13 +28,13 @@ sealed abstract class Point[D <: Dim: NDSpace] {
 
   def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
-  def +(that: Vector[D]): Point[D]
+  def +(that: SpatialVector[D]): Point[D]
 
-  def -(that: Vector[D]): Point[D]
+  def -(that: SpatialVector[D]): Point[D]
 
-  def -(that: Point[D]): Vector[D]
+  def -(that: Point[D]): SpatialVector[D]
 
-  def toVector: Vector[D]
+  def toVector: SpatialVector[D]
 
   def toArray: Array[Double]
 
@@ -55,13 +55,13 @@ case class Point1D(x: Double) extends Point[_1D] {
     case _ => throw new IndexOutOfBoundsException("Point1D has only 1 element")
   }
 
-  override def +(that: Vector[_1D]): Point1D = Point1D(x + that.x)
+  override def +(that: SpatialVector[_1D]): Point1D = Point1D(x + that.x)
 
-  override def -(that: Vector[_1D]): Point1D = Point1D(x - that.x)
+  override def -(that: SpatialVector[_1D]): Point1D = Point1D(x - that.x)
 
-  override def -(that: Point[_1D]): Vector1D = Vector1D(x - that.x)
+  override def -(that: Point[_1D]): SpatialVector1D = SpatialVector1D(x - that.x)
 
-  override def toVector: Vector1D = Vector1D(x)
+  override def toVector: SpatialVector1D = SpatialVector1D(x)
 
   override def toArray = Array(x)
 
@@ -81,13 +81,13 @@ case class Point2D(x: Double, y: Double) extends Point[_2D] {
     case _ => throw new IndexOutOfBoundsException("Point2D has only 2 elements")
   }
 
-  override def +(that: Vector[_2D]): Point2D = Point2D(x + that.x, y + that.y)
+  override def +(that: SpatialVector[_2D]): Point2D = Point2D(x + that.x, y + that.y)
 
-  override def -(that: Vector[_2D]): Point2D = Point2D(x - that.x, y - that.y)
+  override def -(that: SpatialVector[_2D]): Point2D = Point2D(x - that.x, y - that.y)
 
-  override def -(that: Point[_2D]): Vector2D = Vector2D(x - that.x, y - that.y)
+  override def -(that: Point[_2D]): SpatialVector2D = SpatialVector2D(x - that.x, y - that.y)
 
-  override def toVector: Vector2D = Vector2D(x, y)
+  override def toVector: SpatialVector2D = SpatialVector2D(x, y)
 
   override def toArray = Array(x, y)
 
@@ -108,13 +108,13 @@ case class Point3D(x: Double, y: Double, z: Double) extends Point[_3D] {
     case _ => throw new IndexOutOfBoundsException("Point3D has only 3 elements")
   }
 
-  override def +(that: Vector[_3D]): Point3D = Point3D(x + that.x, y + that.y, z + that.z)
+  override def +(that: SpatialVector[_3D]): Point3D = Point3D(x + that.x, y + that.y, z + that.z)
 
-  override def -(that: Vector[_3D]): Point3D = Point3D(x - that.x, y - that.y, z - that.z)
+  override def -(that: SpatialVector[_3D]): Point3D = Point3D(x - that.x, y - that.y, z - that.z)
 
-  override def -(that: Point[_3D]): Vector3D = Vector3D(x - that.x, y - that.y, z - that.z)
+  override def -(that: Point[_3D]): SpatialVector3D = SpatialVector3D(x - that.x, y - that.y, z - that.z)
 
-  override def toVector: Vector[_3D] = Vector3D(x, y, z)
+  override def toVector: SpatialVector[_3D] = SpatialVector3D(x, y, z)
 
   override def toArray = Array(x, y, z)
 
@@ -172,7 +172,7 @@ object Point {
    * @param r radial distance, 0 .. infinity
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromPolar(r: Double, phi: Double): Point[_2D] = Vector.fromPolar(r, phi).toPoint
+  def fromPolar(r: Double, phi: Double): Point[_2D] = SpatialVector.fromPolar(r, phi).toPoint
 
   /**
    * create a Cartesian point from spherical coordinates
@@ -180,7 +180,7 @@ object Point {
    * @param theta inclination, 0 .. Pi
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromSpherical(r: Double, theta: Double, phi: Double): Point[_3D] = Vector.fromSpherical(r, theta, phi).toPoint
+  def fromSpherical(r: Double, theta: Double, phi: Double): Point[_3D] = SpatialVector.fromSpherical(r, theta, phi).toPoint
 
   object implicits {
     implicit def point1DToDouble(p: Point[_1D]): Double = p.x

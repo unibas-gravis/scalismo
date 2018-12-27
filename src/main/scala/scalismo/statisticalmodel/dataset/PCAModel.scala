@@ -33,7 +33,7 @@ object PCAModel {
    *  Adds a bias model to the given pca model
    */
   @deprecated("Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.", "0.10.0")
-  def augmentModel(pcaModel: StatisticalMeshModel, biasModel: GaussianProcess[_3D, Vector[_3D]], numBasisFunctions: Int)(implicit rng: Random): StatisticalMeshModel = {
+  def augmentModel(pcaModel: StatisticalMeshModel, biasModel: GaussianProcess[_3D, SpatialVector[_3D]], numBasisFunctions: Int)(implicit rng: Random): StatisticalMeshModel = {
     StatisticalMeshModel.augmentModel(pcaModel, biasModel, numBasisFunctions)
   }
 

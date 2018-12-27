@@ -148,7 +148,7 @@ object LandmarkRegistration {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, center, similarityFlag = true)
 
     // as the computations above compute the soultion for the formula sRx + t, but we compute s(Rx + t), we need to divide the translation t by s
-    val rigidTransform = RigidTransformation(TranslationTransform(Vector3D(t(0) / s, t(1) / s, t(2) / s)), RotationTransform(rotparams(0), rotparams(1), rotparams(2), center))
+    val rigidTransform = RigidTransformation(TranslationTransform(SpatialVector3D(t(0) / s, t(1) / s, t(2) / s)), RotationTransform(rotparams(0), rotparams(1), rotparams(2), center))
     val scalingTransform = ScalingTransformation[_3D](s)
     SimilarityTransformation(scalingTransform, rigidTransform)
   }
@@ -196,7 +196,7 @@ object LandmarkRegistration {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, similarityFlag = true, center = center)
 
     // as the computations above compute the soultion for the formula sRx + t, but we compute s(Rx + t), we need to divide the translation t by s
-    val rigidTransform = RigidTransformation(TranslationTransform(Vector2D(t(0) / s, t(1) / s)), RotationTransform(phi, center))
+    val rigidTransform = RigidTransformation(TranslationTransform(SpatialVector2D(t(0) / s, t(1) / s)), RotationTransform(phi, center))
 
     val scalingTransform = ScalingTransformation[_2D](s)
     SimilarityTransformation(scalingTransform, rigidTransform)

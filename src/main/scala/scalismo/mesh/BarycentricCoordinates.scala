@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{ Point, Vector, _2D, _3D }
+import scalismo.geometry.{ Point, SpatialVector, _2D, _3D }
 import scalismo.numerics.ValueInterpolator
 import scalismo.utils.Random
 
@@ -87,9 +87,9 @@ object BarycentricCoordinates {
   }
 
   def pointInTriangle3D(point: Point[_3D], v1: Point[_3D], v2: Point[_3D], v3: Point[_3D]): BarycentricCoordinates = {
-    val a: Vector[_3D] = v2 - v1
-    val b: Vector[_3D] = v3 - v1
-    val c: Vector[_3D] = point - v1
+    val a: SpatialVector[_3D] = v2 - v1
+    val b: SpatialVector[_3D] = v3 - v1
+    val c: SpatialVector[_3D] = point - v1
     val d00 = a dot a
     val d01 = a dot b
     val d11 = b dot b

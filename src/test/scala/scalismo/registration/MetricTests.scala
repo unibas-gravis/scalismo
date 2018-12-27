@@ -37,7 +37,7 @@ class MetricTests extends ScalismoTestSuite {
       val domain = BoxDomain(0.0, 1.0)
       val img = DifferentiableScalarImage(BoxDomain(0.0, 1.0),
         (x: Point[_1D]) => (x * x).toFloat,
-        (x: Point[_1D]) => Vector(2.0) * x(0))
+        (x: Point[_1D]) => SpatialVector(2.0) * x(0))
       val transSpace = TranslationSpace[_1D]
       val sampler = UniformSampler(domain, 1000)
       MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformParameters) should be(0.0 +- 0.001)

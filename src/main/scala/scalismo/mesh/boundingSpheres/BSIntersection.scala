@@ -15,7 +15,7 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{ Point, SpatialVector, _3D }
 import scalismo.mesh.BarycentricCoordinates
 
 /**
@@ -23,7 +23,7 @@ import scalismo.mesh.BarycentricCoordinates
  */
 private[boundingSpheres] object BSIntersection {
 
-  def intersectLineWithTriangle(point: Vector[_3D], direction: Vector[_3D], a: Vector[_3D], b: Vector[_3D], c: Vector[_3D]): (Boolean, Point[_3D]) = {
+  def intersectLineWithTriangle(point: SpatialVector[_3D], direction: SpatialVector[_3D], a: SpatialVector[_3D], b: SpatialVector[_3D], c: SpatialVector[_3D]): (Boolean, Point[_3D]) = {
     val det = Determinantes.det3x3(
       a.x - b.x, a.x - c.x, direction.x,
       a.y - b.y, a.y - c.y, direction.y,
@@ -58,7 +58,7 @@ private[boundingSpheres] object BSIntersection {
 
   }
 
-  def intersectLineWithTriangleBarycentric(point: Vector[_3D], direction: Vector[_3D], a: Vector[_3D], b: Vector[_3D], c: Vector[_3D]): (Boolean, BarycentricCoordinates) = {
+  def intersectLineWithTriangleBarycentric(point: SpatialVector[_3D], direction: SpatialVector[_3D], a: SpatialVector[_3D], b: SpatialVector[_3D], c: SpatialVector[_3D]): (Boolean, BarycentricCoordinates) = {
     val det = Determinantes.det3x3(
       a.x - b.x, a.x - c.x, direction.x,
       a.y - b.y, a.y - c.y, direction.y,
@@ -83,9 +83,9 @@ private[boundingSpheres] object BSIntersection {
     }
   }
 
-  def intersectLineSphereSquared(point: Vector[_3D],
-    direction: Vector[_3D],
-    center: Vector[_3D],
+  def intersectLineSphereSquared(point: SpatialVector[_3D],
+    direction: SpatialVector[_3D],
+    center: SpatialVector[_3D],
     r2: Double): Boolean = {
     BSDistance.squaredDistanceToLineDirection(center, point, direction) < r2
   }

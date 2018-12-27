@@ -20,7 +20,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.geometry.Vector._
+import scalismo.geometry.SpatialVector._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
 import scalismo.numerics.{ GridSampler, Integrator, RandomSVD, UniformSampler }
@@ -44,7 +44,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
 
       val sampler = UniformSampler(domain, 500)
 
-      val eigPairs = Kernel.computeNystromApproximation[_1D, Vector[_1D]](kernel, sampler)
+      val eigPairs = Kernel.computeNystromApproximation[_1D, SpatialVector[_1D]](kernel, sampler)
 
       def approxKernel(x: Point[_1D], y: Point[_1D]) = {
         eigPairs.indices.foldLeft(0.0)((sum, i) => {
@@ -67,7 +67,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val numPoints = 500
       val sampler = UniformSampler(domain, numPoints)
       val (points, _) = sampler.sample.unzip
-      val eigPairsApprox = Kernel.computeNystromApproximation[_1D, Vector[_1D]](scalarKernel, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation[_1D, SpatialVector[_1D]](scalarKernel, sampler)
       val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
       val realKernelMatrix = DenseMatrix.zeros[Double](numPoints * kernelDim, numPoints * kernelDim)
@@ -93,7 +93,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val sampler = UniformSampler(domain, 400)
       val (pts, _) = sampler.sample.unzip
 
-      val eigPairsApprox = Kernel.computeNystromApproximation[_2D, Vector[_2D]](ndKernel, sampler)
+      val eigPairsApprox = Kernel.computeNystromApproximation[_2D, SpatialVector[_2D]](ndKernel, sampler)
       val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
       val realKernelMatrix = DenseMatrix.zeros[Double](pts.size * kernelDim, pts.size * kernelDim)
@@ -114,7 +114,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
       val sampler = GridSampler(grid)
 
-      val eigPairs = Kernel.computeNystromApproximation[_1D, Vector[_1D]](kernel, sampler)
+      val eigPairs = Kernel.computeNystromApproximation[_1D, SpatialVector[_1D]](kernel, sampler)
 
       val integrator = Integrator(sampler)
 
@@ -122,7 +122,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
 
         val Eigenpair(_, phi_i) = eigPairs(i)
         def p(x: Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
-        val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt: Point[_1D]) => Vector(0.0))
+        val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt: Point[_1D]) => SpatialVector(0.0))
 
         val v = integrator.integrateScalar(phiImg)
         v should be(1f +- 0.1)
@@ -136,8 +136,8 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
       val sampler = GridSampler(grid)
 
-      val eigPairsLessSmooth = Kernel.computeNystromApproximation[_1D, Vector[_1D]](kernelLessSmooth, sampler)
-      val eigPairsMoreSmooth = Kernel.computeNystromApproximation[_1D, Vector[_1D]](kernelMoreSmooth, sampler)
+      val eigPairsLessSmooth = Kernel.computeNystromApproximation[_1D, SpatialVector[_1D]](kernelLessSmooth, sampler)
+      val eigPairsMoreSmooth = Kernel.computeNystromApproximation[_1D, SpatialVector[_1D]](kernelMoreSmooth, sampler)
       eigPairsLessSmooth.size should be > eigPairsMoreSmooth.size
     }
 

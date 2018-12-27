@@ -153,7 +153,7 @@ class ImageIOTests extends ScalismoTestSuite {
     }
 
     it("can be stored to VTK and re-read in right precision") {
-      val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), Vector(0.85546875f, 0.85546875f, 1.5f), IntVector(15, 15, 15))
+      val domain = DiscreteImageDomain[_3D](Point(-72.85742f, -72.85742f, -273.0f), SpatialVector(0.85546875f, 0.85546875f, 1.5f), IntVector(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
       val discreteImage = DiscreteScalarImage(domain, values)
       val f = File.createTempFile("dummy", ".vtk")
@@ -257,9 +257,9 @@ class ImageIOTests extends ScalismoTestSuite {
       }
 
       val data = (1 to 8).toArray
-      val dom2 = DiscreteImageDomain(Point(0, 0), Vector(1, 1), IntVector(2, 2))
+      val dom2 = DiscreteImageDomain(Point(0, 0), SpatialVector(1, 1), IntVector(2, 2))
       val img2 = DiscreteScalarImage(dom2, ScalarArray(data.take(4)))
-      val dom3 = DiscreteImageDomain(Point(0, 0, 0), Vector(1, 1, 1), IntVector(2, 2, 2))
+      val dom3 = DiscreteImageDomain(Point(0, 0, 0), SpatialVector(1, 1, 1), IntVector(2, 2, 2))
       val img3 = DiscreteScalarImage(dom3, ScalarArray(data))
 
       def imageSeq[D <: Dim: NDSpace: CanConvertToVtk](img: DiscreteScalarImage[D, Int]) = Seq(
