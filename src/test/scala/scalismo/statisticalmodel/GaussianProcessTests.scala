@@ -24,7 +24,7 @@ import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.io.StatismoIO
+import scalismo.io.StatisticalModelIO
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel }
 import scalismo.numerics.{ GridSampler, UniformSampler }
 import scalismo.utils.Random
