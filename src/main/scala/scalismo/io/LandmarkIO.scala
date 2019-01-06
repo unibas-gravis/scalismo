@@ -49,7 +49,7 @@ object LandmarkIO {
     Uncertainty(stdDevs, pcList)
   }
 
-  private case class LandmarkJsonFormat[D <: Dim: NDSpace]() extends JsonFormat[Landmark[D]] {
+  private case class LandmarkJsonFormat[D: NDSpace]() extends JsonFormat[Landmark[D]] {
     def write(l: Landmark[D]) = {
       val fixedMap = Map("id" -> JsString(l.id),
         "coordinates" -> arrayFormat[Double].write(l.point.toArray))
@@ -73,11 +73,11 @@ object LandmarkIO {
    * This simply avoids having to specify the Landmark[D] type all the time.
    */
 
-  def readLandmarksJson[D <: Dim: NDSpace](file: File): Try[Seq[Landmark[D]]] = {
+  def readLandmarksJson[D: NDSpace](file: File): Try[Seq[Landmark[D]]] = {
     readLandmarksJsonFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksJsonFromSource[D <: Dim: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
+  def readLandmarksJsonFromSource[D: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
       result <- Try {
@@ -90,9 +90,9 @@ object LandmarkIO {
     } yield result
   }
 
-  def writeLandmarksJson[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
+  def writeLandmarksJson[D: NDSpace](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
 
-  private def writeLandmarksJsonToStreamP[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream)(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
+  private def writeLandmarksJsonToStreamP[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream)(implicit e: JsonFormat[Landmark[D]]): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
       writer.println(landmarks.toJson.toString())
@@ -103,7 +103,7 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksJsonToStream[D <: Dim: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = Try {
+  def writeLandmarksJsonToStream[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = Try {
     implicit val e = LandmarkJsonFormat[D]()
     writeLandmarksJsonToStreamP(landmarks, stream)
   }.flatten
@@ -116,11 +116,11 @@ object LandmarkIO {
    * ****************************************************************************************************************
    */
 
-  def readLandmarksCsv[D <: Dim: NDSpace](file: File): Try[Seq[Landmark[D]]] = {
+  def readLandmarksCsv[D: NDSpace](file: File): Try[Seq[Landmark[D]]] = {
     readLandmarksCsvFromSource(Source.fromFile(file))
   }
 
-  def readLandmarksCsvFromSource[D <: Dim: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
+  def readLandmarksCsvFromSource[D: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
     val items = implicitly[NDSpace[D]].dimensionality
     for (landmarks <- readLandmarksCsvRaw(source)) yield {
       for (landmark <- landmarks) yield Landmark(landmark._1, Point(landmark._2.take(items)))
@@ -141,11 +141,11 @@ object LandmarkIO {
     result
   }
 
-  def writeLandmarksCsv[D <: Dim](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = {
+  def writeLandmarksCsv[D](landmarks: Seq[Landmark[D]], file: File): Try[Unit] = {
     writeLandmarksCsvToStream(landmarks, new FileOutputStream(file))
   }
 
-  def writeLandmarksCsvToStream[D <: Dim](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = {
+  def writeLandmarksCsvToStream[D](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = {
     Try {
       val out = new PrintWriter(stream, true)
       for (landmark <- landmarks) {

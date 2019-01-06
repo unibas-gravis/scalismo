@@ -27,7 +27,7 @@ import scalismo.numerics.GridSampler
 /**
  * An image whose values are scalar.
  */
-class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
+class ScalarImage[D: NDSpace] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarImage[D]): ScalarImage[D] = {
@@ -134,14 +134,14 @@ object ScalarImage {
    * @param domain The domain over which the image is defined
    * @param f A function which yields for each point of the domain its value
    */
-  def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
+  def apply[D: NDSpace](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
 
 }
 
 /**
  * A scalar image that is once differentiable
  */
-class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
+class DifferentiableScalarImage[D: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
 
   def differentiate: VectorField[D, D] = VectorField(domain, df)
 
@@ -218,7 +218,7 @@ object DifferentiableScalarImage {
    * @param f a function that yields the intensity for each point of the domain
    * @param df the derivative of the function f
    */
-  def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
+  def apply[D: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
 
 }
 

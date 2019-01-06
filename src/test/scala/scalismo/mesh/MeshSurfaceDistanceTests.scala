@@ -18,7 +18,7 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 import scalismo.utils.Random
 
@@ -43,11 +43,11 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
   }
 
-  def aeqV[D <: Dim](a: Vector[D], b: Vector[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqV[D](a: Vector[D], b: Vector[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 
-  def aeqP[D <: Dim](a: Point[D], b: Point[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqP[D](a: Point[D], b: Point[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 

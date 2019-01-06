@@ -202,7 +202,7 @@ object MultivariateNormalDistribution {
 
 @deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.", "0.13.0")
 object NDimensionalNormalDistribution {
-  def apply[D <: Dim: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Double)]): NDimensionalNormalDistribution[D] = {
+  def apply[D: NDSpace](mean: Vector[D], principalComponents: Seq[(Vector[D], Double)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
@@ -220,7 +220,7 @@ object NDimensionalNormalDistribution {
 }
 
 @deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.", "0.13.0")
-case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: Vector[D], cov: SquareMatrix[D])
+case class NDimensionalNormalDistribution[D: NDSpace](mean: Vector[D], cov: SquareMatrix[D])
     extends MultivariateNormalDistributionLike[Vector[D], SquareMatrix[D]] {
 
   private val impl = MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix)

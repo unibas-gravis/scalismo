@@ -15,14 +15,14 @@
  */
 package scalismo.registration
 
-import scalismo.geometry.{ Dim, Point, Vector }
+import scalismo.geometry.{ Point, Vector }
 import scalismo.statisticalmodel.LowRankGaussianProcess
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import TransformationSpace.ParameterVector
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.geometry.Vector.VectorVectorizer
 
-class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D])
+class GaussianProcessTransformationSpace[D] private (gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D])
     extends TransformationSpace[D] {
 
   override type T = GaussianProcessTransformation[D]
@@ -52,7 +52,7 @@ class GaussianProcessTransformationSpace[D <: Dim] private (gp: LowRankGaussianP
 
 }
 
-class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProcess[D, Vector[D]], alpha: ParameterVector)
+class GaussianProcessTransformation[D] private (gp: LowRankGaussianProcess[D, Vector[D]], alpha: ParameterVector)
     extends ParametricTransformation[D] {
 
   val instance = gp.instance(alpha)
@@ -68,13 +68,13 @@ class GaussianProcessTransformation[D <: Dim] private (gp: LowRankGaussianProces
 }
 
 object GaussianProcessTransformation {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]], alpha: TransformationSpace.ParameterVector) = {
+  def apply[D](gp: LowRankGaussianProcess[D, Vector[D]], alpha: TransformationSpace.ParameterVector) = {
     new GaussianProcessTransformation[D](gp, alpha)
   }
 }
 
 object GaussianProcessTransformationSpace {
-  def apply[D <: Dim](gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) = {
+  def apply[D](gp: LowRankGaussianProcess[D, Vector[D]])(implicit vectorizer: VectorVectorizer[D]) = {
     new GaussianProcessTransformationSpace[D](gp)
   }
 }

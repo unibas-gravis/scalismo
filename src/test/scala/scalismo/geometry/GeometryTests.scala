@@ -30,7 +30,7 @@ class GeometryTests extends ScalismoTestSuite {
   val v = Vector(0.1, 3.0, 1.1)
   val vGeneric: Vector[_3D] = v
 
-  def checkPoint[D <: Dim: NDSpace]() = {
+  def checkPoint[D: NDSpace]() = {
     def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val pt = randomPoint()
 
@@ -84,7 +84,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkPoint[_2D]()
   checkPoint[_3D]()
 
-  def checkVector[D <: Dim: NDSpace]() = {
+  def checkVector[D: NDSpace]() = {
     def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val v = randomVector()
 
@@ -195,7 +195,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkVector[_2D]()
   checkVector[_3D]()
 
-  def checkIndex[D <: Dim: NDSpace]() = {
+  def checkIndex[D: NDSpace]() = {
     def randomIndex(): IntVector[D] = IntVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextInt()))
     val ind = randomIndex()
 

@@ -16,7 +16,7 @@
 
 package scalismo.color
 
-import scalismo.geometry.{Dim, NDSpace, Vector}
+import scalismo.geometry.{NDSpace, Vector}
 
 import scala.annotation.tailrec
 
@@ -86,7 +86,7 @@ object ColorSpaceOperations {
   }
 
   /** implementation for vectors of arbitrary dimension */
-  implicit def vecColorSpaceND[D <: Dim: NDSpace]: ColorSpaceOperations[Vector[D]] = new ColorSpaceOperations[Vector[D]] {
+  implicit def vecColorSpaceND[D: NDSpace]: ColorSpaceOperations[Vector[D]] = new ColorSpaceOperations[Vector[D]] {
     override def add(pix1: Vector[D], pix2: Vector[D]): Vector[D] = pix1 + pix2
     override def multiply(pix1: Vector[D], pix2: Vector[D]): Vector[D] = pix1 :* pix2
     override def dot(pix1: Vector[D], pix2: Vector[D]): Double = pix1 dot pix2

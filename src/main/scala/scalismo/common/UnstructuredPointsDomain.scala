@@ -23,7 +23,7 @@ import scalismo.mesh.kdtree.RegionBuilder
 
 import scala.language.implicitConversions
 
-sealed abstract class UnstructuredPointsDomain[D <: Dim: NDSpace: Create] private[scalismo] (private[scalismo] val pointSequence: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
+sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scalismo] (private[scalismo] val pointSequence: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
 
   override def points: Iterator[Point[D]] = pointSequence.toIterator
   override def numberOfPoints = pointSequence.size
@@ -87,16 +87,16 @@ object UnstructuredPointsDomain {
     unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain3D]
   }
 
-  def apply[D <: Dim: NDSpace](points: IndexedSeq[Point[D]])(implicit creator: Create[D]): UnstructuredPointsDomain[D] = {
+  def apply[D: NDSpace](points: IndexedSeq[Point[D]])(implicit creator: Create[D]): UnstructuredPointsDomain[D] = {
     creator.create(points)
   }
 
-  def fromGenerator[D <: Dim](generator: PointGenerator[D], numberOfPoints: Int)(implicit creator: Create[D]) = {
+  def fromGenerator[D](generator: PointGenerator[D], numberOfPoints: Int)(implicit creator: Create[D]) = {
     val points = Iterator.continually(generator()).take(numberOfPoints).toIndexedSeq
     creator.create(points)
   }
 
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def create(points: IndexedSeq[Point[D]]): UnstructuredPointsDomain[D]
   }
 

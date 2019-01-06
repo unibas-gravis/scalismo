@@ -24,7 +24,7 @@ import scala.language.implicitConversions
 /**
  * An n-dimensional Vector
  */
-sealed abstract class Vector[D <: Dim: NDSpace] {
+sealed abstract class Vector[D: NDSpace] {
   def apply(i: Int): Double
 
   def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
@@ -201,7 +201,7 @@ object Vector3D {
 object Vector {
 
   /** creation typeclass */
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def createVector(data: Array[Double]): Vector[D]
     val zero: Vector[D]
   }
@@ -230,7 +230,7 @@ object Vector {
     override val zero: Vector[_3D] = Vector3D.zero
   }
 
-  def apply[D <: Dim: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
+  def apply[D: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
 
   def apply(x: Double): Vector[_1D] = Vector1D(x)
 
@@ -238,9 +238,9 @@ object Vector {
 
   def apply(x: Double, y: Double, z: Double): Vector[_3D] = Vector3D(x, y, z)
 
-  def zeros[D <: Dim: NDSpace](implicit builder: Create[D]): Vector[D] = builder.zero
+  def zeros[D: NDSpace](implicit builder: Create[D]): Vector[D] = builder.zero
 
-  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double]): Vector[D] = {
+  def fromBreezeVector[D: NDSpace](breeze: DenseVector[Double]): Vector[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Vector.apply[D](breeze.data)
@@ -269,7 +269,7 @@ object Vector {
     r * math.cos(theta))
 
   /** spire VectorSpace implementation for Vector */
-  implicit def spireVectorSpace[D <: Dim: NDSpace] = new spire.algebra.VectorSpace[Vector[D], Double] {
+  implicit def spireVectorSpace[D: NDSpace] = new spire.algebra.VectorSpace[Vector[D], Double] {
     override implicit def scalar: Field[Double] = Field[Double]
     override def timesl(r: Double, v: Vector[D]): Vector[D] = v.map(f => f * r)
     override def negate(x: Vector[D]): Vector[D] = x.map(f => -f)
@@ -288,7 +288,7 @@ object Vector {
   implicit def parametricToConcrete2D(p: Vector[_2D]): Vector2D = p.asInstanceOf[Vector2D]
   implicit def parametricToConcrete3D(p: Vector[_3D]): Vector3D = p.asInstanceOf[Vector3D]
 
-  class VectorVectorizer[D <: Dim: NDSpace] extends Vectorizer[Vector[D]] {
+  class VectorVectorizer[D: NDSpace] extends Vectorizer[Vector[D]] {
     override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
     override def vectorize(v: Vector[D]): DenseVector[Double] = v.toBreezeVector

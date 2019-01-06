@@ -17,11 +17,11 @@
 package scalismo.common.interpolation
 
 import scalismo.common.{ DiscreteField, Field }
-import scalismo.geometry.{ Dim, IntVector, IntVector2D, IntVector3D, NDSpace, Point, _1D, _2D, _3D }
+import scalismo.geometry.{ IntVector, IntVector2D, IntVector3D, NDSpace, Point, _1D, _2D, _3D }
 import scalismo.image.DiscreteImageDomain
 import scalismo.numerics.ValueInterpolator
 
-trait LinearImageInterpolator[D <: Dim, A] extends FieldInterpolator[D, DiscreteImageDomain[D], A] {
+trait LinearImageInterpolator[D, A] extends FieldInterpolator[D, DiscreteImageDomain[D], A] {
 
   protected implicit def ndSpace: NDSpace[D]
 
@@ -43,7 +43,7 @@ trait LinearImageInterpolator[D <: Dim, A] extends FieldInterpolator[D, Discrete
 
 object LinearImageInterpolator {
 
-  def apply[D <: Dim, A: ValueInterpolator]()(implicit interpolator: LinearImageInterpolator[D, A]): LinearImageInterpolator[D, A] = interpolator
+  def apply[D, A: ValueInterpolator]()(implicit interpolator: LinearImageInterpolator[D, A]): LinearImageInterpolator[D, A] = interpolator
 
   implicit def linearImageInterpolator1D[A: ValueInterpolator] = LinearImageInterpolator1D[A]()
 

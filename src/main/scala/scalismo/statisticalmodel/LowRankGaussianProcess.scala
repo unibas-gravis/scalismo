@@ -19,7 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector, diag }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
+import scalismo.geometry.{ NDSpace, Point, Vector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
@@ -36,7 +36,7 @@ import scalismo.utils.{ Memoize, Random }
  * @tparam D     The dimensionality of the input space
  * @tparam Value The output type
  */
-class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
+class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value],
   val klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value])
     extends GaussianProcess[D, Value](mean, LowRankGaussianProcess.covFromKLTBasis(klBasis)) {
 
@@ -179,9 +179,9 @@ class LowRankGaussianProcess[D <: Dim: NDSpace, Value](mean: Field[D, Value],
  */
 object LowRankGaussianProcess {
 
-  case class Eigenpair[D <: Dim, Value](eigenvalue: Double, eigenfunction: Field[D, Value])
+  case class Eigenpair[D, Value](eigenvalue: Double, eigenfunction: Field[D, Value])
 
-  type KLBasis[D <: Dim, Value] = Seq[Eigenpair[D, Value]]
+  type KLBasis[D, Value] = Seq[Eigenpair[D, Value]]
 
   /**
    * Perform a low-rank approximation of the Gaussian process using the Nystrom method. The sample points used for the nystrom method
@@ -191,7 +191,7 @@ object LowRankGaussianProcess {
    * @param sampler           determines which points will be used as samples for the nystrom approximation.
    * @param numBasisFunctions The number of basis functions to approximate.
    */
-  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGP[D: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
     numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
@@ -206,13 +206,13 @@ object LowRankGaussianProcess {
    * @param sampler           determines which points will be used as samples for the nystrom approximation.
    * @
    */
-  def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGP[D: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
 
-  private def covFromKLTBasis[D <: Dim: NDSpace, Value](klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value]): MatrixValuedPDKernel[D] = {
+  private def covFromKLTBasis[D: NDSpace, Value](klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value]): MatrixValuedPDKernel[D] = {
     val dimOps = vectorizer.dim
     val cov: MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
       override val domain = klBasis.headOption
@@ -240,7 +240,7 @@ object LowRankGaussianProcess {
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D <: Dim: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
+  def regression[D: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
     val outputDim = gp.outputDim
 
@@ -284,7 +284,7 @@ object LowRankGaussianProcess {
   /*
   * Internal computations of the regression.
    */
-  private def genericRegressionComputations[D <: Dim: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
+  private def genericRegressionComputations[D: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]) = {
 
     val outputDim = gp.outputDim
@@ -322,7 +322,7 @@ object LowRankGaussianProcess {
    * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
    * vectors are transformed along the domain.
    */
-  def transform[D <: Dim: NDSpace](gp: LowRankGaussianProcess[D, Vector[D]], rigidTransform: RigidTransformation[D])(implicit vectorizer: Vectorizer[Vector[D]]): LowRankGaussianProcess[D, Vector[D]] = {
+  def transform[D: NDSpace](gp: LowRankGaussianProcess[D, Vector[D]], rigidTransform: RigidTransformation[D])(implicit vectorizer: Vectorizer[Vector[D]]): LowRankGaussianProcess[D, Vector[D]] = {
     val invTransform = rigidTransform.inverse
 
     val newDomain = gp.domain.warp(rigidTransform)

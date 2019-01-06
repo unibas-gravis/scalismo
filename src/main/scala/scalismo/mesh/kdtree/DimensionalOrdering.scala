@@ -16,7 +16,7 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{ Point, Dim, NDSpace }
+import scalismo.geometry.{ Point, NDSpace }
 
 import scala.annotation.tailrec
 
@@ -74,7 +74,7 @@ private[scalismo] object DimensionalOrdering {
         x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
     }
 
-  implicit def dimensionalOrderingForPoint[D <: Dim: NDSpace] = new DimensionalOrdering[Point[D]] {
+  implicit def dimensionalOrderingForPoint[D: NDSpace] = new DimensionalOrdering[Point[D]] {
     val dimensions = implicitly[NDSpace[D]].dimensionality
     def compareProjection(d: Int)(x: Point[D], y: Point[D]) =
       Ordering[Double].compare(x(d), y(d))

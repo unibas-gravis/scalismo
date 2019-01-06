@@ -144,7 +144,7 @@ object MeshIO {
     }
   }
 
-  def writeLineMesh[D <: Dim: NDSpace](polyLine: LineMesh[D], file: File): Try[Unit] = {
+  def writeLineMesh[D: NDSpace](polyLine: LineMesh[D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeLineMeshVTK(polyLine, file)
@@ -443,7 +443,7 @@ object MeshIO {
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
 
-  private def readLineMeshVTK[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
+  private def readLineMeshVTK[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath)
     vtkReader.Update()
@@ -463,7 +463,7 @@ object MeshIO {
     correctedMesh
   }
 
-  private[this] def writeLineMeshVTK[D <: Dim: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
+  private[this] def writeLineMeshVTK[D: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.lineMeshToVTKPolyData(mesh)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()

@@ -182,7 +182,7 @@ object MeshConversion {
     (points, cells)
   }
 
-  private[scalismo] def vtkConvertPoints[D <: Dim: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
+  private[scalismo] def vtkConvertPoints[D: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
     val vtkType = pd.GetPoints().GetDataType()
 
     val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()) match {
@@ -274,7 +274,7 @@ object MeshConversion {
     }
   }
 
-  def vtkPolyDataToLineMesh[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
+  def vtkPolyDataToLineMesh[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
     val lines = pd.GetLines()
     val numPolys = lines.GetNumberOfCells()
     val points = vtkConvertPoints[D](pd)
@@ -294,7 +294,7 @@ object MeshConversion {
     cellsOrFailure.map(cells => LineMesh(UnstructuredPointsDomain[D](points.toIndexedSeq), LineList(cells)))
   }
 
-  def lineMeshToVTKPolyData[D <: Dim: NDSpace](mesh: LineMesh[D], template: Option[vtkPolyData] = None): vtkPolyData = {
+  def lineMeshToVTKPolyData[D: NDSpace](mesh: LineMesh[D], template: Option[vtkPolyData] = None): vtkPolyData = {
 
     val pd = new vtkPolyData
 
@@ -335,7 +335,7 @@ object MeshConversion {
 
 }
 
-trait CanConvertToVtk[D <: Dim] {
+trait CanConvertToVtk[D] {
   def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
@@ -499,11 +499,11 @@ object CanConvertToVtk {
 
 object ImageConversion {
 
-  def imageToVtkStructuredPoints[D <: Dim: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
+  def imageToVtkStructuredPoints[D: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
     implicitly[CanConvertToVtk[D]].toVtk(img)
   }
 
-  def vtkStructuredPointsToScalarImage[D <: Dim: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
+  def vtkStructuredPointsToScalarImage[D: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
     implicitly[CanConvertToVtk[D]].fromVtk(sp)
   }
 }

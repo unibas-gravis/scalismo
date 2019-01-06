@@ -29,7 +29,7 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
  * fixed value of the parameters compute the value of the metric and a derivative.
  *
  */
-trait RegistrationMetric[D <: Dim] {
+trait RegistrationMetric[D] {
 
   def transformationSpace: TransformationSpace[D]
   implicit def ndSpace: NDSpace[D]
@@ -60,7 +60,7 @@ object RegistrationMetric {
 /**
  * A registration metric for image to image registration.
  */
-trait ImageMetric[D <: Dim] extends RegistrationMetric[D] {
+trait ImageMetric[D] extends RegistrationMetric[D] {
 
   def fixedImage: ScalarImage[D]
 

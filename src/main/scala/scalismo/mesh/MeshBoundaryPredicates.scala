@@ -17,7 +17,6 @@ package scalismo.mesh
 
 import breeze.linalg.CSCMatrix
 import scalismo.common.PointId
-import scalismo.geometry.Dim
 
 /**
  * MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.
@@ -90,7 +89,7 @@ object MeshBoundaryPredicates {
    * @param mesh Incoming triangle mesh.
    * @return Boundary that can be queried for by index for points, edges, and triangles.
    */
-  def apply[D <: Dim](mesh: TriangleMesh[D]): TriangularMeshBoundaryPredicates = {
+  def apply[D](mesh: TriangleMesh[D]): TriangularMeshBoundaryPredicates = {
 
     val points = mesh.pointSet.points.toIndexedSeq
     val nPts = points.length

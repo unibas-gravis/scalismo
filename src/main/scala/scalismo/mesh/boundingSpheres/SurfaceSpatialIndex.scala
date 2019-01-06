@@ -17,14 +17,14 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
 import scalismo.common.PointId
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ Point, Vector, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 import scalismo.mesh.boundingSpheres.BSDistance._
 
 /**
  * SurfaceDistance trait with the basic queries defined.
  */
-trait SurfaceSpatialIndex[D <: Dim] {
+trait SurfaceSpatialIndex[D] {
 
   /**
    * Query the shortest distance for a point to a surface.

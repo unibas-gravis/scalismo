@@ -23,7 +23,7 @@ trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
 
-trait NDSpace[D <: Dim]
+trait NDSpace[D]
     extends Vector.Create[D]
     with Point.Create[D]
     with IntVector.Create[D] {
@@ -31,7 +31,7 @@ trait NDSpace[D <: Dim]
 }
 
 object NDSpace {
-  def apply[D <: Dim](implicit ndSpace: NDSpace[D]): NDSpace[D] = ndSpace
+  def apply[D](implicit ndSpace: NDSpace[D]): NDSpace[D] = ndSpace
 }
 
 object Dim {

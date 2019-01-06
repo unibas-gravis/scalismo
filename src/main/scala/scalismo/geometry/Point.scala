@@ -23,7 +23,7 @@ import scala.language.implicitConversions
 /**
  * An n-dimensional Point
  */
-sealed abstract class Point[D <: Dim: NDSpace] {
+sealed abstract class Point[D: NDSpace] {
   def apply(i: Int): Double
 
   def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
@@ -129,7 +129,7 @@ object Point3D {
 object Point {
 
   /** creation typeclass */
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def createPoint(data: Array[Double]): Point[D]
   }
 
@@ -154,14 +154,14 @@ object Point {
     }
   }
 
-  def apply[D <: Dim: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createPoint(d)
+  def apply[D: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createPoint(d)
   def apply(x: Double): Point[_1D] = Point1D(x)
   def apply(x: Double, y: Double): Point[_2D] = Point2D(x, y)
   def apply(x: Double, y: Double, z: Double): Point[_3D] = Point3D(x, y, z)
 
-  def origin[D <: Dim: NDSpace](implicit builder: Create[D]) = builder.createPoint(Array.fill(NDSpace[D].dimensionality)(0.0))
+  def origin[D: NDSpace](implicit builder: Create[D]) = builder.createPoint(Array.fill(NDSpace[D].dimensionality)(0.0))
 
-  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double]): Point[D] = {
+  def fromBreezeVector[D: NDSpace](breeze: DenseVector[Double]): Point[D] = {
     val dim = NDSpace[D].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Point.apply[D](breeze.data)

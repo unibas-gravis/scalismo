@@ -30,7 +30,7 @@ import scalismo.utils.Random
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (val mean: DiscreteField[D, DDomain, Value],
+class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (val mean: DiscreteField[D, DDomain, Value],
     val cov: DiscreteMatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
   self =>
 
@@ -175,11 +175,11 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], 
 
 object DiscreteGaussianProcess {
 
-  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](mean: DiscreteField[D, DDomain, Value], cov: DiscreteMatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
+  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], Value](mean: DiscreteField[D, DDomain, Value], cov: DiscreteMatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
     new DiscreteGaussianProcess[D, DDomain, Value](mean, cov)
   }
 
-  def apply[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](domain: DDomain, gp: GaussianProcess[D, Value])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
+  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], Value](domain: DDomain, gp: GaussianProcess[D, Value])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
     val domainPoints = domain.points.toIndexedSeq
 
     val discreteMean = DiscreteField[D, DDomain, Value](domain, domainPoints.map(pt => gp.mean(pt)))
@@ -190,7 +190,7 @@ object DiscreteGaussianProcess {
     new DiscreteGaussianProcess[D, DDomain, Value](discreteMean, discreteCov)
   }
 
-  def regression[D <: Dim: NDSpace, DDomain <: DiscreteDomain[D], Value](discreteGp: DiscreteGaussianProcess[D, DDomain, Value], trainingData: IndexedSeq[(Int, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
+  def regression[D: NDSpace, DDomain <: DiscreteDomain[D], Value](discreteGp: DiscreteGaussianProcess[D, DDomain, Value], trainingData: IndexedSeq[(Int, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): DiscreteGaussianProcess[D, DDomain, Value] = {
 
     // TODO, this is somehow a hack to reuse the code written for the general GP regression. We should think if that has disadvantages
     // TODO We should think whether we can do it in  a conceptually more clean way.

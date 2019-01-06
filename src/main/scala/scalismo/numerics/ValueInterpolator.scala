@@ -100,7 +100,7 @@ object ValueInterpolator {
     override def blend(obj1: Long, obj2: Long, l: Double): Long = Math.round(obj1 * l + obj2 * (1.0 - l))
   }
 
-  implicit def pointBlender[D <: Dim] = new ValueInterpolator[Point[D]] {
+  implicit def pointBlender[D] = new ValueInterpolator[Point[D]] {
     override def blend(obj1: Point[D], obj2: Point[D], l: Double): Point[D] = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
