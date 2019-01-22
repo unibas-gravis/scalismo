@@ -18,10 +18,9 @@ package scalismo.io
 import java.io.File
 
 import scalismo.ScalismoTestSuite
-import scalismo.io.StatismoIO.writeStatismoMeshModel
 import scalismo.statisticalmodel.StatisticalMeshModel
 
-class StatismoIOTest extends ScalismoTestSuite {
+class StatisticalModelIOTest extends ScalismoTestSuite {
 
   describe("a Statismo Mesh Model") {
 
@@ -38,7 +37,7 @@ class StatismoIOTest extends ScalismoTestSuite {
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
-        _ <- writeStatismoMeshModel(model, dummyFile)
+        _ <- StatismoIO.writeStatismoMeshModel(model, dummyFile)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
         assertModelAlmostEqual(model, readModel)
@@ -54,7 +53,7 @@ class StatismoIOTest extends ScalismoTestSuite {
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
-        _ <- writeStatismoMeshModel(model, dummyFile, "/someLocation")
+        _ <- StatismoIO.writeStatismoMeshModel(model, dummyFile, "/someLocation")
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile, "/someLocation")
       } yield {
         assertModelAlmostEqual(model, readModel)
@@ -72,7 +71,7 @@ class StatismoIOTest extends ScalismoTestSuite {
 
       val t = for {
         model <- StatismoIO.readStatismoMeshModel(statismoFile)
-        _ <- writeStatismoMeshModel(model, dummyFile, statismoVersion = v081)
+        _ <- StatismoIO.writeStatismoMeshModel(model, dummyFile, statismoVersion = v081)
         readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
       } yield {
         assertModelAlmostEqual(model, readModel)

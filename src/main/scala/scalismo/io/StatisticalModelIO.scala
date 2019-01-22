@@ -19,7 +19,6 @@ import java.io.File
 
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.{ Point, _3D }
-import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.mesh.TriangleMesh._
 import scalismo.statisticalmodel.StatisticalMeshModel
@@ -27,16 +26,51 @@ import scalismo.statisticalmodel.StatisticalMeshModel
 import scala.util.Try
 import breeze.linalg.DenseVector
 import breeze.linalg.DenseMatrix
+
 import scala.util.Failure
 import scala.util.Success
 import java.util.Calendar
+
 import ncsa.hdf.`object`._
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
 
+import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
+
+object StatisticalModelIO {
+
+  /**
+   * Reads a statistical mesh model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param file The statismo file
+   * @return A StatisticalMeshModel or the Failure
+   */
+  def readStatisticalMeshModel(file: File): Try[StatisticalMeshModel] = {
+    // currently, we support only the statismo format
+    StatismoIO.readStatismoMeshModel(file, "/")
+  }
+
+  /**
+   * Writes a statistical mesh model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param model The statistical model
+   * @param file The file to which the model is written
+   * @return In case of Failure, the Failure is returned.
+   */
+  def writeStatisticalMeshModel(model: StatisticalMeshModel, file: File): Try[Unit] = {
+    // currently, we support only the statismo format
+    StatismoIO.writeStatismoMeshModel(model, file, "/")
+  }
+}
+
 object StatismoIO {
+
   object StatismoModelType extends Enumeration {
     type StatismoModelType = Value
     val Polygon_Mesh, Unknown = Value
@@ -318,9 +352,4 @@ object StatismoIO {
     } map (_ => tmpfile)
   }
 
-  //  def main(args: Array[String]): Unit = {
-  //    org.statismo.stk.core.initialize
-  //    val model = readStatismoMeshModel(new File("/tmp/skull-gaussian-50-0.h5")).get
-  //    println(StatismoIO.writeStatismoMeshModel(model, new File("/tmp/x.h5"), StatismoVersion.v081))
-  //  }
 }
