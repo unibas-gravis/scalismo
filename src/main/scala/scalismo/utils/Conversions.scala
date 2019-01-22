@@ -167,8 +167,6 @@ object MeshConversion {
     val polys = newPd.GetPolys()
     val numPolys = polys.GetNumberOfCells()
 
-    val vtkType = newPd.GetPoints().GetDataType()
-
     val points = vtkConvertPoints[_3D](newPd)
 
     val idList = new vtkIdList()

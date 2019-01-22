@@ -93,7 +93,6 @@ object StatismoIO {
    */
   def readModelCatalog(file: File): Try[ModelCatalog] = {
     import scala.collection.JavaConverters._
-    val filename = file.getAbsoluteFile
 
     def flatten[A](xs: Seq[Try[A]]): Try[Seq[A]] = Try(xs.map(_.get))
 
@@ -302,12 +301,6 @@ object StatismoIO {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
-  }
-
-  private def ndDoubleArrayToDoubleMatrix(array: NDArray[Double])(implicit dummy: DummyImplicit): DenseMatrix[Double] = {
-    // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
-    // do switch dimensions and transpose
-    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
   private def ndIntArrayToIntMatrix(array: NDArray[Int]) = {

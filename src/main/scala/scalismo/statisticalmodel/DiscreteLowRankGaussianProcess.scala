@@ -22,9 +22,7 @@ import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
 import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
-import scalismo.mesh.kdtree.KDTreeMap
 import scalismo.numerics.Sampler
-import scalismo.registration.Transformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess._
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{ Eigenpair => DiscreteEigenpair }
@@ -193,7 +191,7 @@ case class DiscreteLowRankGaussianProcess[D <: Dim: NDSpace, +DDomain <: Discret
    * @param interpolator the interpolator used to interpolate the mean and eigenfunctions
    * @return a (continuous) low-rank Gaussian process
    */
-  def interpolate(interpolator: FieldInterpolator[D, DDomain, Value]): LowRankGaussianProcess[D, Value] = {
+  override def interpolate(interpolator: FieldInterpolator[D, DDomain, Value]): LowRankGaussianProcess[D, Value] = {
     val newKLBasis = for (DiscreteEigenpair(eigenVal, eigenFun) <- klBasis) yield {
       Eigenpair(eigenVal, eigenFun.interpolate(interpolator))
     }
@@ -360,7 +358,7 @@ object DiscreteLowRankGaussianProcess {
       val LowRankGaussianProcess.Eigenpair(lambda_j, phi_j) = eigenPair_j
       val (x, i) = xWithIndex
       val v = phi_j(x)
-      U(i * outputDim until (i + 1) * outputDim, j) := vectorizer.vectorize(phi_j(x))
+      U(i * outputDim until (i + 1) * outputDim, j) := vectorizer.vectorize(v)
       lambdas(j) = lambda_j
     }
 
@@ -497,10 +495,6 @@ object DiscreteLowRankGaussianProcess {
 
     val outputDim = basisMatrix.rows / domain.numberOfPoints
     def cov(ptId1: PointId, ptId2: PointId): DenseMatrix[Double] = {
-
-      val eigenMatrixForPtId1 = basisMatrix(ptId1.id * outputDim until (ptId1.id + 1) * outputDim, ::)
-      val eigenMatrixForPtId2 = basisMatrix(ptId2.id * outputDim until (ptId2.id + 1) * outputDim, ::)
-      //val covValue = eigenMatrixForPtId1 * breeze.linalg.diag(stddev :* stddev) * eigenMatrixForPtId2.t
 
       // same as commented line above, but just much more efficient (as breeze does not have diag matrix,
       // the upper command does a lot of  unnecessary computations

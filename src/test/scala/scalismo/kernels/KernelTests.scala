@@ -15,14 +15,14 @@
  */
 package scalismo.kernels
 
-import scalismo.common.{ BoxDomain, Field, RealSpace, VectorField }
+import scalismo.common.{ BoxDomain, Field, RealSpace }
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{ Point, Vector, _1D, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import scalismo.utils.Random
-import scalismo.{ ScalismoTestSuite, geometry }
+import scalismo.{ ScalismoTestSuite }
 
 class KernelTests extends ScalismoTestSuite {
 

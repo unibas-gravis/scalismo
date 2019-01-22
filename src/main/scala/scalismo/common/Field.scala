@@ -16,7 +16,6 @@
 package scalismo.common
 
 import scalismo.geometry._
-import spire.math.Numeric
 
 import scala.reflect.ClassTag
 

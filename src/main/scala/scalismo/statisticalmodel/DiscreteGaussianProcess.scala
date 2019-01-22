@@ -16,10 +16,13 @@
 
 package scalismo.statisticalmodel
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
+import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
-import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
+import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
+import scalismo.numerics.PivotedCholesky
+import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.utils.Random
 
 /**
@@ -82,6 +85,7 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], 
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
    * using nearest neighbor interpolation (for both mean and covariance function)
    */
+  @deprecated("please use the [[interpolate]] method with a [[NearestNeighborInterpolator]] instead", "0.16")
   def interpolateNearestNeighbor: GaussianProcess[D, Value] = {
 
     val meanDiscreteGp = this.mean
@@ -107,6 +111,32 @@ class DiscreteGaussianProcess[D <: Dim: NDSpace, +DDomain <: DiscreteDomain[D], 
     GaussianProcess(Field[D, Value](newDomain, meanFun), newCov)
 
   }
+
+  def interpolate(interpolator : FieldInterpolator[D, DDomain, Value]) : GaussianProcess[D, Value] = {
+
+    // We know how to interpolate DiscreteLowRankGaussianProcesses, but
+    // not this more generic type of DiscreteGP. Since we are sure that our
+    // cov matrix is always relatively small (it has to fit in memory)
+    // we can do the trick and do a pivoted cholesky, create a
+    // DiscreteLowRankGP and interpolate that.
+
+    val (basis, scale) = PivotedCholesky.computeApproximateEig(
+      cov.asBreezeMatrix,
+      D = 1.0,
+      RelativeTolerance(0.0)
+    )
+
+    val nBasisFunctions = basis.cols
+
+    val klBasis: DiscreteLowRankGaussianProcess.KLBasis[D, DDomain, Value] = for (i <- 0 until nBasisFunctions) yield {
+      val discreteEV = DiscreteField.createFromDenseVector[D, DDomain, Value](domain, basis(::, i))
+      DiscreteLowRankGaussianProcess.Eigenpair(scale(i), discreteEV)
+    }
+
+    val dgp = DiscreteLowRankGaussianProcess[D, DDomain, Value](mean, klBasis)
+    dgp.interpolate(interpolator)
+  }
+
 
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]
@@ -166,10 +196,10 @@ object DiscreteGaussianProcess {
     // TODO We should think whether we can do it in  a conceptually more clean way.
 
     val domainPoints = discreteGp.domain.points.toIndexedSeq
-    val gp = discreteGp.interpolateNearestNeighbor
+    val gp = discreteGp.interpolate(NearestNeighborInterpolator())
     val tdForGp = trainingData.map({ case (id, vec, error) => (domainPoints(id), vec, error) })
     val posterior = GaussianProcess.regression(gp, tdForGp)
 
-    DiscreteGaussianProcess(discreteGp.domain, gp)
+    DiscreteGaussianProcess(discreteGp.domain, posterior)
   }
 }

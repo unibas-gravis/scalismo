@@ -17,11 +17,9 @@
 package scalismo.registration
 
 import TransformationSpace.ParameterVector
-import breeze.linalg.{ DenseVector, convert }
-import scalismo.geometry.{ _3D, Point, NDSpace, Dim }
-import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
+import breeze.linalg.{ DenseVector }
+import scalismo.geometry.{ Dim }
 import scalismo.numerics._
-import scalismo.utils.Random
 
 /**
  * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum
@@ -35,7 +33,7 @@ import scalismo.utils.Random
 case class Registration[D <: Dim](metric: RegistrationMetric[D],
     regularizer: Regularizer[D],
     regularizationWeight: Double,
-    optimizer: Optimizer)(implicit rng: Random) {
+    optimizer: Optimizer) {
 
   /**
    * Representation of the current state of the registration.

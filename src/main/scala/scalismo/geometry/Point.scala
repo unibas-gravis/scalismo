@@ -161,7 +161,7 @@ object Point {
 
   def origin[D <: Dim: NDSpace](implicit builder: Create[D]) = builder.createPoint(Array.fill(NDSpace[D].dimensionality)(0.0))
 
-  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double])(implicit builder: Create[D]): Point[D] = {
+  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double]): Point[D] = {
     val dim = NDSpace[D].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Point.apply[D](breeze.data)

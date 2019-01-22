@@ -8,7 +8,7 @@ import scalismo.geometry.{ Point, _3D }
 import scalismo.io.{ ImageIO, MeshIO, StatismoIO, StatisticalModelIO }
 import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
-import scalismo.registration.{ LandmarkRegistration, RigidTransformationSpace }
+import scalismo.registration.{ LandmarkRegistration }
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random

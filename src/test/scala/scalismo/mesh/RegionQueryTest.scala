@@ -18,9 +18,9 @@ package scalismo.mesh
 import java.io.File
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ BoxDomain, PointId, UnstructuredPointsDomain }
+import scalismo.common.{ BoxDomain, UnstructuredPointsDomain }
 import scalismo.geometry._
-import scalismo.image.{ DiscreteImageDomain, DiscreteImageDomain2D }
+import scalismo.image.{ DiscreteImageDomain }
 import scalismo.io.MeshIO
 
 class RegionQueryTest extends ScalismoTestSuite {

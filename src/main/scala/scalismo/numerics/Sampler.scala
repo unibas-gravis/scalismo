@@ -16,7 +16,6 @@
 package scalismo.numerics
 
 import breeze.stats.distributions.Uniform
-import org.apache.commons.math3.random.MersenneTwister
 import java.util
 
 import scalismo.common.BoxDomain

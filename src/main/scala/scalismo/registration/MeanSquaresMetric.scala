@@ -16,13 +16,9 @@
 
 package scalismo.registration
 
-import breeze.linalg.DenseVector
-import scalismo.common.Domain
-import scalismo.geometry.{ Dim, NDSpace, Point }
+import scalismo.geometry.{ Dim, NDSpace }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
-import scalismo.numerics.{ Integrator, Sampler }
-import scalismo.registration.RegistrationMetric.ValueAndDerivative
-import scalismo.utils.Random
+import scalismo.numerics.{ Sampler }
 
 /**
  * The mean squares image to image metric.

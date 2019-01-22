@@ -18,8 +18,6 @@ package scalismo.mesh.kdtree
 
 import scala.language.implicitConversions
 
-import scala.math.Ordering.Implicits._
-
 private[scalismo] sealed trait Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean

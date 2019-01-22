@@ -240,7 +240,7 @@ object Vector {
 
   def zeros[D <: Dim: NDSpace](implicit builder: Create[D]): Vector[D] = builder.zero
 
-  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double])(implicit builder: Create[D]): Vector[D] = {
+  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double]): Vector[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     Vector.apply[D](breeze.data)

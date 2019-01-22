@@ -15,8 +15,6 @@
  */
 package scalismo.geometry
 
-import breeze.linalg.DenseVector
-import scalismo.io.LandmarkIO
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 

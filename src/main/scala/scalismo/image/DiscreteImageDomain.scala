@@ -157,18 +157,18 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
 object DiscreteImageDomain {
 
   /** Create a new discreteImageDomain with given origin, spacing and size*/
-  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: IntVector[D])(implicit evDim: NDSpace[D], evCreate: CreateDiscreteImageDomain[D]) = {
+  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]) = {
     evCreate.createImageDomain(origin, spacing, size)
   }
 
   /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D <: Dim](imageBox: BoxDomain[D], size: IntVector[D])(implicit evDim: NDSpace[D], evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
+  def apply[D <: Dim](imageBox: BoxDomain[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
     val spacing = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / size(i) })
     evCreate.createImageDomain(imageBox.origin, spacing, size)
   }
 
   /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D <: Dim](imageBox: BoxDomain[D], spacing: Vector[D])(implicit evDim: NDSpace[D], evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
+  def apply[D <: Dim : NDSpace](imageBox: BoxDomain[D], spacing: Vector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
     val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
     val size = IntVector.apply[D](sizeFractional.toArray.map(s => Math.ceil(s).toInt))
     evCreate.createImageDomain(imageBox.origin, spacing, size)
@@ -178,7 +178,7 @@ object DiscreteImageDomain {
    * Create a discreteImageDomain where the points are defined as transformations of the indices (from (0,0,0) to (size - 1, size - 1 , size -1)
    * This makes it possible to define image regions which are not aligned to the coordinate axis.
    */
-  private[scalismo] def apply[D <: Dim](size: IntVector[D], transform: AnisotropicSimilarityTransformation[D])(implicit evDim: NDSpace[D], evCreateRot: CreateDiscreteImageDomain[D]) = {
+  private[scalismo] def apply[D <: Dim](size: IntVector[D], transform: AnisotropicSimilarityTransformation[D])(implicit evCreateRot: CreateDiscreteImageDomain[D]) = {
     evCreateRot.createWithTransform(size, transform)
   }
 
@@ -251,8 +251,6 @@ case class DiscreteImageDomain1D(size: IntVector[_1D], indexToPhysicalCoordinate
 
 case class DiscreteImageDomain2D(size: IntVector[_2D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D]) extends DiscreteImageDomain[_2D] {
 
-  private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
-
   override val origin = {
     val p = indexToPhysicalCoordinateTransform(Point(0, 0))
     Point2D(p(0), p(1))
@@ -300,8 +298,6 @@ case class DiscreteImageDomain2D(size: IntVector[_2D], indexToPhysicalCoordinate
 }
 
 case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_3D]) extends DiscreteImageDomain[_3D] {
-
-  private val inverseAnisotropicTransform = indexToPhysicalCoordinateTransform.inverse
 
   override val origin = {
     val p = indexToPhysicalCoordinateTransform(Point(0, 0, 0))

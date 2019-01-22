@@ -22,7 +22,7 @@ import java.nio.{ ByteBuffer, MappedByteBuffer }
 
 import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.io.FastReadOnlyNiftiVolume.NiftiHeader
-import spire.math.{ UByte, UInt, ULong, UShort }
+import spire.math.{ UByte, UInt, UShort }
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
