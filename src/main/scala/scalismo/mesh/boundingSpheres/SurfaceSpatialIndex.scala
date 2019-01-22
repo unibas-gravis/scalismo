@@ -17,7 +17,7 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
 import scalismo.common.PointId
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ Dim, Point, EuclideanVector, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 import scalismo.mesh.boundingSpheres.BSDistance._
 
@@ -68,10 +68,10 @@ import ClosestPointType._
  * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
  */
 private case class ClosestPointMeta(distance2: Double,
-  pt: Vector[_3D],
-  ptType: ClosestPointType,
-  bc: (Double, Double),
-  idx: (Int, Int))
+                                    pt: EuclideanVector[_3D],
+                                    ptType: ClosestPointType,
+                                    bc: (Double, Double),
+                                    idx: (Int, Int))
 
 /**
  * Companion object for the surface distance implementation for TriangleMesh3D.
@@ -182,17 +182,17 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   }
   private val res: ThreadLocal[CP] = new ThreadLocal[CP]() {
     override protected def initialValue(): CP = {
-      new CP(Double.MaxValue, Vector(-1, -1, -1), POINT, BC(0, 0), (-1, -1))
+      new CP(Double.MaxValue, EuclideanVector(-1, -1, -1), POINT, BC(0, 0), (-1, -1))
     }
   }
 
   /**
    * Search for the closest point recursively
    */
-  private def distanceToPartition(point: Vector[_3D],
-    partition: BoundingSphere,
-    result: CP,
-    index: Index): Unit = {
+  private def distanceToPartition(point: EuclideanVector[_3D],
+                                  partition: BoundingSphere,
+                                  result: CP,
+                                  index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toTriangle(point, triangles(partition.idx))

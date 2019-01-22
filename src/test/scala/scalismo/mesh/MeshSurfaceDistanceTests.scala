@@ -18,7 +18,7 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ Dim, Point, EuclideanVector, _3D }
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 import scalismo.utils.Random
 
@@ -32,8 +32,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     Point(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
-  def randomVector(offset: Double = 0.0, scale: Double = 1.0): Vector[_3D] = {
-    Vector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
+  def randomVector(offset: Double = 0.0, scale: Double = 1.0): EuclideanVector[_3D] = {
+    EuclideanVector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
   private def randomTriangle(offset: Double, scale: Double): Triangle = {
@@ -43,7 +43,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
   }
 
-  def aeqV[D <: Dim](a: Vector[D], b: Vector[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqV[D <: Dim](a: EuclideanVector[D], b: EuclideanVector[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 
@@ -319,7 +319,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should find the correct closest points pairs in a sorted list") {
 
-      def bruteForcePairFinder(sortedPoints: IndexedSeq[(Vector[_3D], Int)]) = {
+      def bruteForcePairFinder(sortedPoints: IndexedSeq[(EuclideanVector[_3D], Int)]) = {
         sortedPoints.zipWithIndex.map { e =>
           val spIndex = e._2
           val basePoint = e._1._1

@@ -17,7 +17,7 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.linalg.max
 import breeze.numerics.{ abs, pow, sqrt }
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{ Point, EuclideanVector, _3D }
 import scalismo.mesh.TriangleMesh3D
 
 import scala.annotation.tailrec
@@ -35,11 +35,11 @@ import scala.annotation.tailrec
  * @param r2     Squared radius of bounding sphere.
  * @param idx    Index of entity used to form leave.
  */
-private[mesh] abstract class BoundingSphere(val center: Vector[_3D],
-    val r2: Double,
-    val idx: Int,
-    val left: BoundingSphere,
-    val right: BoundingSphere) {
+private[mesh] abstract class BoundingSphere(val center: EuclideanVector[_3D],
+                                            val r2: Double,
+                                            val idx: Int,
+                                            val left: BoundingSphere,
+                                            val right: BoundingSphere) {
   /**
    * true if left child sphere exists
    */
@@ -176,7 +176,7 @@ private[mesh] object BoundingSpheres {
   /**
    * calculate index of nearest points pairs
    */
-  def calculateNearestPointPairs(points: Seq[Vector[_3D]]): Seq[Int] = {
+  def calculateNearestPointPairs(points: Seq[EuclideanVector[_3D]]): Seq[Int] = {
     val matchedPoints = Array.fill[Int](points.length)(-1)
     val pointsWithIndex = points.zipWithIndex
 
@@ -188,7 +188,7 @@ private[mesh] object BoundingSpheres {
    * match points recursively to get n/2 pairs and an optional single point
    */
   @tailrec
-  final def matchPoints(points: Seq[(Vector[_3D], Int)], matchedPoints: Array[Int]): Unit = {
+  final def matchPoints(points: Seq[(EuclideanVector[_3D], Int)], matchedPoints: Array[Int]): Unit = {
     points.length match {
 
       case 0 =>
@@ -212,9 +212,9 @@ private[mesh] object BoundingSpheres {
    * Find best point pairs, some points might not be matched
    */
   @inline
-  def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((Vector[_3D], Int), Int))],
-    sortedPoints: Seq[(Vector[_3D], Int)],
-    matchedPoints: Array[Int]): Array[Boolean] = {
+  def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
+                                            sortedPoints: Seq[(EuclideanVector[_3D], Int)],
+                                            matchedPoints: Array[Int]): Array[Boolean] = {
     val chosen = Array.fill[Boolean](closestPointPairs.length)(false)
     val bestPairs = closestPointPairs.sortBy(a => a._1)
     bestPairs.foreach {
@@ -238,7 +238,7 @@ private[mesh] object BoundingSpheres {
    * Find for each point the closest neighbour
    */
   @inline
-  def findClosestPointPairs(sortedPoints: Seq[(Vector[_3D], Int)]) = {
+  def findClosestPointPairs(sortedPoints: Seq[(EuclideanVector[_3D], Int)]) = {
     sortedPoints.zipWithIndex.map {
       e =>
         val spIndex = e._2
@@ -287,11 +287,11 @@ private[mesh] object BoundingSpheres {
 /**
  * Inner node of the search index.
  */
-private class BoundingSphereSplit(center: Vector[_3D],
-  r2: Double,
-  idx: Int,
-  left: BoundingSphere,
-  right: BoundingSphere)
+private class BoundingSphereSplit(center: EuclideanVector[_3D],
+                                  r2: Double,
+                                  idx: Int,
+                                  left: BoundingSphere,
+                                  right: BoundingSphere)
     extends BoundingSphere(center, r2, idx, left, right) {
   override def hasLeft: Boolean = left != null
 
@@ -301,9 +301,9 @@ private class BoundingSphereSplit(center: Vector[_3D],
 /**
  * Leave node of the search index.
  */
-private class BoundingSphereLeave(center: Vector[_3D],
-  r2: Double,
-  idx: Int)
+private class BoundingSphereLeave(center: EuclideanVector[_3D],
+                                  r2: Double,
+                                  idx: Int)
     extends BoundingSphere(center, r2, idx, null, null) {
 
   override def hasLeft: Boolean = false
@@ -314,7 +314,7 @@ private class BoundingSphereLeave(center: Vector[_3D],
 /**
  * Helper class to build BoundingSphereLeaves
  */
-private case class Sphere(center: Vector[_3D], r2: Double)
+private case class Sphere(center: EuclideanVector[_3D], r2: Double)
 
 /**
  * Factory for Sphere class.
@@ -351,7 +351,7 @@ private object Sphere {
   /**
    * Calculate sphere around three points, e.g. a triangle
    */
-  def triangleCircumSphere(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D]): (Vector[_3D], Double) = {
+  def triangleCircumSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
     // rather complex function taken from c++ ... TODO: should be checked if we cant reach the result more easily, pay attention to possible numerical problems
     var center = a
     var radius2 = 1.0

@@ -18,7 +18,7 @@ package scalismo.statisticalmodel.asm
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{ Point, EuclideanVector, _3D }
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.asm.PreprocessedImage.{ Gradient, Intensity }
@@ -74,7 +74,7 @@ object NormalDirectionFeatureExtractor {
 
 case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double, override val ioMetadata: IOMetadata = NormalDirectionFeatureExtractor.IOMetadata_Default) extends FeatureExtractor {
   override def apply(image: PreprocessedImage, point: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Double]] = {
-    val normal: Vector[_3D] = mesh.vertexNormals(profilePointId) // TODO: this was adapted when switched to new mesh... Check if this is correct.
+    val normal: EuclideanVector[_3D] = mesh.vertexNormals(profilePointId) // TODO: this was adapted when switched to new mesh... Check if this is correct.
     val unitNormal = normal * (1.0 / normal.norm)
 
     val sampledPoints = featurePoints(mesh, profilePointId, point).get //.get is safe: we know that the method always returns Some(...)
@@ -84,7 +84,7 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double,
         image.valueType match {
           case Intensity => image(samplePt)(0).toDouble
           case Gradient =>
-            val gradient = Vector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
+            val gradient = EuclideanVector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
             gradient dot unitNormal
           case _ => throw new IllegalStateException(s"The feature extractor cannot handle preprocessed images of type ${image.valueType}")
         }
@@ -100,7 +100,7 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double,
   }
 
   override def featurePoints(mesh: TriangleMesh[_3D], profilePointId: PointId, centerPoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]] = {
-    val normal: Vector[_3D] = mesh.vertexNormals(profilePointId)
+    val normal: EuclideanVector[_3D] = mesh.vertexNormals(profilePointId)
     val unitNormal = normal * (1.0 / normal.norm)
     require(math.abs(unitNormal.norm - 1.0) < 1e-5)
 

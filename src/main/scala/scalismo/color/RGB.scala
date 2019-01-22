@@ -20,8 +20,8 @@ import java.awt.Color
 
 import breeze.linalg.DenseVector
 import scalismo.common.{ ComponentRepresentation, Vectorizer }
-import scalismo.geometry.Vector._
-import scalismo.geometry.{ Vector, _3D }
+import scalismo.geometry.EuclideanVector._
+import scalismo.geometry.{ EuclideanVector, _3D }
 import scalismo.numerics.ValueInterpolator
 
 import scala.annotation.switch
@@ -92,7 +92,7 @@ case class RGB(r: Double, g: Double, b: Double) {
   def toTuple: (Double, Double, Double) = (r, g, b)
 
   /** convert to standard Vector[_3D] */
-  def toVector: Vector[_3D] = Vector(r, g, b)
+  def toVector: EuclideanVector[_3D] = EuclideanVector(r, g, b)
 
   /**
    * convert to AWT default color
@@ -109,7 +109,7 @@ object RGB {
   def apply(color: RGBA): RGB = new RGB(color.r, color.g, color.b)
   def apply(gray: Double): RGB = new RGB(gray, gray, gray)
   def apply(tuple: (Double, Double, Double)) = new RGB(tuple._1, tuple._2, tuple._3)
-  def apply(vector3D: Vector[_3D]) = new RGB(vector3D.x, vector3D.y, vector3D.z)
+  def apply(vector3D: EuclideanVector[_3D]) = new RGB(vector3D.x, vector3D.y, vector3D.z)
   def apply(awtColor: Color) = new RGB(fromInt8(awtColor.getRed), fromInt8(awtColor.getGreen), fromInt8(awtColor.getBlue))
 
   implicit object RGBComponents extends ComponentRepresentation[RGB] with Vectorizer[RGB] {

@@ -141,7 +141,7 @@ object ScalarImage {
 /**
  * A scalar image that is once differentiable
  */
-class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
+class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => EuclideanVector[D]) extends ScalarImage[D](_domain, _f) {
 
   def differentiate: VectorField[D, D] = VectorField(domain, df)
 
@@ -192,12 +192,12 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
 
     val integrator = Integrator[D](GridSampler(support))
 
-    def intermediateDF(imageX: Point[D])(t: Point[D]): Option[Vector[D]] = {
+    def intermediateDF(imageX: Point[D])(t: Point[D]): Option[EuclideanVector[D]] = {
       val p = (imageX - t).toPoint
       if (this.isDefinedAt(p)) Some(df(p) * filter(t)) else None
     }
 
-    def convolvedImgDerivative(imageX: Point[D]): Vector[D] = {
+    def convolvedImgDerivative(imageX: Point[D]): EuclideanVector[D] = {
       integrator.integrateVector(intermediateDF(imageX) _)
     }
 
@@ -218,7 +218,7 @@ object DifferentiableScalarImage {
    * @param f a function that yields the intensity for each point of the domain
    * @param df the derivative of the function f
    */
-  def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
+  def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => EuclideanVector[D]) = new DifferentiableScalarImage[D](domain, f, df)
 
 }
 

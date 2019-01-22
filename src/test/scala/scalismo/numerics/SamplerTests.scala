@@ -34,7 +34,7 @@ class SamplerTests extends ScalismoTestSuite {
     it("yields approximately uniformly spaced points") {
 
       // precalculate values needed for determining if a point lies in a (triangle) cell.
-      case class CellInfo(a: Point[_3D], b: Point[_3D], c: Point[_3D], v0: Vector[_3D], v1: Vector[_3D], dot00: Double, dot01: Double, dot11: Double)
+      case class CellInfo(a: Point[_3D], b: Point[_3D], c: Point[_3D], v0: EuclideanVector[_3D], v1: EuclideanVector[_3D], dot00: Double, dot01: Double, dot11: Double)
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)

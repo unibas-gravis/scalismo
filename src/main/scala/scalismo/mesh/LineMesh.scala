@@ -125,24 +125,24 @@ object LineMesh {
 case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], override val topology: LineList) extends LineMesh[_2D](pointSet, topology) {
 
   /** Get all cell normals as a surface property */
-  lazy val cellNormals: LineProperty[Vector[_2D]] = {
+  lazy val cellNormals: LineProperty[EuclideanVector[_2D]] = {
     LineProperty(topology, lines.map(computeCellNormal))
   }
 
   /** Get all vertex normals as a surface property */
 
-  lazy val vertexNormals: ContourPointProperty[Vector[_2D]] = {
+  lazy val vertexNormals: ContourPointProperty[EuclideanVector[_2D]] = {
 
     ContourPointProperty.averagedPointProperty(topology, cellNormals)
   }
 
-  private def computeCellNormal(cell: LineCell): Vector[_2D] = {
+  private def computeCellNormal(cell: LineCell): EuclideanVector[_2D] = {
 
     val pt1 = pointSet.point(cell.ptId1)
     val pt2 = pointSet.point(cell.ptId2)
 
     val d = pt2 - pt1
-    val n = Vector(-d.y, d.x) / Vector(-d.y, d.x).norm
+    val n = EuclideanVector(-d.y, d.x) / EuclideanVector(-d.y, d.x).norm
     n / n.norm
   }
 

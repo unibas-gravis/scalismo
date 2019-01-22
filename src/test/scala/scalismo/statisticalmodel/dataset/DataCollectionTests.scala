@@ -34,7 +34,7 @@ class DataCollectionTests extends ScalismoTestSuite {
 
   describe("A datacollection") {
 
-    val transformations = for (i <- 0 until 10) yield TranslationTransform(Vector(i.toDouble, 0.0, 0.0))
+    val transformations = for (i <- 0 until 10) yield TranslationTransform(EuclideanVector(i.toDouble, 0.0, 0.0))
     val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)
     val meshpath = getClass.getResource("/facemesh.stl").getPath
     val referenceMesh = MeshIO.readMesh(new File(meshpath)).get
@@ -165,9 +165,9 @@ class DataCollectionTests extends ScalismoTestSuite {
 
   describe("Generalization") {
 
-    val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => Vector(0, 0, 0))
+    val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => EuclideanVector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
-    val bias: GaussianProcess[_3D, Vector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
+    val bias: GaussianProcess[_3D, EuclideanVector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
     val biasLowRank = LowRankGaussianProcess.approximateGP(bias, UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500), Fixture.pcaModel.rank + 5)
     val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, biasLowRank)
 

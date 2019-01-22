@@ -22,7 +22,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
+import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
 import scalismo.io.{ ImageIO, MeshIO }
@@ -129,7 +129,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain[_1D](-50.0, 1.0, 100)
-      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => (x * x), (x: Point[_1D]) => Vector(2f * x))
+      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => (x * x), (x: Point[_1D]) => EuclideanVector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Double](10))
       val translatedImg = continuousImage.compose(translation)
@@ -251,7 +251,7 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("A 2D similarity transform") {
 
-    val rigidTransformation = RigidTransformation(TranslationTransform(Vector2D(2.0, 5.0)), RotationTransform(Math.PI / 2.0, Point2D(0, 0)))
+    val rigidTransformation = RigidTransformation(TranslationTransform(EuclideanVector2D(2.0, 5.0)), RotationTransform(Math.PI / 2.0, Point2D(0, 0)))
     val similarityTransform = SimilarityTransformation(ScalingTransformation[_2D](2.0), rigidTransformation)
 
     it("correctly transforms a 2D point") {
@@ -264,7 +264,7 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("A 3D similarity transform") {
 
-    val rigidTransformation = RigidTransformation(TranslationTransform(Vector3D(2.0, 5.0, 1.0)), RotationTransform(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
+    val rigidTransformation = RigidTransformation(TranslationTransform(EuclideanVector3D(2.0, 5.0, 1.0)), RotationTransform(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
     val similarityTransform = SimilarityTransformation(ScalingTransformation[_3D](2.0), rigidTransformation)
 
     it("correctly transforms a 3D point") {
