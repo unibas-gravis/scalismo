@@ -232,6 +232,12 @@ object LowRankGaussianProcess {
     * This approximation will automatically compute the required number of basis functions, to achieve a given
     * approximation quality.
     *
+    * Note:
+    * The number of basis functions that are generated for a fixed approximation quality depends very much on the
+    * smoothness of the process. The more smooth the modelled functions are, the less basis functions are required.
+    * For models which are highly non-smooth, this method may generate a lot of basis functions.
+    *
+    *
     * @param domain The domain on which the approximation is performed. This can, for example be the points of a mesh,
     *               an image domain (regular grid) or any other suitable domain. Note that the number of points in this
     *               domain influences the approximation accuracy. As the complexity of this method grows at most
@@ -243,7 +249,9 @@ object LowRankGaussianProcess {
     * @param relativeTolerance  The relative tolerance defines the stopping criterion for the approximation. When we
     *                           choose this parameter as 0.01, the method will stop computing new basis functions, when
     *                           the variance represented by the approximated Gaussian Process is 99% of the total variance
-    *                           of the original process.
+    *                           of the original process. A value of 0 will generate new basis functions until all the variance
+    *                           is approximated. Note that this will only terminate when the Gaussian process has finite rank.
+    *
     * @param interpolator       An interpolator used to interpolate values that lie between the points of the domain
     *
     * @return       A low rank approximation of the Gaussian process
