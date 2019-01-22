@@ -19,7 +19,7 @@ package scalismo.sampling.proposals
 import scalismo.ScalismoTestSuite
 import scalismo.sampling.evaluators.GaussianEvaluator
 import scalismo.sampling.proposals.MixtureProposal.{ SymmetricProposalGenerator, SymmetricProposalGeneratorWithTransition }
-import scalismo.sampling.{ ProposalGenerator, SymmetricTransitionRatio, TransitionProbability, proposals }
+import scalismo.sampling.{ ProposalGenerator, SymmetricTransitionRatio, TransitionProbability }
 import scalismo.utils.Random
 
 class MixtureTests extends ScalismoTestSuite {
@@ -43,11 +43,6 @@ class MixtureTests extends ScalismoTestSuite {
 
     val symProposal = new ProposalGenerator[Double] with SymmetricTransitionRatio[Double] {
       override def propose(current: Double): Double = current
-    }
-
-    val transProposal = new ProposalGenerator[Double] with TransitionProbability[Double] {
-      override def propose(current: Double): Double = current
-      override def logTransitionProbability(from: Double, to: Double): Double = 0.0
     }
 
     val symTransProposal = new ProposalGenerator[Double] with TransitionProbability[Double] with SymmetricTransitionRatio[Double] {
@@ -80,15 +75,15 @@ class MixtureTests extends ScalismoTestSuite {
       import MixtureProposal.implicits._
 
       it("is a plain ProposalGenerator for plain proposals") {
-        val mixture: ProposalGenerator[Double] = MixtureProposal(0.25 *: plainProposal + plainProposal * 0.75)
+        MixtureProposal(0.25 *: plainProposal + plainProposal * 0.75): ProposalGenerator[Double]
       }
 
       it("preserves symmetry of proposals") {
-        val mixture: SymmetricProposalGenerator[Double] = MixtureProposal(0.25 *: symProposal + symProposal * 0.75)
+        MixtureProposal(0.25 *: symProposal + symProposal * 0.75): SymmetricProposalGenerator[Double]
       }
 
       it("preserves symmetry and transition probability of proposals") {
-        val mixture: SymmetricProposalGeneratorWithTransition[Double] = MixtureProposal(0.25 *: symTransProposal + symTransProposal * 0.75)
+        MixtureProposal(0.25 *: symTransProposal + symTransProposal * 0.75): SymmetricProposalGeneratorWithTransition[Double]
       }
 
       it("discards symmetry if a proposal is not symmetric") {

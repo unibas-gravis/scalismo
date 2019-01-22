@@ -18,15 +18,15 @@ package scalismo.statisticalmodel.dataset
 import java.io.File
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Vectorizer, Field, VectorField }
+import scalismo.common.{ Field }
 import scalismo.geometry._
 import scalismo.io.MeshIO
-import scalismo.kernels.{ Kernel, DiagonalKernel, GaussianKernel }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
 import scalismo.mesh.{ TriangleMesh, MeshMetrics }
 import scalismo.numerics.UniformMeshSampler3D
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
 import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess, StatisticalMeshModel }
-import scalismo.utils.{ Benchmark, Memoize, Random }
+import scalismo.utils.{ Random }
 
 class DataCollectionTests extends ScalismoTestSuite {
 

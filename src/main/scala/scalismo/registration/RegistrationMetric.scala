@@ -16,13 +16,9 @@
 
 package scalismo.registration
 
-import scalismo.common.Domain
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
-import scalismo.numerics.{ Integrator, Sampler }
-import scalismo.utils.Random
 
-import scala.language.higherKinds
 import breeze.linalg.DenseVector
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 

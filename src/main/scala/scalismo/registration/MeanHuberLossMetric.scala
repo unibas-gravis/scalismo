@@ -19,7 +19,6 @@ package scalismo.registration
 import scalismo.geometry.{ Dim, NDSpace }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
-import scalismo.utils.Random
 
 /**
  * Image to image metric which applies the Huber Loss function to the pointwise pixel difference.

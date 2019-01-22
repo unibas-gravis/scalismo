@@ -71,9 +71,9 @@ class DiscreteField[D <: Dim, +DDomain <: DiscreteDomain[D], A](val domain: DDom
 object DiscreteField {
   def apply[D <: Dim, DDomain <: DiscreteDomain[D], A](domain: DDomain, data: IndexedSeq[A]): DiscreteField[D, DDomain, A] = new DiscreteField[D, DDomain, A](domain, data)
 
+
   private[scalismo] def createFromDenseVector[D <: Dim, DDomain <: DiscreteDomain[D], A](domain: DDomain, d: DenseVector[Double])(implicit vectorizer: Vectorizer[A]) = {
     val dim = vectorizer.dim
-    val nElem = d.length / dim
     val data = d.toArray.grouped(dim).map(e => vectorizer.unvectorize(DenseVector(e))).toIndexedSeq
     new DiscreteField[D, DDomain, A](domain, data)
   }

@@ -34,7 +34,7 @@ object ActiveShapeModel {
   /**
    * Train an active shape model using an existing PCA model
    */
-  def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh[_3D] => Sampler[_3D])(implicit rand: Random): ActiveShapeModel = {
+  def trainModel(statisticalModel: StatisticalMeshModel, trainingData: TrainingData, preprocessor: ImagePreprocessor, featureExtractor: FeatureExtractor, sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
     val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
     val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)

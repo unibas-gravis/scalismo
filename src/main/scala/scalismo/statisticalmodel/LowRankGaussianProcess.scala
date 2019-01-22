@@ -19,9 +19,8 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector, diag }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
-import scalismo.geometry.{ Dim, NDSpace, Point, SquareMatrix, Vector }
+import scalismo.geometry.{ Dim, NDSpace, Point, Vector }
 import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
-import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.Sampler
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
@@ -194,7 +193,7 @@ object LowRankGaussianProcess {
    */
   def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
-    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis.take(numBasisFunctions))
   }
@@ -208,7 +207,7 @@ object LowRankGaussianProcess {
    * @
    */
   def approximateGP[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
-    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }

@@ -22,7 +22,6 @@ import scalismo.geometry.{ Dim, NDSpace, Point }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
-import scalismo.utils.Random
 
 /**
  * Image to image metric which applies a loss function to the pointwise pixel difference.

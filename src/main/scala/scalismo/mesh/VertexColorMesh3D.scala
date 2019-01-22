@@ -1,6 +1,6 @@
 package scalismo.mesh
 
-import scalismo.color.{ RGB, RGBA }
+import scalismo.color.{ RGBA }
 import scalismo.geometry.{ Point, _3D }
 
 /**

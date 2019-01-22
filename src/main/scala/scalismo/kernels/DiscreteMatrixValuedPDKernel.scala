@@ -18,7 +18,7 @@ package scalismo.kernels
 
 import breeze.linalg.DenseMatrix
 import scalismo.common.{ PointId, DiscreteDomain }
-import scalismo.geometry.{ NDSpace, Dim, SquareMatrix }
+import scalismo.geometry.{ NDSpace, Dim }
 
 /**
  *  Discrete representation of a MatrixValuedPDKernel.
@@ -51,8 +51,6 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace] private[scalismo] (
     val xs = domain.points.toIndexedSeq
 
     val K = DenseMatrix.zeros[Double](xs.size * outputDim, xs.size * outputDim)
-    val xiWithIndex = xs.zipWithIndex.par
-    val xjWithIndex = xs.zipWithIndex
     for { i <- xs.indices; j <- 0 to i } {
       val kxixj = k(PointId(i), PointId(j))
       var di = 0

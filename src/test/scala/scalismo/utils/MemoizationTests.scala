@@ -17,8 +17,6 @@ package scalismo.utils
 
 import scalismo.ScalismoTestSuite
 
-import scala.language.implicitConversions
-
 class MemoizationTests extends ScalismoTestSuite {
   describe("a Function ") {
 
@@ -28,14 +26,14 @@ class MemoizationTests extends ScalismoTestSuite {
 
     it("yields the same results after memoizing") {
       val testFunMemoized = Memoize(testFun, 100000)
-      for (x <- -2 * Math.PI until 2 * Math.PI by 0.1)
-        testFun(x) should be(testFunMemoized(x))
+      for (x <- BigDecimal(-2.0 * Math.PI) until (2.0 * Math.PI) by 0.1)
+        testFun(x.doubleValue()) should be(testFunMemoized(x.doubleValue()))
     }
 
     it("evaluates faster after memoization") {
-      def time[A](a: => A): Double = {
+      def time[A](a: () => A): Double = {
         val now = System.nanoTime
-        val result = a
+        a()
         System.nanoTime() - now
       }
 
@@ -46,10 +44,10 @@ class MemoizationTests extends ScalismoTestSuite {
 
       val slowFunMemoized = Memoize(slowTestFun, 10)
       val timeSlowFun = time {
-        for (i <- 0 until 10) slowTestFun(0)
+        () => for (i <- 0 until 10) slowTestFun(0)
       }
       val timeMemoFun = time {
-        for (i <- 0 until 10) slowFunMemoized
+        () => for (i <- 0 until 10) slowFunMemoized
       }
       timeSlowFun should be > timeMemoFun
     }

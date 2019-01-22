@@ -205,7 +205,7 @@ object RGBA {
     }
   }
 
-  private def toInt8(value: Double): Int = (value * 255.0).toInt
+  //private def toInt8(value: Double): Int = (value * 255.0).toInt
 
   private def fromInt8(intValue: Int): Double = intValue / 255.0
 }

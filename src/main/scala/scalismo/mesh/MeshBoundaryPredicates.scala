@@ -19,9 +19,6 @@ import breeze.linalg.CSCMatrix
 import scalismo.common.PointId
 import scalismo.geometry.Dim
 
-import scala.collection.mutable
-import scala.collection.Map
-
 /**
  * MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.
  */

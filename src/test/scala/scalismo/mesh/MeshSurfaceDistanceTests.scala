@@ -28,15 +28,15 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
   def rgen(offset: Double = 0.0, scale: Double = 1.0) = rnd.scalaRandom.nextDouble() * scale + offset
 
-  def randomPoint(offset: Double = 0.0, scale: Double = 1.0)(implicit rnd: Random): Point[_3D] = {
+  def randomPoint(offset: Double = 0.0, scale: Double = 1.0): Point[_3D] = {
     Point(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
-  def randomVector(offset: Double = 0.0, scale: Double = 1.0)(implicit rnd: Random): Vector[_3D] = {
+  def randomVector(offset: Double = 0.0, scale: Double = 1.0): Vector[_3D] = {
     Vector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
-  private def randomTriangle(offset: Double = 0.0, scale: Double = 1.0): Triangle = {
+  private def randomTriangle(offset: Double, scale: Double): Triangle = {
     val a = randomVector(offset, scale)
     val b = randomVector(offset, scale)
     val c = randomVector(offset, scale)
@@ -291,8 +291,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         val c = randomVector()
         Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
       }
-
-      val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
 
       val sd = DiscreteSpatialIndex.fromMesh(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),

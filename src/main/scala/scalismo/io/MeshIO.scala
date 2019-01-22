@@ -21,9 +21,6 @@ import scalismo.color.{RGB, RGBA}
 import scalismo.common.{PointId, Scalar, UnstructuredPointsDomain}
 import scalismo.geometry._
 import scalismo.mesh._
-import scalismo.geometry.Point._
-import scalismo.geometry.Vector._
-import scalismo.io.MeshIO.getColorArray
 import scalismo.mesh.TriangleMesh._
 import scalismo.utils.MeshConversion
 import vtk._

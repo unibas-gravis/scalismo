@@ -347,7 +347,7 @@ object RotationSpace {
    * Factory method to create a D dimensional parametric transformation space generating rotations around the indicated centre
    *  Only _2D and _3D dimensions are supported
    */
-  def apply[D <: Dim](centre: Point[D])(implicit evDim: NDSpace[D], evCreateRot: CreateRotationSpace[D]) = {
+  def apply[D <: Dim : NDSpace](centre: Point[D])(implicit evCreateRot: CreateRotationSpace[D]) = {
     evCreateRot.createRotationSpace(centre)
   }
 
@@ -492,7 +492,7 @@ object RotationTransform {
    *  Factory method to create a D-dimensional rotation transform given the rotation matrix and the rotation center.
    *  Only dimensions _2D and _3D are supported.
    */
-  def apply[D <: Dim](rotMatrix: SquareMatrix[D], centre: Point[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim : NDSpace](rotMatrix: SquareMatrix[D], centre: Point[D])(implicit evCreateRot: Create[D]) = {
     evCreateRot.createRotationTransform(rotMatrix, centre)
   }
 
@@ -500,7 +500,7 @@ object RotationTransform {
    *  Factory method to create a D-dimensional rotation transform around the origin.
    *  Only dimensions _2D and _3D are supported.
    */
-  def apply[D <: Dim](rotMatrix: SquareMatrix[D])(implicit evDim: NDSpace[D], evCreateRot: Create[D]) = {
+  def apply[D <: Dim : NDSpace](rotMatrix: SquareMatrix[D])(implicit  evCreateRot: Create[D]) = {
     val centre = Point[D](DenseVector.zeros[Double](implicitly[NDSpace[D]].dimensionality).data)
     evCreateRot.createRotationTransform(rotMatrix, centre)
   }

@@ -16,10 +16,9 @@
 package scalismo.geometry
 
 import breeze.linalg.DenseVector
-import spire.algebra.{ Rng, Field }
+import spire.algebra.{ Rng }
 
 import scala.language.implicitConversions
-import scala.reflect.ClassTag
 
 sealed abstract class IntVector[D <: Dim: NDSpace] {
   def apply(a: Int): Int
@@ -110,7 +109,7 @@ object IntVector {
   def apply(x: Int, y: Int): IntVector2D = IntVector2D(x, y)
   def apply(x: Int, y: Int, z: Int): IntVector3D = IntVector3D(x, y, z)
 
-  def zeros[D <: Dim: NDSpace](implicit builder: Create[D]) = {
+  def zeros[D <: Dim: NDSpace] = {
     IntVector(Array.fill(NDSpace[D].dimensionality)(0))
   }
 

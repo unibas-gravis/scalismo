@@ -289,7 +289,6 @@ class MeshBoundaryTests extends ScalismoTestSuite {
 
         b.triangleIsOnBoundary(TriangleId(0)) shouldBe true
       }
-
     }
 
   }

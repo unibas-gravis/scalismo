@@ -19,7 +19,6 @@ import breeze.linalg.DenseVector
 import scalismo.common.VectorField
 import scalismo.image.ScalarImage
 import scalismo.geometry._
-import scalismo.utils.Random
 
 case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
 

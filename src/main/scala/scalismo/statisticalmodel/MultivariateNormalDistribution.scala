@@ -69,9 +69,6 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
    */
   override def principalComponents: Seq[(DenseVector[Double], Double)] = {
     val SVD(uMat, sigma2s, utMat) = breeze.linalg.svd.reduced(cov.map(_.toDouble))
-    val sigma2spInv = sigma2s.map(s => if (s < 1e-6) 0 else 1.0 / s)
-    val sigmaMat = breeze.linalg.diag(sigma2s.map(math.sqrt))
-    val covInv = uMat * breeze.linalg.diag(sigma2spInv) * uMat.t
 
     for (i <- 0 until uMat.cols) yield {
       (uMat(::, i).toDenseVector, sigma2s(i))

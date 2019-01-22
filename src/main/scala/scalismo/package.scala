@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import java.util.concurrent
-import java.util.concurrent.{ Executors, TimeUnit }
 import javax.swing.SwingUtilities
-
 import scalismo.support.nativelibs._
 import vtk.vtkObjectBase
 
