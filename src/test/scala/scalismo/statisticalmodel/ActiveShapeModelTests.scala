@@ -5,7 +5,7 @@ import java.io.File
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.geometry.{ Point, _3D }
-import scalismo.io.{ ImageIO, MeshIO, StatismoIO, StatisticalModelIO }
+import scalismo.io.{ ImageIO, MeshIO, StatismoIO }
 import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
 import scalismo.registration.{ LandmarkRegistration }

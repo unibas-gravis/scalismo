@@ -18,7 +18,7 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ Dim, Point, EuclideanVector, _3D }
+import scalismo.geometry.{ Point, EuclideanVector, _3D }
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 import scalismo.utils.Random
 
