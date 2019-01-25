@@ -17,15 +17,15 @@
 package scalismo.kernels
 
 import breeze.linalg.DenseMatrix
-import scalismo.common.{ PointId, DiscreteDomain }
-import scalismo.geometry.{ NDSpace, Dim }
+import scalismo.common.{ DiscreteDomain, PointId }
+import scalismo.geometry.NDSpace
 
 /**
  *  Discrete representation of a MatrixValuedPDKernel.
  *  Mathematically, it can be represented as a covariance matrix. However, it has more structure, i.e. its entry ij
  *  is a matrix. Furthermore, the class has the knowledge about its domain (the point on which it is defined).
  */
-class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace] private[scalismo] (
+class DiscreteMatrixValuedPDKernel[D: NDSpace] private[scalismo] (
     val domain: DiscreteDomain[D],
     val k: (PointId, PointId) => DenseMatrix[Double],
     val outputDim: Int) {
@@ -70,7 +70,7 @@ class DiscreteMatrixValuedPDKernel[D <: Dim: NDSpace] private[scalismo] (
 }
 
 object DiscreteMatrixValuedPDKernel {
-  def apply[D <: Dim: NDSpace](domain: DiscreteDomain[D], k: (PointId, PointId) => DenseMatrix[Double], outputDim: Int) = {
+  def apply[D: NDSpace](domain: DiscreteDomain[D], k: (PointId, PointId) => DenseMatrix[Double], outputDim: Int) = {
     new DiscreteMatrixValuedPDKernel(domain, k, outputDim)
   }
 }

@@ -15,7 +15,6 @@
  */
 package scalismo.geometry
 
-
 /** a marker trait only meant to distinguish the dimension */
 sealed trait Dim
 
@@ -23,7 +22,7 @@ trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
 
-trait NDSpace[D <: Dim]
+trait NDSpace[D]
     extends EuclideanVector.Create[D]
     with Point.Create[D]
     with IntVector.Create[D] {
@@ -31,7 +30,7 @@ trait NDSpace[D <: Dim]
 }
 
 object NDSpace {
-  def apply[D <: Dim](implicit ndSpace: NDSpace[D]): NDSpace[D] = ndSpace
+  def apply[D](implicit ndSpace: NDSpace[D]): NDSpace[D] = ndSpace
 }
 
 object Dim {

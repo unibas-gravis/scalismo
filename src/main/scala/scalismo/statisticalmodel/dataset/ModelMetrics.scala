@@ -1,14 +1,11 @@
 package scalismo.statisticalmodel.dataset
 
 import scalismo.geometry._3D
+import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.statisticalmodel.StatisticalMeshModel
-import scalismo.mesh.TriangleMesh
-import scalismo.mesh.MeshMetrics
 import scalismo.utils.Random
 
-import scala.util.Try
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Implements utility functions for evaluating the quality of a [[StatisticalMeshModel]]

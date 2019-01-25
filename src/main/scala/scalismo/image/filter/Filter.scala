@@ -21,7 +21,7 @@ import scalismo.geometry._
 /**
  * Trait for filters to be used in a convolution
  */
-trait Filter[D <: Dim] extends Function1[Point[D], Float] {
+trait Filter[D] extends Function1[Point[D], Float] {
   /**
    * Returns the continuous domain on which the filter is defined
    */
@@ -78,7 +78,7 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
  * @param width Defines the width of the filter support
  */
 
-case class BoxedFilter[D <: Dim: NDSpace](width: Double) extends Filter[D] {
+case class BoxedFilter[D: NDSpace](width: Double) extends Filter[D] {
   def apply(p: Point[D]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2.0
   val v = EuclideanVector[D](breeze.linalg.DenseVector.ones[Double](implicitly[NDSpace[D]].dimensionality).data)

@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.{ PointId, RealSpace }
-import scalismo.geometry.{ Point, EuclideanVector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh.boundingSpheres._
 

@@ -15,11 +15,10 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.svd.SVD
 import breeze.linalg._
+import breeze.linalg.svd.SVD
 import breeze.stats.distributions.Gaussian
-import scalismo.geometry.EuclideanVector
-import scalismo.geometry._
+import scalismo.geometry.{ EuclideanVector, _ }
 import scalismo.utils.Random
 
 import scala.util.Try
@@ -202,7 +201,7 @@ object MultivariateNormalDistribution {
 
 @deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.", "0.13.0")
 object NDimensionalNormalDistribution {
-  def apply[D <: Dim: NDSpace](mean: EuclideanVector[D], principalComponents: Seq[(EuclideanVector[D], Double)]): NDimensionalNormalDistribution[D] = {
+  def apply[D: NDSpace](mean: EuclideanVector[D], principalComponents: Seq[(EuclideanVector[D], Double)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
@@ -220,7 +219,7 @@ object NDimensionalNormalDistribution {
 }
 
 @deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.", "0.13.0")
-case class NDimensionalNormalDistribution[D <: Dim: NDSpace](mean: EuclideanVector[D], cov: SquareMatrix[D])
+case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], cov: SquareMatrix[D])
     extends MultivariateNormalDistributionLike[EuclideanVector[D], SquareMatrix[D]] {
 
   private val impl = MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix)

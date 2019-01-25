@@ -15,9 +15,9 @@
  */
 package scalismo.numerics
 
-import breeze.stats.distributions.Uniform
 import java.util
 
+import breeze.stats.distributions.Uniform
 import scalismo.common.BoxDomain
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
@@ -26,7 +26,7 @@ import scalismo.statisticalmodel.GaussianProcess
 import scalismo.utils.Random
 
 /** sample generator typeclass */
-trait Sampler[D <: Dim] {
+trait Sampler[D] {
 
   val numberOfPoints: Int
   /**
@@ -38,7 +38,7 @@ trait Sampler[D <: Dim] {
   def volumeOfSampleRegion: Double
 }
 
-case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
+case class GridSampler[D: NDSpace](domain: DiscreteImageDomain[D]) extends Sampler[D] {
   override def volumeOfSampleRegion = domain.boundingBox.volume
   override val numberOfPoints = domain.numberOfPoints
 
@@ -48,7 +48,7 @@ case class GridSampler[D <: Dim: NDSpace](domain: DiscreteImageDomain[D]) extend
   }
 }
 
-case class UniformSampler[D <: Dim: NDSpace](domain: BoxDomain[D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[D] {
+case class UniformSampler[D: NDSpace](domain: BoxDomain[D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[D] {
 
   def volumeOfSampleRegion = domain.volume
   val p = 1.0 / domain.volume

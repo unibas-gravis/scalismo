@@ -15,7 +15,7 @@
  */
 package scalismo.utils
 
-import breeze.stats.distributions.{ RandBasis }
+import breeze.stats.distributions.RandBasis
 
 /**
  * A thin wrapper around different random number generators.

@@ -18,7 +18,7 @@ package scalismo.numerics
 import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
-import scalismo.utils.{ Random }
+import scalismo.utils.Random
 
 /**
  * Implementation of a Randomized approach for SVD,

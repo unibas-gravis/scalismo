@@ -15,7 +15,7 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import scalismo.geometry.{ Point, EuclideanVector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.BarycentricCoordinates
 
 /**

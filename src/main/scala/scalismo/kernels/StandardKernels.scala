@@ -22,7 +22,7 @@ import scalismo.numerics.BSpline
 import scalismo.registration.Transformation
 import scalismo.utils.Memoize
 
-case class GaussianKernel[D <: Dim](sigma: Double) extends PDKernel[D] {
+case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
   val sigma2 = sigma * sigma
 
   override def domain = RealSpace[D]
@@ -33,7 +33,7 @@ case class GaussianKernel[D <: Dim](sigma: Double) extends PDKernel[D] {
   }
 }
 
-case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
+case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
 
   override def outputDim = implicitly[NDSpace[D]].dimensionality // TODO check if thats correct
 
@@ -69,12 +69,12 @@ case class SampleCovarianceKernel[D <: Dim: NDSpace](ts: IndexedSeq[Transformati
 
 }
 
-abstract case class BSplineKernel[D <: Dim](order: Int, scale: Int) extends PDKernel[D] {
+abstract case class BSplineKernel[D](order: Int, scale: Int) extends PDKernel[D] {
   override def domain = RealSpace[D]
 
 }
 
-trait CreateBSplineKernel[D <: Dim] {
+trait CreateBSplineKernel[D] {
   def create(order: Int, j: Int): BSplineKernel[D]
 }
 
@@ -96,7 +96,7 @@ object CreateBSplineKernel {
 
 object BSplineKernel {
 
-  def apply[D <: Dim: CreateBSplineKernel](order: Int, scale: Int): BSplineKernel[D] = {
+  def apply[D: CreateBSplineKernel](order: Int, scale: Int): BSplineKernel[D] = {
     implicitly[CreateBSplineKernel[D]].create(order, scale)
   }
 

@@ -17,14 +17,14 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.pow
 import scalismo.common.PointId
-import scalismo.geometry.{ Dim, Point, EuclideanVector, _3D }
-import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.boundingSpheres.BSDistance._
+import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 
 /**
  * SurfaceDistance trait with the basic queries defined.
  */
-trait SurfaceSpatialIndex[D <: Dim] {
+trait SurfaceSpatialIndex[D] {
 
   /**
    * Query the shortest distance for a point to a surface.
@@ -56,7 +56,7 @@ private object ClosestPointType extends Enumeration {
   val POINT, ON_LINE, IN_TRIANGLE = Value
 }
 
-import ClosestPointType._
+import scalismo.mesh.boundingSpheres.ClosestPointType._
 
 /**
  * Descritpion of a closest point
@@ -68,10 +68,10 @@ import ClosestPointType._
  * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
  */
 private case class ClosestPointMeta(distance2: Double,
-                                    pt: EuclideanVector[_3D],
-                                    ptType: ClosestPointType,
-                                    bc: (Double, Double),
-                                    idx: (Int, Int))
+  pt: EuclideanVector[_3D],
+  ptType: ClosestPointType,
+  bc: (Double, Double),
+  idx: (Int, Int))
 
 /**
  * Companion object for the surface distance implementation for TriangleMesh3D.
@@ -190,9 +190,9 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
    * Search for the closest point recursively
    */
   private def distanceToPartition(point: EuclideanVector[_3D],
-                                  partition: BoundingSphere,
-                                  result: CP,
-                                  index: Index): Unit = {
+    partition: BoundingSphere,
+    result: CP,
+    index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toTriangle(point, triangles(partition.idx))

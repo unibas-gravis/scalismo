@@ -16,8 +16,8 @@
 package scalismo.mesh
 
 import scalismo.common._
-import scalismo.geometry._
 import scalismo.geometry.EuclideanVector._
+import scalismo.geometry._
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -33,7 +33,7 @@ case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends 
   def toIntVector3D = IntVector(ptId1.id, ptId2.id, ptId3.id)
 }
 
-trait TriangleMesh[D <: Dim] {
+trait TriangleMesh[D] {
   def triangulation: TriangleList
   def pointSet: UnstructuredPointsDomain[D]
   def transform(transform: Point[D] => Point[D]): TriangleMesh[D]
@@ -42,16 +42,16 @@ trait TriangleMesh[D <: Dim] {
 
 object TriangleMesh {
 
-  def apply[D <: Dim: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
+  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
     creator.createTriangleMesh(pointSet, topology)
   }
 
-  def apply[D <: Dim: NDSpace](points: IndexedSeq[Point[D]], topology: TriangleList)(implicit creator: Create[D]) = {
+  def apply[D: NDSpace](points: IndexedSeq[Point[D]], topology: TriangleList)(implicit creator: Create[D]) = {
     creator.createTriangleMesh(UnstructuredPointsDomain(points.toIndexedSeq), topology)
   }
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  trait Create[D <: Dim] extends UnstructuredPointsDomain.Create[D] {
+  trait Create[D] extends UnstructuredPointsDomain.Create[D] {
     def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
   }
 

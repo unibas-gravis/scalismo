@@ -15,10 +15,10 @@
  */
 package scalismo.image
 
-import breeze.linalg.{ DenseMatrix, diag, DenseVector }
+import breeze.linalg.{ DenseMatrix, DenseVector, diag }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.registration.{ RotationSpace, AnisotropicSimilarityTransformation, AnisotropicSimilarityTransformationSpace }
+import scalismo.registration.{ AnisotropicSimilarityTransformation, AnisotropicSimilarityTransformationSpace, RotationSpace }
 
 import scala.language.implicitConversions
 
@@ -32,7 +32,7 @@ import scala.language.implicitConversions
  *
  * @tparam D The dimensionality of the domain
  */
-abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] with Equals {
+abstract class DiscreteImageDomain[D: NDSpace] extends DiscreteDomain[D] with Equals {
 
   /** the first point (lower-left corner in 2D) of the grid */
   def origin: Point[D]
@@ -157,18 +157,18 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
 object DiscreteImageDomain {
 
   /** Create a new discreteImageDomain with given origin, spacing and size*/
-  def apply[D <: Dim](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]) = {
+  def apply[D](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]) = {
     evCreate.createImageDomain(origin, spacing, size)
   }
 
   /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D <: Dim](imageBox: BoxDomain[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
+  def apply[D](imageBox: BoxDomain[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
     val spacing = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / size(i) })
     evCreate.createImageDomain(imageBox.origin, spacing, size)
   }
 
   /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D <: Dim : NDSpace](imageBox: BoxDomain[D], spacing: EuclideanVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
+  def apply[D: NDSpace](imageBox: BoxDomain[D], spacing: EuclideanVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
     val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
     val size = IntVector.apply[D](sizeFractional.toArray.map(s => Math.ceil(s).toInt))
     evCreate.createImageDomain(imageBox.origin, spacing, size)
@@ -178,7 +178,7 @@ object DiscreteImageDomain {
    * Create a discreteImageDomain where the points are defined as transformations of the indices (from (0,0,0) to (size - 1, size - 1 , size -1)
    * This makes it possible to define image regions which are not aligned to the coordinate axis.
    */
-  private[scalismo] def apply[D <: Dim](size: IntVector[D], transform: AnisotropicSimilarityTransformation[D])(implicit evCreateRot: CreateDiscreteImageDomain[D]) = {
+  private[scalismo] def apply[D](size: IntVector[D], transform: AnisotropicSimilarityTransformation[D])(implicit evCreateRot: CreateDiscreteImageDomain[D]) = {
     evCreateRot.createWithTransform(size, transform)
   }
 
@@ -378,7 +378,7 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
 }
 
 /** Typeclass for creating domains of arbitrary dimensionality */
-sealed trait CreateDiscreteImageDomain[D <: Dim] {
+sealed trait CreateDiscreteImageDomain[D] {
   def createImageDomain(origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D]): DiscreteImageDomain[D]
   def createWithTransform(size: IntVector[D], transform: AnisotropicSimilarityTransformation[D]): DiscreteImageDomain[D]
 }

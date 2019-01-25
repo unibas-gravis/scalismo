@@ -18,7 +18,7 @@ package scalismo.geometry
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
-case class Landmark[D <: Dim: NDSpace](id: String, point: Point[D], description: Option[String] = None, uncertainty: Option[MultivariateNormalDistribution] = None) {
+case class Landmark[D: NDSpace](id: String, point: Point[D], description: Option[String] = None, uncertainty: Option[MultivariateNormalDistribution] = None) {
 
   /**
    * Transforms a landmark point with the given transformation.

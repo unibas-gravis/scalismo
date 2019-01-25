@@ -24,7 +24,7 @@ import scala.language.implicitConversions
 /**
  * An n-dimensional Vector
  */
-sealed abstract class EuclideanVector[D <: Dim: NDSpace] {
+sealed abstract class EuclideanVector[D: NDSpace] {
   def apply(i: Int): Double
 
   def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
@@ -201,7 +201,7 @@ object EuclideanVector3D {
 object EuclideanVector {
 
   /** creation typeclass */
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def createVector(data: Array[Double]): EuclideanVector[D]
     val zero: EuclideanVector[D]
   }
@@ -230,7 +230,7 @@ object EuclideanVector {
     override val zero: EuclideanVector[_3D] = EuclideanVector3D.zero
   }
 
-  def apply[D <: Dim: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
+  def apply[D: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
 
   def apply(x: Double): EuclideanVector[_1D] = EuclideanVector1D(x)
 
@@ -238,9 +238,9 @@ object EuclideanVector {
 
   def apply(x: Double, y: Double, z: Double): EuclideanVector[_3D] = EuclideanVector3D(x, y, z)
 
-  def zeros[D <: Dim: NDSpace](implicit builder: Create[D]): EuclideanVector[D] = builder.zero
+  def zeros[D: NDSpace](implicit builder: Create[D]): EuclideanVector[D] = builder.zero
 
-  def fromBreezeVector[D <: Dim: NDSpace](breeze: DenseVector[Double]): EuclideanVector[D] = {
+  def fromBreezeVector[D: NDSpace](breeze: DenseVector[Double]): EuclideanVector[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(breeze.size == dim, s"Invalid size of breeze vector (${breeze.size} != $dim)")
     EuclideanVector.apply[D](breeze.data)
@@ -269,7 +269,7 @@ object EuclideanVector {
     r * math.cos(theta))
 
   /** spire VectorSpace implementation for Vector */
-  implicit def spireVectorSpace[D <: Dim: NDSpace] = new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
+  implicit def spireVectorSpace[D: NDSpace] = new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
     override implicit def scalar: Field[Double] = Field[Double]
     override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
     override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
@@ -288,7 +288,7 @@ object EuclideanVector {
   implicit def parametricToConcrete2D(p: EuclideanVector[_2D]): EuclideanVector2D = p.asInstanceOf[EuclideanVector2D]
   implicit def parametricToConcrete3D(p: EuclideanVector[_3D]): EuclideanVector3D = p.asInstanceOf[EuclideanVector3D]
 
-  class VectorVectorizer[D <: Dim: NDSpace] extends Vectorizer[EuclideanVector[D]] {
+  class VectorVectorizer[D: NDSpace] extends Vectorizer[EuclideanVector[D]] {
     override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
     override def vectorize(v: EuclideanVector[D]): DenseVector[Double] = v.toBreezeVector

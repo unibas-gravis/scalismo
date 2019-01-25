@@ -16,15 +16,15 @@
 
 package scalismo.registration
 
-import scalismo.geometry.{ Dim, NDSpace }
+import scalismo.geometry.NDSpace
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
-import scalismo.numerics.{ Sampler }
+import scalismo.numerics.Sampler
 
 /**
  * The mean squares image to image metric.
  * It is implemented as the squared loss function in terms of the pointwise pixel differences.
  */
-case class MeanSquaresMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+case class MeanSquaresMetric[D: NDSpace](fixedImage: ScalarImage[D],
   movingImage: DifferentiableScalarImage[D],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D])

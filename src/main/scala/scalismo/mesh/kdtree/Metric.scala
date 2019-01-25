@@ -16,7 +16,7 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{ Dim, NDSpace, Point }
+import scalismo.geometry.{ NDSpace, Point }
 
 import scala.math.Numeric.Implicits._
 
@@ -65,7 +65,7 @@ private[scalismo] object Metric {
     }
   }
 
-  implicit def metricFromCoordVectorD[D <: Dim: NDSpace] = new Metric[Point[D], Double] {
+  implicit def metricFromCoordVectorD[D: NDSpace] = new Metric[Point[D], Double] {
     val dim = implicitly[NDSpace[D]].dimensionality
     def distance(x: Point[D], y: Point[D]): Double = {
       var i = 0

@@ -16,10 +16,9 @@
 
 package scalismo.registration
 
-import TransformationSpace.ParameterVector
-import breeze.linalg.{ DenseVector }
-import scalismo.geometry.{ Dim }
+import breeze.linalg.DenseVector
 import scalismo.numerics._
+import scalismo.registration.TransformationSpace.ParameterVector
 
 /**
  * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum
@@ -30,7 +29,7 @@ import scalismo.numerics._
  * @param regularizationWeight A weight used to weight the influence of the regularizer (0 means the regularization term is not considered)
  * @param optimizer  The optimizer used to perform the minimization of the cost function
  */
-case class Registration[D <: Dim](metric: RegistrationMetric[D],
+case class Registration[D](metric: RegistrationMetric[D],
     regularizer: Regularizer[D],
     regularizationWeight: Double,
     optimizer: Optimizer) {

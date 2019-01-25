@@ -15,7 +15,7 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import scalismo.geometry.{ Dim, Point, EuclideanVector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 
 /**
@@ -24,7 +24,7 @@ import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
  * lines in (point,direction) format one can ask if there exists any and also for
  * the complete list of intersection points.
  */
-trait SurfaceIntersectionIndex[D <: Dim] {
+trait SurfaceIntersectionIndex[D] {
 
   def hasIntersection(point: Point[D], direction: EuclideanVector[D]): Boolean
 
@@ -37,7 +37,7 @@ trait SurfaceIntersectionIndex[D <: Dim] {
  * for TriangleMeshs. The additional query return the intersection points in the
  * (TriangleId,BarycentricCoordinates) format.
  */
-trait TriangulatedSurfaceIntersectionIndex[D <: Dim] extends SurfaceIntersectionIndex[D] {
+trait TriangulatedSurfaceIntersectionIndex[D] extends SurfaceIntersectionIndex[D] {
 
   def getSurfaceIntersectionPoints(point: Point[D], direction: EuclideanVector[D]): Seq[(TriangleId, BarycentricCoordinates)]
 }

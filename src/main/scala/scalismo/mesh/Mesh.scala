@@ -18,7 +18,7 @@ package scalismo.mesh
 import scalismo.common.{ PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
-import scalismo.mesh.boundingSpheres.{ TriangleMesh3DSpatialIndex }
+import scalismo.mesh.boundingSpheres.TriangleMesh3DSpatialIndex
 
 /**
  * Defines utility functions on [[TriangleMesh]] instances
