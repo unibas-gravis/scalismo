@@ -21,7 +21,7 @@ import breeze.linalg.DenseVector
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.io.StatismoIO
+import scalismo.io.{ StatismoIO }
 import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scalismo.utils.Random
 

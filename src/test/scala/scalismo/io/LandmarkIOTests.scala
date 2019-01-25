@@ -18,7 +18,6 @@ package scalismo.io
 import java.io.{ ByteArrayOutputStream, File, InputStream }
 
 import breeze.linalg.DenseVector
-import breeze.math.MutableOptimizationSpace.DenseDoubleOptimizationSpace
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.statisticalmodel.MultivariateNormalDistribution
@@ -42,8 +41,6 @@ class LandmarkIOTests extends ScalismoTestSuite {
     val jsonName = "/landmarks.json"
     def jsonStream() = getClass.getResourceAsStream(jsonName)
 
-    val jsonComplexName = "/landmarks2.json"
-    def jsonComplexStream() = getClass.getResourceAsStream(jsonComplexName)
     /*
      * LEGACY LANDMARKS (csv format)
      */

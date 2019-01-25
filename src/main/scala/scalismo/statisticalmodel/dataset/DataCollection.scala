@@ -17,12 +17,11 @@ package scalismo.statisticalmodel.dataset
 
 import java.io.File
 
-import scalismo.common.{ RealSpace, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh._
 import scalismo.registration.{ LandmarkRegistration, Transformation }
-import scalismo.utils.{ Memoize, Random }
+import scalismo.utils.Random
 
 import scala.annotation.tailrec
 
@@ -36,7 +35,7 @@ private[dataset] case class CrossvalidationFold(trainingData: DataCollection, te
  *  @param transformation Transformation to apply to obtain the data item from the reference of the reference item of the dataset.
  *  This would typically be the transformation resulting from registering a reference mesh to the mesh represented by this data item.
  */
-case class DataItem[D <: Dim](info: String, transformation: Transformation[D])
+case class DataItem[D](info: String, transformation: Transformation[D])
 
 /**
  * Data-structure for handling a dataset of registered 3D meshes. All pre-implemented operations such as building a
@@ -93,7 +92,7 @@ case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[
 
       (pt: Point[_3D]) =>
         {
-          var meanPoint = Vector3D(0, 0, 0)
+          var meanPoint = EuclideanVector3D(0, 0, 0)
           var i = 0
           while (i < dataItems.size) {
             meanPoint += dataItems(i).transformation(pt).toVector
@@ -153,7 +152,6 @@ object DataCollection {
     val referencePoints = dc.reference.pointSet.points.toIndexedSeq
     val numberOfPoints = referencePoints.size
     val referenceCenterOfMass = referencePoints.foldLeft(Point3D(0, 0, 0))((acc, pt) => acc + (pt.toVector / numberOfPoints))
-    val numberOfShapes = dc.size
 
     val meanShapePoints = meanShape.pointSet.points.toIndexedSeq
 

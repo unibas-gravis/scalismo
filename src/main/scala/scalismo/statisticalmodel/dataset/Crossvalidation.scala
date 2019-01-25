@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.geometry.{ Vector, _3D }
+import scalismo.geometry.{ EuclideanVector, _3D }
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.UniformMeshSampler3D
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
@@ -30,17 +30,13 @@ object Crossvalidation {
 
   type EvaluationFunction[A] = (StatisticalMeshModel, TriangleMesh[_3D]) => A
 
-  private def projectIntoModel(model: StatisticalMeshModel, mesh: TriangleMesh[_3D]): TriangleMesh[_3D] = {
-    model.project(mesh)
-  }
-
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
   def leaveOneOutCrossvalidation[A](
     dataCollection: DataCollection,
     evalFun: EvaluationFunction[A],
-    biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None)(
+    biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
       implicit rng: Random) = {
     nFoldCrossvalidation(dataCollection.size, dataCollection, evalFun, biasModelAndRank)
   }
@@ -58,7 +54,7 @@ object Crossvalidation {
   def nFoldCrossvalidation[A](numFolds: Int,
     dc: DataCollection,
     evalFun: EvaluationFunction[A],
-    biasModelAndRank: Option[(GaussianProcess[_3D, Vector[_3D]], Int)] = None)(
+    biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
       implicit rng: Random): Seq[Try[Seq[A]]] = {
 
     val folds = dc.createCrossValidationFolds(numFolds)

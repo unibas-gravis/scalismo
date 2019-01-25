@@ -15,28 +15,52 @@
  */
 package scalismo.io
 
-import java.io.File
+import java.io._
+import java.util.Calendar
 
+import breeze.linalg.{ DenseMatrix, DenseVector }
+import ncsa.hdf.`object`._
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
-import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.mesh.TriangleMesh._
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.statisticalmodel.StatisticalMeshModel
 
-import scala.util.Try
-import breeze.linalg.DenseVector
-import breeze.linalg.DenseMatrix
-import scala.util.Failure
-import scala.util.Success
-import java.util.Calendar
-import ncsa.hdf.`object`._
-import java.io.DataOutputStream
-import java.io.FileOutputStream
-import java.io.DataInputStream
-import java.io.FileInputStream
+import scala.util.{ Failure, Success, Try }
+
+object StatisticalModelIO {
+
+  /**
+   * Reads a statistical mesh model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param file The statismo file
+   * @return A StatisticalMeshModel or the Failure
+   */
+  def readStatisticalMeshModel(file: File): Try[StatisticalMeshModel] = {
+    // currently, we support only the statismo format
+    StatismoIO.readStatismoMeshModel(file, "/")
+  }
+
+  /**
+   * Writes a statistical mesh model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param model The statistical model
+   * @param file The file to which the model is written
+   * @return In case of Failure, the Failure is returned.
+   */
+  def writeStatisticalMeshModel(model: StatisticalMeshModel, file: File): Try[Unit] = {
+    // currently, we support only the statismo format
+    StatismoIO.writeStatismoMeshModel(model, file, "/")
+  }
+}
 
 object StatismoIO {
+
   object StatismoModelType extends Enumeration {
     type StatismoModelType = Value
     val Polygon_Mesh, Unknown = Value
@@ -59,7 +83,6 @@ object StatismoIO {
    */
   def readModelCatalog(file: File): Try[ModelCatalog] = {
     import scala.collection.JavaConverters._
-    val filename = file.getAbsoluteFile
 
     def flatten[A](xs: Seq[Try[A]]): Try[Seq[A]] = Try(xs.map(_.get))
 
@@ -270,12 +293,6 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
   }
 
-  private def ndDoubleArrayToDoubleMatrix(array: NDArray[Double])(implicit dummy: DummyImplicit): DenseMatrix[Double] = {
-    // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
-    // do switch dimensions and transpose
-    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
-  }
-
   private def ndIntArrayToIntMatrix(array: NDArray[Int]) = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
@@ -325,9 +342,4 @@ object StatismoIO {
     } map (_ => tmpfile)
   }
 
-  //  def main(args: Array[String]): Unit = {
-  //    org.statismo.stk.core.initialize
-  //    val model = readStatismoMeshModel(new File("/tmp/skull-gaussian-50-0.h5")).get
-  //    println(StatismoIO.writeStatismoMeshModel(model, new File("/tmp/x.h5"), StatismoVersion.v081))
-  //  }
 }

@@ -17,11 +17,10 @@
 package scalismo.mesh.kdtree
 
 import scala.annotation.tailrec
-import scala.math.Ordering.Implicits._
-import scala.math.Numeric.Implicits._
-import scala.collection.{ IterableLike, MapLike }
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ ArrayBuffer, Builder }
+import scala.collection.{ IterableLike, MapLike }
+import scala.math.Ordering.Implicits._
 
 private[scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends IterableLike[A, KDTree[A]] {
   override def seq = this

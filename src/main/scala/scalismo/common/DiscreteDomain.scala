@@ -18,15 +18,15 @@ package scalismo.common
 import scalismo.geometry._
 
 final case class PointId(id: Int) extends AnyVal
-final case class PointWithId[D <: Dim](point: Point[D], id: PointId)
+final case class PointWithId[D](point: Point[D], id: PointId)
 
 trait Cell {
   def pointIds: IndexedSeq[PointId]
 }
 
-trait PointGenerator[D <: Dim] extends Function0[Point[D]]
+trait PointGenerator[D] extends Function0[Point[D]]
 
-trait DiscreteDomain[D <: Dim] extends Equals {
+trait DiscreteDomain[D] extends Equals {
   self =>
 
   def numberOfPoints: Int

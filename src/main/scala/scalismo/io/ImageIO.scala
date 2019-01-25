@@ -175,7 +175,7 @@ object ImageIO {
     }
   }
 
-  trait WriteNifti[D <: Dim] {
+  trait WriteNifti[D] {
     def write[A: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, A], f: File): Try[Unit]
   }
 
@@ -523,7 +523,7 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D <: Dim: NDSpace: CanConvertToVtk, S: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, S], file: File): Try[Unit] = {
+  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: TypeTag: ClassTag](img: DiscreteScalarImage[D, S], file: File): Try[Unit] = {
 
     val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
 

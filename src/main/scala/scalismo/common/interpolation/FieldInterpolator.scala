@@ -15,8 +15,7 @@
  */
 package scalismo.common.interpolation
 
-import scalismo.common.{ DiscreteDomain, DiscreteField, Field }
-import scalismo.geometry.Dim
+import scalismo.common.{DiscreteDomain, DiscreteField, Field}
 
 /**
  * Base trait for all interpolators that can be used to interpolate a [[DiscreteField]]
@@ -24,7 +23,7 @@ import scalismo.geometry.Dim
  * @tparam DDomain Type of the [[DiscreteDomain]] that the interpolator can interpolate
  * @tparam A The value type
  */
-trait FieldInterpolator[D <: Dim, -DDomain <: DiscreteDomain[D], A] {
+trait FieldInterpolator[D, -DDomain <: DiscreteDomain[D], A] {
 
   /**
    * Interpolates a given discrete field using the given interpolator.

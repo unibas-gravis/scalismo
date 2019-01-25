@@ -16,8 +16,9 @@
 
 package scalismo.mesh
 
-import scalismo.common.{ PointId, UnstructuredPointsDomain, Cell }
+import scalismo.common.{ Cell, PointId, UnstructuredPointsDomain }
 import scalismo.geometry._
+
 import scala.language.implicitConversions
 
 /**
@@ -32,7 +33,7 @@ case class LineCell(ptId1: PointId, ptId2: PointId) extends Cell {
   def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId
 }
 
-abstract class LineMesh[D <: Dim: NDSpace](val pointSet: UnstructuredPointsDomain[D], val topology: LineList) {
+abstract class LineMesh[D: NDSpace](val pointSet: UnstructuredPointsDomain[D], val topology: LineList) {
 
   val position = ContourPointProperty(topology, pointSet.pointSequence)
   val lines = topology.lines
@@ -68,7 +69,7 @@ abstract class LineMesh[D <: Dim: NDSpace](val pointSet: UnstructuredPointsDomai
 object LineMesh {
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def createLineMesh(pointSet: UnstructuredPointsDomain[D], topology: LineList): LineMesh[D]
   }
 
@@ -92,11 +93,11 @@ object LineMesh {
     polyLine.asInstanceOf[LineMesh3D]
   }
 
-  def apply[D <: Dim](points: UnstructuredPointsDomain[D], topology: LineList)(implicit creator: Create[D]): LineMesh[D] = {
+  def apply[D](points: UnstructuredPointsDomain[D], topology: LineList)(implicit creator: Create[D]): LineMesh[D] = {
     creator.createLineMesh(points, topology)
   }
 
-  def enforceConsistentCellDirections[D <: Dim](lineMesh: LineMesh[D])(implicit creator: LineMesh.Create[D]): LineMesh[D] = {
+  def enforceConsistentCellDirections[D](lineMesh: LineMesh[D])(implicit creator: LineMesh.Create[D]): LineMesh[D] = {
 
     def reorientRecursive(curLine: LineCell, reorientedLines: IndexedSeq[LineCell]): IndexedSeq[LineCell] = {
       if (reorientedLines.contains(curLine)) {
@@ -125,24 +126,24 @@ object LineMesh {
 case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], override val topology: LineList) extends LineMesh[_2D](pointSet, topology) {
 
   /** Get all cell normals as a surface property */
-  lazy val cellNormals: LineProperty[Vector[_2D]] = {
+  lazy val cellNormals: LineProperty[EuclideanVector[_2D]] = {
     LineProperty(topology, lines.map(computeCellNormal))
   }
 
   /** Get all vertex normals as a surface property */
 
-  lazy val vertexNormals: ContourPointProperty[Vector[_2D]] = {
+  lazy val vertexNormals: ContourPointProperty[EuclideanVector[_2D]] = {
 
     ContourPointProperty.averagedPointProperty(topology, cellNormals)
   }
 
-  private def computeCellNormal(cell: LineCell): Vector[_2D] = {
+  private def computeCellNormal(cell: LineCell): EuclideanVector[_2D] = {
 
     val pt1 = pointSet.point(cell.ptId1)
     val pt2 = pointSet.point(cell.ptId2)
 
     val d = pt2 - pt1
-    val n = Vector(-d.y, d.x) / Vector(-d.y, d.x).norm
+    val n = EuclideanVector(-d.y, d.x) / EuclideanVector(-d.y, d.x).norm
     n / n.norm
   }
 

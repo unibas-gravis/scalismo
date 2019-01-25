@@ -16,7 +16,7 @@
 
 package scalismo.common
 
-import scalismo.geometry.{ Vector, _2D, _3D }
+import scalismo.geometry.{ EuclideanVector, _2D, _3D }
 
 import scala.annotation.switch
 
@@ -53,42 +53,42 @@ object ComponentRepresentation {
 
   def apply[A](implicit vec: ComponentRepresentation[A]): ComponentRepresentation[A] = vec
 
-  implicit object VectorComponents2D extends ComponentRepresentation[Vector[_2D]] {
-    override def fromArray(arr: Array[Double]): Vector[_2D] = Vector(arr(0), arr(1))
-    override def toArray(value: Vector[_2D]): Array[Double] = Array(value.x, value.y)
+  implicit object VectorComponents2D extends ComponentRepresentation[EuclideanVector[_2D]] {
+    override def fromArray(arr: Array[Double]): EuclideanVector[_2D] = EuclideanVector(arr(0), arr(1))
+    override def toArray(value: EuclideanVector[_2D]): Array[Double] = Array(value.x, value.y)
     override val size: Int = 2
-    override def intoArray(vec: Vector[_2D], array: Array[Double]): Array[Double] = {
+    override def intoArray(vec: EuclideanVector[_2D], array: Array[Double]): Array[Double] = {
       require(array.length >= size)
       array(0) = vec.x
       array(1) = vec.y
       array
     }
-    override def component(color: Vector[_2D], index: Int): Double = (index: @switch) match {
+    override def component(color: EuclideanVector[_2D], index: Int): Double = (index: @switch) match {
       case 0 => color.x
       case 1 => color.y
       case _ => throw new Exception(s"index ($index) out of bounds, Vector[_2D] can only handle 0 and 1")
     }
 
-    override def fromComponents(comp: (Int) => Double): Vector[_2D] = Vector(comp(0), comp(1))
+    override def fromComponents(comp: (Int) => Double): EuclideanVector[_2D] = EuclideanVector(comp(0), comp(1))
   }
 
-  implicit object VectorComponents3D extends ComponentRepresentation[Vector[_3D]] {
-    override def fromArray(arr: Array[Double]): Vector[_3D] = Vector(arr(0), arr(1), arr(2))
-    override def toArray(value: Vector[_3D]): Array[Double] = Array(value.x, value.y, value.z)
+  implicit object VectorComponents3D extends ComponentRepresentation[EuclideanVector[_3D]] {
+    override def fromArray(arr: Array[Double]): EuclideanVector[_3D] = EuclideanVector(arr(0), arr(1), arr(2))
+    override def toArray(value: EuclideanVector[_3D]): Array[Double] = Array(value.x, value.y, value.z)
     override val size: Int = 3
-    override def intoArray(vec: Vector[_3D], array: Array[Double]): Array[Double] = {
+    override def intoArray(vec: EuclideanVector[_3D], array: Array[Double]): Array[Double] = {
       require(array.length >= size)
       array(0) = vec.x
       array(1) = vec.y
       array(2) = vec.z
       array
     }
-    override def component(color: Vector[_3D], index: Int): Double = (index: @switch) match {
+    override def component(color: EuclideanVector[_3D], index: Int): Double = (index: @switch) match {
       case 0 => color.x
       case 1 => color.y
       case 2 => color.z
       case _ => throw new Exception(s"index ($index) out of bounds, Vector[_3D] can only handle 0, 1 and 2")
     }
-    override def fromComponents(comp: (Int) => Double): Vector[_3D] = Vector(comp(0), comp(1), comp(2))
+    override def fromComponents(comp: (Int) => Double): EuclideanVector[_3D] = EuclideanVector(comp(0), comp(1), comp(2))
   }
 }

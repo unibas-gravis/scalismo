@@ -15,22 +15,18 @@
  */
 package scalismo.image
 
-import scalismo.image.filter.Filter
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.Integrator
+import scalismo.image.filter.Filter
+import scalismo.numerics.{ GridSampler, Integrator }
 import scalismo.registration.{ CanDifferentiate, Transformation }
 
-import scala.language.implicitConversions
 import scala.reflect.ClassTag
-import scalismo.numerics.GridSampler
-
-import scalismo.utils.Random
 
 /**
  * An image whose values are scalar.
  */
-class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
+class ScalarImage[D: NDSpace] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarImage[D]): ScalarImage[D] = {
@@ -80,7 +76,7 @@ class ScalarImage[D <: Dim: NDSpace] protected (override val domain: Domain[D], 
    * @param  numberOfPointsPerDim Number of points to be used to approximate the filter. Depending on the
    * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation)
    */
-  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D], rng: Random): ScalarImage[D] = {
+  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D] = {
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
@@ -137,14 +133,14 @@ object ScalarImage {
    * @param domain The domain over which the image is defined
    * @param f A function which yields for each point of the domain its value
    */
-  def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
+  def apply[D: NDSpace](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
 
 }
 
 /**
  * A scalar image that is once differentiable
  */
-class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => Vector[D]) extends ScalarImage[D](_domain, _f) {
+class DifferentiableScalarImage[D: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => EuclideanVector[D]) extends ScalarImage[D](_domain, _f) {
 
   def differentiate: VectorField[D, D] = VectorField(domain, df)
 
@@ -183,7 +179,7 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
     new DifferentiableScalarImage(newDomain, f, df)
   }
 
-  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D], rng: Random): DifferentiableScalarImage[D] = {
+  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): DifferentiableScalarImage[D] = {
 
     val convolvedImage = super.convolve(filter, numberOfPointsPerDim)
 
@@ -195,12 +191,12 @@ class DifferentiableScalarImage[D <: Dim: NDSpace](_domain: Domain[D], _f: Point
 
     val integrator = Integrator[D](GridSampler(support))
 
-    def intermediateDF(imageX: Point[D])(t: Point[D]): Option[Vector[D]] = {
+    def intermediateDF(imageX: Point[D])(t: Point[D]): Option[EuclideanVector[D]] = {
       val p = (imageX - t).toPoint
       if (this.isDefinedAt(p)) Some(df(p) * filter(t)) else None
     }
 
-    def convolvedImgDerivative(imageX: Point[D]): Vector[D] = {
+    def convolvedImgDerivative(imageX: Point[D]): EuclideanVector[D] = {
       integrator.integrateVector(intermediateDF(imageX) _)
     }
 
@@ -221,7 +217,7 @@ object DifferentiableScalarImage {
    * @param f a function that yields the intensity for each point of the domain
    * @param df the derivative of the function f
    */
-  def apply[D <: Dim: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => Vector[D]) = new DifferentiableScalarImage[D](domain, f, df)
+  def apply[D: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => EuclideanVector[D]) = new DifferentiableScalarImage[D](domain, f, df)
 
 }
 
