@@ -1,7 +1,7 @@
 # Scalismo - Scalable Image Analysis and Shape Modelling [![Build Status](https://travis-ci.org/unibas-gravis/scalismo.svg?branch=develop)](https://travis-ci.org/unibas-gravis/scalismo)
 
-Scalismo is a library for statistical shape modeling and model-based image analysis in Scala. 
-It has its origin in the research done at the [Graphics and Vision Research Group](http://gravis.cs.unibas.ch) at the [University of Basel](http://www.unibas.ch). 
+Scalismo is a library for statistical shape modeling and model-based image analysis in Scala, developed by the
+[Graphics and Vision Research Group](http://gravis.cs.unibas.ch) at the [University of Basel](http://www.unibas.ch). It is based on the  the concept of [Probabilistic Morphable Models](https://gravis.dmi.unibas.ch/PMM/). 
 
 The vision of the project is to provide an environment for modelling and image analysis which 
 
@@ -19,7 +19,7 @@ We aim to achieve these properties by leveraging two core technologies:
 * [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
 * [Setup a project using Scalismo](https://github.com/unibas-gravis/scalismo/wiki/Setup-a-project-using-Scalismo)
 * [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
-* [Tutorial (Graphical tool: Scalismo Lab)](https://github.com/unibas-gravis/scalismo/wiki/scalismoLab)
+* [Tutorials on Probabilistic Morphable Models (using Scalismo)](https://gravis.dmi.unibas.ch/PMM/)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
@@ -43,6 +43,7 @@ The current maintainers of the project (people who can merge pull requests) are:
 * [Andreas Forster](https://github.com/Andreas-Forster)
 * [Dennis Madsen](https://github.com/madsendennis)
 * [Dana Rahbani](https://github.com/DanaRahbani)
+* [Patrick Kahr](https://github.com/kahrpatrick)
 
 ## Related Projects
 Scalismo is closely related to the 
