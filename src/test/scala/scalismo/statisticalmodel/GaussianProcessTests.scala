@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.common._
@@ -23,8 +23,8 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
 import scalismo.io.StatismoIO
-import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
-import scalismo.numerics.{GridSampler, UniformSampler}
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel }
+import scalismo.numerics.{ GridSampler, UniformSampler }
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
