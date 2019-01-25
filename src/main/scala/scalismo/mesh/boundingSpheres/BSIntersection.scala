@@ -84,9 +84,9 @@ private[boundingSpheres] object BSIntersection {
   }
 
   def intersectLineSphereSquared(point: EuclideanVector[_3D],
-                                 direction: EuclideanVector[_3D],
-                                 center: EuclideanVector[_3D],
-                                 r2: Double): Boolean = {
+    direction: EuclideanVector[_3D],
+    center: EuclideanVector[_3D],
+    r2: Double): Boolean = {
     BSDistance.squaredDistanceToLineDirection(center, point, direction) < r2
   }
 

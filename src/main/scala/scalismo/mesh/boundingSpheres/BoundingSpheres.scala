@@ -36,10 +36,10 @@ import scala.annotation.tailrec
  * @param idx    Index of entity used to form leave.
  */
 private[mesh] abstract class BoundingSphere(val center: EuclideanVector[_3D],
-                                            val r2: Double,
-                                            val idx: Int,
-                                            val left: BoundingSphere,
-                                            val right: BoundingSphere) {
+    val r2: Double,
+    val idx: Int,
+    val left: BoundingSphere,
+    val right: BoundingSphere) {
   /**
    * true if left child sphere exists
    */
@@ -213,8 +213,8 @@ private[mesh] object BoundingSpheres {
    */
   @inline
   def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
-                                            sortedPoints: Seq[(EuclideanVector[_3D], Int)],
-                                            matchedPoints: Array[Int]): Array[Boolean] = {
+    sortedPoints: Seq[(EuclideanVector[_3D], Int)],
+    matchedPoints: Array[Int]): Array[Boolean] = {
     val chosen = Array.fill[Boolean](closestPointPairs.length)(false)
     val bestPairs = closestPointPairs.sortBy(a => a._1)
     bestPairs.foreach {
@@ -288,10 +288,10 @@ private[mesh] object BoundingSpheres {
  * Inner node of the search index.
  */
 private class BoundingSphereSplit(center: EuclideanVector[_3D],
-                                  r2: Double,
-                                  idx: Int,
-                                  left: BoundingSphere,
-                                  right: BoundingSphere)
+  r2: Double,
+  idx: Int,
+  left: BoundingSphere,
+  right: BoundingSphere)
     extends BoundingSphere(center, r2, idx, left, right) {
   override def hasLeft: Boolean = left != null
 
@@ -302,8 +302,8 @@ private class BoundingSphereSplit(center: EuclideanVector[_3D],
  * Leave node of the search index.
  */
 private class BoundingSphereLeave(center: EuclideanVector[_3D],
-                                  r2: Double,
-                                  idx: Int)
+  r2: Double,
+  idx: Int)
     extends BoundingSphere(center, r2, idx, null, null) {
 
   override def hasLeft: Boolean = false
