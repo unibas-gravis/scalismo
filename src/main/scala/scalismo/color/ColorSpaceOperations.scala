@@ -16,7 +16,7 @@
 
 package scalismo.color
 
-import scalismo.geometry.{Dim, NDSpace, Vector}
+import scalismo.geometry.{Dim, NDSpace, EuclideanVector}
 
 import scala.annotation.tailrec
 
@@ -86,12 +86,12 @@ object ColorSpaceOperations {
   }
 
   /** implementation for vectors of arbitrary dimension */
-  implicit def vecColorSpaceND[D <: Dim: NDSpace]: ColorSpaceOperations[Vector[D]] = new ColorSpaceOperations[Vector[D]] {
-    override def add(pix1: Vector[D], pix2: Vector[D]): Vector[D] = pix1 + pix2
-    override def multiply(pix1: Vector[D], pix2: Vector[D]): Vector[D] = pix1 :* pix2
-    override def dot(pix1: Vector[D], pix2: Vector[D]): Double = pix1 dot pix2
-    override def scale(pix: Vector[D], l: Double): Vector[D] = pix * l
-    override val zero: Vector[D] = Vector.zeros[D]
+  implicit def vecColorSpaceND[D <: Dim: NDSpace]: ColorSpaceOperations[EuclideanVector[D]] = new ColorSpaceOperations[EuclideanVector[D]] {
+    override def add(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 + pix2
+    override def multiply(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 :* pix2
+    override def dot(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): Double = pix1 dot pix2
+    override def scale(pix: EuclideanVector[D], l: Double): EuclideanVector[D] = pix * l
+    override val zero: EuclideanVector[D] = EuclideanVector.zeros[D]
     override val dimensionality: Int = NDSpace[D].dimensionality
   }
 

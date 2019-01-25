@@ -92,7 +92,7 @@ case class DataCollection(reference: TriangleMesh[_3D], dataItems: Seq[DataItem[
 
       (pt: Point[_3D]) =>
         {
-          var meanPoint = Vector3D(0, 0, 0)
+          var meanPoint = EuclideanVector3D(0, 0, 0)
           var i = 0
           while (i < dataItems.size) {
             meanPoint += dataItems(i).transformation(pt).toVector

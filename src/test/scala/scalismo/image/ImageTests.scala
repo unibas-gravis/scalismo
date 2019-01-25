@@ -20,7 +20,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.{ BoxDomain, PointId, Scalar, ScalarArray }
 import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.Vector.implicits._
+import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
 import scalismo.registration.TranslationSpace
 
@@ -61,7 +61,7 @@ class ImageTests extends ScalismoTestSuite {
 
       val image = DifferentiableScalarImage(BoxDomain(-4.0, 6.0),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
-        (x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat))
+        (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
       val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(1.0))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4.0) === true)
@@ -75,7 +75,7 @@ class ImageTests extends ScalismoTestSuite {
 
       val image = DifferentiableScalarImage(BoxDomain(-4.0, 6.0),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
-        (x: Point[_1D]) => Vector(Math.cos(x(0).toDouble).toFloat))
+        (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
 
       val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(-1.0))
 

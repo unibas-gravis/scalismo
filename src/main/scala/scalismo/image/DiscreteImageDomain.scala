@@ -38,7 +38,7 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
   def origin: Point[D]
 
   /** the distance (in mm) between two points in each space direction */
-  def spacing: Vector[D]
+  def spacing: EuclideanVector[D]
 
   /** the number of points in each direction */
   def size: IntVector[D]
@@ -98,7 +98,7 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
 
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = throw new UnsupportedOperationException
 
-  private def continuousIndextoIndex(cidx: Vector[D]): IntVector[D] = {
+  private def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
     var d = 0
     val indexData = new Array[Int](dimensionality)
     while (d < dimensionality) {
@@ -108,14 +108,14 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
     IntVector[D](indexData)
   }
 
-  private def pointToContinuousIndex(pt: Point[D]): Vector[D] = {
+  private def pointToContinuousIndex(pt: Point[D]): EuclideanVector[D] = {
     val data = (0 until dimensionality).map(i => (pt(i) - origin(i)) / spacing(i))
-    Vector[D](data.toArray)
+    EuclideanVector[D](data.toArray)
   }
 
   def indexToPoint(i: IntVector[D]) = indexToPhysicalCoordinateTransform(Point[D](i.toArray.map(_.toDouble)))
 
-  private def isIndex(continuousIndex: Vector[D]): Boolean = (0 until dimensionality).forall(i => continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8)
+  private def isIndex(continuousIndex: EuclideanVector[D]): Boolean = (0 until dimensionality).forall(i => continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8)
 
   /** the anisotropic similarity transform that maps between the index and physical coordinates*/
   private[scalismo] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
@@ -157,7 +157,7 @@ abstract class DiscreteImageDomain[D <: Dim: NDSpace] extends DiscreteDomain[D] 
 object DiscreteImageDomain {
 
   /** Create a new discreteImageDomain with given origin, spacing and size*/
-  def apply[D <: Dim](origin: Point[D], spacing: Vector[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]) = {
+  def apply[D <: Dim](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]) = {
     evCreate.createImageDomain(origin, spacing, size)
   }
 
@@ -168,7 +168,7 @@ object DiscreteImageDomain {
   }
 
   /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D <: Dim : NDSpace](imageBox: BoxDomain[D], spacing: Vector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
+  def apply[D <: Dim : NDSpace](imageBox: BoxDomain[D], spacing: EuclideanVector[D])(implicit evCreate: CreateDiscreteImageDomain[D]): DiscreteImageDomain[D] = {
     val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
     val size = IntVector.apply[D](sizeFractional.toArray.map(s => Math.ceil(s).toInt))
     evCreate.createImageDomain(imageBox.origin, spacing, size)
@@ -216,8 +216,8 @@ object DiscreteImageDomain {
 case class DiscreteImageDomain1D(size: IntVector[_1D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D]) extends DiscreteImageDomain[_1D] {
 
   override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
-  private val iVecImage: Vector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
-  override val spacing = Vector1D(iVecImage.norm.toFloat)
+  private val iVecImage: EuclideanVector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
+  override val spacing = EuclideanVector1D(iVecImage.norm.toFloat)
 
   private def generateIterator(minX: Int, maxX: Int) = {
     for (i <- Iterator.range(minX, maxX)) yield { Point1D(origin.x + iVecImage.x * i) }
@@ -238,7 +238,7 @@ case class DiscreteImageDomain1D(size: IntVector[_1D], indexToPhysicalCoordinate
     new UnstructuredPointsDomain1D(points.map(t).toIndexedSeq)
   }
 
-  override def boundingBox: BoxDomain[_1D] = BoxDomain(origin, origin + Vector(size(0) * spacing(0)))
+  override def boundingBox: BoxDomain[_1D] = BoxDomain(origin, origin + EuclideanVector(size(0) * spacing(0)))
 
   override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point1D]] = {
     require(nbChunks > 1)
@@ -256,11 +256,11 @@ case class DiscreteImageDomain2D(size: IntVector[_2D], indexToPhysicalCoordinate
     Point2D(p(0), p(1))
   }
 
-  private val iVecImage: Vector2D = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
-  private val jVecImage: Vector2D = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
+  private val iVecImage: EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
+  private val jVecImage: EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
 
   override val directions = SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
-  override val spacing = Vector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
+  override val spacing = EuclideanVector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
   private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) =
     for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield { ijToPoint(i, j) }
@@ -283,7 +283,7 @@ case class DiscreteImageDomain2D(size: IntVector[_2D], indexToPhysicalCoordinate
 
   override def boundingBox: BoxDomain[_2D] = {
     val extendData = (0 until 2).map(i => size(i) * spacing(i))
-    val extent = Vector[_2D](extendData.toArray)
+    val extent = EuclideanVector[_2D](extendData.toArray)
     val oppositeCorner = origin + extent
     BoxDomain(origin, oppositeCorner)
   }
@@ -305,7 +305,7 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
   }
 
   private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
-  override val spacing = Vector3D(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
+  override val spacing = EuclideanVector3D(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
 
   override def boundingBox: BoxDomain[_3D] = {
 
@@ -326,9 +326,9 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
     BoxDomain(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
   }
 
-  private val iVecImage: Vector3D = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
-  private val jVecImage: Vector3D = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
-  private val kVecImage: Vector3D = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val iVecImage: EuclideanVector3D = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val jVecImage: EuclideanVector3D = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
+  private val kVecImage: EuclideanVector3D = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0, 0))
 
   val directions = SquareMatrix[_3D](
     ((iVecImage * (1.0 / iVecImage.norm)).toArray
@@ -379,14 +379,14 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
 
 /** Typeclass for creating domains of arbitrary dimensionality */
 sealed trait CreateDiscreteImageDomain[D <: Dim] {
-  def createImageDomain(origin: Point[D], spacing: Vector[D], size: IntVector[D]): DiscreteImageDomain[D]
+  def createImageDomain(origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D]): DiscreteImageDomain[D]
   def createWithTransform(size: IntVector[D], transform: AnisotropicSimilarityTransformation[D]): DiscreteImageDomain[D]
 }
 
 object CreateDiscreteImageDomain {
 
   implicit object CreateDiscreteImageDomain1D extends CreateDiscreteImageDomain[_1D] {
-    override def createImageDomain(origin: Point[_1D], spacing: Vector[_1D], size: IntVector[_1D]): DiscreteImageDomain[_1D] = {
+    override def createImageDomain(origin: Point[_1D], spacing: EuclideanVector[_1D], size: IntVector[_1D]): DiscreteImageDomain[_1D] = {
       val rigidParameters = origin.toArray ++ Array(0.0)
       val anisotropicScalingParameters = spacing.toArray
       val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_1D](Point(0)).transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
@@ -400,7 +400,7 @@ object CreateDiscreteImageDomain {
   }
 
   implicit object CreateDiscreteImageDomain2D extends CreateDiscreteImageDomain[_2D] {
-    override def createImageDomain(origin: Point[_2D], spacing: Vector[_2D], size: IntVector[_2D]): DiscreteImageDomain[_2D] = {
+    override def createImageDomain(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D]): DiscreteImageDomain[_2D] = {
       val rigidParameters = origin.toArray ++ Array(0.0)
       val anisotropicScalingParameters = spacing.toArray
       val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_2D](Point(0, 0)).transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
@@ -411,7 +411,7 @@ object CreateDiscreteImageDomain {
   }
 
   implicit object CreateDiscreteImageDomain3D extends CreateDiscreteImageDomain[_3D] {
-    override def createImageDomain(origin: Point[_3D], spacing: Vector[_3D], size: IntVector[_3D]): DiscreteImageDomain[_3D] = {
+    override def createImageDomain(origin: Point[_3D], spacing: EuclideanVector[_3D], size: IntVector[_3D]): DiscreteImageDomain[_3D] = {
       val rigidParameters = origin.toArray ++ Array(0.0, 0.0, 0.0)
       val anisotropicScalingParameters = spacing.toArray
       val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))

@@ -17,7 +17,7 @@ package scalismo.kernels
 
 import scalismo.common.{ BoxDomain, Field, RealSpace }
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.{ Point, Vector, _1D, _3D }
+import scalismo.geometry.{ Point, EuclideanVector, _1D, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
@@ -65,12 +65,12 @@ class KernelTests extends ScalismoTestSuite {
       val samplerForNystromApprox = UniformSampler(domain, 7 * 7 * 7)
 
       val k = DiagonalKernel(GaussianKernel[_3D](100.0), 3)
-      val mu = (pt: Point[_3D]) => Vector(1, 10, -5)
-      val gp = LowRankGaussianProcess.approximateGP[_3D, Vector[_3D]](GaussianProcess(Field(domain, mu), k), samplerForNystromApprox, 500)
+      val mu = (pt: Point[_3D]) => EuclideanVector(1, 10, -5)
+      val gp = LowRankGaussianProcess.approximateGP[_3D, EuclideanVector[_3D]](GaussianProcess(Field(domain, mu), k), samplerForNystromApprox, 500)
 
       val sampleTransformations = for (i <- (0 until 5000)) yield {
         // TODO: gp.sample() should (arguably) accept seed.
-        val sample: (Point[_3D] => Vector[_3D]) = gp.sample()
+        val sample: (Point[_3D] => EuclideanVector[_3D]) = gp.sample()
         new Transformation[_3D] {
           override val domain = RealSpace[_3D]
           override val f = (x: Point[_3D]) => x + sample(x)

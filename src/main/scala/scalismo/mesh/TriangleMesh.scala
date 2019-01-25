@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.geometry.Vector._
+import scalismo.geometry.EuclideanVector._
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -90,8 +90,8 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
   lazy val boundingBox = pointSet.boundingBox
 
   /** Get all cell normals as a surface property */
-  lazy val cellNormals: TriangleProperty[Vector[_3D]] = {
-    val triangleNormals: Array[Vector[_3D]] = new Array[Vector[_3D]](triangles.size)
+  lazy val cellNormals: TriangleProperty[EuclideanVector[_3D]] = {
+    val triangleNormals: Array[EuclideanVector[_3D]] = new Array[EuclideanVector[_3D]](triangles.size)
     triangulation.triangleIds.foreach { tId =>
       val cell = triangulation.triangle(tId)
       triangleNormals(tId.id) = computeCellNormal(cell)
@@ -100,9 +100,9 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
   }
 
   /** Get all vertex normals as a surface property, averages over cell normals */
-  lazy val vertexNormals: SurfacePointProperty[Vector[_3D]] = {
+  lazy val vertexNormals: SurfacePointProperty[EuclideanVector[_3D]] = {
     // create data array: average over all adjacent triangles
-    val pointNormals = new Array[Vector[_3D]](pointSet.numberOfPoints)
+    val pointNormals = new Array[EuclideanVector[_3D]](pointSet.numberOfPoints)
     pointSet.pointIds.foreach { ptId =>
       val tr = triangulation.adjacentTrianglesForPoint(ptId)
       var x = 0.0
@@ -115,7 +115,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
         z += n.z
       }
       val n = tr.size
-      pointNormals(ptId.id) = Vector3D(x / n, y / n, z / n).normalize
+      pointNormals(ptId.id) = EuclideanVector3D(x / n, y / n, z / n).normalize
     }
     SurfacePointProperty(triangulation, pointNormals)
   }
@@ -143,7 +143,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
   }
 
   /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
-  def computeCellNormal(cell: TriangleCell): Vector[_3D] = {
+  def computeCellNormal(cell: TriangleCell): EuclideanVector[_3D] = {
     val pt1 = pointSet.point(cell.ptId1)
     val pt2 = pointSet.point(cell.ptId2)
     val pt3 = pointSet.point(cell.ptId3)

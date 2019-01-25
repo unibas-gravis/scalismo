@@ -43,7 +43,7 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
     SquareMatrix[D](newData)
   }
 
-  def *(that: Vector[D]): Vector[D] = {
+  def *(that: EuclideanVector[D]): EuclideanVector[D] = {
 
     val newData = new Array[Double](dimensionality)
 
@@ -58,7 +58,7 @@ class SquareMatrix[D <: Dim: NDSpace] private (private[scalismo] val data: Array
       newData(i) = v
       i += 1
     }
-    Vector[D](newData)
+    EuclideanVector[D](newData)
   }
 
   def *(that: SquareMatrix[D]): SquareMatrix[D] = {
@@ -169,7 +169,7 @@ object SquareMatrix {
     new SquareMatrix[D](data)
   }
 
-  def diag[D <: Dim](vector: Vector[D])(implicit ev: NDSpace[D]): SquareMatrix[D] = {
+  def diag[D <: Dim](vector: EuclideanVector[D])(implicit ev: NDSpace[D]): SquareMatrix[D] = {
     val dim = ev.dimensionality
     val data = Array.fill(dim * dim)(0.0)
     for (i <- 0 until dim) {
