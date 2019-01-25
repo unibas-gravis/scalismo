@@ -224,7 +224,7 @@ object LandmarkRegistration {
     (t, phi, s)
   }
 
-  private def computeRigidNDTransformParams[D <: Dim](landmarks: Seq[(Point[D], Point[D])], center: Point[D], similarityFlag: Boolean): (DenseVector[Double], DenseMatrix[Double], Double) = {
+  private def computeRigidNDTransformParams[D](landmarks: Seq[(Point[D], Point[D])], center: Point[D], similarityFlag: Boolean): (DenseVector[Double], DenseMatrix[Double], Double) = {
 
     //  see Umeyama: Least squares estimation of transformation parameters between two point patterns
 

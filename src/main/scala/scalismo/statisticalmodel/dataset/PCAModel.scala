@@ -16,8 +16,8 @@
 
 package scalismo.statisticalmodel.dataset
 
-import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 import scalismo.geometry._
+import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
 import scalismo.utils.Random
 
 import scala.util.Try

@@ -16,7 +16,7 @@
 
 package scalismo.registration
 
-import breeze.linalg.{ DenseVector }
+import breeze.linalg.DenseVector
 import breeze.numerics._
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain, ScalarImage }
@@ -39,7 +39,7 @@ import scalismo.utils.{ Memoize, Random }
  *                recommended choice is a random sampler (which combined with a gradient descent algorithm leads to a stochastic gradient descent.
  * @param numberOfBins The number of bins used for the intensity histograms (which approximates the joint distribution)
  */
-case class MutualInformationMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
     fixedImageDomain: DiscreteImageDomain[D],
     movingImage: DifferentiableScalarImage[D],
     transformationSpace: TransformationSpace[D],

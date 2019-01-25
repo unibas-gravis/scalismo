@@ -24,7 +24,7 @@ import scala.reflect.ClassTag
  */
 object Field {
 
-  def apply[D <: Dim, A](dom: Domain[D], fun: Point[D] => A) = new Field[D, A] {
+  def apply[D, A](dom: Domain[D], fun: Point[D] => A) = new Field[D, A] {
     override def domain = dom
     override val f = fun
   }
@@ -33,7 +33,7 @@ object Field {
    * Lifts a function between pixel values such that it acts on image intensities.
    * This is useful to write functions that manipulate the image intensities.
    */
-  def lift[D <: Dim, A](fl: A => A): Field[D, A] => Field[D, A] = {
+  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = {
     img: Field[D, A] =>
       new Field[D, A] {
         override def apply(x: Point[D]) = fl(img.apply(x))
@@ -48,7 +48,7 @@ object Field {
  * An image is simply a function from points to values, together with a domain on which the
  * function is defined.
  */
-trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
+trait Field[D, A] extends Function1[Point[D], A] { self =>
 
   /** a function that defines the image values. It must be defined on the full domain */
   protected[scalismo] val f: Point[D] => A
@@ -85,7 +85,7 @@ trait Field[D <: Dim, A] extends Function1[Point[D], A] { self =>
 /**
  * A scalar valued field.
  */
-case class ScalarField[D <: Dim, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A) extends Field[D, A] {
+case class ScalarField[D, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A) extends Field[D, A] {
 
   val ev = implicitly[Scalar[A]]
   /** adds two images. The domain of the new image is the intersection of both */
@@ -112,7 +112,7 @@ case class ScalarField[D <: Dim, A: Scalar: ClassTag](domain: Domain[D], f: Poin
 /**
  * An vector valued image.
  */
-case class VectorField[D <: Dim, DO <: Dim](domain: Domain[D], f: Point[D] => EuclideanVector[DO]) extends Field[D, EuclideanVector[DO]] {
+case class VectorField[D, DO](domain: Domain[D], f: Point[D] => EuclideanVector[DO]) extends Field[D, EuclideanVector[DO]] {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: VectorField[D, DO]): VectorField[D, DO] = {

@@ -15,29 +15,19 @@
  */
 package scalismo.io
 
-import java.io.File
-
-import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ Point, _3D }
-import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
-import scalismo.mesh.TriangleMesh._
-import scalismo.statisticalmodel.StatisticalMeshModel
-
-import scala.util.Try
-import breeze.linalg.DenseVector
-import breeze.linalg.DenseMatrix
-
-import scala.util.Failure
-import scala.util.Success
+import java.io._
 import java.util.Calendar
 
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`._
-import java.io.DataOutputStream
-import java.io.FileOutputStream
-import java.io.DataInputStream
-import java.io.FileInputStream
-
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
+import scalismo.geometry.{ Point, _3D }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
+import scalismo.mesh.TriangleMesh._
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
+import scalismo.statisticalmodel.StatisticalMeshModel
+
+import scala.util.{ Failure, Success, Try }
 
 object StatisticalModelIO {
 

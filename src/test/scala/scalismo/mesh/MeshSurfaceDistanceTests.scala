@@ -43,11 +43,11 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
   }
 
-  def aeqV[D <: Dim](a: EuclideanVector[D], b: EuclideanVector[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqV[D](a: EuclideanVector[D], b: EuclideanVector[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 
-  def aeqP[D <: Dim](a: Point[D], b: Point[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqP[D](a: Point[D], b: Point[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 

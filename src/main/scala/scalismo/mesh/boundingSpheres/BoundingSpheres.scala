@@ -17,7 +17,7 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.linalg.max
 import breeze.numerics.{ abs, pow, sqrt }
-import scalismo.geometry.{ Point, EuclideanVector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.TriangleMesh3D
 
 import scala.annotation.tailrec

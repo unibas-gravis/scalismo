@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{ Point, EuclideanVector, _2D, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _2D, _3D }
 import scalismo.numerics.ValueInterpolator
 import scalismo.utils.Random
 

@@ -21,6 +21,7 @@ import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.numerics.pow
 import scalismo.geometry._
 import scalismo.kernels.{ MatrixValuedPDKernel, PDKernel }
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -154,7 +155,7 @@ object PivotedCholesky {
     PivotedCholesky(L.toDenseMatrix, p, tr)
   }
 
-  def computeApproximateCholesky[D <: Dim: NDSpace, DO <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
+  def computeApproximateCholesky[D: NDSpace, DO: NDSpace](kernel: MatrixValuedPDKernel[D],
     xs: IndexedSeq[Point[D]],
     stoppingCriterion: StoppingCriterion): PivotedCholesky = {
 
@@ -167,7 +168,7 @@ object PivotedCholesky {
 
   }
 
-  def computeApproximateCholesky[D <: Dim: NDSpace](kernel: PDKernel[D],
+  def computeApproximateCholesky[D: NDSpace](kernel: PDKernel[D],
     xs: IndexedSeq[Point[D]],
     stoppingCriterion: StoppingCriterion): PivotedCholesky = {
     val k: (Point[D], Point[D]) => Double = (x, y) => kernel(x, y)
@@ -215,7 +216,7 @@ object PivotedCholesky {
     extractEigenvalues(computeApproximateEigGeneric(kernel, indices, D, sc))
   }
 
-  def computeApproximateEig[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
+  def computeApproximateEig[D: NDSpace](kernel: MatrixValuedPDKernel[D],
     xs: IndexedSeq[Point[D]], D: Double,
     stoppingCriterion: StoppingCriterion) = {
 
@@ -228,7 +229,7 @@ object PivotedCholesky {
 
   }
 
-  def computeApproximateEig[D <: Dim: NDSpace, DO <: Dim: NDSpace](kernel: PDKernel[D],
+  def computeApproximateEig[D: NDSpace, DO: NDSpace](kernel: PDKernel[D],
     xs: IndexedSeq[Point[D]],
     D: Double,
     stoppingCriterion: StoppingCriterion) = {

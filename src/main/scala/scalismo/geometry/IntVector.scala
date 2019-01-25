@@ -16,11 +16,11 @@
 package scalismo.geometry
 
 import breeze.linalg.DenseVector
-import spire.algebra.{ Rng }
+import spire.algebra.Rng
 
 import scala.language.implicitConversions
 
-sealed abstract class IntVector[D <: Dim: NDSpace] {
+sealed abstract class IntVector[D: NDSpace] {
   def apply(a: Int): Int
 
   def dimensionality: Int = implicitly[NDSpace[D]].dimensionality
@@ -79,7 +79,7 @@ case class IntVector3D(i: Int, j: Int, k: Int) extends IntVector[_3D] {
 object IntVector {
 
   /** creation typeclass */
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def createIndex(data: Array[Int]): IntVector[D]
   }
 
@@ -104,17 +104,17 @@ object IntVector {
     }
   }
 
-  def apply[D <: Dim: NDSpace](d: Array[Int])(implicit builder: Create[D]) = builder.createIndex(d)
+  def apply[D: NDSpace](d: Array[Int])(implicit builder: Create[D]) = builder.createIndex(d)
   def apply(x: Int): IntVector1D = IntVector1D(x)
   def apply(x: Int, y: Int): IntVector2D = IntVector2D(x, y)
   def apply(x: Int, y: Int, z: Int): IntVector3D = IntVector3D(x, y, z)
 
-  def zeros[D <: Dim: NDSpace] = {
+  def zeros[D: NDSpace] = {
     IntVector(Array.fill(NDSpace[D].dimensionality)(0))
   }
 
   /** spire Module implementation for Index (no scalar division) */
-  implicit def spireModule[D <: Dim: NDSpace] = new spire.algebra.Module[IntVector[D], Int] {
+  implicit def spireModule[D: NDSpace] = new spire.algebra.Module[IntVector[D], Int] {
     override implicit def scalar: Rng[Int] = Rng[Int]
     override def timesl(r: Int, v: IntVector[D]): IntVector[D] = v.map(i => i * r)
     override def negate(x: IntVector[D]): IntVector[D] = x.map(i => -i)

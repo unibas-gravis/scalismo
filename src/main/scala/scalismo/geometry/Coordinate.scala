@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
 /**
  * The basic n-tuple in R^n^ with scalar type S
  */
-abstract class Coordinate[D <: Dim: NDSpace, @specialized(Int, Float, Double) S] {
+abstract class Coordinate[D: NDSpace, @specialized(Int, Float, Double) S] {
   val dimensionality: Int = implicitly[NDSpace[D]].dimensionality
 
   private[scalismo] val data: Array[S]
@@ -49,7 +49,7 @@ abstract class Coordinate[D <: Dim: NDSpace, @specialized(Int, Float, Double) S]
  * @tparam Scalar The scalar type of the individual coordinates
  * @tparam Repr The concrete representation of a Coordinate (e.g. vector, point)
  */
-private[scalismo] trait CoordinateOps[D <: Dim, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coordinate[D, Scalar] =>
+private[scalismo] trait CoordinateOps[D, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coordinate[D, Scalar] =>
 
   implicit val classTagScalar: ClassTag[Scalar]
 

@@ -33,7 +33,7 @@ import scala.reflect.ClassTag
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (needs to implement Scalar).
  */
-abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTag] protected (override val domain: DiscreteImageDomain[D], override val data: ScalarArray[A])
+abstract class DiscreteScalarImage[D: NDSpace: Create, A: Scalar: ClassTag] protected (override val domain: DiscreteImageDomain[D], override val data: ScalarArray[A])
     extends DiscreteImage[D, A](domain, data) {
 
   require(domain.numberOfPoints == data.size)
@@ -81,7 +81,7 @@ abstract class DiscreteScalarImage[D <: Dim: NDSpace: Create, A: Scalar: ClassTa
  */
 object DiscreteScalarImage {
 
-  trait Create[D <: Dim] {
+  trait Create[D] {
     def create[A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A]): DiscreteScalarImage[D, A]
   }
 
@@ -104,22 +104,22 @@ object DiscreteScalarImage {
   }
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A])(implicit create: Create[D]) = {
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: ScalarArray[A])(implicit create: Create[D]) = {
     create.create(domain, values)
   }
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: Traversable[A])(implicit create: Create[D]) = {
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: Traversable[A])(implicit create: Create[D]) = {
     create.create(domain, ScalarArray(values.toArray))
   }
 
   /** create a new DiscreteScalarImage with given domain and values which are defined by the given function f */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A)(implicit create: Create[D]) = {
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], f: Point[D] => A)(implicit create: Create[D]) = {
     create.create(domain, ScalarArray(domain.points.map(f).toArray))
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-  def apply[D <: Dim: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D])(v: => A)(implicit create: Create[D]) = {
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D])(v: => A)(implicit create: Create[D]) = {
     create.create(domain, ScalarArray(Array.fill(domain.numberOfPoints)(v)))
   }
 

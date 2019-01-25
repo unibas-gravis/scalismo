@@ -16,7 +16,7 @@
 
 package scalismo.color
 
-import scalismo.geometry.{Dim, NDSpace, EuclideanVector}
+import scalismo.geometry.{ EuclideanVector, NDSpace }
 
 import scala.annotation.tailrec
 
@@ -86,7 +86,7 @@ object ColorSpaceOperations {
   }
 
   /** implementation for vectors of arbitrary dimension */
-  implicit def vecColorSpaceND[D <: Dim: NDSpace]: ColorSpaceOperations[EuclideanVector[D]] = new ColorSpaceOperations[EuclideanVector[D]] {
+  implicit def vecColorSpaceND[D: NDSpace]: ColorSpaceOperations[EuclideanVector[D]] = new ColorSpaceOperations[EuclideanVector[D]] {
     override def add(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 + pix2
     override def multiply(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 :* pix2
     override def dot(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): Double = pix1 dot pix2
