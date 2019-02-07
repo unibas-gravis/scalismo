@@ -36,7 +36,7 @@ case class MeanHuberLossMetric[D: NDSpace](fixedImage: ScalarImage[D],
 
   override protected def lossFunction(v: Float): Float = {
     if (v < delta)
-      (v * v / 2f) / (1 + v * v)
+      (v * v / 2f)
     else
       (delta * (Math.abs(v) - delta / 2)).toFloat
   }
