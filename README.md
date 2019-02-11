@@ -17,10 +17,12 @@ We aim to achieve these properties by leveraging two core technologies:
 ## Documentation
 
 * [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
-* [Setup a project using Scalismo](https://github.com/unibas-gravis/scalismo/wiki/Setup-a-project-using-Scalismo)
-* [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
-* [Tutorials on Probabilistic Morphable Models (using Scalismo)](https://gravis.dmi.unibas.ch/PMM/)
+* [Setting up a project using Scalismo](https://github.com/unibas-gravis/scalismo/wiki/Setup-a-project-using-Scalismo)
+* [Scalismo tutorials](https://unibas-gravis.github.io/scalismo-tutorial/)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
+* [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
+* [Ressources on Probabilistic Morphable Models](https://gravis.dmi.unibas.ch/PMM/)
+
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
 
