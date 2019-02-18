@@ -22,7 +22,23 @@ import scalismo.mesh.boundingSpheres.ClosestPointType._
 /**
  * Holds triangles and precalculated vectors.
  */
-private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D], ab: EuclideanVector[_3D], ac: EuclideanVector[_3D], n: EuclideanVector[_3D])
+private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D]) {
+  val ab = b - a
+  val ac = c - a
+  val bc = c - b
+  val n = ab.crossproduct(ac)
+
+  val degenerated = if ( n.norm == 0.0 ) { if (a==b&&b==c) 2 else 1 } else 0
+  // 0: ab, 1: ac, 2: bc
+  val longestSide = {
+    val bc = c - b
+    if ( ab.norm2 > ac.norm2 ) {
+      if ( ab.norm2 > bc.norm2 ) 0 else 2
+    } else {
+      if ( ac.norm2 > bc.norm2 ) 1 else 2
+    }
+  }
+}
 
 /**
  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
@@ -39,17 +55,36 @@ private object BSDistance {
    */
   @inline
   def calculateBarycentricCoordinates(triangle: Triangle, p: EuclideanVector[_3D]): (Double, Double, Double) = {
-    val x = triangle.a - p
-    val ab2 = triangle.ab dot triangle.ab
-    val abac = triangle.ab dot triangle.ac
-    val ac2 = triangle.ac dot triangle.ac
-    val xab = x dot triangle.ab
-    val xac = x dot triangle.ac
-    val div = ab2 * ac2 - abac * abac
-    val s = (abac * xac - ac2 * xab) / div
-    val t = (abac * xab - ab2 * xac) / div
-    val st = s + t
-    (s, t, st)
+    if ( triangle.degenerated == 2 ) {
+      (1.0,0,0)
+    } else if ( triangle.degenerated == 1) {
+      triangle.longestSide match {
+        case 0 =>
+          val s = triangle.ab.normalize.dot(p - triangle.a)
+          val coordinate = s / triangle.ab.norm
+          (1-coordinate, coordinate, 0)
+        case 1 =>
+          val s = triangle.ac.normalize.dot(p - triangle.a)
+          val cooridnate = s / triangle.ac.norm
+          (1-cooridnate,0,cooridnate)
+        case 2 =>
+          val s = triangle.bc.normalize.dot(p - triangle.b)
+          val cooridnate = s / triangle.bc.norm
+          (0.0,1-cooridnate,cooridnate)
+      }
+    } else {
+      val positionRelativeToA = triangle.a - p
+      val ab2 = triangle.ab dot triangle.ab
+      val abac = triangle.ab dot triangle.ac
+      val ac2 = triangle.ac dot triangle.ac
+      val xab = positionRelativeToA dot triangle.ab
+      val xac = positionRelativeToA dot triangle.ac
+      val div = ab2 * ac2 - abac * abac
+      val s = (abac * xac - ac2 * xab) / div
+      val t = (abac * xab - ab2 * xac) / div
+      val st = s + t
+      (s, t, st)
+    }
   }
 
   // mutable classes
