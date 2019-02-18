@@ -57,7 +57,7 @@ object LineTriangleMesh3DIntersectionIndex {
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
-      new Triangle( a, b, c )
+      new Triangle(a, b, c)
     }
 
     // build up search structure

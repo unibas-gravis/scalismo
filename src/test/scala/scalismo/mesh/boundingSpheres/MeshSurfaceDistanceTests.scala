@@ -15,11 +15,11 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import breeze.linalg.{max, min}
+import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
-import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh3D}
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 import scalismo.utils.Random
 
 class MeshSurfaceDistanceTests extends ScalismoTestSuite {
@@ -43,6 +43,19 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     Triangle(a, b, c)
   }
 
+  def uniform(min: Double = 50.0, max: Double = 50.0): Double = { rnd.scalaRandom.nextDouble() * (max - min) + min }
+
+  def createCoLinearTriangle(): Triangle = {
+    val b = EuclideanVector(uniform(), uniform(), uniform())
+    val m = EuclideanVector(uniform(), uniform(), uniform())
+    Triangle(b + m * uniform(), b + m * uniform(), b + m * uniform())
+  }
+
+  def createSinglePointTriangle(): Triangle = {
+    val b = EuclideanVector(uniform(), uniform(), uniform())
+    Triangle(b, b, b)
+  }
+
   def aeqV[D](a: EuclideanVector[D], b: EuclideanVector[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
@@ -54,9 +67,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
   def aeq(a: Double, b: Double, theta: Double = 1.0e-8): Boolean = {
     a - b < theta
   }
-
-
-
 
   describe("The SurfaceDistance") {
 
@@ -215,18 +225,14 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         }
       }
 
-      for (_ <- 0 until 20) {
-        val ev = EuclideanVector(gen(1.0, 3.0), gen(1.0, 3.0), gen(1.0, 3.0))
-        test(Triangle(ev, ev, ev))
-      }
+      for (_ <- 0 until 20) { test(createSinglePointTriangle()) }
     }
 
     it("should use reasonable barycentric coordinates for triangles with only co-linear points") {
 
       def test(
         tri: Triangle,
-        pt: EuclideanVector[_3D]
-      ) = {
+        pt: EuclideanVector[_3D]) = {
         val bc = BSDistance.calculateBarycentricCoordinates(tri, pt)
         (bc._1 + bc._2 + bc._3) shouldBe 1.0 +- 1.0e-8
         val epsilon = 1.0e-12
@@ -236,6 +242,13 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         bc._2 should be <= 1.0 + epsilon
         bc._3 should be >= 0.0 - epsilon
         bc._3 should be <= 1.0 + epsilon
+      }
+
+      for (_ <- 0 until 40) {
+        val tri = createCoLinearTriangle()
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
       }
 
       {
@@ -281,7 +294,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         test(tri, tri.c)
       }
     }
-
 
     it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
 
@@ -398,22 +410,21 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
-
-    it("should work for degenerated triangles correctly.") {
+    it("should create correct bounding spheres with values for center and radius which do not contain NaN.") {
       import scala.language.implicitConversions
       implicit def toPointId(i: Int): PointId = PointId(i)
 
-      TriangleMesh3D(
-        IndexedSeq(
-          Point(0, 1, 2),
-          Point(1, 1, 2),
-          Point(2, 1, 2),
-          Point(0, 2, 2),
-          Point(2, 1, 1),
-          Point(2, 2, 3)
-        ),
-        TriangleList(IndexedSeq(TriangleCell(0, 1, 2), TriangleCell(3, 4, 5)))
-      )
+      def test(
+        tri: Triangle) = {
+        val sphere = Sphere.fromTriangle(tri)
+        sphere.r2.isNaN shouldBe false
+        sphere.center.x.isNaN shouldBe false
+        sphere.center.y.isNaN shouldBe false
+        sphere.center.z.isNaN shouldBe false
+      }
+
+      for (_ <- 0 until 40) { test(createCoLinearTriangle()) }
+      for (_ <- 0 until 40) { test(createSinglePointTriangle()) }
     }
   }
 

@@ -368,7 +368,7 @@ private object Sphere {
       radius2 = max((center - a).norm2, (center - b).norm2)
     } else if (abs(ab.normalize.dot(ac.normalize)) == 1.0) {
       // all points on same line
-      val lengths = Seq(("ab",ab.norm),("ac",ac.norm),("bc",bc.norm))
+      val lengths = Seq(("ab", ab.norm), ("ac", ac.norm), ("bc", bc.norm))
       lengths.maxBy(_._2)._1 match {
         case "ab" =>
           center = aMb

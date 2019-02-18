@@ -28,14 +28,14 @@ private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3
   val bc = c - b
   val n = ab.crossproduct(ac)
 
-  val degenerated = if ( n.norm == 0.0 ) { if (a==b&&b==c) 2 else 1 } else 0
+  val degenerated = if (n.norm == 0.0) { if (a == b && b == c) 2 else 1 } else 0
   // 0: ab, 1: ac, 2: bc
   val longestSide = {
     val bc = c - b
-    if ( ab.norm2 > ac.norm2 ) {
-      if ( ab.norm2 > bc.norm2 ) 0 else 2
+    if (ab.norm2 > ac.norm2) {
+      if (ab.norm2 > bc.norm2) 0 else 2
     } else {
-      if ( ac.norm2 > bc.norm2 ) 1 else 2
+      if (ac.norm2 > bc.norm2) 1 else 2
     }
   }
 }
@@ -55,22 +55,22 @@ private object BSDistance {
    */
   @inline
   def calculateBarycentricCoordinates(triangle: Triangle, p: EuclideanVector[_3D]): (Double, Double, Double) = {
-    if ( triangle.degenerated == 2 ) {
-      (1.0,0,0)
-    } else if ( triangle.degenerated == 1) {
+    if (triangle.degenerated == 2) {
+      (1.0, 0, 0)
+    } else if (triangle.degenerated == 1) {
       triangle.longestSide match {
         case 0 =>
           val s = triangle.ab.normalize.dot(p - triangle.a)
           val coordinate = s / triangle.ab.norm
-          (1-coordinate, coordinate, 0)
+          (1 - coordinate, coordinate, 0)
         case 1 =>
           val s = triangle.ac.normalize.dot(p - triangle.a)
           val cooridnate = s / triangle.ac.norm
-          (1-cooridnate,0,cooridnate)
+          (1 - cooridnate, 0, cooridnate)
         case 2 =>
           val s = triangle.bc.normalize.dot(p - triangle.b)
           val cooridnate = s / triangle.bc.norm
-          (0.0,1-cooridnate,cooridnate)
+          (0.0, 1 - cooridnate, cooridnate)
       }
     } else {
       val positionRelativeToA = triangle.a - p
