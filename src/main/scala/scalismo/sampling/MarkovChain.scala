@@ -15,8 +15,6 @@
  */
 package scalismo.sampling
 
-import scalismo.sampling.loggers.ChainStateLogger
-
 /** basic Markov Chain trait: provides a next sample */
 trait MarkovChain[A] {
   /** next sample in chain */

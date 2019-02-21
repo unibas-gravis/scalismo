@@ -18,13 +18,12 @@ package scalismo.kernels
 import breeze.linalg.{ DenseMatrix, DenseVector, diag, pinv }
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.numerics.PivotedCholesky.{ NumberOfEigenfunctions, RelativeTolerance }
-import scalismo.numerics.{ PivotedCholesky, RandomSVD, Sampler }
+import scalismo.numerics.PivotedCholesky.RelativeTolerance
+import scalismo.numerics.{ PivotedCholesky, Sampler }
 import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
 import scalismo.utils.Memoize
-import scalismo.utils.Random
 
-abstract class PDKernel[D <: Dim] {
+abstract class PDKernel[D] {
   self =>
 
   protected def k(x: Point[D], y: Point[D]): Double
@@ -70,7 +69,7 @@ abstract class PDKernel[D <: Dim] {
 
 }
 
-abstract class MatrixValuedPDKernel[D <: Dim: NDSpace] {
+abstract class MatrixValuedPDKernel[D: NDSpace] {
   self =>
 
   def apply(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
@@ -144,9 +143,9 @@ abstract class MatrixValuedPDKernel[D <: Dim: NDSpace] {
 
 }
 
-trait DiagonalKernel[D <: Dim] extends MatrixValuedPDKernel[D]
+trait DiagonalKernel[D] extends MatrixValuedPDKernel[D]
 
-private[kernels] case class IsotropicDiagonalKernel[D <: Dim: NDSpace](kernel: PDKernel[D], override val outputDim: Int) extends DiagonalKernel[D] {
+private[kernels] case class IsotropicDiagonalKernel[D: NDSpace](kernel: PDKernel[D], override val outputDim: Int) extends DiagonalKernel[D] {
   val I = DenseMatrix.eye[Double](outputDim)
 
   def k(x: Point[D], y: Point[D]) = I * kernel(x, y)
@@ -155,7 +154,7 @@ private[kernels] case class IsotropicDiagonalKernel[D <: Dim: NDSpace](kernel: P
   override def domain = kernel.domain
 }
 
-private[kernels] case class AnisotropicDiagonalKernel[D <: Dim: NDSpace](kernels: IndexedSeq[PDKernel[D]]) extends DiagonalKernel[D] {
+private[kernels] case class AnisotropicDiagonalKernel[D: NDSpace](kernels: IndexedSeq[PDKernel[D]]) extends DiagonalKernel[D] {
   def k(x: Point[D], y: Point[D]) = diag(DenseVector[Double](kernels.map(k => k(x, y)).toArray))
 
   override def domain = kernels.map(_.domain).reduce(Domain.intersection(_, _))
@@ -164,14 +163,14 @@ private[kernels] case class AnisotropicDiagonalKernel[D <: Dim: NDSpace](kernels
 }
 
 object DiagonalKernel {
-  def apply[D <: Dim: NDSpace](kernel: PDKernel[D], outputDim: Int): DiagonalKernel[D] = IsotropicDiagonalKernel(kernel, outputDim)
+  def apply[D: NDSpace](kernel: PDKernel[D], outputDim: Int): DiagonalKernel[D] = IsotropicDiagonalKernel(kernel, outputDim)
 
   def apply(xKernel: PDKernel[_2D], yKernel: PDKernel[_2D]): DiagonalKernel[_2D] = AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel))
 
   def apply(xKernel: PDKernel[_3D], yKernel: PDKernel[_3D], zKernel: PDKernel[_3D]): DiagonalKernel[_3D] = AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel, zKernel))
 }
 
-case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
+case class MultiScaleKernel[D: NDSpace](kernel: MatrixValuedPDKernel[D],
     min: Int,
     max: Int,
     scale: Int => Double = i => scala.math.pow(2.0, -2.0 * i)) extends MatrixValuedPDKernel[D] {
@@ -179,7 +178,7 @@ case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
   override def outputDim = kernel.outputDim
 
   def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
-    var sum = DenseMatrix.zeros[Double](outputDim, outputDim)
+    val sum = DenseMatrix.zeros[Double](outputDim, outputDim)
     for (i <- min until max) {
       sum += kernel((x.toVector * Math.pow(2, i)).toPoint, (y.toVector * Math.pow(2, i)).toPoint) * scale(i)
     }
@@ -192,7 +191,7 @@ case class MultiScaleKernel[D <: Dim: NDSpace](kernel: MatrixValuedPDKernel[D],
 
 object Kernel {
 
-  def computeKernelMatrix[D <: Dim](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
+  def computeKernelMatrix[D](xs: Seq[Point[D]], k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
 
     val d = k.outputDim
 
@@ -230,7 +229,7 @@ object Kernel {
    * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
    * faster (breeze implementation detail). This should be replaced at some point
    */
-  def computeKernelVectorFor[D <: Dim](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
+  def computeKernelVectorFor[D](x: Point[D], xs: IndexedSeq[Point[D]], k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val kxs = DenseMatrix.zeros[Double](d, xs.size * d)
@@ -262,8 +261,8 @@ object Kernel {
    * @param sampler  A point sampler, which determines the points that are used to compute the approximation.
    * @return The leading eigenvalue / eigenfunction pairs
    */
-  def computeNystromApproximation[D <: Dim: NDSpace, Value](k: MatrixValuedPDKernel[D],
-    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random): KLBasis[D, Value] = {
+  def computeNystromApproximation[D: NDSpace, Value](k: MatrixValuedPDKernel[D],
+    sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in
     // Gaussian Processes for machine Learning (Rasmussen and Williamson), Chapter 4, Page 99
@@ -271,8 +270,6 @@ object Kernel {
     val (ptsForNystrom, _) = sampler.sample().unzip
     // depending on the sampler, it may happen that we did not sample all the points we wanted
     val effectiveNumberOfPointsSampled = ptsForNystrom.size
-
-    val K = computeKernelMatrix(ptsForNystrom, k)
 
     // we compute the eigenvectors only approximately, to a tolerance of 1e-5. As the nystrom approximation is
     // anyway not exact, this should be sufficient for all practical cases.

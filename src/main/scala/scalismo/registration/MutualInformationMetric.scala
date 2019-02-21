@@ -16,14 +16,13 @@
 
 package scalismo.registration
 
-import breeze.linalg.{ DenseMatrix, DenseVector, sum }
+import breeze.linalg.DenseVector
 import breeze.numerics._
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain, ScalarImage }
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
-import scalismo.registration._
-import scalismo.utils.{ Benchmark, Memoize, Random }
+import scalismo.utils.{ Memoize, Random }
 
 /**
  * Implementation of the Mutual Information Metric, described in the following paper:
@@ -40,7 +39,7 @@ import scalismo.utils.{ Benchmark, Memoize, Random }
  *                recommended choice is a random sampler (which combined with a gradient descent algorithm leads to a stochastic gradient descent.
  * @param numberOfBins The number of bins used for the intensity histograms (which approximates the joint distribution)
  */
-case class MutualInformationMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
     fixedImageDomain: DiscreteImageDomain[D],
     movingImage: DifferentiableScalarImage[D],
     transformationSpace: TransformationSpace[D],
@@ -249,8 +248,6 @@ case class MutualInformationMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D]
   def derivative(params: DenseVector[Double]): DenseVector[Double] = {
 
     val samplePoints = sampler.sample().map(_._1)
-
-    val transform: Transformation[D] = transformationSpace.transformForParameters(params)
 
     /** creating and filling derivative vector (gradient) */
 

@@ -21,18 +21,16 @@ import scalismo.registration._
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.utils.Random
 
-import scala.language.implicitConversions
-
 class GeometryTests extends ScalismoTestSuite {
 
   implicit val random = Random(42L)
 
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p
-  val v = Vector(0.1, 3.0, 1.1)
-  val vGeneric: Vector[_3D] = v
+  val v = EuclideanVector(0.1, 3.0, 1.1)
+  val vGeneric: EuclideanVector[_3D] = v
 
-  def checkPoint[D <: Dim: NDSpace]() = {
+  def checkPoint[D: NDSpace]() = {
     def randomPoint(): Point[D] = Point[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val pt = randomPoint()
 
@@ -69,7 +67,6 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("can map a function p.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
-        val z = Point[D](Array.fill(NDSpace[D].dimensionality)(0))
         val f = (x: Double) => 2.0 + x
         val g = (x: Double) => x - 2.0
         (pt.map(f).map(g) - pt).norm should be < 1e-4
@@ -87,8 +84,8 @@ class GeometryTests extends ScalismoTestSuite {
   checkPoint[_2D]()
   checkPoint[_3D]()
 
-  def checkVector[D <: Dim: NDSpace]() = {
-    def randomVector(): Vector[D] = Vector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
+  def checkVector[D: NDSpace]() = {
+    def randomVector(): EuclideanVector[D] = EuclideanVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val v = randomVector()
 
     describe(s"A random nD Vector $v (n=${NDSpace[D].dimensionality})") {
@@ -98,15 +95,15 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("fulfills v*(-1) + v*(1) == 0") {
-        v * (-1) + v * 1 should equal(Vector.zeros[D])
+        v * (-1) + v * 1 should equal(EuclideanVector.zeros[D])
       }
 
       it("fulfills v - v == 0") {
-        v - v should equal(Vector.zeros[D])
+        v - v should equal(EuclideanVector.zeros[D])
       }
 
       it("converts to an Array and back") {
-        Vector[D](v.toArray) should equal(v)
+        EuclideanVector[D](v.toArray) should equal(v)
       }
 
       it("converts to an Array of proper length") {
@@ -114,24 +111,24 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("converts to a Breeze vector and back") {
-        Vector.fromBreezeVector[D](v.toBreezeVector) should equal(v)
+        EuclideanVector.fromBreezeVector[D](v.toBreezeVector) should equal(v)
       }
 
       it("can map a constant value v.map(f) == 0 (f: x => 0.0)") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        val z = EuclideanVector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
         def f(x: Double): Double = 0.0
         v.map(f) should equal(z)
       }
 
       it("can map a function v.map(f).map(g) == 0 (f: x => 2.0+x, g: x => x-2.0)") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+
         val f = (x: Double) => 2.0 + x
         val g = (x: Double) => x - 2.0
         (v.map(f).map(g) - v).norm should be < 1e-4
       }
 
       it("can map a function using its index: v.mapWithIndex(f) == 0 (f: (x,i) => x - v(i))") {
-        val z = Vector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
+        val z = EuclideanVector[D](Array.fill(NDSpace[D].dimensionality)(0.0))
         v.mapWithIndex((x, i) => x - v(i)) should equal(z)
       }
 
@@ -169,7 +166,7 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("provides a zero norm for zero vectors") {
-        Vector.zeros[D].norm should be(0.0 +- 1e-10)
+        EuclideanVector.zeros[D].norm should be(0.0 +- 1e-10)
       }
 
       it("has norm which probably (1 example) fulfills the triangle equality") {
@@ -198,7 +195,7 @@ class GeometryTests extends ScalismoTestSuite {
   checkVector[_2D]()
   checkVector[_3D]()
 
-  def checkIndex[D <: Dim: NDSpace]() = {
+  def checkIndex[D: NDSpace]() = {
     def randomIndex(): IntVector[D] = IntVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextInt()))
     val ind = randomIndex()
 
@@ -226,7 +223,6 @@ class GeometryTests extends ScalismoTestSuite {
       }
 
       it("can map a function p.map(f).map(g) == 0 (f: x => 2 + x, g: x => x - 2)") {
-        val z = IntVector[D](Array.fill(NDSpace[D].dimensionality)(0))
         val f = (x: Int) => 2 + x
         val g = (x: Int) => x - 2
         ind.map(f).map(g) should equal(ind)
@@ -286,31 +282,31 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("gives the correct norm and normsquared for various test cases") {
-      Vector(1.0).norm2 should equal(1)
-      Vector(1.0, 1.0).norm2 should equal(2)
-      Vector(1.0, 1.0, 1.0).norm2 should equal(3)
-      Vector(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 +- 1e-5)
+      EuclideanVector(1.0).norm2 should equal(1)
+      EuclideanVector(1.0, 1.0).norm2 should equal(2)
+      EuclideanVector(1.0, 1.0, 1.0).norm2 should equal(3)
+      EuclideanVector(math.sqrt(2), math.sqrt(2)).norm2 should be(4.0 +- 1e-5)
       v.norm should be(math.sqrt(v.norm2) +- 1e-5)
     }
 
     it("gives the correct dot value for the dot product") {
-      val v1 = Vector(4.9, -3.5, -1.0)
-      val v2 = Vector(3.1, 2.1, 5.0)
+      val v1 = EuclideanVector(4.9, -3.5, -1.0)
+      val v2 = EuclideanVector(3.1, 2.1, 5.0)
       v1 dot v2 should be(v1.toBreezeVector dot v2.toBreezeVector)
     }
 
     it("gives the correct value for the outer product") {
-      val v1 = Vector(4.0, -3.0, -1.0)
-      val v2 = Vector(3.0, 2.0, 5.0)
+      val v1 = EuclideanVector(4.0, -3.0, -1.0)
+      val v2 = EuclideanVector(3.0, 2.0, 5.0)
       val res = SquareMatrix((12.0, 8.0, 20.0), (-9.0, -6.0, -15.0), (-3.0, -2.0, -5.0))
       (v1 outer v2) should be(res)
     }
 
     it("gives the correct value for the cross product") {
-      val v1 = Vector(4.0, -3.0, -1.0)
-      val v2 = Vector(3.0, 2.0, 5.0)
+      val v1 = EuclideanVector(4.0, -3.0, -1.0)
+      val v2 = EuclideanVector(3.0, 2.0, 5.0)
       val crossPdBreeze = breeze.linalg.cross(v1.toBreezeVector, v2.toBreezeVector)
-      v1.crossproduct(v2) should be(Vector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
+      v1.crossproduct(v2) should be(EuclideanVector(crossPdBreeze(0), crossPdBreeze(1), crossPdBreeze(2)))
     }
 
     it("can be mapped with a function f: (Double) => Double") {
@@ -342,11 +338,11 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("A 3D vector constructed from spherical coordinates is identical to the corresponding point") {
-      Vector.fromSpherical(3.0, 3.0, 5.0) shouldBe Point.fromSpherical(3.0, 3.0, 5.0).toVector
+      EuclideanVector.fromSpherical(3.0, 3.0, 5.0) shouldBe Point.fromSpherical(3.0, 3.0, 5.0).toVector
     }
 
     it("A 2D vector constructed from spherical coordinates is identical to the corresponding point") {
-      Vector.fromPolar(2.0, 0.5) shouldBe Point.fromPolar(2.0, 0.5).toVector
+      EuclideanVector.fromPolar(2.0, 0.5) shouldBe Point.fromPolar(2.0, 0.5).toVector
     }
   }
 
@@ -390,7 +386,7 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("can be multiplied by a vector") {
-      val v = Vector(1.0, 2.0, 3.0)
+      val v = EuclideanVector(1.0, 2.0, 3.0)
       val vBreeze = DenseVector(1.0, 2.0, 3.0)
       val mxv = m * v
       val mxvBreeze = m.toBreezeMatrix * vBreeze
@@ -436,10 +432,10 @@ class GeometryTests extends ScalismoTestSuite {
     }
 
     it("fulfills some simple identities with ones,zeros and ident") {
-      val v = Vector(1.0, 2.0, 3.0)
+      val v = EuclideanVector(1.0, 2.0, 3.0)
       SquareMatrix.eye[_3D] * v should equal(v)
-      SquareMatrix.zeros[_3D] * v should equal(Vector(0.0, 0.0, 0.0))
-      SquareMatrix.ones[_3D] * v should equal(Vector(6.0, 6.0, 6.0))
+      SquareMatrix.zeros[_3D] * v should equal(EuclideanVector(0.0, 0.0, 0.0))
+      SquareMatrix.ones[_3D] * v should equal(EuclideanVector(6.0, 6.0, 6.0))
     }
 
     it("yields itself when transposed twice") {
@@ -481,7 +477,7 @@ class GeometryTests extends ScalismoTestSuite {
 
     it("is correctly transformed using a rigid transform") {
 
-      val rigidTransform = RigidTransformation(TranslationTransform(Vector2D(2, 3)),
+      val rigidTransform = RigidTransformation(TranslationTransform(EuclideanVector2D(2, 3)),
         RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
 
       val transformedLm = lm.transform(rigidTransform)

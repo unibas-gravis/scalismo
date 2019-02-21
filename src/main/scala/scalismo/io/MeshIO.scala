@@ -15,22 +15,20 @@
  */
 package scalismo.io
 
-import java.io.{File, IOException}
+import java.io.{ BufferedReader, File, FileReader, IOException }
 
-import scalismo.color.{RGB, RGBA}
-import scalismo.common.{PointId, Scalar, UnstructuredPointsDomain}
+import scalismo.color.{ RGB, RGBA }
+import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
-import scalismo.mesh._
-import scalismo.geometry.Point._
-import scalismo.geometry.Vector._
-import scalismo.io.MeshIO.getColorArray
 import scalismo.mesh.TriangleMesh._
+import scalismo.mesh._
 import scalismo.utils.MeshConversion
 import vtk._
 
+import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object MeshIO {
   /**
@@ -110,7 +108,7 @@ object MeshIO {
       case f if f.endsWith(".ply") => readPLY(file).map { r =>
         r match {
           case Right(colorMesh3D) => colorMesh3D
-          case Left(_) =>  throw new Exception("Indicated PLY file does not contain color values.")
+          case Left(_) => throw new Exception("Indicated PLY file does not contain color values.")
         }
       }
 
@@ -147,7 +145,7 @@ object MeshIO {
     }
   }
 
-  def writeLineMesh[D <: Dim: NDSpace](polyLine: LineMesh[D], file: File): Try[Unit] = {
+  def writeLineMesh[D: NDSpace](polyLine: LineMesh[D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeLineMeshVTK(polyLine, file)
@@ -169,10 +167,10 @@ object MeshIO {
   }
 
   /**
-    * Writes a [[VertexColorMesh3D]] to a file.
-    *
-    * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
-    * */
+   * Writes a [[VertexColorMesh3D]] to a file.
+   *
+   * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
+   */
   def writeVertexColorMesh3D(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -231,9 +229,7 @@ object MeshIO {
     err
   }
 
-
   private def writePLY(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
-
 
     val vtkPd = surface match {
       case Right(colorMesh) => MeshConversion.meshToVtkPolyData(colorMesh.shape)
@@ -373,46 +369,57 @@ object MeshIO {
   }
 
   private def readPLY(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
-    val plyReader = new vtkPLYReader()
-    plyReader.SetFileName(file.getAbsolutePath)
 
-    plyReader.Update()
+    // read the ply header to find out if the ply is a textured mesh in ASCII (in which case we return a failure since VTKPLYReader Update() would crash otherwise)
+    val breader = new BufferedReader(new FileReader(file))
+    val lineIterator = Iterator.continually(breader.readLine())
 
-    val errCode = plyReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read ply mesh (received VTK error code $errCode"))
-    }
+    val headerLines = lineIterator.dropWhile(_ != "ply").takeWhile(_ != "end_header").toIndexedSeq
 
-    val vtkPd = plyReader.GetOutput()
+    if (headerLines.exists(_.contains("TextureFile")) && headerLines.exists(_.contains("format ascii"))) {
+      Failure(new Exception("PLY file seems to be a textured mesh in ASCII format which creates issues with the VTK ply reader. Please convert it to a binary ply or to a vertex color or shape only ply."))
+    } else {
 
-    val mesh = for {
-      meshGeometry <- MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
-    } yield {
-      getColorArray(vtkPd) match {
-        case Some(("RGBA", colorArray)) => {
-          val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
-            val rgba = colorArray.GetTuple4(i)
-            RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3) / 255.0)
-          }
-          Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
-        }
-        case Some(("RGB", colorArray)) => {
-          val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
-            val rgb = colorArray.GetTuple3(i)
-            RGBA(RGB(rgb(0) / 255.0, rgb(1) / 255.0, rgb(2) / 255.0))
-          }
-          Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
-        }
-        case Some(_) => Left(meshGeometry)
-        case None => Left(meshGeometry)
+      val plyReader = new vtkPLYReader()
+      plyReader.SetFileName(file.getAbsolutePath)
+
+      plyReader.Update()
+
+      val errCode = plyReader.GetErrorCode()
+      if (errCode != 0) {
+        return Failure(new IOException(s"Could not read ply mesh (received VTK error code $errCode"))
       }
+
+      val vtkPd = plyReader.GetOutput()
+
+      val mesh = for {
+        meshGeometry <- MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+      } yield {
+        getColorArray(vtkPd) match {
+          case Some(("RGBA", colorArray)) => {
+            val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
+              val rgba = colorArray.GetTuple4(i)
+              RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3) / 255.0)
+            }
+            Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
+          }
+          case Some(("RGB", colorArray)) => {
+            val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
+              val rgb = colorArray.GetTuple3(i)
+              RGBA(RGB(rgb(0) / 255.0, rgb(1) / 255.0, rgb(2) / 255.0))
+            }
+            Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
+          }
+          case Some(_) => Left(meshGeometry)
+          case None => Left(meshGeometry)
+        }
+      }
+      plyReader.Delete()
+      vtkPd.Delete()
+
+      mesh
     }
-    plyReader.Delete()
-    vtkPd.Delete()
-
-    mesh
   }
-
 
   def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
 
@@ -446,7 +453,7 @@ object MeshIO {
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
 
-  private def readLineMeshVTK[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
+  private def readLineMeshVTK[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath)
     vtkReader.Update()
@@ -466,7 +473,7 @@ object MeshIO {
     correctedMesh
   }
 
-  private[this] def writeLineMeshVTK[D <: Dim: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
+  private[this] def writeLineMeshVTK[D: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.lineMeshToVTKPolyData(mesh)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()

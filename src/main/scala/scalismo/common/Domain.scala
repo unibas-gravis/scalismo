@@ -18,7 +18,7 @@ package scalismo.common
 import scalismo.geometry._
 import scalismo.registration.{ CanInvert, Transformation }
 
-trait Domain[D <: Dim] {
+trait Domain[D] {
   self =>
   def isDefinedAt(pt: Point[D]): Boolean
 
@@ -32,28 +32,28 @@ trait Domain[D <: Dim] {
 }
 
 object Domain {
-  def fromPredicate[D <: Dim](chi: Point[D] => Boolean) = new Domain[D] {
+  def fromPredicate[D](chi: Point[D] => Boolean) = new Domain[D] {
     override def isDefinedAt(pt: Point[D]) = chi(pt)
   }
 
-  def intersection[D <: Dim](thisDomain: Domain[D], thatDomain: Domain[D]) = new Domain[D] {
+  def intersection[D](thisDomain: Domain[D], thatDomain: Domain[D]) = new Domain[D] {
     override def isDefinedAt(pt: Point[D]) = thisDomain.isDefinedAt(pt) && thatDomain.isDefinedAt(pt)
   }
 
-  def union[D <: Dim](thisDomain: Domain[D], thatDomain: Domain[D]) = new Domain[D] {
+  def union[D](thisDomain: Domain[D], thatDomain: Domain[D]) = new Domain[D] {
     override def isDefinedAt(pt: Point[D]) = thisDomain.isDefinedAt(pt) || thatDomain.isDefinedAt(pt)
   }
 }
 
-class RealSpace[D <: Dim] extends Domain[D] {
+class RealSpace[D] extends Domain[D] {
   override def isDefinedAt(pt: Point[D]) = true
 }
 
 object RealSpace {
-  def apply[D <: Dim] = new RealSpace[D]
+  def apply[D] = new RealSpace[D]
 }
 
-trait BoxDomain[D <: Dim] extends Domain[D] {
+trait BoxDomain[D] extends Domain[D] {
 
   val origin: Point[D]
   val oppositeCorner: Point[D]
@@ -63,7 +63,7 @@ trait BoxDomain[D <: Dim] extends Domain[D] {
     (0 until pt.dimensionality).forall(i => isInsideAxis(i))
   }
 
-  val extent: Vector[D] = oppositeCorner - origin
+  val extent: EuclideanVector[D] = oppositeCorner - origin
   val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
 
 }
@@ -78,7 +78,7 @@ object BoxDomain {
    * constructor, the isDefinedAt method of the resulting object will not be as optimized as when created for a
    * specific dimensionality
    */
-  def apply[D <: Dim: NDSpace](orig: Point[D], oppCorner: Point[D]) = new BoxDomain[D] {
+  def apply[D: NDSpace](orig: Point[D], oppCorner: Point[D]) = new BoxDomain[D] {
     override lazy val oppositeCorner = oppCorner
     override lazy val origin = orig
   }

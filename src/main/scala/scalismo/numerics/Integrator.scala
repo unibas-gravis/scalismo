@@ -17,11 +17,10 @@ package scalismo.numerics
 
 import breeze.linalg.DenseVector
 import scalismo.common.VectorField
-import scalismo.image.ScalarImage
 import scalismo.geometry._
-import scalismo.utils.Random
+import scalismo.image.ScalarImage
 
-case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
+case class Integrator[D: NDSpace](sampler: Sampler[D]) {
 
   def integrateScalar(img: ScalarImage[D]): Float = {
     integrateScalar(img.liftValues)
@@ -33,14 +32,14 @@ case class Integrator[D <: Dim: NDSpace](sampler: Sampler[D]) {
     sum / samples.size
   }
 
-  def integrateVector[DO <: Dim: NDSpace](img: VectorField[D, DO]): Vector[DO] = {
+  def integrateVector[DO: NDSpace](img: VectorField[D, DO]): EuclideanVector[DO] = {
     integrateVector(img.liftValues)
   }
 
-  def integrateVector[DO <: Dim: NDSpace](f: Function1[Point[D], Option[Vector[DO]]]): Vector[DO] = {
+  def integrateVector[DO: NDSpace](f: Function1[Point[D], Option[EuclideanVector[DO]]]): EuclideanVector[DO] = {
     val samples = sampler.sample
 
-    val zeroVector = Vector.zeros[DO]
+    val zeroVector = EuclideanVector.zeros[DO]
     val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }.foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1f / (sampler.numberOfPoints - 1))
   }

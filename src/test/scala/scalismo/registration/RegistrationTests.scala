@@ -19,11 +19,11 @@ import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.{ ScalismoTestSuite, numerics }
-import scalismo.common.{ Field, PointId, RealSpace }
+import scalismo.common.{ Field, NearestNeighborInterpolator, PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.io.{ ImageIO, MeshIO }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.numerics.{ GradientDescentOptimizer, LBFGSOptimizer, UniformSampler }
+import scalismo.numerics.{ LBFGSOptimizer, UniformSampler }
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import scalismo.utils.Random
 
@@ -223,9 +223,9 @@ class RegistrationTests extends ScalismoTestSuite {
       val fixedImage = discreteFixedImage.interpolate(3)
 
       val domain = discreteFixedImage.domain
-      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
-      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
+      val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)
       val transformationSpace = GaussianProcessTransformationSpace(lowRankGp)
 
@@ -257,10 +257,10 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => Vector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
-      val lowRankGp = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions = 3)
-      val nnInterpolatedGp = lowRankGp.discretize(domain).interpolateNearestNeighbor
+      val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
+      val nnInterpolatedGp = lowRankGp.discretize(domain).interpolate(NearestNeighborInterpolator())
 
       val transformationSpace = GaussianProcessTransformationSpace(nnInterpolatedGp)
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)

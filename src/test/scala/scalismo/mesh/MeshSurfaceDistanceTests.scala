@@ -18,7 +18,7 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ Point, EuclideanVector, _3D }
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 import scalismo.utils.Random
 
@@ -28,26 +28,26 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
   def rgen(offset: Double = 0.0, scale: Double = 1.0) = rnd.scalaRandom.nextDouble() * scale + offset
 
-  def randomPoint(offset: Double = 0.0, scale: Double = 1.0)(implicit rnd: Random): Point[_3D] = {
+  def randomPoint(offset: Double = 0.0, scale: Double = 1.0): Point[_3D] = {
     Point(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
-  def randomVector(offset: Double = 0.0, scale: Double = 1.0)(implicit rnd: Random): Vector[_3D] = {
-    Vector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
+  def randomVector(offset: Double = 0.0, scale: Double = 1.0): EuclideanVector[_3D] = {
+    EuclideanVector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
   }
 
-  private def randomTriangle(offset: Double = 0.0, scale: Double = 1.0): Triangle = {
+  private def randomTriangle(offset: Double, scale: Double): Triangle = {
     val a = randomVector(offset, scale)
     val b = randomVector(offset, scale)
     val c = randomVector(offset, scale)
     Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
   }
 
-  def aeqV[D <: Dim](a: Vector[D], b: Vector[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqV[D](a: EuclideanVector[D], b: EuclideanVector[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 
-  def aeqP[D <: Dim](a: Point[D], b: Point[D], theta: Double = 1.0e-8): Boolean = {
+  def aeqP[D](a: Point[D], b: Point[D], theta: Double = 1.0e-8): Boolean = {
     a.toArray.zip(b.toArray).forall(p => aeq(p._1, p._2, theta))
   }
 
@@ -292,8 +292,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
       }
 
-      val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
-
       val sd = DiscreteSpatialIndex.fromMesh(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
         TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
@@ -321,7 +319,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should find the correct closest points pairs in a sorted list") {
 
-      def bruteForcePairFinder(sortedPoints: IndexedSeq[(Vector[_3D], Int)]) = {
+      def bruteForcePairFinder(sortedPoints: IndexedSeq[(EuclideanVector[_3D], Int)]) = {
         sortedPoints.zipWithIndex.map { e =>
           val spIndex = e._2
           val basePoint = e._1._1
