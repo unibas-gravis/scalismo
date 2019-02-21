@@ -28,14 +28,14 @@ import scalismo.utils.Random
 object MeshMetrics {
 
   /**
-   * For each point of the first mesh, this method computes the distance to the closest point on the
+   * For each point of the first mesh, this method computes the shortest distance to the surface of the
    * second mesh and returns the average over all points
    */
 
   def avgDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
 
     val dists = for (ptM1 <- m1.pointSet.points) yield {
-      val cpM2 = m2.pointSet.findClosestPoint(ptM1).point
+      val cpM2 = m2.operations.closestPointOnSurface(ptM1).point
       (ptM1 - cpM2).norm
     }
     dists.sum / m1.pointSet.numberOfPoints
@@ -60,7 +60,7 @@ object MeshMetrics {
   def hausdorffDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     def allDistsBetweenMeshes(mm1: TriangleMesh[_3D], mm2: TriangleMesh[_3D]): Iterator[Double] = {
       for (ptM1 <- mm1.pointSet.points) yield {
-        val cpM2 = mm2.pointSet.findClosestPoint(ptM1).point
+        val cpM2 = mm2.operations.closestPointOnSurface(ptM1).point
         (ptM1 - cpM2).norm
       }
     }

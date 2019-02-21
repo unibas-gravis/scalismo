@@ -51,7 +51,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("should be (slightly) lower than the average translation applied to each vertex") {
       MeshMetrics.avgDistance(mesh, translatedMesh) should be < translationLength.toDouble
-      MeshMetrics.avgDistance(mesh, translatedMesh) should be(translationLength.toDouble +- (translationLength * 0.2))
+      MeshMetrics.avgDistance(mesh, translatedMesh) should be(translationLength.toDouble +- (translationLength * 0.3))
     }
   }
 
@@ -61,8 +61,8 @@ class MeshMetricsTests extends ScalismoTestSuite {
     }
 
     it("returns the max distance") {
-      // create a mesh where the first vector is displaced by a value of 1
-      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.pointSet.findClosestPoint(pt).id == PointId(0)) pt + EuclideanVector(1, 0, 0) else pt)
+      // create a mesh where the point on the nose is displaced by a value of 1
+      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.pointSet.findClosestPoint(pt).id == PointId(8412)) pt + EuclideanVector(0, 0, 1) else pt)
       MeshMetrics.hausdorffDistance(mesh, newMesh) should be(1)
     }
 
