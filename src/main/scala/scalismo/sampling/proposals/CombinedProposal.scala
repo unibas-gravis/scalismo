@@ -16,12 +16,11 @@
 package scalismo.sampling.proposals
 
 import scalismo.sampling.{ ProposalGenerator, TransitionProbability }
-import scalismo.utils.Random
 
 /**
  * Container for multiple ProposalGenerators stacked together, applied one after the other
  */
-class CombinedProposal[A](val proposals: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]])(implicit rnd: Random)
+class CombinedProposal[A](val proposals: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]])
     extends ProposalGenerator[A] with TransitionProbability[A] {
 
   override def propose(current: A): A = {
@@ -45,5 +44,5 @@ class CombinedProposal[A](val proposals: IndexedSeq[ProposalGenerator[A] with Tr
 }
 
 object CombinedProposal {
-  def apply[A](proposals: IndexedSeq[(ProposalGenerator[A] with TransitionProbability[A])])(implicit rnd: Random) = new CombinedProposal[A](proposals)
+  def apply[A](proposals: IndexedSeq[(ProposalGenerator[A] with TransitionProbability[A])]) = new CombinedProposal[A](proposals)
 }

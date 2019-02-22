@@ -16,9 +16,9 @@
 package scalismo.numerics
 
 import breeze.linalg.DenseVector
-import breeze.optimize.LBFGS
-import breeze.optimize.DiffFunction
+import breeze.optimize.{ DiffFunction, LBFGS }
 import scalismo.registration.TransformationSpace.ParameterVector
+
 import scala.collection.Iterator
 
 trait CostFunction extends (ParameterVector => (Double, DenseVector[Double])) {

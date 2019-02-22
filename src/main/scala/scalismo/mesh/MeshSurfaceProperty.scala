@@ -18,8 +18,6 @@ package scalismo.mesh
 import scalismo.common.PointId
 import scalismo.numerics.ValueInterpolator
 
-import scala.reflect.ClassTag
-
 /**
  * general property defined on the surface of a mesh
  * accessible through the parameterization given by the triangulation of the mesh: TriangleId and BarycentricCoordinates inside the triangle

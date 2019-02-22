@@ -15,16 +15,13 @@
  */
 package scalismo.io
 
-import java.io.File
+import java.io.{ Closeable, File, IOException }
 
 import ncsa.hdf.`object`._
 import ncsa.hdf.`object`.h5._
 
-import scala.util.Try
-import scala.util.Failure
-import scala.util.Success
 import scala.collection.JavaConversions._
-import java.io.{ Closeable, IOException }
+import scala.util.{ Failure, Success, Try }
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.product == data.length, s"${dims.product} != ${data.length}")

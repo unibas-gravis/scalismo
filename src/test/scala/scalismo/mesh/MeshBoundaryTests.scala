@@ -50,9 +50,9 @@ class MeshBoundaryTests extends ScalismoTestSuite {
       )
 
       val traingesMeshWithOneCompletelySouroundedTriangle = {
-        val points = for (x <- 0 until 4; y <- 0 until 4) yield Point(x, y, 0)
-        val trianglesV = for (x <- 0 until 3; y <- 0 until 3) yield TriangleCell(x + y * 4, (x + 1) + y * 4, x + (y + 1) * 4)
-        val trianglesA = for (x <- 0 until 3; y <- 0 until 3) yield TriangleCell(x + 1 + y * 4, x + (y + 1) * 4, (x + 1) + (y + 1) * 4)
+        val points = for (y <- 0 until 4; x <- 0 until 4) yield Point(x, y, 0)
+        val trianglesV = for (y <- 0 until 3; x <- 0 until 3) yield TriangleCell(x + y * 4, (x + 1) + y * 4, x + (y + 1) * 4)
+        val trianglesA = for (y <- 0 until 3; x <- 0 until 3) yield TriangleCell(x + 1 + y * 4, x + (y + 1) * 4, (x + 1) + (y + 1) * 4)
         TriangleMesh3D(
           points,
           TriangleList(
@@ -135,23 +135,32 @@ class MeshBoundaryTests extends ScalismoTestSuite {
 
     }
 
-    it("test some border triangles") {
+    it("test bonery for all elements of some border triangles") {
       val mesh = Fixture.traingesMeshWithOneCompletelySouroundedTriangle
       val b = MeshBoundaryPredicates(mesh)
       /*
       ----------
       |0/|1/|2/|
-      |/9|/.|/.|
+      |/9|/.|/.|      10 / 11
       ----------
       |3/|4/|5/|
-      |/.|/.|/.|
+      |/.|/.|/.| 12 / 13 / 14
       ----------
       |6/|7/|8/|
-      |/.|/.|/.|
+      |/.|/.|/.| 15 / 16 / 17
       ----------
       */
+
+      testTriangle0()
+      testTriangle1()
+      testTriangle7()
+      testTriangle9()
+      testTriangle10()
+      testTriangle16()
+      testTriangle17()
+
       def testTriangle17(): Unit = {
-        val t4 = mesh.triangles(0)
+        val t4 = mesh.triangles(17)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
         val p2 = t4.ptId3
@@ -171,7 +180,8 @@ class MeshBoundaryTests extends ScalismoTestSuite {
       }
 
       def testTriangle16(): Unit = {
-        val t4 = mesh.triangles(0)
+        val id = 16
+        val t4 = mesh.triangles(id)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
         val p2 = t4.ptId3
@@ -187,11 +197,12 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         b.edgeIsOnBoundary(p2, p1) shouldBe true
         b.edgeIsOnBoundary(p0, p2) shouldBe false
 
-        b.triangleIsOnBoundary(TriangleId(0)) shouldBe true
+        b.triangleIsOnBoundary(TriangleId(id)) shouldBe true
       }
 
       def testTriangle10(): Unit = {
-        val t4 = mesh.triangles(0)
+        val id = 10
+        val t4 = mesh.triangles(id)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
         val p2 = t4.ptId3
@@ -207,11 +218,12 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         b.edgeIsOnBoundary(p2, p1) shouldBe false
         b.edgeIsOnBoundary(p0, p2) shouldBe false
 
-        b.triangleIsOnBoundary(TriangleId(0)) shouldBe false
+        b.triangleIsOnBoundary(TriangleId(id)) shouldBe false
       }
 
       def testTriangle9(): Unit = {
-        val t4 = mesh.triangles(0)
+        val id = 9
+        val t4 = mesh.triangles(id)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
         val p2 = t4.ptId3
@@ -227,14 +239,17 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         b.edgeIsOnBoundary(p2, p1) shouldBe false
         b.edgeIsOnBoundary(p0, p2) shouldBe false
 
-        b.triangleIsOnBoundary(TriangleId(0)) shouldBe false
+        b.triangleIsOnBoundary(TriangleId(id)) shouldBe false
       }
 
       def testTriangle7(): Unit = {
-        val t4 = mesh.triangles(0)
+        val id = 7
+        val t4 = mesh.triangles(id)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
         val p2 = t4.ptId3
+
+        println(p0.id + " " + p1.id + " " + p2.id)
 
         b.pointIsOnBoundary(p0) shouldBe false
         b.pointIsOnBoundary(p1) shouldBe false
@@ -247,10 +262,11 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         b.edgeIsOnBoundary(p2, p1) shouldBe false
         b.edgeIsOnBoundary(p0, p2) shouldBe false
 
-        b.triangleIsOnBoundary(TriangleId(0)) shouldBe false
+        b.triangleIsOnBoundary(TriangleId(id)) shouldBe false
       }
 
       def testTriangle1(): Unit = {
+        val id = 1
         val t4 = mesh.triangles(1)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
@@ -267,11 +283,12 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         b.edgeIsOnBoundary(p2, p1) shouldBe false
         b.edgeIsOnBoundary(p0, p2) shouldBe false
 
-        b.triangleIsOnBoundary(TriangleId(1)) shouldBe true
+        b.triangleIsOnBoundary(TriangleId(id)) shouldBe true
       }
 
       def testTriangle0(): Unit = {
-        val t4 = mesh.triangles(0)
+        val id = 0
+        val t4 = mesh.triangles(id)
         val p0 = t4.ptId1
         val p1 = t4.ptId2
         val p2 = t4.ptId3
@@ -287,10 +304,8 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         b.edgeIsOnBoundary(p2, p1) shouldBe false
         b.edgeIsOnBoundary(p0, p2) shouldBe true
 
-        b.triangleIsOnBoundary(TriangleId(0)) shouldBe true
+        b.triangleIsOnBoundary(TriangleId(id)) shouldBe true
       }
-
     }
-
   }
 }

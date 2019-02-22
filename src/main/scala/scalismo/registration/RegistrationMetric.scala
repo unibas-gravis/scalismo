@@ -16,14 +16,9 @@
 
 package scalismo.registration
 
-import scalismo.common.Domain
+import breeze.linalg.DenseVector
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
-import scalismo.numerics.{ Integrator, Sampler }
-import scalismo.utils.Random
-
-import scala.language.higherKinds
-import breeze.linalg.DenseVector
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 
 /**
@@ -33,7 +28,7 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
  * fixed value of the parameters compute the value of the metric and a derivative.
  *
  */
-trait RegistrationMetric[D <: Dim] {
+trait RegistrationMetric[D] {
 
   def transformationSpace: TransformationSpace[D]
   implicit def ndSpace: NDSpace[D]
@@ -64,7 +59,7 @@ object RegistrationMetric {
 /**
  * A registration metric for image to image registration.
  */
-trait ImageMetric[D <: Dim] extends RegistrationMetric[D] {
+trait ImageMetric[D] extends RegistrationMetric[D] {
 
   def fixedImage: ScalarImage[D]
 

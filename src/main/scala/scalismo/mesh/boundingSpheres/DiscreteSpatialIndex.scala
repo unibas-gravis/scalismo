@@ -16,10 +16,10 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics._
-import BSDistance.{ Distance2, Index, _ }
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, Vector, _3D }
+import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.mesh.TriangleMesh
+import scalismo.mesh.boundingSpheres.BSDistance.{Distance2, Index, _}
 
 /**
  * SpatialIndex for a set of points
@@ -78,10 +78,10 @@ private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
   }
   private val pointList = points.map(_.toVector).toIndexedSeq
 
-  private def distanceToPartition(point: Vector[_3D],
-    partition: BoundingSphere,
-    result: Distance2,
-    index: Index): Unit = {
+  private def distanceToPartition(point: EuclideanVector[_3D],
+                                  partition: BoundingSphere,
+                                  result: Distance2,
+                                  index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toPoint(point, pointList(partition.idx))

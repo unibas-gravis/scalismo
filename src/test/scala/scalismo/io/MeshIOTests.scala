@@ -22,7 +22,7 @@ import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._3D
 import scalismo.mesh.{ ScalarMeshField, TriangleMesh }
 
-import scala.language.implicitConversions
+import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.{ Failure, Success, Try }
@@ -71,6 +71,34 @@ class MeshIOTests extends ScalismoTestSuite {
         mesh should equal(origMesh)
       }
 
+    }
+
+    it("yields the original mesh when reading and writing a shape only ply") {
+      val path = getClass.getResource("/mean_shapeOnly.ply").getPath
+      val shape = MeshIO.readMesh(new File(path)).get
+      val tmpFile = File.createTempFile("mesh", ".ply")
+      MeshIO.writeMesh(shape, tmpFile)
+      val reRead = MeshIO.readMesh(tmpFile).get
+      tmpFile.delete()
+
+      reRead should equal(shape)
+    }
+
+    it("yields the original mesh when reading and writing a vertex color ply") {
+      val path = getClass.getResource("/mean_vertexColor.ply").getPath
+      val shape = MeshIO.readVertexColorMesh3D(new File(path)).get
+      val tmpFile = File.createTempFile("mesh", ".ply")
+      MeshIO.writeVertexColorMesh3D(shape, tmpFile)
+      val reRead = MeshIO.readVertexColorMesh3D(tmpFile).get
+      tmpFile.delete()
+
+      reRead should equal(shape)
+    }
+
+    it("correctly fails when reading a textured ascii ply") {
+      val path = getClass.getResource("/mean_textured.ply").getPath
+      val shape = MeshIO.readMesh(new File(path))
+      assert(shape.isFailure)
     }
 
   }

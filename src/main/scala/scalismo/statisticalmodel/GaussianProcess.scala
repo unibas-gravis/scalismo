@@ -17,7 +17,6 @@ package scalismo.statisticalmodel
 
 import breeze.linalg._
 import scalismo.common._
-import scalismo.geometry.Vector
 import scalismo.geometry._
 import scalismo.kernels._
 import scalismo.utils.Random
@@ -29,7 +28,7 @@ import scalismo.utils.Random
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
  */
-class GaussianProcess[D <: Dim: NDSpace, Value] protected (val mean: Field[D, Value],
+class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value],
     val cov: MatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
 
   def outputDim = vectorizer.dim
@@ -92,14 +91,14 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D <: Dim: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
+  def apply[D: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
     new GaussianProcess[D, Value](mean, cov)
   }
 
   /**
    * Creates a new zero-mean Gaussian process with the given covariance function.
    */
-  def apply[D <: Dim: NDSpace, Value](cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
+  def apply[D: NDSpace, Value](cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
     val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
     val zeroField = Field[D, Value](RealSpace[D], (p: Point[D]) => zeroVec)
     GaussianProcess[D, Value](zeroField, cov)
@@ -111,7 +110,7 @@ object GaussianProcess {
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def regression[D: NDSpace, Value](gp: GaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
 
     val outputDim = vectorizer.dim
@@ -160,7 +159,7 @@ object GaussianProcess {
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  def marginalLikelihood[D <: Dim: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def marginalLikelihood[D: NDSpace, Value](gp: GaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): Double = {
 
     val outputDim = gp.outputDim

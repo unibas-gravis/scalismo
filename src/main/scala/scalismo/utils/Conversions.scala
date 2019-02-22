@@ -17,15 +17,15 @@ package scalismo.utils
 
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
+import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
 import scalismo.io.ImageIO
 import scalismo.mesh._
-import spire.math.{ UByte, UInt, ULong, UShort }
+import spire.math.{UByte, UInt, ULong, UShort}
 import vtk._
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{ TypeTag, typeOf }
-import scala.util.{ Failure, Success, Try }
+import scala.reflect.runtime.universe.{TypeTag, typeOf}
+import scala.util.{Failure, Success, Try}
 
 object VtkHelpers {
 
@@ -167,8 +167,6 @@ object MeshConversion {
     val polys = newPd.GetPolys()
     val numPolys = polys.GetNumberOfCells()
 
-    val vtkType = newPd.GetPoints().GetDataType()
-
     val points = vtkConvertPoints[_3D](newPd)
 
     val idList = new vtkIdList()
@@ -184,7 +182,7 @@ object MeshConversion {
     (points, cells)
   }
 
-  private[scalismo] def vtkConvertPoints[D <: Dim: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
+  private[scalismo] def vtkConvertPoints[D: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
     val vtkType = pd.GetPoints().GetDataType()
 
     val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()) match {
@@ -276,7 +274,7 @@ object MeshConversion {
     }
   }
 
-  def vtkPolyDataToLineMesh[D <: Dim: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
+  def vtkPolyDataToLineMesh[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
     val lines = pd.GetLines()
     val numPolys = lines.GetNumberOfCells()
     val points = vtkConvertPoints[D](pd)
@@ -296,7 +294,7 @@ object MeshConversion {
     cellsOrFailure.map(cells => LineMesh(UnstructuredPointsDomain[D](points.toIndexedSeq), LineList(cells)))
   }
 
-  def lineMeshToVTKPolyData[D <: Dim: NDSpace](mesh: LineMesh[D], template: Option[vtkPolyData] = None): vtkPolyData = {
+  def lineMeshToVTKPolyData[D: NDSpace](mesh: LineMesh[D], template: Option[vtkPolyData] = None): vtkPolyData = {
 
     val pd = new vtkPolyData
 
@@ -337,7 +335,7 @@ object MeshConversion {
 
 }
 
-trait CanConvertToVtk[D <: Dim] {
+trait CanConvertToVtk[D] {
   def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
@@ -402,7 +400,7 @@ object CanConvertToVtk {
       }
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
-      val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
+      val spacing = EuclideanVector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
       val size = IntVector(sp.GetDimensions()(0), sp.GetDimensions()(1))
 
       val domain = DiscreteImageDomain[_2D](origin, spacing, size)
@@ -486,7 +484,7 @@ object CanConvertToVtk {
       }
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
-      val spacing = Vector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
+      val spacing = EuclideanVector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
       val size = IntVector(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
 
       val domain = DiscreteImageDomain[_3D](origin, spacing, size)
@@ -501,11 +499,11 @@ object CanConvertToVtk {
 
 object ImageConversion {
 
-  def imageToVtkStructuredPoints[D <: Dim: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
+  def imageToVtkStructuredPoints[D: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
     implicitly[CanConvertToVtk[D]].toVtk(img)
   }
 
-  def vtkStructuredPointsToScalarImage[D <: Dim: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
+  def vtkStructuredPointsToScalarImage[D: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]] = {
     implicitly[CanConvertToVtk[D]].fromVtk(sp)
   }
 }

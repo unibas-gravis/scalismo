@@ -16,10 +16,9 @@
 
 package scalismo.registration
 
-import scalismo.geometry.{ Dim, NDSpace }
+import scalismo.geometry.NDSpace
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
-import scalismo.utils.Random
 
 /**
  * Image to image metric which applies the Huber Loss function to the pointwise pixel difference.
@@ -28,7 +27,7 @@ import scalismo.utils.Random
  * @see SumOfPointwiseLossMetric.
  *
  */
-case class MeanHuberLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
+case class MeanHuberLossMetric[D: NDSpace](fixedImage: ScalarImage[D],
   movingImage: DifferentiableScalarImage[D],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D],
@@ -37,7 +36,7 @@ case class MeanHuberLossMetric[D <: Dim: NDSpace](fixedImage: ScalarImage[D],
 
   override protected def lossFunction(v: Float): Float = {
     if (v < delta)
-      (v * v / 2f) / (1 + v * v)
+      (v * v / 2f)
     else
       (delta * (Math.abs(v) - delta / 2)).toFloat
   }

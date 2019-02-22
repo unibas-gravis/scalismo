@@ -15,7 +15,7 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import scalismo.geometry.{ Dim, Point, Vector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
 
 /**
@@ -24,11 +24,11 @@ import scalismo.mesh.{ BarycentricCoordinates, TriangleId, TriangleMesh3D }
  * lines in (point,direction) format one can ask if there exists any and also for
  * the complete list of intersection points.
  */
-trait SurfaceIntersectionIndex[D <: Dim] {
+trait SurfaceIntersectionIndex[D] {
 
-  def hasIntersection(point: Point[D], direction: Vector[D]): Boolean
+  def hasIntersection(point: Point[D], direction: EuclideanVector[D]): Boolean
 
-  def getIntersectionPoints(point: Point[D], direction: Vector[D]): Seq[Point[D]]
+  def getIntersectionPoints(point: Point[D], direction: EuclideanVector[D]): Seq[Point[D]]
 
 }
 
@@ -37,9 +37,9 @@ trait SurfaceIntersectionIndex[D <: Dim] {
  * for TriangleMeshs. The additional query return the intersection points in the
  * (TriangleId,BarycentricCoordinates) format.
  */
-trait TriangulatedSurfaceIntersectionIndex[D <: Dim] extends SurfaceIntersectionIndex[D] {
+trait TriangulatedSurfaceIntersectionIndex[D] extends SurfaceIntersectionIndex[D] {
 
-  def getSurfaceIntersectionPoints(point: Point[D], direction: Vector[D]): Seq[(TriangleId, BarycentricCoordinates)]
+  def getSurfaceIntersectionPoints(point: Point[D], direction: EuclideanVector[D]): Seq[(TriangleId, BarycentricCoordinates)]
 }
 
 /**
@@ -54,19 +54,10 @@ object LineTriangleMesh3DIntersectionIndex {
 
     // build triangle list (use only Vector[_3D], no Points)
     val triangles = mesh.triangulation.triangles.map { t =>
-
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
-      val ab = b - a
-      val ac = c - a
-
-      new Triangle(
-        a, b, c,
-        ab, ac,
-        ab.crossproduct(ac)
-      )
-
+      new Triangle(a, b, c)
     }
 
     // build up search structure
@@ -86,19 +77,19 @@ private[mesh] class LineTriangleMesh3DIntersectionIndex(private val boundingSphe
     private val mesh: TriangleMesh3D,
     private val triangles: Seq[Triangle]) extends TriangulatedSurfaceIntersectionIndex[_3D] {
 
-  override def hasIntersection(point: Point[_3D], direction: Vector[_3D]): Boolean = {
+  override def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean = {
     intersectWithLine(point.toVector, direction, boundingSphere).nonEmpty
   }
 
-  override def getIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[Point[_3D]] = {
+  override def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] = {
     intersectWithLine(point.toVector, direction, boundingSphere)
   }
 
-  override def getSurfaceIntersectionPoints(point: Point[_3D], direction: Vector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = {
+  override def getSurfaceIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = {
     surfaceIntersectionPoint(point.toVector, direction, boundingSphere).map(t => (TriangleId(t._1), t._2))
   }
 
-  private def intersectWithLine(point: Vector[_3D], direction: Vector[_3D], partition: BoundingSphere): Seq[Point[_3D]] = {
+  private def intersectWithLine(point: EuclideanVector[_3D], direction: EuclideanVector[_3D], partition: BoundingSphere): Seq[Point[_3D]] = {
     if (BSIntersection.intersectLineSphereSquared(point, direction, partition.center, partition.r2)) {
       if (partition.idx < 0) {
         val l = if (partition.hasLeft) {
@@ -126,7 +117,7 @@ private[mesh] class LineTriangleMesh3DIntersectionIndex(private val boundingSphe
     }
   }
 
-  private def surfaceIntersectionPoint(point: Vector[_3D], direction: Vector[_3D], partition: BoundingSphere): List[(Int, BarycentricCoordinates)] = {
+  private def surfaceIntersectionPoint(point: EuclideanVector[_3D], direction: EuclideanVector[_3D], partition: BoundingSphere): List[(Int, BarycentricCoordinates)] = {
     if (BSIntersection.intersectLineSphereSquared(point, direction, partition.center, partition.r2)) {
       if (partition.idx < 0) {
         val l = if (partition.hasLeft) {

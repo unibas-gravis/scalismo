@@ -16,13 +16,29 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
-import scalismo.geometry.{ Vector, _3D }
+import scalismo.geometry.{ EuclideanVector, _3D }
 import scalismo.mesh.boundingSpheres.ClosestPointType._
 
 /**
  * Holds triangles and precalculated vectors.
  */
-private[mesh] case class Triangle(a: Vector[_3D], b: Vector[_3D], c: Vector[_3D], ab: Vector[_3D], ac: Vector[_3D], n: Vector[_3D])
+private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D]) {
+  val ab = b - a
+  val ac = c - a
+  val bc = c - b
+  val n = ab.crossproduct(ac)
+
+  val degenerated = if (n.norm == 0.0) { if (a == b && b == c) 2 else 1 } else 0
+  // 0: ab, 1: ac, 2: bc
+  val longestSide = {
+    val bc = c - b
+    if (ab.norm2 > ac.norm2) {
+      if (ab.norm2 > bc.norm2) 0 else 2
+    } else {
+      if (ac.norm2 > bc.norm2) 1 else 2
+    }
+  }
+}
 
 /**
  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
@@ -38,35 +54,54 @@ private object BSDistance {
    * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.
    */
   @inline
-  def calculateBarycentricCoordinates(triangle: Triangle, p: Vector[_3D]): (Double, Double, Double) = {
-    val x = triangle.a - p
-    val ab2 = triangle.ab dot triangle.ab
-    val abac = triangle.ab dot triangle.ac
-    val ac2 = triangle.ac dot triangle.ac
-    val xab = x dot triangle.ab
-    val xac = x dot triangle.ac
-    val div = ab2 * ac2 - abac * abac
-    val s = (abac * xac - ac2 * xab) / div
-    val t = (abac * xab - ab2 * xac) / div
-    val st = s + t
-    (s, t, st)
+  def calculateBarycentricCoordinates(triangle: Triangle, p: EuclideanVector[_3D]): (Double, Double, Double) = {
+    if (triangle.degenerated == 2) {
+      (1.0, 0, 0)
+    } else if (triangle.degenerated == 1) {
+      triangle.longestSide match {
+        case 0 =>
+          val s = triangle.ab.normalize.dot(p - triangle.a)
+          val coordinate = s / triangle.ab.norm
+          (1 - coordinate, coordinate, 0)
+        case 1 =>
+          val s = triangle.ac.normalize.dot(p - triangle.a)
+          val cooridnate = s / triangle.ac.norm
+          (1 - cooridnate, 0, cooridnate)
+        case 2 =>
+          val s = triangle.bc.normalize.dot(p - triangle.b)
+          val cooridnate = s / triangle.bc.norm
+          (0.0, 1 - cooridnate, cooridnate)
+      }
+    } else {
+      val positionRelativeToA = triangle.a - p
+      val ab2 = triangle.ab dot triangle.ab
+      val abac = triangle.ab dot triangle.ac
+      val ac2 = triangle.ac dot triangle.ac
+      val xab = positionRelativeToA dot triangle.ab
+      val xac = positionRelativeToA dot triangle.ac
+      val div = ab2 * ac2 - abac * abac
+      val s = (abac * xac - ac2 * xab) / div
+      val t = (abac * xab - ab2 * xac) / div
+      val st = s + t
+      (s, t, st)
+    }
   }
 
   // mutable classes
   private[boundingSpheres] case class Index(var idx: Int)
   private[boundingSpheres] case class Distance2(var distance2: Double)
-  private[boundingSpheres] case class CP(var distance2: Double, var pt: Vector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
+  private[boundingSpheres] case class CP(var distance2: Double, var pt: EuclideanVector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
 
   // immutable classes
 
   private[boundingSpheres] case class DistanceSqr(val distance2: Double)
-  private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: Vector[_3D])
+  private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: EuclideanVector[_3D])
 
   /**
    * Finds closest point to triangle.
    */
   @inline
-  def toTriangle(p: Vector[_3D], triangle: Triangle): ClosestPointMeta = {
+  def toTriangle(p: EuclideanVector[_3D], triangle: Triangle): ClosestPointMeta = {
 
     if (abs(triangle.ab(0)) + abs(triangle.ab(1)) + abs(triangle.ab(2)) < 1.0e-12) {
       // Degenerated case where a and b are the same points
@@ -149,7 +184,7 @@ private object BSDistance {
   }
 
   @inline
-  def toLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): ClosestPointMeta = {
+  def toLineSegment(p: EuclideanVector[_3D], pt1: EuclideanVector[_3D], pt2: EuclideanVector[_3D]): ClosestPointMeta = {
     val dir = pt2 - pt1 // line direction
     val len2 = dir.norm2
     if (len2 < Double.MinPositiveValue) {
@@ -172,7 +207,7 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceClosestPointAndBCOnLineSegment(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): (Double, Vector[_3D], Double) = {
+  def squaredDistanceClosestPointAndBCOnLineSegment(p: EuclideanVector[_3D], pt1: EuclideanVector[_3D], pt2: EuclideanVector[_3D]): (Double, EuclideanVector[_3D], Double) = {
     val dir = pt2 - pt1 // line direction
     val len2 = dir.norm2
     if (len2 < Double.MinPositiveValue) {
@@ -193,7 +228,7 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceAndClosestPointOnLine(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): (Double, Vector[_3D]) = {
+  def squaredDistanceAndClosestPointOnLine(p: EuclideanVector[_3D], pt1: EuclideanVector[_3D], pt2: EuclideanVector[_3D]): (Double, EuclideanVector[_3D]) = {
     val dir = (pt2 - pt1).normalize // line direction
     val x = p - pt1 // vector from the point to one point on the line
     val s = dir.dot(x) // length of projection of x onto the line
@@ -202,7 +237,7 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceToLine(p: Vector[_3D], pt1: Vector[_3D], pt2: Vector[_3D]): Double = {
+  def squaredDistanceToLine(p: EuclideanVector[_3D], pt1: EuclideanVector[_3D], pt2: EuclideanVector[_3D]): Double = {
     val t1 = p - pt1
     val t2 = pt2 - pt1
 
@@ -212,18 +247,18 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceToLineDirection(p: Vector[_3D], pointOnLine: Vector[_3D], direction: Vector[_3D]): Double = {
+  def squaredDistanceToLineDirection(p: EuclideanVector[_3D], pointOnLine: EuclideanVector[_3D], direction: EuclideanVector[_3D]): Double = {
     val v = pointOnLine - p
     (v - direction * (direction.dot(v) / direction.norm2)).norm2
   }
 
   @inline
-  def squaredDistanceToPoint(p: Vector[_3D], pt: Vector[_3D]): Double = {
+  def squaredDistanceToPoint(p: EuclideanVector[_3D], pt: EuclideanVector[_3D]): Double = {
     (p - pt).norm2
   }
 
   @inline
-  def toPoint(p: Vector[_3D], pt: Vector[_3D]): Distance2 = {
+  def toPoint(p: EuclideanVector[_3D], pt: EuclideanVector[_3D]): Distance2 = {
     Distance2((p - pt).norm2)
   }
 
