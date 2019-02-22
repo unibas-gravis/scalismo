@@ -54,19 +54,10 @@ object LineTriangleMesh3DIntersectionIndex {
 
     // build triangle list (use only Vector[_3D], no Points)
     val triangles = mesh.triangulation.triangles.map { t =>
-
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
-      val ab = b - a
-      val ac = c - a
-
-      new Triangle(
-        a, b, c,
-        ab, ac,
-        ab.crossproduct(ac)
-      )
-
+      new Triangle(a, b, c)
     }
 
     // build up search structure

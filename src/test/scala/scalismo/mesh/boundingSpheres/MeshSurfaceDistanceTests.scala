@@ -18,29 +18,42 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.{ max, min }
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ Point, EuclideanVector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
 import scalismo.utils.Random
 
 class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
-  implicit val rnd = Random(42)
+  implicit val rnd: Random = Random(42)
 
-  def rgen(offset: Double = 0.0, scale: Double = 1.0) = rnd.scalaRandom.nextDouble() * scale + offset
+  def gen(offset: Double = 0.0, scale: Double = 1.0): Double = rnd.scalaRandom.nextDouble() * scale + offset
 
   def randomPoint(offset: Double = 0.0, scale: Double = 1.0): Point[_3D] = {
-    Point(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
+    Point(gen(offset, scale), gen(offset, scale), gen(offset, scale))
   }
 
   def randomVector(offset: Double = 0.0, scale: Double = 1.0): EuclideanVector[_3D] = {
-    EuclideanVector(rgen(offset, scale), rgen(offset, scale), rgen(offset, scale))
+    EuclideanVector(gen(offset, scale), gen(offset, scale), gen(offset, scale))
   }
 
   private def randomTriangle(offset: Double, scale: Double): Triangle = {
     val a = randomVector(offset, scale)
     val b = randomVector(offset, scale)
     val c = randomVector(offset, scale)
-    Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+    Triangle(a, b, c)
+  }
+
+  def uniform(min: Double = 50.0, max: Double = 50.0): Double = { rnd.scalaRandom.nextDouble() * (max - min) + min }
+
+  def createCoLinearTriangle(): Triangle = {
+    val b = EuclideanVector(uniform(), uniform(), uniform())
+    val m = EuclideanVector(uniform(), uniform(), uniform())
+    Triangle(b + m * uniform(), b + m * uniform(), b + m * uniform())
+  }
+
+  def createSinglePointTriangle(): Triangle = {
+    val b = EuclideanVector(uniform(), uniform(), uniform())
+    Triangle(b, b, b)
   }
 
   def aeqV[D](a: EuclideanVector[D], b: EuclideanVector[D], theta: Double = 1.0e-8): Boolean = {
@@ -58,14 +71,14 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
   describe("The SurfaceDistance") {
 
     it("should use correct barycentric coordinate for points on a line") {
-      (0 until 100) foreach { j =>
+      (0 until 100) foreach { _ =>
         val pairs = IndexedSeq((0.0, 1.0), (10.0, 10.0), (100.0, 100.0), (-10.0, 10.0))
         pairs.foreach { pair =>
           val a = randomVector(pair._1, pair._2)
           val b = randomVector(pair._1, pair._2)
 
-          (0 until 100) foreach { i =>
-            val s = rgen()
+          (0 until 100) foreach { _ =>
+            val s = gen()
 
             val p = a + (b - a) * s
             val res = BSDistance.toLineSegment(p, a, b)
@@ -95,19 +108,19 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should use correct barycentric coordinate for points away from the line") {
-      (0 until 100) foreach { j =>
+      (0 until 100) foreach { _ =>
         val pairs = IndexedSeq((0.0, 1.0), (10.0, 10.0), (100.0, 100.0), (-10.0, 10.0))
         pairs.foreach { pair =>
           val a = randomVector(pair._1, pair._2)
           val b = randomVector(pair._1, pair._2)
 
-          (0 until 100) foreach { i =>
-            val s = rgen()
+          (0 until 100) foreach { _ =>
+            val s = gen()
             val ab = b - a
             val k = ab + randomVector()
             val n = ab.crossproduct(k)
             val p1 = a + ab * s
-            val p = p1 + n * rgen(pair._1, pair._2)
+            val p = p1 + n * gen(pair._1, pair._2)
             val res = BSDistance.toLineSegment(p, a, b)
             if ((b - a).norm2 < Double.MinPositiveValue) {
               res.bc._1 shouldBe 0.5 +- 1.0e-8
@@ -135,16 +148,16 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should return the correct barycentric coordinates in a triangle") {
-      (0 until 100) foreach { j =>
+      (0 until 100) foreach { _ =>
         val pairs = IndexedSeq((0, 1), (10, 10), (100, 100), (-10, 10))
         pairs.foreach { pair =>
           val tri = randomTriangle(pair._1, pair._2)
-          (0 until 100) foreach { i =>
-            val s = rgen()
-            val t = (1.0 - s) * rgen()
+          (0 until 100) foreach { _ =>
+            val s = gen()
+            val t = (1.0 - s) * gen()
 
             val pt = tri.a + tri.ab * s + tri.ac * t
-            val p = pt + tri.n * rgen(pair._1, pair._2)
+            val p = pt + tri.n * gen(pair._1, pair._2)
 
             val ct = BSDistance.toTriangle(p, tri)
             val resT = ct.bc
@@ -160,13 +173,13 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should use correct barycentric coordinates for points in triangle plane ") {
-      (0 until 100) foreach { j =>
+      (0 until 100) foreach { _ =>
         val pairs = IndexedSeq((0.0, 1.0), (10.0, 10.0), (100.0, 100.0), (-10.0, 10.0))
         pairs.foreach { pair =>
           val tri = randomTriangle(pair._1, pair._2)
-          (0 until 100) foreach { i =>
-            val s = rgen()
-            val t = rgen()
+          (0 until 100) foreach { _ =>
+            val s = gen()
+            val t = gen()
 
             val p = tri.a + tri.ab * s + tri.ac * t
 
@@ -179,15 +192,15 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should use correct barycentric coordinates for points outside the triangle plane") {
-      (0 until 100) foreach { j =>
+      (0 until 100) foreach { _ =>
         val pairs = IndexedSeq((0, 1), (10, 10), (100, 100), (-10, 10))
         pairs.foreach { pair =>
           val tri = randomTriangle(pair._1, pair._2)
-          (0 until 100) foreach { i =>
-            val s = rgen()
-            val t = rgen()
+          (0 until 100) foreach { _ =>
+            val s = gen()
+            val t = gen()
 
-            val p = tri.a + tri.ab * s + tri.ac * t + tri.n * rgen(pair._1, pair._2)
+            val p = tri.a + tri.ab * s + tri.ac * t + tri.n * gen(pair._1, pair._2)
 
             val res = BSDistance.calculateBarycentricCoordinates(tri, p)
             s shouldBe res._1 +- 1.0e-8
@@ -198,22 +211,106 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
+    it("should use reasonable barycentric coordinates for triangles with three times the same point") {
+
+      def test(tri: Triangle): Unit = {
+        for (x <- BigDecimal(0) to BigDecimal(2) by BigDecimal(0.1)) {
+          val p = EuclideanVector(x.toDouble, 0, 1)
+          val bc = BSDistance.calculateBarycentricCoordinates(tri, p)
+          (bc._1 + bc._2 + bc._3) shouldBe 1.0 +- 1.0e-8
+          val epsilon = 1.0e-12
+          bc._1 should be(1.0 +- epsilon)
+          bc._2 should be(0.0 +- epsilon)
+          bc._3 should be(0.0 +- epsilon)
+        }
+      }
+
+      for (_ <- 0 until 20) { test(createSinglePointTriangle()) }
+    }
+
+    it("should use reasonable barycentric coordinates for triangles with only co-linear points") {
+
+      def test(
+        tri: Triangle,
+        pt: EuclideanVector[_3D]) = {
+        val bc = BSDistance.calculateBarycentricCoordinates(tri, pt)
+        (bc._1 + bc._2 + bc._3) shouldBe 1.0 +- 1.0e-8
+        val epsilon = 1.0e-12
+        bc._1 should be >= 0.0 - epsilon
+        bc._1 should be <= 1.0 + epsilon
+        bc._2 should be >= 0.0 - epsilon
+        bc._2 should be <= 1.0 + epsilon
+        bc._3 should be >= 0.0 - epsilon
+        bc._3 should be <= 1.0 + epsilon
+      }
+
+      for (_ <- 0 until 40) {
+        val tri = createCoLinearTriangle()
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+
+      {
+        val tri = Triangle(EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0))
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+
+      {
+
+        val tri = Triangle(EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0))
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+      {
+
+        val tri = Triangle(EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0))
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+      {
+
+        val tri = Triangle(EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0))
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+      {
+
+        val tri = Triangle(EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0))
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+      {
+
+        val tri = Triangle(EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0))
+        test(tri, tri.a)
+        test(tri, tri.b)
+        test(tri, tri.c)
+      }
+    }
+
     it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
 
-      val points = for (i <- 0 until 10000) yield randomPoint()
+      val points = for (_ <- 0 until 10000) yield randomPoint()
       val pd = UnstructuredPointsDomain(points)
 
       val md = DiscreteSpatialIndex.fromPointList(points)
 
-      (0 until 100) foreach { i =>
+      (0 until 100) foreach { _ =>
         val p = randomPoint()
 
         val vpt = pd.findClosestPoint(p)
-        val vdist = (vpt.point - p).norm2
+        val vd = (vpt.point - p).norm2
 
         val cp = md.closestPoint(p)
 
-        vdist shouldBe cp.distanceSquared
+        vd shouldBe cp.distanceSquared
         vpt.point shouldBe cp.point
       }
 
@@ -221,12 +318,12 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles") {
 
-      val triangles = (0 until 100) map { j =>
+      val triangles = (0 until 100) map { _ =>
         // test if two function lead to same cp
         val a = randomVector()
         val b = randomVector()
         val c = randomVector()
-        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+        Triangle(a, b, c)
       }
 
       val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
@@ -238,7 +335,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
       ))
 
-      (0 until 1000) foreach { i =>
+      (0 until 1000) foreach { _ =>
         val p = randomVector()
 
         // findClosestPoint from UnstructuredPointsDomain
@@ -253,12 +350,12 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should return the same closest point on surface result when processing points in parallel") {
 
-      val triangles = (0 until 100) map { j =>
+      val triangles = (0 until 100) map { _ =>
         // test if two function lead to same cp
         val a = randomVector()
         val b = randomVector()
         val c = randomVector()
-        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+        Triangle(a, b, c)
       }
 
       val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
@@ -266,7 +363,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
       ))
 
-      val queries = (0 until 100000) map { i =>
+      val queries = (0 until 100000) map { _ =>
         randomVector()
       }
 
@@ -284,12 +381,12 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should return the same closest point result when processing points in parallel") {
 
-      val triangles = (0 until 100) map { j =>
+      val triangles = (0 until 100) map { _ =>
         // test if two function lead to same cp
         val a = randomVector()
         val b = randomVector()
         val c = randomVector()
-        Triangle(a, b, c, b - a, c - a, (b - a).crossproduct(c - a))
+        Triangle(a, b, c)
       }
 
       val sd = DiscreteSpatialIndex.fromMesh(TriangleMesh3D(
@@ -297,7 +394,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
       ))
 
-      val queries = (0 until 100000) map { i =>
+      val queries = (0 until 100000) map { _ =>
         randomVector()
       }
 
@@ -313,6 +410,22 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
+    it("should create correct bounding spheres with values for center and radius which do not contain NaN.") {
+      import scala.language.implicitConversions
+      implicit def toPointId(i: Int): PointId = PointId(i)
+
+      def test(
+        tri: Triangle) = {
+        val sphere = Sphere.fromTriangle(tri)
+        sphere.r2.isNaN shouldBe false
+        sphere.center.x.isNaN shouldBe false
+        sphere.center.y.isNaN shouldBe false
+        sphere.center.z.isNaN shouldBe false
+      }
+
+      for (_ <- 0 until 40) { test(createCoLinearTriangle()) }
+      for (_ <- 0 until 40) { test(createSinglePointTriangle()) }
+    }
   }
 
   describe("The BoundingSphere") {
@@ -337,7 +450,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         }
       }
 
-      val centers = (0 until 10000) map { i =>
+      val centers = (0 until 10000) map { _ =>
         randomVector()
       }
       val list = centers.sortBy(a => a(1)).zipWithIndex
@@ -355,5 +468,4 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
   }
-
 }

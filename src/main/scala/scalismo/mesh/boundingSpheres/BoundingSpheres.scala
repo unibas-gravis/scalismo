@@ -67,13 +67,9 @@ private[mesh] object BoundingSpheres {
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
-      val ab = b - a
-      val ac = c - a
 
       new Triangle(
-        a, b, c,
-        ab, ac,
-        ab.crossproduct(ac)
+        a, b, c
       )
 
     }
@@ -154,7 +150,7 @@ private[mesh] object BoundingSpheres {
     val ab = b.center - a.center
     val dist2 = ab.norm2
 
-    val (newCenter, newRadius) = if (dist2 < Double.MinPositiveValue) {
+    val (nc, nr) = if (dist2 < Double.MinPositiveValue) {
       // both have same center
       (a.center, max(a.r2, b.r2) + Double.MinPositiveValue)
     } else {
@@ -170,7 +166,7 @@ private[mesh] object BoundingSpheres {
       ), 2)
       (newCenter, newRadius)
     }
-    new BoundingSphereSplit(newCenter, newRadius, -1, a, b)
+    new BoundingSphereSplit(nc, nr, -1, a, b)
   }
 
   /**
@@ -366,10 +362,24 @@ private object Sphere {
     // handle degenerated cases
     if (ab.norm2 < Double.MinPositiveValue) {
       center = aMc
-      radius2 = max((aMc - a).norm2, (aMc - c).norm2)
+      radius2 = max((center - a).norm2, (center - c).norm2)
     } else if (ac.norm2 < Double.MinPositiveValue || bc.norm2 < Double.MinPositiveValue) {
       center = aMb
-      radius2 = max((aMb - a).norm2, (aMb - b).norm2)
+      radius2 = max((center - a).norm2, (center - b).norm2)
+    } else if (abs(ab.normalize.dot(ac.normalize)) == 1.0) {
+      // all points on same line
+      val lengths = Seq(("ab", ab.norm), ("ac", ac.norm), ("bc", bc.norm))
+      lengths.maxBy(_._2)._1 match {
+        case "ab" =>
+          center = aMb
+          radius2 = max((center - a).norm2, (center - b).norm2)
+        case "ac" =>
+          center = aMc
+          radius2 = max((center - a).norm2, (center - c).norm2)
+        case "bc" =>
+          center = (b + c) * 0.5
+          radius2 = max((center - b).norm2, (center - c).norm2)
+      }
     } else {
       // non degenerated case
 
