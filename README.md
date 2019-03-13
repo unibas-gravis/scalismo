@@ -37,7 +37,7 @@ We welcome contributions to scalismo. Please check the [Contributor's guide](con
 We are also always grateful if you report bugs or if give us feedback on how you use scalismo in your work and how you think we can improve it. 
 
 ## Maintainers
-The project is currently developed and maintained by the Graphics and Vision Research group, University of Basel. 
+The project is developed and maintained by the [Graphics and Vision Research group](https://gravis.dmi.unibas.ch), [University of Basel](https://www.unibas.ch) in collaboration with [Shapemeans GmbH](https://www.shapemeans.com).
 The current maintainers of the project (people who can merge pull requests) are: 
 
 * [Ghazi Bouabene](https://github.com/ghazi-bouabene)
