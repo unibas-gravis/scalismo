@@ -22,7 +22,7 @@ import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
 import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
-import scalismo.numerics.Sampler
+import scalismo.numerics.{PivotedCholesky, Sampler}
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{Eigenpair => DiscreteEigenpair, _}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.utils.{Memoize, Random}
@@ -416,17 +416,22 @@ object DiscreteLowRankGaussianProcess {
   }
 
   /**
-   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given sample of continuous vector fields using Principal Component Analysis.
+   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated
+   * from the given sample of continuous vector fields using Principal Component Analysis.
    *
    */
   def createUsingPCA[D: NDSpace, DDomain <: DiscreteDomain[D], Value](domain: DDomain,
-    fields: Seq[Field[D, Value]])(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
+                                                                      fields: Seq[Field[D, Value]],
+                                                                      stoppingCriterion : PivotedCholesky.StoppingCriterion)
+                                                                     (implicit vectorizer: Vectorizer[Value])
+  : DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
+
     val dim = vectorizer.dim
 
     val n = fields.size
     val p = domain.numberOfPoints
 
-    // create the data matrix
+    // create the data matrix - note, it will be manipulated inplace
     val X = DenseMatrix.zeros[Double](n, p * dim)
     for (p1 <- fields.zipWithIndex.par; p2 <- domain.pointsWithId) {
       val (f, i) = p1
@@ -435,26 +440,37 @@ object DiscreteLowRankGaussianProcess {
       X(i, ptId.id * dim until (ptId.id + 1) * dim) := ux.t
     }
 
-    def demean(X: DenseMatrix[Double]): (DenseMatrix[Double], DenseVector[Double]) = {
-      val X0 = X // will be the demeaned result matrix
-      val m: DenseVector[Double] = breeze.stats.mean(X0(::, *)).inner
-      for (i <- 0 until X0.rows) {
-        X0(i, ::) := X0(i, ::) - m.t
-      }
-      (X0, m)
+    // demean the data matrix
+    val m: DenseVector[Double] = breeze.stats.mean(X(::, *)).inner
+    for (i <- 0 until X.rows) {
+      X(i, ::) := X(i, ::) - m.t
     }
 
-    val (x0, meanVec) = demean(X)
-    val SVD(u, d2, vt) = breeze.linalg.svd(x0 * x0.t * (1.0 / (n - 1)))
+    // Whether it is more efficient to compute the PCA using the gram matrix or the covariance matrix, depends on
+    // whether we have more examples than variables.
+    val (basisMat, varianceVector) = if (X.rows > X.cols) {
+      val (u, d2) = PivotedCholesky.computeApproximateEig(X.t * X * (1.0 / (n - 1)), 1.0, stoppingCriterion)
+      (u, d2)
+    } else {
 
-    val D = d2.map(v => Math.sqrt(v))
-    val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)
+      val (v, d2) = PivotedCholesky.computeApproximateEig(X * X.t * (1.0 / (n - 1)), 1.0, stoppingCriterion)
+      val vt = v.t
 
-    // a Matrix with the eigenvectors
-    val U: DenseMatrix[Double] = x0.t * vt.t * breeze.linalg.diag(Dinv) / Math.sqrt(n - 1)
+      val D = d2.map(v => Math.sqrt(v))
+      val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)
 
-    new DiscreteLowRankGaussianProcess(domain, meanVec, d2, U)
+      // The following is an efficient version to compute vt.t * diag(DInv) / Math.sqrt(n - 1)
+      for (i <- 0 until Dinv.length) {
+        v(::, i) := v(::, i) * Dinv(i) / Math.sqrt( n - 1)
+      }
 
+      // The final basis matrix is commputed based on the data matrix and v
+      val U: DenseMatrix[Double] = X.t * vt.t
+      (U, d2)
+
+    }
+
+    new DiscreteLowRankGaussianProcess(domain, m, varianceVector, basisMat)
   }
 
   private def genericRegressionComputations[D: NDSpace, Dom <: DiscreteDomain[D], Value](gp: DiscreteLowRankGaussianProcess[D, Dom, Value], trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]) = {
