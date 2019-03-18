@@ -35,36 +35,54 @@ case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
 
 case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
 
-  override def outputDim = implicitly[NDSpace[D]].dimensionality // TODO check if thats correct
+  override val outputDim = NDSpace[D].dimensionality
 
-  override def domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
+  override val domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
 
-  val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
+  private val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
+  private val normFactorMu = (1.0 / (ts.size))
+  private val normFactorCov = (1.0 / (ts.size - 1))
 
   def mu(x: Point[D]): DenseVector[Double] = {
-    var meanDisplacement = DenseVector.zeros[Double](outputDim)
-    var i = 0
-    while (i < ts.size) {
-      val t = ts_memoized(i)
-      meanDisplacement = meanDisplacement + (t(x) - x).toBreezeVector
-      i += 1
+
+    val meanDisplacement = DenseVector.zeros[Double](outputDim)
+
+    for (t <- ts_memoized) {
+      var i = 0;
+      val tx = t(x)
+      while (i < outputDim) {
+        meanDisplacement(i) += tx(i) - x(i)
+        i += 1
+      }
     }
-    meanDisplacement * (1.0 / ts.size)
+    meanDisplacement * normFactorMu
   }
 
-  val mu_memoized = Memoize(mu, cacheSizeHint)
+  private val mu_memoized = Memoize(mu, cacheSizeHint)
 
   override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
-    var ms = DenseMatrix.zeros[Double](outputDim, outputDim)
-    var i = 0
-    while (i < ts.size) {
-      val t = ts_memoized(i)
-      val ux = (t(x) - x).toBreezeVector
-      val uy = (t(y) - y).toBreezeVector
-      ms = ms + (ux - mu_memoized(x)) * ((uy - mu_memoized(y)).t)
-      i += 1
+    val ms = DenseMatrix.zeros[Double](outputDim, outputDim)
+
+    val mux = mu_memoized(x)
+    val muy = mu_memoized(y)
+
+    for (t <- ts_memoized) {
+      val tx = t(x)
+      val ty = t(y)
+
+      var i = 0
+      while (i < outputDim) {
+        var j = 0
+
+        while (j < outputDim) {
+          ms(i, j) = ms(i, j) + (tx(i) - x(i) - mux(i)) * (ty(j) - y(j) - muy(j))
+          j += 1
+        }
+        i += 1
+
+      }
     }
-    ms * (1.0 / (ts.size - 1))
+    ms * normFactorCov
   }
 
 }
