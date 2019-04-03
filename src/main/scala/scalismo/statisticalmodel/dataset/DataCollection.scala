@@ -128,7 +128,10 @@ object DataCollection {
    */
   def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File)(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
-    val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield { MeshIO.readMesh(meshFn) })
+    val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield {
+      val fullMesh = MeshIO.readMesh(meshFn)
+      fullMesh.map(m => TriangleMesh3D(m.pointSet,referenceMesh.triangulation))
+    })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
     (dc, ioErrors ++ meshErrors)
   }
