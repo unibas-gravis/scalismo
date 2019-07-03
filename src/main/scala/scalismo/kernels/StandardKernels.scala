@@ -63,19 +63,29 @@ case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]],
   override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
     val ms = DenseMatrix.zeros[Double](outputDim, outputDim)
 
+    // cache the mean values as computation of these takes time
     val mux = mu_memoized(x)
     val muy = mu_memoized(y)
 
     for (t <- ts_memoized) {
+      // transformed points
       val tx = t(x)
       val ty = t(y)
 
+      // the corresponding deformations
+      val ux = tx - x
+      val uy = ty - y
+
+      // the following two loops compute the outer product of (ux - mux)(uy - muy).
+      // since the matrices are tiny, it seems to be most efficient to do the computation by hand,
+      // and thus avoid allocating many small objects.
       var i = 0
       while (i < outputDim) {
         var j = 0
 
         while (j < outputDim) {
-          ms(i, j) = ms(i, j) + (tx(i) - x(i) - mux(i)) * (ty(j) - y(j) - muy(j))
+
+          ms(i, j) = ms(i, j) + (ux(i) - mux(i)) * (uy(j) - muy(j))
           j += 1
         }
         i += 1
