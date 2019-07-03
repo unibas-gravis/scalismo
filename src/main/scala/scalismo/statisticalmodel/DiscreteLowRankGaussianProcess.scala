@@ -454,7 +454,6 @@ object DiscreteLowRankGaussianProcess {
     } else {
 
       val (v, d2) = PivotedCholesky.computeApproximateEig(X * X.t * (1.0 / (n - 1)), 1.0, stoppingCriterion)
-      val vt = v.t
 
       val D = d2.map(v => Math.sqrt(v))
       val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)
@@ -465,7 +464,7 @@ object DiscreteLowRankGaussianProcess {
       }
 
       // The final basis matrix is commputed based on the data matrix and v
-      val U: DenseMatrix[Double] = X.t * vt.t
+      val U: DenseMatrix[Double] = X.t * v
       (U, d2)
 
     }
