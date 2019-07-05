@@ -66,16 +66,29 @@ abstract class DiscreteImageDomain[D: NDSpace] extends DiscreteDomain[D] with Eq
   //def pointToIndex(p: Point[D]): Index[D]
 
   /**
-   * a rectangular region that represents the area over which an image is defined by the points
-   * that represent this image.
+   * a rectangular region that represents the area, which defines the bounding box of the points that make up the
+   * image domain. Warning: This is by one "Voxel" smaller than the region on which the image is defined, as each point
+   * of the domain represents one "voxel".
    *
    * The bounding box origin is always the lower left corner of the image domain, which might be different
    * from the image domain's origin if it is not RAI oriented.
    *
    * An important assumption here is that all images in Scalismo are oriented along the spatial axis (i.e. no oblique images.
    * These are handled at IO by resampling to axis oriented images).
+   *
+   * @see imageBoundingBox
    */
   override def boundingBox: BoxDomain[D]
+
+  /**
+   * a rectangular region over which the image is defined.
+   */
+  def imageBoundingBox: BoxDomain[D] = {
+    // The image bounding box is 1*spacing larger than the bounding box of the point of the domain, as
+    // every point of the domain represents one voxel.
+    val bb = boundingBox
+    BoxDomain(bb.origin, bb.oppositeCorner + spacing)
+  }
 
   /** true if the point is part of the grid points */
   override def isDefinedAt(pt: Point[D]): Boolean = {
