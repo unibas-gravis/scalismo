@@ -22,7 +22,7 @@ import scalismo.common._
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
-import scalismo.numerics.FixedPointsUniformMeshSampler3D
+import scalismo.numerics.{ FixedPointsUniformMeshSampler3D, PivotedCholesky }
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.dataset.DataCollection
@@ -221,15 +221,6 @@ object StatisticalMeshModel {
   }
 
   /**
-   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
-   *
-   */
-  def createUsingPCA(referenceMesh: TriangleMesh[_3D], fields: Seq[Field[_3D, EuclideanVector[_3D]]]): StatisticalMeshModel = {
-    val dgp: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]] = DiscreteLowRankGaussianProcess.createUsingPCA(referenceMesh.pointSet, fields)
-    new StatisticalMeshModel(referenceMesh, dgp)
-  }
-
-  /**
    *  @deprecated
    *  Biasmodel can now be approximated before and the augment method is just an addition of two lowrank Gaussian processes.
    *  Please use approximate the biasModel before as a LowRankGaussianProcess and use the new method to create the bias model.
@@ -280,14 +271,34 @@ object StatisticalMeshModel {
   /**
    * Returns a PCA model with given reference mesh and a set of items in correspondence.
    * All points of the reference mesh are considered for computing the PCA
+   *
+   * Per default, the resulting mesh model will have rank (i.e. number of principal components) corresponding to
+   * the number of linearly independent fields. By providing an explicit stopping criterion, one can, however,
+   * compute only the leading principal components. See PivotedCholesky.StoppingCriterion for more details.
    */
-  def createUsingPCA(dc: DataCollection): Try[StatisticalMeshModel] = {
+  def createUsingPCA(dc: DataCollection, stoppingCriterion: PivotedCholesky.StoppingCriterion = PivotedCholesky.RelativeTolerance(0)): Try[StatisticalMeshModel] = {
     if (dc.size < 3) return Failure(new Throwable(s"A data collection with at least 3 transformations is required to build a PCA Model (only ${dc.size} were provided)"))
 
     val fields = dc.dataItems.map { i =>
       Field[_3D, EuclideanVector[_3D]](i.transformation.domain, p => i.transformation(p) - p)
     }
-    Success(createUsingPCA(dc.reference, fields))
+    Success(createUsingPCA(dc.reference, fields, stoppingCriterion))
+  }
+
+  /**
+   * Creates a new Statistical mesh model, with its mean and covariance matrix estimated from the given fields.
+   *
+   * Per default, the resulting mesh model will have rank (i.e. number of principal components) corresponding to
+   * the number of linearly independent fields. By providing an explicit stopping criterion, one can, however,
+   * compute only the leading principal components. See PivotedCholesky.StoppingCriterion for more details.
+   *
+   */
+  def createUsingPCA(referenceMesh: TriangleMesh[_3D], fields: Seq[Field[_3D, EuclideanVector[_3D]]],
+    stoppingCriterion: PivotedCholesky.StoppingCriterion): StatisticalMeshModel = {
+
+    val dgp: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]] =
+      DiscreteLowRankGaussianProcess.createUsingPCA(referenceMesh.pointSet, fields, stoppingCriterion)
+    new StatisticalMeshModel(referenceMesh, dgp)
   }
 
 }
