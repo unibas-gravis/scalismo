@@ -16,7 +16,7 @@
 
 package scalismo.common.interpolation
 
-import scalismo.common.{ DiscreteField, Field }
+import scalismo.common.{ BoxDomain, DiscreteField, Field }
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
 import scalismo.numerics.ValueInterpolator
@@ -79,7 +79,7 @@ case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImage
       )
     }
 
-    Field(domain.boundingBox, interpolatePoint)
+    Field(domain.imageBoundingBox, interpolatePoint)
   }
 }
 
@@ -121,7 +121,7 @@ case class LinearImageInterpolator2D[A: ValueInterpolator]() extends LinearImage
       )
     }
 
-    Field(domain.boundingBox, interpolatePoint)
+    Field(df.domain.imageBoundingBox, interpolatePoint)
   }
 }
 
@@ -174,6 +174,6 @@ case class LinearImageInterpolator3D[A: ValueInterpolator]() extends LinearImage
       c
     }
 
-    Field(domain.boundingBox, interpolatePoint)
+    Field(domain.imageBoundingBox, interpolatePoint)
   }
 }
