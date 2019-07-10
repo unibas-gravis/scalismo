@@ -16,7 +16,7 @@
 package scalismo.utils
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{ Point, _2D, _3D }
 
 import scala.collection.immutable.IndexedSeq
 
@@ -86,7 +86,9 @@ class VantagePointTreeTests extends ScalismoTestSuite {
       val rpoints = IndexedSeq.fill(nQuery)(randomPoint)
       val vpClosest = rpoints.map(p => t.findKNearestNeighbours(p, k))
       val listClosest = rpoints.map(p => points.sortBy(metric(_, p)).take(k))
-      vpClosest should contain theSameElementsAs listClosest
+      // for each query point we should find the same k neighbors
+      for { (vp, lin) <- vpClosest zip listClosest }
+        vp should contain theSameElementsAs lin
     }
 
     it("finds all neighbours within an epsilon region around random points") {
@@ -97,6 +99,29 @@ class VantagePointTreeTests extends ScalismoTestSuite {
       vpClosest.zip(listClosest).foreach {
         case (vpLookUp, linLookUp) => vpLookUp should contain theSameElementsAs linLookUp
       }
+    }
+
+    it("finds all neighbours within an epsilon region around tree points") {
+      val eps = 0.2
+      val rpoints = points.take(nQuery)
+      val vpClosest = rpoints.map(p => t.findEpsilonNeighbours(p, eps))
+      val listClosest = rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
+      for { (vp, lin) <- vpClosest zip listClosest }
+        vp should contain theSameElementsAs lin
+    }
+
+    it("finds all points within epsilon distance in a small tree") {
+      // regression test: possible issue is usage of a partial ordering in the CandidateSet
+      // used SortedSet which assumed elements with same distance to be equal (even if different point)
+      val points = IndexedSeq(
+        Point(0.0, 0.0),
+        Point(0.0, 1.0),
+        Point(0.0, 2.0)
+      )
+      val tree = VantagePointTree(points, Metric[Point[_2D]]((p, q) => (p - q).norm))
+
+      val epsSet = tree.findEpsilonNeighbours(Point(0.0, 1.0), 4.0)
+      epsSet should contain theSameElementsAs points
     }
 
     it("finding 1 nearest neighbour is equivalent to findClosestPoint") {
