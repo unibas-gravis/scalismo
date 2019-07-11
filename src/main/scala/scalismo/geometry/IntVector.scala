@@ -16,7 +16,7 @@
 package scalismo.geometry
 
 import breeze.linalg.DenseVector
-import spire.algebra.Rng
+import spire.algebra.{ CRing, Rng }
 
 import scala.language.implicitConversions
 
@@ -114,12 +114,13 @@ object IntVector {
   }
 
   /** spire Module implementation for Index (no scalar division) */
-  implicit def spireModule[D: NDSpace] = new spire.algebra.Module[IntVector[D], Int] {
-    override implicit def scalar: Rng[Int] = Rng[Int]
+  implicit def spireModule[D: NDSpace] = new spire.algebra.CModule[IntVector[D], Int] {
+    override implicit def scalar: CRing[Int] = CRing[Int]
     override def timesl(r: Int, v: IntVector[D]): IntVector[D] = v.map(i => i * r)
     override def negate(x: IntVector[D]): IntVector[D] = x.map(i => -i)
     override def zero: IntVector[D] = zeros[D]
     override def plus(x: IntVector[D], y: IntVector[D]): IntVector[D] = x.mapWithIndex((v, i) => v + y(i))
+
   }
 
   object implicits {
