@@ -16,7 +16,7 @@
 package scalismo.geometry
 
 import breeze.linalg.DenseVector
-import spire.algebra.{ CRing, Rng }
+import spire.algebra.CRing
 
 import scala.language.implicitConversions
 

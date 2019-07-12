@@ -13,13 +13,13 @@ import com.typesafe.sbt.SbtGit.useJGit
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildScalaVersion = "2.12.6"
+  val buildScalaVersion = "2.12.8"
 
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.11.12", "2.12.6"),
+    crossScalaVersions := Seq("2.11.12", "2.12.18", "2.13.0"),
     javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2,  11)) => Seq("-source", "1.6", "-target", "1.6")
       case _ => Seq("-source", "1.8", "-target", "1.8")
@@ -44,10 +44,10 @@ object Resolvers {
 
 object Dependencies {
   import BuildSettings.scalismoPlatform
-  val scalatest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.0.8" % "test"
   val breezeMath = "org.scalanlp" %% "breeze" % "1.0-RC3"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "1.0-RC3"
-  val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.5"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test"
 

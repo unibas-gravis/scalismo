@@ -411,8 +411,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should create correct bounding spheres with values for center and radius which do not contain NaN.") {
-      import scala.language.implicitConversions
-      implicit def toPointId(i: Int): PointId = PointId(i)
 
       def test(
         tri: Triangle) = {

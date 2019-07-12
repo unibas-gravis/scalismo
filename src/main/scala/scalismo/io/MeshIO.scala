@@ -25,7 +25,6 @@ import scalismo.mesh._
 import scalismo.utils.MeshConversion
 import vtk._
 
-import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.{ Failure, Success, Try }

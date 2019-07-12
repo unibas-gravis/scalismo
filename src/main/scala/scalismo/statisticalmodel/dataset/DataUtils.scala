@@ -21,7 +21,7 @@ import scalismo.registration.Transformation
 
 import scala.util.{ Failure, Success, Try }
 
-private object DataUtils {
+private[scalismo] object DataUtils {
   /**
    * Partitions a list os possible transformation (tries) into those that succeeded and those who failed
    */
