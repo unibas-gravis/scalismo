@@ -796,18 +796,20 @@ case class AnisotropicScalingSpace[D: NDSpace]() extends TransformationSpace[D] 
  * The order of the rigid transform in this case is also fixed : first rotate then translate.
  *
  */
-trait AnisotropicSimilarityTransformation[D] extends CompositeTransformation[D] with CanInvert[D]
+trait AnisotropicSimilarityTransformation[D] extends CompositeTransformation[D] with CanInvert[D] {
+  override def inverse : AnisotropicSimilarityTransformation[D]
+}
 
 private class RigidTransformationThenAnisotropicScaling[D: NDSpace](anisotropicScaling: AnisotropicScalingTransformation[D], rigidTransform: RigidTransformation[D])
     extends CompositeTransformation[D](anisotropicScaling, rigidTransform) with AnisotropicSimilarityTransformation[D] {
 
-  def inverse: AnisotropicScalingThenRigidTransformation[D] = new AnisotropicScalingThenRigidTransformation[D](rigidTransform.inverse, anisotropicScaling.inverse)
+  override def inverse: AnisotropicScalingThenRigidTransformation[D] = new AnisotropicScalingThenRigidTransformation[D](rigidTransform.inverse, anisotropicScaling.inverse)
 }
 
 private class AnisotropicScalingThenRigidTransformation[D: NDSpace](rigidTransform: RigidTransformation[D], anisotropicScaling: AnisotropicScalingTransformation[D])
     extends CompositeTransformation[D](rigidTransform, anisotropicScaling) with AnisotropicSimilarityTransformation[D] {
 
-  def inverse: RigidTransformationThenAnisotropicScaling[D] = new RigidTransformationThenAnisotropicScaling[D](anisotropicScaling.inverse, rigidTransform.inverse)
+  override def inverse: RigidTransformationThenAnisotropicScaling[D] = new RigidTransformationThenAnisotropicScaling[D](anisotropicScaling.inverse, rigidTransform.inverse)
 }
 
 /**

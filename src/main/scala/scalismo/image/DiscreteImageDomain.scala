@@ -122,8 +122,7 @@ abstract class DiscreteImageDomain[D: NDSpace] extends DiscreteDomain[D] with Eq
   }
 
   private def pointToContinuousIndex(pt: Point[D]): EuclideanVector[D] = {
-    val data = (0 until dimensionality).map(i => (pt(i) - origin(i)) / spacing(i))
-    EuclideanVector[D](data.toArray)
+    physicalCoordinateToContinuousIndex(pt).toVector
   }
 
   def indexToPoint(i: IntVector[D]) = indexToPhysicalCoordinateTransform(Point[D](i.toArray.map(_.toDouble)))
@@ -132,6 +131,7 @@ abstract class DiscreteImageDomain[D: NDSpace] extends DiscreteDomain[D] with Eq
 
   /** the anisotropic similarity transform that maps between the index and physical coordinates*/
   private[scalismo] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
+  private[scalismo] def physicalCoordinateToContinuousIndex: AnisotropicSimilarityTransformation[D]
 
   /**
    * *
@@ -228,6 +228,8 @@ object DiscreteImageDomain {
 //
 case class DiscreteImageDomain1D(size: IntVector[_1D], indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D]) extends DiscreteImageDomain[_1D] {
 
+  override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
+
   override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
   private val iVecImage: EuclideanVector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
   override val spacing = EuclideanVector1D(iVecImage.norm.toFloat)
@@ -268,6 +270,8 @@ case class DiscreteImageDomain2D(size: IntVector[_2D], indexToPhysicalCoordinate
     val p = indexToPhysicalCoordinateTransform(Point(0, 0))
     Point2D(p(0), p(1))
   }
+
+  override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
 
   private val iVecImage: EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(Point(0, 0))
   private val jVecImage: EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(Point(0, 0))
@@ -316,6 +320,8 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
     val p = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
     Point3D(p(0), p(1), p(2))
   }
+
+  override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
 
   private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
   override val spacing = EuclideanVector3D(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
