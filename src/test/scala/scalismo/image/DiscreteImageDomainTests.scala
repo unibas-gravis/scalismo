@@ -25,8 +25,11 @@ import scalismo.geometry.Point.implicits._
 import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
 import scalismo.io.ImageIO
+import scalismo.utils.Random
 
 class DiscreteImageDomainTests extends ScalismoTestSuite {
+
+  implicit val rng = Random(42)
 
   describe("a discreteImageDomain domain") {
     it("correctly reports the number of points") {
@@ -128,6 +131,22 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       val idx = IntVector(5, 3, 7)
       val recIdx = domain.index(domain.pointId(idx))
       assert(recIdx === idx)
+    }
+
+    it("correctly computes closest points") {
+
+      // this test implicitly tests also the method pointToContinuousIndex
+
+      val domain = DiscreteImageDomain[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 0.0), (42, 49, 74))
+
+      val distx = rng.breezeRandBasis.uniform.map(u => domain.spacing(0) * 0.4)
+      val disty = rng.breezeRandBasis.uniform.map(u => domain.spacing(1) * 0.4)
+      val distz = rng.breezeRandBasis.uniform.map(u => domain.spacing(2) * 0.4)
+
+      for (pt <- domain.points) {
+        val perturbedPoint = Point(pt.x + distx.draw(), pt.y + disty.draw(), pt.z + distz.draw())
+        domain.findClosestPoint(perturbedPoint).point should equal(pt)
+      }
     }
 
     it("domains with same parameters yield the same anisotropic similarity transform ") {

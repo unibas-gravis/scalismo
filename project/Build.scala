@@ -22,7 +22,7 @@ object BuildSettings {
     crossScalaVersions := Seq("2.11.12", "2.12.6"),
     javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2,  11)) => Seq("-source", "1.6", "-target", "1.6")
-      case _ => Seq()
+      case _ => Seq("-source", "1.8", "-target", "1.8")
     }),
     scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2,  11)) =>  Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.6")
