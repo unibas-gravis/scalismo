@@ -19,6 +19,7 @@ package scalismo.mesh.kdtree
 import scalismo.geometry.{NDSpace, Point}
 
 import scala.annotation.tailrec
+import scala.Ordering.Double.IeeeOrdering
 
 /**
  * DimensionalOrdering is a trait whose instances each represent a strategy for ordering instances

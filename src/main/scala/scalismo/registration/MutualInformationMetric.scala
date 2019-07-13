@@ -25,6 +25,7 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.utils.{ Memoize, Random }
 
 import scala.collection.parallel.CollectionConverters._
+import scala.Ordering.Float.IeeeOrdering
 
 /**
  * Implementation of the Mutual Information Metric, described in the following paper:

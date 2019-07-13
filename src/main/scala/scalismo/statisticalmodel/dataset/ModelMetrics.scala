@@ -7,6 +7,7 @@ import scalismo.utils.Random
 
 import scala.util.{ Failure, Success, Try }
 import scala.collection.parallel.CollectionConverters._
+import scala.Ordering.Double.IeeeOrdering
 
 /**
  * Implements utility functions for evaluating the quality of a [[StatisticalMeshModel]]

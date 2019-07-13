@@ -28,6 +28,7 @@ import scalismo.utils.Random
 import scala.util.{ Failure, Try }
 
 import scala.collection.parallel.CollectionConverters._
+import scala.Ordering.Double.IeeeOrdering
 
 object ActiveShapeModel {
   type TrainingData = Iterator[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]

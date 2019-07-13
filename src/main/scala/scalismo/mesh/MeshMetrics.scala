@@ -21,6 +21,8 @@ import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
 import scalismo.utils.Random
 
+import Ordering.Double.IeeeOrdering
+
 /**
  * Implements utility methods for evaluating similarity of [[TriangleMesh]] instances
  *

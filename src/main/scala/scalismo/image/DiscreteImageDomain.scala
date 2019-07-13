@@ -19,6 +19,7 @@ import breeze.linalg.{ DenseMatrix, DenseVector, diag }
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.registration.{ AnisotropicSimilarityTransformation, AnisotropicSimilarityTransformationSpace, RotationSpace }
+import Ordering.Double.IeeeOrdering
 
 import scala.language.implicitConversions
 

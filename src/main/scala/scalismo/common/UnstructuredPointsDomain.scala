@@ -21,10 +21,11 @@ import scalismo.geometry._
 import scalismo.mesh.kdtree.{ KDTreeMap, RegionBuilder }
 import scala.collection.parallel.CollectionConverters._
 import scala.language.implicitConversions
+import Ordering.Double.IeeeOrdering
 
 sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scalismo] (private[scalismo] val pointSequence: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
 
-  override def points: Iterator[Point[D]] = pointSequence.toIterator
+  override def points: Iterator[Point[D]] = pointSequence.iterator
   override def numberOfPoints = pointSequence.size
 
   override def point(id: PointId) = pointSequence(id.id)

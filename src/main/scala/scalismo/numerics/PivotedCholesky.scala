@@ -24,6 +24,7 @@ import scalismo.kernels.{ MatrixValuedPDKernel, PDKernel }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.CollectionConverters._
+import scala.Ordering.Double.IeeeOrdering
 
 /**
  * Result object for the pivoted cholesky of a matrix A

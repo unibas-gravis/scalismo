@@ -21,6 +21,7 @@ import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.TriangleMesh3D
 
 import scala.annotation.tailrec
+import Ordering.Double.IeeeOrdering
 
 /**
  * The idea is that we wrap all elementes in hierarchical spheres as we usually can handle queries to a sphere very easily.
@@ -199,7 +200,7 @@ private[mesh] object BoundingSpheres {
 
         val chosen: Array[Boolean] = choosePointPairsAndUpdateMatchedIndex(closestPointPairs, sortedPoints, matchedPoints)
         val stillActive = chosen.zipWithIndex.filter(s => !s._1).map(t => sortedPoints(t._2))
-        matchPoints(stillActive, matchedPoints)
+        matchPoints(stillActive.toIndexedSeq, matchedPoints)
 
     }
   }

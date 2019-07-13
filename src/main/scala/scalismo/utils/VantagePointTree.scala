@@ -16,6 +16,7 @@
 package scalismo.utils
 
 import scala.collection.mutable
+import scala.Ordering.Double.IeeeOrdering
 
 /** represents a metric to be used with the Vantage Point tree */
 trait Metric[A] {
