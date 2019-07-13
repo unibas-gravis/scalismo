@@ -201,7 +201,7 @@ class ImageIOTests extends ScalismoTestSuite {
         val oq = o.header.qform_to_mat44()
         val nq = n.header.qform_to_mat44
 
-        oq.deep should equal(nq.deep)
+        oq.toSeq.sameElements(nq.toSeq)
         om.toString() should equal(nm.toString())
 
         val oh = {
@@ -215,7 +215,7 @@ class ImageIOTests extends ScalismoTestSuite {
           val data = for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data.get(i, j, k, d)
           data.hashCode()
         }
-        val nh = n.dataAsScalarArray[Short].map[Double](_.toDouble).iterator.toArray.deep.hashCode()
+        val nh = n.dataAsScalarArray[Short].map[Double](_.toDouble).iterator.toArray.toSeq.hashCode()
         nh should equal(oh)
       }
 

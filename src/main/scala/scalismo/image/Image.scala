@@ -20,7 +20,7 @@ import scalismo.geometry._
 import scalismo.image.filter.Filter
 import scalismo.numerics.{ GridSampler, Integrator }
 import scalismo.registration.{ CanDifferentiate, Transformation }
-
+import scala.collection.parallel.CollectionConverters._
 import scala.reflect.ClassTag
 
 /**

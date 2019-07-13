@@ -28,6 +28,7 @@ import scalismo.numerics.{ GridSampler, UniformSampler }
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
+import scala.collection.parallel.CollectionConverters._
 
 class GaussianProcessTests extends ScalismoTestSuite {
 

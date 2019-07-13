@@ -27,6 +27,7 @@ import scalismo.mesh.TriangleMesh._
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.statisticalmodel.StatisticalMeshModel
 
+import scala.collection.parallel.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
 
 object StatisticalModelIO {

@@ -48,7 +48,7 @@ private case class BC(var a: Double, var b: Double)
 /**
  * Collection of helper classes and functions for bounding spheres.
  */
-private object BSDistance {
+private[mesh] object BSDistance {
 
   /**
    * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.

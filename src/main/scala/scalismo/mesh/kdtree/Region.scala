@@ -78,7 +78,7 @@ private[scalismo] class RegionBuilder[A] {
   def build: Region[A] = regions.length match {
     case 0 => EntireSpace()
     case 1 => regions.head
-    case _ => RegionIntersection(regions)
+    case _ => RegionIntersection(regions.toSeq)
   }
 }
 

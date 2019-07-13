@@ -25,7 +25,6 @@ import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
 
-import scala.collection.immutable
 import scala.util.{ Failure, Success, Try }
 
 object ActiveShapeModelIO {
@@ -124,7 +123,11 @@ object ActiveShapeModelIO {
       meanArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Means}")
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
-      val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m.map(_.toDouble), c.map(_.toDouble)) }.to[immutable.IndexedSeq]
+      val dists = meanVecs.zip(covMats).map {
+        case (m, c) => new MultivariateNormalDistribution(
+          m.map(_.toDouble), c.map(_.toDouble)
+        )
+      }.toIndexedSeq
       val profiles = dists.zip(pointIds).map { case (d, id) => Profile(PointId(id), d) }
       new Profiles(profiles)
     }

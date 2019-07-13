@@ -29,7 +29,7 @@ case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
 
 class HDF5File(h5file: FileFormat) extends Closeable {
 
-  override def close() { h5file.close() }
+  override def close(): Unit = { h5file.close() }
 
   def exists(path: String): Boolean = h5file.get(path) != null
 

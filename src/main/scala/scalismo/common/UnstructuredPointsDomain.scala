@@ -19,7 +19,7 @@ package scalismo.common
 import scalismo.common.UnstructuredPointsDomain.Create
 import scalismo.geometry._
 import scalismo.mesh.kdtree.{ KDTreeMap, RegionBuilder }
-
+import scala.collection.parallel.CollectionConverters._
 import scala.language.implicitConversions
 
 sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scalismo] (private[scalismo] val pointSequence: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
@@ -68,7 +68,9 @@ sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scali
     pointIDMap.get(pt)
   }
 
-  override def transform(transform: Point[D] => Point[D]): UnstructuredPointsDomain[D] = UnstructuredPointsDomain(pointSequence.par.map(transform).toIndexedSeq)
+  override def transform(transform: Point[D] => Point[D]): UnstructuredPointsDomain[D] = {
+    UnstructuredPointsDomain(pointSequence.par.map(transform).toIndexedSeq)
+  }
 
 }
 
