@@ -18,7 +18,7 @@ jdk:
 #  - rm -f $HOME/.ivy2/.*.lock $HOME/.ivy2/*.lock
 
 scala:
-  - 2.12.1
+  - 2.13.0
 
 script:
   - travis_wait sbt ++$TRAVIS_SCALA_VERSION update
