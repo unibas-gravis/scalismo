@@ -19,10 +19,10 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
-import scalismo.geometry.{EuclideanVector, EuclideanVector2D, EuclideanVector3D, IntVector2D, IntVector3D, Point2D, Point3D, _2D, _3D}
-import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
-import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.geometry.{ EuclideanVector, EuclideanVector2D, EuclideanVector3D, IntVector2D, IntVector3D, Point2D, Point3D, _2D, _3D }
+import scalismo.image.{ DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
@@ -96,7 +96,6 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     firstEntry.modelType should equal(StatismoIO.StatismoModelType.Polygon_Mesh)
     firstEntry.modelPath should equal("/")
   }
-
 
   describe("a deformation model") {
     it("can be created, saved and reread in 3D") {

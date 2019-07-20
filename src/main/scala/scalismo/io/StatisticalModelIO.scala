@@ -18,99 +18,91 @@ package scalismo.io
 import java.io._
 import java.util.Calendar
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`._
-import scalismo.common.{PointId, UnstructuredPointsDomain, Vectorizer}
-import scalismo.geometry.{EuclideanVector, IntVector, NDSpace, Point, _2D, _3D}
-import scalismo.image.{CreateDiscreteImageDomain, DiscreteImageDomain}
+import scalismo.common.{ PointId, UnstructuredPointsDomain, Vectorizer }
+import scalismo.geometry.{ EuclideanVector, IntVector, NDSpace, Point, _2D, _3D }
+import scalismo.image.{ CreateDiscreteImageDomain, DiscreteImageDomain }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
 import scalismo.mesh.TriangleMesh._
-import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
+import scalismo.statisticalmodel.{ DiscreteLowRankGaussianProcess, StatisticalMeshModel }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object StatisticalModelIO {
 
   /**
-    * Reads a statistical mesh model. The file type is determined
-    * based on the extension. Currently on the Scalismo format (.h5)
-    * is supported.
-    *
-    * @param file The statismo file
-    * @return A StatisticalMeshModel or the Failure
-    */
+   * Reads a statistical mesh model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param file The statismo file
+   * @return A StatisticalMeshModel or the Failure
+   */
   def readStatisticalMeshModel(file: File): Try[StatisticalMeshModel] = {
     // currently, we support only the statismo format
     StatismoIO.readStatismoMeshModel(file, "/")
   }
 
   /**
-    * Writes a statistical mesh model. The file type is determined
-    * based on the extension. Currently on the Scalismo format (.h5)
-    * is supported.
-    *
-    * @param model The statistical model
-    * @param file  The file to which the model is written
-    * @return In case of Failure, the Failure is returned.
-    */
+   * Writes a statistical mesh model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param model The statistical model
+   * @param file  The file to which the model is written
+   * @return In case of Failure, the Failure is returned.
+   */
   def writeStatisticalMeshModel(model: StatisticalMeshModel, file: File): Try[Unit] = {
     // currently, we support only the statismo format
     StatismoIO.writeStatismoMeshModel(model, file, "/")
   }
 
-
   /**
-    * Reads a model of 2D deformation fields defined on a 2D image domain
-    * @param file the file from which the model is read
-    * @return a 2D deformation model
-    */
-  def readDeformationModel2D(file: java.io.File)
-  : Try[DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain[_2D], EuclideanVector[_2D]]] = {
+   * Reads a model of 2D deformation fields defined on a 2D image domain
+   * @param file the file from which the model is read
+   * @return a 2D deformation model
+   */
+  def readDeformationModel2D(file: java.io.File): Try[DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain[_2D], EuclideanVector[_2D]]] = {
     StatismoIO.readStatismoImageModel[_2D, EuclideanVector[_2D]](file, "/")
   }
 
   /**
-    * Reads a model of 3D deformation fields defined on a 3D image domain
-    * @param file the file from which the model is read
-    * @return a 3D deformation model
-    */
-  def readDeformationModel3D(file: java.io.File)
-  : Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain[_3D], EuclideanVector[_3D]]] = {
+   * Reads a model of 3D deformation fields defined on a 3D image domain
+   * @param file the file from which the model is read
+   * @return a 3D deformation model
+   */
+  def readDeformationModel3D(file: java.io.File): Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain[_3D], EuclideanVector[_3D]]] = {
     StatismoIO.readStatismoImageModel[_3D, EuclideanVector[_3D]](file, "/")
   }
 
   /**
-    * Writes a model of 2D deformation fields defined on a 2D image domain
-    *
-    * @param gp the deformation model
-    * @param file the file to which the model is written
-    * @return Success if model could be read, Failure otherwise
-    */
-  def writeDeformationModel2D
-  (
+   * Writes a model of 2D deformation fields defined on a 2D image domain
+   *
+   * @param gp the deformation model
+   * @param file the file to which the model is written
+   * @return Success if model could be read, Failure otherwise
+   */
+  def writeDeformationModel2D(
     gp: DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain[_2D], EuclideanVector[_2D]],
-    file: File
-  ): Try[Unit] = {
+    file: File): Try[Unit] = {
     StatismoIO.writeStatismoImageModel[_2D, EuclideanVector[_2D]](gp, file, "/")
   }
 
   /**
-    * Writes a model of 3D deformation fields defined on a 3D image domain
-    *
-    * @param gp the deformation model
-    * @param file the file to which the model is written
-    * @return Success if model could be read, Failure otherwise
-    */
-  def writeDeformationModel3D
-  (
+   * Writes a model of 3D deformation fields defined on a 3D image domain
+   *
+   * @param gp the deformation model
+   * @param file the file to which the model is written
+   * @return Success if model could be read, Failure otherwise
+   */
+  def writeDeformationModel3D(
     gp: DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain[_3D], EuclideanVector[_3D]],
-    file: File
-  ): Try[Unit] = {
+    file: File): Try[Unit] = {
     StatismoIO.writeStatismoImageModel[_3D, EuclideanVector[_3D]](gp, file, "/")
   }
 }
-
 
 object StatismoIO {
 
@@ -395,29 +387,25 @@ object StatismoIO {
     } map (_ => tmpfile)
   }
 
-
-
   //===============================================================
   // Reading and writing of deformation models
   //===============================================================
 
   /**
-    * Writes a GP defined on an image domain with values of type A
-    * as a statismo file.
-    *
-    * @param gp the gaussian process
-    * @param file the file to which it is written
-    * @param modelPath an optional path into the hdf5 file
-    * @tparam D the dimensionality of the domain
-    * @tparam A The type of the values of the Gaussian process
-    * @return Success of failure
-    */
-  def writeStatismoImageModel[D : NDSpace, A : Vectorizer]
-  (
-    gp : DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A],
-    file : File,
-    modelPath : String
-  ) : Try[Unit] = {
+   * Writes a GP defined on an image domain with values of type A
+   * as a statismo file.
+   *
+   * @param gp the gaussian process
+   * @param file the file to which it is written
+   * @param modelPath an optional path into the hdf5 file
+   * @tparam D the dimensionality of the domain
+   * @tparam A The type of the values of the Gaussian process
+   * @return Success of failure
+   */
+  def writeStatismoImageModel[D: NDSpace, A: Vectorizer](
+    gp: DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A],
+    file: File,
+    modelPath: String): Try[Unit] = {
 
     val discretizedMean = gp.meanVector.map(_.toFloat)
     val variance = gp.variance.map(_.toFloat)
@@ -451,14 +439,11 @@ object StatismoIO {
     maybeError
   }
 
-
-  private def writeImageRepresenter[D : NDSpace, A : Vectorizer]
-  (
+  private def writeImageRepresenter[D: NDSpace, A: Vectorizer](
     h5file: HDF5File,
     group: Group,
-    gp : DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A],
-    modelPath: String
-  ): Try[Unit] = {
+    gp: DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A],
+    modelPath: String): Try[Unit] = {
 
     val dim = NDSpace[D].dimensionality
 
@@ -469,7 +454,7 @@ object StatismoIO {
     val vectorizer = implicitly[Vectorizer[A]]
     val pixelValues = DenseVector.zeros[Float](domain.numberOfPoints * vectorizer.dim)
 
-    val direction = NDArray(IndexedSeq(dim,dim), domain.directions.toBreezeMatrix.flatten(false).toArray.map(_.toFloat))
+    val direction = NDArray(IndexedSeq(dim, dim), domain.directions.toBreezeMatrix.flatten(false).toArray.map(_.toFloat))
     val imageDimension: Int = domain.dimensionality
     val origin: Array[Float] = domain.origin.toBreezeVector.toArray.map(_.toFloat)
     val spacing: Array[Float] = domain.spacing.toBreezeVector.toArray.map(_.toFloat)
@@ -480,11 +465,11 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version", "0.1")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "IMAGE")
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/direction", direction)
-      _ <- h5file.writeFloat(s"$modelPath/modelinfo/scores",0f)
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/imageDimension", NDArray(IndexedSeq(1,1),Array(imageDimension)))
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/size", NDArray(IndexedSeq(dim, 1),size))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/origin", NDArray(IndexedSeq(dim, 1),origin))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/spacing", NDArray(IndexedSeq(dim, 1),spacing))
+      _ <- h5file.writeFloat(s"$modelPath/modelinfo/scores", 0f)
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/imageDimension", NDArray(IndexedSeq(1, 1), Array(imageDimension)))
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/size", NDArray(IndexedSeq(dim, 1), size))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/origin", NDArray(IndexedSeq(dim, 1), origin))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/spacing", NDArray(IndexedSeq(dim, 1), spacing))
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/pointData/pixelValues", NDArray(IndexedSeq(dim, domain.numberOfPoints), pixelValues.toArray))
       _ <- h5file.writeInt(s"$modelPath/representer/pointData/pixelDimension", domain.dimensionality)
       _ <- h5file.writeIntAttribute(s"$modelPath/representer/pointData/pixelValues", "datatype", 10)
@@ -492,20 +477,18 @@ object StatismoIO {
     } yield Success(())
   }
 
-
   /**
-    * Reads a GP defined on an image domain with values of type A
-    * from a statismo file.
-    *
-    * @param file the file from which to read
-    * @param modelPath an optional path into the hdf5 file, from where the model should be read
-    * @tparam D the dimensinality of the domain
-    * @tparam A the type of the values that the GP represents
-    *
-    * @return The gaussian process (wrapped in a Success) or Failure.
-    */
-  def readStatismoImageModel[D : NDSpace : CreateDiscreteImageDomain, A : Vectorizer](file : java.io.File, modelPath : String = "/")
-  : Try[DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A]] = {
+   * Reads a GP defined on an image domain with values of type A
+   * from a statismo file.
+   *
+   * @param file the file from which to read
+   * @param modelPath an optional path into the hdf5 file, from where the model should be read
+   * @tparam D the dimensinality of the domain
+   * @tparam A the type of the values that the GP represents
+   *
+   * @return The gaussian process (wrapped in a Success) or Failure.
+   */
+  def readStatismoImageModel[D: NDSpace: CreateDiscreteImageDomain, A: Vectorizer](file: java.io.File, modelPath: String = "/"): Try[DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A]] = {
 
     def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Float], pcaVarianceVector: DenseVector[Float]): DenseMatrix[Float] = {
       // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
@@ -571,7 +554,6 @@ object StatismoIO {
       //      val refpointsVec = flatten(image.points.toIndexedSeq)
       //      val meanDefVector = meanVector - refpointsVec
 
-
       val gp = new DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A](
         image,
         meanVector.map(_.toDouble),
@@ -586,7 +568,7 @@ object StatismoIO {
 
   }
 
-  private def readImageRepresenter[D : NDSpace : CreateDiscreteImageDomain](h5file: HDF5File, modelPath: String) : Try[DiscreteImageDomain[D]] = {
+  private def readImageRepresenter[D: NDSpace: CreateDiscreteImageDomain](h5file: HDF5File, modelPath: String): Try[DiscreteImageDomain[D]] = {
 
     val dim = NDSpace[D].dimensionality
 
@@ -620,7 +602,6 @@ object StatismoIO {
 
   }
 
-
   private def ndArrayFloatToMatrix(array: NDArray[Float]) = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
@@ -632,6 +613,5 @@ object StatismoIO {
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
-
 
 }
