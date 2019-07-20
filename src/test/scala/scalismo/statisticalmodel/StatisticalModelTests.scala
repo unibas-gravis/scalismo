@@ -23,7 +23,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.StatismoIO
 import scalismo.mesh.MeshMetrics
-import scalismo.registration.{RigidTransformation, RigidTransformationSpace}
+import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -100,7 +100,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val coeffs = model.coefficients(randomMesh)
 
       val correspondingSampleDecimatedModel = decimatedModel.instance(coeffs)
-      decimatedModel.referenceMesh.pointSet.numberOfPoints should be <(model.referenceMesh.pointSet.numberOfPoints)
+      decimatedModel.referenceMesh.pointSet.numberOfPoints should be < (model.referenceMesh.pointSet.numberOfPoints)
       correspondingSampleDecimatedModel.pointSet.numberOfPoints should equal(decimatedModel.referenceMesh.pointSet.numberOfPoints)
 
       MeshMetrics.hausdorffDistance(randomMesh, correspondingSampleDecimatedModel) < 1

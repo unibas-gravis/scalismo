@@ -16,20 +16,20 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.numerics.sqrt
 import scalismo.common._
 import scalismo.common.interpolation.TriangleMeshInterpolator
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
-import scalismo.numerics.{FixedPointsUniformMeshSampler3D, PivotedCholesky}
+import scalismo.numerics.{ FixedPointsUniformMeshSampler3D, PivotedCholesky }
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -192,11 +192,11 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
   }
 
   /**
-    * Changes the number of vertices on which the model is defined
-    * @param targetNumberOfVertices  The desired number of vertices
-    * @return The new model
-    */
-  def decimate(targetNumberOfVertices : Int) : StatisticalMeshModel = {
+   * Changes the number of vertices on which the model is defined
+   * @param targetNumberOfVertices  The desired number of vertices
+   * @return The new model
+   */
+  def decimate(targetNumberOfVertices: Int): StatisticalMeshModel = {
 
     val newReference = referenceMesh.operations.decimate(targetNumberOfVertices)
     val interpolator = TriangleMeshInterpolator[EuclideanVector[_3D]](referenceMesh)
