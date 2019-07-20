@@ -21,6 +21,7 @@ import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
+import scalismo.image.DiscreteImageDomain
 import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{PivotedCholesky, Sampler}
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{Eigenpair => DiscreteEigenpair, _}
@@ -537,4 +538,3 @@ object DiscreteLowRankGaussianProcess {
   }
 
 }
-
