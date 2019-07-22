@@ -82,6 +82,30 @@ trait Field[D, A] extends Function1[Point[D], A] { self =>
 
 }
 
+trait DifferentiableField[D, A, dA] extends Field[D, A] { self =>
+
+  protected[scalismo] val df: Point[D] => dA
+
+  def differentiate: Field[D, dA] = {
+    Field(domain, df)
+  }
+}
+
+object DifferentiableField {
+  def apply[D, A, dA](domain: Domain[D], f: Point[D] => A, df: Point[D] => dA): DifferentiableField[D, A, dA] = {
+
+    val outerdf = df
+    val outerf = f
+    val outerdomain = domain
+
+    new DifferentiableField[D, A, dA] {
+      override protected[scalismo] val df: Point[D] => dA = outerdf
+      override protected[scalismo] val f: Point[D] => A = outerf
+      override def domain: Domain[D] = outerdomain
+    }
+  }
+}
+
 /**
  * A scalar valued field.
  */

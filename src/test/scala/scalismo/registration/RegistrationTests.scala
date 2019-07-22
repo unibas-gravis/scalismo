@@ -18,6 +18,7 @@ package scalismo.registration
 import java.io.File
 
 import breeze.linalg.DenseVector
+import scalismo.common.interpolation.{ BSplineImageInterpolator2D, BSplineImageInterpolator3D }
 import scalismo.{ ScalismoTestSuite, numerics }
 import scalismo.common.{ Field, NearestNeighborInterpolator, PointId, RealSpace }
 import scalismo.geometry._
@@ -174,7 +175,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](2))
       val transformationSpace = TranslationSpace[_2D]
       val translationParams = DenseVector[Double](-10.0, 5.0)
       val translationTransform = transformationSpace.transformForParameters(translationParams)
@@ -196,7 +197,7 @@ class RegistrationTests extends ScalismoTestSuite {
     it("Recovers the correct parameters for a rotation transform") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
       val domain = discreteFixedImage.domain
       val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
       val transformationSpace = RotationSpace[_2D](center)
@@ -220,7 +221,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
 
       val domain = discreteFixedImage.domain
       val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
@@ -253,7 +254,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
 
       val domain = discreteFixedImage.domain
 
@@ -287,7 +288,7 @@ class RegistrationTests extends ScalismoTestSuite {
   describe("A 3D image registration") {
     val testImgUrl = getClass.getResource("/3ddm.nii").getPath
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(testImgUrl)).get
-    val fixedImage = discreteFixedImage.interpolate(3)
+    val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator3D[Float](3))
 
     val transformationSpace = TranslationSpace[_3D]
     val domain = discreteFixedImage.domain

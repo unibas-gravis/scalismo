@@ -19,6 +19,7 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
+import scalismo.common.interpolation.{ BSplineImageInterpolator2D, BSplineImageInterpolator3D }
 import scalismo.io.ImageIO
 
 class ResampleTests extends ScalismoTestSuite {
@@ -30,7 +31,7 @@ class ResampleTests extends ScalismoTestSuite {
 
     // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the
     // pixel values at the strong edges - and we thus could not formulate a reasonable test
-    val continuousImage = discreteImage.interpolate(1)
+    val continuousImage = discreteImage.interpolate(BSplineImageInterpolator2D[Short](1))
 
     it("yields the original discrete image") {
       val resampledImage = continuousImage.sample[Short](discreteImage.domain, 0)
@@ -44,7 +45,7 @@ class ResampleTests extends ScalismoTestSuite {
   describe("Resampling a 3D image") {
     val path = getClass.getResource("/3dimage.nii").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = discreteImage.interpolate(0)
+    val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("yields the original discrete image") {
       val resampledImage = continuousImage.sample[Short](discreteImage.domain, 0)

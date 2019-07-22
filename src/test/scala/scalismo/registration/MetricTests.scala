@@ -20,11 +20,12 @@ import _root_.java.io.File
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
+import scalismo.common.interpolation.{ BSplineImageInterpolator2D }
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{ DiscreteImageDomain, DifferentiableScalarImage }
+import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
 import scalismo.io.ImageIO
-import scalismo.numerics.{ LBFGSOptimizer, GridSampler, UniformSampler }
+import scalismo.numerics.{ GridSampler, LBFGSOptimizer, UniformSampler }
 import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
@@ -48,7 +49,7 @@ class MetricTests extends ScalismoTestSuite {
     val testImgURL = getClass.getResource("/dm128.vtk").getPath
 
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(testImgURL)).get
-    val fixedImageCont = fixedImage.interpolate(3)
+    val fixedImageCont = fixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
     val translationSpace = TranslationSpace[_2D]
     val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
@@ -95,7 +96,7 @@ class MetricTests extends ScalismoTestSuite {
     val testImgURL = getClass.getResource("/dm128.vtk").getPath
 
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(testImgURL)).get
-    val fixedImageCont = fixedImage.interpolate(3)
+    val fixedImageCont = fixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
     val translationSpace = TranslationSpace[_2D]
     val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
