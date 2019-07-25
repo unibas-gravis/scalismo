@@ -16,11 +16,14 @@ We aim to achieve these properties by leveraging two core technologies:
 
 ## Documentation
 
-* [Quickstart](https://github.com/unibas-gravis/scalismo/wiki/quickstart)
-* [Setup a project using Scalismo](https://github.com/unibas-gravis/scalismo/wiki/Setup-a-project-using-Scalismo)
-* [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
-* [Tutorials on Probabilistic Morphable Models (using Scalismo)](https://gravis.dmi.unibas.ch/PMM/)
+* [Scalismo tutorials](https://unibas-gravis.github.io/scalismo-tutorial/)
 * [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
+
+#### More about the concepts and mathematical methods behind Scalismo
+* [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
+* [Probabilistic Morphable Models](https://gravis.dmi.unibas.ch/PMM/)
+
+
 
 There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
 
@@ -34,7 +37,7 @@ We welcome contributions to scalismo. Please check the [Contributor's guide](con
 We are also always grateful if you report bugs or if give us feedback on how you use scalismo in your work and how you think we can improve it. 
 
 ## Maintainers
-The project is currently developed and maintained by the Graphics and Vision Research group, University of Basel. 
+The project is developed and maintained by the [Graphics and Vision Research group](https://gravis.dmi.unibas.ch), [University of Basel](https://www.unibas.ch) in collaboration with [Shapemeans GmbH](https://www.shapemeans.com).
 The current maintainers of the project (people who can merge pull requests) are: 
 
 * [Ghazi Bouabene](https://github.com/ghazi-bouabene)
