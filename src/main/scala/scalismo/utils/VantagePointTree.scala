@@ -71,9 +71,7 @@ sealed trait VantagePointTree[A] extends Traversable[A] {
 
 /** mutable candidate set for neighbour searches (internal use) */
 private trait CandidateSet[A] {
-  protected case class DistPoint(p: A, dist: Double) extends Ordered[DistPoint] {
-    override def compare(that: DistPoint): Int = if (dist < that.dist) -1 else if (dist > that.dist) 1 else 0
-  }
+  protected case class DistPoint(p: A, dist: Double)
 
   def points: IndexedSeq[A]
 
@@ -84,33 +82,37 @@ private trait CandidateSet[A] {
 
 /** mutable candidate set for k neighbour searches (internal use) */
 private class CandidatesKNN[A](size: Int) extends CandidateSet[A] {
-  private val q = mutable.SortedSet.empty[DistPoint]
+  require(size > 0)
+  // use a PriorityQueue: do *not* use a SortedSet, assumes total ordering (i.e. same distance => equal element)
+  private val q = mutable.PriorityQueue.empty[DistPoint](Ordering.by(_.dist))
 
   /** all points in this candidate set */
-  override def points: IndexedSeq[A] = q.iterator.map(_.p).toIndexedSeq
+  override def points: IndexedSeq[A] = q.toIndexedSeq.sortBy(_.dist).map(_.p)
 
   /** add a new candidate to consider */
   override def addCandidate(point: A, dist: Double): Unit = {
     if (dist <= maxDistance || q.size < size) {
-      q.add(DistPoint(point, dist))
-      while (q.size > size) {
-        q.remove(q.last)
-      }
+      q.enqueue(DistPoint(point, dist))
+    }
+    while (q.size > size) {
+      // remove points that are far away
+      q.dequeue()
     }
   }
 
   /** distance of candidate which is farthest */
-  override def maxDistance = {
+  override def maxDistance: Double = {
     if (q.size >= size)
-      q.lastOption.map(_.dist).getOrElse(Double.PositiveInfinity)
+      q.head.dist
     else
+      // queue is not yet full, freely add points
       Double.PositiveInfinity
   }
 }
 
 /** mutable candidate set for epsilon neighbour searches (internal use) */
 private class CandidatesEpsRegion[A](override val maxDistance: Double) extends CandidateSet[A] {
-  private val q = mutable.SortedSet.empty[DistPoint]
+  private val q = mutable.Set.empty[DistPoint]
 
   /** all points in this candidate set */
   override def points: IndexedSeq[A] = q.iterator.map(_.p).toIndexedSeq
