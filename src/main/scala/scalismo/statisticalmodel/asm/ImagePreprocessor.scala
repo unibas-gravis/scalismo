@@ -124,7 +124,7 @@ object GaussianGradientImagePreprocessor {
  * @param stddev the standard deviation (in millimeters) to use for the gaussian blur filter. Set to 0 to disable blurring.
  * @param ioMetadata IO Metadata
  */
-case class GaussianGradientImagePreprocessor(stddev: Float, override val ioMetadata: IOMetadata = GaussianGradientImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
+case class GaussianGradientImagePreprocessor(stddev: Double, override val ioMetadata: IOMetadata = GaussianGradientImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
@@ -165,7 +165,7 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
   override def save(t: ImagePreprocessor, h5File: HDF5File, h5Group: Group): Try[Unit] = {
     val groupName = h5Group.getFullName
     t match {
-      case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev)
+      case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev.toFloat)
       case _ => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
     }
   }
