@@ -138,21 +138,21 @@ class DifferentiableProductTransformationSpace[D, OT <: ParametricTransformation
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
 
-    val split = splitProductParameterVector(p)
-    val outerTransform = outer.transformForParameters(split._1)
+    val (outerParams, innerParams) = splitProductParameterVector(p)
+    val outerTransform = outer.transformForParameters(outerParams)
     (x: Point[D]) => {
       DenseMatrix.horzcat(
-        outer.takeDerivativeWRTParameters(split._1)(x),
-        outerTransform.takeDerivative(inner.transformForParameters(split._2)(x)).toBreezeMatrix * inner.takeDerivativeWRTParameters(split._2)(x))
+        outer.takeDerivativeWRTParameters(outerParams)(x),
+        outerTransform.takeDerivative(inner.transformForParameters(innerParams)(x)).toBreezeMatrix * inner.takeDerivativeWRTParameters(innerParams)(x))
     }
   }
 
   protected def splitProductParameterVector(p: ParameterVector): (ParameterVector, ParameterVector) = {
 
-    val pthisD = DenseVector(p.data.take(outer.parametersDimensionality))
-    val pthatD = DenseVector(p.data.drop(outer.parametersDimensionality))
+    val outerParams = DenseVector(p.data.take(outer.parametersDimensionality))
+    val innerParams = DenseVector(p.data.drop(outer.parametersDimensionality))
 
-    (pthisD, pthatD)
+    (outerParams, innerParams)
   }
 }
 
@@ -195,21 +195,21 @@ class ProductTransformationSpace[D, OT <: ParametricTransformation[D] with CanDi
 
   override def takeDerivativeWRTParameters(p: ParameterVector) = {
 
-    val split = splitProductParameterVector(p)
-    val outerTransform  = outer.transformForParameters(split._1)
+    val (outerParams, innerParams) = splitProductParameterVector(p)
+    val outerTransform  = outer.transformForParameters(outerParams)
     (x: Point[D]) => {
       DenseMatrix.horzcat(
-        outer.takeDerivativeWRTParameters(split._1)(x),
-        outerTransform.takeDerivative(inner.transformForParameters(split._2)(x)).toBreezeMatrix * inner.takeDerivativeWRTParameters(split._2)(x))
+        outer.takeDerivativeWRTParameters(outerParams)(x),
+        outerTransform.takeDerivative(inner.transformForParameters(innerParams)(x)).toBreezeMatrix * inner.takeDerivativeWRTParameters(innerParams)(x))
     }
   }
 
   protected def splitProductParameterVector(p: ParameterVector): (ParameterVector, ParameterVector) = {
 
-    val pthisD = DenseVector(p.data.take(outer.parametersDimensionality))
-    val pthatD = DenseVector(p.data.drop(outer.parametersDimensionality))
+    val outerParams = DenseVector(p.data.take(outer.parametersDimensionality))
+    val innerParams = DenseVector(p.data.drop(outer.parametersDimensionality))
 
-    (pthisD, pthatD)
+    (outerParams, innerParams)
   }
 }
 
