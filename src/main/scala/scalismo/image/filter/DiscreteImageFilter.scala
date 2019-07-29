@@ -81,7 +81,7 @@ object DiscreteImageFilter {
   /**
    * Smoothing of an image using a Gaussian filter kernel with the given stddev
    */
-  def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A], stddev: Float)(implicit vtkConversion: CanConvertToVtk[D]): DiscreteScalarImage[D, A] = {
+  def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A], stddev: Double)(implicit vtkConversion: CanConvertToVtk[D]): DiscreteScalarImage[D, A] = {
 
     val vtkImg = vtkConversion.toVtk[A](img)
     val dim = img.dimensionality
