@@ -18,14 +18,14 @@ package scalismo.registration
 import java.io.File
 
 import breeze.linalg.DenseVector
-import scalismo.{ScalismoTestSuite, numerics}
-import scalismo.common.{Field, NearestNeighborInterpolator, PointId, RealSpace}
+import scalismo.{ ScalismoTestSuite, numerics }
+import scalismo.common.{ Field, NearestNeighborInterpolator, PointId, RealSpace }
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.io.{ImageIO, MeshIO}
-import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
-import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
+import scalismo.io.{ ImageIO, MeshIO }
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
+import scalismo.numerics.{ GridSampler, LBFGSOptimizer, UniformSampler }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -287,7 +287,6 @@ class RegistrationTests extends ScalismoTestSuite {
       }
     }
 
-
     it("Recovers the correct parameters for a composed rigid and gp transform") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
@@ -327,9 +326,6 @@ class RegistrationTests extends ScalismoTestSuite {
         regResult.parameters(i) should be(gtParams(i) +- 0.1)
       }
     }
-
-
-
 
   }
 

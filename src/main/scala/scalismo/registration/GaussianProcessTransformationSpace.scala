@@ -53,7 +53,7 @@ class GaussianProcessTransformationSpace[D] private (gp: LowRankGaussianProcess[
 }
 
 class GaussianProcessTransformation[D] private (gp: LowRankGaussianProcess[D, EuclideanVector[D]], alpha: ParameterVector)
-    extends ParametricTransformation[D]  {
+    extends ParametricTransformation[D] {
 
   val instance = gp.instance(alpha)
   val parameters = alpha
