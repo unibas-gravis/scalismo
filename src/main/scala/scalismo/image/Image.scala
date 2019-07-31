@@ -26,45 +26,40 @@ import scala.reflect.ClassTag
 /**
  * An image whose values are scalar.
  */
-class ScalarImage[D: NDSpace] protected (override val domain: Domain[D], override val f: Point[D] => Float) extends ScalarField[D, Float](domain, f) {
+class ScalarImage[D: NDSpace, A: Scalar: ClassTag] protected (override val domain: Domain[D], override val f: Point[D] => A) extends ScalarField[D, A](domain, f) {
 
   /** adds two images. The domain of the new image is the intersection of both */
-  def +(that: ScalarImage[D]): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) + that.f(x)
-    new ScalarImage(Domain.intersection[D](domain, that.domain), f)
+  def +(that: ScalarImage[D, A]): ScalarImage[D, A] = {
+    val field = super.+(that)
+    new ScalarImage(field.domain, field.f)
   }
 
   /** subtract two images. The domain of the new image is the intersection of the domains of the individual images*/
-  def -(that: ScalarImage[D]): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) - that.f(x)
-    val newDomain = Domain.intersection[D](domain, that.domain)
-    new ScalarImage(newDomain, f)
+  def -(that: ScalarImage[D, A]): ScalarImage[D, A] = {
+    val field = super.-(that)
+    new ScalarImage(field.domain, field.f)
   }
 
   /** element wise multiplication. The domain of the new image is the intersection of the domains of the individual images*/
-  def :*(that: ScalarImage[D]): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) * that.f(x)
-    val newDomain = Domain.intersection[D](domain, that.domain)
-    new ScalarImage(newDomain, f)
+  def :*(that: ScalarImage[D, A]): ScalarImage[D, A] = {
+    val field = super.:*(that)
+    new ScalarImage(field.domain, field.f)
   }
 
   /** scalar multiplication of an image */
-  override def *(s: Double): ScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) * s.toFloat
-    val newDomain = domain
-    new ScalarImage(newDomain, f)
+  override def *(s: Double): ScalarImage[D, Double] = {
+    val field = super.*(s)
+    new ScalarImage(field.domain, field.f)
   }
 
   /** composes (i.e. warp) an image with a transformation. */
-  def compose(t: Point[D] => Point[D]): ScalarImage[D] = {
-    def f(x: Point[D]) = this.f(t(x))
-
-    val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => isDefinedAt(t(pt)))
-    new ScalarImage(newDomain, f)
+  override def compose(t: Point[D] => Point[D]): ScalarImage[D, A] = {
+    val field = super.compose(t)
+    new ScalarImage(field.domain, field.f)
   }
 
   /** applies the given function to the image values */
-  def andThen(g: Float => Float): ScalarImage[D] = {
+  def andThen[B: Scalar: ClassTag](g: A => B): ScalarImage[D, B] = {
     new ScalarImage(domain, f andThen g)
   }
 
@@ -76,7 +71,8 @@ class ScalarImage[D: NDSpace] protected (override val domain: Domain[D], overrid
    * @param  numberOfPointsPerDim Number of points to be used to approximate the filter. Depending on the
    * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation)
    */
-  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D] = {
+  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D, A] = {
+    val scalar = Scalar[A]
 
     val dim = implicitly[NDSpace[D]].dimensionality
     val supportSpacing = filter.support.extent * (1f / numberOfPointsPerDim.toFloat)
@@ -91,11 +87,11 @@ class ScalarImage[D: NDSpace] protected (override val domain: Domain[D], overrid
     def intermediateF(imageX: Point[D])(t: Point[D]): Option[Float] = {
 
       val p = (imageX - t).toPoint
-      lifted(p).map(_ * filter(t))
+      lifted(p).map(v => scalar.toFloat(v) * filter(t))
     }
 
-    def f(imageX: Point[D]) = {
-      integrator.integrateScalar(intermediateF(imageX) _)
+    def f(imageX: Point[D]): A = {
+      scalar.fromFloat(integrator.integrateScalar(intermediateF(imageX) _))
     }
 
     ScalarImage(domain, f)
@@ -105,15 +101,13 @@ class ScalarImage[D: NDSpace] protected (override val domain: Domain[D], overrid
    * Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImage at the domain points.
    * If the image is not defined at a domain point, the outside value is used.
    */
-  def sample[Pixel: Scalar: ClassTag](domain: DiscreteImageDomain[D], outsideValue: Float): DiscreteScalarImage[D, Pixel] = {
-    val numeric = implicitly[Scalar[Pixel]]
-    val convertedOutsideValue = numeric.fromFloat(outsideValue)
+  def sample(domain: DiscreteImageDomain[D], outsideValue: A): DiscreteScalarImage[D, A] = {
 
     val nbChunks = Runtime.getRuntime().availableProcessors() * 2
     val parallelArrays = domain.pointsInChunks(nbChunks).par.map { chunkIterator =>
       chunkIterator.map(pt => {
-        if (isDefinedAt(pt)) numeric.fromFloat(f(pt))
-        else convertedOutsideValue
+        if (isDefinedAt(pt)) f(pt)
+        else outsideValue
       }).toArray
     }
 
@@ -133,53 +127,50 @@ object ScalarImage {
    * @param domain The domain over which the image is defined
    * @param f A function which yields for each point of the domain its value
    */
-  def apply[D: NDSpace](domain: Domain[D], f: Point[D] => Float) = new ScalarImage[D](domain, f)
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A) = new ScalarImage[D, A](domain, f)
 
 }
 
 /**
  * A scalar image that is once differentiable
  */
-class DifferentiableScalarImage[D: NDSpace](_domain: Domain[D], _f: Point[D] => Float, val df: Point[D] => EuclideanVector[D]) extends ScalarImage[D](_domain, _f) {
+class DifferentiableScalarImage[D: NDSpace, A: Scalar: ClassTag](_domain: Domain[D], _f: Point[D] => A, val df: Point[D] => EuclideanVector[D]) extends ScalarImage[D, A](_domain, _f) {
 
   def differentiate: VectorField[D, D] = VectorField(domain, df)
 
-  def +(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) + that.f(x)
+  def +(that: DifferentiableScalarImage[D, A]): DifferentiableScalarImage[D, A] = {
+    val addedField = super.+(that)
     def df = (x: Point[D]) => this.df(x) + that.df(x)
-    new DifferentiableScalarImage(Domain.intersection[D](domain, that.domain), f, df)
+    new DifferentiableScalarImage(addedField.domain, addedField.f, df)
   }
 
-  def -(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) - that.f(x)
+  def -(that: DifferentiableScalarImage[D, A]): DifferentiableScalarImage[D, A] = {
+    val subtractedField = super.-(that)
     def df = (x: Point[D]) => this.df(x) - that.df(x)
-    val newDomain = Domain.intersection[D](domain, that.domain)
-    new DifferentiableScalarImage(newDomain, f, df)
+    new DifferentiableScalarImage(subtractedField.domain, subtractedField.f, df)
   }
 
-  def :*(that: DifferentiableScalarImage[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) * that.f(x)
-    def df = (x: Point[D]) => this.df(x) * that(x) + that.df(x) * this.f(x)
-    val newDomain = Domain.intersection[D](this.domain, that.domain)
-    new DifferentiableScalarImage(newDomain, f, df)
+  def :*(that: DifferentiableScalarImage[D, A]): DifferentiableScalarImage[D, A] = {
+    val scalar = Scalar[A]
+    val mutipliedField = super.:*(that)
+    def df = (x: Point[D]) => this.df(x) * scalar.toDouble(that(x)) + that.df(x) * scalar.toDouble(this.f(x))
+    new DifferentiableScalarImage(mutipliedField.domain, mutipliedField.f, df)
   }
 
-  override def *(s: Double): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]): Float = this.f(x) * s.toFloat
+  override def *(s: Double): DifferentiableScalarImage[D, Double] = {
+    val multipliedField = super.*(s)
     val df = (x: Point[D]) => this.df(x) * s.toFloat
-    val newDomain = domain
-    new DifferentiableScalarImage(newDomain, f, df)
+    new DifferentiableScalarImage(multipliedField.domain, multipliedField.f, df)
   }
 
-  def compose(t: Transformation[D] with CanDifferentiate[D]): DifferentiableScalarImage[D] = {
-    def f(x: Point[D]) = this.f(t(x))
-    val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => this.isDefinedAt(t(pt)))
+  def compose(t: Transformation[D] with CanDifferentiate[D]): DifferentiableScalarImage[D, A] = {
+    val composedField = super.compose(t)
     val df = (x: Point[D]) => t.takeDerivative(x) * this.df(t(x))
 
-    new DifferentiableScalarImage(newDomain, f, df)
+    new DifferentiableScalarImage(composedField.domain, composedField.f, df)
   }
 
-  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): DifferentiableScalarImage[D] = {
+  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): DifferentiableScalarImage[D, A] = {
 
     val convolvedImage = super.convolve(filter, numberOfPointsPerDim)
 
@@ -217,7 +208,7 @@ object DifferentiableScalarImage {
    * @param f a function that yields the intensity for each point of the domain
    * @param df the derivative of the function f
    */
-  def apply[D: NDSpace](domain: Domain[D], f: Point[D] => Float, df: Point[D] => EuclideanVector[D]) = new DifferentiableScalarImage[D](domain, f, df)
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A, df: Point[D] => EuclideanVector[D]) = new DifferentiableScalarImage[D, A](domain, f, df)
 
 }
 

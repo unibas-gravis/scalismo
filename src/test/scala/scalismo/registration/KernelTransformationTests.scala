@@ -125,7 +125,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
         val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt: Point[_1D]) => EuclideanVector(0.0))
 
         val v = integrator.integrateScalar(phiImg)
-        v should be(1f +- 0.1)
+        v should be(1.0 +- 0.1)
       }
     }
 

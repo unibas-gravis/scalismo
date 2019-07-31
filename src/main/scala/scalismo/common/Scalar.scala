@@ -44,6 +44,13 @@ trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
   def toLong(a: S): Long
   def toFloat(a: S): Float
   def toDouble(a: S): Double
+
+  def plus(s1 : S, s2 : S) : S
+  def minus(s1 : S, s2 : S) : S
+  def times(s1 : S, s2 : S) : S
+  def timesDouble(s1 : S, d : Double) : Double
+  def zero : S
+  def one : S
 }
 
 /**
@@ -103,6 +110,12 @@ object Scalar {
     override def fromFloat(n: Float): A = num.fromFloat(n)
     override def fromDouble(n: Double): A = num.fromDouble(n)
 
+    override def plus(s1: A, s2: A): A = num.plus(s1, s2)
+    override def minus(s1: A, s2: A): A = num.minus(s1, s2)
+    override def times(s1: A, s2: A): A = num.times(s1, s2)
+    override def timesDouble(s1: A, d: Double): Double = num.toDouble(s1) * d
+    override def zero: A = num.zero
+    override def one: A = num.one
   }
 
   class UByteIsScalar extends ValueClassScalar[UByte, Byte] {
@@ -123,27 +136,60 @@ object Scalar {
     override def createArray(data: Array[Byte]): ValueClassScalarArray[UByte, Byte] = ValueClassScalarArray(data)(this)
     override def toUnderlying(u: UByte): Byte = u.toByte
     override def fromUnderlying(p: Byte): UByte = UByte(p)
+
+    override def plus(s1: UByte, s2: UByte): UByte = UByte(s1.toByte + s2.toByte)
+    override def minus(s1: UByte, s2: UByte): UByte = UByte(s1.toByte - s2.toByte)
+    override def times(s1: UByte, s2: UByte): UByte = UByte(s1.toByte * s2.toByte)
+    override def timesDouble(s1: UByte, d: Double): Double = s1.toDouble * d
+
+    override def zero: UByte = UByte(0)
+    override def one: UByte = UByte(1)
   }
 
   class UShortIsScalar extends ValueClassScalar[UShort, Char] {
     override def toByte(a: UShort): Byte = a.toByte
+
     override def toShort(a: UShort): Short = a.toShort
+
     override def toInt(a: UShort): Int = a.toInt
+
     override def toLong(a: UShort): Long = a.toLong
+
     override def toFloat(a: UShort): Float = a.toFloat
+
     override def toDouble(a: UShort): Double = a.toDouble
 
     override def fromByte(n: Byte): UShort = UShort(n.toShort)
+
     override def fromShort(n: Short): UShort = UShort(n)
+
     override def fromInt(n: Int): UShort = UShort(n.toShort)
+
     override def fromLong(n: Long): UShort = UShort(n.toShort)
+
     override def fromFloat(n: Float): UShort = UShort(n.toShort)
+
     override def fromDouble(n: Double): UShort = UShort(n.toShort)
 
     override def createArray(data: Array[Char]): ValueClassScalarArray[UShort, Char] = ValueClassScalarArray(data)(this)
+
     override def toUnderlying(u: UShort): Char = u.toChar
+
     override def fromUnderlying(p: Char): UShort = UShort(p)
+
+    override def plus(s1: UShort, s2: UShort): UShort = UShort(s1.toShort + s2.toShort)
+
+    override def minus(s1: UShort, s2: UShort): UShort = UShort(s1.toShort - s2.toShort)
+
+    override def times(s1: UShort, s2: UShort): UShort = UShort(s1.toShort * s2.toShort)
+
+    override def timesDouble(s1: UShort, d: Double): Double = s1.toDouble * d
+
+    override def zero: UShort = UShort(0)
+
+    override def one: UShort = UShort(1)
   }
+
 
   class UIntIsScalar extends ValueClassScalar[UInt, Int] {
     override def toByte(a: UInt): Byte = a.toByte
@@ -164,6 +210,17 @@ object Scalar {
     override def toUnderlying(u: UInt): Int = u.toInt
     override def fromUnderlying(p: Int): UInt = UInt(p)
 
+    override def plus(s1: UInt, s2: UInt): UInt = UInt(s1.toInt + s2.toInt)
+
+    override def minus(s1: UInt, s2: UInt): UInt = UInt(s1.toInt - s2.toInt)
+
+    override def times(s1: UInt, s2: UInt): UInt = UInt(s1.toInt * s2.toInt)
+
+    override def timesDouble(s1: UInt, d: Double): Double = s1.toDouble * d
+
+    override def zero: UInt = UInt(0)
+
+    override def one: UInt = UInt(1)
   }
 
 }

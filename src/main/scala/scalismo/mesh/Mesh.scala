@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import scalismo.common.{ PointId, RealSpace }
 import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
+import scalismo.image.{ DifferentiableScalarImage }
 import scalismo.mesh.boundingSpheres.TriangleMesh3DSpatialIndex
 
 /**
@@ -29,7 +29,7 @@ object Mesh {
    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
   @deprecated("Is moved to TriangleMesh3DMeshOperations.", "0.14")
-  def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableScalarImage[_3D] = {
+  def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableScalarImage[_3D, Float] = {
     val spIndex = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(mesh)
 
     def dist(pt: Point[_3D]): Float = Math.sqrt(spIndex.getSquaredShortestDistance(pt)).toFloat
@@ -40,23 +40,6 @@ object Mesh {
       grad * (1.0 / grad.norm)
     }
     DifferentiableScalarImage(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
-  }
-
-  /**
-   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[RealSpace]] , where the mesh surface is used to split the image domain.
-   * Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
-   * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
-   *
-   */
-  @deprecated("Is moved to TriangleMesh3DMeshOperations.", "0.14")
-  def meshToBinaryImage(mesh: TriangleMesh[_3D]): ScalarImage[_3D] = {
-    def inside(pt: Point[_3D]): Short = {
-      val closestMeshPt = mesh.pointSet.findClosestPoint(pt)
-      val dotprod = mesh.vertexNormals(closestMeshPt.id) dot (closestMeshPt.point - pt)
-      if (dotprod > 0.0) 1 else 0
-    }
-
-    ScalarImage(RealSpace[_3D], (pt: Point[_3D]) => inside(pt))
   }
 
   /**

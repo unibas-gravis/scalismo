@@ -17,7 +17,7 @@
 package scalismo.registration
 
 import breeze.linalg.DenseVector
-import scalismo.common.Domain
+import scalismo.common.{ Domain, Scalar }
 import scalismo.geometry.{ NDSpace, Point }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
@@ -29,15 +29,16 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
  * the sampler.
  */
 
-abstract class MeanPointwiseLossMetric[D: NDSpace](fixedImage: ScalarImage[D],
-    movingImage: DifferentiableScalarImage[D],
+abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
+    fixedImage: ScalarImage[D, A],
+    movingImage: DifferentiableScalarImage[D, A],
     transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D]) extends ImageMetric[D] {
+    sampler: Sampler[D]) extends ImageMetric[D, A] {
 
   override val ndSpace: NDSpace[D] = implicitly[NDSpace[D]]
 
-  protected def lossFunction(v: Float): Float
-  protected def lossFunctionDerivative(v: Float): Float
+  protected def lossFunction(v: A): Double
+  protected def lossFunctionDerivative(v: A): Double
 
   def value(parameters: DenseVector[Double]): Double = {
     computeValue(parameters, sampler)
@@ -76,7 +77,7 @@ abstract class MeanPointwiseLossMetric[D: NDSpace](fixedImage: ScalarImage[D],
 
     // we compute the mean using a monte carlo integration
     val samples = sampler.sample()
-    samples.par.map { case (pt, _) => metricValue(pt).getOrElse(0f) }.sum / samples.size
+    samples.par.map { case (pt, _) => metricValue(pt).getOrElse(0.0) }.sum / samples.size
   }
 
   private def computeDerivative(parameters: DenseVector[Double],

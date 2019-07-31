@@ -16,6 +16,7 @@
 
 package scalismo.registration
 
+import scalismo.common.Scalar
 import scalismo.geometry.NDSpace
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics._
@@ -27,22 +28,26 @@ import scalismo.numerics._
  * @see SumOfPointwiseLossMetric.
  *
  */
-case class MeanHuberLossMetric[D: NDSpace](fixedImage: ScalarImage[D],
-  movingImage: DifferentiableScalarImage[D],
+case class MeanHuberLossMetric[D: NDSpace, A: Scalar](
+  fixedImage: ScalarImage[D, A],
+  movingImage: DifferentiableScalarImage[D, A],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D],
   delta: Double = 1.345)
     extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
 
-  override protected def lossFunction(v: Float): Float = {
-    if (v < delta)
-      (v * v / 2f)
+  val scalar = Scalar[A]
+  override protected def lossFunction(v: A): Double = {
+    val vAsDouble = scalar.toDouble(v)
+    if (vAsDouble < delta)
+      (vAsDouble * vAsDouble / 2f)
     else
-      (delta * (Math.abs(v) - delta / 2)).toFloat
+      (delta * (Math.abs(vAsDouble) - delta / 2)).toFloat
   }
 
-  override protected def lossFunctionDerivative(v: Float): Float = {
-    if (v < delta) v else (delta * Math.signum(v)).toFloat
+  override protected def lossFunctionDerivative(v: A): Double = {
+    val vAsDouble = scalar.toDouble(v)
+    if (vAsDouble < delta) vAsDouble else (delta * Math.signum(vAsDouble)).toFloat
   }
 
 }

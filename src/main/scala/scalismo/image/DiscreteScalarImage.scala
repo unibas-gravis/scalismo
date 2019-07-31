@@ -46,11 +46,10 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
    * Interpolates the image with the given interpolator.
    *
    * @param interpolator The interpolator used to interpolate the image
-   * @param dummy Used to distinguish the method from the generic one inherited from [[DiscreteField]]
    */
-  def interpolate(interpolator: FieldInterpolator[D, DiscreteImageDomain[D], A])(implicit dummy: DummyImplicit): ScalarImage[D] = {
+  override def interpolate(interpolator: FieldInterpolator[D, DiscreteImageDomain[D], A]): ScalarImage[D, A] = {
     val f = interpolator.interpolate(this)
-    ScalarImage(f.domain, f.f andThen (Scalar[A].toFloat))
+    ScalarImage(f.domain, f.f)
   }
 
   /**
@@ -58,27 +57,31 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
    * Note, that in contrast to the method [[DiscreteField.interpolate]] this method returns a scalar image
    *
    * @param interpolator The interpolator used to interpolate the image
-   * @param dummy Used to distinguish the method from the generic one inherited from [[DiscreteField]]
    */
-  def interpolate(interpolator: DifferentiableFieldInterpolator[D, DiscreteImageDomain[D], A, EuclideanVector[D]])(implicit dummy: DummyImplicit): DifferentiableScalarImage[D] = {
+  def interpolate(interpolator: DifferentiableFieldInterpolator[D, DiscreteImageDomain[D], A, EuclideanVector[D]]): DifferentiableScalarImage[D, A] = {
     val f = interpolator.interpolate(this)
-    DifferentiableScalarImage(f.domain, f.f andThen (Scalar[A].toFloat), f.df)
+    DifferentiableScalarImage(f.domain, f.f, f.df)
   }
 
-  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
   @deprecated("please use interpolate(BSplineImageInterpolatorxD[A](order)) instead", "v0.18")
-  def interpolate(order: Int)(implicit bsplineCreator: BSplineImageInterpolator.Create[D]): DifferentiableScalarImage[D] = {
+  def interpolate(order: Int)(implicit bsplineCreator: BSplineImageInterpolator.Create[D]): DifferentiableScalarImage[D, A] = {
     val interpolator = bsplineCreator.createBSplineInterpolator(order)
     interpolate(interpolator)
   }
 
-  /** Returns a new DiscreteScalarImage which is obtained by resampling the given image on the points defined by the new domain */
-  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: Float)(implicit bsplineCreator: BSplineImageInterpolator.Create[D]): DiscreteScalarImage[D, A] = {
+  @deprecated("please use resample with an explicit interpolator instead", "v0.18")
+  def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: A)(implicit bsplineCreator: BSplineImageInterpolator.Create[D]): DiscreteScalarImage[D, A] = {
 
     val contImg = interpolate(bsplineCreator.createBSplineInterpolator(interpolationDegree))
     contImg.sample(newDomain, outsideValue)
   }
 
+  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
+  def resample(newDomain: DiscreteImageDomain[D], interpolator: FieldInterpolator[D, DiscreteImageDomain[D], A], outsideValue: A): DiscreteScalarImage[D, A] = {
+
+    val contImg = interpolate(interpolator)
+    contImg.sample(newDomain, outsideValue)
+  }
 }
 
 object DiscreteScalarImage {

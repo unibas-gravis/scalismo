@@ -56,7 +56,7 @@ class MetricTests extends ScalismoTestSuite {
 
     it("has the global minimum where the images are similar") {
 
-      val metric = MutualInformationMetric[_2D](fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
+      val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
       val zeroVec = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
 
       for (_ <- 0 until 10) {
@@ -67,7 +67,7 @@ class MetricTests extends ScalismoTestSuite {
 
     it("goes to a lower value when following the (negative) gradient") {
 
-      val metric = MutualInformationMetric[_2D](fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
+      val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
       for (_ <- 0 until 10) {
         val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
 
@@ -83,7 +83,7 @@ class MetricTests extends ScalismoTestSuite {
       val trueParams = DenseVector.ones[Double](translationSpace.parametersDimensionality)
       val movingImage = fixedImageCont.compose(translationSpace.transformForParameters(-trueParams))
 
-      val metric = MutualInformationMetric[_2D](fixedImageCont, fixedImage.domain, movingImage, translationSpace, sampler)
+      val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, movingImage, translationSpace, sampler)
 
       val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
       val regIt = Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
@@ -103,7 +103,7 @@ class MetricTests extends ScalismoTestSuite {
 
     it("has the global minimum where the images are similar") {
 
-      val metric = MeanHuberLossMetric[_2D](fixedImageCont, fixedImageCont, translationSpace, sampler)
+      val metric = MeanHuberLossMetric(fixedImageCont, fixedImageCont, translationSpace, sampler)
       val zeroVec = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
 
       for (_ <- 0 until 10) {
@@ -114,7 +114,7 @@ class MetricTests extends ScalismoTestSuite {
 
     it("goes to a lower value when following the (negative) gradient") {
 
-      val metric = MeanHuberLossMetric[_2D](fixedImageCont, fixedImageCont, translationSpace, sampler)
+      val metric = MeanHuberLossMetric(fixedImageCont, fixedImageCont, translationSpace, sampler)
       for (_ <- 0 until 10) {
         val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
 
@@ -130,7 +130,7 @@ class MetricTests extends ScalismoTestSuite {
       val trueParams = DenseVector.ones[Double](translationSpace.parametersDimensionality) * 5.0
       val movingImage = fixedImageCont.compose(translationSpace.transformForParameters(-trueParams))
 
-      val metric = MeanHuberLossMetric[_2D](fixedImageCont, movingImage, translationSpace, sampler)
+      val metric = MeanHuberLossMetric(fixedImageCont, movingImage, translationSpace, sampler)
 
       val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
       val regIt = Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)

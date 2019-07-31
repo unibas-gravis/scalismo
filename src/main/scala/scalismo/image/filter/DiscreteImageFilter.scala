@@ -15,7 +15,7 @@
  */
 package scalismo.image.filter
 
-import scalismo.common.interpolation.BSplineImageInterpolator
+import scalismo.common.interpolation.{ BSplineImageInterpolator, BSplineImageInterpolator2D, BSplineImageInterpolator3D }
 import scalismo.common.{ Scalar, ScalarArray }
 import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage
@@ -65,7 +65,7 @@ object DiscreteImageFilter {
       vtkdistTransform.Delete()
       System.gc() // make sure it deletes the intermediate resuls
 
-      dt.resample(img.domain, 0, 0)
+      dt.resample(img.domain, BSplineImageInterpolator[D, Float](0), 0)
     }
 
     val dt1 = doDistanceTransformVTK(img)

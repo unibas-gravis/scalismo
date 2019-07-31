@@ -40,7 +40,7 @@ class IntegrationTest extends ScalismoTestSuite {
       val integrator = Integrator[_1D](GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
-      res should be((1.0 / 3.0).toFloat +- 0.01)
+      res should be((1.0 / 3.0) +- 0.01)
     }
 
     it("Correctly integrates sin(x) on interval [-Pi, Pi]") {

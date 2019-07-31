@@ -18,6 +18,7 @@ package scalismo.registration
 
 import breeze.linalg.DenseVector
 import breeze.numerics._
+import scalismo.common.Scalar
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain, ScalarImage }
 import scalismo.numerics._
@@ -39,16 +40,19 @@ import scalismo.utils.{ Memoize, Random }
  *                recommended choice is a random sampler (which combined with a gradient descent algorithm leads to a stochastic gradient descent.
  * @param numberOfBins The number of bins used for the intensity histograms (which approximates the joint distribution)
  */
-case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
+case class MutualInformationMetric[D: NDSpace, A: Scalar](
+    fixedImage: ScalarImage[D, A],
     fixedImageDomain: DiscreteImageDomain[D],
-    movingImage: DifferentiableScalarImage[D],
+    movingImage: DifferentiableScalarImage[D, A],
     transformationSpace: TransformationSpace[D],
     sampler: Sampler[D],
-    numberOfBins: Int = 30)(implicit rng: Random) extends ImageMetric[D] {
+    numberOfBins: Int = 30)(implicit rng: Random) extends ImageMetric[D, A] {
 
   type JointHistogram = (Int, Int) => Double
   type JointHistogramDerivative = (Int, Int) => DenseVector[Double]
   type MarginalHistogram = Int => Double
+
+  private val scalar = Scalar[A]
 
   override val ndSpace: NDSpace[D] = implicitly[NDSpace[D]]
 
@@ -60,8 +64,9 @@ case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
   // All the computations are done only once, when the metric is computed. Hence it is okay to use a rather large number of points
   private val fixedImagePoints = UniformSampler(fixedImageDomain.boundingBox, numberOfPoints = 100000).sample().map(_._1)
 
-  private def minMaxValue(img: ScalarImage[D]): (Float, Float) = {
-    val values = for (pt <- fixedImagePoints if img.isDefinedAt(pt)) yield img(pt)
+  private def minMaxValue(img: ScalarImage[D, A]): (Double, Double) = {
+
+    val values = for (pt <- fixedImagePoints if img.isDefinedAt(pt)) yield scalar.toDouble(img(pt))
     (values.min, values.max)
   }
 
@@ -88,11 +93,11 @@ case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
 
         val transformedPoint = transform(point)
 
-        val termRef = zeroOrderSpline(k - (fixedImage(point) - minValueFixedImage) / binSizeFixedImage)
+        val termRef = zeroOrderSpline(k - (scalar.toDouble(fixedImage(point)) - minValueFixedImage) / binSizeFixedImage)
 
         if (Math.abs(termRef) > 1e-10 && movingImage.isDefinedAt(transformedPoint)) {
 
-          val termTest = thirdOrderSpline(l - (movingImage(transformedPoint) - minValueMovingImage) / binSizeMovingImage)
+          val termTest = thirdOrderSpline(l - (scalar.toDouble(movingImage(transformedPoint)) - minValueMovingImage) / binSizeMovingImage)
 
           termRef * termTest
         } else {
@@ -136,7 +141,7 @@ case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
 
       val histogramValue = fixedImagePoints.foldLeft(0.0)((acc, point) =>
         {
-          val termRef = k - (fixedImage(point) - minValueFixedImage) / binSizeFixedImage
+          val termRef = k - (scalar.toDouble(fixedImage(point)) - minValueFixedImage) / binSizeFixedImage
           acc + zeroOrderSpline(termRef)
         }
       )
@@ -162,11 +167,11 @@ case class MutualInformationMetric[D: NDSpace](fixedImage: ScalarImage[D],
         val transformedPoint = transform(point)
 
         if (movingImage.isDefinedAt(transformedPoint)) {
-          val termRefSpline: Double = zeroOrderSpline(k - (fixedImage(point) - minValueFixedImage) / binSizeFixedImage)
+          val termRefSpline: Double = zeroOrderSpline(k - (scalar.toDouble(fixedImage(point)) - minValueFixedImage) / binSizeFixedImage)
 
           val value = if (Math.abs(termRefSpline) > 1e-10) {
 
-            val termTest = l - (movingImage(transformedPoint) - minValueMovingImage) / binSizeMovingImage
+            val termTest = l - (scalar.toDouble(movingImage(transformedPoint)) - minValueMovingImage) / binSizeMovingImage
 
             val termTestSpline: Double = secondOrderSpline(termTest + 0.5) - secondOrderSpline(termTest - 0.5)
 

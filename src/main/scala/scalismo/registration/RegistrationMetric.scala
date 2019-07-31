@@ -59,11 +59,11 @@ object RegistrationMetric {
 /**
  * A registration metric for image to image registration.
  */
-trait ImageMetric[D] extends RegistrationMetric[D] {
+trait ImageMetric[D, A] extends RegistrationMetric[D] {
 
-  def fixedImage: ScalarImage[D]
+  def fixedImage: ScalarImage[D, A]
 
-  def movingImage: DifferentiableScalarImage[D]
+  def movingImage: DifferentiableScalarImage[D, A]
 
 }
 
