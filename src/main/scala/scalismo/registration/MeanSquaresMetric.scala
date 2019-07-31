@@ -16,6 +16,7 @@
 
 package scalismo.registration
 
+import scalismo.common.Scalar
 import scalismo.geometry.NDSpace
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.numerics.Sampler
@@ -24,20 +25,23 @@ import scalismo.numerics.Sampler
  * The mean squares image to image metric.
  * It is implemented as the squared loss function in terms of the pointwise pixel differences.
  */
-case class MeanSquaresMetric[D: NDSpace](fixedImage: ScalarImage[D],
-  movingImage: DifferentiableScalarImage[D],
+case class MeanSquaresMetric[D: NDSpace, A: Scalar](
+  fixedImage: ScalarImage[D, A],
+  movingImage: DifferentiableScalarImage[D, A],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D])
-    extends MeanPointwiseLossMetric[D](fixedImage, movingImage, transformationSpace, sampler) {
+    extends MeanPointwiseLossMetric[D, A](fixedImage, movingImage, transformationSpace, sampler) {
+
+  private val scalar = Scalar[A]
 
   override val ndSpace = implicitly[NDSpace[D]]
 
-  override protected def lossFunction(v: Float): Float = {
-    v * v
+  override protected def lossFunction(v: A): Double = {
+    scalar.toDouble(v) * scalar.toDouble(v)
   }
 
-  override protected def lossFunctionDerivative(v: Float): Float = {
-    2 * v
+  override protected def lossFunctionDerivative(v: A): Double = {
+    2.0 * scalar.toDouble(v)
   }
 
 }

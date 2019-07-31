@@ -81,7 +81,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   /**
    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
-  def toDistanceImage: DifferentiableScalarImage[_3D] = {
+  def toDistanceImage: DifferentiableScalarImage[_3D, Float] = {
     def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurfaceSquared(pt)).toFloat
 
     def grad(pt: Point[_3D]) = {
@@ -99,7 +99,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
    *
    */
-  def toBinaryImage: ScalarImage[_3D] = {
+  def toBinaryImage: ScalarImage[_3D, Short] = {
 
     val meshOps = mesh.operations
 
