@@ -18,6 +18,7 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
+import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{ Domain, Field, VectorField }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
@@ -82,7 +83,7 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Intensity
 
-    val interpolated = inputImage.interpolate(3)
+    val interpolated = inputImage.interpolate(BSplineImageInterpolator3D[Float](3))
 
     override def domain: Domain[_3D] = interpolated.domain
 
@@ -134,7 +135,7 @@ case class GaussianGradientImagePreprocessor(stddev: Double, override val ioMeta
       } else {
         inputImage
       }
-    }.interpolate(1).differentiate
+    }.interpolate(BSplineImageInterpolator3D[Float](1)).differentiate
 
     override def domain: Domain[_3D] = gradientImage.domain
 

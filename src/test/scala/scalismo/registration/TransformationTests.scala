@@ -20,6 +20,7 @@ import java.io.File
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
+import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.EuclideanVector.implicits._
@@ -142,7 +143,7 @@ class TransformationTests extends ScalismoTestSuite {
 
     val path = getClass.getResource("/3dimage.nii").getPath
     val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
-    val continuousImage = discreteImage.interpolate(0)
+    val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("translation forth and back of a real dataset yields the same image") {
 

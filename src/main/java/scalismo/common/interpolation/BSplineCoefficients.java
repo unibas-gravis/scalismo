@@ -45,9 +45,9 @@
  | based on it.
  \===================================================================*/
 
-package scalismo.image;
+package scalismo.common.interpolation;
 
-class BSplineCoefficients {
+public class BSplineCoefficients {
 
 	
 	private static float getInitialAntiCausalCoefficientMirrorOnBounds(float[] c,
@@ -76,7 +76,7 @@ class BSplineCoefficients {
 	} /* end getInitialCausalCoefficientMirrorOnBounds */
 
 
-	static void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
+	public static void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
 		
 		float z[] = null;
 		if (degree == 0 || degree == 1) { 

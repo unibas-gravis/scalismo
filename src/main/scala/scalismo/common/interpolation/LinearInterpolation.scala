@@ -16,7 +16,7 @@
 
 package scalismo.common.interpolation
 
-import scalismo.common.{ BoxDomain, DiscreteField, Field }
+import scalismo.common.{ DiscreteField, Field }
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
 import scalismo.numerics.ValueInterpolator
