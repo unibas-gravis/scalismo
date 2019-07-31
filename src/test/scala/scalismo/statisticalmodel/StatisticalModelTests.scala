@@ -21,7 +21,8 @@ import breeze.linalg.DenseVector
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.io.{ StatismoIO }
+import scalismo.io.StatismoIO
+import scalismo.mesh.MeshMetrics
 import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scalismo.utils.Random
 
@@ -87,6 +88,22 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val truncatedModel = model.truncate(newRank)
       truncatedModel.rank should equal(newRank)
 
+    }
+
+    it("yield equivalent samples with reduced number of points when decimated") {
+      val path = getClass.getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val targetNumberOfPoints = model.referenceMesh.pointSet.numberOfPoints / 2
+      val decimatedModel = model.decimate(targetNumberOfPoints)
+
+      val randomMesh = model.sample()
+      val coeffs = model.coefficients(randomMesh)
+
+      val correspondingSampleDecimatedModel = decimatedModel.instance(coeffs)
+      decimatedModel.referenceMesh.pointSet.numberOfPoints should be < (model.referenceMesh.pointSet.numberOfPoints)
+      correspondingSampleDecimatedModel.pointSet.numberOfPoints should equal(decimatedModel.referenceMesh.pointSet.numberOfPoints)
+
+      MeshMetrics.hausdorffDistance(randomMesh, correspondingSampleDecimatedModel) < 1
     }
 
     //    it("can write a changed mean statistical mode, read it and still yield the same space") {

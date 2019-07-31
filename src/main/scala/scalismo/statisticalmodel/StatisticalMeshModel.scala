@@ -19,6 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.numerics.sqrt
 import scalismo.common._
+import scalismo.common.interpolation.TriangleMeshInterpolator
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
@@ -188,6 +189,20 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D], gp: D
     val newMeanVec = DenseVector(newMean.map(_.toArray).flatten.toArray)
     val newGp = new DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]](newRef, newMeanVec, gp.variance, gp.basisMatrix)
     new StatisticalMeshModel(TriangleMesh3D(newRef, referenceMesh.triangulation), newGp)
+  }
+
+  /**
+   * Changes the number of vertices on which the model is defined
+   * @param targetNumberOfVertices  The desired number of vertices
+   * @return The new model
+   */
+  def decimate(targetNumberOfVertices: Int): StatisticalMeshModel = {
+
+    val newReference = referenceMesh.operations.decimate(targetNumberOfVertices)
+    val interpolator = TriangleMeshInterpolator[EuclideanVector[_3D]](referenceMesh)
+    val newGp = gp.interpolate(interpolator)
+
+    StatisticalMeshModel(newReference, newGp)
   }
 
   private def warpReference(vectorPointData: DiscreteField[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]]) = {
