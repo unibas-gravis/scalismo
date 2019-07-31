@@ -16,6 +16,7 @@
 package scalismo.utils
 
 import scala.collection.mutable
+import scala.Ordering.Double.IeeeOrdering
 
 /** represents a metric to be used with the Vantage Point tree */
 trait Metric[A] {
@@ -41,7 +42,7 @@ object Metric {
  *
  *  WARNING: the tree only works with a metric (positive, symmetric, triangle inequality)
  */
-sealed trait VantagePointTree[A] extends Traversable[A] {
+sealed trait VantagePointTree[A] extends Iterable[A] {
   /** metric of the space */
   def metric: Metric[A]
 
@@ -67,6 +68,12 @@ sealed trait VantagePointTree[A] extends Traversable[A] {
 
   /** main implementation of neighbour searches */
   protected[utils] def findNN(point: A, candidates: CandidateSet[A]): Unit
+
+  override def iterator: Iterator[A] = {
+    val collectedValues = new mutable.ArrayBuffer[A]()
+    this.foreach(a => collectedValues.addOne(a))
+    collectedValues.iterator
+  }
 }
 
 /** mutable candidate set for neighbour searches (internal use) */
@@ -211,17 +218,18 @@ private case class EmptyVP[A](metric: Metric[A]) extends VantagePointTree[A] {
 }
 
 /** leaf node of VP tree */
-private case class VPLeaf[A](metric: Metric[A], center: A) extends VantagePointTree[A] {
+private case class VPLeaf[A](metric: Metric[A], center: A) extends VantagePointTree[A] { self =>
 
   override def contains(point: A): Boolean = point == center
 
   override def foreach[U](f: (A) => U): Unit = f(center)
 
   override def findNN(point: A, candidates: CandidateSet[A]): Unit = candidates.addCandidate(center, metric(center, point))
+
 }
 
 /** link node: list element, only a single child - should only appear before a leaf */
-private case class VPLink[A](metric: Metric[A], center: A, next: VantagePointTree[A]) extends VantagePointTree[A] {
+private case class VPLink[A](metric: Metric[A], center: A, next: VantagePointTree[A]) extends VantagePointTree[A] { self =>
 
   override def findNN(point: A, candidates: CandidateSet[A]): Unit = {
     candidates.addCandidate(center, metric(center, point))
@@ -234,6 +242,7 @@ private case class VPLink[A](metric: Metric[A], center: A, next: VantagePointTre
     f(center)
     next.foreach(f)
   }
+
 }
 
 /** regular VP tree node with inner and outer children, inner contains all points which are closer to center than radius (inclusive) */
@@ -279,4 +288,5 @@ private case class VPNode[A](metric: Metric[A], center: A, radius: Double, inner
     inner.foreach(f)
     outer.foreach(f)
   }
+
 }

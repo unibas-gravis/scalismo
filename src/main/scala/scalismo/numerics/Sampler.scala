@@ -24,6 +24,7 @@ import scalismo.image.DiscreteImageDomain
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.GaussianProcess
 import scalismo.utils.Random
+import scala.collection.parallel.CollectionConverters._
 
 /** sample generator typeclass */
 trait Sampler[D] {

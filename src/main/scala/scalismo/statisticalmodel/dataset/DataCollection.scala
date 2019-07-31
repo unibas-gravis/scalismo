@@ -24,6 +24,7 @@ import scalismo.registration.{ LandmarkRegistration, Transformation }
 import scalismo.utils.Random
 
 import scala.annotation.tailrec
+import scala.collection.parallel.CollectionConverters._
 
 private[dataset] case class CrossvalidationFold(trainingData: DataCollection, testingData: DataCollection)
 

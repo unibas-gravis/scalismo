@@ -19,6 +19,7 @@ import scalismo.common.{ PointId, RealSpace }
 import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh.boundingSpheres._
+import scala.collection.parallel.CollectionConverters._
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)

@@ -43,7 +43,7 @@ case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], overrid
 }
 
 object ScalarMeshField {
-  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Traversable[S]): ScalarMeshField[S] = {
+  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Iterable[S]): ScalarMeshField[S] = {
     ScalarMeshField(mesh, ScalarArray(data.toArray))
   }
 }

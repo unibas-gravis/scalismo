@@ -17,6 +17,7 @@ package scalismo.sampling.proposals
 
 import scalismo.sampling._
 import scalismo.utils.Random
+import scala.Ordering.Double.IeeeOrdering
 
 /** mixture of proposals: mixture distribution of multiple proposal distributions */
 class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(implicit rnd: Random)

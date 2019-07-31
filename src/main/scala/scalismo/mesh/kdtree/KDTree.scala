@@ -17,12 +17,11 @@
 package scalismo.mesh.kdtree
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.{ ArrayBuffer, Builder }
-import scala.collection.{ IterableLike, MapLike }
+import scala.collection.mutable
+import scala.collection.mutable.{ Builder }
 import scala.math.Ordering.Implicits._
 
-private[scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends IterableLike[A, KDTree[A]] {
+private[scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A]) extends Iterable[A] {
   override def seq = this
 
   override def size: Int = root.size
@@ -40,7 +39,7 @@ private[scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implici
 }
 
 private[scalismo] class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implicit ord: DimensionalOrdering[A])
-    extends Map[A, B] with MapLike[A, B, KDTreeMap[A, B]] {
+    extends Map[A, B] {
 
   override def empty: KDTreeMap[A, B] = KDTreeMap.empty[A, B](ord)
 
@@ -55,8 +54,15 @@ private[scalismo] class KDTreeMap[A, B] private (root: KDTreeNode[A, B])(implici
 
   def regionQuery(region: Region[A]): Seq[(A, B)] = root.regionQuery(region)
 
-  def +[B1 >: B](kv: (A, B1)): KDTreeMap[A, B1] = KDTreeMap.fromSeq(toSeq ++ Seq(kv))
-  def -(key: A): KDTreeMap[A, B] = KDTreeMap.fromSeq(toSeq.filter(_._1 != key))
+  override def +[B1 >: B](kv: (A, B1)): KDTreeMap[A, B1] = KDTreeMap.fromSeq(toSeq ++ Seq(kv))
+
+  override def removed(key: A): Map[A, B] = {
+    KDTreeMap.fromSeq(toSeq.filter(_._1 != key))
+  }
+
+  override def updated[V1 >: B](key: A, value: V1): Map[A, V1] = {
+    this + ((key, value))
+  }
 }
 
 private[scalismo] sealed trait KDTreeNode[A, B] {
@@ -67,7 +73,7 @@ private[scalismo] sealed trait KDTreeNode[A, B] {
   def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(
     implicit metric: Metric[A, R], ord: Ordering[R]): Seq[((A, B), R)]
   def findNearest[R](x: A, n: Int)(implicit metric: Metric[A, R], ord: Ordering[R]): Seq[(A, B)]
-  def toStream: Stream[(A, B)]
+  def toStream: LazyList[(A, B)]
   def toSeq: Seq[(A, B)]
   def regionQuery(region: Region[A])(implicit ord: DimensionalOrdering[A]): Seq[(A, B)]
 
@@ -145,7 +151,7 @@ private[scalismo] case class KDTreeInnerNode[A, B](
         above.regionQuery(region) else Nil)
   }
 
-  def toStream: Stream[(A, B)] = below.toStream ++ Stream((key, value)) ++ above.toStream
+  def toStream: LazyList[(A, B)] = below.toStream ++ LazyList((key, value)) ++ above.toStream
 
   def toSeq: Seq[(A, B)] = below.toSeq ++ Seq((key, value)) ++ above.toSeq
 }
@@ -159,7 +165,7 @@ private[scalismo] case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
   def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(
     implicit metric: Metric[A, R], ord: Ordering[R]): Seq[((A, B), R)] = values
   def toSeq: Seq[(A, B)] = Seq.empty
-  def toStream: Stream[(A, B)] = Stream.empty
+  def toStream: LazyList[(A, B)] = LazyList.empty
   def regionQuery(region: Region[A])(implicit ord: DimensionalOrdering[A]): Seq[(A, B)] = Seq.empty
 }
 
@@ -194,18 +200,26 @@ object KDTreeNode {
 private[scalismo] object KDTree {
   def apply[A](points: A*)(implicit ord: DimensionalOrdering[A]) = fromSeq(points)
 
-  def fromSeq[A](points: Seq[A])(implicit ord: DimensionalOrdering[A]) = {
+  def fromSeq[A](points: Seq[A])(implicit ord: DimensionalOrdering[A]): KDTree[A] = {
     assert(ord.dimensions >= 1)
     new KDTree(KDTreeNode.buildTreeNode(0, points map { (_, true) }))
   }
 
-  def newBuilder[A](implicit ord: DimensionalOrdering[A]): Builder[A, KDTree[A]] =
-    new ArrayBuffer[A]() mapResult (x => KDTree.fromSeq(x))
+  def newBuilder[A](implicit ord: DimensionalOrdering[A]): Builder[A, KDTree[A]] = {
 
-  implicit def canBuildFrom[B](implicit ordB: DimensionalOrdering[B]): CanBuildFrom[KDTree[_], B, KDTree[B]] = new CanBuildFrom[KDTree[_], B, KDTree[B]] {
-    def apply: Builder[B, KDTree[B]] = newBuilder(ordB)
-    def apply(from: KDTree[_]): Builder[B, KDTree[B]] = newBuilder(ordB)
+    new Builder[A, KDTree[A]] {
+      val arrayBuilder = mutable.ArrayBuffer[A]()
+      override def clear(): Unit = arrayBuilder.clear()
+
+      override def result(): KDTree[A] = KDTree.fromSeq(arrayBuilder.toSeq)
+
+      override def addOne(elem: A): this.type = {
+        arrayBuilder.addOne(elem)
+        this
+      }
+    }
   }
+
 }
 
 private[scalismo] object KDTreeMap {

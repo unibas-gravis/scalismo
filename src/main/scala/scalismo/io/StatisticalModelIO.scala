@@ -27,6 +27,7 @@ import scalismo.mesh.TriangleMesh._
 import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
 import scalismo.statisticalmodel.StatisticalMeshModel
 
+import scala.collection.parallel.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
 
 object StatisticalModelIO {
@@ -82,14 +83,13 @@ object StatismoIO {
    * List all models that are stored in the given hdf5 file.
    */
   def readModelCatalog(file: File): Try[ModelCatalog] = {
-    import scala.collection.JavaConverters._
 
     def flatten[A](xs: Seq[Try[A]]): Try[Seq[A]] = Try(xs.map(_.get))
 
     for {
       h5file <- HDF5Utils.openFileForReading(file)
       catalogGroup <- if (h5file.exists("/catalog")) h5file.getGroup("/catalog") else Failure(NoCatalogPresentException)
-      modelEntries = for (entryGroupObj <- catalogGroup.getMemberList.asScala.toSeq if entryGroupObj.isInstanceOf[Group]) yield {
+      modelEntries = for (entryGroupObj <- catalogGroup.getMemberList.toArray().toSeq if entryGroupObj.isInstanceOf[Group]) yield {
         val entryGroup = entryGroupObj.asInstanceOf[Group]
         readCatalogEntry(h5file, entryGroup)
       }

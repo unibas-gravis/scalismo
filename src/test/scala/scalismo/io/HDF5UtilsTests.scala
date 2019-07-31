@@ -46,7 +46,7 @@ class HDF5UtilsTests extends ScalismoTestSuite {
       val arr = NDArray(IndexedSeq(2, 3), Array(1, 2, 3, 4, 5, 6))
       h5.writeNDArray("/aGroup/array", arr).get
       val h5new = HDF5Utils.openFileForReading(h5file).get
-      h5new.readNDArray("/aGroup/array").get.data.deep should be(arr.data.deep)
+      h5new.readNDArray("/aGroup/array").get.data.toSeq should be(arr.data.toSeq)
     }
 
     it("can write and read an NDArray[Float]") {
@@ -55,7 +55,7 @@ class HDF5UtilsTests extends ScalismoTestSuite {
       val arr = NDArray(IndexedSeq(2, 3), Array(1f, 2f, 3f, 4f, 5f, 6f))
       h5.writeNDArray("/aGroup/array", arr).get
       val h5new = HDF5Utils.openFileForReading(h5file).get
-      h5new.readNDArray("/aGroup/array").get.data.deep should be(arr.data.deep)
+      h5new.readNDArray("/aGroup/array").get.data.toSeq should be(arr.data.toSeq)
     }
 
     it("fails to write an unknown type") {

@@ -36,7 +36,7 @@ object DiscreteSpatialIndex {
   /**
    * Create PointSetDistance for a list of points.
    */
-  def fromPointList[A <: Traversable[Point[_3D]]](points: A): DiscreteSpatialIndex = {
+  def fromPointList[A <: Iterable[Point[_3D]]](points: A): DiscreteSpatialIndex = {
     val pts = points.toIndexedSeq
     val bs = BoundingSpheres.createForPoints(pts)
     new DiscreteSpatialIndexImplementation(bs, pts)

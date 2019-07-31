@@ -5,7 +5,6 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.SbtGhPages._
 import com.typesafe.sbt.SbtGit.git
-
 import com.banno.license.Plugin.LicenseKeys._
 import com.banno.license.Licenses._
 import sbtbuildinfo.Plugin._
@@ -13,13 +12,13 @@ import com.typesafe.sbt.SbtGit.useJGit
 
 object BuildSettings {
   val buildOrganization = "ch.unibas.cs.gravis"
-  val buildScalaVersion = "2.12.6"
+  val buildScalaVersion = "2.13.0"
 
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := buildOrganization,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.11.12", "2.12.6"),
+    crossScalaVersions := Seq("2.12.8", "2.13.0"),
     javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2,  11)) => Seq("-source", "1.6", "-target", "1.6")
       case _ => Seq("-source", "1.8", "-target", "1.8")
@@ -44,10 +43,10 @@ object Resolvers {
 
 object Dependencies {
   import BuildSettings.scalismoPlatform
-  val scalatest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
-  val breezeMath = "org.scalanlp" %% "breeze" % "0.13"
-  val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.13"
-  val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+  val breezeMath = "org.scalanlp" %% "breeze" % "1.0-RC4"
+  val breezeNative = "org.scalanlp" %% "breeze-natives" % "1.0-RC4"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.5"
   val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0"
   val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test"
 
@@ -66,7 +65,17 @@ object STKBuild extends Build {
     "scalismo",
     file("."),
     settings = buildSettings ++ Seq(
-      libraryDependencies ++= commonDeps,
+      libraryDependencies ++= {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, major)) if major >= 13 => {
+            commonDeps ++
+              Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0")
+          }
+          case _ => {
+            commonDeps
+          }
+        }
+      },
       resolvers ++= stkResolvers,
       parallelExecution in Test := false,
       EclipseKeys.withSource := true)
@@ -82,7 +91,7 @@ object STKBuild extends Build {
         useJGit
       ) ++
       buildInfoSettings ++
-      Seq(
+      Seq(  
       sourceGenerators in Compile <+= buildInfo,
       buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion),
       buildInfoPackage := "scalismo"
@@ -100,4 +109,5 @@ object STKBuild extends Build {
     sprayJson,
     slf4jNop
   )
+
 }

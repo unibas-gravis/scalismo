@@ -149,7 +149,7 @@ object DiscreteScalarField {
     new DiscreteScalarField[D, DDomain, A](domain, data)
   }
 
-  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: Traversable[A]): DiscreteScalarField[D, DDomain, A] = {
+  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: Iterable[A]): DiscreteScalarField[D, DDomain, A] = {
     new DiscreteScalarField[D, DDomain, A](domain, ScalarArray(data.toArray))
   }
 }

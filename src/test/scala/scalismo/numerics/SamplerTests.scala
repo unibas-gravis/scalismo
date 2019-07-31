@@ -22,6 +22,7 @@ import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
 import scalismo.utils.{ Random, Memoize }
+import scala.collection.parallel.CollectionConverters._
 
 class SamplerTests extends ScalismoTestSuite {
 

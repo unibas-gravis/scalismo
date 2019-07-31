@@ -23,6 +23,8 @@ import scalismo.geometry._
 import scalismo.kernels.{ MatrixValuedPDKernel, PDKernel }
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.parallel.CollectionConverters._
+import scala.Ordering.Double.IeeeOrdering
 
 /**
  * Result object for the pivoted cholesky of a matrix A
@@ -113,7 +115,9 @@ object PivotedCholesky {
       S(p(k)) = D
 
       val pointIds = ids.splitAt(k + 1)._2
-      val chunks = pointIds.grouped(Math.max(1, n / Runtime.getRuntime().availableProcessors())).toIndexedSeq.par
+      val chunks = pointIds.grouped(Math.max(1, n / Runtime.getRuntime()
+        .availableProcessors()))
+        .toIndexedSeq.par
 
       var c = 0
 
@@ -152,7 +156,7 @@ object PivotedCholesky {
       k += 1
     }
 
-    PivotedCholesky(L.toDenseMatrix, p, tr)
+    PivotedCholesky(L.toDenseMatrix, p.toIndexedSeq, tr)
   }
 
   def computeApproximateCholesky[D: NDSpace, DO: NDSpace](kernel: MatrixValuedPDKernel[D],

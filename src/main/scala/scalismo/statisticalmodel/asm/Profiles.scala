@@ -26,13 +26,15 @@ final case class ProfileId(id: Int) extends AnyVal
 
 case class Profile(pointId: PointId, distribution: MultivariateNormalDistribution)
 
-case class Profiles(private[scalismo] val data: immutable.IndexedSeq[Profile]) extends Traversable[Profile] {
+case class Profiles(private[scalismo] val data: immutable.IndexedSeq[Profile]) extends Iterable[Profile] {
   def apply(profileId: ProfileId): Profile = data(profileId.id)
   def ids: IndexedSeq[ProfileId] = data.indices.map(idx => ProfileId(idx))
 
   override def size = data.size
 
   override def foreach[U](f: (Profile) => U): Unit = data.foreach(f)
+
+  override def iterator: Iterator[Profile] = data.iterator
 }
 
 /**
@@ -49,7 +51,7 @@ class DiscreteFeatureField[D: NDSpace, DDomain <: DiscreteDomain[D]](domain: DDo
 
   override def isDefinedAt(id: PointId) = id.id < domain.numberOfPoints
 
-  override def values = _values.toIterator
+  override def values = _values.iterator
 
   override def interpolateNearestNeighbor(): Field[D, DenseVector[Double]] = {
     Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))

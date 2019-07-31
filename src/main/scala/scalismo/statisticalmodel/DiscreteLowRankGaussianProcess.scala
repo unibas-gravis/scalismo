@@ -27,6 +27,8 @@ import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{Eigenpair => Di
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.utils.{Memoize, Random}
 
+import scala.collection.parallel.CollectionConverters._
+
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
  * It supports the same operations as the LowRankGaussianProcess class, but always returns instead a

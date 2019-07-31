@@ -20,6 +20,7 @@ import breeze.optimize.{ DiffFunction, LBFGS }
 import scalismo.registration.TransformationSpace.ParameterVector
 
 import scala.collection.Iterator
+import scala.Ordering.Double.IeeeOrdering
 
 trait CostFunction extends (ParameterVector => (Double, DenseVector[Double])) {
   def onlyValue(p: ParameterVector): Double

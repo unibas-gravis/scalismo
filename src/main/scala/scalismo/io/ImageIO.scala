@@ -30,6 +30,7 @@ import vtk._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{ TypeTag, typeOf }
 import scala.util.{ Failure, Success, Try }
+import Ordering.Double.IeeeOrdering
 
 /**
  * Implements methods for reading and writing D-dimensional images
@@ -361,7 +362,7 @@ object ImageIO {
       val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
       val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
 
-      val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toDouble
+      val mirrorScale = breeze.linalg.det(linearTransMatrix).sign.toDouble
 
       val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
 

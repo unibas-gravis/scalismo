@@ -26,6 +26,7 @@ import vtk._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{TypeTag, typeOf}
 import scala.util.{Failure, Success, Try}
+import scala.Ordering.Double.IeeeOrdering
 
 object VtkHelpers {
 

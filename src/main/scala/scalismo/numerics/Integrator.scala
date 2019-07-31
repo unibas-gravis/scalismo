@@ -19,6 +19,7 @@ import breeze.linalg.DenseVector
 import scalismo.common.VectorField
 import scalismo.geometry._
 import scalismo.image.ScalarImage
+import scala.collection.parallel.CollectionConverters._
 
 case class Integrator[D: NDSpace](sampler: Sampler[D]) {
 

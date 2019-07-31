@@ -104,7 +104,7 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double,
     val unitNormal = normal * (1.0 / normal.norm)
     require(math.abs(unitNormal.norm - 1.0) < 1e-5)
 
-    val range = ((-1 * numberOfPoints / 2) to (numberOfPoints / 2)).to[immutable.IndexedSeq]
+    val range = ((-1 * numberOfPoints / 2) to (numberOfPoints / 2))
     Some(range map { i => centerPoint + unitNormal * i * spacing })
   }
 

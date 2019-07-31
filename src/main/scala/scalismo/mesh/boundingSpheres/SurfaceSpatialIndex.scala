@@ -51,7 +51,7 @@ trait SurfaceSpatialIndex[D] {
 /**
  * Type of the closest point. At the moment the names are only suited for a triangular mesh.
  */
-private object ClosestPointType extends Enumeration {
+object ClosestPointType extends Enumeration {
   type ClosestPointType = Value
   val POINT, ON_LINE, IN_TRIANGLE = Value
 }
@@ -67,7 +67,7 @@ import scalismo.mesh.boundingSpheres.ClosestPointType._
  * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
  * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
  */
-private case class ClosestPointMeta(distance2: Double,
+case class ClosestPointMeta(distance2: Double,
   pt: EuclideanVector[_3D],
   ptType: ClosestPointType,
   bc: (Double, Double),

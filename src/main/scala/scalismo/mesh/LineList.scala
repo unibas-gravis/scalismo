@@ -53,7 +53,7 @@ case class LineList(lines: IndexedSeq[LineCell]) {
       lineMap(line.ptId1) += lineId
       lineMap(line.ptId2) += lineId
     }
-    val data = lineMap.mapValues(s => s.toSet) // make immutable
+    val data = lineMap.view.mapValues(s => s.toSet) // make immutable
 
     val dataSeq = IndexedSeq.tabulate(pointIds.size) { i => data(pointIds(i)).toIndexedSeq }
     id => dataSeq(id.id)
@@ -77,7 +77,7 @@ case class LineList(lines: IndexedSeq[LineCell]) {
     for (p <- pointIds) {
       pointMap(p) -= p
     }
-    val mapData = pointMap.mapValues(s => s.toSet) // make immutable
+    val mapData = pointMap.view.mapValues(s => s.toSet) // make immutable
     val seqData = IndexedSeq.tabulate(pointIds.size) { i => mapData(pointIds(i)).toIndexedSeq }
     id => seqData(id.id)
   }
@@ -96,7 +96,7 @@ case class LineList(lines: IndexedSeq[LineCell]) {
       lineMap(lineId) ++= lines(lineId.id).pointIds.flatMap(p => adjacentLinesForPoint(p))
       lineMap(lineId) -= lineId
     }
-    val mapData = lineMap.mapValues(s => s.toSet)
+    val mapData = lineMap.view.mapValues(s => s.toSet)
     val seqData = IndexedSeq.tabulate(lineIds.size) { i => mapData(lineIds(i)).toIndexedSeq }
     id => seqData(id.id)
   }

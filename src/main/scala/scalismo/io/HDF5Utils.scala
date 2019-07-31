@@ -20,7 +20,7 @@ import java.io.{ Closeable, File, IOException }
 import ncsa.hdf.`object`._
 import ncsa.hdf.`object`.h5._
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
@@ -29,7 +29,7 @@ case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
 
 class HDF5File(h5file: FileFormat) extends Closeable {
 
-  override def close() { h5file.close() }
+  override def close(): Unit = { h5file.close() }
 
   def exists(path: String): Boolean = h5file.get(path) != null
 
@@ -47,7 +47,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
   def readStringAttribute(path: String, attrName: String): Try[String] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
-        val metadata = s.getMetadata
+        val metadata = s.getMetadata.asScala
         val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName.equals(attrName))
         maybeAttr match {
           case Some(a) => {
@@ -66,7 +66,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
   def readIntAttribute(path: String, attrName: String): Try[Int] = {
     h5file.get(path) match {
       case s @ (_: H5Group | _: H5ScalarDS) => {
-        val metadata = s.getMetadata
+        val metadata = s.getMetadata.asScala
         val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName.equals(attrName))
         maybeAttr match {
           case Some(a) => {
@@ -260,7 +260,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
 
     val groupnames = trimmedPath.split("/", 2)
 
-    def getMember(name: String) = parent.getMemberList.find(_.getName == name.trim())
+    def getMember(name: String) = parent.getMemberList.asScala.find(_.getName == name.trim())
 
     val newgroup = getMember(groupnames(0)) match {
       case Some(g) => g.asInstanceOf[Group]

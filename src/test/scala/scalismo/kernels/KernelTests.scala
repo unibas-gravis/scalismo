@@ -23,6 +23,7 @@ import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import scalismo.utils.Random
 import scalismo.{ ScalismoTestSuite }
+import scala.collection.parallel.CollectionConverters._
 
 class KernelTests extends ScalismoTestSuite {
 

@@ -25,7 +25,6 @@ import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
 
-import scala.collection.immutable
 import scala.util.{ Failure, Success, Try }
 
 object ActiveShapeModelIO {
@@ -75,8 +74,8 @@ object ActiveShapeModelIO {
   private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles): Try[Unit] = Try {
     val numberOfPoints = profiles.data.length
     val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
-    val means: NDArray[Float] = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.distribution.mean.toArray).toArray.map(_.toFloat))
-    val covariances: NDArray[Float] = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat))
+    val means: NDArray[Float] = new NDArray(IndexedSeq[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.distribution.mean.toArray).toArray.map(_.toFloat))
+    val covariances: NDArray[Float] = new NDArray(IndexedSeq[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat))
     val groupName = group.getFullName
 
     val result = for {
@@ -124,7 +123,11 @@ object ActiveShapeModelIO {
       meanArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Means}")
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
-      val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m.map(_.toDouble), c.map(_.toDouble)) }.to[immutable.IndexedSeq]
+      val dists = meanVecs.zip(covMats).map {
+        case (m, c) => new MultivariateNormalDistribution(
+          m.map(_.toDouble), c.map(_.toDouble)
+        )
+      }.toIndexedSeq
       val profiles = dists.zip(pointIds).map { case (d, id) => Profile(PointId(id), d) }
       new Profiles(profiles)
     }

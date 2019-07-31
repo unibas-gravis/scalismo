@@ -109,7 +109,7 @@ object DiscreteScalarImage {
   }
 
   /** create a new DiscreteScalarImage with given domain and values */
-  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: Traversable[A])(implicit create: Create[D]) = {
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], values: Iterable[A])(implicit create: Create[D]) = {
     create.create(domain, ScalarArray(values.toArray))
   }
 
