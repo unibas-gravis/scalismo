@@ -42,7 +42,7 @@ object MeshMetrics {
   }
 
   /**
-   * Returns the average mesh distance after performing a rigid alignment between the two meshes.
+   * Returns the average mesh correspondence point distance after performing a rigid alignment between the two meshes.
    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
    */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
@@ -51,7 +51,10 @@ object MeshMetrics {
     val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
     val m1w = m1.transform(t)
-    avgDistance(m1w, m2)
+    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map{
+      case (m1wP, m2P) => (m1wP - m2P).norm
+    }
+    dists.sum / m1.pointSet.numberOfPoints
   }
 
   /**
