@@ -16,21 +16,21 @@
 package scalismo.mesh
 
 import scalismo.common.BoxDomain
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{ Point, _3D }
 import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
 import scalismo.utils.Random
 
 /**
-  * Implements utility methods for evaluating similarity of [[TriangleMesh]] instances
-  *
-  */
+ * Implements utility methods for evaluating similarity of [[TriangleMesh]] instances
+ *
+ */
 object MeshMetrics {
 
   /**
-    * For each point of the first mesh, this method computes the shortest distance to the surface of the
-    * second mesh and returns the average over all points
-    */
+   * For each point of the first mesh, this method computes the shortest distance to the surface of the
+   * second mesh and returns the average over all points
+   */
 
   def avgDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
 
@@ -42,10 +42,10 @@ object MeshMetrics {
   }
 
   /**
-    * Partial Procrustes distance - returns the average mesh correspondence point distance after performing a rigid alignment
-    * between the two meshes. Note that no scale transformation is applied in the shape alignment.
-    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
-    */
+   * Partial Procrustes distance - returns the average mesh correspondence point distance after performing a rigid alignment
+   * between the two meshes. Note that no scale transformation is applied in the shape alignment.
+   * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
+   */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
 
@@ -59,8 +59,8 @@ object MeshMetrics {
   }
 
   /**
-    * Returns the Hausdorff distance between the two meshes
-    */
+   * Returns the Hausdorff distance between the two meshes
+   */
   def hausdorffDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     def allDistsBetweenMeshes(mm1: TriangleMesh[_3D], mm2: TriangleMesh[_3D]): Iterator[Double] = {
       for (ptM1 <- mm1.pointSet.points) yield {
@@ -77,8 +77,8 @@ object MeshMetrics {
   }
 
   /**
-    * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
-    */
+   * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
+   */
   def diceCoefficient(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D])(implicit rand: Random): Double = {
     val imgA = m1.operations.toBinaryImage
     val imgB = m2.operations.toBinaryImage
