@@ -42,7 +42,8 @@ object MeshMetrics {
   }
 
   /**
-   * Returns the average mesh distance after performing a rigid alignment between the two meshes.
+   * Partial Procrustes distance - returns the average mesh correspondence point distance after performing a rigid alignment
+   * between the two meshes. Note that no scale transformation is applied in the shape alignment.
    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
    */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
@@ -51,7 +52,10 @@ object MeshMetrics {
     val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
     val m1w = m1.transform(t)
-    avgDistance(m1w, m2)
+    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map {
+      case (m1wP, m2P) => (m1wP - m2P).norm
+    }
+    dists.sum / m1.pointSet.numberOfPoints
   }
 
   /**
@@ -80,6 +84,7 @@ object MeshMetrics {
     val imgB = m2.operations.toBinaryImage
 
     def minPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.min(pt1(0), pt2(0)), math.min(pt1(1), pt2(1)), math.min(pt1(2), pt2(2)))
+
     def maxPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.max(pt1(0), pt2(0)), math.max(pt1(1), pt2(1)), math.max(pt1(2), pt2(2)))
 
     val box1 = m1.pointSet.boundingBox
