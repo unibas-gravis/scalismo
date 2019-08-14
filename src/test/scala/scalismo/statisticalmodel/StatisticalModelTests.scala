@@ -24,7 +24,7 @@ import scalismo.geometry._
 import scalismo.io.StatismoIO
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.registration.{RigidTransformation, RigidTransformationSpace}
+import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 

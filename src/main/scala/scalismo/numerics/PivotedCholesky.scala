@@ -125,7 +125,6 @@ object PivotedCholesky {
         c += 1
       }
 
-
       def sumChunk(ids: IndexedSeq[Int]): Double = {
 
         var s = 0.0
