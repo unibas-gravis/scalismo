@@ -125,7 +125,6 @@ object PivotedCholesky {
         c += 1
       }
 
-      tr = d(p(k))
 
       def sumChunk(ids: IndexedSeq[Int]): Double = {
 
@@ -146,7 +145,9 @@ object PivotedCholesky {
         sumChunk(pointChunk)
       }
 
-      tr = tr + chunksum.sum
+      d(p(k)) = d(p(k)) - (S(p(k)) * S(p(k)))
+
+      tr = d(p(k)) + chunksum.sum
 
       L.addCol(DenseVector(S.toArray))
       k += 1
