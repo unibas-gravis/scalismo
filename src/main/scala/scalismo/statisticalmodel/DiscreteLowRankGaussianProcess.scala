@@ -450,11 +450,11 @@ object DiscreteLowRankGaussianProcess {
     // Whether it is more efficient to compute the PCA using the gram matrix or the covariance matrix, depends on
     // whether we have more examples than variables.
     val (basisMat, varianceVector) = if (X.rows > X.cols) {
-      val (u, d2) = PivotedCholesky.computeApproximateEig(X.t * X * (1.0 / (n - 1)), 1.0, stoppingCriterion)
+      val (u, d2) = PivotedCholesky.computeApproximateEig(X.t * X * (1.0 / (n - 1)), stoppingCriterion)
       (u, d2)
     } else {
 
-      val (v, d2) = PivotedCholesky.computeApproximateEig(X * X.t * (1.0 / (n - 1)), 1.0, stoppingCriterion)
+      val (v, d2) = PivotedCholesky.computeApproximateEig(X * X.t * (1.0 / (n - 1)), stoppingCriterion)
 
       val D = d2.map(v => Math.sqrt(v))
       val Dinv = D.map(d => if (d > 1e-6) 1.0 / d else 0.0)

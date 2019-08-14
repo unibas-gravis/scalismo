@@ -35,7 +35,7 @@ class PivotedCholeskyTest extends ScalismoTestSuite {
       val k = GaussianKernel[_1D](1.0)
       val matrixValuedK = DiagonalKernel[_1D](k, 1)
       val m = Kernel.computeKernelMatrix[_1D](pts, matrixValuedK)
-      val eigCholesky = PivotedCholesky.computeApproximateEig(matrixValuedK, pts, 1.0, PivotedCholesky.RelativeTolerance(1e-15))
+      val eigCholesky = PivotedCholesky.computeApproximateEig(matrixValuedK, pts, PivotedCholesky.RelativeTolerance(1e-15))
       val (u, d) = eigCholesky
       val D = (u * breeze.linalg.diag(d) * u.t) - m
       Math.sqrt(breeze.linalg.trace(D * D.t)) should be <= 1e-5
@@ -49,7 +49,7 @@ class PivotedCholeskyTest extends ScalismoTestSuite {
       val k = GaussianKernel[_3D](1.0)
       val matrixValuedK = DiagonalKernel[_3D](k, 3)
       val m = Kernel.computeKernelMatrix[_3D](pts, matrixValuedK)
-      val eigCholesky = PivotedCholesky.computeApproximateEig(matrixValuedK, pts, 1.0, PivotedCholesky.RelativeTolerance(1e-15))
+      val eigCholesky = PivotedCholesky.computeApproximateEig(matrixValuedK, pts, PivotedCholesky.RelativeTolerance(1e-15))
       val (u, d) = eigCholesky
       val D = (u * breeze.linalg.diag(d) * u.t) - m
       Math.sqrt(breeze.linalg.trace(D * D.t)) should be <= 1e-5
