@@ -266,7 +266,6 @@ object LowRankGaussianProcess {
     val (basis, scale) = PivotedCholesky.computeApproximateEig(
       kernel = gp.cov,
       xs = domain.points.toIndexedSeq,
-      D = 1.0,
       stoppingCriterion = RelativeTolerance(relativeTolerance)
     )
 

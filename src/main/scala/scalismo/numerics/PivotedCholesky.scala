@@ -183,12 +183,12 @@ object PivotedCholesky {
     computeApproximateCholeskyGeneric[Int](kernel, indices, stoppingCriterion)
   }
 
-  private def computeApproximateEigGeneric[A](k: (A, A) => Double, xs: IndexedSeq[A], D: Double, sc: StoppingCriterion) = {
+  private def computeApproximateEigGeneric[A](k: (A, A) => Double, xs: IndexedSeq[A], sc: StoppingCriterion) = {
 
     val PivotedCholesky(l, _, _) = computeApproximateCholeskyGeneric(k, xs, sc)
 
-    val LD = l(::, 0 until l.cols).t *:* D
-    val phi: DenseMatrix[Double] = LD * l(::, 0 until l.cols)
+    val Lt = l(::, 0 until l.cols).t
+    val phi: DenseMatrix[Double] = Lt * l(::, 0 until l.cols)
 
     val SVD(v, _, _) = breeze.linalg.svd(phi)
     val U: DenseMatrix[Double] = l(::, 0 until l.cols) * v
@@ -209,23 +209,22 @@ object PivotedCholesky {
 
   }
 
-  def computeApproximateEig(A: DenseMatrix[Double], D: Double, sc: StoppingCriterion) = {
+  def computeApproximateEig(A: DenseMatrix[Double], sc: StoppingCriterion) = {
     val kernel: (Int, Int) => Double = (i, j) => A(i, j)
     val indices = IndexedSeq.range(0, A.cols)
 
-    extractEigenvalues(computeApproximateEigGeneric(kernel, indices, D, sc))
+    extractEigenvalues(computeApproximateEigGeneric(kernel, indices, sc))
   }
 
   def computeApproximateEig[D: NDSpace](kernel: MatrixValuedPDKernel[D],
-    xs: IndexedSeq[Point[D]], D: Double,
-    stoppingCriterion: StoppingCriterion) = {
+    xs: IndexedSeq[Point[D]], stoppingCriterion: StoppingCriterion) = {
 
     case class PointWithDim(point: Point[D], dim: Int)
     val dim = kernel.outputDim
     val xsWithDim: IndexedSeq[PointWithDim] = xs.flatMap(f => (0 until dim).map(i => PointWithDim(f, i)))
     def kscalar(x: PointWithDim, y: PointWithDim): Double = kernel(x.point, y.point)(x.dim, y.dim)
 
-    extractEigenvalues(computeApproximateEigGeneric[PointWithDim](kscalar, xsWithDim, D, stoppingCriterion))
+    extractEigenvalues(computeApproximateEigGeneric[PointWithDim](kscalar, xsWithDim, stoppingCriterion))
 
   }
 
@@ -236,7 +235,7 @@ object PivotedCholesky {
 
     def k(x: Point[D], y: Point[D]): Double = kernel(x, y)
 
-    extractEigenvalues(computeApproximateEigGeneric[Point[D]](k, xs, D, stoppingCriterion))
+    extractEigenvalues(computeApproximateEigGeneric[Point[D]](k, xs, stoppingCriterion))
 
   }
 }

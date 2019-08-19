@@ -122,7 +122,6 @@ class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] 
 
     val (basis, scale) = PivotedCholesky.computeApproximateEig(
       cov.asBreezeMatrix,
-      D = 1.0,
       RelativeTolerance(0.0)
     )
 
