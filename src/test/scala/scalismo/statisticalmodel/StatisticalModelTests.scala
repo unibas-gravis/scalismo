@@ -23,7 +23,9 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.StatismoIO
 import scalismo.mesh.MeshMetrics
+import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
 import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
+import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -49,6 +51,25 @@ class StatisticalModelTests extends ScalismoTestSuite {
               (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
           }
       }
+    }
+
+    it("can be calculated with a small amount of samples using PCA") {
+
+      val path = getClass.getResource("/facemodel.h5").getPath
+      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+
+      val ref = model.referenceMesh
+
+      val data = (1 to 3).map(f => model.sample())
+
+      val dc = DataCollection.fromMeshSequence(referenceMesh = ref, registeredMeshes = data)._1.get
+      val dcGpa = DataCollection.gpa(dc)
+
+      val pca1 = StatisticalMeshModel.createUsingPCA(dcGpa, NumberOfEigenfunctions.apply(data.length - 1))
+
+      val pca2 = StatisticalMeshModel.createUsingPCA(dcGpa) // NotConvergedException
+
+      assert(pca1.isSuccess && pca2.isSuccess)
     }
 
     it("can be transformed forth and back and yield the same deformations") {
