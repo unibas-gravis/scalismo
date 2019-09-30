@@ -37,6 +37,9 @@ sealed abstract class IntVector[D: NDSpace] {
   def map(f: Int => Int): IntVector[D] = mapWithIndex((v, i) => f(v))
 }
 
+
+
+
 /** 1D point */
 case class IntVector1D(i: Int) extends IntVector[_1D] {
   override def apply(a: Int): Int = a match {
@@ -62,6 +65,9 @@ case class IntVector2D(i: Int, j: Int) extends IntVector[_2D] {
   override def mapWithIndex(f: (Int, Int) => Int): IntVector2D = IntVector2D(f(i, 0), f(j, 1))
 }
 
+
+
+
 /** 3D point */
 case class IntVector3D(i: Int, j: Int, k: Int) extends IntVector[_3D] {
   override def apply(a: Int): Int = a match {
@@ -75,6 +81,10 @@ case class IntVector3D(i: Int, j: Int, k: Int) extends IntVector[_3D] {
 
   override def mapWithIndex(f: (Int, Int) => Int): IntVector3D = IntVector3D(f(i, 0), f(j, 1), f(k, 2))
 }
+
+
+
+
 
 object IntVector {
 
@@ -104,10 +114,13 @@ object IntVector {
     }
   }
 
+
+
   def apply[D: NDSpace](d: Array[Int])(implicit builder: Create[D]) = builder.createIndex(d)
   def apply(x: Int): IntVector1D = IntVector1D(x)
   def apply(x: Int, y: Int): IntVector2D = IntVector2D(x, y)
   def apply(x: Int, y: Int, z: Int): IntVector3D = IntVector3D(x, y, z)
+
 
   def zeros[D: NDSpace] = {
     IntVector(Array.fill(NDSpace[D].dimensionality)(0))
@@ -122,6 +135,8 @@ object IntVector {
     override def plus(x: IntVector[D], y: IntVector[D]): IntVector[D] = x.mapWithIndex((v, i) => v + y(i))
   }
 
+
+
   object implicits {
     implicit def index1DToInt(ind: IntVector[_1D]): Int = ind.i
     implicit def intToIndex1D(f: Int): IntVector1D = IntVector1D(f)
@@ -132,5 +147,6 @@ object IntVector {
   implicit def parametricToConcrete1D(p: IntVector[_1D]): IntVector1D = p.asInstanceOf[IntVector1D]
   implicit def parametricToConcrete2D(p: IntVector[_2D]): IntVector2D = p.asInstanceOf[IntVector2D]
   implicit def parametricToConcrete3D(p: IntVector[_3D]): IntVector3D = p.asInstanceOf[IntVector3D]
+
 
 }

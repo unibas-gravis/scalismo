@@ -189,6 +189,8 @@ case class EuclideanVector3D(x: Double, y: Double, z: Double) extends EuclideanV
 
 }
 
+
+
 object EuclideanVector3D {
   val unitX = EuclideanVector3D(1.0, 0.0, 0.0)
   val unitY = EuclideanVector3D(0.0, 1.0, 0.0)
@@ -197,6 +199,7 @@ object EuclideanVector3D {
   val zero = EuclideanVector3D(0.0, 0.0, 0.0)
   val ones = EuclideanVector3D(1.0, 1.0, 1.0)
 }
+
 
 object EuclideanVector {
 
@@ -230,6 +233,7 @@ object EuclideanVector {
     override val zero: EuclideanVector[_3D] = EuclideanVector3D.zero
   }
 
+
   def apply[D: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
 
   def apply(x: Double): EuclideanVector[_1D] = EuclideanVector1D(x)
@@ -237,7 +241,6 @@ object EuclideanVector {
   def apply(x: Double, y: Double): EuclideanVector[_2D] = EuclideanVector2D(x, y)
 
   def apply(x: Double, y: Double, z: Double): EuclideanVector[_3D] = EuclideanVector3D(x, y, z)
-
   def zeros[D: NDSpace](implicit builder: Create[D]): EuclideanVector[D] = builder.zero
 
   def fromBreezeVector[D: NDSpace](breeze: DenseVector[Double]): EuclideanVector[D] = {
@@ -282,11 +285,13 @@ object EuclideanVector {
     implicit def doubleToVector1D(f: Double): EuclideanVector[_1D] = EuclideanVector(f)
     implicit def tupleOfDoubleToVector2D(t: (Double, Double)): EuclideanVector[_2D] = EuclideanVector(t._1, t._2)
     implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)): EuclideanVector[_3D] = EuclideanVector(t._1, t._2, t._3)
+
   }
 
   implicit def parametricToConcrete1D(p: EuclideanVector[_1D]): EuclideanVector1D = p.asInstanceOf[EuclideanVector1D]
   implicit def parametricToConcrete2D(p: EuclideanVector[_2D]): EuclideanVector2D = p.asInstanceOf[EuclideanVector2D]
   implicit def parametricToConcrete3D(p: EuclideanVector[_3D]): EuclideanVector3D = p.asInstanceOf[EuclideanVector3D]
+
 
   class VectorVectorizer[D: NDSpace] extends Vectorizer[EuclideanVector[D]] {
     override def dim: Int = implicitly[NDSpace[D]].dimensionality
