@@ -18,7 +18,6 @@ package scalismo.tetramesh
 import breeze.linalg.svd.SVD
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.utils.Random
 
@@ -96,7 +95,14 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   override def transform(transform: Point[_3D] => Point[_3D]): TetrahedralMesh3D = {
     TetrahedralMesh3D(pointSet.points.map(transform).toIndexedSeq, tetrahedralization)
   }
-
+  /**
+    *  Returns the volume of the TetrahedralMesh.
+    */
+  lazy val volume: Double = {
+    var sum = 0.0
+    tetrahedrons.foreach(t => sum += ComputeteTrahedronVolume(t))
+    sum
+  }
 
   /**
    *  Returns the area of the indicated tetrahedral cell.
@@ -120,19 +126,69 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     areatriangle(A,B,C)+areatriangle(A,C,D)+areatriangle(A,B,D)+areatriangle(B,C,D)
   }
 
+
+
+  /**
+    *  Returns the volume of the indicated tetrahedral cell.
+    */
+  def ComputeteTrahedronVolume (terahedron: TetrahedralCell):Double={
+    val A = pointSet.point(terahedron.ptId1)
+    val B = pointSet.point(terahedron.ptId2)
+    val C = pointSet.point(terahedron.ptId3)
+    val D = pointSet.point(terahedron.ptId4)
+    val u = Math.pow((B - A).norm,2)
+    val U = Math.pow((C - A).norm,2)
+    val v = Math.pow((D - A).norm,2)
+    val V = Math.pow((B - C).norm,2)
+    val w = Math.pow((B - D).norm,2)
+    val W = Math.pow((D - C).norm,2)
+
+    val a=4*(u*v*w
+      -u*Math.pow(v+w-U,2)
+      -v*Math.pow(w+u-V,2)
+      -w*Math.pow(u+v-W,2)
+      +(v+w-U)*(w+u-V)*(u+v-W))
+
+
+    def voltest(u1: Double,U1: Double, v1:Double,V1:Double,w1:Double,W1:Double):Double={
+
+      val u = Math.pow(u1,2)
+      val U = Math.pow(U1,2)
+      val v = Math.pow(v1,2)
+      val V = Math.pow(V1,2)
+      val w = Math.pow(w1,2)
+      val W = Math.pow(W1,2)
+
+      val a=4*(u*v*w
+        -u*Math.pow(v+w-U,2)
+        -v*Math.pow(w+u-V,2)
+        -w*Math.pow(u+v-W,2)
+        +(v+w-U)*(w+u-V)*(u+v-W))
+      Math.sqrt(a)/12
+    }
+    println("test of tetrahedron volume is "+voltest(1000,3,1000,4,1000,5))
+
+    Math.sqrt(a)/12
+
+  }
+
+
+
+
+
+
 /**
   *  Returns true if a given point is inside the tetrahedron defined by the indicated cell.
   *
   *
   */
-def isInTetrahedralCell(p: Point[_3D],t: TetrahedralCell)(implicit rnd: Random): Boolean = {
+def isInsideTetrahedralCell(p: Point[_3D],t: TetrahedralCell): Boolean = {
   val A = pointSet.point(t.ptId1)
   val B = pointSet.point(t.ptId2)
   val C = pointSet.point(t.ptId3)
-  val D = pointSet.point(t.ptId3)
+  val D = pointSet.point(t.ptId4)
 
   def tetracoord(A: Point[_3D],B: Point[_3D],C: Point[_3D],D: Point[_3D]): DenseMatrix[Double]= {
-
     val v1 = B - A
     val v2 = C - A
     val v3 = D - A
@@ -188,7 +244,7 @@ def isInTetrahedralCell(p: Point[_3D],t: TetrahedralCell)(implicit rnd: Random):
 
     var p=Point3D(centroid(0)*u,centroid(1)*d,centroid(2)*z)
 
-    while (isInTetrahedralCell(p,t)==false){
+    while (isInsideTetrahedralCell(p,t)==false){
       val u = rnd.scalaRandom.nextDouble()
       val d = rnd.scalaRandom.nextDouble()
       val z = rnd.scalaRandom.nextDouble()
