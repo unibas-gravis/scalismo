@@ -131,45 +131,15 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   /**
     *  Returns the volume of the indicated tetrahedral cell.
     */
-  def ComputeteTrahedronVolume (terahedron: TetrahedralCell):Double={
-    val A = pointSet.point(terahedron.ptId1)
-    val B = pointSet.point(terahedron.ptId2)
-    val C = pointSet.point(terahedron.ptId3)
-    val D = pointSet.point(terahedron.ptId4)
-    val u = Math.pow((B - A).norm,2)
-    val U = Math.pow((C - A).norm,2)
-    val v = Math.pow((D - A).norm,2)
-    val V = Math.pow((B - C).norm,2)
-    val w = Math.pow((B - D).norm,2)
-    val W = Math.pow((D - C).norm,2)
-
-    val a=4*(u*v*w
-      -u*Math.pow(v+w-U,2)
-      -v*Math.pow(w+u-V,2)
-      -w*Math.pow(u+v-W,2)
-      +(v+w-U)*(w+u-V)*(u+v-W))
 
 
-    def voltest(u1: Double,U1: Double, v1:Double,V1:Double,w1:Double,W1:Double):Double={
+  def ComputeteTrahedronVolume (terahedron: TetrahedralCell):Double ={
+    val a = pointSet.point(terahedron.ptId1)
+    val b = pointSet.point(terahedron.ptId2)
+    val c = pointSet.point(terahedron.ptId3)
+    val d = pointSet.point(terahedron.ptId4)
 
-      val u = Math.pow(u1,2)
-      val U = Math.pow(U1,2)
-      val v = Math.pow(v1,2)
-      val V = Math.pow(V1,2)
-      val w = Math.pow(w1,2)
-      val W = Math.pow(W1,2)
-
-      val a=4*(u*v*w
-        -u*Math.pow(v+w-U,2)
-        -v*Math.pow(w+u-V,2)
-        -w*Math.pow(u+v-W,2)
-        +(v+w-U)*(w+u-V)*(u+v-W))
-      Math.sqrt(a)/12
-    }
-    println("test of tetrahedron volume is "+voltest(1000,3,1000,4,1000,5))
-
-    Math.sqrt(a)/12
-
+    (a-d).dot((b-d).crossproduct(c-d))*(1.0/6)
   }
 
 
