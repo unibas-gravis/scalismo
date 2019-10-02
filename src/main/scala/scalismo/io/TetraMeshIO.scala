@@ -265,6 +265,9 @@ object TetraMeshIO  {
     succOrFailure
   }
 
+
+
+
  /* private def writeVTKPdAsSTL(vtkPd: vtkPolyData, file: File): Try[Unit] = {
     val writer = new vtkSTLWriter()
     writer.SetFileName(file.getAbsolutePath)
@@ -293,6 +296,33 @@ object TetraMeshIO  {
     vtkReader.Delete()
     Success(data)
   }
+
+  private def readvtkAVSucdUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+
+    val vtkReader = new vtkAVSucdReader ()
+    vtkReader.SetFileName(file.getAbsolutePath)
+    vtkReader.Update()
+    val errCode = vtkReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
+    }
+    val data = vtkReader.GetOutput()
+    vtkReader.Delete()
+    Success(data)
+  }
+
+  private def readVTKAVSucd(file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
+    for {
+      vtkUg <- readvtkAVSucdUnstructuredGrid(file)
+      tetramesh <- {
+        if (correctMesh) TetraMeshConversion.vtkUnstructuredGridToCorrectedTetrahedralMesh(vtkUg) else TetraMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
+      }
+    } yield {
+      vtkUg.Delete()
+      tetramesh
+    }
+  }
+
 
   private def readVTK(file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
     for {

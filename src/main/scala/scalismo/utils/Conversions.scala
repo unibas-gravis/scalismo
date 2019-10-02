@@ -240,6 +240,8 @@ object TetraMeshConversion {
     (points, cells)
   }
 
+
+
   private[scalismo] def vtkConvertPoints[D: NDSpace](ug: vtkUnstructuredGrid): Iterator[Point[D]] = {
     val vtkType = ug.GetPoints().GetDataType()
 
