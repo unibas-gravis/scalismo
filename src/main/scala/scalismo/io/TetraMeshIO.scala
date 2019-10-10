@@ -1,42 +1,42 @@
 package scalismo.io
 
-import java.io.{BufferedReader, File, FileReader, IOException}
+import java.io.{ BufferedReader, File, FileReader, IOException }
 
-import scalismo.color.{RGB, RGBA}
-import scalismo.common.{PointId, Scalar, UnstructuredPointsDomain}
+import scalismo.color.{ RGB, RGBA }
+import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.mesh.TriangleMesh._
 import scalismo.mesh._
-import scalismo.tetramesh.{TetrahedralCell, TetrahedralMesh}
-import scalismo.utils.{MeshConversion, TetraMeshConversion}
-import vtk.{vtkUnstructuredGridReader, _}
+import scalismo.tetramesh.{ TetrahedralCell, TetrahedralMesh }
+import scalismo.utils.{ MeshConversion, TetraMeshConversion }
+import vtk.{ vtkUnstructuredGridReader, _ }
 
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{Failure, Success, Try}
-object TetraMeshIO  {
+import scala.util.{ Failure, Success, Try }
+object TetraMeshIO {
   /**
-    * Implements methods for reading and writing D-dimensional meshes
-    *
-    * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
-    *
-    * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates
-    * to lie in an LPS world and map them unchanged in our coordinate system.
-    *
-    * The same happens at writing, we directly dump our vertex coordinates into the file format(stl, or vtk) without any
-    * mirroring magic.
-    *
-    *
-    * *
-    */
+   * Implements methods for reading and writing D-dimensional meshes
+   *
+   * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
+   *
+   * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates
+   * to lie in an LPS world and map them unchanged in our coordinate system.
+   *
+   * The same happens at writing, we directly dump our vertex coordinates into the file format(stl, or vtk) without any
+   * mirroring magic.
+   *
+   *
+   * *
+   */
 
   /**
-    * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
-    *
-    */
+   * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
+   *
+   */
 
- /* def readScalarMeshField[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
+  /* def readScalarMeshField[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val requiredScalarType = ImageIO.ScalarType.fromType[S]
     val filename = file.getAbsolutePath
     filename match {
@@ -55,11 +55,11 @@ object TetraMeshIO  {
   }*/
 
   /**
-    * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
-    *
-    */
+   * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
+   *
+   */
 
- /* def readScalarMeshFieldAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
+  /* def readScalarMeshFieldAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTKPolydata(file).flatMap(pd => MeshConversion.vtkPolyDataToScalarMeshField(pd))
@@ -71,10 +71,10 @@ object TetraMeshIO  {
   def readTetraMesh(file: File): Try[TetrahedralMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
-     // case f if f.endsWith(".h5") => readHDF5(file)
+      case f if f.endsWith(".inp") => readVTKAVSucd(file)
       case f if f.endsWith(".vtk") => readVTK(file)
-     // case f if f.endsWith(".stl") => readSTL(file)
-     /* case f if f.endsWith(".ply") => {
+      case f if f.endsWith(".vtu") => readVTU(file)
+      /* case f if f.endsWith(".ply") => {
         readPLY(file).map { res =>
           res match {
             case Right(vertexColor) => vertexColor.shape
@@ -87,7 +87,7 @@ object TetraMeshIO  {
     }
   }
 
- /* def readVertexColorMesh3D(file: File): Try[VertexColorMesh3D] = {
+  /* def readVertexColorMesh3D(file: File): Try[VertexColorMesh3D] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".ply") => readPLY(file).map { r =>
@@ -111,8 +111,6 @@ object TetraMeshIO  {
     }
   }
 
-
-
   /*def readLineMesh3D(file: File): Try[LineMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -134,9 +132,9 @@ object TetraMeshIO  {
   def writeTetraMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
-     // case f if f.endsWith(".h5") => writeHDF5(mesh, file)
+      // case f if f.endsWith(".h5") => writeHDF5(mesh, file)
       case f if f.endsWith(".vtk") => writeVTK(mesh, file)
-     // case f if f.endsWith(".stl") => writeSTL(mesh, file)
+      case f if f.endsWith(".vtu") => writeVTU(mesh, file)
       //case f if f.endsWith(".ply") => writePLY(Left(mesh), file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
@@ -144,10 +142,10 @@ object TetraMeshIO  {
   }
 
   /**
-    * Writes a [[VertexColorMesh3D]] to a file.
-    *
-    * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
-    */
+   * Writes a [[VertexColorMesh3D]] to a file.
+   *
+   * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
+   */
   /*def writeVertexColorMesh3D(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -157,7 +155,7 @@ object TetraMeshIO  {
     }
   }*/
 
- /* def writeScalarMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
+  /* def writeScalarMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeVTK(meshData, file)
@@ -166,7 +164,7 @@ object TetraMeshIO  {
     }
   }*/
 
- /* def writeHDF5(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
+  /* def writeHDF5(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
 
     val domainPoints: IndexedSeq[Point[_3D]] = surface.pointSet.points.toIndexedSeq
     val cells: IndexedSeq[TriangleCell] = surface.cells
@@ -199,6 +197,13 @@ object TetraMeshIO  {
     err
   }
 
+  def writeVTU(volume: TetrahedralMesh[_3D], file: File): Try[Unit] = {
+    val vtkUg = TetraMeshConversion.tetrameshTovtkUnstructuredGrid(volume)
+    val err = writeVTKUgasVTU(vtkUg, file)
+    vtkUg.Delete()
+    err
+  }
+
   /*def writeSTL(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshToVtkPolyData(surface)
     val err = writeVTKPdAsSTL(vtkPd, file)
@@ -206,7 +211,7 @@ object TetraMeshIO  {
     err
   }*/
 
- /* private def writePLY(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
+  /* private def writePLY(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
 
     val vtkPd = surface match {
       case Right(colorMesh) => MeshConversion.meshToVtkPolyData(colorMesh.shape)
@@ -265,10 +270,22 @@ object TetraMeshIO  {
     succOrFailure
   }
 
+  private def writeVTKUgasVTU(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
+    val writer = new vtkXMLUnstructuredGridWriter()
+    writer.SetFileName(file.getAbsolutePath)
+    writer.SetInputData(vtkUg)
+    writer.SetDataModeToBinary()
+    writer.Update()
+    val succOrFailure = if (writer.GetErrorCode() != 0) {
+      Failure(new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+    } else {
+      Success(())
+    }
+    writer.Delete()
+    succOrFailure
+  }
 
-
-
- /* private def writeVTKPdAsSTL(vtkPd: vtkPolyData, file: File): Try[Unit] = {
+  /* private def writeVTKPdAsSTL(vtkPd: vtkPolyData, file: File): Try[Unit] = {
     val writer = new vtkSTLWriter()
     writer.SetFileName(file.getAbsolutePath)
     writer.SetInputData(vtkPd)
@@ -288,6 +305,25 @@ object TetraMeshIO  {
     val vtkReader = new vtkUnstructuredGridReader()
     vtkReader.SetFileName(file.getAbsolutePath)
     vtkReader.Update()
+
+    val extract = new vtkExtractUnstructuredGrid()
+    extract.SetInputConnection(vtkReader.GetOutputPort())
+
+    val errCode = vtkReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
+    }
+    val data = vtkReader.GetOutput()
+    vtkReader.Delete()
+    Success(data)
+  }
+
+  private def readVTKXMLUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+
+    val vtkReader = new vtkXMLUnstructuredGridReader()
+    vtkReader.SetFileName(file.getAbsolutePath)
+    vtkReader.Update()
+
     val errCode = vtkReader.GetErrorCode()
     if (errCode != 0) {
       return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
@@ -298,17 +334,28 @@ object TetraMeshIO  {
   }
 
   private def readvtkAVSucdUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
-
-    val vtkReader = new vtkAVSucdReader ()
-    vtkReader.SetFileName(file.getAbsolutePath)
-    vtkReader.Update()
-    val errCode = vtkReader.GetErrorCode()
+    val vtkavsReader = new vtkAVSucdReader()
+    vtkavsReader.SetFileName(file.getAbsolutePath)
+    vtkavsReader.Update()
+    val errCode = vtkavsReader.GetErrorCode()
     if (errCode != 0) {
       return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
     }
-    val data = vtkReader.GetOutput()
-    vtkReader.Delete()
+    val data = vtkavsReader.GetOutput()
+    vtkavsReader.Delete()
     Success(data)
+  }
+
+  private def readVTU(file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
+    for {
+      vtkUg <- readVTKXMLUnstructuredGrid(file)
+      tetramesh <- {
+        if (correctMesh) TetraMeshConversion.vtkUnstructuredGridToCorrectedTetrahedralMesh(vtkUg) else TetraMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
+      }
+    } yield {
+      vtkUg.Delete()
+      tetramesh
+    }
   }
 
   private def readVTKAVSucd(file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
@@ -322,7 +369,6 @@ object TetraMeshIO  {
       tetramesh
     }
   }
-
 
   private def readVTK(file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
     for {
@@ -451,7 +497,7 @@ object TetraMeshIO  {
 
   private def NDArrayToCellSeq(ndarray: NDArray[Int]): IndexedSeq[TetrahedralCell] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
-    ndarray.data.grouped(4).map(grp => TetrahedralCell(PointId(grp(0)), PointId(grp(1)), PointId(grp(2)),PointId(grp(3)))).toIndexedSeq
+    ndarray.data.grouped(4).map(grp => TetrahedralCell(PointId(grp(0)), PointId(grp(1)), PointId(grp(2)), PointId(grp(3)))).toIndexedSeq
   }
 
   private def pointSeqToNDArray[T](points: IndexedSeq[Point[_3D]]): NDArray[Double] =
@@ -460,7 +506,7 @@ object TetraMeshIO  {
   private def cellSeqToNDArray[T](cells: IndexedSeq[TetrahedralCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
 
- /* private def readLineMeshVTK[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
+  /* private def readLineMeshVTK[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](file: File): Try[LineMesh[D]] = {
     val vtkReader = new vtkPolyDataReader()
     vtkReader.SetFileName(file.getAbsolutePath)
     vtkReader.Update()
@@ -480,7 +526,7 @@ object TetraMeshIO  {
     correctedMesh
   }*/
 
- /* private[this] def writeLineMeshVTK[D: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
+  /* private[this] def writeLineMeshVTK[D: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.lineMeshToVTKPolyData(mesh)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()
@@ -488,10 +534,4 @@ object TetraMeshIO  {
   }*/
 
 }
-
-
-
-
-
-
 

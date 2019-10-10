@@ -20,17 +20,17 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.utils.Random
+import vtk.vtkTetra
 
 import scala.language.implicitConversions
 
-
 /** Tetrahedral cell in a tetrahedral mesh. The cell relates 4 points with the given identifiers */
-case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId,ptId4: PointId) extends Cell {
+case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4: PointId) extends Cell {
   /** Identifiers of the points belonging to the cell*/
-  val pointIds = IndexedSeq(ptId1, ptId2, ptId3,ptId4)
+  val pointIds = IndexedSeq(ptId1, ptId2, ptId3, ptId4)
 
   /** Returns true if the given point identifier is part of the tetrahedral cell*/
-  def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId||ptId4 == ptId
+  def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId || ptId4 == ptId
 
   def toIntVector4D = DenseVector[Int](ptId1.id, ptId2.id, ptId3.id, ptId4.id)
 }
@@ -57,8 +57,6 @@ object TetrahedralMesh {
     def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[D], topology: TetrahedralList): TetrahedralMesh[D]
   }
 
-
-
   trait Create3D extends Create[_3D] {
     override def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TetrahedralList) = {
       TetrahedralMesh3D(pointSet, topology)
@@ -75,15 +73,13 @@ object TetrahedralMesh {
 
 case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedralization: TetrahedralList) extends TetrahedralMesh[_3D] {
 
- // val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
+  // val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val tetrahedrons = tetrahedralization.tetrahedrons
   val cells = tetrahedrons
 
   //lazy val operations: TriangleMesh3DOperations = MeshOperations(this)
 
   lazy val boundingBox = pointSet.boundingBox
-
-
 
   /**
    *  Returns a triangle mesh that is the image of this mesh by the given transform.
@@ -96,8 +92,8 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     TetrahedralMesh3D(pointSet.points.map(transform).toIndexedSeq, tetrahedralization)
   }
   /**
-    *  Returns the volume of the TetrahedralMesh.
-    */
+   *  Returns the volume of the TetrahedralMesh.
+   */
   lazy val volume: Double = {
     var sum = 0.0
     tetrahedrons.foreach(t => sum += ComputeteTrahedronVolume(t))
@@ -112,9 +108,9 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     val A = pointSet.point(t.ptId1)
     val B = pointSet.point(t.ptId2)
     val C = pointSet.point(t.ptId3)
-    val D= pointSet.point(t.ptId3)
+    val D = pointSet.point(t.ptId3)
 
-    def areatriangle (A: Point[_3D],B: Point[_3D],C: Point[_3D]):Double= {
+    def areatriangle(A: Point[_3D], B: Point[_3D], C: Point[_3D]): Double = {
       val a = (B - A).norm
       val b = (C - B).norm
       val c = (C - A).norm
@@ -123,73 +119,97 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
       // it can happen that the area is negative, due to a degenerate triangle.
       if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
     }
-    areatriangle(A,B,C)+areatriangle(A,C,D)+areatriangle(A,B,D)+areatriangle(B,C,D)
+    areatriangle(A, B, C) + areatriangle(A, C, D) + areatriangle(A, B, D) + areatriangle(B, C, D)
   }
 
-
-
   /**
-    *  Returns the volume of the indicated tetrahedral cell.
-    */
+   *  Returns the volume of the indicated tetrahedral cell.
+   */
 
-
-  def ComputeteTrahedronVolume (terahedron: TetrahedralCell):Double ={
+  def ComputeteTrahedronVolume(terahedron: TetrahedralCell): Double = {
     val a = pointSet.point(terahedron.ptId1)
     val b = pointSet.point(terahedron.ptId2)
     val c = pointSet.point(terahedron.ptId3)
     val d = pointSet.point(terahedron.ptId4)
 
-    (a-d).dot((b-d).crossproduct(c-d))*(1.0/6)
+    val tetrahedron = new vtkTetra()
+    Math.abs(tetrahedron.ComputeVolume(a.toArray,b.toArray,c.toArray,d.toArray))
   }
 
+  /**
+   *  Returns true if a given point is inside the tetrahedron defined by the indicated cell.
+   *
+   *
+   */
+  def isInsideTetrahedralCell(p: Point[_3D], t: TetrahedralCell): Boolean = {
+
+   def allposif(v: DenseVector[Double]): Boolean = {
+      if (v(0) > 0.0 && v(1) > 0.0 && v(2) > 0.0 && v(3) > 0.0) {
+        true
+      } else {
+        false
+      }
+
+    }
+
+    def threearezero(v: DenseVector[Double]): Boolean = {
+      if ((v(0) == 0.0 && v(1) == 0.0 && v(2) == 0.0 && v(3) == 1.0) ||
+        (v(0) == 0.0 && v(1) == 0.0 && v(2) == 1.0 && v(3) == 0.0) ||
+        (v(0) == 0.0 && v(1) == 1.0 && v(2) == 0.0 && v(3) == 0.0) ||
+        (v(0) == 1.0 && v(1) == 0.0 && v(2) == 0.0 && v(3) == 0.0)) {
+
+        true
+
+      } else {
+        false
+      }
+    }
+
+
+    def twoarezero(v: DenseVector[Double]): Boolean = {
+      if((v(0) == 0.0 && v(1) == 0.0 && v(2) != 0.0 && v(3) != 0.0) ||
+         (v(0) == 0.0 && v(1) != 0.0 && v(2) == 0.0 && v(3) != 0.0) ||
+         (v(0) == 0.0 && v(1) != 0.0 && v(2) != 0.0 && v(3) == 0.0) ||
+         (v(0) != 0.0 && v(1) == 0.0 && v(2) == 0.0 && v(3) != 0.0) ||
+         (v(0) != 0.0 && v(1) == 0.0 && v(2) != 0.0 && v(3) == 0.0) ||
+         (v(0) != 0.0 && v(1) != 0.0 && v(2) == 0.0 && v(3) == 0.0)) {
+
+        true
+
+      } else {
+        false
+      }
+
+    }
+
+    val a = pointSet.point(t.ptId1).toVector
+    val b = pointSet.point(t.ptId2).toVector
+    val c = pointSet.point(t.ptId3).toVector
+    val d = pointSet.point(t.ptId4).toVector
 
 
 
 
 
-/**
-  *  Returns true if a given point is inside the tetrahedron defined by the indicated cell.
-  *
-  *
-  */
-def isInsideTetrahedralCell(p: Point[_3D],t: TetrahedralCell): Boolean = {
-  val A = pointSet.point(t.ptId1)
-  val B = pointSet.point(t.ptId2)
-  val C = pointSet.point(t.ptId3)
-  val D = pointSet.point(t.ptId4)
+    val bcoord= new Array[Double](4)//this to initialised the array where the result will be stored
+    val tetrahedron = new vtkTetra()
+    tetrahedron.BarycentricCoords(p.toArray,a.toArray,b.toArray,c.toArray,d.toArray,bcoord)
+    val vec=DenseVector[Double](bcoord.apply(0),bcoord.apply(1),bcoord.apply(2),bcoord.apply(3))
 
-  def tetracoord(A: Point[_3D],B: Point[_3D],C: Point[_3D],D: Point[_3D]): DenseMatrix[Double]= {
-    val v1 = B - A
-    val v2 = C - A
-    val v3 = D - A
 
-    //mat defines an affine transform from the tetrahedron to the orthogonal system
-    val mat = DenseMatrix(v1.toArray, v2.toArray, v3.toArray).t
-    //The inverse matrix does the opposite (from orthogonal to tetrahedron)
-    val SVD(u_1, d_1, vt_1) = breeze.linalg.svd(mat)
-    val Dinv_1 = d_1.map(d => if (d > 1e-6) 1.0 / d else 0.0)
-    val x = vt_1.t * breeze.linalg.diag(Dinv_1) * u_1.t
-    x
+    val normalisedvec=vec.map{e=>if ((e>= -1E-6)&&(e<=1E-6)) 0.0 else e}
+
+    if (allposif(normalisedvec)) {
+      true
+    } else if (threearezero(normalisedvec)) {
+      true
+    } else if (twoarezero(normalisedvec)) {
+      true
+    } else {
+      false
+    }
+
   }
-
- def pointInside(A: Point[_3D],B: Point[_3D],C: Point[_3D],D: Point[_3D],p:Point[_3D]):Boolean={
-   //Find the transform matrix from orthogonal to tetrahedron system
-   val M1=tetracoord(A,B,C,D)
-   //apply the transform to P
-   val newp=M1*(p-A).toBreezeVector
-   //perform test
-  if ((newp(0)>=0 && newp(1)>=0 &&newp(2)>=0 )&&(newp(0)<=1 && newp(1)<=10 &&newp(2)<=0 )&&(newp.toScalaVector().toIterator.sum<=1)){
-    true
-  }else{
-    false
-  }
-
- }
-
-  pointInside(A,B,C,D,p)
-}
-
-
 
   /**
    *  Returns a random point lying within the tetrahedron defined by the indicated cell.
@@ -210,18 +230,18 @@ def isInsideTetrahedralCell(p: Point[_3D],t: TetrahedralCell): Boolean = {
     val d = rnd.scalaRandom.nextDouble()
     val z = rnd.scalaRandom.nextDouble()
 
-    val centroid=(A.toVector+B.toVector+C.toVector+D.toVector)*(1.0/4)
+    val centroid = (A.toVector + B.toVector + C.toVector + D.toVector) * (1.0 / 4)
 
-    var p=Point3D(centroid(0)*u,centroid(1)*d,centroid(2)*z)
+    var p = Point3D(centroid(0) * u, centroid(1) * d, centroid(2) * z)
 
-    while (isInsideTetrahedralCell(p,t)==false){
+    while (isInsideTetrahedralCell(p, t) == false) {
       val u = rnd.scalaRandom.nextDouble()
       val d = rnd.scalaRandom.nextDouble()
       val z = rnd.scalaRandom.nextDouble()
 
-      p=Point3D(centroid(0)*u,centroid(1)*d,centroid(2)*z)
+      p = Point3D(centroid(0) * u, centroid(1) * d, centroid(2) * z)
     }
-  p
+    p
   }
 
 }

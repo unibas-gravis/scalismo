@@ -87,7 +87,6 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
 
   lazy val operations: TriangleMesh3DOperations = MeshOperations(this)
 
-
   lazy val boundingBox = pointSet.boundingBox
 
   /** Get all cell normals as a surface property */

@@ -189,8 +189,6 @@ case class EuclideanVector3D(x: Double, y: Double, z: Double) extends EuclideanV
 
 }
 
-
-
 object EuclideanVector3D {
   val unitX = EuclideanVector3D(1.0, 0.0, 0.0)
   val unitY = EuclideanVector3D(0.0, 1.0, 0.0)
@@ -199,7 +197,6 @@ object EuclideanVector3D {
   val zero = EuclideanVector3D(0.0, 0.0, 0.0)
   val ones = EuclideanVector3D(1.0, 1.0, 1.0)
 }
-
 
 object EuclideanVector {
 
@@ -232,7 +229,6 @@ object EuclideanVector {
     }
     override val zero: EuclideanVector[_3D] = EuclideanVector3D.zero
   }
-
 
   def apply[D: NDSpace](d: Array[Double])(implicit builder: Create[D]) = builder.createVector(d)
 
@@ -291,7 +287,6 @@ object EuclideanVector {
   implicit def parametricToConcrete1D(p: EuclideanVector[_1D]): EuclideanVector1D = p.asInstanceOf[EuclideanVector1D]
   implicit def parametricToConcrete2D(p: EuclideanVector[_2D]): EuclideanVector2D = p.asInstanceOf[EuclideanVector2D]
   implicit def parametricToConcrete3D(p: EuclideanVector[_3D]): EuclideanVector3D = p.asInstanceOf[EuclideanVector3D]
-
 
   class VectorVectorizer[D: NDSpace] extends Vectorizer[EuclideanVector[D]] {
     override def dim: Int = implicitly[NDSpace[D]].dimensionality

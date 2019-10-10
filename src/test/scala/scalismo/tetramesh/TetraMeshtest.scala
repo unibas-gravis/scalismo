@@ -1,15 +1,14 @@
 package scalismo.tetramesh
 
-
 import java.io.File
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, UnstructuredPointsDomain}
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.{Point, _3D}
-import scalismo.io.{MeshIO, TetraMeshIO}
-import scalismo.registration.{RotationSpace, ScalingSpace}
+import scalismo.geometry.{ Point, _3D }
+import scalismo.io.{ MeshIO, TetraMeshIO }
+import scalismo.registration.{ RotationSpace, ScalingSpace }
 
 import scala.language.implicitConversions
 
@@ -33,8 +32,8 @@ class TetraMeshtest extends ScalismoTestSuite {
       }
     }
     it("finds the right closest point for a point that is not defined on the tetramesh") {
-      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0),Point(1.0, 1.0, -5.0))
-      val cells = IndexedSeq(TetrahedralCell(0, 1, 2,3))
+      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0), Point(1.0, 1.0, -5.0))
+      val cells = IndexedSeq(TetrahedralCell(0, 1, 2, 3))
       val tetramesh = TetrahedralMesh3D(UnstructuredPointsDomain(pts), TetrahedralList(cells))
 
       val newPt = Point(1.1, 1.1, 4)
@@ -45,7 +44,7 @@ class TetraMeshtest extends ScalismoTestSuite {
       assert(closestPt === pts(2))
     }
     it("computes its volume correctly for a tetrahedron") {
-      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0),(0.0, 0.0, 1.0))
+      val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
       val cells = IndexedSeq(TetrahedralCell(0, 1, 2, 3))
       val tetramesh = TetrahedralMesh3D(UnstructuredPointsDomain(pts), TetrahedralList(cells))
 
@@ -56,7 +55,7 @@ class TetraMeshtest extends ScalismoTestSuite {
       transformedTetraMesh.volume should be(8.0f * tetramesh.volume +- 1e-5) // scaling by two gives 8 times the volume
     }
 
-   /* it("computes the right binary image for the unit sphere") {
+    /* it("computes the right binary image for the unit sphere") {
       val path = getClass.getResource("/unit-sphere.stl").getPath
       val spheremesh = MeshIO.readMesh(new File(path)).get
       val binaryImg = spheremesh.operations.toBinaryImage
@@ -65,7 +64,7 @@ class TetraMeshtest extends ScalismoTestSuite {
     }*/
 
     it("can have an empty cell list") {
-      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0),Point(1.0, -1.0, 5.0))
+      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0), Point(1.0, -1.0, 5.0))
       val cells = IndexedSeq[TetrahedralCell]()
       try {
         TetrahedralMesh3D(UnstructuredPointsDomain(pts), TetrahedralList(cells)) // would throw exception on fail
@@ -74,6 +73,5 @@ class TetraMeshtest extends ScalismoTestSuite {
       }
     }
   }
-
 
 }

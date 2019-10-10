@@ -207,22 +207,36 @@ object VtkHelpers {
 
 
 
-object TetraMeshConversion {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  object TetraMeshConversion {
 
   private def vtkUnstructuredGridToTetrahedralMeshCommon(ug: vtkUnstructuredGrid, correctFlag: Boolean = false) = Try {
-    //val vtkReader = new vtkUnstructuredGridReader()
-    //vtkReader.SetFileName(file.getAbsolutePath)
-    // vtkReader.Update()
     val newUg = if (correctFlag) {
       val tetrahedralFilter = new vtkDelaunay3D
-
       tetrahedralFilter.SetInputData(ug)
       tetrahedralFilter.Update()
       tetrahedralFilter.GetOutput()
     } else ug
 
 
-    val grids = ug.GetCells()
+
+
+    val grids = newUg.GetCells()
     val numGrids = grids.GetNumberOfCells()
 
     val points = vtkConvertPoints[_3D](newUg)
@@ -244,6 +258,7 @@ object TetraMeshConversion {
 
   private[scalismo] def vtkConvertPoints[D: NDSpace](ug: vtkUnstructuredGrid): Iterator[Point[D]] = {
     val vtkType = ug.GetPoints().GetDataType()
+
 
 
     val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, ug.GetPoints().GetData()) match {
@@ -287,7 +302,7 @@ object TetraMeshConversion {
 
   def tetrameshTovtkUnstructuredGrid(tetramesh: TetrahedralMesh[_3D], template: Option[vtkUnstructuredGrid] = None): vtkUnstructuredGrid = {
 
-    val ug = new vtkUnstructuredGrid
+    val ug = new vtkUnstructuredGrid()
 
     template match {
       case Some(tpl) =>
@@ -298,16 +313,18 @@ object TetraMeshConversion {
         tetrahedrons.SetNumberOfCells(tetramesh.tetrahedralization.tetrahedrons.size)
         tetrahedrons.Initialize()
         for ((cell, cell_id) <- tetramesh.tetrahedralization.tetrahedrons.zipWithIndex) {
-          val tetrahedron = new vtkPolyhedron()
 
+          val tetrahedron = new vtkTetra()
           tetrahedron.GetPointIds().SetId(0, cell.ptId1.id)
           tetrahedron.GetPointIds().SetId(1, cell.ptId2.id)
           tetrahedron.GetPointIds().SetId(2, cell.ptId3.id)
           tetrahedron.GetPointIds().SetId(3, cell.ptId4.id)
           tetrahedrons.InsertNextCell(tetrahedron)
         }
+
         tetrahedrons.Squeeze()
         ug.SetCells(4, tetrahedrons)
+
 
 
     }

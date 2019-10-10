@@ -73,10 +73,10 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     val tetrahedronmap = emptyMapData.toMap
 
     for (t <- tetrahedronIds) {
-      tetrahedronmap (t) ++= tetrahedrons(t.id).pointIds.flatMap(p => adjacentTrianglesForPoint(p))
-      tetrahedronmap (t) -= t
+      tetrahedronmap(t) ++= tetrahedrons(t.id).pointIds.flatMap(p => adjacentTrianglesForPoint(p))
+      tetrahedronmap(t) -= t
     }
-    val mapData = tetrahedronmap .mapValues(s => s.toSet)
+    val mapData = tetrahedronmap.mapValues(s => s.toSet)
     val seqData = IndexedSeq.tabulate(tetrahedronIds.size) { i => mapData(tetrahedronIds(i)).toIndexedSeq }
     id => seqData(id.id)
   }
