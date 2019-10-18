@@ -8,7 +8,7 @@ import vtk.vtkTetra
 
 trait BernsteinPolynomialInterpolation[D] {
   def degree: Int
-  def coeficient: DenseVector[Double]
+  def coefficient: DenseVector[Double]
 }
 
 
@@ -96,8 +96,10 @@ object BernsteinPolynomialInterpolation{
 
 }
 
-case class BernsteinPolynomialInterpolation3D(degree:Int,coeficient:DenseVector[Double]) extends BernsteinPolynomialInterpolation[_3D] {
-  val coeficients=coeficients
+case class BernsteinPolynomialInterpolation3D(degree:Int,coefficient:DenseVector[Double]) extends BernsteinPolynomialInterpolation[_3D] {
+  val coefficients=coefficient
+
+  val degreeofpolynomial=degree
 
 
 
@@ -138,7 +140,7 @@ case class BernsteinPolynomialInterpolation3D(degree:Int,coeficient:DenseVector[
     for (c <- 0 to coeficientIndexList(degree).size-1){
       val list=coeficientIndexList(degree).apply(c)
       val v=Bernstein_ijkl(degree,list,u)
-      sum=sum+coeficient(c)*v
+      sum=sum+coefficient(c)*v
     }
     sum
 
