@@ -190,14 +190,14 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
 
 
 
-
     val bcoord= new Array[Double](4)//this to initialised the array where the result will be stored
     val tetrahedron = new vtkTetra()
     tetrahedron.BarycentricCoords(p.toArray,a.toArray,b.toArray,c.toArray,d.toArray,bcoord)
     val vec=DenseVector[Double](bcoord.apply(0),bcoord.apply(1),bcoord.apply(2),bcoord.apply(3))
 
 
-    val normalisedvec=vec.map{e=>if ((e>= -1E-6)&&(e<=1E-6)) 0.0 else e}
+    val normalisedvec=vec.map{e=>if ((e>= -1E-50)&&(e<=1E-50)) 0.0 else e}
+
 
     if (allposif(normalisedvec)) {
       true
