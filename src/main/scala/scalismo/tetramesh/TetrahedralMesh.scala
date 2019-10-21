@@ -96,7 +96,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
    */
   lazy val volume: Double = {
     var sum = 0.0
-    tetrahedrons.foreach(t => sum += ComputeteTrahedronVolume(t))
+    tetrahedrons.foreach(t => sum += computeTrahedronVolume(t))
     sum
   }
 
@@ -126,7 +126,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
    *  Returns the volume of the indicated tetrahedral cell.
    */
 
-  def ComputeteTrahedronVolume(terahedron: TetrahedralCell): Double = {
+  def computeTrahedronVolume(terahedron: TetrahedralCell): Double = {
     val a = pointSet.point(terahedron.ptId1)
     val b = pointSet.point(terahedron.ptId2)
     val c = pointSet.point(terahedron.ptId3)

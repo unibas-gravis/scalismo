@@ -15,11 +15,12 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{Point, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.Transformation
+import scalismo.tetramesh.TetrahedralMesh
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 private object DataUtils {
   /**
@@ -54,5 +55,27 @@ private object DataUtils {
       Success(t)
     }
   }
+
+
+
+
+  /**
+    * Create a transformation from a mesh volume. The transformation maps from the reference mesh volume to the corresponding target point.
+    */
+  def meshVolumeToTransformation(refMesh: TetrahedralMesh[_3D], targetMesh: TetrahedralMesh[_3D]): Try[Transformation[_3D]] = {
+    if (refMesh.pointSet.numberOfPoints != targetMesh.pointSet.numberOfPoints)
+      Failure(new Throwable(s"reference and target mesh do not have the same number of points (${refMesh.pointSet.numberOfPoints} != ${targetMesh.pointSet.numberOfPoints}"))
+    else {
+      val t = new Transformation[_3D] {
+        override val domain = refMesh.boundingBox
+        override val f = (x: Point[_3D]) => {
+          val ptId = refMesh.pointSet.findClosestPoint(x).id
+          targetMesh.pointSet.point(ptId)
+        }
+      }
+      Success(t)
+    }
+  }
+
 
 }
