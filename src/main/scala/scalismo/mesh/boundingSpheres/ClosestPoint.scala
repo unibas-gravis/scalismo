@@ -16,8 +16,9 @@
 package scalismo.mesh.boundingSpheres
 
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, _3D }
-import scalismo.mesh.{ BarycentricCoordinates, TriangleId }
+import scalismo.geometry.{Point, _3D}
+import scalismo.mesh.{BarycentricCoordinates, TriangleId}
+import scalismo.tetramesh.TetrahedronId
 
 /**
  * A class that contains the location and the distance to the closest point on a surface.
@@ -83,3 +84,18 @@ case class ClosestPointInTriangle(
   tid: TriangleId,
   bc: BarycentricCoordinates)
     extends ClosestPointOnSurface(point, distanceSquared)
+
+
+
+/**
+  * The closest point is a vertex.
+  * The additional information stored is the TriangleId and the barycentric coordinates of the point.
+  * @param tid TriangleId of the tetrahedral containing the closest point.
+  * @param bc The barycentric coordinates of the closest point location.
+  */
+case class ClosestPointInTetrahedron(
+                                   override val point: Point[_3D],
+                                   override val distanceSquared: Double,
+                                   tid: TetrahedronId,
+                                   bc: BarycentricCoordinates)
+  extends ClosestPointOnSurface(point, distanceSquared)

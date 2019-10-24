@@ -17,8 +17,10 @@ package scalismo.tetramesh
 
 import breeze.linalg.svd.SVD
 import breeze.linalg.{DenseMatrix, DenseVector}
+import com.jogamp.graph.geom.Triangle
 import scalismo.common._
 import scalismo.geometry._
+import scalismo.mesh.TriangleCell
 import scalismo.utils.Random
 import vtk.vtkTetra
 
@@ -28,6 +30,8 @@ import scala.language.implicitConversions
 case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4: PointId) extends Cell {
   /** Identifiers of the points belonging to the cell*/
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3, ptId4)
+  val triangles= List(TriangleCell(ptId1,ptId2,ptId3),TriangleCell(ptId1,ptId2,ptId4),
+    TriangleCell(ptId1,ptId3,ptId4),TriangleCell(ptId2,ptId3,ptId4))
 
   /** Returns true if the given point identifier is part of the tetrahedral cell*/
   def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId || ptId4 == ptId
@@ -77,7 +81,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   val tetrahedrons = tetrahedralization.tetrahedrons
   val cells = tetrahedrons
 
-  //lazy val operations: TriangleMesh3DOperations = MeshOperations(this)
+  lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
 
   lazy val boundingBox = pointSet.boundingBox
 

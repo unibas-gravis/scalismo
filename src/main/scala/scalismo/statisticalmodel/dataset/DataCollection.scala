@@ -186,36 +186,23 @@ case class DataCollectionOfMeshVolume(reference: TetrahedralMesh[_3D], dataItems
 object DataCollection {
 
   /**
-   * Builds a [[DataCollection]] instance from a reference mesh and a sequence of meshes in correspondence.
-   * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
-   */
+    * Builds a [[DataCollection]] instance from a reference mesh and a sequence of meshes in correspondence.
+    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
+    */
   def fromMeshSequence(referenceMesh: TriangleMesh[_3D], registeredMeshes: Seq[TriangleMesh[_3D]])(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshToTransformation(referenceMesh, _)))
     val dc = DataCollection(referenceMesh, transformations.map(DataItem("from mesh", _)))
     if (dc.size > 0) (Some(dc), errors) else (None, errors)
   }
 
+
+
   /**
-    * Builds a [[DataCollection]] instance from a reference mesh volume and a sequence of meshes in correspondence.
-    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
+    * Builds a [[DataCollection]] instance from a reference mesh and a directory containing meshes in correspondence with the reference.
+    * Only vtk and stl meshes are currently supported.
+    *
+    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
     */
-  def fromMeshVolumeSequence(referenceMesh: TetrahedralMesh[_3D], registeredMeshes: Seq[TetrahedralMesh[_3D]])(implicit rng: Random): (Option[DataCollectionOfMeshVolume], Seq[Throwable]) = {
-    val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshVolumeToTransformation(referenceMesh, _)))
-    val dc = DataCollectionOfMeshVolume(referenceMesh, transformations.map(DataItem("from mesh", _)))
-    if (dc.size > 0) (Some(dc), errors) else (None, errors)
-  }
-
-
-
-
-
-
-  /**
-   * Builds a [[DataCollection]] instance from a reference mesh and a directory containing meshes in correspondence with the reference.
-   * Only vtk and stl meshes are currently supported.
-   *
-   * @return a data collection containing the valid elements as well as the list of errors for invalid items.
-   */
   def fromMeshDirectory(referenceMesh: TriangleMesh[_3D], meshDirectory: File)(implicit rng: Random): (Option[DataCollection], Seq[Throwable]) = {
     val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield {
@@ -226,31 +213,15 @@ object DataCollection {
   }
 
 
+
+
   /**
-    * Builds a [[DataCollection]] instance from a reference mesh volume and a directory containing meshe volumes in correspondence with the reference.
-    * Only vtk and stl meshes are currently supported.
+    * Performs a Generalized Procrustes Analysis on the data collection.
+    * This is done by repeatedly computing the mean of all meshes in the dataset and
+    * aligning all items rigidly to the mean.
     *
-    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
+    * The reference mesh is unchanged, only the transformations in the collection are adapted
     */
-  def fromMeshVolumeDirectory(referenceMesh: TetrahedralMesh[_3D], meshDirectory: File)(implicit rng: Random): (Option[DataCollectionOfMeshVolume], Seq[Throwable]) = {
-    val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
-    val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield {
-      MeshIO.readMesh(meshFn).map(m => TetrahedralMesh3D(m.pointSet, referenceMesh.tetrahedralization))
-    })
-    val (dc, meshErrors) = fromMeshVolumeSequence(referenceMesh, meshes)
-    (dc, ioErrors ++ meshErrors)
-  }
-
-
-
-
-  /**
-   * Performs a Generalized Procrustes Analysis on the data collection.
-   * This is done by repeatedly computing the mean of all meshes in the dataset and
-   * aligning all items rigidly to the mean.
-   *
-   * The reference mesh is unchanged, only the transformations in the collection are adapted
-   */
   def gpa(dc: DataCollection, maxIteration: Int = 3, haltDistance: Double = 1e-5)(implicit rng: Random): DataCollection = {
     gpaComputation(dc, dc.meanSurface, maxIteration, haltDistance)
   }
@@ -286,37 +257,84 @@ object DataCollection {
 
 
 
-  @tailrec
-  private def gpaMeshVolumeComputation(dc: DataCollectionOfMeshVolume, meanShape: TetrahedralMesh[_3D], maxIteration: Int, haltDistance: Double)(implicit rng: Random): DataCollectionOfMeshVolume = {
+}
 
-    if (maxIteration == 0) return dc
+  object DataCollectionOfMeshVolume{
 
-    val referencePoints = dc.reference.pointSet.points.toIndexedSeq
-    val numberOfPoints = referencePoints.size
-    val referenceCenterOfMass = referencePoints.foldLeft(Point3D(0, 0, 0))((acc, pt) => acc + (pt.toVector / numberOfPoints))
-
-    val meanShapePoints = meanShape.pointSet.points.toIndexedSeq
-
-    // align all shape to it and create a transformation from the mean to the aligned shape
-    val dataItemsWithAlignedTransform = dc.dataItems.par.map { dataItem =>
-      val surface = dc.reference.transform(dataItem.transformation)
-      val transform = LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints), referenceCenterOfMass)
-
-      DataItem("gpa -> " + dataItem.info, Transformation(transform.compose(dataItem.transformation)))
+    /**
+      * Builds a [[DataCollection]] instance from a reference mesh volume and a sequence of meshes in correspondence.
+      * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
+      */
+    def fromMeshSequence(referenceMesh: TetrahedralMesh[_3D], registeredMeshes: Seq[TetrahedralMesh[_3D]])(implicit rng: Random): (Option[DataCollectionOfMeshVolume], Seq[Throwable]) = {
+      val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshVolumeToTransformation(referenceMesh, _)))
+      val dc = DataCollectionOfMeshVolume(referenceMesh, transformations.map(DataItem("from mesh", _)))
+      if (dc.size > 0) (Some(dc), errors) else (None, errors)
     }
 
-    val newdc = DataCollectionOfMeshVolume(dc.reference, dataItemsWithAlignedTransform.toIndexedSeq)
-    val newMean = newdc.meanSurface
 
-    if (MeshVolumeMetrics.procrustesDistance(meanShape, newMean) < haltDistance) {
-      newdc
-    } else {
-      gpaMeshVolumeComputation(newdc, newMean, maxIteration - 1, haltDistance)
+    /**
+      * Builds a [[DataCollection]] instance from a reference mesh volume and a directory containing meshe volumes in correspondence with the reference.
+      * Only vtk and stl meshes are currently supported.
+      *
+      * @return a data collection containing the valid elements as well as the list of errors for invalid items.
+      */
+    def fromMeshDirectory(referenceMesh: TetrahedralMesh[_3D], meshDirectory: File)(implicit rng: Random): (Option[DataCollectionOfMeshVolume], Seq[Throwable]) = {
+      val meshFileNames = meshDirectory.listFiles().toSeq.filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
+      val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield {
+        MeshIO.readMesh(meshFn).map(m => TetrahedralMesh3D(m.pointSet, referenceMesh.tetrahedralization))
+      })
+      val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
+      (dc, ioErrors ++ meshErrors)
     }
+
+
+
+
+    /**
+      * Performs a Generalized Procrustes Analysis on the data collection.
+      * This is done by repeatedly computing the mean of all meshes in the dataset and
+      * aligning all items rigidly to the mean.
+      *
+      * The reference mesh is unchanged, only the transformations in the collection are adapted
+      */
+    def gpa(dc: DataCollectionOfMeshVolume, maxIteration: Int = 3, haltDistance: Double = 1e-5)(implicit rng: Random): DataCollectionOfMeshVolume = {
+      gpaComputation(dc, dc.meanSurface, maxIteration, haltDistance)
+    }
+
+
+    @tailrec
+    private def gpaComputation(dc: DataCollectionOfMeshVolume, meanShape: TetrahedralMesh[_3D], maxIteration: Int, haltDistance: Double)(implicit rng: Random): DataCollectionOfMeshVolume = {
+
+      if (maxIteration == 0) return dc
+
+      val referencePoints = dc.reference.pointSet.points.toIndexedSeq
+      val numberOfPoints = referencePoints.size
+      val referenceCenterOfMass = referencePoints.foldLeft(Point3D(0, 0, 0))((acc, pt) => acc + (pt.toVector / numberOfPoints))
+
+      val meanShapePoints = meanShape.pointSet.points.toIndexedSeq
+
+      // align all shape to it and create a transformation from the mean to the aligned shape
+      val dataItemsWithAlignedTransform = dc.dataItems.par.map { dataItem =>
+        val surface = dc.reference.transform(dataItem.transformation)
+        val transform = LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints), referenceCenterOfMass)
+
+        DataItem("gpa -> " + dataItem.info, Transformation(transform.compose(dataItem.transformation)))
+      }
+
+      val newdc = DataCollectionOfMeshVolume(dc.reference, dataItemsWithAlignedTransform.toIndexedSeq)
+      val newMean = newdc.meanSurface
+
+      if (MeshVolumeMetrics.procrustesDistance(meanShape, newMean) < haltDistance) {
+        newdc
+      } else {
+        gpaComputation(newdc, newMean, maxIteration - 1, haltDistance)
+      }
+    }
+
   }
 
 
-}
+
 
 
 

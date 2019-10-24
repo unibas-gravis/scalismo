@@ -37,7 +37,7 @@ import scala.annotation.tailrec
  * @param r2     Squared radius of bounding sphere.
  * @param idx    Index of entity used to form leave.
  */
-private[mesh] abstract class BoundingSphere(val center: EuclideanVector[_3D],
+private[scalismo] abstract class BoundingSphere(val center: EuclideanVector[_3D],
     val r2: Double,
     val idx: Int,
     val left: BoundingSphere,
@@ -53,10 +53,12 @@ private[mesh] abstract class BoundingSphere(val center: EuclideanVector[_3D],
   def hasRight: Boolean
 }
 
+
+
 /**
  * Factory for the BoundingSphere search structure.
  */
-private[mesh] object BoundingSpheres {
+private[scalismo] object BoundingSpheres {
 
   /**
    * Creates a list of triangles with precalculated values.
@@ -524,4 +526,21 @@ private object Sphere {
 
     (center, radius2)
   }
-}
+
+
+  /**
+    * Calculate sphere around four points, e.g. a tetrahedron
+    */
+  def tetrahedronCircumSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D],d: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+
+    val v=Array[Double](3)
+    val tetra= new vtkTetra()
+
+    val redius =  tetra.Circumsphere(a.toArray,b.toArray,c.toArray,d.toArray,v)
+
+    (EuclideanVector3D(v(0),v(1),v(2)),redius)
+
+  }
+
+
+  }

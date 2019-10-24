@@ -46,7 +46,7 @@ private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3
 /**
   * Holds tetrahedron and precalculated vectors.
   */
-private[mesh] case class Tetrahedron(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D],d:EuclideanVector[_3D]) {
+case class Tetrahedron(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D],d:EuclideanVector[_3D]) {
   val ab = b - a
   val ac = c - a
   val ad = d - a
@@ -69,6 +69,9 @@ private[mesh] case class Tetrahedron(a: EuclideanVector[_3D], b: EuclideanVector
     3
   }
   // 0: abc, 1: abd, 2: adc, 3:bcd
+
+
+  val triangles = List(Triangle(a,b,c),Triangle(a,b,d),Triangle(a,c,d),Triangle(b,c,d))
 def largestFace():Int= {
   def computeTriangleArea(A: EuclideanVector[_3D], B: EuclideanVector[_3D], C: EuclideanVector[_3D]): Double = {
     // compute are of the triangle using heron's formula

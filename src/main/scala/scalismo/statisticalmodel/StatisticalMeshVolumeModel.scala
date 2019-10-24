@@ -9,7 +9,7 @@ import scalismo.mesh.TriangleMesh
 import scalismo.numerics.{FixedPointsUniformMeshSampler3D, FixedPointsUniformMeshVolumeSampler3D}
 import scalismo.statisticalmodel.dataset.DataCollectionOfMeshVolume
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
-import scalismo.tetramesh.{TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.tetramesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
 import scalismo.utils.Random
 
 import scala.util.{Failure, Success, Try}
@@ -72,19 +72,19 @@ case class StatisticalMeshVolumeModel private (referenceMeshVolume: TetrahedralM
 
 
 
-  /*def marginal(ptIds: IndexedSeq[PointId]) = {
-    val clippedReference = referenceMeshVolume.operations.clip(p => { !ptIds.contains(referenceMesh.pointSet.findClosestPoint(p).id) })
+  def marginal(ptIds: IndexedSeq[PointId]) = {
+    val clippedReference = referenceMeshVolume.operations.clip(p => { !ptIds.contains(referenceMeshVolume.pointSet.findClosestPoint(p).id) })
     // not all of the ptIds remain in the reference after clipping, since their cells might disappear
-    val remainingPtIds = clippedReference.pointSet.points.map(p => referenceMesh.pointSet.findClosestPoint(p).id).toIndexedSeq
+    val remainingPtIds = clippedReference.pointSet.points.map(p => referenceMeshVolume.pointSet.findClosestPoint(p).id).toIndexedSeq
     if (remainingPtIds.isEmpty) {
-      val newRef = TriangleMesh3D(UnstructuredPointsDomain(ptIds.map(id => referenceMesh.pointSet.point(id)).toIndexedSeq), TriangleList(IndexedSeq[TriangleCell]()))
+      val newRef = TetrahedralMesh3D(UnstructuredPointsDomain(ptIds.map(id => referenceMeshVolume.pointSet.point(id)).toIndexedSeq), TetrahedralList(IndexedSeq[TetrahedralCell]()))
       val marginalGP = gp.marginal(ptIds.toIndexedSeq)
-      StatisticalMeshModel(newRef, marginalGP)
+      StatisticalMeshVolumeModel(newRef, marginalGP)
     } else {
       val marginalGP = gp.marginal(remainingPtIds)
-      StatisticalMeshModel(clippedReference, marginalGP)
+      StatisticalMeshVolumeModel(clippedReference, marginalGP)
     }
-  }*/
+  }
 
 
 
