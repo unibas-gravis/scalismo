@@ -16,12 +16,13 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
-import scalismo.geometry.{ EuclideanVector, _3D }
+import scalismo.geometry.{EuclideanVector, _3D}
+import scalismo.mesh.TriangleCell
 import scalismo.mesh.boundingSpheres.ClosestPointType._
 
 /**
- * Holds triangles and precalculated vectors.
- */
+  * Holds triangles and precalculated vectors.
+  */
 private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D]) {
   val ab = b - a
   val ac = c - a
@@ -40,6 +41,63 @@ private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3
   }
 }
 
+
+
+/**
+  * Holds tetrahedron and precalculated vectors.
+  */
+case class Tetrahedron(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D],d:EuclideanVector[_3D]) {
+  val ab = b - a
+  val ac = c - a
+  val ad = d - a
+  val bc = c - b
+  val bd = d - b
+  val cd = d - c
+
+  val n1 = ab.crossproduct(ac)
+  val n2 = ab.crossproduct(ad)
+  val n3 = ad.crossproduct(ac)
+  val n4 = bc.crossproduct(bd)
+
+  val degenerated = if (n1.norm == 0.0) {
+    0
+  } else if (n2.norm == 0.0){
+    1
+  }else if (n3.norm == 0.0){
+    2
+  }else if (n3.norm == 0.0){
+    3
+  }
+  // 0: abc, 1: abd, 2: adc, 3:bcd
+
+
+  val triangles = List(Triangle(a,b,c),Triangle(a,b,d),Triangle(a,c,d),Triangle(b,c,d))
+def largestFace():Int= {
+  def computeTriangleArea(A: EuclideanVector[_3D], B: EuclideanVector[_3D], C: EuclideanVector[_3D]): Double = {
+    // compute are of the triangle using heron's formula
+    val a = (B - A).norm
+    val b = (C - B).norm
+    val c = (C - A).norm
+    val s = (a + b + c) / 2
+    val areaSquared = s * (s - a) * (s - b) * (s - c)
+    // it can happen that the area is negative, due to a degenerate triangle.
+    if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
+  }
+
+  val sq = IndexedSeq(computeTriangleArea(a, b, c), computeTriangleArea(a, b, d), computeTriangleArea(a, d, c), computeTriangleArea(b, c, d))
+
+  var larg =(0,0.0)
+
+  val largestFace = for (i <- 0 to sq.size - 1) {
+    if (sq(i)>larg._2){
+      larg=(i,sq(i))
+    }
+  }
+
+   larg._1
+  }
+
+}
 /**
  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
  */

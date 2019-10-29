@@ -237,7 +237,6 @@ object EuclideanVector {
   def apply(x: Double, y: Double): EuclideanVector[_2D] = EuclideanVector2D(x, y)
 
   def apply(x: Double, y: Double, z: Double): EuclideanVector[_3D] = EuclideanVector3D(x, y, z)
-
   def zeros[D: NDSpace](implicit builder: Create[D]): EuclideanVector[D] = builder.zero
 
   def fromBreezeVector[D: NDSpace](breeze: DenseVector[Double]): EuclideanVector[D] = {
@@ -282,6 +281,7 @@ object EuclideanVector {
     implicit def doubleToVector1D(f: Double): EuclideanVector[_1D] = EuclideanVector(f)
     implicit def tupleOfDoubleToVector2D(t: (Double, Double)): EuclideanVector[_2D] = EuclideanVector(t._1, t._2)
     implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)): EuclideanVector[_3D] = EuclideanVector(t._1, t._2, t._3)
+
   }
 
   implicit def parametricToConcrete1D(p: EuclideanVector[_1D]): EuclideanVector1D = p.asInstanceOf[EuclideanVector1D]

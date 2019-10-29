@@ -9,24 +9,9 @@ The vision of the project is to provide an environment for modelling and image a
 * is powerful enough to build full-scale industrial applications
 * makes it feasible to deploy it in complex, distributed imaging pipelines. 
 
-We aim to achieve these properties by leveraging two core technologies:
-
-* A simple but versatile [mathematical approach](http://ieeexplore.ieee.org/document/8010438/) to shape modeling and registration, based on the theory of Gaussian processes.
-* The Scala and Java ecosystem for reducing the software complexity. 
-
 ## Documentation
 
-* [Scalismo tutorials](https://unibas-gravis.github.io/scalismo-tutorial/)
-* [API Doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html)
-
-#### More about the concepts and mathematical methods behind Scalismo
-* [Online course on shape modelling (using scalismo)](http://shapemodelling.cs.unibas.ch) 
-* [Probabilistic Morphable Models](https://gravis.dmi.unibas.ch/PMM/)
-
-
-
-There is also a [scalismo google group](https://groups.google.com/forum/#!forum/scalismo) for general questions and discussions. 
-
+* The [Scalismo website](https://unibas-gravis.github.io/scalismo-microsite) contains comprehensive documentation including a series of  [tutorials](https://unibas-gravis.github.io/scalismo-microsite/tutorials.html), [API doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html) and links to further ressources and papers. 
 
 ## How can I help?
 While scalismo is already fully usable for shape modeling and simple image processing task, its functionality is currently targeted
