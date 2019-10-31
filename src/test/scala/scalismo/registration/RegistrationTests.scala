@@ -18,12 +18,14 @@ package scalismo.registration
 import java.io.File
 
 import breeze.linalg.DenseVector
+import scalismo.common.interpolation.{ BSplineImageInterpolator2D, BSplineImageInterpolator3D }
 import scalismo.{ ScalismoTestSuite, numerics }
 import scalismo.common.{ Field, NearestNeighborInterpolator, PointId, RealSpace }
 import scalismo.geometry._
+import scalismo.image.DiscreteImageDomain
 import scalismo.io.{ ImageIO, MeshIO }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.numerics.{ LBFGSOptimizer, UniformSampler }
+import scalismo.numerics.{ GridSampler, LBFGSOptimizer, UniformSampler }
 import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
 import scalismo.utils.Random
 
@@ -174,7 +176,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](2))
       val transformationSpace = TranslationSpace[_2D]
       val translationParams = DenseVector[Double](-10.0, 5.0)
       val translationTransform = transformationSpace.transformForParameters(translationParams)
@@ -182,7 +184,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val regIt = Registration(MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, UniformSampler(domain.boundingBox, 4000)),
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val regIt = Registration(MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, metricSampler),
         L2Regularizer[_2D](transformationSpace),
         regularizationWeight = 0.0,
         LBFGSOptimizer(maxNumberOfIterations = 300)
@@ -196,7 +199,7 @@ class RegistrationTests extends ScalismoTestSuite {
     it("Recovers the correct parameters for a rotation transform") {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
       val domain = discreteFixedImage.domain
       val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
       val transformationSpace = RotationSpace[_2D](center)
@@ -204,7 +207,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val transform = transformationSpace.transformForParameters(rotationParams)
       val transformedLena = fixedImage compose transform
 
-      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, UniformSampler(domain.boundingBox, 4000))
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIter = Registration(metric,
         L2Regularizer(transformationSpace),
@@ -220,7 +224,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
 
       val domain = discreteFixedImage.domain
       val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
@@ -233,7 +237,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val transformedLena = fixedImage compose groundTruthTransform
 
-      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, UniformSampler(domain.boundingBox, 4000))
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIt = Registration(
         metric,
@@ -253,7 +258,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val testImgUrl = getClass.getResource("/dm128.vtk").getPath
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
-      val fixedImage = discreteFixedImage.interpolate(3)
+      val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
 
       val domain = discreteFixedImage.domain
 
@@ -267,7 +272,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val groundTruthTransform = transformationSpace.transformForParameters(gpParams)
       val transformedLena = fixedImage compose groundTruthTransform
 
-      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, UniformSampler(domain.boundingBox, 4000))
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIt = Registration(
         metric,
@@ -282,12 +288,52 @@ class RegistrationTests extends ScalismoTestSuite {
       }
     }
 
+    it("Recovers the correct parameters for a composed rigid and gp transform") {
+      val testImgUrl = getClass.getResource("/dm128.vtk").getPath
+
+      val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(testImgUrl)).get
+      val fixedImage = discreteFixedImage.interpolate(3)
+
+      val domain = discreteFixedImage.domain
+
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](20.0) * 50.0, 2))
+      val lowRankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator()).truncate(5)
+      val translationSpace = TranslationSpace[_2D]
+      val gpTransformationSpace = GaussianProcessTransformationSpace(lowRankGp)
+      val transformationSpace = ProductTransformationSpace(translationSpace, gpTransformationSpace)
+      val gtParams = DenseVector.vertcat(
+        DenseVector.ones[Double](translationSpace.parametersDimensionality) * 10.0,
+        DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0
+      )
+      val groundTruthTransform = transformationSpace.transformForParameters(gtParams)
+      val transformedLena = fixedImage compose groundTruthTransform
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.imageBoundingBox, IntVector(20, 20)))
+      val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
+
+      val regIt = Registration(
+        metric,
+        L2Regularizer(transformationSpace),
+        regularizationWeight = 0.0,
+        LBFGSOptimizer(maxNumberOfIterations = 300)
+      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      val regItPrinting = for (it <- regIt) yield {
+        println(it.value)
+        println(it.parameters)
+        it
+      }
+
+      val regResult = regItPrinting.toSeq.last
+      for (i <- 0 until regResult.parameters.size) {
+        regResult.parameters(i) should be(gtParams(i) +- 0.1)
+      }
+    }
+
   }
 
   describe("A 3D image registration") {
     val testImgUrl = getClass.getResource("/3ddm.nii").getPath
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(testImgUrl)).get
-    val fixedImage = discreteFixedImage.interpolate(3)
+    val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator3D[Float](3))
 
     val transformationSpace = TranslationSpace[_3D]
     val domain = discreteFixedImage.domain
@@ -298,7 +344,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val metric = MeanSquaresMetric(fixedImage, transformed, transformationSpace, UniformSampler(domain.boundingBox, 20000))
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20, 20)))
+      val metric = MeanSquaresMetric(fixedImage, transformed, transformationSpace, metricSampler)
 
       val regIt = Registration(
         metric,

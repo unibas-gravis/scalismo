@@ -19,6 +19,7 @@ import scalismo.common.{ PointId, RealSpace }
 import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh.boundingSpheres._
+import scalismo.utils.MeshConversion
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
@@ -178,5 +179,27 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   def compact: MeshCompactifier = {
     mask(_ => true, _ => true)
   }
+
+  /**
+   * Attempts to reduce the number of vertices of a mesh to the given number of vertices.
+   *
+   * @param targetedNumberOfVertices The targeted number of vertices. Note that it is not guaranteed
+   *                                 that this number is reached exactly
+   * @return The decimated mesh
+   */
+  def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
+    val refVtk = MeshConversion.meshToVtkPolyData(mesh)
+    val decimatePro = new vtk.vtkDecimatePro()
+
+    val reductionRate = 1.0 - (targetedNumberOfVertices / mesh.pointSet.numberOfPoints.toDouble)
+
+    decimatePro.SetTargetReduction(reductionRate)
+
+    decimatePro.SetInputData(refVtk)
+    decimatePro.Update()
+    val decimatedRefVTK = decimatePro.GetOutput()
+    MeshConversion.vtkPolyDataToTriangleMesh(decimatedRefVTK).get
+  }
+
 }
 

@@ -18,6 +18,7 @@ package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
+import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{ Domain, Field, VectorField }
 import scalismo.geometry.{ Point, _3D }
 import scalismo.image.DiscreteScalarImage
@@ -82,7 +83,7 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Intensity
 
-    val interpolated = inputImage.interpolate(3)
+    val interpolated = inputImage.interpolate(BSplineImageInterpolator3D[Float](3))
 
     override def domain: Domain[_3D] = interpolated.domain
 
@@ -124,7 +125,7 @@ object GaussianGradientImagePreprocessor {
  * @param stddev the standard deviation (in millimeters) to use for the gaussian blur filter. Set to 0 to disable blurring.
  * @param ioMetadata IO Metadata
  */
-case class GaussianGradientImagePreprocessor(stddev: Float, override val ioMetadata: IOMetadata = GaussianGradientImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
+case class GaussianGradientImagePreprocessor(stddev: Double, override val ioMetadata: IOMetadata = GaussianGradientImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
@@ -134,7 +135,7 @@ case class GaussianGradientImagePreprocessor(stddev: Float, override val ioMetad
       } else {
         inputImage
       }
-    }.interpolate(1).differentiate
+    }.interpolate(BSplineImageInterpolator3D[Float](1)).differentiate
 
     override def domain: Domain[_3D] = gradientImage.domain
 
@@ -165,7 +166,7 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
   override def save(t: ImagePreprocessor, h5File: HDF5File, h5Group: Group): Try[Unit] = {
     val groupName = h5Group.getFullName
     t match {
-      case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev)
+      case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev.toFloat)
       case _ => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
     }
   }

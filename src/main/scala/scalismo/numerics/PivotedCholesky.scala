@@ -113,7 +113,7 @@ object PivotedCholesky {
       S(p(k)) = D
 
       val pointIds = ids.splitAt(k + 1)._2
-      val chunks = pointIds.grouped(n / Runtime.getRuntime().availableProcessors()).toIndexedSeq.par
+      val chunks = pointIds.grouped(Math.max(1, n / Runtime.getRuntime().availableProcessors())).toIndexedSeq.par
 
       var c = 0
 
