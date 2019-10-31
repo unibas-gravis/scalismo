@@ -70,30 +70,6 @@ object TetraMeshIO {
 
 
 
-  def readTetraMesh1(file: File): Try[vtkUnstructuredGrid] = {
-    val filename = file.getAbsolutePath
-    filename match {
-     // case f if f.endsWith(".inp") => readVTKAVSucd(file)
-      case f if f.endsWith(".vtk") => readVTK1(file)
-      //case f if f.endsWith(".vtu") => readVTU(file)
-      /* case f if f.endsWith(".ply") => {
-        readPLY(file).map { res =>
-          res match {
-            case Right(vertexColor) => vertexColor.shape
-            case Left(shape) => shape
-          }
-        }
-      }*/
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-
-
-
-
-
 
 
   def writeTetraMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
@@ -108,17 +84,6 @@ object TetraMeshIO {
     }
   }
 
-  def writeTetraMesh1(mesh: vtkUnstructuredGrid, file: File): Try[Unit] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      // case f if f.endsWith(".h5") => writeHDF5(mesh, file)
-      case f if f.endsWith(".vtk") => writeVTK1(mesh, file)
-      //case f if f.endsWith(".vtu") => writeVTU(mesh, file)
-      //case f if f.endsWith(".ply") => writePLY(Left(mesh), file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
 
 
 
