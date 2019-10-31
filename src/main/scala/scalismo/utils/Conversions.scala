@@ -234,8 +234,6 @@ object VtkHelpers {
     } else ug
 
 
-
-
     val grids = newUg.GetCells()
     val numGrids = grids.GetNumberOfCells()
 
@@ -260,7 +258,6 @@ object VtkHelpers {
     val vtkType = ug.GetPoints().GetDataType()
 
 
-
     val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, ug.GetPoints().GetData()) match {
       case Success(data) => data.toArray
       case Failure(t) => {
@@ -281,8 +278,7 @@ object VtkHelpers {
     // TODO currently all data arrays are ignored    
     val cellsPointsOrFailure = vtkUnstructuredGridToTetrahedralMeshCommon(ug)
     cellsPointsOrFailure.map {
-      case (points, cells) =>
-        TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), TetrahedralList(cells))
+      case (points, cells) => TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), TetrahedralList(cells))
     }
   }
 
@@ -304,14 +300,21 @@ object VtkHelpers {
 
     val ug = new vtkUnstructuredGrid()
 
+
+
     template match {
       case Some(tpl) =>
-        // copy triangles from template if given; actual points are set unconditionally in code below.
+        // copy tetrahedrons from template if given; actual points are set unconditionally in code below.
         ug.ShallowCopy(tpl)
       case None =>
         val tetrahedrons = new vtkCellArray
+          val vtkcelltyp= new vtkUnsignedCharArray
+          val vtkidtyp= new vtkIdTypeArray
         tetrahedrons.SetNumberOfCells(tetramesh.tetrahedralization.tetrahedrons.size)
         tetrahedrons.Initialize()
+
+        vtkcelltyp.Initialize()
+        vtkidtyp.Initialize()
         for ((cell, cell_id) <- tetramesh.tetrahedralization.tetrahedrons.zipWithIndex) {
 
           val tetrahedron = new vtkTetra()
@@ -319,11 +322,20 @@ object VtkHelpers {
           tetrahedron.GetPointIds().SetId(1, cell.ptId2.id)
           tetrahedron.GetPointIds().SetId(2, cell.ptId3.id)
           tetrahedron.GetPointIds().SetId(3, cell.ptId4.id)
+
           tetrahedrons.InsertNextCell(tetrahedron)
+          vtkcelltyp.InsertNextValue(tetrahedron.GetCellType().toChar)
+           vtkidtyp.InsertNextValue(cell_id)
+
         }
 
         tetrahedrons.Squeeze()
-        ug.SetCells(4, tetrahedrons)
+        vtkcelltyp.Squeeze()
+        vtkidtyp.Squeeze()
+        ug.SetCells(vtkcelltyp,vtkidtyp,tetrahedrons)
+
+
+
 
 
 
@@ -335,7 +347,6 @@ object VtkHelpers {
     val pointsVTK = new vtkPoints
     pointsVTK.SetData(pointDataArrayVTK)
     ug.SetPoints(pointsVTK)
-
     ug
   }
 
