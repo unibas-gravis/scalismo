@@ -22,6 +22,7 @@ import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.mesh.TriangleMesh._
 import scalismo.mesh._
+import scalismo.tetramesh.{ ScalarVolumeMeshField, TetrahedralMesh }
 import scalismo.utils.MeshConversion
 import vtk._
 
@@ -153,6 +154,14 @@ object MeshIO {
     }
   }
 
+  def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
+    TetraMeshIO.readTetrahedralMesh(file)
+  }
+
+  def writeTetrahedralMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
+    TetraMeshIO.writeTetraMesh(mesh, file)
+  }
+
   def writeMesh(mesh: TriangleMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -186,6 +195,10 @@ object MeshIO {
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
+  }
+
+  def writeScalarVolumeMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarVolumeMeshField[S], file: File): Try[Unit] = {
+    ???
   }
 
   def writeHDF5(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
