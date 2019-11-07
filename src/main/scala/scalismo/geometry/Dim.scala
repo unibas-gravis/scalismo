@@ -21,7 +21,7 @@ sealed trait Dim
 trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
-trait _nD extends Dim
+
 
 trait NDSpace[D]
     extends EuclideanVector.Create[D]

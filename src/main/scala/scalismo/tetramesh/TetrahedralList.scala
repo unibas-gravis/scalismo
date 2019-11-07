@@ -26,7 +26,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
   def tetrahedron(id: TetrahedronId): TetrahedralCell = tetrahedrons(id.id)
 
   /** tetrahedrons adjacent to each point */
-  lazy val adjacentTrianglesForPoint: PointId => IndexedSeq[TetrahedronId] = {
+  lazy val adjacentTetrahedronsForPoint: PointId => IndexedSeq[TetrahedronId] = {
     // list structure
     val emptyMapData = for (p <- pointIds) yield p -> collection.mutable.Set.empty[TetrahedronId]
     val tetrahedronMap = emptyMapData.toMap
@@ -67,13 +67,13 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
   }
 
   /** tetrahedrons connected to tetrahedron via common point */
-  lazy val adjacentTrianglesForTriangle: TetrahedronId => IndexedSeq[TetrahedronId] = {
+  lazy val adjacentTetrahedronsForTetrahedron: TetrahedronId => IndexedSeq[TetrahedronId] = {
     // for each tetrahedron get the 4 defining vertices, for each of those get all surrounding tetrahedrons, remove self
     val emptyMapData = for (t <- tetrahedronIds) yield t -> collection.mutable.Set.empty[TetrahedronId]
     val tetrahedronmap = emptyMapData.toMap
 
     for (t <- tetrahedronIds) {
-      tetrahedronmap(t) ++= tetrahedrons(t.id).pointIds.flatMap(p => adjacentTrianglesForPoint(p))
+      tetrahedronmap(t) ++= tetrahedrons(t.id).pointIds.flatMap(p => adjacentTetrahedronsForPoint(p))
       tetrahedronmap(t) -= t
     }
     val mapData = tetrahedronmap.mapValues(s => s.toSet)
@@ -82,7 +82,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
   }
 
   /** points connected to a tetrahedron, this information is contained in tetrahedrons */
-  lazy val adjacentPointsForTriangle: TetrahedronId => IndexedSeq[PointId] = {
+  lazy val adjacentPointsForTetrahedron: TetrahedronId => IndexedSeq[PointId] = {
     id => tetrahedron(id).pointIds
   }
 
