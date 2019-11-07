@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import breeze.linalg.CSCMatrix
 import scalismo.common.PointId
-import scalismo.tetramesh.{TetrahedralMesh, TetrahedronId}
+import scalismo.tetramesh.{ TetrahedralMesh, TetrahedronId }
 
 /**
  * MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.
@@ -42,30 +42,25 @@ trait MeshBoundaryPredicates {
 
 }
 
-
-
-
 trait MeshVolumeBoundaryPredicates {
 
   /**
-    * Check if the point with given index is on the boundary of the underlying meshVolume.
-    *
-    * @return True if point is part of the boundary.
-    */
+   * Check if the point with given index is on the boundary of the underlying meshVolume.
+   *
+   * @return True if point is part of the boundary.
+   */
   def pointIsOnBoundary(id: PointId): Boolean
 
   /**
-    * Check if the edge between the two points with given indices is on the boundary of the underlying mesh Volume.
-    *
-    * @note This method does not check weather there exists an edge between the two points. You will get false for all
-    *       edges not in the mesh Volume.
-    * @return True if the edge is part of the boundary.
-    */
+   * Check if the edge between the two points with given indices is on the boundary of the underlying mesh Volume.
+   *
+   * @note This method does not check weather there exists an edge between the two points. You will get false for all
+   *       edges not in the mesh Volume.
+   * @return True if the edge is part of the boundary.
+   */
   def edgeIsOnBoundary(id1: PointId, id2: PointId): Boolean
 
 }
-
-
 
 /**
  * The TriangularMeshBoundary can be queried if a triangle has one side in common with the mesh boundary.
@@ -80,23 +75,18 @@ trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
   def triangleIsOnBoundary(id: TriangleId): Boolean
 }
 
-
-
 /**
-  * The TetrahedraMeshBoundary can be queried if a triangle has one side in common with the mesh boundary.
-  */
+ * The TetrahedraMeshBoundary can be queried if a triangle has one side in common with the mesh boundary.
+ */
 trait TetrahedralMeshBoundaryPredicates extends MeshVolumeBoundaryPredicates {
 
   /**
-    * Check if the tetrahedron with given index is on the boundary of the underlying mesh volume.
-    *
-    * @return True if the tetrahedron has at least one border in common with the boundary.
-    */
+   * Check if the tetrahedron with given index is on the boundary of the underlying mesh volume.
+   *
+   * @return True if the tetrahedron has at least one border in common with the boundary.
+   */
   def tetrahedronIsOnBoundary(id: TetrahedronId): Boolean
 }
-
-
-
 
 /**
  * Implementation of a TriangularMeshBoundary
@@ -122,17 +112,16 @@ private class BoundaryOfATriangleMeshPredicates(
   }
 }
 
-
 /**
-  * Implementation of a TetrahedralMeshBoundary
-  *
-  * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh volume.
-  */
+ * Implementation of a TetrahedralMeshBoundary
+ *
+ * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh volume.
+ */
 
 private class BoundaryOfATetrahedralMeshPredicates(
-                                                 private var vertexIsOnBorder: IndexedSeq[Boolean],
-                                                 private var edgeIsOnBorder: CSCMatrix[Boolean],
-                                                 private var tetrahedronIsOnBorder: IndexedSeq[Boolean]) extends TetrahedralMeshBoundaryPredicates {
+    private var vertexIsOnBorder: IndexedSeq[Boolean],
+    private var edgeIsOnBorder: CSCMatrix[Boolean],
+    private var tetrahedronIsOnBorder: IndexedSeq[Boolean]) extends TetrahedralMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
     vertexIsOnBorder(id.id)
@@ -146,9 +135,6 @@ private class BoundaryOfATetrahedralMeshPredicates(
     tetrahedronIsOnBorder(id.id)
   }
 }
-
-
-
 
 /**
  * Factory for mesh boundaries.
@@ -239,20 +225,17 @@ object MeshBoundaryPredicates {
 
 }
 
-
-
-
 /**
-  * Factory for mesh volume boundaries.
-  */
+ * Factory for mesh volume boundaries.
+ */
 object MeshVolumeBoundaryPredicates {
 
   /**
-    * Build boundary index for tetrahedral mesh.
-    *
-    * @param mesh volume Incoming tetrahedral mesh.
-    * @return Boundary that can be queried for by index for points, edges, and etrahedrons.
-    */
+   * Build boundary index for tetrahedral mesh.
+   *
+   * @param mesh volume Incoming tetrahedral mesh.
+   * @return Boundary that can be queried for by index for points, edges, and etrahedrons.
+   */
   def apply[D](mesh: TetrahedralMesh[D]): TetrahedralMeshBoundaryPredicates = {
 
     val points = mesh.pointSet.points.toIndexedSeq
@@ -260,7 +243,7 @@ object MeshVolumeBoundaryPredicates {
 
     val tetrahedrons = mesh.tetrahedralization.tetrahedrons
     val nTetrahedrons = tetrahedrons.length
-    val edgesOfATetrahedron = Seq((0, 1), (0, 2), (0, 3),(1,2), (1,3), (2,3))
+    val edgesOfATetrahedron = Seq((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
 
     val pointOnBorder = new Array[Boolean](nPts)
     val tetrahedronOnBorder = new Array[Boolean](nTetrahedrons)
@@ -314,8 +297,8 @@ object MeshVolumeBoundaryPredicates {
   }
 
   /**
-    * Reduces a boolean CSCMatrix so that only the true entries are contained. Everything else is false anyway.
-    */
+   * Reduces a boolean CSCMatrix so that only the true entries are contained. Everything else is false anyway.
+   */
   private def reduceCSCMatrixBooleansToTrueEntries(m: CSCMatrix[Boolean]): CSCMatrix[Boolean] = {
     val reduced = new CSCMatrix.Builder[Boolean](m.cols, m.rows)
 

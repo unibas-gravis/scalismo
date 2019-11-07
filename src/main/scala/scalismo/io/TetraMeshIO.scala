@@ -68,7 +68,7 @@ object TetraMeshIO {
     }
   }*/
 
-  def readTetraMesh(file: File): Try[TetrahedralMesh[_3D]] = {
+  def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".inp") => readVTKAVSucd(file)

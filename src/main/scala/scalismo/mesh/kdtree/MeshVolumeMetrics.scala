@@ -1,7 +1,7 @@
 package scalismo.mesh.kdtree
 
 import scalismo.common.BoxDomain
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{ Point, _3D }
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
@@ -11,9 +11,9 @@ import scalismo.utils.Random
 object MeshVolumeMetrics {
 
   /**
-    * For each point of the first mesh volume, this method computes the shortest distance to the surface of the
-    * second mesh and returns the average over all points
-    */
+   * For each point of the first mesh volume, this method computes the shortest distance to the surface of the
+   * second mesh and returns the average over all points
+   */
 
   def avgDistance(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D]): Double = {
 
@@ -25,9 +25,9 @@ object MeshVolumeMetrics {
   }
 
   /**
-    * Returns the average mesh volume distance after performing a rigid alignment between the two meshes.
-    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
-    */
+   * Returns the average mesh volume distance after performing a rigid alignment between the two meshes.
+   * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
+   */
   def procrustesDistance(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D]): Double = {
     require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
 
@@ -38,8 +38,8 @@ object MeshVolumeMetrics {
   }
 
   /**
-    * Returns the Hausdorff distance between the two meshes
-    */
+   * Returns the Hausdorff distance between the two meshes
+   */
   def hausdorffDistance(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D]): Double = {
     def allDistsBetweenMeshes(mm1: TetrahedralMesh[_3D], mm2: TetrahedralMesh[_3D]): Iterator[Double] = {
       for (ptM1 <- mm1.pointSet.points) yield {
@@ -56,9 +56,9 @@ object MeshVolumeMetrics {
   }
 
   /**
-    * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
-    */
- /* def diceCoefficient(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D])(implicit rand: Random): Double = {
+   * Computes a binary image for each mesh and returns the Dice Coefficient between the two images
+   */
+  /* def diceCoefficient(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D])(implicit rand: Random): Double = {
     val imgA = m1.operations.toBinaryImage
     val imgB = m2.operations.toBinaryImage
 

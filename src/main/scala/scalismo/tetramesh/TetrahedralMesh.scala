@@ -16,7 +16,7 @@
 package scalismo.tetramesh
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import com.jogamp.graph.geom.Triangle
 import scalismo.common._
 import scalismo.geometry._
@@ -30,8 +30,8 @@ import scala.language.implicitConversions
 case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4: PointId) extends Cell {
   /** Identifiers of the points belonging to the cell*/
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3, ptId4)
-  val triangles= List(TriangleCell(ptId1,ptId2,ptId3),TriangleCell(ptId1,ptId2,ptId4),
-    TriangleCell(ptId1,ptId3,ptId4),TriangleCell(ptId2,ptId3,ptId4))
+  val triangles = List(TriangleCell(ptId1, ptId2, ptId3), TriangleCell(ptId1, ptId2, ptId4),
+    TriangleCell(ptId1, ptId3, ptId4), TriangleCell(ptId2, ptId3, ptId4))
 
   /** Returns true if the given point identifier is part of the tetrahedral cell*/
   def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId || ptId4 == ptId
@@ -137,7 +137,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     val d = pointSet.point(terahedron.ptId4)
 
     val tetrahedron = new vtkTetra()
-    Math.abs(tetrahedron.ComputeVolume(a.toArray,b.toArray,c.toArray,d.toArray))
+    Math.abs(tetrahedron.ComputeVolume(a.toArray, b.toArray, c.toArray, d.toArray))
   }
 
   /**
@@ -147,7 +147,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
    */
   def isInsideTetrahedralCell(p: Point[_3D], t: TetrahedralCell): Boolean = {
 
-   def allposif(v: DenseVector[Double]): Boolean = {
+    def allposif(v: DenseVector[Double]): Boolean = {
       if (v(0) > 0.0 && v(1) > 0.0 && v(2) > 0.0 && v(3) > 0.0) {
         true
       } else {
@@ -169,14 +169,13 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
       }
     }
 
-
     def twoarezero(v: DenseVector[Double]): Boolean = {
-      if((v(0) == 0.0 && v(1) == 0.0 && v(2) != 0.0 && v(3) != 0.0) ||
-         (v(0) == 0.0 && v(1) != 0.0 && v(2) == 0.0 && v(3) != 0.0) ||
-         (v(0) == 0.0 && v(1) != 0.0 && v(2) != 0.0 && v(3) == 0.0) ||
-         (v(0) != 0.0 && v(1) == 0.0 && v(2) == 0.0 && v(3) != 0.0) ||
-         (v(0) != 0.0 && v(1) == 0.0 && v(2) != 0.0 && v(3) == 0.0) ||
-         (v(0) != 0.0 && v(1) != 0.0 && v(2) == 0.0 && v(3) == 0.0)) {
+      if ((v(0) == 0.0 && v(1) == 0.0 && v(2) != 0.0 && v(3) != 0.0) ||
+        (v(0) == 0.0 && v(1) != 0.0 && v(2) == 0.0 && v(3) != 0.0) ||
+        (v(0) == 0.0 && v(1) != 0.0 && v(2) != 0.0 && v(3) == 0.0) ||
+        (v(0) != 0.0 && v(1) == 0.0 && v(2) == 0.0 && v(3) != 0.0) ||
+        (v(0) != 0.0 && v(1) == 0.0 && v(2) != 0.0 && v(3) == 0.0) ||
+        (v(0) != 0.0 && v(1) != 0.0 && v(2) == 0.0 && v(3) == 0.0)) {
 
         true
 
@@ -191,17 +190,12 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     val c = pointSet.point(t.ptId3).toVector
     val d = pointSet.point(t.ptId4).toVector
 
-
-
-
-    val bcoord= new Array[Double](4)//this to initialised the array where the result will be stored
+    val bcoord = new Array[Double](4) //this to initialised the array where the result will be stored
     val tetrahedron = new vtkTetra()
-    tetrahedron.BarycentricCoords(p.toArray,a.toArray,b.toArray,c.toArray,d.toArray,bcoord)
-    val vec=DenseVector[Double](bcoord.apply(0),bcoord.apply(1),bcoord.apply(2),bcoord.apply(3))
+    tetrahedron.BarycentricCoords(p.toArray, a.toArray, b.toArray, c.toArray, d.toArray, bcoord)
+    val vec = DenseVector[Double](bcoord.apply(0), bcoord.apply(1), bcoord.apply(2), bcoord.apply(3))
 
-
-    val normalisedvec=vec.map{e=>if ((e>= -1E-50)&&(e<=1E-50)) 0.0 else e}
-
+    val normalisedvec = vec.map { e => if ((e >= -1E-50) && (e <= 1E-50)) 0.0 else e }
 
     if (allposif(normalisedvec)) {
       true

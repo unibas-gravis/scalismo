@@ -1,29 +1,26 @@
 package scalismo.tetramesh
 
-import scalismo.common.{PointId, RealSpace}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
-import scalismo.image.{DifferentiableScalarImage, ScalarImage}
+import scalismo.common.{ PointId, RealSpace }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
+import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh._
 import scalismo.mesh.boundingSpheres._
-
-
 
 object TetrahedralMeshOperations {
 
   def apply(mesh: TetrahedralMesh3D) = new TetrahedralMesh3DOperations(mesh)
 }
 
-
 class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh3D) {
 
   /**
-    * Calculated data from mesh
-    */
+   * Calculated data from mesh
+   */
   private lazy val meshPoints = mesh.pointSet.points.toIndexedSeq
 
   /**
-    * Bounding spheres based mesh operations
-    */
+   * Bounding spheres based mesh operations
+   */
   private lazy val tetrahedrons = BoundingSpheres.tetrahedronListFromTetrahedralMesh3D(mesh)
   private lazy val boundingSpheres = BoundingSpheres.createForTetrahedrons(tetrahedrons)
 
@@ -38,18 +35,18 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh3D) {
   def closestPointOnSurface(point: Point[_3D]): ClosestPointOnSurface = closestPointOnSurface.getClosestPointOnSurface(point)
 
   /**
-    * Boundary predicates
-    */
+   * Boundary predicates
+   */
   private lazy val boundary: TetrahedralMeshBoundaryPredicates = MeshVolumeBoundaryPredicates(mesh)
   def pointIsOnBoundary(pid: PointId): Boolean = boundary.pointIsOnBoundary(pid)
   def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
   def triangleIsOnBoundary(tid: TetrahedronId): Boolean = boundary.tetrahedronIsOnBoundary(tid: TetrahedronId)
 
   /**
-    * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
-    * All cells containing deleted points are also deleted.
-    * @todo use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
-    */
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
+   * All cells containing deleted points are also deleted.
+   * @todo use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
+   */
   def clip(clipPointPredicate: Point[_3D] => Boolean): TetrahedralMesh[_3D] = {
     // predicate tested at the beginning, once.
     val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
@@ -62,14 +59,14 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh3D) {
 
     val points = remainingPointQuatriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointQuatriplet.map { case vec => TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))),PointId(pt2Id(vec(3))))}
+    val cells = remainingPointQuatriplet.map { case vec => TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))), PointId(pt2Id(vec(3)))) }
 
     TetrahedralMesh3D(points.toIndexedSeq, TetrahedralList(cells.toIndexedSeq))
   }
 
   /**
-    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
-    */
+   * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
+   */
   def toDistanceImage: DifferentiableScalarImage[_3D] = {
     def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurfaceSquared(pt)).toFloat
 

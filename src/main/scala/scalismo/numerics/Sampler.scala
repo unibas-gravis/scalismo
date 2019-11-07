@@ -124,7 +124,6 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, Euclid
   }
 }
 
-
 case class PointsWithLikelyCorrespondenceMeshVolumeSampler(gp: GaussianProcess[_3D, EuclideanVector[_3D]], refmesh: TetrahedralMesh[_3D], targetMesh: TetrahedralMesh[_3D], maxMd: Double) extends Sampler[_3D] {
 
   //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
@@ -156,11 +155,6 @@ case class PointsWithLikelyCorrespondenceMeshVolumeSampler(gp: GaussianProcess[_
     println(s"Sampled: $numberOfPoints"); pts
   }
 }
-
-
-
-
-
 
 case class UniformMeshVolumeSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[_3D] {
 
@@ -214,14 +208,11 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(im
   }
 }
 
-
-
 case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rng: Random) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.area
   val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints).sample()
   override def sample() = samplePoints
 }
-
 
 case class FixedPointsUniformMeshVolumeSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit rng: Random) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.volume
@@ -256,7 +247,6 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
     }
   }
 }
-
 
 case class FixedPointsMeshVolumeSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit rand: Random) extends Sampler[_3D] {
 

@@ -56,5 +56,4 @@ object Dim {
     override val dimensionality = 3
   }
 
-
 }

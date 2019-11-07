@@ -19,7 +19,7 @@ class TetraMeshtest extends ScalismoTestSuite {
 
   describe("a tetramesh") {
     val path = getClass.getResource("/virtualhumerustetramesh.vtl").getPath
-    val virtualhumerustetramesh = TetraMeshIO.readTetraMesh(new File(path)).get
+    val virtualhumerustetramesh = TetraMeshIO.readTetrahedralMesh(new File(path)).get
 
     it("finds the right closest points for all the points that define the tetramesh") {
 

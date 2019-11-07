@@ -18,17 +18,17 @@ package scalismo.io
 import java.io._
 import java.util.Calendar
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`._
-import scalismo.common.{PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{Point, _3D}
+import scalismo.common.{ PointId, UnstructuredPointsDomain }
+import scalismo.geometry.{ Point, _3D }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
 import scalismo.mesh.TriangleMesh._
-import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
-import scalismo.statisticalmodel.{StatisticalMeshModel, StatisticalMeshVolumeModel}
-import scalismo.tetramesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
+import scalismo.statisticalmodel.{ StatisticalMeshModel, StatisticalVolumeMeshModel }
+import scalismo.tetramesh.{ TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object StatisticalModelIO {
 
@@ -45,17 +45,15 @@ object StatisticalModelIO {
     StatismoIO.readStatismoMeshModel(file, "/")
   }
 
-
-
   /**
-    * Reads a statistical mesh volume model. The file type is determined
-    * based on the extension. Currently on the Scalismo format (.h5)
-    * is supported.
-    *
-    * @param file The statismo file
-    * @return A StatisticalMeshVolumeModel or the Failure
-    */
-  def readStatisticalMeshVolumeModel(file: File): Try[StatisticalMeshVolumeModel] = {
+   * Reads a statistical mesh volume model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param file The statismo file
+   * @return A StatisticalMeshVolumeModel or the Failure
+   */
+  def readStatisticalMeshVolumeModel(file: File): Try[StatisticalVolumeMeshModel] = {
     // currently, we support only the statismo format
     StatismoIO.readStatismoMeshVolumeModel(file, "/")
   }
@@ -74,18 +72,16 @@ object StatisticalModelIO {
     StatismoIO.writeStatismoMeshModel(model, file, "/")
   }
 
-
-
   /**
-    * Writes a statistical mesh Volume model. The file type is determined
-    * based on the extension. Currently on the Scalismo format (.h5)
-    * is supported.
-    *
-    * @param model The statistical mesh volume model
-    * @param file The file to which the model is written
-    * @return In case of Failure, the Failure is returned.
-    */
-  def writeStatisticalMeshVolumeModel(model: StatisticalMeshVolumeModel, file: File): Try[Unit] = {
+   * Writes a statistical mesh Volume model. The file type is determined
+   * based on the extension. Currently on the Scalismo format (.h5)
+   * is supported.
+   *
+   * @param model The statistical mesh volume model
+   * @param file The file to which the model is written
+   * @return In case of Failure, the Failure is returned.
+   */
+  def writeStatisticalMeshVolumeModel(model: StatisticalVolumeMeshModel, file: File): Try[Unit] = {
     // currently, we support only the statismo format
     StatismoIO.writeStatismoMeshVolumeModel(model, file, "/")
   }
@@ -220,18 +216,13 @@ object StatismoIO {
     modelOrFailure
   }
 
-
-
-
-
-
   /**
-    * Reads a statistical mesh model from a statismo file
-    * @param file The statismo file
-    * @param modelPath a path in the hdf5 file where the model is stored
-    * @return
-    */
-  def readStatismoMeshVolumeModel(file: File, modelPath: String = "/"): Try[StatisticalMeshVolumeModel] = {
+   * Reads a statistical mesh model from a statismo file
+   * @param file The statismo file
+   * @param modelPath a path in the hdf5 file where the model is stored
+   * @return
+   */
+  def readStatismoMeshVolumeModel(file: File, modelPath: String = "/"): Try[StatisticalVolumeMeshModel] = {
 
     def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double], pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
       // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
@@ -298,16 +289,11 @@ object StatismoIO {
       val refpointsVec = flatten(mesh.pointSet.points.toIndexedSeq)
       val meanDefVector = meanVector - refpointsVec
 
-      StatisticalMeshVolumeModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
+      StatisticalVolumeMeshModel(mesh, meanDefVector, pcaVarianceVector, pcaBasis)
     }
 
     modelOrFailure
   }
-
-
-
-
-
 
   object StatismoVersion extends Enumeration {
     type StatismoVersion = Value
@@ -361,9 +347,7 @@ object StatismoIO {
     maybeError
   }
 
-
-
-  def writeStatismoMeshVolumeModel(model: StatisticalMeshVolumeModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
+  def writeStatismoMeshVolumeModel(model: StatisticalVolumeMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
@@ -408,10 +392,6 @@ object StatismoIO {
     maybeError
   }
 
-
-
-
-
   private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
     val cellArray = model.referenceMesh.cells.map(_.ptId1.id) ++ model.referenceMesh.cells.map(_.ptId2.id) ++ model.referenceMesh.cells.map(_.ptId3.id)
@@ -429,8 +409,7 @@ object StatismoIO {
     } yield Success(())
   }
 
-
-  private def writeRepresenterStatismov090_meshvolume(h5file: HDF5File, group: Group, model: StatisticalMeshVolumeModel, modelPath: String): Try[Unit] = {
+  private def writeRepresenterStatismov090_meshvolume(h5file: HDF5File, group: Group, model: StatisticalVolumeMeshModel, modelPath: String): Try[Unit] = {
 
     val cellArray = model.referenceMeshVolume.cells.map(_.ptId1.id) ++ model.referenceMeshVolume.cells.map(_.ptId2.id) ++ model.referenceMeshVolume.cells.map(_.ptId3.id) ++ model.referenceMeshVolume.cells.map(_.ptId4.id)
     val pts = model.referenceMeshVolume.pointSet.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble, p.toArray(3).toDouble))
@@ -446,8 +425,6 @@ object StatismoIO {
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(4, model.referenceMeshVolume.pointSet.points.size), pointArray.toArray.map(_.toFloat)))
     } yield Success(())
   }
-
-
 
   private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
 
@@ -479,9 +456,7 @@ object StatismoIO {
     } yield Success(())
   }
 
-
-
-  private def writeRepresenterStatismov081_meshVolume(h5file: HDF5File, group: Group, model: StatisticalMeshVolumeModel, modelPath: String): Try[Unit] = {
+  private def writeRepresenterStatismov081_meshVolume(h5file: HDF5File, group: Group, model: StatisticalVolumeMeshModel, modelPath: String): Try[Unit] = {
 
     // we simply store the reference into a vtk file and store the file (the binary data) into the representer
 
@@ -510,13 +485,6 @@ object StatismoIO {
       _ <- h5file.writeNDArray[Byte](s"$modelPath/representer/reference", NDArray(IndexedSeq(ba.length, 1), ba))
     } yield Success(())
   }
-
-
-
-
-
-
-
 
   private def ndFloatArrayToDoubleMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit, dummy2: DummyImplicit): DenseMatrix[Double] = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
@@ -551,9 +519,6 @@ object StatismoIO {
     } yield TriangleMesh3D(UnstructuredPointsDomain(points), TriangleList(cells))
   }
 
-
-
-
   private def readStandardMeshVolumeFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TetrahedralMesh[_3D]] = {
     for {
       vertArray <- h5file.readNDArray[Float](s"$modelPath/representer/points").flatMap(vertArray =>
@@ -585,7 +550,6 @@ object StatismoIO {
     } yield triangleMesh
   }
 
-
   /*
  * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
  */
@@ -593,10 +557,9 @@ object StatismoIO {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)
-      tetrahedralMesh <- TetraMeshIO.readTetraMesh(vtkFile)
+      tetrahedralMesh <- TetraMeshIO.readTetrahedralMesh(vtkFile)
     } yield tetrahedralMesh
   }
-
 
   private def writeTmpFile(data: Array[Byte]): Try[File] = {
     val tmpfile = File.createTempFile("temp", ".vtk")
