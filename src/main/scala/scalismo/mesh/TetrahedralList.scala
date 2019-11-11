@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2015 University of Basel, Graphics and Vision Research Group
+ * Copyright University of Basel, Graphics and Vision Research Group
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package scalismo.mesh
+
 import scalismo.common.PointId
 
-/** express a tetrahedriangulation, contains only tetrahedron information, no points */
+/** List of tetrahedrons used to define the tetrahedralization in the [[TetrahedralMesh]]. */
 case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
 
-  val pointIds = extractRange(tetrahedrons)
+  val pointIds = extractPointIds(tetrahedrons)
   val tetrahedronIds = tetrahedrons.indices.map(i => TetrahedronId(i))
 
   def tetrahedron(id: TetrahedronId): TetrahedralCell = tetrahedrons(id.id)
 
-  /** tetrahedrons adjacent to each point */
+  /** Function returning a list of all ids of tetrahedrons containing the point id. */
   lazy val adjacentTetrahedronsForPoint: PointId => IndexedSeq[TetrahedronId] = {
     // list structure
     val emptyMapData = for (p <- pointIds) yield p -> collection.mutable.Set.empty[TetrahedronId]
@@ -47,7 +46,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     id => dataSeq(id.id)
   }
 
-  /** points adjacent to a point */
+  /** List of neighboring points for a point id connected directly with an edge. */
   lazy val adjacentPointsForPoint: PointId => IndexedSeq[PointId] = {
     // all co-occurrences in tetrahedron list: all points reachable by a link
     val emptyMapData = for (p <- pointIds) yield p -> collection.mutable.Set.empty[PointId]
@@ -68,7 +67,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     id => seqData(id.id)
   }
 
-  /** tetrahedrons connected to tetrahedron via common point */
+  /** List of neighboring tetrahedrons of a tetrahedron, having at least one common point */
   lazy val adjacentTetrahedronsForTetrahedron: TetrahedronId => IndexedSeq[TetrahedronId] = {
     // for each tetrahedron get the 4 defining vertices, for each of those get all surrounding tetrahedrons, remove self
     val emptyMapData = for (t <- tetrahedronIds) yield t -> collection.mutable.Set.empty[TetrahedronId]
@@ -83,18 +82,22 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     id => seqData(id.id)
   }
 
-  /** points connected to a tetrahedron, this information is contained in tetrahedrons */
+  /** Points contained in a tetrahedron, this information is contained in tetrahedron cells. */
   lazy val adjacentPointsForTetrahedron: TetrahedronId => IndexedSeq[PointId] = {
     id => tetrahedron(id).pointIds
   }
 
-  private[this] def extractRange(tetrahedrons: IndexedSeq[TetrahedralCell]): IndexedSeq[PointId] = {
+  /** Create a list of all point ids contained in at least one tetrahedral cell. */
+  private[this] def extractPointIds(tetrahedrons: IndexedSeq[TetrahedralCell]): IndexedSeq[PointId] = {
     if (tetrahedrons.isEmpty) {
       IndexedSeq[PointId]()
     } else {
-      val min = tetrahedrons.flatMap(t => t.pointIds).minBy(_.id)
-      val max = tetrahedrons.flatMap(t => t.pointIds).maxBy(_.id)
-      (min.id to max.id).map(id => PointId(id))
+      tetrahedrons.
+        flatMap(t => t.pointIds).
+        map(_.id).
+        distinct.
+        sorted.
+        map(id => PointId(id))
     }
   }
 }
