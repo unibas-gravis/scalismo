@@ -66,7 +66,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   val tetrahedrons = tetrahedralization.tetrahedrons
   val cells = tetrahedrons
 
-  lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
+ // lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
 
   lazy val boundingBox = pointSet.boundingBox
 
@@ -203,7 +203,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     *  @param rnd implicit Random object
     */
 
-  def samplePointInTetrahedralCell(t: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
+ /* def samplePointInTetrahedralCell(t: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
     val A = pointSet.point(t.ptId1)
     val B = pointSet.point(t.ptId2)
     val C = pointSet.point(t.ptId3)
@@ -225,7 +225,38 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
       p = Point3D(centroid(0) * u, centroid(1) * d, centroid(2) * z)
     }
     p
-  }
+  }*/
+
+ def samplePointInTetrahedralCell(t: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
+   val A = pointSet.point(t.ptId1)
+   val B = pointSet.point(t.ptId2)
+   val C = pointSet.point(t.ptId3)
+   val D = pointSet.point(t.ptId3)
+
+   val s = rnd.scalaRandom.nextDouble()
+   val t = rnd.scalaRandom.nextDouble()
+   val u = rnd.scalaRandom.nextDouble()
+
+   if (s+t+u<=0){
+
+   }
+
+
+
+   val centroid = (A.toVector + B.toVector + C.toVector + D.toVector) * (1.0 / 4)
+
+   var p = Point3D(centroid(0) * u, centroid(1) * d, centroid(2) * z)
+
+   while (isInsideTetrahedralCell(p, t) == false) {
+     val u = rnd.scalaRandom.nextDouble()
+     val d = rnd.scalaRandom.nextDouble()
+     val z = rnd.scalaRandom.nextDouble()
+
+     p = Point3D(centroid(0) * u, centroid(1) * d, centroid(2) * z)
+   }
+   p
+ }
+
 
 }
 
