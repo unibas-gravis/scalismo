@@ -33,13 +33,13 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     val tetrahedronMap = emptyMapData.toMap
 
     for (t <- tetrahedronIds) {
-      val tetrahedron = tetrahedrons(t.id)
-      tetrahedronMap(tetrahedron.ptId1) += t
-      tetrahedronMap(tetrahedron.ptId2) += t
-      tetrahedronMap(tetrahedron.ptId3) += t
-      tetrahedronMap(tetrahedron.ptId4) += t
-
+      val tetrahedralCell = tetrahedron(t)
+      tetrahedronMap(tetrahedralCell.ptId1) += t
+      tetrahedronMap(tetrahedralCell.ptId2) += t
+      tetrahedronMap(tetrahedralCell.ptId3) += t
+      tetrahedronMap(tetrahedralCell.ptId4) += t
     }
+
     val data = tetrahedronMap.mapValues(s => s.toSet) // make immutable
 
     val dataSeq = IndexedSeq.tabulate(pointIds.size) { i => data(pointIds(i)).toIndexedSeq }
@@ -53,11 +53,11 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     val pointMap = emptyMapData.toMap
 
     for (t <- tetrahedronIds) {
-      val tetrahedron = tetrahedrons(t.id)
-      pointMap(tetrahedron.ptId1) ++= tetrahedron.pointIds
-      pointMap(tetrahedron.ptId2) ++= tetrahedron.pointIds
-      pointMap(tetrahedron.ptId3) ++= tetrahedron.pointIds
-      pointMap(tetrahedron.ptId4) ++= tetrahedron.pointIds
+      val tetrahedralCell = tetrahedron(t)
+      pointMap(tetrahedralCell.ptId1) ++= tetrahedralCell.pointIds
+      pointMap(tetrahedralCell.ptId2) ++= tetrahedralCell.pointIds
+      pointMap(tetrahedralCell.ptId3) ++= tetrahedralCell.pointIds
+      pointMap(tetrahedralCell.ptId4) ++= tetrahedralCell.pointIds
     }
     for (p <- pointIds) {
       pointMap(p) -= p
@@ -89,16 +89,12 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
 
   /** Create a list of all point ids contained in at least one tetrahedral cell. */
   private[this] def extractPointIds(tetrahedrons: IndexedSeq[TetrahedralCell]): IndexedSeq[PointId] = {
-    if (tetrahedrons.isEmpty) {
-      IndexedSeq[PointId]()
-    } else {
-      tetrahedrons.
-        flatMap(t => t.pointIds).
-        map(_.id).
-        distinct.
-        sorted.
-        map(id => PointId(id))
-    }
+    tetrahedrons.
+      flatMap(t => t.pointIds).
+      map(_.id).
+      distinct.
+      sorted.
+      map(id => PointId(id))
   }
 }
 
