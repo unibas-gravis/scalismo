@@ -18,7 +18,6 @@ package scalismo.mesh
 import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.mesh.TriangleCell
 import scalismo.utils.Random
 import vtk.vtkTetra
 
