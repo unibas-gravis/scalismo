@@ -30,7 +30,7 @@ class ScalarVolumeMeshField[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], ove
 
 object ScalarVolumeMeshField {
   def apply[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], data: Traversable[S]): ScalarVolumeMeshField[S] = {
-    ScalarVolumeMeshField(mesh, ScalarArray(data.toArray))
+   new  ScalarVolumeMeshField(mesh, ScalarArray(data.toArray))
   }
 }
 
