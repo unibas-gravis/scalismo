@@ -96,25 +96,29 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   val tetrahedrons: IndexedSeq[TetrahedralCell] = tetrahedralization.tetrahedrons
   val cells: IndexedSeq[TetrahedralCell] = tetrahedrons
 
+
+  // lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
+
   // hackathon: the operations will be comming soon in a next pull request
   //lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
+
 
   lazy val boundingBox: BoxDomain[_3D] = pointSet.boundingBox
 
   /**
-   * Applies a point transformation to the point set and returns a new transformed mesh.
-   * The method keeps the tetrahedralization as it is and only changes the location of the points.
-   *
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
-   */
+    * Applies a point transformation to the point set and returns a new transformed mesh.
+    * The method keeps the tetrahedralization as it is and only changes the location of the points.
+    *
+    * @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
+    */
   override def transform(transform: Point[_3D] => Point[_3D]): TetrahedralMesh3D = {
     TetrahedralMesh3D(pointSet.points.map(transform).toIndexedSeq, tetrahedralization)
   }
 
   /**
-   * Returns the volume of the TetrahedralMesh as sum of all tetrahedrals.
-   * For meshes with overlapping tetrahedrals the value will not be correct.
-   */
+    * Returns the volume of the TetrahedralMesh as sum of all tetrahedrals.
+    * For meshes with overlapping tetrahedrals the value will not be correct.
+    */
   lazy val volume: Double = {
     var sum = 0.0
     tetrahedrons.foreach(t => sum += computeTetrahedronVolume(t))
@@ -158,27 +162,50 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     hasOnlyStrictPositiveElements(normalized) || (numberOfZeroEntries == 2) || (numberOfZeroEntries == 3)
   }
 
-  /** Uniformly samples points in the tetrahedron. */
-  def samplePointInTetrahedralCell(tetrahedron: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
 
-    val points = tetrahedron.pointIds.map(pointSet.point)
-    val average = points.foldLeft(EuclideanVector3D.zero) { case (sum, pt) => sum + pt.toVector } * (1.0 / 4)
+  /**
+    * Returns a random point lying within the tetrahedron defined by the indicated cell.
+    *
+    * A uniform distribution is used for sampling points.
+    *
+    * @param t   Tetrahedral cell in which to draw a random point
+    * @param rnd implicit Random object
+    */
 
-    // note: this can be very inefficient and it might even be buggy → write test
-    val pointGenerator = Iterator.continually({
+  def samplePointInTetrahedralCell(tc:TetrahedralCell, n:Int)(implicit rnd: Random): IndexedSeq[Point[_3D]] ={
+    val A = pointSet.point(tc.ptId2)- pointSet.point(tc.ptId1)
+    val B = pointSet.point(tc.ptId3)-pointSet.point(tc.ptId1)
+    val C = pointSet.point(tc.ptId4)-pointSet.point(tc.ptId1)
+
+    var count=0
+    var sq=IndexedSeq[Point[_3D]]()
+    while (count<n){
+      val s = rnd.scalaRandom.nextDouble()
+      val t = rnd.scalaRandom.nextDouble()
       val u = rnd.scalaRandom.nextDouble()
-      val d = rnd.scalaRandom.nextDouble()
-      val z = rnd.scalaRandom.nextDouble()
+      if (s + t + u <= 1) {
+        sq=sq++IndexedSeq((A * s + B * t + C * u).toPoint)
+        count=count+1
+      }else if ((s + t + u > 1) && (t + u > 1)){
+        sq=sq++IndexedSeq((A * s + B * (1-u) + C * (1-s-t)).toPoint)
+        count=count+1
+      }else if  ((s + t + u > 1) && (t + u <= 1)){
+        sq=sq++IndexedSeq((A * (1-t-u) + B * t + C * (s+t+u-1)).toPoint)
+        count=count+1
+      } else{
+       sq
+      }
+    }
 
-      Point3D(average(0) * u, average(1) * d, average(2) * z)
-    })
-    pointGenerator.find(isInsideTetrahedralCell(_, tetrahedron)).get
+    sq
   }
 
 }
 
-object TetrahedralMesh3D {
-  def apply(points: IndexedSeq[Point[_3D]], topology: TetrahedralList): TetrahedralMesh3D = {
-    TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), topology)
+  object TetrahedralMesh3D {
+    def apply(points: IndexedSeq[Point[_3D]], topology: TetrahedralList): TetrahedralMesh3D = {
+      TetrahedralMesh3D(points.toIndexedSeq, topology)
+    }
   }
-}
+
+
