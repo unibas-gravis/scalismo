@@ -1,20 +1,20 @@
 package scalismo.io
 
-import java.io.{BufferedReader, File, FileReader, IOException}
+import java.io.{ BufferedReader, File, FileReader, IOException }
 
-import scalismo.color.{RGB, RGBA}
-import scalismo.common.{PointId, Scalar, UnstructuredPointsDomain}
+import scalismo.color.{ RGB, RGBA }
+import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.mesh.TriangleMesh._
 import scalismo.mesh._
-import scalismo.tetramesh.{TetrahedralCell, TetrahedralMesh}
-import scalismo.utils.{MeshConversion, TetraMeshConversion, VtkHelpers}
-import vtk.{vtkUnstructuredGridReader, _}
+import scalismo.tetramesh.{ TetrahedralCell, TetrahedralMesh }
+import scalismo.utils.{ MeshConversion, TetraMeshConversion, VtkHelpers }
+import vtk.{ vtkUnstructuredGridReader, _ }
 
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 object TetraMeshIO {
   /**
    * Implements methods for reading and writing D-dimensional meshes
@@ -30,10 +30,6 @@ object TetraMeshIO {
    *
    * *
    */
-
-
-
-
 
   /**
    * Reads a tetrahedral mesh from file while casting its data to the indicated Scalar type S if necessary
@@ -53,7 +49,7 @@ object TetraMeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".inp") => readVTKAVSucd(file)
-     case f if f.endsWith(".vtk") => readVTK(file)
+      case f if f.endsWith(".vtk") => readVTK(file)
       case f if f.endsWith(".vtu") => readVTU(file)
       /* case f if f.endsWith(".ply") => {
         readPLY(file).map { res =>
@@ -68,24 +64,17 @@ object TetraMeshIO {
     }
   }
 
-
-
-
-
   def writeTetraMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       // case f if f.endsWith(".h5") => writeHDF5(mesh, file)
-     case f if f.endsWith(".vtk") => writeVTK(mesh, file)
+      case f if f.endsWith(".vtk") => writeVTK(mesh, file)
       case f if f.endsWith(".vtu") => writeVTU(mesh, file)
       //case f if f.endsWith(".ply") => writePLY(Left(mesh), file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
   }
-
-
-
 
   def writeVTK(volume: TetrahedralMesh[_3D], file: File): Try[Unit] = {
     val vtkPd = TetraMeshConversion.tetrameshTovtkUnstructuredGrid(volume)
@@ -94,18 +83,12 @@ object TetraMeshIO {
     err
   }
 
-
-
   def writeVTU(volume: TetrahedralMesh[_3D], file: File): Try[Unit] = {
     val vtkUg = TetraMeshConversion.tetrameshTovtkUnstructuredGrid(volume)
     val err = writeVTKUgasVTU(vtkUg, file)
     vtkUg.Delete()
     err
   }
-
-
-
-
 
   private def writeVTKUgasVTK(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
     val writer = new vtkUnstructuredGridWriter()
@@ -122,7 +105,6 @@ object TetraMeshIO {
     succOrFailure
   }
 
-
   private def writeVTKUgasVTU(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
     val writer = new vtkXMLUnstructuredGridWriter()
     writer.SetFileName(file.getAbsolutePath)
@@ -137,11 +119,6 @@ object TetraMeshIO {
     writer.Delete()
     succOrFailure
   }
-
-
-
-
-
 
   private def readVTKUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
 
@@ -160,9 +137,6 @@ object TetraMeshIO {
     vtkReader.Delete()
     Success(data)
   }
-
-
-
 
   private def readVTKXMLUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
 
@@ -216,23 +190,19 @@ object TetraMeshIO {
     }
   }
 
-
   private def readVTK(file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] =
-  {
-    for {
-      vtkUg <- readVTKUnstructuredGrid(file)
-      tetramesh <- {
-        if (correctMesh) TetraMeshConversion.vtkUnstructuredGridToCorrectedTetrahedralMesh(vtkUg) else TetraMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
+    {
+      for {
+        vtkUg <- readVTKUnstructuredGrid(file)
+        tetramesh <- {
+          if (correctMesh) TetraMeshConversion.vtkUnstructuredGridToCorrectedTetrahedralMesh(vtkUg) else TetraMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
+        }
+      } yield {
+        vtkUg.Delete()
+        tetramesh
       }
-    } yield {
-      vtkUg.Delete()
-      tetramesh
+
     }
-
-  }
-
-
-
 
   private def getColorArray(UGrid: vtkUnstructuredGrid): Option[(String, vtkDataArray)] = {
     if (UGrid.GetPointData() == null || UGrid.GetPointData().GetNumberOfArrays() == 0) None
@@ -244,11 +214,6 @@ object TetraMeshIO {
       pointDataArrays.find { case (name, array) => name == "RGB" || name == "RGBA" }
     }
   }
-
-
-
-
-
 
   private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
@@ -265,8 +230,6 @@ object TetraMeshIO {
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TetrahedralCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
-
-
 
 }
 

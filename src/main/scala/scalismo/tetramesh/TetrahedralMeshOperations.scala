@@ -11,7 +11,7 @@ object TetrahedralMeshOperations {
   def apply(mesh: TetrahedralMesh3D) = new TetrahedralMesh3DOperations(mesh)
 }
 
-class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh3D) {
+class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
 
   /**
    * Calculated data from mesh
@@ -40,7 +40,7 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh3D) {
   private lazy val boundary: TetrahedralMeshBoundaryPredicates = MeshVolumeBoundaryPredicates(mesh)
   def pointIsOnBoundary(pid: PointId): Boolean = boundary.pointIsOnBoundary(pid)
   def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
-  def triangleIsOnBoundary(tid: TetrahedronId): Boolean = boundary.tetrahedronIsOnBoundary(tid: TetrahedronId)
+  def tetrahedronIsOnBoundary(tid: TetrahedronId): Boolean = boundary.tetrahedronIsOnBoundary(tid: TetrahedronId)
 
   /**
    * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.

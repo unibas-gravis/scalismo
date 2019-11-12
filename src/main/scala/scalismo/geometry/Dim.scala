@@ -22,7 +22,6 @@ trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
 
-
 trait NDSpace[D]
     extends EuclideanVector.Create[D]
     with Point.Create[D]

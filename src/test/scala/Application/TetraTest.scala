@@ -1,12 +1,11 @@
 package Application
 
 import scalismo.common.NearestNeighborInterpolator
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.io.MeshIO
-import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalVolumeMeshModel}
-import scalismo.tetramesh.{ScalarVolumeMeshField, TetrahedralMesh}
-
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalVolumeMeshModel }
+import scalismo.tetramesh.{ ScalarVolumeMeshField, TetrahedralMesh }
 
 object TetraTest {
 

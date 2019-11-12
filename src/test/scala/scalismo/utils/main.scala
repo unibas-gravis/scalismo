@@ -10,7 +10,7 @@ import scalismo.io.{ ImageIO, LandmarkIO, TetraMeshIO }
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel, MatrixValuedPDKernel, PDKernel }
 import scalismo.numerics.RandomMeshVolumeSampler3D
 import scalismo.statisticalmodel.dataset.{ DataCollection, DataCollectionOfMeshVolume }
-import scalismo.statisticalmodel._
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalVolumeMeshModel }
 import scalismo.tetramesh.{ TetrahedralCell, TetrahedralMesh }
 import vtk.vtkTetra
 import scalismo.utils.Random.implicits._
@@ -18,11 +18,10 @@ object main {
   def main(args: Array[String]): Unit = {
     scalismo.initialize()
 
-    val tetramesh = TetraMeshIO.readTetraMesh(new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\tetraMesh.vtk")).get
+    val tetramesh = TetraMeshIO.readTetrahedralMesh(new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\tetraMesh.vtk")).get
 
-
-    TetraMeshIO.writeTetraMesh(tetramesh,new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\tetraMesh1.vtk")).get
-   // val image = ImageIO.read3DScalarImage[Short](new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\VSD.Body.040Y.M.CT.57768i.nii")).get
+    TetraMeshIO.writeTetraMesh(tetramesh, new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\tetraMesh1.vtk")).get
+    // val image = ImageIO.read3DScalarImage[Short](new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\VSD.Body.040Y.M.CT.57768i.nii")).get
     //val tetra = TetraMeshIO.readTetraMesh(new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\humerusvolume.inp")).get
     /*val land = LandmarkIO.readLandmarksJson[_3D](new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\landmarksfromimagetodefinetetra.json")).get
 
@@ -83,7 +82,7 @@ println("finish result computation, start visualation computation")
     val sampleImage2: DiscreteScalarImage[_3D, Short] = DiscreteScalarImage[_3D,Short](image.domain,vals)
     ImageIO.writeNifti(sampleImage2, new File("E:\\PhD folders\\Tetrahedral mesh\\test file\\sampleImageserr.nii"))
 */
-/*
+    /*
    val master_gaussKernel: PDKernel[_3D] = GaussianKernel[_3D](200) * 10
 
     val model: StatisticalMeshVolumeModel = createBasicFFModel(tetramesh, master_gaussKernel, 40, 10)
@@ -121,7 +120,7 @@ println("finish result computation, start visualation computation")
 
 */
 
-   /* val domain12D = UnstructuredPointsDomain(tetramesh.tetrahedralization.tetrahedrons.map(t =>
+    /* val domain12D = UnstructuredPointsDomain(tetramesh.tetrahedralization.tetrahedrons.map(t =>
       Point12D(tetramesh.pointSet.point(t.ptId1).x, tetramesh.pointSet.point(t.ptId1).y, tetramesh.pointSet.point(t.ptId1).z,
         tetramesh.pointSet.point(t.ptId2).x, tetramesh.pointSet.point(t.ptId2).y, tetramesh.pointSet.point(t.ptId2).z,
         tetramesh.pointSet.point(t.ptId3).x, tetramesh.pointSet.point(t.ptId3).y, tetramesh.pointSet.point(t.ptId3).z,
@@ -173,15 +172,15 @@ println("finish result computation, start visualation computation")
 
   }
 
-  def SSM(dc: DataCollectionOfMeshVolume): StatisticalMeshVolumeModel = {
+  def SSM(dc: DataCollectionOfMeshVolume): StatisticalVolumeMeshModel = {
     import scalismo.utils.Random.implicits._
     val gpaAligned: DataCollectionOfMeshVolume = DataCollectionOfMeshVolume.gpa(dc)
-    val modelAligned = StatisticalMeshVolumeModel.createUsingPCA(gpaAligned).get
+    val modelAligned = StatisticalVolumeMeshModel.createUsingPCA(gpaAligned).get
 
     return modelAligned
   }
 
-  def createBasicFFModel(refModel: TetrahedralMesh[_3D], gKernel: PDKernel[_3D], numSamples: Int, numBasisFunctions: Int): StatisticalMeshVolumeModel = {
+  def createBasicFFModel(refModel: TetrahedralMesh[_3D], gKernel: PDKernel[_3D], numSamples: Int, numBasisFunctions: Int): StatisticalVolumeMeshModel = {
     val zeroMean = VectorField(RealSpace[_3D], (pt: Point[_3D]) => EuclideanVector3D(0, 0, 0))
     val land = LandmarkIO.readLandmarksJson[_3D](new File("E:\\PhD folders\\data for PGA model 21-03-2019\\test for tedy registration\\testbiaskernel.json")).get
     val matrixValuedGaussian1: MatrixValuedPDKernel[_3D] = DiagonalKernel[_3D](gKernel, 3)
@@ -194,7 +193,7 @@ println("finish result computation, start visualation computation")
     val lowRankGP = LowRankGaussianProcess.approximateGP(gp, sampler, numBasisFunctions) //50
     //val defField = lowRankGP.sampleAtPoints(femur)
     //val discreteLowRankGP: DiscreteLowRankGaussianProcess[_3D,_3D] = lowRankGP.discretize(femurRef)
-    StatisticalMeshVolumeModel(refModel, lowRankGP)
+    StatisticalVolumeMeshModel(refModel, lowRankGP)
   }
 
   /**
