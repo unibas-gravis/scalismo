@@ -96,7 +96,6 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       val epsilonVolume = 1.0e-8
 
       for (i <- 0 until 20) {
-        println(i)
         val t = TranslationTransform(EuclideanVector3D(
           rng.scalaRandom.nextGaussian() * 50,
           rng.scalaRandom.nextGaussian() * 50,
@@ -111,10 +110,8 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
         )
         def mapping(pt: Point[_3D]) = R(t(pt))
 
-        println("tetra")
         val tetrahedron = createTetrahedronsInUnitCube().transform(mapping)
 
-        println("ref")
         val ref = tetrahedron.computeTetrahedronVolume(tetrahedron.cells(0))
         tetrahedron.computeTetrahedronVolume(tetrahedron.cells(1)) should be(ref +- epsilonVolume)
         tetrahedron.computeTetrahedronVolume(tetrahedron.cells(2)) should be(ref +- epsilonVolume)
