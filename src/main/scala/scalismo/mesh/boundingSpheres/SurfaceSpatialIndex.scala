@@ -350,9 +350,9 @@ class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere,
     val p = point.toVector
 
     // last tetrahedron might be a good candidate
-    var result = BSDistance.toTriangle(point.toVector, tetrahedrons.apply(0).triangles(lastIdx.get().idx))
+    var result = BSDistance.toTriangle(point.toVector, tetrahedrons.apply(lastIdx.get().idx).triangles(0))
     for (i <- 0 to 3) {
-      val resulti = BSDistance.toTriangle(point.toVector, tetrahedrons.apply(i).triangles(lastIdx.get().idx))
+      val resulti = BSDistance.toTriangle(point.toVector, tetrahedrons.apply(lastIdx.get().idx).triangles(i))
       if (resulti.distance2 <= result.distance2) {
         result = resulti
       }
@@ -384,10 +384,10 @@ class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere,
     index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
-      var res = BSDistance.toTriangle(point, tetrahedrons.apply(0).triangles(partition.idx))
+      var res = BSDistance.toTriangle(point, tetrahedrons.apply(partition.idx).triangles(0))
 
       for (i <- 0 to 3) {
-        val resulti = BSDistance.toTriangle(point, tetrahedrons.apply(0).triangles(partition.idx))
+        val resulti = BSDistance.toTriangle(point, tetrahedrons.apply(partition.idx).triangles(i))
         if (resulti.distance2 <= res.distance2) {
           res = resulti
         }
