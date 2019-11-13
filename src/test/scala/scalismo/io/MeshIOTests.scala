@@ -191,7 +191,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
-    val T = 2
+    val T = 200
     val cells = IndexedSeq.fill(T)(TetrahedralCell(
       rng.scalaRandom.nextInt(N),
       rng.scalaRandom.nextInt(N),

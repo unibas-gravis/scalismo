@@ -157,22 +157,15 @@ object VtkHelpers {
 
 object TetrahedronMeshConversion {
 
-  private def extractPointsAndCells(ug: vtkUnstructuredGrid, calculateNewDelaunayTetrahedrons: Boolean = false) = Try {
-    val newUg = if (calculateNewDelaunayTetrahedrons) {
-      val tetrahedralFilter = new vtkDelaunay3D
-      tetrahedralFilter.SetInputData(ug)
-      tetrahedralFilter.Update()
-      tetrahedralFilter.GetOutput()
-    } else ug
-
-    val grids = newUg.GetCells()
+  private def extractPointsAndCells(ug: vtkUnstructuredGrid) = Try {
+    val grids = ug.GetCells()
     val numGrids = grids.GetNumberOfCells()
 
-    val points = CommonConversions.vtkConvertPoints[_3D](newUg)
+    val points = CommonConversions.vtkConvertPoints[_3D](ug)
 
     val idList = new vtkIdList()
     val cells = for (i <- 0 until numGrids) yield {
-      newUg.GetCellPoints(i, idList)
+      ug.GetCellPoints(i, idList)
       if (idList.GetNumberOfIds() != 4) {
         throw new Exception("Not a tetrahedral mesh")
       }
@@ -183,23 +176,11 @@ object TetrahedronMeshConversion {
     (points, cells)
   }
 
-  private def cleanDoubleOccurrenceOfPoints(
-                                            points: IndexedSeq[Point[_3D]],
-                                            cells: IndexedSeq[TetrahedralCell]
-                                          ): (IndexedSeq[Point[_3D]], IndexedSeq[TetrahedralCell]) = {
-    val cellPointIds = cells.flatMap(_.pointIds).distinct
-    val oldId2newId = cellPointIds.zipWithIndex.map { case (id, index) => (id, PointId(index)) }.toMap
-    val newCells = cells.map(c => TetrahedralCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3), oldId2newId(c.ptId4)))
-    val newPoints = cellPointIds.map(id => points(id.id))
-    (newPoints, newCells)
-  }
-
-  def vtkUnstructuredGridToTetrahedralMesh(ug: vtkUnstructuredGrid, recalculateTetrahedralization: Boolean = false): Try[TetrahedralMesh[_3D]] = {
-    val cellsPointsOrFailure = extractPointsAndCells(ug, recalculateTetrahedralization)
+  def vtkUnstructuredGridToTetrahedralMesh(ug: vtkUnstructuredGrid): Try[TetrahedralMesh[_3D]] = {
+    val cellsPointsOrFailure = extractPointsAndCells(ug)
     cellsPointsOrFailure.map {
       case (points, cells) =>
-        val (newPoints,newCells) = if (recalculateTetrahedralization) cleanDoubleOccurrenceOfPoints(points.toIndexedSeq, cells) else (points.toIndexedSeq,cells)
-        TetrahedralMesh3D(UnstructuredPointsDomain(newPoints), TetrahedralList(newCells))
+        TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), TetrahedralList(cells))
     }
   }
 

@@ -153,28 +153,32 @@ object MeshIO {
     }
   }
 
+  /**
+   * Reads a [[TetrahedralMesh[_3D]]] from a file with one of the extensions ".vtk", ".vtu", or ".inp".
+   * The ".vtk" and ".vtu" files are standard VTK formats while ".inp" is the AVS UCD format.
+   */
   def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".inp") => readFromVTKFileThenDelete(readVTKAVSucdUnstructuredGrid,file)
-      case f if f.endsWith(".vtk") => readFromVTKFileThenDelete(readVTKUnstructuredGrid,file)
-      case f if f.endsWith(".vtu") => readFromVTKFileThenDelete(readVTKXMLUnstructuredGrid,file)
+      case f if f.endsWith(".inp") => readFromVTKFileThenDelete(readVTKAVSucdUnstructuredGrid, file)
+      case f if f.endsWith(".vtk") => readFromVTKFileThenDelete(readVTKUnstructuredGrid, file)
+      case f if f.endsWith(".vtu") => readFromVTKFileThenDelete(readVTKXMLUnstructuredGrid, file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
   }
 
-  private def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid],file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
+  private[io] def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid], file: File): Try[TetrahedralMesh[_3D]] = {
     for {
       vtkUg <- readUSFromFile(file)
-      tetramesh <- TetrahedronMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg,correctMesh)
+      tetramesh <- TetrahedronMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
     } yield {
       vtkUg.Delete()
       tetramesh
     }
   }
 
-  def readVTKUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+  private[io] def readVTKUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
 
     val vtkReader = new vtkUnstructuredGridReader()
     vtkReader.SetFileName(file.getAbsolutePath)
@@ -192,7 +196,7 @@ object MeshIO {
     Success(data)
   }
 
-  def readVTKXMLUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+  private[io] def readVTKXMLUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
 
     val vtkReader = new vtkXMLUnstructuredGridReader()
     vtkReader.SetFileName(file.getAbsolutePath)
@@ -207,7 +211,7 @@ object MeshIO {
     Success(data)
   }
 
-  def readVTKAVSucdUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+  private[io] def readVTKAVSucdUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
     val vtkavsReader = new vtkAVSucdReader()
     vtkavsReader.SetFileName(file.getAbsolutePath)
     vtkavsReader.Update()
@@ -220,6 +224,9 @@ object MeshIO {
     Success(data)
   }
 
+  /**
+   * Writes a [[TetrahedralMesh[_3D]]] to a file in one of the two standard VTK file formats ".vtk", or ".vtu".
+   */
   def writeTetrahedralMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
@@ -230,7 +237,7 @@ object MeshIO {
     }
   }
 
-  private def writeToVTKFileThenDelete(volume: TetrahedralMesh[_3D], writeToFile: (vtkUnstructuredGrid,File) => Try[Unit],file: File): Try[Unit] = {
+  private[io] def writeToVTKFileThenDelete(volume: TetrahedralMesh[_3D], writeToFile: (vtkUnstructuredGrid, File) => Try[Unit], file: File): Try[Unit] = {
     val vtkUg = TetrahedronMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(volume)
     for {
       result <- writeToFile(vtkUg, file)
@@ -240,7 +247,7 @@ object MeshIO {
     }
   }
 
-  def writeVTKUgasVTK(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
+  private[io] def writeVTKUgasVTK(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
     val writer = new vtkUnstructuredGridWriter()
     writer.SetFileName(file.getAbsolutePath)
     writer.SetInputData(vtkUg)
@@ -255,7 +262,7 @@ object MeshIO {
     succOrFailure
   }
 
-  private def writeVTKUgasVTU(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
+  private[io] def writeVTKUgasVTU(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
     val writer = new vtkXMLUnstructuredGridWriter()
     writer.SetFileName(file.getAbsolutePath)
     writer.SetInputData(vtkUg)
