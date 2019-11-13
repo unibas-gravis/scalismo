@@ -6,7 +6,7 @@ import scalismo.mesh.ScalarMeshField
 
 import scala.reflect.ClassTag
 
-class ScalarVolumeMeshField[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], override val data: ScalarArray[S])
+case class ScalarVolumeMeshField[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], override val data: ScalarArray[S])
     extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
   require(mesh.pointSet.numberOfPoints == data.size)
 
@@ -30,7 +30,7 @@ class ScalarVolumeMeshField[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], ove
 
 object ScalarVolumeMeshField {
   def apply[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], data: Traversable[S]): ScalarVolumeMeshField[S] = {
-   new  ScalarVolumeMeshField(mesh, ScalarArray(data.toArray))
+    ScalarVolumeMeshField(mesh, ScalarArray(data.toArray))
   }
 }
 
