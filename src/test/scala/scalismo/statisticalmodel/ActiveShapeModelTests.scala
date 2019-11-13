@@ -1,6 +1,7 @@
 package scalismo.statisticalmodel
 
 import java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
@@ -8,7 +9,7 @@ import scalismo.geometry.{ Point, _3D }
 import scalismo.io.{ ImageIO, MeshIO, StatismoIO }
 import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
-import scalismo.registration.{ LandmarkRegistration }
+import scalismo.registration.LandmarkRegistration
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
@@ -27,11 +28,18 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val searchMethod = NormalDirectionSearchPointSampler(numberOfPoints = 31, searchDistance = 6)
       val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 
-      val shapeModel = StatismoIO.readStatismoMeshModel(new File(getClass.getResource(s"/asmData/model.h5").getPath)).get
+      val path: String = URLDecoder.decode(getClass.getResource(s"/asmData/model.h5").getPath, "UTF-8")
+      val shapeModel = StatismoIO.readStatismoMeshModel(new File(path)).get
       val nbFiles = 7
       // use iterators so files are only loaded when required (and memory can be reclaimed after use)
-      val meshes = (0 until nbFiles).toIterator map (i => MeshIO.readMesh(new File(getClass.getResource(s"/asmData/$i.stl").getPath)).get)
-      val images = (0 until nbFiles).toIterator map (i => ImageIO.read3DScalarImage[Float](new File(getClass.getResource(s"/asmData/$i.vtk").getPath)).get)
+      val meshes = (0 until nbFiles).toIterator map { i =>
+        val meshPath: String = getClass.getResource(s"/asmData/$i.stl").getPath
+        MeshIO.readMesh(new File(URLDecoder.decode(meshPath, "UTF-8"))).get
+      }
+      val images = (0 until nbFiles).toIterator map { i =>
+        val imgPath: String = getClass.getResource(s"/asmData/$i.vtk").getPath
+        ImageIO.read3DScalarImage[Float](new File(URLDecoder.decode(imgPath, "UTF-8"))).get
+      }
 
       val targetImage = images.next()
       val targetMesh = meshes.next()

@@ -16,6 +16,8 @@
 
 package scalismo.utils
 
+import java.net.URLDecoder
+
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._2D
 import scalismo.io.{ ImageIO, MeshIO }
@@ -26,7 +28,7 @@ class ConversionTests extends ScalismoTestSuite {
 
     it("can be converted to and from vtk") {
       val path = getClass.getResource("/facemesh.stl").getPath
-      val origmesh = MeshIO.readMesh(new java.io.File(path)).get
+      val origmesh = MeshIO.readMesh(new java.io.File(URLDecoder.decode(path, "UTF-8"))).get
       val vtkpd = MeshConversion.meshToVtkPolyData(origmesh)
       val restoredMesh = MeshConversion.vtkPolyDataToTriangleMesh(vtkpd).get
       origmesh should equal(restoredMesh)
@@ -41,7 +43,7 @@ class ConversionTests extends ScalismoTestSuite {
   describe("an 2D image") {
     it("can be converted to and from vtk") {
       val path = getClass.getResource("/lena.vtk").getPath
-      val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(path)).get
+      val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(URLDecoder.decode(path, "UTF-8"))).get
       val vtksp = ImageConversion.imageToVtkStructuredPoints(origimg)
       val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get
 

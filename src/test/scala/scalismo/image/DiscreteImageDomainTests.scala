@@ -17,6 +17,7 @@
 package scalismo.image
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
@@ -118,7 +119,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
 
     object Fixture {
       val pathH5 = getClass.getResource("/3dimage.nii").getPath
-      val img = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+      val img = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(pathH5, "UTF-8"))).get
     }
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = DiscreteImageDomain[_3D]((0.0, 0.0, 0.0), (1.0, 2.0, 3.0), (42, 49, 65))

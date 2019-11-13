@@ -1,6 +1,7 @@
 package scalismo.mesh
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.io.MeshIO
@@ -9,7 +10,7 @@ class MeshDecimationTests extends ScalismoTestSuite {
   describe("A decimated mesh") {
 
     val path = getClass.getResource("/facemesh.stl").getPath
-    val facemesh = MeshIO.readMesh(new File(path)).get
+    val facemesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
     it("has a reduced number of points") {
       val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 3)

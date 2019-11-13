@@ -16,6 +16,7 @@
 package scalismo.io
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ Scalar, ScalarArray }
@@ -32,7 +33,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     it("yields the original mesh when reading  and writing") {
       val path = getClass.getResource("/facemesh.stl").getPath
-      val origMesh = MeshIO.readMesh(new File(path)).get
+      val origMesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       def testWriteRead(extension: String): Unit = {
         val tmpFile = File.createTempFile("mesh", ".vtk")
@@ -58,7 +59,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     it("yields the original polyline when reading  and writing a polyLine in 2D") {
       val path = getClass.getResource("/linemesh.vtk").getPath
-      val origMesh = MeshIO.readLineMesh2D(new File(path)).get
+      val origMesh = MeshIO.readLineMesh2D(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val tmpFile = File.createTempFile("mesh", ".vtk")
       val writeStatus = MeshIO.writeLineMesh(origMesh, tmpFile)
@@ -74,7 +75,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     it("yields the original mesh when reading and writing a shape only ply") {
       val path = getClass.getResource("/mean_shapeOnly.ply").getPath
-      val shape = MeshIO.readMesh(new File(path)).get
+      val shape = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
       val tmpFile = File.createTempFile("mesh", ".ply")
       MeshIO.writeMesh(shape, tmpFile)
       val reRead = MeshIO.readMesh(tmpFile).get
@@ -85,7 +86,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     it("yields the original mesh when reading and writing a vertex color ply") {
       val path = getClass.getResource("/mean_vertexColor.ply").getPath
-      val shape = MeshIO.readVertexColorMesh3D(new File(path)).get
+      val shape = MeshIO.readVertexColorMesh3D(new File(URLDecoder.decode(path, "UTF-8"))).get
       val tmpFile = File.createTempFile("mesh", ".ply")
       MeshIO.writeVertexColorMesh3D(shape, tmpFile)
       val reRead = MeshIO.readVertexColorMesh3D(tmpFile).get
@@ -96,7 +97,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     it("correctly fails when reading a textured ascii ply") {
       val path = getClass.getResource("/mean_textured.ply").getPath
-      val shape = MeshIO.readMesh(new File(path))
+      val shape = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8")))
       assert(shape.isFailure)
     }
 
@@ -106,7 +107,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     object Fixture {
       val path: String = getClass.getResource("/facemesh.stl").getPath
-      val mesh: TriangleMesh[_3D] = MeshIO.readMesh(new File(path)).get
+      val mesh: TriangleMesh[_3D] = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
       val meshData: ScalarMeshField[Int] = ScalarMeshField(mesh, ScalarArray(mesh.pointSet.pointIds.map(_.id).toArray))
     }
 

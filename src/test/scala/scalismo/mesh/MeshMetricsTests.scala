@@ -16,10 +16,11 @@
 package scalismo.mesh
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, EuclideanVector, _3D }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.io.MeshIO
 import scalismo.utils.Random
 
@@ -28,7 +29,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
   implicit val rng = Random(42L)
 
   val path = getClass.getResource("/facemesh.stl").getPath
-  val mesh = MeshIO.readMesh(new File(path)).get
+  val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
   val translationLength = 1.0
   val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + EuclideanVector(translationLength, 0.0, 0.0))
 
@@ -73,7 +74,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
   describe("the dice coefficient") {
     val path = getClass.getResource("/unit-sphere.stl").getPath
-    val spheremesh = MeshIO.readMesh(new File(path)).get
+    val spheremesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
     it("computes the right value for a unit sphere that completely overlaps itself") {
       MeshMetrics.diceCoefficient(spheremesh, spheremesh) should be(1)

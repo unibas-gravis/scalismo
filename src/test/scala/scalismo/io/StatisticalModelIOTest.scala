@@ -16,6 +16,7 @@
 package scalismo.io
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
@@ -37,7 +38,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again") {
-      val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -53,7 +54,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again in non-standard location") {
-      val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -71,7 +72,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
 
-      val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -88,7 +89,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
   }
 
   it("can read a catalog") {
-    val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
+    val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
     val catalog = StatismoIO.readModelCatalog(statismoFile).get
     catalog.size should equal(1)
     val firstEntry = catalog.head

@@ -16,17 +16,18 @@
 
 package scalismo.mesh
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.{ BoxDomain, UnstructuredPointsDomain }
 import scalismo.geometry._
-import scalismo.image.{ DiscreteImageDomain }
+import scalismo.image.DiscreteImageDomain
 import scalismo.io.MeshIO
 
 class RegionQueryTest extends ScalismoTestSuite {
 
   val path = getClass.getResource("/facemesh.stl").getPath
-  val mesh = MeshIO.readMesh(new File(path)).get
+  val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
   val translationLength = 1.0
   val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + EuclideanVector(translationLength, 0.0, 0.0))
 

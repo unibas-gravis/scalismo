@@ -16,6 +16,7 @@
 package scalismo.mesh
 
 import java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
@@ -34,7 +35,7 @@ class MeshTests extends ScalismoTestSuite {
 
   describe("a mesh") {
     val path = getClass.getResource("/facemesh.stl").getPath
-    val facemesh = MeshIO.readMesh(new File(path)).get
+    val facemesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
     it("finds the right closest points for all the points that define the mesh") {
 
@@ -72,7 +73,7 @@ class MeshTests extends ScalismoTestSuite {
 
     it("computes the right binary image for the unit sphere") {
       val path = getClass.getResource("/unit-sphere.stl").getPath
-      val spheremesh = MeshIO.readMesh(new File(path)).get
+      val spheremesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
       val binaryImg = spheremesh.operations.toBinaryImage
       binaryImg(Point(0, 0, 0)) should be(1)
       binaryImg(Point(2, 0, 0)) should be(0)

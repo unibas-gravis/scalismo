@@ -16,6 +16,7 @@
 package scalismo.io
 
 import java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import niftijio.NiftiVolume
@@ -67,7 +68,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
     def testReadWrite[T: Scalar: TypeTag: ClassTag]() = {
       val path = getClass.getResource("/images/vtk").getPath
-      val source = new File(s"$path/${dim}d_${typeAsString[T]()}.vtk")
+      val source = new File(s"${URLDecoder.decode(path, "UTF-8")}/${dim}d_${typeAsString[T]()}.vtk")
 
       // read
       val read = readImage[T](source)
@@ -133,7 +134,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
     it("can be converted to vtk and back and yields the same image") {
       val path = getClass.getResource("/lena.vtk").getPath
-      val lena = ImageIO.read2DScalarImage[Short](new File(path)).get
+      val lena = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
       val tmpImgFile = File.createTempFile("image2D", ".vtk")
       tmpImgFile.deleteOnExit()
       ImageIO.writeVTK(lena, tmpImgFile) match {
@@ -169,7 +170,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
     it("can be converted to vtk and back and yields the same image") {
       val path = getClass.getResource("/3dimage.nii").getPath
-      val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+      val discreteImage = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
       val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()
       ImageIO.writeVTK(discreteImage, f)
@@ -182,8 +183,8 @@ class ImageIOTests extends ScalismoTestSuite {
 
       it("returns the same data as the niftijio reader when using FastReadOnlyNiftiVolume") {
         val filename = getClass.getResource("/3dimage.nii").getPath
-        val o = NiftiVolume.read(filename)
-        val n = FastReadOnlyNiftiVolume.read(filename).get
+        val o = NiftiVolume.read(URLDecoder.decode(filename, "UTF-8"))
+        val n = FastReadOnlyNiftiVolume.read(URLDecoder.decode(filename, "UTF-8")).get
 
         for (i <- 0 until 8) {
           n.header.dim(i) should equal(o.header.dim(i))
@@ -221,7 +222,7 @@ class ImageIOTests extends ScalismoTestSuite {
 
       it("can be written and read again") {
         val pathH5 = getClass.getResource("/3dimage.nii").getPath
-        val origImg = ImageIO.read3DScalarImage[Short](new File(pathH5)).get
+        val origImg = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(pathH5, "UTF-8"))).get
         val tmpfile = File.createTempFile("dummy", ".nii")
         tmpfile.deleteOnExit()
 

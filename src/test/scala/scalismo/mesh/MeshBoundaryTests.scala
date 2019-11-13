@@ -249,8 +249,6 @@ class MeshBoundaryTests extends ScalismoTestSuite {
         val p1 = t4.ptId2
         val p2 = t4.ptId3
 
-        println(p0.id + " " + p1.id + " " + p2.id)
-
         b.pointIsOnBoundary(p0) shouldBe false
         b.pointIsOnBoundary(p1) shouldBe false
         b.pointIsOnBoundary(p2) shouldBe true

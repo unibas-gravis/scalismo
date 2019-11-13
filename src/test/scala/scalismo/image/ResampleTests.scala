@@ -16,6 +16,7 @@
 package scalismo.image
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
@@ -27,7 +28,7 @@ class ResampleTests extends ScalismoTestSuite {
   describe("Resampling a 2D image") {
 
     val testImgUrl = getClass.getResource("/lena.vtk").getPath
-    val discreteImage = ImageIO.read2DScalarImage[Short](new File(testImgUrl)).get
+    val discreteImage = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
 
     // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the
     // pixel values at the strong edges - and we thus could not formulate a reasonable test
@@ -44,7 +45,7 @@ class ResampleTests extends ScalismoTestSuite {
 
   describe("Resampling a 3D image") {
     val path = getClass.getResource("/3dimage.nii").getPath
-    val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+    val discreteImage = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
     val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("yields the original discrete image") {

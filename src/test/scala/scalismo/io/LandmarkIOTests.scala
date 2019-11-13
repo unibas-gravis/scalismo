@@ -16,6 +16,7 @@
 package scalismo.io
 
 import java.io.{ ByteArrayOutputStream, File, InputStream }
+import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
@@ -35,7 +36,6 @@ class LandmarkIOTests extends ScalismoTestSuite {
   describe("Spray LandmarkIO") {
 
     val csvName = "/landmarks.csv"
-    val csvUrl = getClass.getResource(csvName)
     def csvStream() = getClass.getResourceAsStream(csvName)
 
     val jsonName = "/landmarks.json"
@@ -46,7 +46,8 @@ class LandmarkIOTests extends ScalismoTestSuite {
      */
 
     it("can read 3D landmarks in CSV format from a file") {
-      val landmarksTry = LandmarkIO.readLandmarksCsv[_3D](new File(csvUrl.getPath))
+      val csvPath = getClass.getResource(csvName).getPath
+      val landmarksTry = LandmarkIO.readLandmarksCsv[_3D](new File(URLDecoder.decode(csvPath, "UTF-8")))
       landmarksTry should be a 'Success
 
       val landmarks = landmarksTry.get
@@ -64,7 +65,8 @@ class LandmarkIOTests extends ScalismoTestSuite {
     }
 
     it("can read 2D landmarks in CSV format from a file") {
-      val landmarksTry = LandmarkIO.readLandmarksCsv[_2D](new File(csvUrl.getPath))
+      val csvPath = getClass.getResource(csvName).getPath
+      val landmarksTry = LandmarkIO.readLandmarksCsv[_2D](new File(URLDecoder.decode(csvPath, "UTF-8")))
       landmarksTry should be a 'Success
 
       val landmarks = landmarksTry.get
