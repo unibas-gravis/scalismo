@@ -22,7 +22,7 @@ import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.mesh.TriangleMesh._
 import scalismo.mesh._
-import scalismo.utils.MeshConversion
+import scalismo.utils.{ MeshConversion, TetrahedronMeshConversion }
 import vtk._
 
 import scala.reflect.ClassTag
@@ -151,6 +151,123 @@ object MeshIO {
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
+  }
+
+  def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".inp") => readFromVTKFileThenDelete(readVTKAVSucdUnstructuredGrid,file)
+      case f if f.endsWith(".vtk") => readFromVTKFileThenDelete(readVTKUnstructuredGrid,file)
+      case f if f.endsWith(".vtu") => readFromVTKFileThenDelete(readVTKXMLUnstructuredGrid,file)
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+  }
+
+  private def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid],file: File, correctMesh: Boolean = false): Try[TetrahedralMesh[_3D]] = {
+    for {
+      vtkUg <- readUSFromFile(file)
+      tetramesh <- TetrahedronMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg,correctMesh)
+    } yield {
+      vtkUg.Delete()
+      tetramesh
+    }
+  }
+
+  def readVTKUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+
+    val vtkReader = new vtkUnstructuredGridReader()
+    vtkReader.SetFileName(file.getAbsolutePath)
+    vtkReader.Update()
+
+    val extract = new vtkExtractUnstructuredGrid()
+    extract.SetInputConnection(vtkReader.GetOutputPort())
+
+    val errCode = vtkReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
+    }
+    val data = vtkReader.GetOutput()
+    vtkReader.Delete()
+    Success(data)
+  }
+
+  def readVTKXMLUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+
+    val vtkReader = new vtkXMLUnstructuredGridReader()
+    vtkReader.SetFileName(file.getAbsolutePath)
+    vtkReader.Update()
+
+    val errCode = vtkReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
+    }
+    val data = vtkReader.GetOutput()
+    vtkReader.Delete()
+    Success(data)
+  }
+
+  def readVTKAVSucdUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
+    val vtkavsReader = new vtkAVSucdReader()
+    vtkavsReader.SetFileName(file.getAbsolutePath)
+    vtkavsReader.Update()
+    val errCode = vtkavsReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
+    }
+    val data = vtkavsReader.GetOutput()
+    vtkavsReader.Delete()
+    Success(data)
+  }
+
+  def writeTetrahedralMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
+    val filename = file.getAbsolutePath
+    filename match {
+      case f if f.endsWith(".vtk") => writeToVTKFileThenDelete(mesh, writeVTKUgasVTK, file)
+      case f if f.endsWith(".vtu") => writeToVTKFileThenDelete(mesh, writeVTKUgasVTU, file)
+      case _ =>
+        Failure(new IOException("Unknown file type received" + filename))
+    }
+  }
+
+  private def writeToVTKFileThenDelete(volume: TetrahedralMesh[_3D], writeToFile: (vtkUnstructuredGrid,File) => Try[Unit],file: File): Try[Unit] = {
+    val vtkUg = TetrahedronMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(volume)
+    for {
+      result <- writeToFile(vtkUg, file)
+    } yield {
+      vtkUg.Delete()
+      result
+    }
+  }
+
+  def writeVTKUgasVTK(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
+    val writer = new vtkUnstructuredGridWriter()
+    writer.SetFileName(file.getAbsolutePath)
+    writer.SetInputData(vtkUg)
+    writer.SetFileTypeToBinary()
+    writer.Update()
+    val succOrFailure = if (writer.GetErrorCode() != 0) {
+      Failure(new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+    } else {
+      Success(())
+    }
+    writer.Delete()
+    succOrFailure
+  }
+
+  private def writeVTKUgasVTU(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
+    val writer = new vtkXMLUnstructuredGridWriter()
+    writer.SetFileName(file.getAbsolutePath)
+    writer.SetInputData(vtkUg)
+    writer.SetDataModeToBinary()
+    writer.Update()
+    val succOrFailure = if (writer.GetErrorCode() != 0) {
+      Failure(new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})"))
+    } else {
+      Success(())
+    }
+    writer.Delete()
+    succOrFailure
   }
 
   def writeMesh(mesh: TriangleMesh[_3D], file: File): Try[Unit] = {

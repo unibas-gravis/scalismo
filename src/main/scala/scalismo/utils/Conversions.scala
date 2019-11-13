@@ -20,9 +20,11 @@ import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
 import scalismo.io.ImageIO
 import scalismo.mesh._
+import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
 import spire.math.{UByte, UInt, ULong, UShort}
 import vtk._
 
+import scala.collection.immutable
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.{TypeTag, typeOf}
 import scala.util.{Failure, Success, Try}
@@ -153,6 +155,100 @@ object VtkHelpers {
 
 }
 
+object TetrahedronMeshConversion {
+
+  private def extractPointsAndCells(ug: vtkUnstructuredGrid, calculateNewDelaunayTetrahedrons: Boolean = false) = Try {
+    val newUg = if (calculateNewDelaunayTetrahedrons) {
+      val tetrahedralFilter = new vtkDelaunay3D
+      tetrahedralFilter.SetInputData(ug)
+      tetrahedralFilter.Update()
+      tetrahedralFilter.GetOutput()
+    } else ug
+
+    val grids = newUg.GetCells()
+    val numGrids = grids.GetNumberOfCells()
+
+    val points = CommonConversions.vtkConvertPoints[_3D](newUg)
+
+    val idList = new vtkIdList()
+    val cells = for (i <- 0 until numGrids) yield {
+      newUg.GetCellPoints(i, idList)
+      if (idList.GetNumberOfIds() != 4) {
+        throw new Exception("Not a tetrahedral mesh")
+      }
+
+      TetrahedralCell(PointId(idList.GetId(0)), PointId(idList.GetId(1)), PointId(idList.GetId(2)), PointId(idList.GetId(3)))
+    }
+    idList.Delete()
+    (points, cells)
+  }
+
+  private def cleanDoubleOccurrenceOfPoints(
+                                            points: IndexedSeq[Point[_3D]],
+                                            cells: IndexedSeq[TetrahedralCell]
+                                          ): (IndexedSeq[Point[_3D]], IndexedSeq[TetrahedralCell]) = {
+    val cellPointIds = cells.flatMap(_.pointIds).distinct
+    val oldId2newId = cellPointIds.zipWithIndex.map { case (id, index) => (id, PointId(index)) }.toMap
+    val newCells = cells.map(c => TetrahedralCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3), oldId2newId(c.ptId4)))
+    val newPoints = cellPointIds.map(id => points(id.id))
+    (newPoints, newCells)
+  }
+
+  def vtkUnstructuredGridToTetrahedralMesh(ug: vtkUnstructuredGrid, recalculateTetrahedralization: Boolean = false): Try[TetrahedralMesh[_3D]] = {
+    val cellsPointsOrFailure = extractPointsAndCells(ug, recalculateTetrahedralization)
+    cellsPointsOrFailure.map {
+      case (points, cells) =>
+        val (newPoints,newCells) = if (recalculateTetrahedralization) cleanDoubleOccurrenceOfPoints(points.toIndexedSeq, cells) else (points.toIndexedSeq,cells)
+        TetrahedralMesh3D(UnstructuredPointsDomain(newPoints), TetrahedralList(newCells))
+    }
+  }
+
+  def tetrahedralMeshToVTKUnstructuredGrid(tetramesh: TetrahedralMesh[_3D], template: Option[vtkUnstructuredGrid] = None): vtkUnstructuredGrid = {
+
+    val ug = new vtkUnstructuredGrid()
+
+    template match {
+      case Some(tpl) =>
+        // copy tetrahedrons from template if given; actual points are set unconditionally in code below.
+        ug.ShallowCopy(tpl)
+      case None =>
+        val tetrahedrons = new vtkCellArray
+        val vtkcelltyp= new vtkUnsignedCharArray
+        val vtkidtyp= new vtkIdTypeArray
+        tetrahedrons.SetNumberOfCells(tetramesh.tetrahedralization.tetrahedrons.size)
+        tetrahedrons.Initialize()
+
+        vtkcelltyp.Initialize()
+        vtkidtyp.Initialize()
+        for ((cell, cell_id) <- tetramesh.tetrahedralization.tetrahedrons.zipWithIndex) {
+          val tetrahedron = new vtkTetra()
+          tetrahedron.GetPointIds().SetId(0, cell.ptId1.id)
+          tetrahedron.GetPointIds().SetId(1, cell.ptId2.id)
+          tetrahedron.GetPointIds().SetId(2, cell.ptId3.id)
+          tetrahedron.GetPointIds().SetId(3, cell.ptId4.id)
+
+          tetrahedrons.InsertNextCell(tetrahedron)
+          vtkcelltyp.InsertNextValue(tetrahedron.GetCellType().toChar)
+          vtkidtyp.InsertNextValue(cell_id)
+        }
+
+        tetrahedrons.Squeeze()
+        vtkcelltyp.Squeeze()
+        vtkidtyp.Squeeze()
+        ug.SetCells(vtkcelltyp,vtkidtyp,tetrahedrons)
+    }
+
+    // set points
+    val pointDataArray = tetramesh.pointSet.pointSequence.toArray.flatMap(_.toArray)
+    val pointDataArrayVTK = VtkHelpers.scalarArrayToVtkDataArray(Scalar.DoubleIsScalar.createArray(pointDataArray), 3)
+    val pointsVTK = new vtkPoints
+    pointsVTK.SetData(pointDataArrayVTK)
+    ug.SetPoints(pointsVTK)
+    ug
+  }
+
+}
+
 object MeshConversion {
 
   private def vtkPolyDataToTriangleMeshCommon(pd: vtkPolyData, correctFlag: Boolean = false) = Try {
@@ -167,7 +263,7 @@ object MeshConversion {
     val polys = newPd.GetPolys()
     val numPolys = polys.GetNumberOfCells()
 
-    val points = vtkConvertPoints[_3D](newPd)
+    val points = CommonConversions.vtkConvertPoints[_3D](newPd)
 
     val idList = new vtkIdList()
     val cells = for (i <- 0 until numPolys) yield {
@@ -182,27 +278,8 @@ object MeshConversion {
     (points, cells)
   }
 
-  private[scalismo] def vtkConvertPoints[D: NDSpace](pd: vtkPolyData): Iterator[Point[D]] = {
-    val vtkType = pd.GetPoints().GetDataType()
-
-    val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()) match {
-      case Success(data) => data.toArray
-      case Failure(t) => {
-        // this should actually never happen. The points array can only be float or double, and hence
-        // vtkDataArrayToScalarArray should always return success. If not, something very strange is happening,
-        // in which case we just throw the exception
-        throw t;
-      }
-    }
-
-    // vtk point are alwyas 3D. Therefore we take all three coordinates out of the array but,
-    // if we are in 2D, take only the first 2. Finally, we need to convert them from float to double.
-    pointsArray.grouped(3)
-      .map(p => Point(p.take(NDSpace[D].dimensionality).toArray.map(_.toDouble)))
-  }
-
   def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh[_3D]] = {
-    // TODO currently all data arrays are ignored    
+    // TODO currently all data arrays are ignored
     val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd)
     cellsPointsOrFailure.map {
       case (points, cells) =>
@@ -277,7 +354,7 @@ object MeshConversion {
   def vtkPolyDataToLineMesh[D: NDSpace: LineMesh.Create: UnstructuredPointsDomain.Create](pd: vtkPolyData): Try[LineMesh[D]] = {
     val lines = pd.GetLines()
     val numPolys = lines.GetNumberOfCells()
-    val points = vtkConvertPoints[D](pd)
+    val points = CommonConversions.vtkConvertPoints[D](pd)
     val idList = new vtkIdList()
     val cellsOrFailure = Try {
       for (i <- 0 until numPolys) yield {
@@ -331,6 +408,27 @@ object MeshConversion {
     pd.SetPoints(pointsVTK)
 
     pd
+  }
+
+}
+
+object CommonConversions {
+
+  private[scalismo] def vtkConvertPoints[D: NDSpace](pd: vtkPointSet): Iterator[Point[D]] = {
+    val vtkType = pd.GetPoints().GetDataType()
+
+    val pointsArray = VtkHelpers.vtkDataArrayToScalarArray[Float](vtkType, pd.GetPoints().GetData()) match {
+      case Success(data) => data.toArray
+      // this should actually never happen. The points array can only be float or double, and hence
+      // vtkDataArrayToScalarArray should always return success. If not, something very strange is happening,
+      // in which case we just throw the exception
+      case Failure(t) => throw t
+    }
+
+    // vtk point are alwyas 3D. Therefore we take all three coordinates out of the array but,
+    // if we are in 2D, take only the first 2. Finally, we need to convert them from float to double.
+    pointsArray.grouped(3)
+      .map(p => Point(p.take(NDSpace[D].dimensionality).map(_.toDouble)))
   }
 
 }
