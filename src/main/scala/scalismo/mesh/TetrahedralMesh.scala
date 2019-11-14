@@ -154,7 +154,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     val barycentricCoordinates = new Array[Double](4)
     new vtkTetra().BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
 
-    val normalized = barycentricCoordinates.map { e => if ((e >= -1E-50) && (e <= 1E-50)) 0.0 else e }
+    val normalized = barycentricCoordinates.map { e => if (Math.abs(e) <= 1E-8) 0.0 else e }
     val numberOfZeroEntries = countZeroEntries(normalized)
     hasOnlyStrictPositiveElements(normalized) || (numberOfZeroEntries == 2) || (numberOfZeroEntries == 3)
   }
