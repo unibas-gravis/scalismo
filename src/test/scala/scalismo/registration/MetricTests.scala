@@ -16,11 +16,12 @@
 package scalismo.registration
 
 import _root_.java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.common.interpolation.{ BSplineImageInterpolator2D }
+import scalismo.common.interpolation.BSplineImageInterpolator2D
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
@@ -48,7 +49,7 @@ class MetricTests extends ScalismoTestSuite {
   describe("The mutual information metric") {
     val testImgURL = getClass.getResource("/dm128.vtk").getPath
 
-    val fixedImage = ImageIO.read2DScalarImage[Float](new File(testImgURL)).get
+    val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
     val translationSpace = TranslationSpace[_2D]
     val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
@@ -95,7 +96,7 @@ class MetricTests extends ScalismoTestSuite {
   describe("The huber loss metric") {
     val testImgURL = getClass.getResource("/dm128.vtk").getPath
 
-    val fixedImage = ImageIO.read2DScalarImage[Float](new File(testImgURL)).get
+    val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
     val translationSpace = TranslationSpace[_2D]
     val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))

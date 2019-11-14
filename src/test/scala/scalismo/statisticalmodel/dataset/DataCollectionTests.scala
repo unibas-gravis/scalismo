@@ -16,17 +16,18 @@
 package scalismo.statisticalmodel.dataset
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Field }
+import scalismo.common.Field
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.mesh.{ TriangleMesh, MeshMetrics }
+import scalismo.mesh.{ MeshMetrics, TriangleMesh }
 import scalismo.numerics.UniformMeshSampler3D
 import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.statisticalmodel.{ LowRankGaussianProcess, GaussianProcess, StatisticalMeshModel }
-import scalismo.utils.{ Random }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.utils.Random
 
 class DataCollectionTests extends ScalismoTestSuite {
 
@@ -36,8 +37,8 @@ class DataCollectionTests extends ScalismoTestSuite {
 
     val transformations = for (i <- 0 until 10) yield TranslationTransform(EuclideanVector(i.toDouble, 0.0, 0.0))
     val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)
-    val meshpath = getClass.getResource("/facemesh.stl").getPath
-    val referenceMesh = MeshIO.readMesh(new File(meshpath)).get
+    val meshPath = getClass.getResource("/facemesh.stl").getPath
+    val referenceMesh = MeshIO.readMesh(new File(URLDecoder.decode(meshPath, "UTF-8"))).get
 
     val dataCollection = DataCollection(referenceMesh, dataItems)
 
@@ -114,7 +115,8 @@ class DataCollectionTests extends ScalismoTestSuite {
 
   object Fixture {
 
-    val nonAlignedFaces = new File(getClass.getResource("/nonAlignedFaces").getPath).listFiles.sortBy(_.getName).map { f => MeshIO.readMesh(f).get }.toIndexedSeq
+    val path: String = getClass.getResource("/nonAlignedFaces").getPath
+    val nonAlignedFaces = new File(URLDecoder.decode(path, "UTF-8")).listFiles.sortBy(_.getName).map { f => MeshIO.readMesh(f).get }.toIndexedSeq
     val ref = nonAlignedFaces.head
     val dataset = nonAlignedFaces.tail
 

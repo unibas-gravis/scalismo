@@ -16,6 +16,7 @@
 package scalismo.statisticalmodel
 
 import java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import breeze.stats.distributions.Gaussian
@@ -56,7 +57,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
     it("can be calculated with a small amount of samples using PCA") {
 
       val path = getClass.getResource("/facemodel.h5").getPath
-      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val model = StatismoIO.readStatismoMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val ref = model.referenceMesh
 
@@ -74,7 +75,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
     it("can be transformed forth and back and yield the same deformations") {
       val path = getClass.getResource("/facemodel.h5").getPath
-      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val model = StatismoIO.readStatismoMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
@@ -87,7 +88,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
     it("can change the mean shape and still yield the same shape space") {
 
       val path = getClass.getResource("/facemodel.h5").getPath
-      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val model = StatismoIO.readStatismoMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val newMesh = model.sample
 
@@ -103,7 +104,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
     it("has the right rank when reduced") {
       val path = getClass.getResource("/facemodel.h5").getPath
-      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val model = StatismoIO.readStatismoMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val newRank = model.rank / 2
       val truncatedModel = model.truncate(newRank)
@@ -113,7 +114,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
     it("yield equivalent samples with reduced number of points when decimated") {
       val path = getClass.getResource("/facemodel.h5").getPath
-      val model = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val model = StatismoIO.readStatismoMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
       val targetNumberOfPoints = model.referenceMesh.pointSet.numberOfPoints / 2
       val decimatedModel = model.decimate(targetNumberOfPoints)
 

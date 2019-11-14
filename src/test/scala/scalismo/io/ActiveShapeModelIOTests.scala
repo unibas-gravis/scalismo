@@ -16,6 +16,7 @@
 package scalismo.io
 
 import java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.ScalismoTestSuite
@@ -36,7 +37,7 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
   }
 
   private def createAsm(): ActiveShapeModel = {
-    val statismoFile = new File(getClass.getResource("/facemodel.h5").getPath)
+    val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
     val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100).sample.unzip

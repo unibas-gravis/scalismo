@@ -16,19 +16,20 @@
 package scalismo.numerics
 
 import java.io.File
+import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
-import scalismo.utils.{ Random, Memoize }
+import scalismo.utils.{ Memoize, Random }
 
 class SamplerTests extends ScalismoTestSuite {
 
   implicit val random: Random = Random(42)
 
   val facepath = getClass.getResource("/facemesh.stl").getPath
-  val facemesh = MeshIO.readMesh(new File(facepath)).get
+  val facemesh = MeshIO.readMesh(new File(URLDecoder.decode(facepath, "UTF-8"))).get
 
   describe("A uniform sampler") {
     it("yields approximately uniformly spaced points") {

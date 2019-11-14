@@ -15,6 +15,8 @@
  */
 package scalismo.statisticalmodel
 
+import java.net.URLDecoder
+
 import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
@@ -347,7 +349,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("approximate the right amount of variance based on the relative error") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val ssm = StatismoIO.readStatismoMeshModel(new java.io.File(ssmPath)).get
+      val ssm = StatismoIO.readStatismoMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
       val nnInterpolator = NearestNeighborInterpolator[_3D, EuclideanVector[_3D]]()
       val gpToApproximate = ssm.gp.interpolate(nnInterpolator)
 
@@ -364,7 +366,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the probability of samples unchanged") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val fullSsm = StatismoIO.readStatismoMeshModel(new java.io.File(ssmPath)).get
+      val fullSsm = StatismoIO.readStatismoMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
 
       // we truncate the ssm to avoid numerical error
       val ssm = fullSsm.truncate(fullSsm.rank / 2)

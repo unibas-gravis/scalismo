@@ -16,6 +16,7 @@
 package scalismo.registration
 
 import java.io.File
+import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
@@ -142,7 +143,7 @@ class TransformationTests extends ScalismoTestSuite {
   describe("In 3D") {
 
     val path = getClass.getResource("/3dimage.nii").getPath
-    val discreteImage = ImageIO.read3DScalarImage[Short](new File(path)).get
+    val discreteImage = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
     val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("translation forth and back of a real dataset yields the same image") {
@@ -169,7 +170,8 @@ class TransformationTests extends ScalismoTestSuite {
       for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) rotatedImage(p) should equal(continuousImage(p))
     }
 
-    val mesh = MeshIO.readMesh(new File(getClass.getResource("/facemesh.stl").getPath)).get
+    val meshPath = URLDecoder.decode(getClass.getResource("/facemesh.stl").getPath, "UTF-8")
+    val mesh = MeshIO.readMesh(new File(meshPath)).get
 
     it("rotation is invertible on meshes") {
 
