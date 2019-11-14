@@ -19,9 +19,10 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ Scalar, ScalarArray }
-import scalismo.geometry._3D
-import scalismo.mesh.{ ScalarMeshField, TriangleMesh }
+import scalismo.common.{ PointId, Scalar, ScalarArray, UnstructuredPointsDomain }
+import scalismo.geometry.{ Point, _3D }
+import scalismo.mesh._
+import scalismo.utils.Random
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
@@ -31,7 +32,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
   describe("MeshIO") {
 
-    it("yields the original mesh when reading  and writing") {
+    it("yields the original mesh when reading and writing") {
       val path = getClass.getResource("/facemesh.stl").getPath
       val origMesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
@@ -48,7 +49,6 @@ class MeshIOTests extends ScalismoTestSuite {
       }
       testWriteRead(".vtk")
       testWriteRead(".stl")
-
     }
 
     it("returns a Failure object instead of throwing an exception for nonexistent files") {
@@ -101,6 +101,29 @@ class MeshIOTests extends ScalismoTestSuite {
       assert(shape.isFailure)
     }
 
+    it("correctly writes and reads a tetrahedral mesh to a vtk file ") {
+      val temporaryFile = File.createTempFile("tetrahedralMesh", ".vtk")
+      val originalMesh = createRandomTetrahedralMesh()
+      MeshIO.writeTetrahedralMesh(originalMesh, temporaryFile)
+      val loadingMesh = MeshIO.readTetrahedralMesh(temporaryFile)
+      assert(loadingMesh.isSuccess)
+      loadingMesh.map { loadedMesh =>
+        assert(loadedMesh.pointSet == loadedMesh.pointSet)
+        assert(loadedMesh.tetrahedralization == originalMesh.tetrahedralization)
+      }
+    }
+
+    it("correctly writes and reads a tetrahedral mesh to a vtu file ") {
+      val temporaryFile = File.createTempFile("tetrahedralMesh", ".vtu")
+      val originalMesh = createRandomTetrahedralMesh()
+      MeshIO.writeTetrahedralMesh(originalMesh, temporaryFile)
+      val loadingMesh = MeshIO.readTetrahedralMesh(temporaryFile)
+      assert(loadingMesh.isSuccess)
+      loadingMesh.map { loadedMesh =>
+        assert(loadedMesh.pointSet == loadedMesh.pointSet)
+        assert(loadedMesh.tetrahedralization == originalMesh.tetrahedralization)
+      }
+    }
   }
 
   describe("ScalarMeshField IO") {
@@ -153,6 +176,32 @@ class MeshIOTests extends ScalismoTestSuite {
 
     }
 
+  }
+
+  def createRandomTetrahedralMesh(): TetrahedralMesh3D = {
+    // points around unit cube
+
+    val rng = Random(42l)
+    val N = 200
+    val points = IndexedSeq.fill(N)(Point(
+      rng.scalaRandom.nextGaussian() * 2,
+      rng.scalaRandom.nextGaussian() * 1000,
+      rng.scalaRandom.nextGaussian() * 1000000
+    ))
+    val domain = UnstructuredPointsDomain(points)
+
+    // cells covering the complete cube
+    implicit def intToPointId(i: Int): PointId = PointId(i)
+    val T = 200
+    val cells = IndexedSeq.fill(T)(TetrahedralCell(
+      rng.scalaRandom.nextInt(N),
+      rng.scalaRandom.nextInt(N),
+      rng.scalaRandom.nextInt(N),
+      rng.scalaRandom.nextInt(N)
+    ))
+    val list = TetrahedralList(cells)
+
+    TetrahedralMesh3D(domain, list)
   }
 
 }
