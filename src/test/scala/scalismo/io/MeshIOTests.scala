@@ -283,7 +283,7 @@ class MeshIOTests extends ScalismoTestSuite {
     TetrahedralMesh3D(domain, list)
   }
 
-  def createRandomScalarVolumeMeshField(): ScalarVolumeMeshField[Int] = {
+  private def createRandomScalarVolumeMeshField(): ScalarVolumeMeshField[Int] = {
     // points around unit cube
 
     val tetraMesh = createRandomTetrahedralMesh()
