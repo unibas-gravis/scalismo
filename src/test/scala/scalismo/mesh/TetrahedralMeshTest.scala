@@ -121,6 +121,16 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       }
     }
 
+    it("can have an empty cell list") {
+      val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0), Point(1.0, -1.0, 5.0))
+      val cells = IndexedSeq[TetrahedralCell]()
+      try {
+        TetrahedralMesh3D(UnstructuredPointsDomain(pts), TetrahedralList(cells)) // would throw exception on fail
+      } catch {
+        case e: Exception => fail("It should be possible to create tetrahedralMesh with an empty cell list")
+      }
+    }
+
     it("should return the correct adjacent points for a point") {
       val tetrahedron = createTetrahedronsInUnitCube()
 

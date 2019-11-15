@@ -99,3 +99,27 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
 }
 
+class tetrahedralMeshMetricsTests extends ScalismoTestSuite {
+
+  implicit val rng = Random(42L)
+  final val epsilon = 1e-8
+
+  val path = getClass.getResource("/tetraMesh.vtk").getPath
+  val mesh = MeshIO.readTetrahedralMesh(new File(URLDecoder.decode(path))).get
+  val translationLength = 1.0
+  val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + EuclideanVector(translationLength, 0.0, 0.0))
+
+  describe("The ProcrustesDistanceMetric") {
+
+    it("yields 0 between the same tetrahedral mesh") {
+      MeshMetrics.procrustesDistance(mesh, mesh) should be(0.0 +- epsilon)
+    }
+
+    it("should be 0 for a translated mesh") {
+      MeshMetrics.procrustesDistance(mesh, translatedMesh) should be(0.0 +- epsilon)
+    }
+
+  }
+
+}
+

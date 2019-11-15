@@ -18,7 +18,8 @@ package scalismo.mesh.boundingSpheres
 import breeze.linalg.max
 import breeze.numerics.{ abs, pow, sqrt }
 import scalismo.geometry.{ EuclideanVector, Point, _3D }
-import scalismo.mesh.TriangleMesh3D
+import scalismo.mesh.{ TriangleMesh3D, TetrahedralMesh }
+import vtk.vtkTetra
 
 import scala.annotation.tailrec
 
@@ -68,12 +69,24 @@ private[mesh] object BoundingSpheres {
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
 
-      new Triangle(
-        a, b, c
-      )
-
+      Triangle(a, b, c)
     }
     triangles
+  }
+
+  def tetrahedronListFromTetrahedralMesh3D(mesh: TetrahedralMesh[_3D]): Seq[Tetrahedron] = {
+
+    // build tetrahedron list (use only Vector[_3D], no Points)
+    val tetrahedrons = mesh.tetrahedralization.tetrahedrons.map { t =>
+
+      val a = mesh.pointSet.point(t.ptId1).toVector
+      val b = mesh.pointSet.point(t.ptId2).toVector
+      val c = mesh.pointSet.point(t.ptId3).toVector
+      val d = mesh.pointSet.point(t.ptId4).toVector
+
+      Tetrahedron(a, b, c, d)
+    }
+    tetrahedrons
   }
 
   /**
@@ -90,6 +103,15 @@ private[mesh] object BoundingSpheres {
    */
   def createForTriangles(triangleList: Seq[Triangle]): BoundingSphere = {
     val leaves = triangleList.map(t => Sphere.fromTriangle(t))
+    val root = buildSearchIndex(leaves)
+    root
+  }
+
+  /**
+   * Create search index from list of tetrahedrons.
+   */
+  def createForTetrahedrons(tetrahedronList: Seq[Tetrahedron]): BoundingSphere = {
+    val leaves = tetrahedronList.map(t => Sphere.fromTetrahedron(t))
     val root = buildSearchIndex(leaves)
     root
   }
@@ -200,7 +222,6 @@ private[mesh] object BoundingSpheres {
         val chosen: Array[Boolean] = choosePointPairsAndUpdateMatchedIndex(closestPointPairs, sortedPoints, matchedPoints)
         val stillActive = chosen.zipWithIndex.filter(s => !s._1).map(t => sortedPoints(t._2))
         matchPoints(stillActive, matchedPoints)
-
     }
   }
 
@@ -345,6 +366,17 @@ private object Sphere {
   }
 
   /**
+   * Create sphere around a tetrahedron
+   */
+  def fromTetrahedron(tetrahedron: Tetrahedron): Sphere = {
+    val center = new Array[Double](3)
+    val t = new vtkTetra()
+    val sphereradus = t.Circumsphere(tetrahedron.a.toArray, tetrahedron.b.toArray, tetrahedron.c.toArray, tetrahedron.d.toArray, center)
+    val c = EuclideanVector(center(0), center(1), center(2))
+    new Sphere(c, sphereradus)
+  }
+
+  /**
    * Calculate sphere around three points, e.g. a triangle
    */
   def triangleCircumSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
@@ -479,4 +511,19 @@ private object Sphere {
 
     (center, radius2)
   }
+
+  /**
+   * Calculate sphere around four points, e.g. a tetrahedron
+   */
+  def tetrahedronCircumSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D], d: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+
+    val v = Array[Double](3)
+    val tetra = new vtkTetra()
+
+    val redius = tetra.Circumsphere(a.toArray, b.toArray, c.toArray, d.toArray, v)
+
+    (EuclideanVector(v(0), v(1), v(2)), redius)
+
+  }
+
 }
