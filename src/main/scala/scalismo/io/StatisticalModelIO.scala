@@ -18,18 +18,18 @@ package scalismo.io
 import java.io._
 import java.util.Calendar
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import ncsa.hdf.`object`._
-import scalismo.common.{PointId, UnstructuredPointsDomain, Vectorizer}
-import scalismo.geometry.{EuclideanVector, IntVector, NDSpace, Point, _2D, _3D}
-import scalismo.image.{CreateDiscreteImageDomain, DiscreteImageDomain}
+import scalismo.common.{ PointId, UnstructuredPointsDomain, Vectorizer }
+import scalismo.geometry.{ EuclideanVector, IntVector, NDSpace, Point, _2D, _3D }
+import scalismo.image.{ CreateDiscreteImageDomain, DiscreteImageDomain }
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
 import scalismo.mesh.TriangleMesh._
-import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel}
-import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
+import scalismo.statisticalmodel.{ DiscreteLowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel }
+import scalismo.mesh.{ TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object StatisticalModelIO {
 
@@ -176,23 +176,6 @@ object StatismoIO {
    */
   def readStatismoMeshModel(file: File, modelPath: String = "/"): Try[StatisticalMeshModel] = {
 
-    def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double], pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
-      // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
-      // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
-      // We recover U from it.
-
-      val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l))
-      val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) 1.0f / l else 0f)
-
-      // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
-      // (diag returns densematrix, so the direct computation would be very slow)
-      val U = DenseMatrix.zeros[Double](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
-      for (i <- 0 until pcaBasisMatrix.cols) {
-        U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
-      }
-      U
-    }
-
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
 
@@ -255,31 +238,13 @@ object StatismoIO {
    */
   def readStatismoMeshVolumeModel(file: File, modelPath: String = "/"): Try[StatisticalVolumeMeshModel] = {
 
-    def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double], pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
-      // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
-      // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
-      // We recover U from it.
-
-      val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l))
-      val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) 1.0f / l else 0f)
-
-      // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
-      // (diag returns densematrix, so the direct computation would be very slow)
-      val U = DenseMatrix.zeros[Double](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
-      for (i <- 0 until pcaBasisMatrix.cols) {
-        U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
-      }
-      U
-    }
-
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
 
       representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
       // read mesh according to type given in representer
       mesh <- representerName match {
-        case "vtkPolyDataRepresenter" => readVTKMeshVolumeFromRepresenterGroup(h5file, modelPath)
-        case "itkMeshRepresenter" => readVTKMeshVolumeFromRepresenterGroup(h5file, modelPath)
+        case "itkMeshRepresenter" => readVTKVolumeMeshFromRepresenterGroup(h5file, modelPath)
         case _ =>
           h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
             case Success("POLYGON_MESH") => readStandardMeshVolumeFromRepresenterGroup(h5file, modelPath)
@@ -584,7 +549,7 @@ object StatismoIO {
   /*
  * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
  */
-  private def readVTKMeshVolumeFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TetrahedralMesh[_3D]] = {
+  private def readVTKVolumeMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TetrahedralMesh[_3D]] = {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)
@@ -824,6 +789,23 @@ object StatismoIO {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
+  }
+
+  private def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double], pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
+    // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
+    // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
+    // We recover U from it.
+
+    val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l))
+    val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) 1.0f / l else 0f)
+
+    // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
+    // (diag returns densematrix, so the direct computation would be very slow)
+    val U = DenseMatrix.zeros[Double](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
+    for (i <- 0 until pcaBasisMatrix.cols) {
+      U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+    }
+    U
   }
 
 }

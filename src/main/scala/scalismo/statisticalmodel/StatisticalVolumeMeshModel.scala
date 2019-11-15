@@ -1,20 +1,20 @@
 package scalismo.statisticalmodel
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import breeze.linalg.svd.SVD
 import breeze.numerics.sqrt
-import scalismo.common.{DiscreteField, Field, PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.common.{ DiscreteField, Field, PointId, UnstructuredPointsDomain }
+import scalismo.geometry.{ EuclideanVector, Point, _3D }
 import scalismo.mesh.TriangleMesh
-import scalismo.numerics.{FixedPointsUniformMeshSampler3D, PivotedCholesky}
+import scalismo.numerics.{ FixedPointsUniformMeshSampler3D, PivotedCholesky }
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
-import scalismo.statisticalmodel.dataset.DataCollectionOfMeshVolume
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
-import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.statisticalmodel.{ DiscreteLowRankGaussianProcess, GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.mesh.{ TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D }
+import scalismo.statisticalmodel.dataset.DataCollectionOfVolumeMesh
 import scalismo.utils.Random
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 case class StatisticalVolumeMeshModel private (referenceMeshVolume: TetrahedralMesh[_3D], gp: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]]) {
 
@@ -22,28 +22,28 @@ case class StatisticalVolumeMeshModel private (referenceMeshVolume: TetrahedralM
   val rank = gp.rank
 
   /**
-    * The mean shape
-    * @see [[DiscreteLowRankGaussianProcess.mean]]
-    */
+   * The mean shape
+   * @see [[DiscreteLowRankGaussianProcess.mean]]
+   */
   lazy val mean: TetrahedralMesh[_3D] = warpReference(gp.mean)
 
   /**
-    * The covariance between two points of the  mesh with given point id.
-    * @see [[DiscreteLowRankGaussianProcess.cov]]
-    */
+   * The covariance between two points of the  mesh with given point id.
+   * @see [[DiscreteLowRankGaussianProcess.cov]]
+   */
   def cov(ptId1: PointId, ptId2: PointId) = gp.cov(ptId1, ptId2)
 
   /**
-    * draws a random shape.
-    * @see [[DiscreteLowRankGaussianProcess.sample]]
-    */
+   * draws a random shape.
+   * @see [[DiscreteLowRankGaussianProcess.sample]]
+   */
   def sample()(implicit rand: Random) = warpReference(gp.sample())
 
   /**
-    * returns the probability density for an instance of the model
-    * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
-    *
-    */
+   * returns the probability density for an instance of the model
+   * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
+   *
+   */
 
   def pdf(instanceCoefficients: DenseVector[Double]): Double = {
     val disVecField = gp.instance(instanceCoefficients)
@@ -51,48 +51,42 @@ case class StatisticalVolumeMeshModel private (referenceMeshVolume: TetrahedralM
   }
 
   /**
-    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
-    *  @see [[DiscreteLowRankGaussianProcess.instance]]
-    */
+   * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
+   *  @see [[DiscreteLowRankGaussianProcess.instance]]
+   */
   def instance(c: DenseVector[Double]): TetrahedralMesh[_3D] = warpReference(gp.instance(c))
 
-
-
-
   /**
-    * Returns a reduced rank model, using only the leading basis functions.
-    *
-    * @param newRank: The rank of the new model.
-    */
+   * Returns a reduced rank model, using only the leading basis functions.
+   *
+   * @param newRank: The rank of the new model.
+   */
   def truncate(newRank: Int): StatisticalVolumeMeshModel = {
     new StatisticalVolumeMeshModel(referenceMeshVolume, gp.truncate(newRank))
   }
 
-
   /**
-    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
-    */
+   * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
+   */
   def posterior(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): StatisticalVolumeMeshModel = {
     val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint) => (id, targetPoint - referenceMeshVolume.pointSet.point(id)) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements, sigma2)
     new StatisticalVolumeMeshModel(referenceMeshVolume, posteriorGp)
   }
 
-
   /**
-    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
-    */
+   * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
+   */
   def posterior(trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]): StatisticalVolumeMeshModel = {
     val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, cov) => (id, targetPoint - referenceMeshVolume.pointSet.point(id), cov) }
     val posteriorGp = gp.posterior(trainingDataWithDisplacements)
     new StatisticalVolumeMeshModel(referenceMeshVolume, posteriorGp)
   }
 
-
   /**
-    * transform the statistical mesh model using the given rigid transform.
-    * The spanned shape space is not affected by this operations.
-    */
+   * transform the statistical mesh model using the given rigid transform.
+   * The spanned shape space is not affected by this operations.
+   */
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalVolumeMeshModel = {
     val newRef = referenceMeshVolume.transform(rigidTransform)
 
@@ -119,11 +113,9 @@ case class StatisticalVolumeMeshModel private (referenceMeshVolume: TetrahedralM
 
   }
 
-
-
   /**
-    * Warps the reference mesh with the given transform. The space spanned by the model is not affected.
-    */
+   * Warps the reference mesh with the given transform. The space spanned by the model is not affected.
+   */
   def changeReference(t: Point[_3D] => Point[_3D]): StatisticalVolumeMeshModel = {
 
     val newRef = referenceMeshVolume.pointSet.transform(t)
@@ -134,25 +126,22 @@ case class StatisticalVolumeMeshModel private (referenceMeshVolume: TetrahedralM
   }
 
   /**
-    * @see [[DiscreteLowRankGaussianProcess.project]]
-    */
+   * @see [[DiscreteLowRankGaussianProcess.project]]
+   */
   def project(mesh: TriangleMesh[_3D]) = {
     val displacements = referenceMeshVolume.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
     val dvf = DiscreteField[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]](referenceMeshVolume.pointSet, displacements)
     warpReference(gp.project(dvf))
   }
 
-
   /**
-    * @see [[DiscreteLowRankGaussianProcess.coefficients]]
-    */
+   * @see [[DiscreteLowRankGaussianProcess.coefficients]]
+   */
   def coefficients(mesh: TetrahedralMesh[_3D]): DenseVector[Double] = {
     val displacements = referenceMeshVolume.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
     val dvf = DiscreteField[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]](referenceMeshVolume.pointSet, displacements)
     gp.coefficients(dvf)
   }
-
-
 
   private def warpReference(vectorPointData: DiscreteField[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]]) = {
     val newPoints = vectorPointData.pointsWithValues.map { case (pt, v) => pt + v }
@@ -163,30 +152,30 @@ case class StatisticalVolumeMeshModel private (referenceMeshVolume: TetrahedralM
 object StatisticalVolumeMeshModel {
 
   /**
-    * creates a StatisticalMeshModel by discretizing the given Gaussian Process on the points of the reference mesh.
-    */
+   * creates a StatisticalMeshModel by discretizing the given Gaussian Process on the points of the reference mesh.
+   */
   def apply(referenceMesh: TetrahedralMesh[_3D], gp: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]): StatisticalVolumeMeshModel = {
     val discreteGp = DiscreteLowRankGaussianProcess(referenceMesh.pointSet, gp)
     new StatisticalVolumeMeshModel(referenceMesh, discreteGp)
   }
 
   /**
-    * creates a StatisticalMeshModel from vector/matrix representation of the mean, variance and basis matrix.
-    *
-    * @see [[DiscreteLowRankGaussianProcess.apply(FiniteDiscreteDomain, DenseVector[Double], DenseVector[Double], DenseMatrix[Double]]
-    */
+   * creates a StatisticalMeshModel from vector/matrix representation of the mean, variance and basis matrix.
+   *
+   * @see [[DiscreteLowRankGaussianProcess.apply(FiniteDiscreteDomain, DenseVector[Double], DenseVector[Double], DenseMatrix[Double]]
+   */
   private[scalismo] def apply(referenceMesh: TetrahedralMesh[_3D],
-                              meanVector: DenseVector[Double],
-                              variance: DenseVector[Double],
-                              basisMatrix: DenseMatrix[Double]) = {
+    meanVector: DenseVector[Double],
+    variance: DenseVector[Double],
+    basisMatrix: DenseMatrix[Double]) = {
     val gp = new DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]](referenceMesh.pointSet, meanVector, variance, basisMatrix)
     new StatisticalVolumeMeshModel(referenceMesh, gp)
   }
 
   /**
-    * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
-    *
-    */
+   * Creates a new DiscreteLowRankGaussianProcess, where the mean and covariance matrix are estimated from the given transformations.
+   *
+   */
   def createUsingPCA(referenceMesh: TetrahedralMesh[_3D], fields: Seq[Field[_3D, EuclideanVector[_3D]]]): StatisticalVolumeMeshModel = {
     val dgp: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]] =
       DiscreteLowRankGaussianProcess.createUsingPCA(referenceMesh.pointSet, fields, PivotedCholesky.AbsoluteTolerance(1e-15))
@@ -194,8 +183,8 @@ object StatisticalVolumeMeshModel {
   }
 
   /**
-    *  Adds a bias model to the given statistical shape model
-    */
+   *  Adds a bias model to the given statistical shape model
+   */
 
   def augmentModel(model: StatisticalVolumeMeshModel, biasModel: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]) = {
 
@@ -221,10 +210,10 @@ object StatisticalVolumeMeshModel {
   }
 
   /**
-    * Returns a PCA model with given reference mesh and a set of items in correspondence.
-    * All points of the reference mesh are considered for computing the PCA
-    */
-  def createUsingPCA(dc: DataCollectionOfMeshVolume): Try[StatisticalVolumeMeshModel] = {
+   * Returns a PCA model with given reference mesh and a set of items in correspondence.
+   * All points of the reference mesh are considered for computing the PCA
+   */
+  def createUsingPCA(dc: DataCollectionOfVolumeMesh): Try[StatisticalVolumeMeshModel] = {
     if (dc.size < 3) return Failure(new Throwable(s"A data collection with at least 3 transformations is required to build a PCA Model (only ${dc.size} were provided)"))
 
     val fields = dc.dataItems.map { i =>
@@ -234,5 +223,4 @@ object StatisticalVolumeMeshModel {
   }
 
 }
-
 

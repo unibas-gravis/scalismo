@@ -141,7 +141,6 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
 }
 
-
 class StatisticalVolumeModelTests extends ScalismoTestSuite {
 
   implicit val random = Random(42)
@@ -178,8 +177,6 @@ class StatisticalVolumeModelTests extends ScalismoTestSuite {
       compareModels(model, newModel)
     }
 
-
-
     it("can change the mean shape and still yield the same shape space") {
 
       val path = getClass.getResource("/TetraMeshModel2.h5").getPath
@@ -196,8 +193,6 @@ class StatisticalVolumeModelTests extends ScalismoTestSuite {
 
       compareModels(model, newModel)
     }
-
-
 
   }
 }

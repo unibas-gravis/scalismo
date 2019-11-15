@@ -22,9 +22,8 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel}
-
+import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
+import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel }
 
 class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
 
@@ -40,8 +39,6 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
       val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
-
-
 
       val t = for {
         model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
@@ -73,7 +70,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
 
-      val statismoFile =  new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -90,11 +87,6 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
   }
 
 }
-
-
-
-
-
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 

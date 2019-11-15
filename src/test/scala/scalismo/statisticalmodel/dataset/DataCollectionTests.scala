@@ -196,8 +196,6 @@ class DataCollectionTests extends ScalismoTestSuite {
 
 }
 
-
-
 class DataCollectionMeshVoulmeTests extends ScalismoTestSuite {
 
   implicit val rng = Random(42L)
@@ -207,9 +205,9 @@ class DataCollectionMeshVoulmeTests extends ScalismoTestSuite {
     val transformations = for (i <- 0 until 10) yield TranslationTransform(EuclideanVector(i.toDouble, 0.0, 0.0))
     val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)
     val meshPath = getClass.getResource("/tetraMesh.vtu").getPath
-    val referenceMesh = MeshIO.readTetrahedralMesh(new File(URLDecoder.decode(meshPath,"UTF-8"))).get
+    val referenceMesh = MeshIO.readTetrahedralMesh(new File(URLDecoder.decode(meshPath, "UTF-8"))).get
 
-    val dataCollection = DataCollectionOfMeshVolume(referenceMesh, dataItems)
+    val dataCollection = DataCollectionOfVolumeMesh(referenceMesh, dataItems)
 
     it("yields the right number of cross-validation folds") {
       def createFolds(nFolds: Int) = {
@@ -261,6 +259,5 @@ class DataCollectionMeshVoulmeTests extends ScalismoTestSuite {
     }
 
   }
-
 
 }
