@@ -27,6 +27,7 @@ import scalismo.utils.Random
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
 import scala.util.{ Failure, Success, Try }
+import scala.language.implicitConversions
 
 class MeshIOTests extends ScalismoTestSuite {
 
@@ -108,7 +109,7 @@ class MeshIOTests extends ScalismoTestSuite {
       val loadingMesh = MeshIO.readTetrahedralMesh(temporaryFile)
       assert(loadingMesh.isSuccess)
       loadingMesh.map { loadedMesh =>
-        assert(loadedMesh.pointSet == loadedMesh.pointSet)
+        assert(loadedMesh.pointSet == originalMesh.pointSet)
         assert(loadedMesh.tetrahedralization == originalMesh.tetrahedralization)
       }
     }
@@ -124,6 +125,33 @@ class MeshIOTests extends ScalismoTestSuite {
         assert(loadedMesh.tetrahedralization == originalMesh.tetrahedralization)
       }
     }
+
+    it("correctly writes and reads a scalar volume mesh field to a vtk file ") {
+      val temporaryFile = File.createTempFile("scalarVolumeMeshField", ".vtk")
+      val originalMesh = createRandomScalarVolumeMeshField()
+      MeshIO.writeScalarVolumeMeshField(originalMesh, temporaryFile)
+      val loadingMesh = MeshIO.readScalarVolumeMeshField[Int](temporaryFile)
+      assert(loadingMesh.isSuccess)
+      loadingMesh.map { loadedMesh =>
+        assert(loadedMesh.mesh.pointSet == originalMesh.mesh.pointSet)
+        assert(loadedMesh.mesh.tetrahedralization == originalMesh.mesh.tetrahedralization)
+        assert(loadedMesh.data == originalMesh.data)
+      }
+    }
+
+    it("correctly writes and reads a scalar volume mesh field to a vtu file ") {
+      val temporaryFile = File.createTempFile("scalarVolumeMeshField", ".vtu")
+      val originalMesh = createRandomScalarVolumeMeshField()
+      MeshIO.writeScalarVolumeMeshField(originalMesh, temporaryFile)
+      val loadingMesh = MeshIO.readScalarVolumeMeshField[Int](temporaryFile)
+      assert(loadingMesh.isSuccess)
+      loadingMesh.map { loadedMesh =>
+        assert(loadedMesh.mesh.pointSet == originalMesh.mesh.pointSet)
+        assert(loadedMesh.mesh.tetrahedralization == originalMesh.mesh.tetrahedralization)
+        assert(loadedMesh.data == originalMesh.data)
+      }
+    }
+
   }
 
   describe("ScalarMeshField IO") {
@@ -178,6 +206,57 @@ class MeshIOTests extends ScalismoTestSuite {
 
   }
 
+  describe("ScalarVolumeMeshField IO") {
+
+    object Fixture {
+      val meshData: ScalarVolumeMeshField[Int] = createRandomScalarVolumeMeshField()
+      val mesh = meshData.mesh
+    }
+
+    def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarVolumeMeshField[S]] = {
+      val f = Fixture
+      val tmpFile = File.createTempFile("scalarVolumeMeshField", ".vtk")
+
+      val writeTry = MeshIO.writeScalarVolumeMeshField(f.meshData, tmpFile)
+      assert(writeTry.isSuccess)
+
+      MeshIO.readScalarVolumeMeshField[S](tmpFile)
+    }
+
+    it("can write and correctly read a ScalarVolumeMeshField") {
+      val f = Fixture
+      val readTry = sameWriteRead[Int]()
+      assert(readTry.isSuccess)
+
+      readTry.get.data == ScalarArray(f.mesh.pointSet.pointIds.map(_.id).toArray)
+    }
+
+    it("fails when reading with the wrong Scalar type") {
+      val readTry = sameWriteRead[Float]()
+      assert(readTry.isFailure)
+    }
+
+    it("can read and cast a ScalarVolumeMeshField") {
+      val f = Fixture
+      val tmpFile = File.createTempFile("scalarVolumeMeshField", ".vtk")
+      tmpFile.deleteOnExit()
+      MeshIO.writeScalarVolumeMeshField(f.meshData, tmpFile)
+
+      MeshIO.readScalarVolumeMeshFieldAsType[Float](tmpFile) match {
+        case Success(meshData) =>
+          for ((origDatum, newDatum) <- f.meshData.data.zip(meshData.data)) {
+            origDatum.toInt should equal(newDatum)
+          }
+        case Failure(t) =>
+          println(t.getMessage)
+          t.printStackTrace()
+          throw t
+      }
+
+    }
+
+  }
+
   def createRandomTetrahedralMesh(): TetrahedralMesh3D = {
     // points around unit cube
 
@@ -202,6 +281,14 @@ class MeshIOTests extends ScalismoTestSuite {
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
+  }
+
+  private def createRandomScalarVolumeMeshField(): ScalarVolumeMeshField[Int] = {
+    // points around unit cube
+
+    val tetraMesh = createRandomTetrahedralMesh()
+    val scalars = tetraMesh.pointSet.points.map { p => 1 }.toIndexedSeq
+    ScalarVolumeMeshField(tetraMesh, scalars)
   }
 
 }

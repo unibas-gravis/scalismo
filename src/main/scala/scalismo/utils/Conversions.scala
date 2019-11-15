@@ -21,6 +21,7 @@ import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
 import scalismo.io.ImageIO
 import scalismo.mesh._
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.utils.MeshConversion.meshToVtkPolyData
 import spire.math.{UByte, UInt, ULong, UShort}
 import vtk._
 
@@ -184,40 +185,35 @@ object TetrahedronMeshConversion {
     }
   }
 
-  def tetrahedralMeshToVTKUnstructuredGrid(tetramesh: TetrahedralMesh[_3D], template: Option[vtkUnstructuredGrid] = None): vtkUnstructuredGrid = {
+  def tetrahedralMeshToVTKUnstructuredGrid(tetramesh: TetrahedralMesh[_3D]): vtkUnstructuredGrid = {
 
     val ug = new vtkUnstructuredGrid()
 
-    template match {
-      case Some(tpl) =>
-        // copy tetrahedrons from template if given; actual points are set unconditionally in code below.
-        ug.ShallowCopy(tpl)
-      case None =>
-        val tetrahedrons = new vtkCellArray
-        val vtkcelltyp= new vtkUnsignedCharArray
-        val vtkidtyp= new vtkIdTypeArray
-        tetrahedrons.SetNumberOfCells(tetramesh.tetrahedralization.tetrahedrons.size)
-        tetrahedrons.Initialize()
 
-        vtkcelltyp.Initialize()
-        vtkidtyp.Initialize()
-        for ((cell, cell_id) <- tetramesh.tetrahedralization.tetrahedrons.zipWithIndex) {
-          val tetrahedron = new vtkTetra()
-          tetrahedron.GetPointIds().SetId(0, cell.ptId1.id)
-          tetrahedron.GetPointIds().SetId(1, cell.ptId2.id)
-          tetrahedron.GetPointIds().SetId(2, cell.ptId3.id)
-          tetrahedron.GetPointIds().SetId(3, cell.ptId4.id)
+    val tetrahedrons = new vtkCellArray
+    val vtkcelltyp= new vtkUnsignedCharArray
+    val vtkidtyp= new vtkIdTypeArray
+    tetrahedrons.SetNumberOfCells(tetramesh.tetrahedralization.tetrahedrons.size)
+    tetrahedrons.Initialize()
 
-          tetrahedrons.InsertNextCell(tetrahedron)
-          vtkcelltyp.InsertNextValue(tetrahedron.GetCellType().toChar)
-          vtkidtyp.InsertNextValue(cell_id)
-        }
+    vtkcelltyp.Initialize()
+    vtkidtyp.Initialize()
+    for ((cell, cell_id) <- tetramesh.tetrahedralization.tetrahedrons.zipWithIndex) {
+      val tetrahedron = new vtkTetra()
+      tetrahedron.GetPointIds().SetId(0, cell.ptId1.id)
+      tetrahedron.GetPointIds().SetId(1, cell.ptId2.id)
+      tetrahedron.GetPointIds().SetId(2, cell.ptId3.id)
+      tetrahedron.GetPointIds().SetId(3, cell.ptId4.id)
 
-        tetrahedrons.Squeeze()
-        vtkcelltyp.Squeeze()
-        vtkidtyp.Squeeze()
-        ug.SetCells(vtkcelltyp,vtkidtyp,tetrahedrons)
+      tetrahedrons.InsertNextCell(tetrahedron)
+      vtkcelltyp.InsertNextValue(tetrahedron.GetCellType().toChar)
+      vtkidtyp.InsertNextValue(cell_id)
     }
+
+    tetrahedrons.Squeeze()
+    vtkcelltyp.Squeeze()
+    vtkidtyp.Squeeze()
+    ug.SetCells(vtkcelltyp,vtkidtyp,tetrahedrons)
 
     // set points
     val pointDataArray = tetramesh.pointSet.pointSequence.toArray.flatMap(_.toArray)
@@ -227,6 +223,24 @@ object TetrahedronMeshConversion {
     ug.SetPoints(pointsVTK)
     ug
   }
+
+  def scalarVolumeMeshFieldToVtkUnstructuredGrid[S: Scalar: ClassTag: TypeTag](tetraMeshData: ScalarVolumeMeshField[S]): vtkUnstructuredGrid = {
+    val grid = tetrahedralMeshToVTKUnstructuredGrid(tetraMeshData.mesh)
+    val scalarData = VtkHelpers.scalarArrayToVtkDataArray(tetraMeshData.data, 1)
+    grid.GetPointData().SetScalars(scalarData)
+    grid
+  }
+
+  def vtkUnstructuredGridToScalarVolumeMeshField[S: Scalar: ClassTag: TypeTag](ug: vtkUnstructuredGrid): Try[ScalarVolumeMeshField[S]] = {
+    for {
+      mesh <- vtkUnstructuredGridToTetrahedralMesh(ug)
+      scalarData <- VtkHelpers.vtkDataArrayToScalarArray[S](ug.GetPointData().GetScalars().GetDataType(), ug.GetPointData().GetScalars())
+    } yield {
+      ScalarVolumeMeshField(mesh, scalarData)
+    }
+  }
+
+
 
 }
 
