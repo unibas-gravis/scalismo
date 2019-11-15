@@ -133,6 +133,19 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     math.abs(signedVolume)
   }
 
+  /** Returns the Barycentric coordinates of a point inside the indicated cell. */
+  def getBarycentricCoordinates(point: Point[_3D], tetrathedron: TetrahedralCell): Array[Double] = {
+
+    val a = pointSet.point(tetrathedron.ptId1).toVector
+    val b = pointSet.point(tetrathedron.ptId2).toVector
+    val c = pointSet.point(tetrathedron.ptId3).toVector
+    val d = pointSet.point(tetrathedron.ptId4).toVector
+
+    val barycentricCoordinates = new Array[Double](4)
+    new vtkTetra().BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
+    barycentricCoordinates
+  }
+
   /** Returns true for points within a tetrahedron defined by the indicated cell. */
   def isInsideTetrahedralCell(point: Point[_3D], tetrahedron: TetrahedralCell): Boolean = {
 
@@ -144,14 +157,8 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
       array.map(element => if (element == 0.0) 1 else 0).sum
     }
 
-    val a = pointSet.point(tetrahedron.ptId1).toVector
-    val b = pointSet.point(tetrahedron.ptId2).toVector
-    val c = pointSet.point(tetrahedron.ptId3).toVector
-    val d = pointSet.point(tetrahedron.ptId4).toVector
-
     // note: replace call to vtk with own implementation
-    val barycentricCoordinates = new Array[Double](4)
-    new vtkTetra().BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
+    val barycentricCoordinates = getBarycentricCoordinates(point, tetrahedron)
 
     val normalized = barycentricCoordinates.map { e => if (Math.abs(e) <= 1E-8) 0.0 else e }
     val numberOfZeroEntries = countZeroEntries(normalized)
