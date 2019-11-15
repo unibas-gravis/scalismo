@@ -20,10 +20,81 @@ import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
-import scalismo.geometry.{ EuclideanVector, EuclideanVector2D, EuclideanVector3D, IntVector2D, IntVector3D, Point2D, Point3D, _2D, _3D }
-import scalismo.image.{ DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D }
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.geometry._
+import scalismo.image.DiscreteImageDomain
+import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel}
+
+
+class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
+
+  describe("a Statismo Mesh volume Model") {
+
+    def assertModelAlmostEqual(model1: StatisticalVolumeMeshModel, model2: StatisticalVolumeMeshModel): Unit = {
+      assert(model1.mean == model2.mean)
+      assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
+      assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
+    }
+
+    it("can be written and read again") {
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val dummyFile = File.createTempFile("dummy", "h5")
+      dummyFile.deleteOnExit()
+
+
+
+      val t = for {
+        model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
+        _ <- StatismoIO.writeStatismoMeshVolumeModel(model, dummyFile)
+        readModel <- StatismoIO.readStatismoMeshVolumeModel(dummyFile)
+      } yield {
+        assertModelAlmostEqual(model, readModel)
+      }
+      t.get
+
+    }
+
+    it("can be written and read again in non-standard location") {
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val dummyFile = File.createTempFile("dummy", "h5")
+      dummyFile.deleteOnExit()
+
+      val t = for {
+        model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
+        _ <- StatismoIO.writeStatismoMeshVolumeModel(model, dummyFile, "/someLocation")
+        readModel <- StatismoIO.readStatismoMeshVolumeModel(dummyFile, "/someLocation")
+      } yield {
+        assertModelAlmostEqual(model, readModel)
+      }
+      t.get
+
+    }
+
+    it("can be written in version 0.81 and read again") {
+      import StatismoIO.StatismoVersion.v081
+
+      val statismoFile =  new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val dummyFile = File.createTempFile("dummy", "h5")
+      dummyFile.deleteOnExit()
+
+      val t = for {
+        model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
+        _ <- StatismoIO.writeStatismoMeshVolumeModel(model, dummyFile, statismoVersion = v081)
+        readModel <- StatismoIO.readStatismoMeshVolumeModel(dummyFile)
+      } yield {
+        assertModelAlmostEqual(model, readModel)
+      }
+      t.get
+
+    }
+  }
+
+}
+
+
+
+
+
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
