@@ -37,7 +37,8 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
 
     it("can be written and read again") {
       val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath,"UTF-8"))
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
+      )
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -54,7 +55,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
 
     it("can be written and read again in non-standard location") {
       val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath), "UTF-8"
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
       )
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
@@ -74,7 +75,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
       import StatismoIO.StatismoVersion.v081
 
       val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath), "UTF-8")
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
       )
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
