@@ -36,14 +36,15 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again") {
-      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val statismoFile = new File(
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath,"UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
       val t = for {
-        model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
-        _ <- StatismoIO.writeStatismoMeshVolumeModel(model, dummyFile)
-        readModel <- StatismoIO.readStatismoMeshVolumeModel(dummyFile)
+        model <- StatismoIO.readStatismoVolumeMeshModel(statismoFile)
+        _ <- StatismoIO.writeStatismoVolumeMeshModel(model, dummyFile)
+        readModel <- StatismoIO.readStatismoVolumeMeshModel(dummyFile)
       } yield {
         assertModelAlmostEqual(model, readModel)
       }
@@ -52,14 +53,16 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again in non-standard location") {
-      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val statismoFile = new File(
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath), "UTF-8"
+      )
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
       val t = for {
-        model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
-        _ <- StatismoIO.writeStatismoMeshVolumeModel(model, dummyFile, "/someLocation")
-        readModel <- StatismoIO.readStatismoMeshVolumeModel(dummyFile, "/someLocation")
+        model <- StatismoIO.readStatismoVolumeMeshModel(statismoFile)
+        _ <- StatismoIO.writeStatismoVolumeMeshModel(model, dummyFile, "/someLocation")
+        readModel <- StatismoIO.readStatismoVolumeMeshModel(dummyFile, "/someLocation")
       } yield {
         assertModelAlmostEqual(model, readModel)
       }
@@ -70,14 +73,16 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
 
-      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath))
+      val statismoFile = new File(
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath), "UTF-8")
+      )
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
       val t = for {
-        model <- StatismoIO.readStatismoMeshVolumeModel(statismoFile)
-        _ <- StatismoIO.writeStatismoMeshVolumeModel(model, dummyFile, statismoVersion = v081)
-        readModel <- StatismoIO.readStatismoMeshVolumeModel(dummyFile)
+        model <- StatismoIO.readStatismoVolumeMeshModel(statismoFile)
+        _ <- StatismoIO.writeStatismoVolumeMeshModel(model, dummyFile, statismoVersion = v081)
+        readModel <- StatismoIO.readStatismoVolumeMeshModel(dummyFile)
       } yield {
         assertModelAlmostEqual(model, readModel)
       }

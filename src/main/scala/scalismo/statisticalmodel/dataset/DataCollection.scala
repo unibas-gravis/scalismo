@@ -28,7 +28,7 @@ import scala.annotation.tailrec
 
 private[dataset] case class CrossvalidationFold(trainingData: DataCollection, testingData: DataCollection)
 
-private[dataset] case class CrossvalidationFoldMeshVolume(trainingData: DataCollectionOfVolumeMesh, testingData: DataCollectionOfVolumeMesh)
+private[dataset] case class CrossvalidationFoldVolumeMesh(trainingData: DataCollectionOfVolumeMesh, testingData: DataCollectionOfVolumeMesh)
 
 /**
  * A registered item in a dataset.
@@ -120,7 +120,7 @@ case class DataCollectionOfVolumeMesh(reference: TetrahedralMesh[_3D], dataItems
 
   val size: Int = dataItems.size
 
-  private[dataset] def createCrossValidationFolds(nFolds: Int): Seq[CrossvalidationFoldMeshVolume] = {
+  private[dataset] def createCrossValidationFolds(nFolds: Int): Seq[CrossvalidationFoldVolumeMesh] = {
 
     val shuffledDataItems = random.scalaRandom.shuffle(dataItems)
     val foldSize = shuffledDataItems.size / nFolds
@@ -132,7 +132,7 @@ case class DataCollectionOfVolumeMesh(reference: TetrahedralMesh[_3D], dataItems
       val trainingDataItems = (dataGroups.slice(0, currFold).flatten ++: dataGroups.slice(currFold + 1, dataGroups.size).flatten)
       val trainingCollection = DataCollectionOfVolumeMesh(reference, trainingDataItems)
 
-      CrossvalidationFoldMeshVolume(trainingCollection, testingCollection)
+      CrossvalidationFoldVolumeMesh(trainingCollection, testingCollection)
     }
     folds
   }
@@ -255,7 +255,7 @@ object DataCollectionOfVolumeMesh {
    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
    */
   def fromMeshSequence(referenceMesh: TetrahedralMesh[_3D], registeredMeshes: Seq[TetrahedralMesh[_3D]])(implicit rng: Random): (Option[DataCollectionOfVolumeMesh], Seq[Throwable]) = {
-    val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.meshVolumeToTransformation(referenceMesh, _)))
+    val (transformations, errors) = DataUtils.partitionSuccAndFailedTries(registeredMeshes.map(DataUtils.volumeMeshToTransformation(referenceMesh, _)))
     val dc = DataCollectionOfVolumeMesh(referenceMesh, transformations.map(DataItem("from mesh", _)))
     if (dc.size > 0) (Some(dc), errors) else (None, errors)
   }
