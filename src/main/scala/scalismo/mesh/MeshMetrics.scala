@@ -59,6 +59,22 @@ object MeshMetrics {
   }
 
   /**
+   * Returns the average tetrahderal mesh distance after performing a rigid alignment between the two tetrahedral meshes.
+   * All tetrahedral mesh points are used for the rigid alignment, therefore both tetrahedral meshes must be in correspondence
+   */
+  def procrustesDistance(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D]): Double = {
+    require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
+
+    val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
+    val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
+    val m1w = m1.transform(t)
+    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map {
+      case (m1wP, m2P) => (m1wP - m2P).norm
+    }
+    dists.sum / m1.pointSet.numberOfPoints
+  }
+
+  /**
    * Returns the Hausdorff distance between the two meshes
    */
   def hausdorffDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {

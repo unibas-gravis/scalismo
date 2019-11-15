@@ -16,13 +16,14 @@
 package scalismo.mesh
 
 import scalismo.common.{ PointId, RealSpace }
-import scalismo.geometry.{ EuclideanVector, Point, _3D }
+import scalismo.geometry._
 import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
 import scalismo.mesh.boundingSpheres._
 import scalismo.utils.MeshConversion
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
+  def apply(mesh: TetrahedralMesh[_3D]) = new TetrahedralMesh3DOperations(mesh)
 }
 
 class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
@@ -203,3 +204,43 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
 
 }
 
+class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
+
+  /**
+   * Calculated data from mesh
+   */
+  private lazy val meshPoints = mesh.pointSet.points.toIndexedSeq
+
+  /**
+   * Bounding spheres based mesh operations
+   */
+  private lazy val tetrahedrons = BoundingSpheres.tetrahedronListFromTetrahedralMesh3D(mesh)
+  private lazy val boundingSpheres = BoundingSpheres.createForTetrahedrons(tetrahedrons)
+
+  private lazy val intersect: TetrahedralizedVolumeIntersectionIndex[_3D] = new LineTetrahedralMesh3DIntersectionIndex(boundingSpheres, mesh, tetrahedrons)
+  def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean = intersect.hasIntersection(point, direction)
+  def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
+  def getIntersectionPointsOnSurface(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates)] = intersect.getVolumeIntersectionPoints(point, direction)
+
+  /**
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
+   * All cells containing deleted points are also deleted.
+   * @todo use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
+   */
+  def clip(clipPointPredicate: Point[_3D] => Boolean): TetrahedralMesh[_3D] = {
+    // predicate tested at the beginning, once.
+    val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
+
+    val remainingPointQuatriplet = mesh.cells.par.map {
+      cell =>
+        val points = cell.pointIds.map(pointId => meshPoints(pointId.id))
+        (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
+    }.filter(_._2).map(_._1)
+
+    val points = remainingPointQuatriplet.flatten.distinct
+    val pt2Id = points.zipWithIndex.toMap
+    val cells = remainingPointQuatriplet.map { case vec => TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))), PointId(pt2Id(vec(3)))) }
+
+    TetrahedralMesh3D(points.toIndexedSeq, TetrahedralList(cells.toIndexedSeq))
+  }
+}

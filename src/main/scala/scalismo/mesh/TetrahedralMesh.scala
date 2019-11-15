@@ -97,8 +97,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
 
   // lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
 
-  // hackathon: the operations will be comming soon in a next pull request
-  //lazy val operations: TetrahedralMesh3DOperations = TetrahedralMeshOperations(this)
+  lazy val operations: TetrahedralMesh3DOperations = MeshOperations(this)
 
   lazy val boundingBox: BoxDomain[_3D] = pointSet.boundingBox
 
