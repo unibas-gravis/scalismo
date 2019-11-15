@@ -167,7 +167,7 @@ class StatisticalVolumeModelTests extends ScalismoTestSuite {
 
     it("can be transformed forth and back and yield the same deformations") {
       val path = getClass.getResource("/TetraMeshModel2.h5").getPath
-      val model = StatismoIO.readStatismoMeshVolumeModel(new File(URLDecoder.decode(path))).get
+      val model = StatismoIO.readStatismoVolumeMeshModel(new File(URLDecoder.decode(path))).get
 
       val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
@@ -180,12 +180,12 @@ class StatisticalVolumeModelTests extends ScalismoTestSuite {
     it("can change the mean shape and still yield the same shape space") {
 
       val path = getClass.getResource("/TetraMeshModel2.h5").getPath
-      val model = StatismoIO.readStatismoMeshVolumeModel(new File(URLDecoder.decode(path))).get
+      val model = StatismoIO.readStatismoVolumeMeshModel(new File(URLDecoder.decode(path))).get
 
       val newMesh = model.sample
 
       def t(pt: Point[_3D]): Point[_3D] = {
-        val ptId = model.referenceMeshVolume.pointSet.findClosestPoint(pt).id
+        val ptId = model.referenceVolumeMesh.pointSet.findClosestPoint(pt).id
         newMesh.pointSet.point(ptId)
       }
 

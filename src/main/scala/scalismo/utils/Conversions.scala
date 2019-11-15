@@ -156,7 +156,7 @@ object VtkHelpers {
 
 }
 
-object TetrahedronMeshConversion {
+object TetrahedralMeshConversion {
 
   private def extractPointsAndCells(ug: vtkUnstructuredGrid) = Try {
     val grids = ug.GetCells()
