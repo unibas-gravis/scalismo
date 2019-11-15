@@ -22,7 +22,7 @@ import scalismo.common.{ PointId, Scalar, UnstructuredPointsDomain }
 import scalismo.geometry._
 import scalismo.mesh.TriangleMesh._
 import scalismo.mesh._
-import scalismo.utils.{ MeshConversion, TetrahedronMeshConversion }
+import scalismo.utils.{ MeshConversion, TetrahedralMeshConversion }
 import vtk._
 
 import scala.reflect.ClassTag
@@ -213,7 +213,7 @@ object MeshIO {
   private[io] def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid], file: File): Try[TetrahedralMesh[_3D]] = {
     for {
       vtkUg <- readUSFromFile(file)
-      tetramesh <- TetrahedronMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
+      tetramesh <- TetrahedralMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
     } yield {
       vtkUg.Delete()
       tetramesh
@@ -291,7 +291,7 @@ object MeshIO {
   }
 
   private[io] def writeToVTKFileThenDelete[T](volume: T, writeToFile: (vtkUnstructuredGrid, File) => Try[Unit], convertToVTKUG: T => vtkUnstructuredGrid, file: File): Try[Unit] = {
-    val vtkUg = convertToVTKUG(volume)
+    val vtkUg = TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(volume)
     for {
       result <- writeToFile(vtkUg, file)
     } yield {
