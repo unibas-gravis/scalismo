@@ -37,7 +37,8 @@ case class MeanSquaresMetric[D: NDSpace, A: Scalar](
   override val ndSpace = implicitly[NDSpace[D]]
 
   override protected def lossFunction(v: A): Double = {
-    scalar.toDouble(v) * scalar.toDouble(v)
+    val value = scalar.toDouble(v)
+    value * value;
   }
 
   override protected def lossFunctionDerivative(v: A): Double = {
