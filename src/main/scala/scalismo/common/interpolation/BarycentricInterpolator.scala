@@ -1,8 +1,8 @@
 package scalismo.common.interpolation
 
 import scalismo.common._
-import scalismo.geometry.{NDSpace, Point, _3D}
-import scalismo.mesh.{TetrahedralCell, TetrahedralMesh}
+import scalismo.geometry.{ NDSpace, Point, _3D }
+import scalismo.mesh.{ TetrahedralCell, TetrahedralMesh }
 import scalismo.numerics.ValueInterpolator
 
 trait BarycentricInterpolator[D, A] extends FieldInterpolator[D, UnstructuredPointsDomain[D], A] {
@@ -43,7 +43,7 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](m: TetrahedralMesh[_3
       val vertexValues = cell.pointIds.map(df(_))
       val barycentricCoordinates = m.getBarycentricCoordinates(p, cell)
       val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
-      ValueInterpolator[A].convexCombination(valueCoordinatePairs(0), valueCoordinatePairs(1), valueCoordinatePairs(2), valueCoordinatePairs(3))//vertexValues.zip(barycentricCoordinates.toIndexedSeq).map(t => t._1 * t._2).sum
+      ValueInterpolator[A].convexCombination(valueCoordinatePairs(0), valueCoordinatePairs(1), valueCoordinatePairs(2), valueCoordinatePairs(3))
     }
     Field(RealSpace[_3D], interpolateBarycentric)
   }
