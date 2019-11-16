@@ -291,7 +291,7 @@ object MeshIO {
   }
 
   private[io] def writeToVTKFileThenDelete[T](volume: T, writeToFile: (vtkUnstructuredGrid, File) => Try[Unit], convertToVTKUG: T => vtkUnstructuredGrid, file: File): Try[Unit] = {
-    val vtkUg = TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(volume)
+    val vtkUg = convertToVTKUG(volume)
     for {
       result <- writeToFile(vtkUg, file)
     } yield {

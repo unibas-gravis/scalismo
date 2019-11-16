@@ -196,7 +196,7 @@ class DataCollectionTests extends ScalismoTestSuite {
 
 }
 
-class DataCollectionMeshVoulmeTests extends ScalismoTestSuite {
+class DataCollectionVolumeMeshTests extends ScalismoTestSuite {
 
   implicit val rng = Random(42L)
 

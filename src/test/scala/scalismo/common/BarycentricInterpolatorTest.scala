@@ -2,10 +2,9 @@ package scalismo.common
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.BarycentricInterpolator
-import scalismo.geometry.{Point, Point3D, _3D}
-import scalismo.mesh.{ScalarVolumeMeshField, TetrahedralCell, TetrahedralList, TetrahedralMesh3D}
+import scalismo.geometry.{ Point, Point3D, _3D }
+import scalismo.mesh.{ ScalarVolumeMeshField, TetrahedralCell, TetrahedralList, TetrahedralMesh3D }
 import scalismo.utils.Random
-
 
 class BarycentricInterpolatorTest extends ScalismoTestSuite {
 
@@ -69,9 +68,9 @@ class BarycentricInterpolatorTest extends ScalismoTestSuite {
       val scalarVolumeMeshField = ScalarVolumeMeshField(tetrahedralMesh, scalars)
       val interpolatedVolumeMeshField = scalarVolumeMeshField.interpolate(BarycentricInterpolator(tetrahedralMesh))
 
-      val point = Point3D(0.0080570729074948, 0.4107871517927135,0.6832234717598454)
+      val point = Point3D(0.0080570729074948, 0.4107871517927135, 0.6832234717598454)
       val cell = getTetrahedralMeshCell(tetrahedralMesh, point)
-      val vertexValues = cell.pointIds.map(pId => {scalars(pId.id)})
+      val vertexValues = cell.pointIds.map(pId => { scalars(pId.id) })
       val barycentricCoordinates = tetrahedralMesh.getBarycentricCoordinates(point, cell)
 
       val valueAtPoint = vertexValues.zip(barycentricCoordinates).map(t => t._1 * t._2).sum
