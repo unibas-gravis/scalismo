@@ -142,7 +142,9 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     val d = pointSet.point(tetrathedron.ptId4).toVector
 
     val barycentricCoordinates = new Array[Double](4)
-    new vtkTetra().BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
+    val vtkTetra = new vtkTetra()
+    vtkTetra.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
+    vtkTetra.Delete()
     barycentricCoordinates
   }
 
