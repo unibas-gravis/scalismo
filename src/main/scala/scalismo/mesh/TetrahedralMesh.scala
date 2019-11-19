@@ -175,24 +175,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
    * @param tc   Tetrahedral cell in which to draw a random point
    * @param rnd implicit Random object
    */
-  def samplePointInTetrahedralCell(tc: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
-    val A = pointSet.point(tc.ptId2) - pointSet.point(tc.ptId1)
-    val B = pointSet.point(tc.ptId3) - pointSet.point(tc.ptId1)
-    val C = pointSet.point(tc.ptId4) - pointSet.point(tc.ptId1)
 
-    val s = rnd.scalaRandom.nextDouble()
-    val t = rnd.scalaRandom.nextDouble()
-    val u = rnd.scalaRandom.nextDouble()
-    if (s + t + u <= 1) {
-      (A * s + B * t + C * u).toPoint
-    } else if ((s + t + u > 1) && (t + u > 1)) {
-      (A * s + B * (1 - u) + C * (1 - s - t)).toPoint
-    } else if ((s + t + u > 1) && (t + u <= 1)) {
-      (A * (1 - t - u) + B * t + C * (s + t + u - 1)).toPoint
-    } else {
-      throw new Exception("This should never be reached.")
-    }
-  }
 }
 
 object TetrahedralMesh3D {
