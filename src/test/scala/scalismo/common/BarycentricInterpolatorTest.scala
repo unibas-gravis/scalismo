@@ -6,7 +6,6 @@ import scalismo.geometry.{ Point, Point3D, _3D }
 import scalismo.mesh.{ ScalarVolumeMeshField, TetrahedralCell, TetrahedralList, TetrahedralMesh3D }
 import scalismo.utils.Random
 
-
 class BarycentricInterpolatorTest extends ScalismoTestSuite {
 
   implicit val rng = Random(42L)
