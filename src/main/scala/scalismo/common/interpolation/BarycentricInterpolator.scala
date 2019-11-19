@@ -30,8 +30,8 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](m: TetrahedralMesh[_3
   override protected val valueInterpolator: ValueInterpolator[A] = ValueInterpolator[A]
 
   private def getTetrahedralMeshCell(p: Point[_3D]): TetrahedralCell = {
-    val closestPoint = m.pointSet.findClosestPoint(p)
-    val adjacentTetrahedra = m.tetrahedralization.adjacentTetrahedronsForPoint(closestPoint.id)
+    val closestPoints = m.pointSet.findNClosestPoints(p, 4)
+    val adjacentTetrahedra = closestPoints.flatMap(cp => m.tetrahedralization.adjacentTetrahedronsForPoint(cp.id))
     val tetraId = adjacentTetrahedra.filter(tId => m.isInsideTetrahedralCell(p, m.tetrahedralization.tetrahedrons(tId.id))).head
     m.tetrahedralization.tetrahedrons(tetraId.id)
   }
