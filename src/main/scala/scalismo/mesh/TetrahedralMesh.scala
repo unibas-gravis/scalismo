@@ -170,29 +170,41 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   /**
    * Returns a random point lying within the tetrahedron defined by the indicated cell.
    *
-   * A uniform distribution is used for sampling points.
+   * The sampled points follow a uniform distribution within the tetrahedron. The method
+   * if based on the paper Generating Random Points in a Tetrahedron" from Rocchini et. al.:
+   * https://www.tandfonline.com/doi/abs/10.1080/10867651.2000.10487528
    *
-   * @param tc   Tetrahedral cell in which to draw a random point
-   * @param rnd implicit Random object
+   * @param tc  Tetrahedral cell of the mesh, in which to draw a random point
+   * @param rnd implicit [[Random]] object
    */
   def samplePointInTetrahedralCell(tc: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
-    val A = pointSet.point(tc.ptId2) - pointSet.point(tc.ptId1)
-    val B = pointSet.point(tc.ptId3) - pointSet.point(tc.ptId1)
-    val C = pointSet.point(tc.ptId4) - pointSet.point(tc.ptId1)
-
-
     var s = rnd.scalaRandom.nextDouble()
     var t = rnd.scalaRandom.nextDouble()
     var u = rnd.scalaRandom.nextDouble()
 
-    while (s + t + u > 1) {
-      s = rnd.scalaRandom.nextDouble()
-      t = rnd.scalaRandom.nextDouble()
-      u = rnd.scalaRandom.nextDouble()
-
+    if (s + t > 1) {
+      s = 1.0 - s
+      t = 1.0 - t
     }
-    pointSet.point(tc.ptId1) + (A * s + B * t + C * u)
 
+    if (s + t + u > 1) {
+      val tu = u
+      if (t + u > 1) {
+        u = 1.0 - s - t
+        t = 1.0 - tu
+      } else {
+        u = s + t + u - 1.0
+        s = 1.0 - t - tu
+      }
+    }
+
+    val a = 1.0 - s - t - u
+    (
+      a *: pointSet.point(tc.ptId1).toVector +
+      s *: pointSet.point(tc.ptId2).toVector +
+      t *: pointSet.point(tc.ptId3).toVector +
+      u *: pointSet.point(tc.ptId4).toVector
+    ).toPoint
   }
 }
 
