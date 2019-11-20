@@ -90,6 +90,30 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
     TetrahedralMesh3D(domain, list)
   }
 
+  def createRandomTetrahedralMesh(): TetrahedralMesh3D = {
+    val rng = Random(42l)
+    val N = 200
+    val points = IndexedSeq.fill(N)(Point(
+      rng.scalaRandom.nextGaussian() * 2,
+      rng.scalaRandom.nextGaussian() * 1000,
+      rng.scalaRandom.nextGaussian() * 1000000
+    ))
+    val domain = UnstructuredPointsDomain(points)
+
+    implicit def intToPointId(i: Int): PointId = PointId(i)
+    val T = 200
+    val indices = rng.scalaRandom.shuffle( (0 until N).toIndexedSeq ).take(4)
+    val cells = IndexedSeq.fill(T)(TetrahedralCell(
+      indices(0),
+      indices(1),
+      indices(2),
+      indices(3)
+    ))
+    val list = TetrahedralList(cells)
+
+    TetrahedralMesh3D(domain, list)
+  }
+
   describe("a tetrahedral mesh") {
     it("should calculate the correct volume of a tetrahedral mesh and its tetrahedrals") {
 
@@ -212,6 +236,17 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
         val neighbours = tetrahedron.tetrahedralization.adjacentTetrahedronsForTetrahedron(tid).map(_.id).sorted
         assert(shouldReturn.size == neighbours.size)
         assert(shouldReturn.zip(neighbours).forall { case (a, b) => a == b })
+      }
+    }
+
+    it("should return only sampled points within a tetrahedron when trying to sample uniformly in it") {
+      val mesh = createRandomTetrahedralMesh()
+
+      for( tetrahedron <- mesh.tetrahedrons ) {
+        for ( _ <- 0 until 20) {
+          val point = mesh.samplePointInTetrahedralCell(tetrahedron)
+          require(mesh.isInsideTetrahedralCell(point,tetrahedron))
+        }
       }
     }
 
