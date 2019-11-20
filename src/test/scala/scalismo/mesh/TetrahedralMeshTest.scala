@@ -102,7 +102,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
 
     implicit def intToPointId(i: Int): PointId = PointId(i)
     val T = 200
-    val indices = rng.scalaRandom.shuffle( (0 until N).toIndexedSeq ).take(4)
+    val indices = rng.scalaRandom.shuffle((0 until N).toIndexedSeq).take(4)
     val cells = IndexedSeq.fill(T)(TetrahedralCell(
       indices(0),
       indices(1),
@@ -242,10 +242,10 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
     it("should return only sampled points within a tetrahedron when trying to sample uniformly in it") {
       val mesh = createRandomTetrahedralMesh()
 
-      for( tetrahedron <- mesh.tetrahedrons ) {
-        for ( _ <- 0 until 20) {
+      for (tetrahedron <- mesh.tetrahedrons) {
+        for (_ <- 0 until 20) {
           val point = mesh.samplePointInTetrahedralCell(tetrahedron)
-          require(mesh.isInsideTetrahedralCell(point,tetrahedron))
+          require(mesh.isInsideTetrahedralCell(point, tetrahedron))
         }
       }
     }
