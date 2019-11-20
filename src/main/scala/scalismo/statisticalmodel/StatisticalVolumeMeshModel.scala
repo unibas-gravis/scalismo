@@ -57,6 +57,33 @@ case class StatisticalVolumeMeshModel private (referenceVolumeMesh: TetrahedralM
   def instance(c: DenseVector[Double]): TetrahedralMesh[_3D] = warpReference(gp.instance(c))
 
   /**
+   *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
+   *
+   *  This method proceeds by clipping the reference mesh to keep only the indicated point identifiers, and then marginalizing the
+   *  GP over those points. Notice that when clipping, not all indicated point ids will be part of the clipped mesh, as some points may not belong
+   *  to any cells anymore. Therefore 2 behaviours are supported by this method :
+   *
+   *  1- in case some of the indicated pointIds remain after clipping and do form a mesh, a marginal model is returned only for those points
+   *  2- in case none of the indicated points remain (they are not meshed), a reference mesh with all indicated point Ids and no cells is constructed and a marginal
+   *  over this new reference is returned
+   *
+   * @see [[DiscreteLowRankGaussianProcess.marginal]]
+   */
+  def marginal(ptIds: IndexedSeq[PointId], referenceMeshVolume: TetrahedralMesh[_3D], gp: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], EuclideanVector[_3D]]): StatisticalVolumeMeshModel = {
+    val clippedReference = referenceMeshVolume.operations.clip(p => { !ptIds.contains(referenceMeshVolume.pointSet.findClosestPoint(p).id) })
+    // not all of the ptIds remain in the reference after clipping, since their cells might disappear
+    val remainingPtIds = clippedReference.pointSet.points.map(p => referenceMeshVolume.pointSet.findClosestPoint(p).id).toIndexedSeq
+    if (remainingPtIds.isEmpty) {
+      val newRef = TetrahedralMesh3D(UnstructuredPointsDomain(ptIds.map(id => referenceMeshVolume.pointSet.point(id)).toIndexedSeq), TetrahedralList(IndexedSeq[TetrahedralCell]()))
+      val marginalGP = gp.marginal(ptIds.toIndexedSeq)
+      StatisticalVolumeMeshModel(newRef, marginalGP)
+    } else {
+      val marginalGP = gp.marginal(remainingPtIds)
+      StatisticalVolumeMeshModel(clippedReference, marginalGP)
+    }
+  }
+
+  /**
    * Returns a reduced rank model, using only the leading basis functions.
    *
    * @param newRank: The rank of the new model.
