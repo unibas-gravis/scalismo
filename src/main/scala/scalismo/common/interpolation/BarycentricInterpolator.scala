@@ -65,7 +65,7 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh
           val barycentricCoordinates = mesh.getBarycentricCoordinates(p, cell)
           val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
           ValueInterpolator[A].convexCombination(valueCoordinatePairs(0), valueCoordinatePairs(1), valueCoordinatePairs(2), valueCoordinatePairs(3))
-        case None => throw new Exception("Point outside of domain.")
+        case None => throw new Exception(s"Point $p outside of domain.")
       }
     }
     Field(RealSpace[_3D], interpolateBarycentric)
