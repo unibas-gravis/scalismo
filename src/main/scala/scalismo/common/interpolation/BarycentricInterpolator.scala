@@ -59,11 +59,14 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh
   override def interpolate(df: DiscreteField[_3D, UnstructuredPointsDomain[_3D], A]): Field[_3D, A] = {
 
     def interpolateBarycentric(p: Point[_3D]): A = {
-      val cell = getTetrahedralMeshCell(p).get
-      val vertexValues = cell.pointIds.map(df(_))
-      val barycentricCoordinates = mesh.getBarycentricCoordinates(p, cell)
-      val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
-      ValueInterpolator[A].convexCombination(valueCoordinatePairs(0), valueCoordinatePairs(1), valueCoordinatePairs(2), valueCoordinatePairs(3))
+      getTetrahedralMeshCell(p) match {
+        case Some(cell) =>
+          val vertexValues = cell.pointIds.map(df(_))
+          val barycentricCoordinates = mesh.getBarycentricCoordinates(p, cell)
+          val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
+          ValueInterpolator[A].convexCombination(valueCoordinatePairs(0), valueCoordinatePairs(1), valueCoordinatePairs(2), valueCoordinatePairs(3))
+        case None => throw new Exception("Point outside of domain.")
+      }
     }
     Field(RealSpace[_3D], interpolateBarycentric)
   }
