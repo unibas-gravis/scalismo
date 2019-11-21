@@ -1,9 +1,10 @@
 package scalismo.common.interpolation
 
 import scalismo.common._
-import scalismo.geometry.{ NDSpace, Point, _3D }
-import scalismo.mesh.{ TetrahedralCell, TetrahedralMesh }
+import scalismo.geometry.{ NDSpace, Point, Point3D, _3D }
+import scalismo.mesh.{ TetrahedralCell, TetrahedralMesh, TetrahedronId }
 import scalismo.numerics.ValueInterpolator
+import scalismo.utils.Memoize
 
 trait BarycentricInterpolator[D, A] extends FieldInterpolator[D, UnstructuredPointsDomain[D], A] {
   implicit protected val valueInterpolator: ValueInterpolator[A]
@@ -29,17 +30,38 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](m: TetrahedralMesh[_3
 
   override protected val valueInterpolator: ValueInterpolator[A] = ValueInterpolator[A]
 
-  private def getTetrahedralMeshCell(p: Point[_3D]): TetrahedralCell = {
-    val closestPoints = m.pointSet.findNClosestPoints(p, 4)
-    val adjacentTetrahedra = closestPoints.flatMap(cp => m.tetrahedralization.adjacentTetrahedronsForPoint(cp.id))
-    val tetraId = adjacentTetrahedra.filter(tId => m.isInsideTetrahedralCell(p, m.tetrahedralization.tetrahedrons(tId.id))).head
-    m.tetrahedralization.tetrahedrons(tetraId.id)
+  // Temporary solution, replace for Milestone M2!
+  private def getTetrahedralMeshCell(p: Point[_3D]): Option[TetrahedralCell] = {
+
+    def isInsideCell(tc: TetrahedralCell): Boolean = m.isInsideTetrahedralCell(p, tc)
+    val isInsideCellMemoized = Memoize(isInsideCell, 1000)
+
+    var found = false
+    var cell: Option[TetrahedralCell] = None
+    var neighbourhood = Set[TetrahedronId]()
+
+    while (!found) {
+      if (neighbourhood.isEmpty) {
+        // start from closest vertex point
+        val closestPoint = m.pointSet.findClosestPoint(p).id
+        neighbourhood = m.tetrahedralization.adjacentTetrahedronsForPoint(closestPoint).toSet
+      } else {
+        // increase neighbourhood
+        neighbourhood = neighbourhood.union(neighbourhood.flatMap(m.tetrahedralization.adjacentTetrahedronsForTetrahedron))
+      }
+      val filterResult = neighbourhood.filter(tId => isInsideCellMemoized(m.tetrahedralization.tetrahedrons(tId.id)))
+      if (filterResult.nonEmpty) {
+        cell = Option(m.tetrahedralization.tetrahedrons(filterResult.head.id))
+        found = true
+      }
+    }
+    cell
   }
 
   override def interpolate(df: DiscreteField[_3D, UnstructuredPointsDomain[_3D], A]): Field[_3D, A] = {
 
     def interpolateBarycentric(p: Point[_3D]): A = {
-      val cell = getTetrahedralMeshCell(p)
+      val cell = getTetrahedralMeshCell(p).get
       val vertexValues = cell.pointIds.map(df(_))
       val barycentricCoordinates = m.getBarycentricCoordinates(p, cell)
       val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
