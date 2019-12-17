@@ -15,6 +15,7 @@
  */
 package scalismo.common
 
+import breeze.linalg.DenseVector
 import scalismo.utils.ArrayUtils
 import spire.math._
 
@@ -405,6 +406,24 @@ object ScalarArray {
     scalar match {
       case p: PrimitiveScalar[T] => p.createArray(array)
       case v: ValueClassScalar[T, _] => v.convertArray[T](array, { t => t })
+    }
+  }
+
+  class ScalarVectorizer[S: Scalar] extends Vectorizer[S] {
+    override def dim: Int = 1
+
+    def toArray(v: S): Array[Double] = Array[Double](Scalar[S].toDouble(v))
+    override def vectorize(v: S): DenseVector[Double] = new DenseVector(toArray(v))
+
+    override def unvectorize(d: DenseVector[Double]): S = {
+      Scalar[S].fromDouble(d(0))
+    }
+
+    override def equals(that: Any): Boolean = {
+      that match {
+        case t: ScalarVectorizer[S] => true
+        case _ => false
+      }
     }
   }
 
