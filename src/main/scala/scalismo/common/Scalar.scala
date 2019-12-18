@@ -409,21 +409,15 @@ object ScalarArray {
     }
   }
 
-  class ScalarVectorizer[S: Scalar] extends Vectorizer[S] {
+  case class ScalarVectorizer[S: Scalar]() extends Vectorizer[S] {
     override def dim: Int = 1
 
     def toArray(v: S): Array[Double] = Array[Double](Scalar[S].toDouble(v))
+
     override def vectorize(v: S): DenseVector[Double] = new DenseVector(toArray(v))
 
     override def unvectorize(d: DenseVector[Double]): S = {
       Scalar[S].fromDouble(d(0))
-    }
-
-    override def equals(that: Any): Boolean = {
-      that match {
-        case t: ScalarVectorizer[S] => true
-        case _ => false
-      }
     }
   }
 
