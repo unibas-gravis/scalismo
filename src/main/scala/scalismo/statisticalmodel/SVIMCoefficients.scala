@@ -12,14 +12,14 @@ case class SVIMCoefficients(shape: DenseVector[Double],
 
 object SVIMCoefficients {
   def apply(shape: IndexedSeq[Double],
-            intensity: IndexedSeq[Double]) = new SVIMCoefficients(DenseVector(shape.toArray), DenseVector(intensity.toArray))
+    intensity: IndexedSeq[Double]) = new SVIMCoefficients(DenseVector(shape.toArray), DenseVector(intensity.toArray))
 
   def apply(shape: DenseVector[Double],
-            intensity: DenseVector[Double]) = new SVIMCoefficients(shape, intensity)
+    intensity: DenseVector[Double]) = new SVIMCoefficients(shape, intensity)
 
   /** get 0 coefficients of specified length */
   def zeros(shapeComponents: Int,
-            intensityComponents: Int): SVIMCoefficients = {
+    intensityComponents: Int): SVIMCoefficients = {
     new SVIMCoefficients(
       DenseVector.zeros(shapeComponents),
       DenseVector.zeros(intensityComponents))

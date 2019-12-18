@@ -17,8 +17,6 @@ trait StatisticalVolumeIntensityModel[S] {
 
   def intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
 
-  def landmarks: Map[String, Landmark[_3D]] = Map.empty[String, Landmark[_3D]]
-
   def mean: ScalarVolumeMeshField[S]
 
   def instance(coefficients: SVIMCoefficients): ScalarVolumeMeshField[S]
