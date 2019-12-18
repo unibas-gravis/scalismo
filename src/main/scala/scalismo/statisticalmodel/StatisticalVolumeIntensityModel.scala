@@ -27,43 +27,21 @@ trait StatisticalVolumeIntensityModel[S] {
 
   def sample()(implicit rnd: Random): ScalarVolumeMeshField[S]
 
-  def withLandmarks(landmarksMap: Map[String, Landmark[_3D]]): StatisticalVolumeIntensityModel[S]
-
-  def hasLandmarks: Boolean = landmarks.nonEmpty
-
-  def landmarkPointId(id: String): Option[PointId] = {
-    for {
-      lm <- landmarks.get(id)
-      id <- referenceMesh.pointSet.pointId(lm.point)
-    } yield id
-  }
-
-  def landmarksWithPointIds: Map[String, Option[PointId]] = landmarks.map { case (id, lm) => id -> referenceMesh.pointSet.pointId(lm.point) }
-
-  def landmarksWithClosestPointIds: Map[String, PointId] = landmarks.map { case (id, lm) => id -> referenceMesh.pointSet.findClosestPoint(lm.point).id }
-
   def zeroCoefficients: SVIMCoefficients
 }
 
 object StatisticalVolumeIntensityModel {
 
   def apply[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
-    shape: StatisticalVolumeMeshModel, intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S],
-    landmarks: Map[String, Landmark[_3D]]): SVIM[S] = {
-    SVIM(referenceMeshField, shape, intensity, landmarks)
-  }
-
-  def apply[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
     shape: StatisticalVolumeMeshModel, intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]): SVIM[S] = {
-    SVIM(referenceMeshField, shape, intensity, Map.empty)
+    SVIM(referenceMeshField, shape, intensity)
   }
 
 }
 
 case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
   shape: StatisticalVolumeMeshModel,
-  intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S],
-  override val landmarks: Map[String, Landmark[_3D]] = Map.empty[String, Landmark[_3D]])
+  intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S])
     extends StatisticalVolumeIntensityModel[S] {
 
   override def mean: ScalarVolumeMeshField[S] = {
@@ -78,8 +56,6 @@ case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMe
     ScalarVolumeMeshField(shape.sample(), intensity.sample().data)
   }
 
-  override def withLandmarks(landmarksMap: Map[String, Landmark[_3D]]): SVIM[S] = SVIM(referenceMeshField, shape, intensity, landmarksMap)
-
   override def zeroCoefficients: SVIMCoefficients = SVIMCoefficients(
     DenseVector.zeros[Double](shape.rank),
     DenseVector.zeros[Double](intensity.rank)
@@ -92,8 +68,8 @@ case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMe
     SVIM(
       referenceMeshField,
       shape.truncate(shapeComps),
-      intensity.truncate(colorComps),
-      landmarks)
+      intensity.truncate(colorComps)
+    )
   }
 
   override def referenceMesh: TetrahedralMesh3D = referenceMeshField.mesh
