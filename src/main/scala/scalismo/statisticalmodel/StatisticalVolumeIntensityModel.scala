@@ -13,8 +13,6 @@ trait StatisticalVolumeIntensityModel[S] {
 
   def referenceMesh: TetrahedralMesh3D
 
-  def referenceMeshField: ScalarVolumeMeshField[S]
-
   def shape: StatisticalVolumeMeshModel
 
   def intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
@@ -32,14 +30,14 @@ trait StatisticalVolumeIntensityModel[S] {
 
 object StatisticalVolumeIntensityModel {
 
-  def apply[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
+  def apply[S: Scalar: TypeTag: ClassTag](referenceMesh: TetrahedralMesh3D,
     shape: StatisticalVolumeMeshModel, intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]): SVIM[S] = {
-    SVIM(referenceMeshField, shape, intensity)
+    SVIM(referenceMesh, shape, intensity)
   }
 
 }
 
-case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
+case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMesh: TetrahedralMesh3D,
   shape: StatisticalVolumeMeshModel,
   intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S])
     extends StatisticalVolumeIntensityModel[S] {
@@ -66,11 +64,9 @@ case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMe
     require(colorComps >= 0 && colorComps <= intensity.rank, "illegal number of reduced color components")
 
     SVIM(
-      referenceMeshField,
+      referenceMesh,
       shape.truncate(shapeComps),
       intensity.truncate(colorComps)
     )
   }
-
-  override def referenceMesh: TetrahedralMesh3D = referenceMeshField.mesh
 }
