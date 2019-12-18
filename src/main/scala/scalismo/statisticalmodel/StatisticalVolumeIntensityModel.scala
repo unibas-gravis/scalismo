@@ -11,7 +11,7 @@ import scala.reflect.runtime.universe.TypeTag
 
 trait StatisticalVolumeIntensityModel[S] {
 
-  def referenceMesh: TetrahedralMesh3D
+  def referenceMeshField: ScalarVolumeMeshField[S]
 
   def shape: StatisticalVolumeMeshModel
 
@@ -28,28 +28,28 @@ trait StatisticalVolumeIntensityModel[S] {
 
 object StatisticalVolumeIntensityModel {
 
-  def apply[S: Scalar: TypeTag: ClassTag](referenceMesh: TetrahedralMesh3D,
+  def apply[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
     shape: StatisticalVolumeMeshModel, intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]): SVIM[S] = {
-    SVIM(referenceMesh, shape, intensity)
+    SVIM(referenceMeshField, shape, intensity)
   }
 
 }
 
-case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMesh: TetrahedralMesh3D,
+case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
   shape: StatisticalVolumeMeshModel,
   intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S])
     extends StatisticalVolumeIntensityModel[S] {
 
   override def mean: ScalarVolumeMeshField[S] = {
-    ScalarVolumeMeshField(shape.mean, intensity.mean.data)
+    ScalarVolumeMeshField(shape.mean, warpReferenceIntensity(intensity.mean.data))
   }
 
   override def instance(coefficients: SVIMCoefficients): ScalarVolumeMeshField[S] = {
-    ScalarVolumeMeshField(shape.instance(coefficients.shape), intensity.instance(coefficients.intensity).data)
+    ScalarVolumeMeshField(shape.instance(coefficients.shape), warpReferenceIntensity(intensity.instance(coefficients.intensity).data))
   }
 
   override def sample()(implicit rnd: Random): ScalarVolumeMeshField[S] = {
-    ScalarVolumeMeshField(shape.sample(), intensity.sample().data)
+    ScalarVolumeMeshField(shape.sample(), warpReferenceIntensity(intensity.sample().data))
   }
 
   override def zeroCoefficients: SVIMCoefficients = SVIMCoefficients(
@@ -62,9 +62,13 @@ case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMesh: TetrahedralMesh3D,
     require(colorComps >= 0 && colorComps <= intensity.rank, "illegal number of reduced color components")
 
     SVIM(
-      referenceMesh,
+      referenceMeshField,
       shape.truncate(shapeComps),
       intensity.truncate(colorComps)
     )
+  }
+
+  private def warpReferenceIntensity(scalarData: IndexedSeq[S]): ScalarArray[S] = {
+    ScalarArray[S](referenceMeshField.data.zip(ScalarArray[S](scalarData.toArray)).map { case (r, s) => Scalar[S].plus(r, s) }.toArray)
   }
 }
