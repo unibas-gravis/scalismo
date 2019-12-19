@@ -281,7 +281,7 @@ object MeshIO {
    */
   def writeTetrahedralMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
-    val conversionFunction = TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid _
+    val conversionFunction = (m: TetrahedralMesh[_3D]) => TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(m, None)
     filename match {
       case f if f.endsWith(".vtk") => writeToVTKFileThenDelete(mesh, writeVTKUgasVTK, conversionFunction, file)
       case f if f.endsWith(".vtu") => writeToVTKFileThenDelete(mesh, writeVTKUgasVTU, conversionFunction, file)
@@ -332,7 +332,7 @@ object MeshIO {
 
   def writeScalarVolumeMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarVolumeMeshField[S], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
-    val conversionFunction = TetrahedralMeshConversion.scalarVolumeMeshFieldToVtkUnstructuredGrid[S] _
+    val conversionFunction = (smf: ScalarVolumeMeshField[S]) => TetrahedralMeshConversion.scalarVolumeMeshFieldToVtkUnstructuredGrid[S](smf, None)
     filename match {
       case f if f.endsWith(".vtk") => writeToVTKFileThenDelete(meshData, writeVTKUgasVTK, conversionFunction, file)
       case f if f.endsWith(".vtu") => writeToVTKFileThenDelete(meshData, writeVTKUgasVTU, conversionFunction, file)
