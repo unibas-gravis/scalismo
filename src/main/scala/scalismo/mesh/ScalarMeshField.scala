@@ -28,7 +28,7 @@ import scala.reflect.ClassTag
  * The number of values and mesh points must be equal.
  */
 case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], override val data: ScalarArray[S])
-    extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
+  extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
   require(mesh.pointSet.numberOfPoints == data.size)
 
   override def values = data.iterator

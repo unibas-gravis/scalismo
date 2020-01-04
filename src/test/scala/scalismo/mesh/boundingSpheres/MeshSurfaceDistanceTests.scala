@@ -332,8 +332,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
+        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)))
 
       (0 until 1000) foreach { _ =>
         val p = randomVector()
@@ -360,8 +359,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
+        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)))
 
       val queries = (0 until 100000) map { _ =>
         randomVector()
@@ -391,8 +389,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       val sd = DiscreteSpatialIndex.fromMesh(TriangleMesh3D(
         triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
+        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)))
 
       val queries = (0 until 100000) map { _ =>
         randomVector()

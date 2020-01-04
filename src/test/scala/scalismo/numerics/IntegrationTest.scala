@@ -48,8 +48,7 @@ class IntegrationTest extends ScalismoTestSuite {
       val img = DifferentiableScalarImage(
         BoxDomain[_1D](-math.Pi.toFloat, math.Pi.toFloat),
         (x: Point[_1D]) => math.sin(x.toDouble).toFloat,
-        (x: Point[_1D]) => EuclideanVector(-math.cos(x.toDouble).toFloat)
-      )
+        (x: Point[_1D]) => EuclideanVector(-math.cos(x.toDouble).toFloat))
 
       val numPoints = 1000
       val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), EuclideanVector(2 * math.Pi.toFloat / numPoints), IntVector(numPoints))

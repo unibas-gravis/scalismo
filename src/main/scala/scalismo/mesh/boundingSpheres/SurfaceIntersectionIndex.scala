@@ -147,9 +147,10 @@ object LineTrinagleMesh3DIntersectionIndex {
 /**
  * LineTriangleMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D.
  */
-private[mesh] class LineTriangleMesh3DIntersectionIndex(private val boundingSphere: BoundingSphere,
-    private val mesh: TriangleMesh3D,
-    private val triangles: Seq[Triangle]) extends TriangulatedSurfaceIntersectionIndex[_3D] {
+private[mesh] class LineTriangleMesh3DIntersectionIndex(
+  private val boundingSphere: BoundingSphere,
+  private val mesh: TriangleMesh3D,
+  private val triangles: Seq[Triangle]) extends TriangulatedSurfaceIntersectionIndex[_3D] {
 
   override def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean = {
     intersectWithLine(point.toVector, direction, boundingSphere).nonEmpty
@@ -224,9 +225,10 @@ private[mesh] class LineTriangleMesh3DIntersectionIndex(private val boundingSphe
 /**
  * LineTetrahedralMesh3DIntersecitionIndex implements the interface TetrahedralizedvolumeIntersectionIndex for Tetrahedral3D.
  */
-class LineTetrahedralMesh3DIntersectionIndex(private val boundingSphere: BoundingSphere,
-    private val mesh: TetrahedralMesh[_3D],
-    private val tetrahedrons: Seq[Tetrahedron]) extends TetrahedralizedVolumeIntersectionIndex[_3D] {
+class LineTetrahedralMesh3DIntersectionIndex(
+  private val boundingSphere: BoundingSphere,
+  private val mesh: TetrahedralMesh[_3D],
+  private val tetrahedrons: Seq[Tetrahedron]) extends TetrahedralizedVolumeIntersectionIndex[_3D] {
 
   override def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean = {
     intersectWithLine(point.toVector, direction, boundingSphere).nonEmpty

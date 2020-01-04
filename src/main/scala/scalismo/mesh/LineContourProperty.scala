@@ -22,7 +22,7 @@ trait LineContourProperty[A] {
 
 /** function indirection for contour access */
 case class MappedContourProperty[A, B](values: LineContourProperty[A], f: A => B)
-    extends LineContourProperty[B] {
+  extends LineContourProperty[B] {
 
   override def topology = values.topology
 
@@ -31,7 +31,7 @@ case class MappedContourProperty[A, B](values: LineContourProperty[A], f: A => B
 }
 
 case class ContourPointProperty[A](topology: LineList, pointData: IndexedSeq[A])(implicit val interpolator: ValueInterpolator[A])
-    extends LineContourProperty[A] {
+  extends LineContourProperty[A] {
 
   require(topology.pointIds.forall(id => pointData.isDefinedAt(id.id)), "Line topology is not compatible with data")
 

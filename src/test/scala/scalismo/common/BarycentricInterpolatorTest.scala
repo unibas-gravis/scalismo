@@ -20,8 +20,7 @@ class BarycentricInterpolatorTest extends ScalismoTestSuite {
       Point(0, 0, 1),
       Point(1, 0, 1),
       Point(1, 1, 1),
-      Point(0, 1, 1)
-    )
+      Point(0, 1, 1))
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
@@ -31,8 +30,7 @@ class BarycentricInterpolatorTest extends ScalismoTestSuite {
       TetrahedralCell(0, 2, 5, 1),
       TetrahedralCell(2, 5, 7, 6),
       TetrahedralCell(0, 5, 7, 4),
-      TetrahedralCell(0, 2, 5, 7)
-    )
+      TetrahedralCell(0, 2, 5, 7))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)

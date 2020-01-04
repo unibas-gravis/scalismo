@@ -34,7 +34,7 @@ case class MeanHuberLossMetric[D: NDSpace, A: Scalar](
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D],
   delta: Double = 1.345)
-    extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
+  extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
 
   val scalar = Scalar[A]
   override protected def lossFunction(v: A): Double = {

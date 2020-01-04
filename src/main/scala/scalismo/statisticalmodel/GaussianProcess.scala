@@ -28,8 +28,9 @@ import scalismo.utils.Random
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
  */
-class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value],
-    val cov: MatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
+class GaussianProcess[D: NDSpace, Value] protected (
+  val mean: Field[D, Value],
+  val cov: MatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
 
   def outputDim = vectorizer.dim
 
@@ -110,7 +111,8 @@ object GaussianProcess {
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def regression[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
 
     val outputDim = vectorizer.dim
@@ -159,7 +161,8 @@ object GaussianProcess {
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  def marginalLikelihood[D: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def marginalLikelihood[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): Double = {
 
     val outputDim = gp.outputDim

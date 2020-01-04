@@ -186,11 +186,11 @@ class RegistrationTests extends ScalismoTestSuite {
       val domain = discreteFixedImage.domain
 
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
-      val regIt = Registration(MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, metricSampler),
+      val regIt = Registration(
+        MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, metricSampler),
         L2Regularizer[_2D](transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+        LBFGSOptimizer(maxNumberOfIterations = 300)).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
       -regResult.parameters(0) should be(translationParams(0) +- 0.01)
@@ -211,11 +211,11 @@ class RegistrationTests extends ScalismoTestSuite {
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
-      val regIter = Registration(metric,
+      val regIter = Registration(
+        metric,
         L2Regularizer(transformationSpace),
         0.0,
-        numerics.LBFGSOptimizer(maxNumberOfIterations = 100)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+        numerics.LBFGSOptimizer(maxNumberOfIterations = 100)).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIter.toSeq.last
       regResult.parameters(0) should be(rotationParams(0) +- 0.01)
@@ -245,8 +245,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         0.0,
-        LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+        LBFGSOptimizer(maxNumberOfIterations = 300)).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
 
@@ -280,8 +279,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+        LBFGSOptimizer(maxNumberOfIterations = 300)).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
       for (i <- 0 until regResult.parameters.size) {
@@ -304,8 +302,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val transformationSpace = ProductTransformationSpace(translationSpace, gpTransformationSpace)
       val gtParams = DenseVector.vertcat(
         DenseVector.ones[Double](translationSpace.parametersDimensionality) * 10.0,
-        DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0
-      )
+        DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0)
       val groundTruthTransform = transformationSpace.transformForParameters(gtParams)
       val transformedLena = fixedImage compose groundTruthTransform
       val metricSampler = GridSampler(DiscreteImageDomain(domain.imageBoundingBox, IntVector(20, 20)))
@@ -315,8 +312,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+        LBFGSOptimizer(maxNumberOfIterations = 300)).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
       val regItPrinting = for (it <- regIt) yield {
         println(it.value)
         println(it.parameters)
@@ -352,8 +348,7 @@ class RegistrationTests extends ScalismoTestSuite {
         metric,
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
-        LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+        LBFGSOptimizer(maxNumberOfIterations = 300)).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
 

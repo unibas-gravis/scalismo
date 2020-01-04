@@ -574,8 +574,7 @@ object StatismoIO {
         image,
         meanVector.map(_.toDouble),
         pcaVarianceVector.map(_.toDouble),
-        pcaBasisMatrix.map(_.toDouble)
-      )
+        pcaBasisMatrix.map(_.toDouble))
       gp
 
     }

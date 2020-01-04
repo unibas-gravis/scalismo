@@ -330,8 +330,7 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
 
     val corners = List(
       IntVector(0, 0, 0), IntVector(size(0) - 1, 0, 0), IntVector(0, size(1) - 1, 0), IntVector(0, 0, size(2) - 1), IntVector(size(0) - 1, size(1) - 1, 0),
-      IntVector(size(0) - 1, 0, size(2) - 1), IntVector(0, size(1) - 1, size(2) - 1), IntVector(size(0) - 1, size(1) - 1, size(2) - 1)
-    )
+      IntVector(size(0) - 1, 0, size(2) - 1), IntVector(0, size(1) - 1, size(2) - 1), IntVector(size(0) - 1, size(1) - 1, size(2) - 1))
     val cornerImages = corners.map(i => indexToPoint(i))
 
     val originX = cornerImages.map(p => p(0)).min
@@ -352,8 +351,7 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
   val directions = SquareMatrix[_3D](
     ((iVecImage * (1.0 / iVecImage.norm)).toArray
       ++ (jVecImage * (1.0 / jVecImage.norm)).toArray
-      ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
-  )
+      ++ (kVecImage * (1.0 / kVecImage.norm)).toArray))
 
   private def generateIterator(minK: Int, maxK: Int, minY: Int, maxY: Int, minX: Int, maxX: Int) = {
     for (k <- Iterator.range(minK, maxK); j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
@@ -370,7 +368,8 @@ case class DiscreteImageDomain3D(size: IntVector[_3D], indexToPhysicalCoordinate
   }
 
   @inline private def ijkToPoint(i: Int, j: Int, k: Int) = {
-    Point3D(origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
+    Point3D(
+      origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
       origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
       origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k)
   }

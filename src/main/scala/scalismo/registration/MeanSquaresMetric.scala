@@ -30,7 +30,7 @@ case class MeanSquaresMetric[D: NDSpace, A: Scalar](
   movingImage: DifferentiableScalarImage[D, A],
   transformationSpace: TransformationSpace[D],
   sampler: Sampler[D])
-    extends MeanPointwiseLossMetric[D, A](fixedImage, movingImage, transformationSpace, sampler) {
+  extends MeanPointwiseLossMetric[D, A](fixedImage, movingImage, transformationSpace, sampler) {
 
   private val scalar = Scalar[A]
 

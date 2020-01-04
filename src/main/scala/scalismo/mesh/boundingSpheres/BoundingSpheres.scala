@@ -36,11 +36,12 @@ import scala.annotation.tailrec
  * @param r2     Squared radius of bounding sphere.
  * @param idx    Index of entity used to form leave.
  */
-private[mesh] abstract class BoundingSphere(val center: EuclideanVector[_3D],
-    val r2: Double,
-    val idx: Int,
-    val left: BoundingSphere,
-    val right: BoundingSphere) {
+private[mesh] abstract class BoundingSphere(
+  val center: EuclideanVector[_3D],
+  val r2: Double,
+  val idx: Int,
+  val left: BoundingSphere,
+  val right: BoundingSphere) {
   /**
    * true if left child sphere exists
    */
@@ -184,8 +185,7 @@ private[mesh] object BoundingSpheres {
       // val newRadius = ((na - nb) / 2).norm2 // @note: this is numerically unstable
       val newRadius = pow(max(
         (newCenter - a.center).norm + sqrt(a.r2), // numerically more stable
-        (newCenter - b.center).norm + sqrt(b.r2)
-      ), 2)
+        (newCenter - b.center).norm + sqrt(b.r2)), 2)
       (newCenter, newRadius)
     }
     new BoundingSphereSplit(nc, nr, -1, a, b)
@@ -229,7 +229,8 @@ private[mesh] object BoundingSpheres {
    * Find best point pairs, some points might not be matched
    */
   @inline
-  def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
+  def choosePointPairsAndUpdateMatchedIndex(
+    closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
     sortedPoints: Seq[(EuclideanVector[_3D], Int)],
     matchedPoints: Array[Int]): Array[Boolean] = {
     val chosen = Array.fill[Boolean](closestPointPairs.length)(false)
@@ -304,12 +305,13 @@ private[mesh] object BoundingSpheres {
 /**
  * Inner node of the search index.
  */
-private class BoundingSphereSplit(center: EuclideanVector[_3D],
+private class BoundingSphereSplit(
+  center: EuclideanVector[_3D],
   r2: Double,
   idx: Int,
   left: BoundingSphere,
   right: BoundingSphere)
-    extends BoundingSphere(center, r2, idx, left, right) {
+  extends BoundingSphere(center, r2, idx, left, right) {
   override def hasLeft: Boolean = left != null
 
   override def hasRight: Boolean = right != null
@@ -318,10 +320,11 @@ private class BoundingSphereSplit(center: EuclideanVector[_3D],
 /**
  * Leave node of the search index.
  */
-private class BoundingSphereLeave(center: EuclideanVector[_3D],
+private class BoundingSphereLeave(
+  center: EuclideanVector[_3D],
   r2: Double,
   idx: Int)
-    extends BoundingSphere(center, r2, idx, null, null) {
+  extends BoundingSphere(center, r2, idx, null, null) {
 
   override def hasLeft: Boolean = false
 
@@ -495,13 +498,15 @@ private object Sphere {
             }
           }
           // While it would be faster to use the appropriate r_i * 0.25, this is more stable.
-          radius2 = max((center - a).norm2,
+          radius2 = max(
+            (center - a).norm2,
             (center - b).norm2,
             (center - c).norm2)
         } else {
           // center is in the triangle
 
-          radius2 = max((center - a).norm2,
+          radius2 = max(
+            (center - a).norm2,
             (center - b).norm2,
             (center - c).norm2)
         }

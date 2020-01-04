@@ -68,7 +68,7 @@ class MeshTests extends ScalismoTestSuite {
       val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
       val transformedMesh = mesh.transform(R).transform(s)
       mesh.area should be(0.5 +- 1e-8)
-      transformedMesh.area should be(4.0f * mesh.area +- 1e-5) // scaling by two gives 4 times the area 
+      transformedMesh.area should be(4.0f * mesh.area +- 1e-5) // scaling by two gives 4 times the area
     }
 
     it("computes the right binary image for the unit sphere") {

@@ -38,7 +38,7 @@ trait MeshSurfaceProperty[A] {
 
 /** constant property value on complete surface */
 case class ConstantProperty[A](triangulation: TriangleList, value: A)
-    extends MeshSurfaceProperty[A] {
+  extends MeshSurfaceProperty[A] {
 
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): A = value
 
@@ -47,7 +47,7 @@ case class ConstantProperty[A](triangulation: TriangleList, value: A)
 
 /** property defined per vertex, with interpolation */
 case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(implicit val interpolator: ValueInterpolator[A])
-    extends MeshSurfaceProperty[A] {
+  extends MeshSurfaceProperty[A] {
 
   /** access surface property at vertex point */
   def atPoint(pointId: PointId): A = pointData(pointId.id)
@@ -105,7 +105,7 @@ object SurfacePointProperty {
 
 /** property constant per triangle, no interpolation */
 case class TriangleProperty[A](triangulation: TriangleList, triangleData: IndexedSeq[A])
-    extends MeshSurfaceProperty[A] {
+  extends MeshSurfaceProperty[A] {
 
   def apply(triangleId: TriangleId): A = onTriangle(triangleId)
 
@@ -138,7 +138,7 @@ object TriangleProperty {
 
 /** function indirection for surface access */
 case class MappedSurfaceProperty[A, B](values: MeshSurfaceProperty[A], f: A => B)
-    extends MeshSurfaceProperty[B] {
+  extends MeshSurfaceProperty[B] {
 
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): B = f(values.onSurface(triangleId, bcc))
 

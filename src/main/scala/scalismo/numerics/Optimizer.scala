@@ -55,11 +55,12 @@ case class LBFGSOptimizer(maxNumberOfIterations: Int, m: Int = 10, tolerance: Do
   }
 }
 
-case class GradientDescentOptimizer(maxNumberOfIterations: Int,
-    stepLength: Double,
-    withLineSearch: Boolean = false,
-    robinsMonroe: Boolean = false,
-    stepDecreaseCoeff: Double = 0.0) extends Optimizer {
+case class GradientDescentOptimizer(
+  maxNumberOfIterations: Int,
+  stepLength: Double,
+  withLineSearch: Boolean = false,
+  robinsMonroe: Boolean = false,
+  stepDecreaseCoeff: Double = 0.0) extends Optimizer {
 
   private def goldenSectionLineSearch(nbPoints: Int, xk: ParameterVector, lowerLimit: Double, upperLimit: Double, normalizedGradient: DenseVector[Double], f: CostFunction): Double = {
     val r = 0.618

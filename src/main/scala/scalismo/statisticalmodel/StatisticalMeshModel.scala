@@ -227,7 +227,8 @@ object StatisticalMeshModel {
    *
    * @see [[DiscreteLowRankGaussianProcess.apply(FiniteDiscreteDomain, DenseVector[Double], DenseVector[Double], DenseMatrix[Double]]
    */
-  private[scalismo] def apply(referenceMesh: TriangleMesh[_3D],
+  private[scalismo] def apply(
+    referenceMesh: TriangleMesh[_3D],
     meanVector: DenseVector[Double],
     variance: DenseVector[Double],
     basisMatrix: DenseMatrix[Double]) = {
@@ -246,9 +247,9 @@ object StatisticalMeshModel {
 
     val modelGP = model.gp.interpolateNearestNeighbor
     // TODO: check if there is a better alternative (move method to Field?)
-    val newMean = Field[_3D, EuclideanVector[_3D]](modelGP.domain,
-      (p: Point[_3D]) => modelGP.mean(p) + biasModel.mean(p)
-    )
+    val newMean = Field[_3D, EuclideanVector[_3D]](
+      modelGP.domain,
+      (p: Point[_3D]) => modelGP.mean(p) + biasModel.mean(p))
     val newCov = modelGP.cov + biasModel.cov
     val newGP = GaussianProcess(newMean, newCov)
     val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, 2 * numBasisFunctions)

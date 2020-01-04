@@ -170,10 +170,11 @@ object DiagonalKernel {
   def apply(xKernel: PDKernel[_3D], yKernel: PDKernel[_3D], zKernel: PDKernel[_3D]): DiagonalKernel[_3D] = AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel, zKernel))
 }
 
-case class MultiScaleKernel[D: NDSpace](kernel: MatrixValuedPDKernel[D],
-    min: Int,
-    max: Int,
-    scale: Int => Double = i => scala.math.pow(2.0, -2.0 * i)) extends MatrixValuedPDKernel[D] {
+case class MultiScaleKernel[D: NDSpace](
+  kernel: MatrixValuedPDKernel[D],
+  min: Int,
+  max: Int,
+  scale: Int => Double = i => scala.math.pow(2.0, -2.0 * i)) extends MatrixValuedPDKernel[D] {
 
   override def outputDim = kernel.outputDim
 
@@ -261,7 +262,8 @@ object Kernel {
    * @param sampler  A point sampler, which determines the points that are used to compute the approximation.
    * @return The leading eigenvalue / eigenfunction pairs
    */
-  def computeNystromApproximation[D: NDSpace, Value](k: MatrixValuedPDKernel[D],
+  def computeNystromApproximation[D: NDSpace, Value](
+    k: MatrixValuedPDKernel[D],
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value]): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in

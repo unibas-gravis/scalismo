@@ -31,7 +31,7 @@ import scala.reflect.ClassTag
  * @tparam A The type of the pixel (needs to implement Scalar).
  */
 class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: DiscreteImageDomain[D], override val data: ScalarArray[A])
-    extends DiscreteImage[D, A](domain, data) {
+  extends DiscreteImage[D, A](domain, data) {
 
   require(domain.numberOfPoints == data.size)
 

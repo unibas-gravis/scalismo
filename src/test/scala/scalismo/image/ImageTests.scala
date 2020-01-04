@@ -59,7 +59,8 @@ class ImageTests extends ScalismoTestSuite {
   describe("A continuous 1D image") {
     it("yields the right values after composing with a translation") {
 
-      val image = DifferentiableScalarImage(BoxDomain(-4.0, 6.0),
+      val image = DifferentiableScalarImage(
+        BoxDomain(-4.0, 6.0),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
       val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(1.0))
@@ -73,7 +74,8 @@ class ImageTests extends ScalismoTestSuite {
 
     it("yields the right values after warping with a translation") {
 
-      val image = DifferentiableScalarImage(BoxDomain(-4.0, 6.0),
+      val image = DifferentiableScalarImage(
+        BoxDomain(-4.0, 6.0),
         (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
         (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
 

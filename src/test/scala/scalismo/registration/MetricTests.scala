@@ -37,7 +37,8 @@ class MetricTests extends ScalismoTestSuite {
     it("returns 0 if provided twice the same image") {
 
       val domain = BoxDomain(0.0, 1.0)
-      val img = DifferentiableScalarImage(BoxDomain(0.0, 1.0),
+      val img = DifferentiableScalarImage(
+        BoxDomain(0.0, 1.0),
         (x: Point[_1D]) => (x * x).toFloat,
         (x: Point[_1D]) => EuclideanVector(2.0) * x(0))
       val transSpace = TranslationSpace[_1D]

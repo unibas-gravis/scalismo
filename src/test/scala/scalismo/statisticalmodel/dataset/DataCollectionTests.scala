@@ -56,7 +56,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     it("considers every dataset in a leave one out test") {
       val folds = dataCollection.createLeaveOneOutFolds
 
-      // if we accumulated all the testing datasets, we should get all dataItems back. 
+      // if we accumulated all the testing datasets, we should get all dataItems back.
       val accumulatedTestingData = folds.foldLeft(Seq[DataItem[_3D]]())((acc, di) => acc :+ di.testingData.dataItems(0))
       val sortedAccTestData = accumulatedTestingData.sortWith((a, b) => a.info > b.info)
       val sortedDataItems = dataCollection.dataItems.sortWith((a, b) => a.info > b.info)

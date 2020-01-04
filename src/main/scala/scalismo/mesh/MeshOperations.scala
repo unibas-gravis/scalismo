@@ -135,8 +135,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   def maskWithPlane(point: Point[_3D], normal: EuclideanVector[_3D]): MeshCompactifier = {
     val n = normal.normalize
     maskPoints(
-      (pid: PointId) => (mesh.pointSet.point(pid) - point).dot(n) >= 0.0
-    )
+      (pid: PointId) => (mesh.pointSet.point(pid) - point).dot(n) >= 0.0)
   }
 
   /**

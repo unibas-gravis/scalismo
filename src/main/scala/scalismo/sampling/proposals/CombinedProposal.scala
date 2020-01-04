@@ -21,7 +21,7 @@ import scalismo.sampling.{ ProposalGenerator, TransitionProbability }
  * Container for multiple ProposalGenerators stacked together, applied one after the other
  */
 class CombinedProposal[A](val proposals: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]])
-    extends ProposalGenerator[A] with TransitionProbability[A] {
+  extends ProposalGenerator[A] with TransitionProbability[A] {
 
   override def propose(current: A): A = {
     proposals.foldLeft(current) { (z: A, g: ProposalGenerator[A]) => g.propose(z) }

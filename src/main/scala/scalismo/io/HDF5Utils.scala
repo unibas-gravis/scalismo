@@ -111,7 +111,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     h5file.get(path) match {
       case null => Failure(new Exception(s"Path $path does not exist"))
       case s: H5ScalarDS => {
-        // we need to explicitly set the selectedDims to dims, in order to avoid that 
+        // we need to explicitly set the selectedDims to dims, in order to avoid that
         // in the three D case only the first slice is read (bug in hdf5?)
         s.read()
         val dims = s.getDims
@@ -144,23 +144,28 @@ class HDF5File(h5file: FileFormat) extends Closeable {
 
       val dtypeOrFailure = ndArray.data match {
         case _: Array[Byte] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
+          Success(h5file.createDatatype(
+            Datatype.CLASS_INTEGER,
             1, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Short] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
+          Success(h5file.createDatatype(
+            Datatype.CLASS_INTEGER,
             2, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Int] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
+          Success(h5file.createDatatype(
+            Datatype.CLASS_INTEGER,
             4, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Long] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
+          Success(h5file.createDatatype(
+            Datatype.CLASS_INTEGER,
             8, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Float] => {
-          Success(h5file.createDatatype(Datatype.CLASS_FLOAT,
+          Success(h5file.createDatatype(
+            Datatype.CLASS_FLOAT,
             4, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _ => {
@@ -198,7 +203,8 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     val groupOrFailure = createGroup(groupname)
 
     groupOrFailure.map { group =>
-      val dtype = h5file.createDatatype(Datatype.CLASS_STRING,
+      val dtype = h5file.createDatatype(
+        Datatype.CLASS_STRING,
         value.length, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value))
     }

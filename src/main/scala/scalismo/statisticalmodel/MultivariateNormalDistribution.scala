@@ -42,7 +42,7 @@ private[statisticalmodel] trait MultivariateNormalDistributionLike[V, M] {
 }
 
 case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseMatrix[Double])
-    extends MultivariateNormalDistributionLike[DenseVector[Double], DenseMatrix[Double]] {
+  extends MultivariateNormalDistributionLike[DenseVector[Double], DenseMatrix[Double]] {
 
   require(cov.rows == cov.cols)
   require(mean.size == cov.rows)
@@ -220,7 +220,7 @@ object NDimensionalNormalDistribution {
 
 @deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.", "0.13.0")
 case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], cov: SquareMatrix[D])
-    extends MultivariateNormalDistributionLike[EuclideanVector[D], SquareMatrix[D]] {
+  extends MultivariateNormalDistributionLike[EuclideanVector[D], SquareMatrix[D]] {
 
   private val impl = MultivariateNormalDistribution(mean.toBreezeVector, cov.toBreezeMatrix)
 

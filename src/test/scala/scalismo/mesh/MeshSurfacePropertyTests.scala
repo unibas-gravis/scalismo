@@ -10,16 +10,14 @@ class MeshSurfacePropertyTests extends ScalismoTestSuite {
     Point(0, 1, 0),
     Point(0, 0, 0),
     Point(1, 1, 0),
-    Point(1, 0, 0)
-  )
+    Point(1, 0, 0))
 
   val values = IndexedSeq(0.0, 1.0, 2.0, 3.0)
 
   val triangulation = TriangleList(
     IndexedSeq(
       TriangleCell(PointId(0), PointId(1), PointId(2)),
-      TriangleCell(PointId(2), PointId(1), PointId(3))
-    ))
+      TriangleCell(PointId(2), PointId(1), PointId(3))))
 
   val pointProperty = SurfacePointProperty(triangulation, values)
 

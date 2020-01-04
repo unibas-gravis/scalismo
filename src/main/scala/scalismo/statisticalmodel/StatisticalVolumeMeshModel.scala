@@ -191,7 +191,8 @@ object StatisticalVolumeMeshModel {
    *
    * @see [[DiscreteLowRankGaussianProcess.apply(FiniteDiscreteDomain, DenseVector[Double], DenseVector[Double], DenseMatrix[Double]]
    */
-  private[scalismo] def apply(referenceMesh: TetrahedralMesh[_3D],
+  private[scalismo] def apply(
+    referenceMesh: TetrahedralMesh[_3D],
     meanVector: DenseVector[Double],
     variance: DenseVector[Double],
     basisMatrix: DenseMatrix[Double]) = {

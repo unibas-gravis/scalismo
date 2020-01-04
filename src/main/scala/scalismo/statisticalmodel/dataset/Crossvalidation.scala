@@ -37,7 +37,8 @@ object Crossvalidation {
     dataCollection: DataCollection,
     evalFun: EvaluationFunction[A],
     biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
-      implicit rng: Random) = {
+    implicit
+    rng: Random) = {
     nFoldCrossvalidation(dataCollection.size, dataCollection, evalFun, biasModelAndRank)
   }
 
@@ -51,11 +52,13 @@ object Crossvalidation {
    * @return a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set,
    * or an error if the model building for a fold failed.
    */
-  def nFoldCrossvalidation[A](numFolds: Int,
+  def nFoldCrossvalidation[A](
+    numFolds: Int,
     dc: DataCollection,
     evalFun: EvaluationFunction[A],
     biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
-      implicit rng: Random): Seq[Try[Seq[A]]] = {
+    implicit
+    rng: Random): Seq[Try[Seq[A]]] = {
 
     val folds = dc.createCrossValidationFolds(numFolds)
     val evalResultsForFolds = for (fold <- folds) yield {

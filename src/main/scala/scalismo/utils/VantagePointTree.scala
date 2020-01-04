@@ -184,16 +184,13 @@ object VantagePointTree {
         if (inside.nonEmpty && outside.nonEmpty)
           VPNode(metric, pivot, radius,
             recursiveBuilder(inside),
-            recursiveBuilder(outside)
-          )
+            recursiveBuilder(outside))
         else if (inside.nonEmpty)
           VPLink(metric, pivot,
-            recursiveBuilder(inside)
-          )
+            recursiveBuilder(inside))
         else if (outside.nonEmpty)
           VPLink(metric, pivot,
-            recursiveBuilder(outside)
-          )
+            recursiveBuilder(outside))
         else
           VPLeaf(metric, pivot)
     }

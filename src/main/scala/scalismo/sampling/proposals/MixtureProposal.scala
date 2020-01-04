@@ -20,7 +20,7 @@ import scalismo.utils.Random
 
 /** mixture of proposals: mixture distribution of multiple proposal distributions */
 class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(implicit rnd: Random)
-    extends ProposalGenerator[A] {
+  extends ProposalGenerator[A] {
 
   /** mixture components */
   val generators: IndexedSeq[ProposalGenerator[A]] = proposals.map(_._2)
@@ -48,7 +48,7 @@ class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(
 
 /** mixture with transition probabilities */
 private class MixtureProposalWithTransition[A](proposals: IndexedSeq[(Double, ProposalGenerator[A] with TransitionProbability[A])])(implicit rnd: Random)
-    extends MixtureProposal[A](proposals) with TransitionProbability[A] {
+  extends MixtureProposal[A](proposals) with TransitionProbability[A] {
 
   override val generators: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]] = proposals.map(_._2)
 

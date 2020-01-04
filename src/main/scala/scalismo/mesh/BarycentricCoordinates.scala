@@ -82,8 +82,7 @@ object BarycentricCoordinates {
     new BarycentricCoordinates(
       A1 * x + B1 * y + C1,
       A2 * x + B2 * y + C2,
-      A3 * x + B3 * y + C3
-    ).normalized
+      A3 * x + B3 * y + C3).normalized
   }
 
   def pointInTriangle3D(point: Point[_3D], v1: Point[_3D], v2: Point[_3D], v3: Point[_3D]): BarycentricCoordinates = {

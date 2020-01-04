@@ -41,12 +41,12 @@ import scalismo.utils.{ Memoize, Random }
  * @param numberOfBins The number of bins used for the intensity histograms (which approximates the joint distribution)
  */
 case class MutualInformationMetric[D: NDSpace, A: Scalar](
-    fixedImage: ScalarImage[D, A],
-    fixedImageDomain: DiscreteImageDomain[D],
-    movingImage: DifferentiableScalarImage[D, A],
-    transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D],
-    numberOfBins: Int = 30)(implicit rng: Random) extends ImageMetric[D, A] {
+  fixedImage: ScalarImage[D, A],
+  fixedImageDomain: DiscreteImageDomain[D],
+  movingImage: DifferentiableScalarImage[D, A],
+  transformationSpace: TransformationSpace[D],
+  sampler: Sampler[D],
+  numberOfBins: Int = 30)(implicit rng: Random) extends ImageMetric[D, A] {
 
   type JointHistogram = (Int, Int) => Double
   type JointHistogramDerivative = (Int, Int) => DenseVector[Double]
@@ -143,8 +143,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](
         {
           val termRef = k - (scalar.toDouble(fixedImage(point)) - minValueFixedImage) / binSizeFixedImage
           acc + zeroOrderSpline(termRef)
-        }
-      )
+        })
 
       (k, histogramValue)
     }

@@ -116,8 +116,7 @@ class VantagePointTreeTests extends ScalismoTestSuite {
       val points = IndexedSeq(
         Point(0.0, 0.0),
         Point(0.0, 1.0),
-        Point(0.0, 2.0)
-      )
+        Point(0.0, 2.0))
       val tree = VantagePointTree(points, Metric[Point[_2D]]((p, q) => (p - q).norm))
 
       val epsSet = tree.findEpsilonNeighbours(Point(0.0, 1.0), 4.0)
