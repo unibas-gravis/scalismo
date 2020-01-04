@@ -17,15 +17,15 @@ package scalismo.common
 
 import breeze.linalg.DenseVector
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.geometry.{ EuclideanVector, NDSpace, Point }
+import scalismo.geometry.{EuclideanVector, NDSpace, Point}
 
 import scala.reflect.ClassTag
 
 /**
  * Defines a discrete set of values, where each associated to a point of the domain.
  */
-
-class DiscreteField[D, +DDomain <: DiscreteDomain[D], A](val domain: DDomain, val data: IndexedSeq[A]) extends PartialFunction[PointId, A] { self =>
+class DiscreteField[D, +DDomain <: DiscreteDomain[D], A](val domain: DDomain, val data: IndexedSeq[A])
+    extends PartialFunction[PointId, A] { self =>
 
   def values: Iterator[A] = data.iterator
   override def apply(ptId: PointId) = data(ptId.id)
@@ -36,12 +36,14 @@ class DiscreteField[D, +DDomain <: DiscreteDomain[D], A](val domain: DDomain, va
   def pointsWithIds = domain.points.zipWithIndex
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
+
   /**
    * Returns a continuous field, where the value at each point is that of the closest point in the discrete set
    *
    */
   @deprecated("please use the [[interpolate]] method with a [[NearestNeighborInterpolator]] instead", "0.16")
-  def interpolateNearestNeighbor(): Field[D, A] = Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
+  def interpolateNearestNeighbor(): Field[D, A] =
+    Field(RealSpace[D], (p: Point[D]) => apply(domain.findClosestPoint(p).id))
 
   /**
    * Interpolates the discrete field using the given interpolator.
@@ -69,15 +71,21 @@ class DiscreteField[D, +DDomain <: DiscreteDomain[D], A](val domain: DDomain, va
 }
 
 object DiscreteField {
-  def apply[D, DDomain <: DiscreteDomain[D], A](domain: DDomain, data: IndexedSeq[A]): DiscreteField[D, DDomain, A] = new DiscreteField[D, DDomain, A](domain, data)
+  def apply[D, DDomain <: DiscreteDomain[D], A](domain: DDomain, data: IndexedSeq[A]): DiscreteField[D, DDomain, A] =
+    new DiscreteField[D, DDomain, A](domain, data)
 
-  private[scalismo] def createFromDenseVector[D, DDomain <: DiscreteDomain[D], A](domain: DDomain, d: DenseVector[Double])(implicit vectorizer: Vectorizer[A]) = {
+  private[scalismo] def createFromDenseVector[D, DDomain <: DiscreteDomain[D], A](
+    domain: DDomain,
+    d: DenseVector[Double]
+  )(implicit vectorizer: Vectorizer[A]) = {
     val dim = vectorizer.dim
     val data = d.toArray.grouped(dim).map(e => vectorizer.unvectorize(DenseVector(e))).toIndexedSeq
     new DiscreteField[D, DDomain, A](domain, data)
   }
 
-  private[scalismo] def vectorize[D, DDomain <: DiscreteDomain[D], A](field: DiscreteField[D, DDomain, A])(implicit vectorizer: Vectorizer[A]): DenseVector[Double] = {
+  private[scalismo] def vectorize[D, DDomain <: DiscreteDomain[D], A](
+    field: DiscreteField[D, DDomain, A]
+  )(implicit vectorizer: Vectorizer[A]): DenseVector[Double] = {
     val dim = vectorizer.dim
     val fullDim = field.valuesWithIds.length * dim
     val M = DenseVector.zeros[Double](fullDim)
@@ -90,7 +98,9 @@ object DiscreteField {
     M
   }
 
-  private[scalismo] def vectorize[D, A](values: IndexedSeq[A])(implicit vectorizer: Vectorizer[A]): DenseVector[Double] = {
+  private[scalismo] def vectorize[D, A](
+    values: IndexedSeq[A]
+  )(implicit vectorizer: Vectorizer[A]): DenseVector[Double] = {
     val dim = vectorizer.dim
     val valuesWithIndex = values.zipWithIndex
     val fullDim = valuesWithIndex.length * dim
@@ -108,8 +118,9 @@ object DiscreteField {
 /**
  *
  */
-
-class DiscreteScalarField[D: NDSpace, +DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: ScalarArray[A]) extends DiscreteField[D, DDomain, A](domain, data) {
+class DiscreteScalarField[D: NDSpace, +DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain,
+                                                                                          data: ScalarArray[A])
+    extends DiscreteField[D, DDomain, A](domain, data) {
   //class DiscreteScalarField[D: NDSpace, A: Scalar: ClassTag](val domain: DiscreteDomain[D], private[scalismo] val data: ScalarArray[A]) extends DiscreteField[D, A] {
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
@@ -144,17 +155,28 @@ class DiscreteScalarField[D: NDSpace, +DDomain <: DiscreteDomain[D], A: Scalar: 
 }
 
 object DiscreteScalarField {
-  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: ScalarArray[A]): DiscreteScalarField[D, DDomain, A] = {
+  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](
+    domain: DDomain,
+    data: ScalarArray[A]
+  ): DiscreteScalarField[D, DDomain, A] = {
     new DiscreteScalarField[D, DDomain, A](domain, data)
   }
 
-  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](domain: DDomain, data: Traversable[A]): DiscreteScalarField[D, DDomain, A] = {
+  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], A: Scalar: ClassTag](
+    domain: DDomain,
+    data: Traversable[A]
+  ): DiscreteScalarField[D, DDomain, A] = {
     new DiscreteScalarField[D, DDomain, A](domain, ScalarArray(data.toArray))
   }
 }
 
-@deprecated("This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])", "since 0.15")
-class DiscreteVectorField[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](domain: DDomain, data: IndexedSeq[EuclideanVector[DO]]) extends DiscreteField[D, DDomain, EuclideanVector[DO]](domain, data) {
+@deprecated(
+  "This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])",
+  "since 0.15"
+)
+class DiscreteVectorField[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](domain: DDomain,
+                                                                                 data: IndexedSeq[EuclideanVector[DO]])
+    extends DiscreteField[D, DDomain, EuclideanVector[DO]](domain, data) {
 
   override def values = data.iterator
   override def apply(ptId: PointId) = data(ptId.id)
@@ -165,7 +187,8 @@ class DiscreteVectorField[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace]
   }
 
   /** map the function f over the values, but ensures that the result is scalar valued as well */
-  def map(f: EuclideanVector[DO] => EuclideanVector[DO]): DiscreteVectorField[D, DDomain, DO] = new DiscreteVectorField(domain, data.map(f))
+  def map(f: EuclideanVector[DO] => EuclideanVector[DO]): DiscreteVectorField[D, DDomain, DO] =
+    new DiscreteVectorField(domain, data.map(f))
 
   def asBreezeVector: DenseVector[Double] = {
     val d = implicitly[NDSpace[DO]].dimensionality
@@ -178,9 +201,15 @@ class DiscreteVectorField[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace]
 
 }
 
-@deprecated("This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])", "since 0.15")
+@deprecated(
+  "This will be removed in future versions. Please use DiscreteField class instead (e.g. DiscreteField[_3D,Vector[_3D]] instead of DiscreteVectorField[_3D,_3D])",
+  "since 0.15"
+)
 object DiscreteVectorField {
-  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](domain: DDomain, data: IndexedSeq[EuclideanVector[DO]]): DiscreteVectorField[D, DDomain, DO] = {
+  def apply[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](
+    domain: DDomain,
+    data: IndexedSeq[EuclideanVector[DO]]
+  ): DiscreteVectorField[D, DDomain, DO] = {
     new DiscreteVectorField(domain, data)
   }
 
@@ -191,7 +220,8 @@ object DiscreteVectorField {
    */
   def fromDenseVector[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](
     domain: DDomain,
-    vec: DenseVector[Double]): DiscreteVectorField[D, DDomain, DO] = {
+    vec: DenseVector[Double]
+  ): DiscreteVectorField[D, DDomain, DO] = {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =
       for (v <- vec.toArray.grouped(dim))

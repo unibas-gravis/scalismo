@@ -18,8 +18,11 @@ package scalismo.sampling.proposals
 
 import scalismo.ScalismoTestSuite
 import scalismo.sampling.evaluators.GaussianEvaluator
-import scalismo.sampling.proposals.MixtureProposal.{ SymmetricProposalGenerator, SymmetricProposalGeneratorWithTransition }
-import scalismo.sampling.{ ProposalGenerator, SymmetricTransitionRatio, TransitionProbability }
+import scalismo.sampling.proposals.MixtureProposal.{
+  SymmetricProposalGenerator,
+  SymmetricProposalGeneratorWithTransition
+}
+import scalismo.sampling.{ProposalGenerator, SymmetricTransitionRatio, TransitionProbability}
 import scalismo.utils.Random
 
 class MixtureTests extends ScalismoTestSuite {
@@ -27,15 +30,17 @@ class MixtureTests extends ScalismoTestSuite {
   describe("A MixtureProposal") {
     implicit val rnd = Random(89068)
 
-    val gaussianProposal = new ProposalGenerator[Double] with TransitionProbability[Double] with SymmetricTransitionRatio[Double] {
-      val sdev = 0.5
+    val gaussianProposal =
+      new ProposalGenerator[Double] with TransitionProbability[Double] with SymmetricTransitionRatio[Double] {
+        val sdev = 0.5
 
-      /** draw a sample from this proposal distribution, may depend on current state */
-      override def propose(current: Double): Double = rnd.scalaRandom.nextGaussian() * sdev + current
+        /** draw a sample from this proposal distribution, may depend on current state */
+        override def propose(current: Double): Double = rnd.scalaRandom.nextGaussian() * sdev + current
 
-      /** rate of transition from to (log value) */
-      override def logTransitionProbability(from: Double, to: Double): Double = GaussianEvaluator.logDensity(to, from, sdev)
-    }
+        /** rate of transition from to (log value) */
+        override def logTransitionProbability(from: Double, to: Double): Double =
+          GaussianEvaluator.logDensity(to, from, sdev)
+      }
 
     val plainProposal = new ProposalGenerator[Double] {
       override def propose(current: Double): Double = current
@@ -45,10 +50,11 @@ class MixtureTests extends ScalismoTestSuite {
       override def propose(current: Double): Double = current
     }
 
-    val symTransProposal = new ProposalGenerator[Double] with TransitionProbability[Double] with SymmetricTransitionRatio[Double] {
-      override def propose(current: Double): Double = current
-      override def logTransitionProbability(from: Double, to: Double): Double = 0.0
-    }
+    val symTransProposal =
+      new ProposalGenerator[Double] with TransitionProbability[Double] with SymmetricTransitionRatio[Double] {
+        override def propose(current: Double): Double = current
+        override def logTransitionProbability(from: Double, to: Double): Double = 0.0
+      }
 
     it("can be constructed from plain proposals") {
       val mixture = MixtureProposal.fromProposals((0.25, plainProposal), (0.75, plainProposal))
@@ -67,7 +73,8 @@ class MixtureTests extends ScalismoTestSuite {
     }
 
     it("preserves symmetry of the transition probability for symmetric mixtures") {
-      val mixture = MixtureProposal.fromSymmetricProposalsWithTransition((0.25, gaussianProposal), (0.75, gaussianProposal))
+      val mixture =
+        MixtureProposal.fromSymmetricProposalsWithTransition((0.25, gaussianProposal), (0.75, gaussianProposal))
       mixture.logTransitionProbability(0.0, 1.0) shouldBe mixture.logTransitionProbability(1.0, 0.0)
     }
 
@@ -83,7 +90,9 @@ class MixtureTests extends ScalismoTestSuite {
       }
 
       it("preserves symmetry and transition probability of proposals") {
-        MixtureProposal(0.25 *: symTransProposal + symTransProposal * 0.75): SymmetricProposalGeneratorWithTransition[Double]
+        MixtureProposal(0.25 *: symTransProposal + symTransProposal * 0.75): SymmetricProposalGeneratorWithTransition[
+          Double
+        ]
       }
 
       it("discards symmetry if a proposal is not symmetric") {
@@ -98,7 +107,9 @@ class MixtureTests extends ScalismoTestSuite {
 
       it("properly interprets nested coefficients") {
         val mixture = MixtureProposal((plainProposal + plainProposal * 0.5) * 0.6 + 0.4 *: plainProposal)
-        mixture.asInstanceOf[MixtureProposal[Double]].mixtureFactors shouldBe IndexedSeq(1.0 / 1.5 * 0.6, 0.5 / 1.5 * 0.6, 0.4)
+        mixture.asInstanceOf[MixtureProposal[Double]].mixtureFactors shouldBe IndexedSeq(1.0 / 1.5 * 0.6,
+                                                                                         0.5 / 1.5 * 0.6,
+                                                                                         0.4)
       }
     }
   }

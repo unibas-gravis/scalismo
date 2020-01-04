@@ -21,9 +21,9 @@ import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.geometry.EuclideanVector._
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
-import scalismo.numerics.{ GridSampler, Integrator, RandomSVD, UniformSampler }
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
+import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
+import scalismo.numerics.{GridSampler, Integrator, RandomSVD, UniformSampler}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.utils.Random
 
@@ -121,8 +121,11 @@ class KernelTransformationTests extends ScalismoTestSuite {
       for (i <- 0 until 20) {
 
         val Eigenpair(_, phi_i) = eigPairs(i)
-        def p(x: Point[_1D]) = 1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
-        val phiImg = DifferentiableScalarImage(domain, (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x), (pt: Point[_1D]) => EuclideanVector(0.0))
+        def p(x: Point[_1D]) =
+          1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
+        val phiImg = DifferentiableScalarImage(domain,
+                                               (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x),
+                                               (pt: Point[_1D]) => EuclideanVector(0.0))
 
         val v = integrator.integrateScalar(phiImg)
         v should be(1.0 +- 0.1)

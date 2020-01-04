@@ -26,8 +26,8 @@ import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
-import scalismo.io.{ ImageIO, MeshIO }
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
+import scalismo.io.{ImageIO, MeshIO}
 
 import scala.language.implicitConversions
 
@@ -117,21 +117,24 @@ class TransformationTests extends ScalismoTestSuite {
         productTransform(pt) should equal(translatedRotatedPt)
       }
       val productDerivative = (x: Point[_2D]) =>
-        breeze.linalg.DenseMatrix.horzcat(
-          ts.takeDerivativeWRTParameters(transParams)(x),
-          rs.takeDerivativeWRTParameters(rotationParams)(x))
+        breeze.linalg.DenseMatrix.horzcat(ts.takeDerivativeWRTParameters(transParams)(x),
+                                          rs.takeDerivativeWRTParameters(rotationParams)(x))
       it("differentiates correctly with regard to parameters") {
         productSpace.takeDerivativeWRTParameters(productParams)(pt) should equal(productDerivative(pt))
       }
       it("correctly differentiates the parametrized transforms") {
-        productTransform.takeDerivative(pt) should equal(translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt))
+        productTransform.takeDerivative(pt) should equal(
+          translate.takeDerivative(rotate(pt)) * rotate.takeDerivative(pt)
+        )
       }
 
     }
 
     it("translates a 1D image") {
       val domain = DiscreteImageDomain[_1D](-50.0, 1.0, 100)
-      val continuousImage = DifferentiableScalarImage(domain.boundingBox, (x: Point[_1D]) => (x * x), (x: Point[_1D]) => EuclideanVector(2f * x))
+      val continuousImage = DifferentiableScalarImage(domain.boundingBox,
+                                                      (x: Point[_1D]) => (x * x),
+                                                      (x: Point[_1D]) => EuclideanVector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Double](10))
       val translatedImg = continuousImage.compose(translation)
@@ -153,7 +156,8 @@ class TransformationTests extends ScalismoTestSuite {
       val inverseTransform = TranslationSpace[_3D].transformForParameters(parameterVector).inverse
       val translatedForthBackImg = continuousImage.compose(translation).compose(inverseTransform)
 
-      for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt)) assert(translatedForthBackImg(p) === continuousImage(p))
+      for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt))
+        assert(translatedForthBackImg(p) === continuousImage(p))
     }
 
     it("rotation forth and back of a real dataset yields the same image") {
@@ -167,7 +171,8 @@ class TransformationTests extends ScalismoTestSuite {
 
       val rotatedImage = continuousImage.compose(rotation)
 
-      for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt)) rotatedImage(p) should equal(continuousImage(p))
+      for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt))
+        rotatedImage(p) should equal(continuousImage(p))
     }
 
     val meshPath = URLDecoder.decode(getClass.getResource("/facemesh.stl").getPath, "UTF-8")
@@ -194,7 +199,8 @@ class TransformationTests extends ScalismoTestSuite {
 
       val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
       val translationParams = DenseVector(1.5, 1.0, 3.5)
-      val rotation = RotationSpace[_3D](Point(0f, 0f, 0f)).transformForParameters(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
+      val rotation =
+        RotationSpace[_3D](Point(0f, 0f, 0f)).transformForParameters(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
       val translation = TranslationSpace[_3D].transformForParameters(translationParams)
 
       val rigid = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
@@ -202,7 +208,10 @@ class TransformationTests extends ScalismoTestSuite {
       val transformedRigid = mesh.transform(rigid)
       val transformedComposed = mesh.transform(translation compose rotation)
 
-      val diffNormMax = transformedRigid.pointSet.points.zip(transformedComposed.pointSet.points).map { case (p1, p2) => (p1 - p2).norm }.max
+      val diffNormMax = transformedRigid.pointSet.points
+        .zip(transformedComposed.pointSet.points)
+        .map { case (p1, p2) => (p1 - p2).norm }
+        .max
       assert(diffNormMax < 0.00001)
 
     }
@@ -226,9 +235,11 @@ class TransformationTests extends ScalismoTestSuite {
 
     val composedTrans = translation compose rotation compose anisotropicScaling
     val combinedParams = DenseVector(translationParams.data ++ rotationParams.data ++ anisotropScalingParams.data)
-    val anisotropicSimTrans = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(combinedParams)
+    val anisotropicSimTrans =
+      AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0)).transformForParameters(combinedParams)
 
-    val rigidTransformation = RigidTransformationSpace[_3D]().transformForParameters(DenseVector(translationParams.data ++ rotationParams.data))
+    val rigidTransformation =
+      RigidTransformationSpace[_3D]().transformForParameters(DenseVector(translationParams.data ++ rotationParams.data))
 
     it("yields the right result as a composition of unit transform") {
       assert((anisotropicSimTrans(p) - composedTrans(p)).norm < 0.1f)
@@ -254,7 +265,8 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("A 2D similarity transform") {
 
-    val rigidTransformation = RigidTransformation(TranslationTransform(EuclideanVector2D(2.0, 5.0)), RotationTransform(Math.PI / 2.0, Point2D(0, 0)))
+    val rigidTransformation = RigidTransformation(TranslationTransform(EuclideanVector2D(2.0, 5.0)),
+                                                  RotationTransform(Math.PI / 2.0, Point2D(0, 0)))
     val similarityTransform = SimilarityTransformation(ScalingTransformation[_2D](2.0), rigidTransformation)
 
     it("correctly transforms a 2D point") {
@@ -267,7 +279,8 @@ class TransformationTests extends ScalismoTestSuite {
 
   describe("A 3D similarity transform") {
 
-    val rigidTransformation = RigidTransformation(TranslationTransform(EuclideanVector3D(2.0, 5.0, 1.0)), RotationTransform(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
+    val rigidTransformation = RigidTransformation(TranslationTransform(EuclideanVector3D(2.0, 5.0, 1.0)),
+                                                  RotationTransform(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
     val similarityTransform = SimilarityTransformation(ScalingTransformation[_3D](2.0), rigidTransformation)
 
     it("correctly transforms a 3D point") {

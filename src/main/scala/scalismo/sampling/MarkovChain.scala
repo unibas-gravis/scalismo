@@ -17,6 +17,7 @@ package scalismo.sampling
 
 /** basic Markov Chain trait: provides a next sample */
 trait MarkovChain[A] {
+
   /** next sample in chain */
   def next(current: A): A
 

@@ -180,7 +180,8 @@ object Point {
    * @param theta inclination, 0 .. Pi
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromSpherical(r: Double, theta: Double, phi: Double): Point[_3D] = EuclideanVector.fromSpherical(r, theta, phi).toPoint
+  def fromSpherical(r: Double, theta: Double, phi: Double): Point[_3D] =
+    EuclideanVector.fromSpherical(r, theta, phi).toPoint
 
   object implicits {
     implicit def point1DToDouble(p: Point[_1D]): Double = p.x

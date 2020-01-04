@@ -19,14 +19,14 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ PointId, Scalar, ScalarArray, UnstructuredPointsDomain }
-import scalismo.geometry.{ Point, _3D }
+import scalismo.common.{PointId, Scalar, ScalarArray, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, Point}
 import scalismo.mesh._
 import scalismo.utils.Random
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 import scala.language.implicitConversions
 
 class MeshIOTests extends ScalismoTestSuite {
@@ -260,22 +260,24 @@ class MeshIOTests extends ScalismoTestSuite {
   def createRandomTetrahedralMesh(): TetrahedralMesh3D = {
     // points around unit cube
 
-    val rng = Random(42l)
+    val rng = Random(42L)
     val N = 200
-    val points = IndexedSeq.fill(N)(Point(
-      rng.scalaRandom.nextGaussian() * 2,
-      rng.scalaRandom.nextGaussian() * 1000,
-      rng.scalaRandom.nextGaussian() * 1000000))
+    val points = IndexedSeq.fill(N)(
+      Point(rng.scalaRandom.nextGaussian() * 2,
+            rng.scalaRandom.nextGaussian() * 1000,
+            rng.scalaRandom.nextGaussian() * 1000000)
+    )
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
     val T = 200
-    val cells = IndexedSeq.fill(T)(TetrahedralCell(
-      rng.scalaRandom.nextInt(N),
-      rng.scalaRandom.nextInt(N),
-      rng.scalaRandom.nextInt(N),
-      rng.scalaRandom.nextInt(N)))
+    val cells = IndexedSeq.fill(T)(
+      TetrahedralCell(rng.scalaRandom.nextInt(N),
+                      rng.scalaRandom.nextInt(N),
+                      rng.scalaRandom.nextInt(N),
+                      rng.scalaRandom.nextInt(N))
+    )
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -285,7 +287,9 @@ class MeshIOTests extends ScalismoTestSuite {
     // points around unit cube
 
     val tetraMesh = createRandomTetrahedralMesh()
-    val scalars = tetraMesh.pointSet.points.map { p => 1 }.toIndexedSeq
+    val scalars = tetraMesh.pointSet.points.map { p =>
+      1
+    }.toIndexedSeq
     ScalarVolumeMeshField(tetraMesh, scalars)
   }
 

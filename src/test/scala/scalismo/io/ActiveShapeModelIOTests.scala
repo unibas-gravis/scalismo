@@ -18,7 +18,7 @@ package scalismo.io
 import java.io.File
 import java.net.URLDecoder
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.ScalismoTestSuite
 import scalismo.numerics.FixedPointsUniformMeshSampler3D
 import scalismo.statisticalmodel.MultivariateNormalDistribution
@@ -41,10 +41,18 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
     val shapeModel = StatismoIO.readStatismoMeshModel(statismoFile).get
 
     val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100).sample.unzip
-    val pointIds = sprofilePoints.map { point => shapeModel.referenceMesh.pointSet.findClosestPoint(point).id }
-    val dists = for (i <- pointIds.indices) yield new MultivariateNormalDistribution(DenseVector.ones[Double](3) * i.toDouble, DenseMatrix.eye[Double](3) * i.toDouble)
+    val pointIds = sprofilePoints.map { point =>
+      shapeModel.referenceMesh.pointSet.findClosestPoint(point).id
+    }
+    val dists =
+      for (i <- pointIds.indices)
+        yield new MultivariateNormalDistribution(DenseVector.ones[Double](3) * i.toDouble,
+                                                 DenseMatrix.eye[Double](3) * i.toDouble)
     val profiles = new Profiles(pointIds.to[immutable.IndexedSeq].zip(dists).map { case (i, d) => Profile(i, d) })
-    new ActiveShapeModel(shapeModel, profiles, GaussianGradientImagePreprocessor(1), NormalDirectionFeatureExtractor(1, 1))
+    new ActiveShapeModel(shapeModel,
+                         profiles,
+                         GaussianGradientImagePreprocessor(1),
+                         NormalDirectionFeatureExtractor(1, 1))
   }
 
   describe("An active shape model") {

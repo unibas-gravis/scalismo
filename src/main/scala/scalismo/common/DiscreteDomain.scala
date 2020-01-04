@@ -64,7 +64,7 @@ trait DiscreteDomain[D] extends Equals {
   override def equals(that: Any) = {
     that match {
       case d: DiscreteDomain[D] => d.canEqual(this) && points.toSeq == d.points.toSeq
-      case _ => false
+      case _                    => false
     }
   }
 
@@ -73,4 +73,3 @@ trait DiscreteDomain[D] extends Equals {
   override def hashCode() = points.toSeq.hashCode()
 
 }
-

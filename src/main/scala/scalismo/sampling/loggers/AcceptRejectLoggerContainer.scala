@@ -15,17 +15,23 @@
  */
 package scalismo.sampling.loggers
 
-import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 
 import scala.language.implicitConversions
 
 /** container for multiple AcceptRejectLoggers */
 class AcceptRejectLoggerContainer[A](loggers: Seq[AcceptRejectLogger[A]]) extends AcceptRejectLogger[A] {
-  override def accept(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {
+  override def accept(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {
     loggers.foreach(_.accept(current, sample, generator, evaluator))
   }
 
-  override def reject(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {
+  override def reject(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {
     loggers.foreach(_.reject(current, sample, generator, evaluator))
   }
 }
@@ -35,9 +41,11 @@ object AcceptRejectLoggerContainer {
 
   /** implicit building DSL: logger1 :+ logger2 -> LoggerContainer */
   object implicits {
-    implicit def promoteLoggerToContainerBuilder[A](logger: AcceptRejectLogger[A]): ContainerBuilder[A] = new ContainerBuilder[A](Seq(logger))
+    implicit def promoteLoggerToContainerBuilder[A](logger: AcceptRejectLogger[A]): ContainerBuilder[A] =
+      new ContainerBuilder[A](Seq(logger))
 
-    implicit def buildContainer[A](containerBuilder: ContainerBuilder[A]): AcceptRejectLoggerContainer[A] = containerBuilder.toContainer
+    implicit def buildContainer[A](containerBuilder: ContainerBuilder[A]): AcceptRejectLoggerContainer[A] =
+      containerBuilder.toContainer
 
     class ContainerBuilder[A](logger: Seq[AcceptRejectLogger[A]]) {
       def :+(other: AcceptRejectLogger[A]): ContainerBuilder[A] = new ContainerBuilder[A](logger :+ other)
@@ -61,7 +69,8 @@ object ChainStateLoggerContainer {
 
   /** implicit construction with "logger :+ other" */
   object implicits {
-    implicit def promoteToLoggerBuilder[A](logger: ChainStateLogger[A]): ContainerBuilder[A] = new ContainerBuilder[A](Seq(logger))
+    implicit def promoteToLoggerBuilder[A](logger: ChainStateLogger[A]): ContainerBuilder[A] =
+      new ContainerBuilder[A](Seq(logger))
 
     implicit def buildContainer[A](builder: ContainerBuilder[A]): ChainStateLoggerContainer[A] = builder.toContainer
 

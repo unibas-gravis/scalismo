@@ -19,19 +19,18 @@ package scalismo.statisticalmodel.asm
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.interpolation.BSplineImageInterpolator3D
-import scalismo.common.{ Domain, Field, VectorField }
-import scalismo.geometry.{ Point, _3D }
+import scalismo.common.{Domain, Field, VectorField}
+import scalismo.geometry.{_3D, Point}
 import scalismo.image.DiscreteScalarImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.HDF5File
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 /**
  * A preprocessed image, which can be fed to a [[FeatureExtractor]].
  */
-
 object PreprocessedImage {
   sealed trait Type
 
@@ -79,7 +78,8 @@ object IdentityImagePreprocessor {
  * In other words, this class can be considered an adapter that turns a discrete image into a [[PreprocessedImage]], without modifying the image.
  * @param ioMetadata IO Metadata
  */
-case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = IdentityImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
+case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = IdentityImagePreprocessor.IOMetadata_Default)
+    extends ImagePreprocessor {
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Intensity
 
@@ -102,7 +102,7 @@ object IdentityImagePreprocessorIOHandler extends ImagePreprocessorIOHandler {
   override def load(meta: IOMetadata, h5File: HDF5File, h5Group: Group): Try[IdentityImagePreprocessor] = {
     meta match {
       case IdentityImagePreprocessor.IOMetadata_1_0 => Success(IdentityImagePreprocessor(meta))
-      case _ => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
+      case _                                        => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
     }
   }
 
@@ -125,7 +125,10 @@ object GaussianGradientImagePreprocessor {
  * @param stddev the standard deviation (in millimeters) to use for the gaussian blur filter. Set to 0 to disable blurring.
  * @param ioMetadata IO Metadata
  */
-case class GaussianGradientImagePreprocessor(stddev: Double, override val ioMetadata: IOMetadata = GaussianGradientImagePreprocessor.IOMetadata_Default) extends ImagePreprocessor {
+case class GaussianGradientImagePreprocessor(stddev: Double,
+                                             override val ioMetadata: IOMetadata =
+                                               GaussianGradientImagePreprocessor.IOMetadata_Default)
+    extends ImagePreprocessor {
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
@@ -156,9 +159,10 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
   override def load(meta: IOMetadata, h5File: HDF5File, h5Group: Group): Try[GaussianGradientImagePreprocessor] = {
     val groupName = h5Group.getFullName
     meta match {
-      case GaussianGradientImagePreprocessor.IOMetadata_1_0 => for {
-        stddev <- h5File.readFloat(s"$groupName/$Stddev")
-      } yield GaussianGradientImagePreprocessor(stddev, meta)
+      case GaussianGradientImagePreprocessor.IOMetadata_1_0 =>
+        for {
+          stddev <- h5File.readFloat(s"$groupName/$Stddev")
+        } yield GaussianGradientImagePreprocessor(stddev, meta)
       case _ => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
     }
   }
@@ -167,8 +171,7 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
     val groupName = h5Group.getFullName
     t match {
       case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev.toFloat)
-      case _ => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
+      case _                                    => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
     }
   }
 }
-

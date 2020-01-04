@@ -15,10 +15,10 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.geometry.{ EuclideanVector, _3D }
+import scalismo.geometry.{_3D, EuclideanVector}
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.UniformMeshSampler3D
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
 
 import scala.util.Try
@@ -33,12 +33,12 @@ object Crossvalidation {
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
-  def leaveOneOutCrossvalidation[A](
-    dataCollection: DataCollection,
-    evalFun: EvaluationFunction[A],
-    biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
+  def leaveOneOutCrossvalidation[A](dataCollection: DataCollection,
+                                    evalFun: EvaluationFunction[A],
+                                    biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
     implicit
-    rng: Random) = {
+    rng: Random
+  ) = {
     nFoldCrossvalidation(dataCollection.size, dataCollection, evalFun, biasModelAndRank)
   }
 
@@ -52,22 +52,24 @@ object Crossvalidation {
    * @return a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set,
    * or an error if the model building for a fold failed.
    */
-  def nFoldCrossvalidation[A](
-    numFolds: Int,
-    dc: DataCollection,
-    evalFun: EvaluationFunction[A],
-    biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
+  def nFoldCrossvalidation[A](numFolds: Int,
+                              dc: DataCollection,
+                              evalFun: EvaluationFunction[A],
+                              biasModelAndRank: Option[(GaussianProcess[_3D, EuclideanVector[_3D]], Int)] = None)(
     implicit
-    rng: Random): Seq[Try[Seq[A]]] = {
+    rng: Random
+  ): Seq[Try[Seq[A]]] = {
 
     val folds = dc.createCrossValidationFolds(numFolds)
     val evalResultsForFolds = for (fold <- folds) yield {
       val td = fold.trainingData
       StatisticalMeshModel.createUsingPCA(td).map { pcaModel =>
-
         val model = if (biasModelAndRank.isDefined) {
           val (biasModel, rankBiasModel) = biasModelAndRank.get
-          val biasModelLowRank = LowRankGaussianProcess.approximateGPNystrom(biasModel, UniformMeshSampler3D(pcaModel.referenceMesh, 1000), numBasisFunctions = rankBiasModel)
+          val biasModelLowRank =
+            LowRankGaussianProcess.approximateGPNystrom(biasModel,
+                                                        UniformMeshSampler3D(pcaModel.referenceMesh, 1000),
+                                                        numBasisFunctions = rankBiasModel)
           StatisticalMeshModel.augmentModel(pcaModel, biasModelLowRank)
         } else {
           pcaModel

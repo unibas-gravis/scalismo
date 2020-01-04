@@ -19,6 +19,7 @@ import scala.collection.mutable
 
 /** represents a metric to be used with the Vantage Point tree */
 trait Metric[A] {
+
   /** calculates distance */
   def distance(x: A, y: A): Double
 
@@ -42,6 +43,7 @@ object Metric {
  *  WARNING: the tree only works with a metric (positive, symmetric, triangle inequality)
  */
 sealed trait VantagePointTree[A] extends Traversable[A] {
+
   /** metric of the space */
   def metric: Metric[A]
 
@@ -126,11 +128,14 @@ private class CandidatesEpsRegion[A](override val maxDistance: Double) extends C
 }
 
 object VantagePointTree {
+
   /** build a Vantage Point tree with given metric (must be a metric!), uses random pivot elements */
-  def apply[A](data: Iterable[A], metric: Metric[A])(implicit rng: Random): VantagePointTree[A] = recursiveTreeBuilder(data, metric, randomPivotSelector[A])
+  def apply[A](data: Iterable[A], metric: Metric[A])(implicit rng: Random): VantagePointTree[A] =
+    recursiveTreeBuilder(data, metric, randomPivotSelector[A])
 
   /** build a Vantage Point tree with given metric (must be a metric!) and pivot selector */
-  def apply[A](data: Iterable[A], metric: Metric[A], pivotSelector: Iterable[A] => A): VantagePointTree[A] = recursiveTreeBuilder(data, metric, pivotSelector)
+  def apply[A](data: Iterable[A], metric: Metric[A], pivotSelector: Iterable[A] => A): VantagePointTree[A] =
+    recursiveTreeBuilder(data, metric, pivotSelector)
 
   /** select a random element as pivot */
   def randomPivotSelector[A](points: Iterable[A])(implicit random: Random): A = {
@@ -141,56 +146,67 @@ object VantagePointTree {
   def firstPivotSelector[A](points: Iterable[A]): A = points.head
 
   /** select central element as pivot */
-  def centralPivotSelector[A](metric: Metric[A], samples: Int)(points: Iterable[A])(implicit rand: Random): A = points.toSeq match {
-    case Seq() => throw new RuntimeException("cannot select from empty seq!")
-    case head +: Seq() => head
-    case first +: second +: Seq() => first
-    case _ =>
-      // draw candidates, select the most central
-      val trials = rand.scalaRandom.shuffle(points).take(math.min(samples, points.size))
-      def spread(pivot: A) = {
-        val dists = points.toSeq map { p => metric(pivot, p) }
-        val medianDistance = median(dists)
-        dists.map({ d => math.pow(d - medianDistance, 2) }).sum / dists.size
-      }
-      trials.minBy(spread)
-  }
+  def centralPivotSelector[A](metric: Metric[A], samples: Int)(points: Iterable[A])(implicit rand: Random): A =
+    points.toSeq match {
+      case Seq()                    => throw new RuntimeException("cannot select from empty seq!")
+      case head +: Seq()            => head
+      case first +: second +: Seq() => first
+      case _                        =>
+        // draw candidates, select the most central
+        val trials = rand.scalaRandom.shuffle(points).take(math.min(samples, points.size))
+        def spread(pivot: A) = {
+          val dists = points.toSeq map { p =>
+            metric(pivot, p)
+          }
+          val medianDistance = median(dists)
+          dists
+            .map({ d =>
+              math.pow(d - medianDistance, 2)
+            })
+            .sum / dists.size
+        }
+        trials.minBy(spread)
+    }
 
   private def median(s: Seq[Double]): Double = {
     val (lower, upper) = s.sortWith(_ < _).splitAt(s.size / 2)
     if (s.size % 2 == 0) (lower.last + upper.head) / 2.0 else upper.head
   }
 
-  private def recursiveTreeBuilder[A](data: Iterable[A], metric: Metric[A], pivotSelector: Iterable[A] => A): VantagePointTree[A] = {
+  private def recursiveTreeBuilder[A](data: Iterable[A],
+                                      metric: Metric[A],
+                                      pivotSelector: Iterable[A] => A): VantagePointTree[A] = {
     // recursive tree builder
     def recursiveBuilder(points: Seq[A]): VantagePointTree[A] = points match {
       // small cases
-      case Seq() => EmptyVP(metric)
-      case point +: Seq() => VPLeaf(metric, point)
+      case Seq()                                       => EmptyVP(metric)
+      case point +: Seq()                              => VPLeaf(metric, point)
       case first +: second +: Seq() if first == second => VPLeaf[A](metric, first)
-      case first +: second +: Seq() => VPLink(metric, first, VPLeaf[A](metric, second))
+      case first +: second +: Seq()                    => VPLink(metric, first, VPLeaf[A](metric, second))
       case _ => // general case
         assert(points.size >= 3)
         val pivot = pivotSelector(points)
         // find distance to each point in the set
-        val distances = points map { point => metric(point, pivot) }
+        val distances = points map { point =>
+          metric(point, pivot)
+        }
         // pick median as node radius
         val radius = median(distances.toIndexedSeq)
         // all <= --> left, > --> right (remember to remove the Vantage point)
-        val inside = points filter { point => metric(point, pivot) <= radius && metric(point, pivot) > 0.0 }
-        val outside = points filter { point => metric(point, pivot) > radius }
+        val inside = points filter { point =>
+          metric(point, pivot) <= radius && metric(point, pivot) > 0.0
+        }
+        val outside = points filter { point =>
+          metric(point, pivot) > radius
+        }
 
         // construct the node and build the tree recursively
         if (inside.nonEmpty && outside.nonEmpty)
-          VPNode(metric, pivot, radius,
-            recursiveBuilder(inside),
-            recursiveBuilder(outside))
+          VPNode(metric, pivot, radius, recursiveBuilder(inside), recursiveBuilder(outside))
         else if (inside.nonEmpty)
-          VPLink(metric, pivot,
-            recursiveBuilder(inside))
+          VPLink(metric, pivot, recursiveBuilder(inside))
         else if (outside.nonEmpty)
-          VPLink(metric, pivot,
-            recursiveBuilder(outside))
+          VPLink(metric, pivot, recursiveBuilder(outside))
         else
           VPLeaf(metric, pivot)
     }
@@ -216,7 +232,8 @@ private case class VPLeaf[A](metric: Metric[A], center: A) extends VantagePointT
 
   override def foreach[U](f: (A) => U): Unit = f(center)
 
-  override def findNN(point: A, candidates: CandidateSet[A]): Unit = candidates.addCandidate(center, metric(center, point))
+  override def findNN(point: A, candidates: CandidateSet[A]): Unit =
+    candidates.addCandidate(center, metric(center, point))
 }
 
 /** link node: list element, only a single child - should only appear before a leaf */
@@ -236,7 +253,12 @@ private case class VPLink[A](metric: Metric[A], center: A, next: VantagePointTre
 }
 
 /** regular VP tree node with inner and outer children, inner contains all points which are closer to center than radius (inclusive) */
-private case class VPNode[A](metric: Metric[A], center: A, radius: Double, inner: VantagePointTree[A], outer: VantagePointTree[A]) extends VantagePointTree[A] {
+private case class VPNode[A](metric: Metric[A],
+                             center: A,
+                             radius: Double,
+                             inner: VantagePointTree[A],
+                             outer: VantagePointTree[A])
+    extends VantagePointTree[A] {
   // smart part of the VP tree, space partition according to distance to current pivot element
   override def findNN(point: A, candidates: CandidateSet[A]): Unit = {
     // distance to center point decides on first lookup

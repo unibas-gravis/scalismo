@@ -15,21 +15,26 @@
  */
 package scalismo.sampling.proposals
 
-import scalismo.sampling.{ ProposalGenerator, TransitionProbability }
+import scalismo.sampling.{ProposalGenerator, TransitionProbability}
 
 /**
  * Container for multiple ProposalGenerators stacked together, applied one after the other
  */
 class CombinedProposal[A](val proposals: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]])
-  extends ProposalGenerator[A] with TransitionProbability[A] {
+    extends ProposalGenerator[A]
+    with TransitionProbability[A] {
 
   override def propose(current: A): A = {
-    proposals.foldLeft(current) { (z: A, g: ProposalGenerator[A]) => g.propose(z) }
+    proposals.foldLeft(current) { (z: A, g: ProposalGenerator[A]) =>
+      g.propose(z)
+    }
   }
 
   /** transition from to */
   override def logTransitionProbability(from: A, to: A): Double = {
-    proposals.foldLeft(0.0) { (z, g) => z + g.logTransitionProbability(from, to) }
+    proposals.foldLeft(0.0) { (z, g) =>
+      z + g.logTransitionProbability(from, to)
+    }
   }
 
   override def toString = {
@@ -44,5 +49,6 @@ class CombinedProposal[A](val proposals: IndexedSeq[ProposalGenerator[A] with Tr
 }
 
 object CombinedProposal {
-  def apply[A](proposals: IndexedSeq[(ProposalGenerator[A] with TransitionProbability[A])]) = new CombinedProposal[A](proposals)
+  def apply[A](proposals: IndexedSeq[(ProposalGenerator[A] with TransitionProbability[A])]) =
+    new CombinedProposal[A](proposals)
 }

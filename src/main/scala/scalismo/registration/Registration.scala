@@ -29,11 +29,10 @@ import scalismo.registration.TransformationSpace.ParameterVector
  * @param regularizationWeight A weight used to weight the influence of the regularizer (0 means the regularization term is not considered)
  * @param optimizer  The optimizer used to perform the minimization of the cost function
  */
-case class Registration[D](
-  metric: RegistrationMetric[D],
-  regularizer: Regularizer[D],
-  regularizationWeight: Double,
-  optimizer: Optimizer) {
+case class Registration[D](metric: RegistrationMetric[D],
+                           regularizer: Regularizer[D],
+                           regularizationWeight: Double,
+                           optimizer: Optimizer) {
 
   /**
    * Representation of the current state of the registration.
@@ -46,28 +45,26 @@ case class Registration[D](
   /**
    * Given a set of initial parameter, returns an iterator which can be used to drive the registration.
    */
-  def iterator(initialParameters: DenseVector[Double]): Iterator[RegistrationState] =
-    {
+  def iterator(initialParameters: DenseVector[Double]): Iterator[RegistrationState] = {
 
-      val costFunction = new CostFunction {
-        def onlyValue(params: ParameterVector): Double = {
-          metric.value(params) + regularizationWeight * regularizer.value(params)
-        }
-        def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
-
-          // compute the value of the cost function
-          val metricValueAndDerivative = metric.valueAndDerivative(params)
-          val value = metricValueAndDerivative.value + regularizationWeight * regularizer.value(params)
-          val dR = regularizer.takeDerivative(params)
-
-          (value, metricValueAndDerivative.derivative + dR * regularizationWeight)
-        }
+    val costFunction = new CostFunction {
+      def onlyValue(params: ParameterVector): Double = {
+        metric.value(params) + regularizationWeight * regularizer.value(params)
       }
+      def apply(params: ParameterVector): (Double, DenseVector[Double]) = {
 
-      optimizer.iterations(initialParameters, costFunction).map {
-        optimizerState =>
-          RegistrationState(optimizerState.value, optimizerState.parameters, optimizerState)
+        // compute the value of the cost function
+        val metricValueAndDerivative = metric.valueAndDerivative(params)
+        val value = metricValueAndDerivative.value + regularizationWeight * regularizer.value(params)
+        val dR = regularizer.takeDerivative(params)
+
+        (value, metricValueAndDerivative.derivative + dR * regularizationWeight)
       }
     }
+
+    optimizer.iterations(initialParameters, costFunction).map { optimizerState =>
+      RegistrationState(optimizerState.value, optimizerState.parameters, optimizerState)
+    }
+  }
 
 }

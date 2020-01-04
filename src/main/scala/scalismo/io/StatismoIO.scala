@@ -1,18 +1,27 @@
 package scalismo.io
 
-import java.io.{ DataInputStream, DataOutputStream, File, FileInputStream, FileOutputStream }
+import java.io.{DataInputStream, DataOutputStream, File, FileInputStream, FileOutputStream}
 import java.util.Calendar
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import ncsa.hdf.`object`.Group
-import scalismo.common.{ PointId, UnstructuredPointsDomain, Vectorizer }
-import scalismo.geometry.{ EuclideanVector, IntVector, NDSpace, Point, _3D }
-import scalismo.image.{ CreateDiscreteImageDomain, DiscreteImageDomain }
+import scalismo.common.{PointId, UnstructuredPointsDomain, Vectorizer}
+import scalismo.geometry.{_3D, EuclideanVector, IntVector, NDSpace, Point}
+import scalismo.image.{CreateDiscreteImageDomain, DiscreteImageDomain}
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
-import scalismo.mesh.{ TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D, TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D }
-import scalismo.statisticalmodel.{ DiscreteLowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel }
+import scalismo.mesh.{
+  TetrahedralCell,
+  TetrahedralList,
+  TetrahedralMesh,
+  TetrahedralMesh3D,
+  TriangleCell,
+  TriangleList,
+  TriangleMesh,
+  TriangleMesh3D
+}
+import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel}
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 object StatismoIO {
 
@@ -23,7 +32,7 @@ object StatismoIO {
     def fromString(s: String): Value = {
       s match {
         case "POLYGON_MESH_MODEL" => Polygon_Mesh
-        case _ => Unknown
+        case _                    => Unknown
       }
     }
   }
@@ -44,7 +53,8 @@ object StatismoIO {
     for {
       h5file <- HDF5Utils.openFileForReading(file)
       catalogGroup <- if (h5file.exists("/catalog")) h5file.getGroup("/catalog") else Failure(NoCatalogPresentException)
-      modelEntries = for (entryGroupObj <- catalogGroup.getMemberList.asScala.toSeq if entryGroupObj.isInstanceOf[Group]) yield {
+      modelEntries = for (entryGroupObj <- catalogGroup.getMemberList.asScala.toSeq
+                          if entryGroupObj.isInstanceOf[Group]) yield {
         val entryGroup = entryGroupObj.asInstanceOf[Group]
         readCatalogEntry(h5file, entryGroup)
       }
@@ -79,11 +89,12 @@ object StatismoIO {
       // read mesh according to type given in representer
       mesh <- representerName match {
         case "vtkPolyDataRepresenter" => readVTKMeshFromRepresenterGroup(h5file, modelPath)
-        case "itkMeshRepresenter" => readVTKMeshFromRepresenterGroup(h5file, modelPath)
+        case "itkMeshRepresenter"     => readVTKMeshFromRepresenterGroup(h5file, modelPath)
         case _ =>
           h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
             case Success("POLYGON_MESH") => readStandardMeshFromRepresenterGroup(h5file, modelPath)
-            case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
+            case Success(datasetType) =>
+              Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
             case Failure(t) => Failure(t)
           }
       }
@@ -107,7 +118,8 @@ object StatismoIO {
       pcaBasis <- (majorVersion, minorVersion) match {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
-        case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case (0, 8) =>
+          Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
         case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
       }
 
@@ -144,7 +156,8 @@ object StatismoIO {
         case _ =>
           h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
             case Success("POLYGON_MESH") => readStandardVolumeMeshFromRepresenterGroup(h5file, modelPath)
-            case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
+            case Success(datasetType) =>
+              Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
             case Failure(t) => Failure(t)
           }
       }
@@ -168,7 +181,8 @@ object StatismoIO {
       pcaBasis <- (majorVersion, minorVersion) match {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
-        case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case (0, 8) =>
+          Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
         case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
       }
 
@@ -194,7 +208,10 @@ object StatismoIO {
 
   import StatismoVersion._
 
-  def writeStatismoMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
+  def writeStatismoMeshModel(model: StatisticalMeshModel,
+                             file: File,
+                             modelPath: String = "/",
+                             statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
@@ -210,7 +227,9 @@ object StatismoIO {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeArray[Float](s"$modelPath/model/mean", discretizedMean.toArray.map(_.toFloat))
       _ <- h5file.writeArray[Float](s"$modelPath/model/noiseVariance", Array(0f))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq, pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis",
+                                      NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq,
+                                              pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
       _ <- h5file.writeArray[Float](s"$modelPath/model/pcaVariance", variance.toArray.map(_.toFloat))
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup(s"$modelPath/representer")
@@ -228,7 +247,8 @@ object StatismoIO {
         } yield Success(())
       }
       _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
-      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
+      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName",
+                              "This is a useless info. The stkCore did not handle Model builder info at creation time.")
       _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/parameters")
       _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/dataInfo")
       _ <- Try {
@@ -239,7 +259,10 @@ object StatismoIO {
     maybeError
   }
 
-  def writeStatismoVolumeMeshModel(model: StatisticalVolumeMeshModel, file: File, modelPath: String = "/", statismoVersion: StatismoVersion = v090): Try[Unit] = {
+  def writeStatismoVolumeMeshModel(model: StatisticalVolumeMeshModel,
+                                   file: File,
+                                   modelPath: String = "/",
+                                   statismoVersion: StatismoVersion = v090): Try[Unit] = {
 
     val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
     val variance = model.gp.variance
@@ -255,7 +278,9 @@ object StatismoIO {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeArray[Float](s"$modelPath/model/mean", discretizedMean.toArray.map(_.toFloat))
       _ <- h5file.writeArray[Float](s"$modelPath/model/noiseVariance", Array(0f))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq, pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis",
+                                      NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq,
+                                              pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
       _ <- h5file.writeArray[Float](s"$modelPath/model/pcaVariance", variance.toArray.map(_.toFloat))
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup(s"$modelPath/representer")
@@ -263,7 +288,8 @@ object StatismoIO {
       _ <- h5file.writeInt("/version/majorVersion", 0)
       _ <- h5file.writeInt("/version/minorVersion", 9)
       _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
-      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
+      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName",
+                              "This is a useless info. The stkCore did not handle Model builder info at creation time.")
       _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/parameters")
       _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/dataInfo")
       _ <- Try {
@@ -274,10 +300,16 @@ object StatismoIO {
     maybeError
   }
 
-  private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
+  private def writeRepresenterStatismov090(h5file: HDF5File,
+                                           group: Group,
+                                           model: StatisticalMeshModel,
+                                           modelPath: String): Try[Unit] = {
 
-    val cellArray = model.referenceMesh.cells.map(_.ptId1.id) ++ model.referenceMesh.cells.map(_.ptId2.id) ++ model.referenceMesh.cells.map(_.ptId3.id)
-    val pts = model.referenceMesh.pointSet.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
+    val cellArray = model.referenceMesh.cells.map(_.ptId1.id) ++ model.referenceMesh.cells
+      .map(_.ptId2.id) ++ model.referenceMesh.cells.map(_.ptId3.id)
+    val pts = model.referenceMesh.pointSet.points.toIndexedSeq.par.map(p =>
+      (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble)
+    )
     val pointArray = pts.map(_._1) ++ pts.map(_._2) ++ pts.map(_._3)
 
     for {
@@ -286,15 +318,26 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(3, model.referenceMesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceMesh.pointSet.points.size), pointArray.toArray.map(_.toFloat)))
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells",
+                                    NDArray(IndexedSeq(3, model.referenceMesh.cells.size), cellArray.toArray))
+      _ <- h5file.writeNDArray[Float](
+        s"$modelPath/representer/points",
+        NDArray(IndexedSeq(3, model.referenceMesh.pointSet.points.size), pointArray.toArray.map(_.toFloat))
+      )
     } yield Success(())
   }
 
-  private def writeRepresenterStatismov090(h5file: HDF5File, group: Group, model: StatisticalVolumeMeshModel, modelPath: String): Try[Unit] = {
+  private def writeRepresenterStatismov090(h5file: HDF5File,
+                                           group: Group,
+                                           model: StatisticalVolumeMeshModel,
+                                           modelPath: String): Try[Unit] = {
 
-    val cellArray = model.referenceVolumeMesh.cells.map(_.ptId1.id) ++ model.referenceVolumeMesh.cells.map(_.ptId2.id) ++ model.referenceVolumeMesh.cells.map(_.ptId3.id) ++ model.referenceVolumeMesh.cells.map(_.ptId4.id)
-    val pts = model.referenceVolumeMesh.pointSet.points.toIndexedSeq.par.map(p => (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble))
+    val cellArray = model.referenceVolumeMesh.cells.map(_.ptId1.id) ++ model.referenceVolumeMesh.cells
+      .map(_.ptId2.id) ++ model.referenceVolumeMesh.cells.map(_.ptId3.id) ++ model.referenceVolumeMesh.cells
+      .map(_.ptId4.id)
+    val pts = model.referenceVolumeMesh.pointSet.points.toIndexedSeq.par.map(p =>
+      (p.toArray(0).toDouble, p.toArray(1).toDouble, p.toArray(2).toDouble)
+    )
     val pointArray = pts.map(_._1) ++ pts.map(_._2) ++ pts.map(_._3)
 
     for {
@@ -303,12 +346,19 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
 
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", NDArray(IndexedSeq(4, model.referenceVolumeMesh.cells.size), cellArray.toArray))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", NDArray(IndexedSeq(3, model.referenceVolumeMesh.pointSet.points.size), pointArray.toArray.map(_.toFloat)))
+      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells",
+                                    NDArray(IndexedSeq(4, model.referenceVolumeMesh.cells.size), cellArray.toArray))
+      _ <- h5file.writeNDArray[Float](
+        s"$modelPath/representer/points",
+        NDArray(IndexedSeq(3, model.referenceVolumeMesh.pointSet.points.size), pointArray.toArray.map(_.toFloat))
+      )
     } yield Success(())
   }
 
-  private def writeRepresenterStatismov081(h5file: HDF5File, group: Group, model: StatisticalMeshModel, modelPath: String): Try[Unit] = {
+  private def writeRepresenterStatismov081(h5file: HDF5File,
+                                           group: Group,
+                                           model: StatisticalMeshModel,
+                                           modelPath: String): Try[Unit] = {
 
     // we simply store the reference into a vtk file and store the file (the binary data) into the representer
 
@@ -338,7 +388,8 @@ object StatismoIO {
     } yield Success(())
   }
 
-  private def ndFloatArrayToDoubleMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit, dummy2: DummyImplicit): DenseMatrix[Double] = {
+  private def ndFloatArrayToDoubleMatrix(array: NDArray[Float])(implicit dummy: DummyImplicit,
+                                                                dummy2: DummyImplicit): DenseMatrix[Double] = {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
@@ -353,40 +404,58 @@ object StatismoIO {
 
   private def readStandardMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh[_3D]] = {
     for {
-      vertArray <- h5file.readNDArray[Float](s"$modelPath/representer/points").flatMap(vertArray =>
-        if (vertArray.dims(0) != 3)
-          Failure(new Exception("the representer points are not 3D points"))
-        else
-          Success(vertArray))
+      vertArray <- h5file
+        .readNDArray[Float](s"$modelPath/representer/points")
+        .flatMap(vertArray =>
+          if (vertArray.dims(0) != 3)
+            Failure(new Exception("the representer points are not 3D points"))
+          else
+            Success(vertArray)
+        )
       vertMat = ndFloatArrayToDoubleMatrix(vertArray)
       points = for (i <- 0 until vertMat.cols) yield Point(vertMat(0, i), vertMat(1, i), vertMat(2, i))
-      cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells").flatMap(cellArray =>
-        if (cellArray.dims(0) != 3)
-          Failure(new Exception("the representer cells are not triangles"))
-        else
-          Success(cellArray))
+      cellArray <- h5file
+        .readNDArray[Int](s"$modelPath/representer/cells")
+        .flatMap(cellArray =>
+          if (cellArray.dims(0) != 3)
+            Failure(new Exception("the representer cells are not triangles"))
+          else
+            Success(cellArray)
+        )
       cellMat = ndIntArrayToIntMatrix(cellArray)
-      cells = for (i <- 0 until cellMat.cols) yield TriangleCell(PointId(cellMat(0, i)), PointId(cellMat(1, i)), PointId(cellMat(2, i)))
+      cells = for (i <- 0 until cellMat.cols)
+        yield TriangleCell(PointId(cellMat(0, i)), PointId(cellMat(1, i)), PointId(cellMat(2, i)))
       cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells")
     } yield TriangleMesh3D(UnstructuredPointsDomain(points), TriangleList(cells))
   }
 
-  private def readStandardVolumeMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TetrahedralMesh[_3D]] = {
+  private def readStandardVolumeMeshFromRepresenterGroup(h5file: HDF5File,
+                                                         modelPath: String): Try[TetrahedralMesh[_3D]] = {
     for {
-      vertArray <- h5file.readNDArray[Float](s"$modelPath/representer/points").flatMap(vertArray =>
-        if (vertArray.dims(0) != 3)
-          Failure(new Exception("the representer points are not 3D points"))
-        else
-          Success(vertArray))
+      vertArray <- h5file
+        .readNDArray[Float](s"$modelPath/representer/points")
+        .flatMap(vertArray =>
+          if (vertArray.dims(0) != 3)
+            Failure(new Exception("the representer points are not 3D points"))
+          else
+            Success(vertArray)
+        )
       vertMat = ndFloatArrayToDoubleMatrix(vertArray)
       points = for (i <- 0 until vertMat.cols) yield Point(vertMat(0, i), vertMat(1, i), vertMat(2, i))
-      cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells").flatMap(cellArray =>
-        if (cellArray.dims(0) != 4)
-          Failure(new Exception("the representer cells are not tetrahedrons"))
-        else
-          Success(cellArray))
+      cellArray <- h5file
+        .readNDArray[Int](s"$modelPath/representer/cells")
+        .flatMap(cellArray =>
+          if (cellArray.dims(0) != 4)
+            Failure(new Exception("the representer cells are not tetrahedrons"))
+          else
+            Success(cellArray)
+        )
       cellMat = ndIntArrayToIntMatrix(cellArray)
-      cells = for (i <- 0 until cellMat.cols) yield TetrahedralCell(PointId(cellMat(0, i)), PointId(cellMat(1, i)), PointId(cellMat(2, i)), PointId(cellMat(3, i)))
+      cells = for (i <- 0 until cellMat.cols)
+        yield TetrahedralCell(PointId(cellMat(0, i)),
+                              PointId(cellMat(1, i)),
+                              PointId(cellMat(2, i)),
+                              PointId(cellMat(3, i)))
       cellArray <- h5file.readNDArray[Int](s"$modelPath/representer/cells")
     } yield TetrahedralMesh3D(UnstructuredPointsDomain(points), TetrahedralList(cells))
   }
@@ -403,8 +472,8 @@ object StatismoIO {
   }
 
   /*
- * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
- */
+   * reads the reference (a vtk file), which is stored as a byte array in the hdf5 file)
+   */
   private def readVTKVolumeMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TetrahedralMesh[_3D]] = {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
@@ -442,7 +511,8 @@ object StatismoIO {
   def writeStatismoImageModel[D: NDSpace, A: Vectorizer](
     gp: DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A],
     file: File,
-    modelPath: String): Try[Unit] = {
+    modelPath: String
+  ): Try[Unit] = {
 
     val discretizedMean = gp.meanVector.map(_.toFloat)
     val variance = gp.variance.map(_.toFloat)
@@ -453,7 +523,10 @@ object StatismoIO {
       h5file <- HDF5Utils.createFile(file)
       _ <- h5file.writeArray(s"$modelPath/model/mean", discretizedMean.toArray)
       _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
-      _ <- h5file.writeNDArray(s"$modelPath/model/pcaBasis", NDArray(Array(pcaBasis.rows.toLong, pcaBasis.cols.toLong), pcaBasis.t.flatten(false).toArray))
+      _ <- h5file.writeNDArray(
+        s"$modelPath/model/pcaBasis",
+        NDArray(Array(pcaBasis.rows.toLong, pcaBasis.cols.toLong), pcaBasis.t.flatten(false).toArray)
+      )
       _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", variance.toArray)
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup(s"$modelPath/representer")
@@ -465,7 +538,8 @@ object StatismoIO {
         } yield Success(())
       }
       _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
-      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName", "This is a useless info. The stkCore did not handle Model builder info at creation time.")
+      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName",
+                              "This is a useless info. The stkCore did not handle Model builder info at creation time.")
       _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/parameters")
       _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/dataInfo")
       _ <- Try {
@@ -480,7 +554,8 @@ object StatismoIO {
     h5file: HDF5File,
     group: Group,
     gp: DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A],
-    modelPath: String): Try[Unit] = {
+    modelPath: String
+  ): Try[Unit] = {
 
     val dim = NDSpace[D].dimensionality
 
@@ -491,7 +566,8 @@ object StatismoIO {
     val vectorizer = implicitly[Vectorizer[A]]
     val pixelValues = DenseVector.zeros[Float](domain.numberOfPoints * vectorizer.dim)
 
-    val direction = NDArray(IndexedSeq(dim, dim), domain.directions.toBreezeMatrix.flatten(false).toArray.map(_.toFloat))
+    val direction =
+      NDArray(IndexedSeq(dim, dim), domain.directions.toBreezeMatrix.flatten(false).toArray.map(_.toFloat))
     val imageDimension: Int = domain.dimensionality
     val origin: Array[Float] = domain.origin.toBreezeVector.toArray.map(_.toFloat)
     val spacing: Array[Float] = domain.spacing.toBreezeVector.toArray.map(_.toFloat)
@@ -503,11 +579,13 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "IMAGE")
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/direction", direction)
       _ <- h5file.writeFloat(s"$modelPath/modelinfo/scores", 0f)
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/imageDimension", NDArray(IndexedSeq(1, 1), Array(imageDimension)))
+      _ <- h5file
+        .writeNDArray[Int](s"$modelPath/representer/imageDimension", NDArray(IndexedSeq(1, 1), Array(imageDimension)))
       _ <- h5file.writeNDArray[Int](s"$modelPath/representer/size", NDArray(IndexedSeq(dim, 1), size))
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/origin", NDArray(IndexedSeq(dim, 1), origin))
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/spacing", NDArray(IndexedSeq(dim, 1), spacing))
-      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/pointData/pixelValues", NDArray(IndexedSeq(dim, domain.numberOfPoints), pixelValues.toArray))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/representer/pointData/pixelValues",
+                                      NDArray(IndexedSeq(dim, domain.numberOfPoints), pixelValues.toArray))
       _ <- h5file.writeInt(s"$modelPath/representer/pointData/pixelDimension", domain.dimensionality)
       _ <- h5file.writeIntAttribute(s"$modelPath/representer/pointData/pixelValues", "datatype", 10)
 
@@ -525,7 +603,10 @@ object StatismoIO {
    *
    * @return The gaussian process (wrapped in a Success) or Failure.
    */
-  def readStatismoImageModel[D: NDSpace: CreateDiscreteImageDomain, A: Vectorizer](file: java.io.File, modelPath: String = "/"): Try[DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A]] = {
+  def readStatismoImageModel[D: NDSpace: CreateDiscreteImageDomain, A: Vectorizer](
+    file: java.io.File,
+    modelPath: String = "/"
+  ): Try[DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A]] = {
 
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
@@ -537,7 +618,8 @@ object StatismoIO {
         case _ =>
           h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
             case Success("IMAGE") => readImageRepresenter(h5file, modelPath)
-            case Success(datasetType) => Failure(new Exception(s"can only read model of datasetType IMAGE. Got $datasetType instead"))
+            case Success(datasetType) =>
+              Failure(new Exception(s"can only read model of datasetType IMAGE. Got $datasetType instead"))
             case Failure(t) => Failure(t)
           }
       }
@@ -561,7 +643,8 @@ object StatismoIO {
       pcaBasis <- (majorVersion, minorVersion) match {
         case (1, _) => Success(pcaBasisMatrix)
         case (0, 9) => Success(pcaBasisMatrix)
-        case (0, 8) => Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
+        case (0, 8) =>
+          Success(extractOrthonormalPCABasisMatrix(pcaBasisMatrix, pcaVarianceVector)) // an old statismo version
         case v => Failure(new Throwable(s"Unsupported version ${v._1}.${v._2}"))
       }
 
@@ -570,11 +653,10 @@ object StatismoIO {
       }
     } yield {
 
-      val gp = new DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A](
-        image,
-        meanVector.map(_.toDouble),
-        pcaVarianceVector.map(_.toDouble),
-        pcaBasisMatrix.map(_.toDouble))
+      val gp = new DiscreteLowRankGaussianProcess[D, DiscreteImageDomain[D], A](image,
+                                                                                meanVector.map(_.toDouble),
+                                                                                pcaVarianceVector.map(_.toDouble),
+                                                                                pcaBasisMatrix.map(_.toDouble))
       gp
 
     }
@@ -583,30 +665,42 @@ object StatismoIO {
 
   }
 
-  private def readImageRepresenter[D: NDSpace: CreateDiscreteImageDomain](h5file: HDF5File, modelPath: String): Try[DiscreteImageDomain[D]] = {
+  private def readImageRepresenter[D: NDSpace: CreateDiscreteImageDomain](
+    h5file: HDF5File,
+    modelPath: String
+  ): Try[DiscreteImageDomain[D]] = {
 
     val dim = NDSpace[D].dimensionality
 
     for {
-      origin <- h5file.readNDArray[Float](s"$modelPath/representer/origin").flatMap(origin =>
-        if (origin.dims(0) != dim)
-          Failure(new Exception("the representer direction is not 3D"))
-        else
-          Success(origin))
+      origin <- h5file
+        .readNDArray[Float](s"$modelPath/representer/origin")
+        .flatMap(origin =>
+          if (origin.dims(0) != dim)
+            Failure(new Exception("the representer direction is not 3D"))
+          else
+            Success(origin)
+        )
       originScalismo = Point[D](ndArrayFloatToMatrix(origin).toDenseVector.toArray.map(_.toDouble))
 
-      spacing <- h5file.readNDArray[Float](s"$modelPath/representer/spacing").flatMap(spacing =>
-        if (spacing.dims(0) != dim)
-          Failure(new Exception(s"the representer direction is not $dim"))
-        else
-          Success(spacing))
+      spacing <- h5file
+        .readNDArray[Float](s"$modelPath/representer/spacing")
+        .flatMap(spacing =>
+          if (spacing.dims(0) != dim)
+            Failure(new Exception(s"the representer direction is not $dim"))
+          else
+            Success(spacing)
+        )
       spacingScalismo = EuclideanVector[D](ndArrayFloatToMatrix(spacing).toDenseVector.toArray.map(_.toDouble))
 
-      size <- h5file.readNDArray[Int](s"$modelPath/representer/size").flatMap(size =>
-        if (size.dims(0) != dim)
-          Failure(new Exception(s"the representer direction is not $dim"))
-        else
-          Success(size))
+      size <- h5file
+        .readNDArray[Int](s"$modelPath/representer/size")
+        .flatMap(size =>
+          if (size.dims(0) != dim)
+            Failure(new Exception(s"the representer direction is not $dim"))
+          else
+            Success(size)
+        )
       sizeScalismo = IntVector[D](ndArrayIntToMatrix(size).toDenseVector.toArray)
 
     } yield {
@@ -629,7 +723,8 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
-  private def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double], pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
+  private def extractOrthonormalPCABasisMatrix(pcaBasisMatrix: DenseMatrix[Double],
+                                               pcaVarianceVector: DenseVector[Double]): DenseMatrix[Double] = {
     // this is an old statismo format, that has the pcaVariance directly stored in the PCA matrix,
     // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
     // We recover U from it.

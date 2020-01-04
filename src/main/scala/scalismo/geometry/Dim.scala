@@ -22,10 +22,7 @@ trait _1D extends Dim
 trait _2D extends Dim
 trait _3D extends Dim
 
-trait NDSpace[D]
-  extends EuclideanVector.Create[D]
-  with Point.Create[D]
-  with IntVector.Create[D] {
+trait NDSpace[D] extends EuclideanVector.Create[D] with Point.Create[D] with IntVector.Create[D] {
   def dimensionality: Int
 }
 
@@ -34,24 +31,27 @@ object NDSpace {
 }
 
 object Dim {
-  implicit object OneDSpace extends NDSpace[_1D]
-    with EuclideanVector.Create1D
-    with Point.Create1D
-    with IntVector.Create1D {
+  implicit object OneDSpace
+      extends NDSpace[_1D]
+      with EuclideanVector.Create1D
+      with Point.Create1D
+      with IntVector.Create1D {
     override val dimensionality = 1
   }
 
-  implicit object TwoDSpace extends NDSpace[_2D]
-    with EuclideanVector.Create2D
-    with Point.Create2D
-    with IntVector.Create2D {
+  implicit object TwoDSpace
+      extends NDSpace[_2D]
+      with EuclideanVector.Create2D
+      with Point.Create2D
+      with IntVector.Create2D {
     override val dimensionality = 2
   }
 
-  implicit object ThreeDSpace extends NDSpace[_3D]
-    with EuclideanVector.Create3D
-    with Point.Create3D
-    with IntVector.Create3D {
+  implicit object ThreeDSpace
+      extends NDSpace[_3D]
+      with EuclideanVector.Create3D
+      with Point.Create3D
+      with IntVector.Create3D {
     override val dimensionality = 3
   }
 }

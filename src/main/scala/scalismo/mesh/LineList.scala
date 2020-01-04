@@ -55,7 +55,9 @@ case class LineList(lines: IndexedSeq[LineCell]) {
     }
     val data = lineMap.mapValues(s => s.toSet) // make immutable
 
-    val dataSeq = IndexedSeq.tabulate(pointIds.size) { i => data(pointIds(i)).toIndexedSeq }
+    val dataSeq = IndexedSeq.tabulate(pointIds.size) { i =>
+      data(pointIds(i)).toIndexedSeq
+    }
     id => dataSeq(id.id)
   }
 
@@ -78,7 +80,9 @@ case class LineList(lines: IndexedSeq[LineCell]) {
       pointMap(p) -= p
     }
     val mapData = pointMap.mapValues(s => s.toSet) // make immutable
-    val seqData = IndexedSeq.tabulate(pointIds.size) { i => mapData(pointIds(i)).toIndexedSeq }
+    val seqData = IndexedSeq.tabulate(pointIds.size) { i =>
+      mapData(pointIds(i)).toIndexedSeq
+    }
     id => seqData(id.id)
   }
 
@@ -97,13 +101,15 @@ case class LineList(lines: IndexedSeq[LineCell]) {
       lineMap(lineId) -= lineId
     }
     val mapData = lineMap.mapValues(s => s.toSet)
-    val seqData = IndexedSeq.tabulate(lineIds.size) { i => mapData(lineIds(i)).toIndexedSeq }
+    val seqData = IndexedSeq.tabulate(lineIds.size) { i =>
+      mapData(lineIds(i)).toIndexedSeq
+    }
     id => seqData(id.id)
   }
 
   /** points connected to a line, this information is contained in lines */
-  lazy val adjacentPointsForLine: LineId => IndexedSeq[PointId] = {
-    id => line(id).pointIds
+  lazy val adjacentPointsForLine: LineId => IndexedSeq[PointId] = { id =>
+    line(id).pointIds
   }
 
   private[this] def extractRange(lines: IndexedSeq[LineCell]): IndexedSeq[PointId] = {
@@ -113,4 +119,3 @@ case class LineList(lines: IndexedSeq[LineCell]) {
   }
 
 }
-

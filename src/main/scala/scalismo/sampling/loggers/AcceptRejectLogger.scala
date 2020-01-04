@@ -15,7 +15,7 @@
  */
 package scalismo.sampling.loggers
 
-import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 
 import scala.language.implicitConversions
 

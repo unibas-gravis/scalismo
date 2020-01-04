@@ -16,7 +16,7 @@
 package scalismo.common
 
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.geometry.{ Point, _1D, _2D, _3D }
+import scalismo.geometry.{_1D, _2D, _3D, Point}
 
 /**
  * Nearest neighbor interpolation of a discrete field. This implementation is generic and

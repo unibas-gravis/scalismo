@@ -16,7 +16,7 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{ NDSpace, Point }
+import scalismo.geometry.{NDSpace, Point}
 
 import scala.math.Numeric.Implicits._
 
@@ -27,6 +27,7 @@ import scala.math.Numeric.Implicits._
  * `A` represents the type of the points and `R` represents the metric value.
  */
 private[scalismo] trait Metric[A, R] {
+
   /** Returns the distance between two points. */
   def distance(x: A, y: A): R
 

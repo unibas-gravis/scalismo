@@ -16,9 +16,9 @@
 package scalismo.mesh
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ EuclideanVector3D, Point, Point3D, _3D }
-import scalismo.registration.{ RotationTransform, TranslationTransform }
+import scalismo.common.{PointId, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, EuclideanVector3D, Point, Point3D}
+import scalismo.registration.{RotationTransform, TranslationTransform}
 import scalismo.utils.Random
 
 class TetrahedralMeshTest extends ScalismoTestSuite {
@@ -27,25 +27,23 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
 
   def createTetrahedronsInUnitCube(): TetrahedralMesh3D = {
     // points around unit cube
-    val points = IndexedSeq(
-      Point(0, 0, 0),
-      Point(1, 0, 0),
-      Point(1, 1, 0),
-      Point(0, 1, 0),
-      Point(0, 0, 1),
-      Point(1, 0, 1),
-      Point(1, 1, 1),
-      Point(0, 1, 1))
+    val points = IndexedSeq(Point(0, 0, 0),
+                            Point(1, 0, 0),
+                            Point(1, 1, 0),
+                            Point(0, 1, 0),
+                            Point(0, 0, 1),
+                            Point(1, 0, 1),
+                            Point(1, 1, 1),
+                            Point(0, 1, 1))
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
-    val cells = IndexedSeq(
-      TetrahedralCell(0, 2, 7, 3),
-      TetrahedralCell(0, 2, 5, 1),
-      TetrahedralCell(2, 5, 7, 6),
-      TetrahedralCell(0, 5, 7, 4),
-      TetrahedralCell(0, 2, 5, 7))
+    val cells = IndexedSeq(TetrahedralCell(0, 2, 7, 3),
+                           TetrahedralCell(0, 2, 5, 1),
+                           TetrahedralCell(2, 5, 7, 6),
+                           TetrahedralCell(0, 5, 7, 4),
+                           TetrahedralCell(0, 2, 5, 7))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -65,7 +63,8 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       Point(0, 0, 2),
       Point(1, 0, 2),
       Point(1, 1, 2),
-      Point(0, 1, 2))
+      Point(0, 1, 2)
+    )
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
@@ -80,29 +79,27 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       TetrahedralCell(4, 6, 9, 5),
       TetrahedralCell(6, 9, 11, 10),
       TetrahedralCell(4, 9, 11, 8),
-      TetrahedralCell(4, 6, 9, 11))
+      TetrahedralCell(4, 6, 9, 11)
+    )
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
   }
 
   def createRandomTetrahedralMesh(): TetrahedralMesh3D = {
-    val rng = Random(42l)
+    val rng = Random(42L)
     val N = 200
-    val points = IndexedSeq.fill(N)(Point(
-      rng.scalaRandom.nextGaussian() * 2,
-      rng.scalaRandom.nextGaussian() * 1000,
-      rng.scalaRandom.nextGaussian() * 1000000))
+    val points = IndexedSeq.fill(N)(
+      Point(rng.scalaRandom.nextGaussian() * 2,
+            rng.scalaRandom.nextGaussian() * 1000,
+            rng.scalaRandom.nextGaussian() * 1000000)
+    )
     val domain = UnstructuredPointsDomain(points)
 
     implicit def intToPointId(i: Int): PointId = PointId(i)
     val T = 200
     val indices = rng.scalaRandom.shuffle((0 until N).toIndexedSeq).take(4)
-    val cells = IndexedSeq.fill(T)(TetrahedralCell(
-      indices(0),
-      indices(1),
-      indices(2),
-      indices(3)))
+    val cells = IndexedSeq.fill(T)(TetrahedralCell(indices(0), indices(1), indices(2), indices(3)))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -114,16 +111,16 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       val epsilonVolume = 1.0e-8
 
       for (i <- 0 until 20) {
-        val t = TranslationTransform(EuclideanVector3D(
-          rng.scalaRandom.nextGaussian() * 50,
-          rng.scalaRandom.nextGaussian() * 50,
-          rng.scalaRandom.nextGaussian() * 50))
+        val t = TranslationTransform(
+          EuclideanVector3D(rng.scalaRandom.nextGaussian() * 50,
+                            rng.scalaRandom.nextGaussian() * 50,
+                            rng.scalaRandom.nextGaussian() * 50)
+        )
 
-        val R = RotationTransform(
-          rng.scalaRandom.nextGaussian() * Math.PI,
-          rng.scalaRandom.nextGaussian() * Math.PI,
-          rng.scalaRandom.nextGaussian() * Math.PI,
-          Point3D.origin)
+        val R = RotationTransform(rng.scalaRandom.nextGaussian() * Math.PI,
+                                  rng.scalaRandom.nextGaussian() * Math.PI,
+                                  rng.scalaRandom.nextGaussian() * Math.PI,
+                                  Point3D.origin)
         def mapping(pt: Point[_3D]) = R(t(pt))
 
         val tetrahedron = createTetrahedronsInUnitCube().transform(mapping)
@@ -249,7 +246,8 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
           tetrahedron.samplePointInTetrahedralCell(tetrahedron.tetrahedralization.tetrahedron(TetrahedronId(0)))
         }
       } catch {
-        case e: Exception => fail("It should be possible to sample points in a tetrahedron without throwing an exception")
+        case e: Exception =>
+          fail("It should be possible to sample points in a tetrahedron without throwing an exception")
       }
     }
   }

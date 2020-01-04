@@ -27,32 +27,19 @@ class MeshBoundaryTests extends ScalismoTestSuite {
     object Fixture {
       implicit def toPointId(i: Int) = PointId(i)
 
-      val singleTriangleMesh = TriangleMesh3D(
-        IndexedSeq(
-        Point(0, 0, 0),
-        Point(0, 0, 1),
-        Point(1, 0, 0)),
-        TriangleList(IndexedSeq(
-          TriangleCell(0, 1, 2))))
+      val singleTriangleMesh = TriangleMesh3D(IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0)),
+                                              TriangleList(IndexedSeq(TriangleCell(0, 1, 2))))
 
-      val twoTraingesMesh = TriangleMesh3D(
-        IndexedSeq(
-        Point(0, 0, 0),
-        Point(0, 0, 1),
-        Point(1, 0, 0),
-        Point(0, 1, 1)),
-        TriangleList(IndexedSeq(
-          TriangleCell(0, 1, 2),
-          TriangleCell(0, 2, 3))))
+      val twoTraingesMesh = TriangleMesh3D(IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1)),
+                                           TriangleList(IndexedSeq(TriangleCell(0, 1, 2), TriangleCell(0, 2, 3))))
 
       val traingesMeshWithOneCompletelySouroundedTriangle = {
         val points = for (y <- 0 until 4; x <- 0 until 4) yield Point(x, y, 0)
-        val trianglesV = for (y <- 0 until 3; x <- 0 until 3) yield TriangleCell(x + y * 4, (x + 1) + y * 4, x + (y + 1) * 4)
-        val trianglesA = for (y <- 0 until 3; x <- 0 until 3) yield TriangleCell(x + 1 + y * 4, x + (y + 1) * 4, (x + 1) + (y + 1) * 4)
-        TriangleMesh3D(
-          points,
-          TriangleList(
-            trianglesV ++ trianglesA))
+        val trianglesV =
+          for (y <- 0 until 3; x <- 0 until 3) yield TriangleCell(x + y * 4, (x + 1) + y * 4, x + (y + 1) * 4)
+        val trianglesA =
+          for (y <- 0 until 3; x <- 0 until 3) yield TriangleCell(x + 1 + y * 4, x + (y + 1) * 4, (x + 1) + (y + 1) * 4)
+        TriangleMesh3D(points, TriangleList(trianglesV ++ trianglesA))
       }
     }
 
@@ -143,7 +130,7 @@ class MeshBoundaryTests extends ScalismoTestSuite {
       |6/|7/|8/|
       |/.|/.|/.| 15 / 16 / 17
       ----------
-      */
+       */
 
       testTriangle0()
       testTriangle1()

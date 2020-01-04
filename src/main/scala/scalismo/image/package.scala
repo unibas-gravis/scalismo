@@ -37,6 +37,4 @@ package scalismo
  *  val resampledDiscreteImage = continuousImage.sample(domain, 0)
  * }}}
  */
-package object image {
-
-}
+package object image {}

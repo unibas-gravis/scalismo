@@ -5,10 +5,10 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{ Point, _3D }
-import scalismo.io.{ ImageIO, MeshIO, StatismoIO }
-import scalismo.mesh.{ MeshMetrics, TriangleMesh }
-import scalismo.numerics.{ Sampler, UniformMeshSampler3D }
+import scalismo.geometry.{_3D, Point}
+import scalismo.io.{ImageIO, MeshIO, StatismoIO}
+import scalismo.mesh.{MeshMetrics, TriangleMesh}
+import scalismo.numerics.{Sampler, UniformMeshSampler3D}
 import scalismo.registration.LandmarkRegistration
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
@@ -26,7 +26,8 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val featureExtractor = NormalDirectionFeatureExtractor(numberOfPoints = 5, spacing = 1.0)
       def samplerPerMesh(mesh: TriangleMesh[_3D]): Sampler[_3D] = UniformMeshSampler3D(mesh, numberOfPoints = 1000)
       val searchMethod = NormalDirectionSearchPointSampler(numberOfPoints = 31, searchDistance = 6)
-      val fittingConfig = FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
+      val fittingConfig =
+        FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 
       val path: String = URLDecoder.decode(getClass.getResource(s"/asmData/model.h5").getPath, "UTF-8")
       val shapeModel = StatismoIO.readStatismoMeshModel(new File(path)).get
@@ -49,10 +50,14 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val dc = DataCollection.fromMeshSequence(shapeModel.referenceMesh, trainMeshes.toIndexedSeq)._1.get
       val trainingData = trainImages zip dc.dataItems.toIterator.map(_.transformation)
 
-      val asm = ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)
+      val asm =
+        ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)
 
       // align the model
-      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration((asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq, Point(0, 0, 0))
+      val alignment = LandmarkRegistration.rigid3DLandmarkRegistration(
+        (asm.statisticalModel.mean.pointSet.points zip targetMesh.pointSet.points).toIndexedSeq,
+        Point(0, 0, 0)
+      )
       val alignedASM = asm.transform(alignment)
 
     }
@@ -65,7 +70,14 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
     it("Can be transformed correctly from within the fitting") {
 
       val nullInitialParameters = DenseVector.zeros[Double](Fixture.asm.statisticalModel.rank)
-      val fit = Fixture.asm.fit(Fixture.targetImage, Fixture.searchMethod, 20, Fixture.fittingConfig, ModelTransformations(nullInitialParameters, Fixture.alignment)).get.mesh
+      val fit = Fixture.asm
+        .fit(Fixture.targetImage,
+             Fixture.searchMethod,
+             20,
+             Fixture.fittingConfig,
+             ModelTransformations(nullInitialParameters, Fixture.alignment))
+        .get
+        .mesh
       assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.95)
     }
   }

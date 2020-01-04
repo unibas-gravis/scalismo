@@ -16,7 +16,7 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{ NDSpace, Point }
+import scalismo.geometry.{NDSpace, Point}
 
 import scala.annotation.tailrec
 
@@ -25,6 +25,7 @@ import scala.annotation.tailrec
  * of a multidimensional type by a projection on a given dimension.
  */
 private[scalismo] trait DimensionalOrdering[A] {
+
   /** How many dimensions type A has. */
   def dimensions: Int
 
@@ -60,7 +61,7 @@ private[scalismo] trait DimensionalOrdering[A] {
 
       compareProjection(dimension)(x, y) match {
         case t if t != 0 => t
-        case 0 => compare0(0)
+        case 0           => compare0(0)
       }
     }
   }
@@ -70,8 +71,8 @@ private[scalismo] object DimensionalOrdering {
   def dimensionalOrderingForTuple[T <: Product, A](dim: Int)(implicit ord: Ordering[A]) =
     new DimensionalOrdering[T] {
       val dimensions = dim
-      def compareProjection(d: Int)(x: T, y: T) = ord.compare(
-        x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
+      def compareProjection(d: Int)(x: T, y: T) =
+        ord.compare(x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
     }
 
   implicit def dimensionalOrderingForPoint[D: NDSpace] = new DimensionalOrdering[Point[D]] {

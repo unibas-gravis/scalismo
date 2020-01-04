@@ -17,7 +17,7 @@
 package scalismo.statisticalmodel.dataset
 
 import scalismo.geometry._
-import scalismo.statisticalmodel.{ GaussianProcess, StatisticalMeshModel }
+import scalismo.statisticalmodel.{GaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
 
 import scala.util.Try
@@ -26,14 +26,22 @@ import scala.util.Try
  * Implements utility functions for building a [[StatisticalMeshModel]] from a [[DataCollection]] containing a reference and items in correspondence.
  * This object is deprecated and its methods moved to StatisticalMeshModel. The object will be removed in future versions.
  */
-@deprecated("Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.", "0.10.0")
+@deprecated(
+  "Functionality of this object has been moved to StatisticalMeshModel object. This object wil be removed in future versions.",
+  "0.10.0"
+)
 object PCAModel {
 
   /**
    *  Adds a bias model to the given pca model
    */
-  @deprecated("Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.", "0.10.0")
-  def augmentModel(pcaModel: StatisticalMeshModel, biasModel: GaussianProcess[_3D, EuclideanVector[_3D]], numBasisFunctions: Int)(implicit rng: Random): StatisticalMeshModel = {
+  @deprecated(
+    "Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.",
+    "0.10.0"
+  )
+  def augmentModel(pcaModel: StatisticalMeshModel,
+                   biasModel: GaussianProcess[_3D, EuclideanVector[_3D]],
+                   numBasisFunctions: Int)(implicit rng: Random): StatisticalMeshModel = {
     StatisticalMeshModel.augmentModel(pcaModel, biasModel, numBasisFunctions)
   }
 
@@ -41,7 +49,11 @@ object PCAModel {
    * Returns a PCA model with given reference mesh and a set of items in correspondence.
    * All points of the reference mesh are considered for computing the PCA
    */
-  @deprecated("Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.", "0.10.0")
-  def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] = StatisticalMeshModel.createUsingPCA(dc)
+  @deprecated(
+    "Use method in StatisticalMeshModel object instead. This method and containing object wil be removed in future versions.",
+    "0.10.0"
+  )
+  def buildModelFromDataCollection(dc: DataCollection): Try[StatisticalMeshModel] =
+    StatisticalMeshModel.createUsingPCA(dc)
 
 }

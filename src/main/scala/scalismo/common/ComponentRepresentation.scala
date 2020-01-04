@@ -16,7 +16,7 @@
 
 package scalismo.common
 
-import scalismo.geometry.{ EuclideanVector, _2D, _3D }
+import scalismo.geometry.{_2D, _3D, EuclideanVector}
 
 import scala.annotation.switch
 
@@ -89,6 +89,7 @@ object ComponentRepresentation {
       case 2 => color.z
       case _ => throw new Exception(s"index ($index) out of bounds, Vector[_3D] can only handle 0, 1 and 2")
     }
-    override def fromComponents(comp: (Int) => Double): EuclideanVector[_3D] = EuclideanVector(comp(0), comp(1), comp(2))
+    override def fromComponents(comp: (Int) => Double): EuclideanVector[_3D] =
+      EuclideanVector(comp(0), comp(1), comp(2))
   }
 }

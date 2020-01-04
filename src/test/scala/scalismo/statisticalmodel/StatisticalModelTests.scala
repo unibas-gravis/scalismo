@@ -25,7 +25,7 @@ import scalismo.geometry._
 import scalismo.io.StatismoIO
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.registration.{ RigidTransformation, RigidTransformationSpace }
+import scalismo.registration.{RigidTransformation, RigidTransformationSpace}
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 
@@ -46,7 +46,8 @@ class StatisticalModelTests extends ScalismoTestSuite {
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)
         val instNew = newModel.instance(coeffs)
-        inst.pointSet.points.zip(instNew.pointSet.points)
+        inst.pointSet.points
+          .zip(instNew.pointSet.points)
           .foreach {
             case (pt1, pt2) =>
               (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
@@ -123,7 +124,9 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       val correspondingSampleDecimatedModel = decimatedModel.instance(coeffs)
       decimatedModel.referenceMesh.pointSet.numberOfPoints should be < (model.referenceMesh.pointSet.numberOfPoints)
-      correspondingSampleDecimatedModel.pointSet.numberOfPoints should equal(decimatedModel.referenceMesh.pointSet.numberOfPoints)
+      correspondingSampleDecimatedModel.pointSet.numberOfPoints should equal(
+        decimatedModel.referenceMesh.pointSet.numberOfPoints
+      )
 
       MeshMetrics.hausdorffDistance(randomMesh, correspondingSampleDecimatedModel) < 1
     }
@@ -157,7 +160,8 @@ class StatisticalVolumeModelTests extends ScalismoTestSuite {
         val coeffs = DenseVector(coeffsData.toArray)
         val inst = oldModel.instance(coeffs)
         val instNew = newModel.instance(coeffs)
-        inst.pointSet.points.zip(instNew.pointSet.points)
+        inst.pointSet.points
+          .zip(instNew.pointSet.points)
           .foreach {
             case (pt1, pt2) =>
               (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
@@ -196,4 +200,3 @@ class StatisticalVolumeModelTests extends ScalismoTestSuite {
 
   }
 }
-

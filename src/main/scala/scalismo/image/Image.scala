@@ -18,15 +18,17 @@ package scalismo.image
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.image.filter.Filter
-import scalismo.numerics.{ GridSampler, Integrator }
-import scalismo.registration.{ CanDifferentiate, Transformation }
+import scalismo.numerics.{GridSampler, Integrator}
+import scalismo.registration.{CanDifferentiate, Transformation}
 
 import scala.reflect.ClassTag
 
 /**
  * An image whose values are scalar.
  */
-class ScalarImage[D: NDSpace, A: Scalar: ClassTag] protected (override val domain: Domain[D], override val f: Point[D] => A) extends ScalarField[D, A](domain, f) {
+class ScalarImage[D: NDSpace, A: Scalar: ClassTag] protected (override val domain: Domain[D],
+                                                              override val f: Point[D] => A)
+    extends ScalarField[D, A](domain, f) {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarImage[D, A]): ScalarImage[D, A] = {
@@ -71,7 +73,8 @@ class ScalarImage[D: NDSpace, A: Scalar: ClassTag] protected (override val domai
    * @param  numberOfPointsPerDim Number of points to be used to approximate the filter. Depending on the
    * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation)
    */
-  def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D, A] = {
+  def convolve(filter: Filter[D],
+               numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D, A] = {
     val scalar = Scalar[A]
 
     val dim = implicitly[NDSpace[D]].dimensionality
@@ -105,10 +108,12 @@ class ScalarImage[D: NDSpace, A: Scalar: ClassTag] protected (override val domai
 
     val nbChunks = Runtime.getRuntime().availableProcessors() * 2
     val parallelArrays = domain.pointsInChunks(nbChunks).par.map { chunkIterator =>
-      chunkIterator.map(pt => {
-        if (isDefinedAt(pt)) f(pt)
-        else outsideValue
-      }).toArray
+      chunkIterator
+        .map(pt => {
+          if (isDefinedAt(pt)) f(pt)
+          else outsideValue
+        })
+        .toArray
     }
 
     DiscreteScalarImage(domain, ScalarArray(parallelArrays.reduce(_ ++ _)))
@@ -134,7 +139,10 @@ object ScalarImage {
 /**
  * A scalar image that is once differentiable
  */
-class DifferentiableScalarImage[D: NDSpace, A: Scalar: ClassTag](_domain: Domain[D], _f: Point[D] => A, val df: Point[D] => EuclideanVector[D]) extends ScalarImage[D, A](_domain, _f) {
+class DifferentiableScalarImage[D: NDSpace, A: Scalar: ClassTag](_domain: Domain[D],
+                                                                 _f: Point[D] => A,
+                                                                 val df: Point[D] => EuclideanVector[D])
+    extends ScalarImage[D, A](_domain, _f) {
 
   def differentiate: VectorField[D, D] = VectorField(domain, df)
 
@@ -170,7 +178,9 @@ class DifferentiableScalarImage[D: NDSpace, A: Scalar: ClassTag](_domain: Domain
     new DifferentiableScalarImage(composedField.domain, composedField.f, df)
   }
 
-  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): DifferentiableScalarImage[D, A] = {
+  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(
+    implicit c: CreateDiscreteImageDomain[D]
+  ): DifferentiableScalarImage[D, A] = {
 
     val convolvedImage = super.convolve(filter, numberOfPointsPerDim)
 
@@ -208,7 +218,7 @@ object DifferentiableScalarImage {
    * @param f a function that yields the intensity for each point of the domain
    * @param df the derivative of the function f
    */
-  def apply[D: NDSpace, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A, df: Point[D] => EuclideanVector[D]) = new DifferentiableScalarImage[D, A](domain, f, df)
+  def apply[D: NDSpace, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A, df: Point[D] => EuclideanVector[D]) =
+    new DifferentiableScalarImage[D, A](domain, f, df)
 
 }
-

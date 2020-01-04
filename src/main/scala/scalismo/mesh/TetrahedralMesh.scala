@@ -30,8 +30,10 @@ case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3, ptId4)
 
   /** Ordered list of the triangles of the tetrahedron. */
-  val triangles = Seq(TriangleCell(ptId1, ptId2, ptId3), TriangleCell(ptId1, ptId2, ptId4),
-    TriangleCell(ptId1, ptId3, ptId4), TriangleCell(ptId2, ptId3, ptId4))
+  val triangles = Seq(TriangleCell(ptId1, ptId2, ptId3),
+                      TriangleCell(ptId1, ptId2, ptId4),
+                      TriangleCell(ptId1, ptId3, ptId4),
+                      TriangleCell(ptId2, ptId3, ptId4))
 
   /** Returns true if @ptId is one of the point ids of the tetrahedral. */
   def containsPoint(ptId: PointId): Boolean = {
@@ -64,11 +66,13 @@ trait TetrahedralMesh[D] {
 
 object TetrahedralMesh {
 
-  def apply[D: NDSpace](pointList: IndexedSeq[Point[D]], topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
+  def apply[D: NDSpace](pointList: IndexedSeq[Point[D]],
+                        topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(UnstructuredPointsDomain(pointList.toIndexedSeq), topology)
   }
 
-  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
+  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D],
+                        topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(pointSet, topology)
   }
 
@@ -78,7 +82,8 @@ object TetrahedralMesh {
   }
 
   trait Create3D extends Create[_3D] {
-    override def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TetrahedralList): TetrahedralMesh3D = {
+    override def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[_3D],
+                                        topology: TetrahedralList): TetrahedralMesh3D = {
       TetrahedralMesh3D(pointSet, topology)
     }
   }
@@ -89,7 +94,8 @@ object TetrahedralMesh {
 
 }
 
-case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedralization: TetrahedralList) extends TetrahedralMesh[_3D] {
+case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedralization: TetrahedralList)
+    extends TetrahedralMesh[_3D] {
 
   // val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val tetrahedrons: IndexedSeq[TetrahedralCell] = tetrahedralization.tetrahedrons
@@ -162,7 +168,9 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     // note: replace call to vtk with own implementation
     val barycentricCoordinates = getBarycentricCoordinates(point, tetrahedron)
 
-    val normalized = barycentricCoordinates.map { e => if (Math.abs(e) <= 1E-8) 0.0 else e }
+    val normalized = barycentricCoordinates.map { e =>
+      if (Math.abs(e) <= 1e-8) 0.0 else e
+    }
     val numberOfZeroEntries = countZeroEntries(normalized)
     hasOnlyStrictPositiveElements(normalized) || (numberOfZeroEntries == 2) || (numberOfZeroEntries == 3)
   }
@@ -199,8 +207,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     }
 
     val a = 1.0 - s - t - u
-    (
-      a *: pointSet.point(tc.ptId1).toVector +
+    (a *: pointSet.point(tc.ptId1).toVector +
       s *: pointSet.point(tc.ptId2).toVector +
       t *: pointSet.point(tc.ptId3).toVector +
       u *: pointSet.point(tc.ptId4).toVector).toPoint
@@ -209,9 +216,6 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
 
 object TetrahedralMesh3D {
   def apply(points: IndexedSeq[Point[_3D]], topology: TetrahedralList): TetrahedralMesh3D = {
-    TetrahedralMesh3D(
-      UnstructuredPointsDomain(points.toIndexedSeq),
-      topology)
+    TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), topology)
   }
 }
-

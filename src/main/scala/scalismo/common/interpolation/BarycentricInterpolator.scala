@@ -1,8 +1,8 @@
 package scalismo.common.interpolation
 
 import scalismo.common._
-import scalismo.geometry.{ NDSpace, Point, Point3D, _3D }
-import scalismo.mesh.{ TetrahedralCell, TetrahedralMesh, TetrahedronId }
+import scalismo.geometry.{_3D, NDSpace, Point, Point3D}
+import scalismo.mesh.{TetrahedralCell, TetrahedralMesh, TetrahedronId}
 import scalismo.numerics.ValueInterpolator
 import scalismo.utils.Memoize
 
@@ -17,16 +17,21 @@ object BarycentricInterpolator {
   }
 
   implicit object create3D extends Create[_3D] {
-    override def createBarycentricInterpolator[A: ValueInterpolator](m: TetrahedralMesh[_3D]): BarycentricInterpolator[_3D, A] = new BarycentricInterpolator3D[A](m)
+    override def createBarycentricInterpolator[A: ValueInterpolator](
+      m: TetrahedralMesh[_3D]
+    ): BarycentricInterpolator[_3D, A] = new BarycentricInterpolator3D[A](m)
   }
 
-  def apply[D: NDSpace, A: ValueInterpolator](m: TetrahedralMesh[D])(implicit creator: Create[D]): BarycentricInterpolator[D, A] = {
+  def apply[D: NDSpace, A: ValueInterpolator](
+    m: TetrahedralMesh[D]
+  )(implicit creator: Create[D]): BarycentricInterpolator[D, A] = {
     creator.createBarycentricInterpolator(m)
   }
 
 }
 
-case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh[_3D]) extends BarycentricInterpolator[_3D, A] {
+case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh[_3D])
+    extends BarycentricInterpolator[_3D, A] {
 
   override protected val valueInterpolator: ValueInterpolator[A] = ValueInterpolator[A]
 
@@ -48,7 +53,8 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh
         neighbourhood = mesh.tetrahedralization.adjacentTetrahedronsForPoint(closestPoint).toSet
       } else {
         // increase neighbourhood
-        neighbourhood = neighbourhood.union(neighbourhood.flatMap(mesh.tetrahedralization.adjacentTetrahedronsForTetrahedron))
+        neighbourhood =
+          neighbourhood.union(neighbourhood.flatMap(mesh.tetrahedralization.adjacentTetrahedronsForTetrahedron))
       }
       val filterResult = neighbourhood.filter(tId => isInsideCellMemoized(mesh.tetrahedralization.tetrahedrons(tId.id)))
       if (filterResult.nonEmpty) cell = Some(mesh.tetrahedralization.tetrahedrons(filterResult.head.id))
@@ -64,7 +70,10 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh
           val vertexValues = cell.pointIds.map(df(_))
           val barycentricCoordinates = mesh.getBarycentricCoordinates(p, cell)
           val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
-          ValueInterpolator[A].convexCombination(valueCoordinatePairs(0), valueCoordinatePairs(1), valueCoordinatePairs(2), valueCoordinatePairs(3))
+          ValueInterpolator[A].convexCombination(valueCoordinatePairs(0),
+                                                 valueCoordinatePairs(1),
+                                                 valueCoordinatePairs(2),
+                                                 valueCoordinatePairs(3))
         case None => throw new Exception(s"Point $p outside of domain.")
       }
     }

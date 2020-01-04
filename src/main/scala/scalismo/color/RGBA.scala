@@ -19,7 +19,7 @@ package scalismo.color
 import java.awt.Color
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ ComponentRepresentation, Vectorizer }
+import scalismo.common.{ComponentRepresentation, Vectorizer}
 import scalismo.numerics.ValueInterpolator
 
 import scala.annotation.switch
@@ -86,11 +86,7 @@ case class RGBA(r: Double, g: Double, b: Double, a: Double) {
   def over(that: RGBA): RGBA = {
     val ma = 1.0 - a
     val ao = a + that.a * ma
-    RGBA(
-      r * a + that.r * that.a * ma,
-      g * a + that.g * that.a * ma,
-      b * a + that.b * that.a * ma,
-      ao)
+    RGBA(r * a + that.r * that.a * ma, g * a + that.g * that.a * ma, b * a + that.b * that.a * ma, ao)
   }
 
   /**
@@ -114,7 +110,11 @@ object RGBA {
   def apply(gray: Double): RGBA = new RGBA(gray, gray, gray, 1.0)
   def apply(gray: Double, a: Double): RGBA = new RGBA(gray, gray, gray, a)
   def apply(tuple: (Double, Double, Double, Double)) = new RGBA(tuple._1, tuple._2, tuple._3, tuple._4)
-  def apply(awtColor: Color): RGBA = RGBA(fromInt8(awtColor.getRed), fromInt8(awtColor.getGreen), fromInt8(awtColor.getBlue), fromInt8(awtColor.getAlpha))
+  def apply(awtColor: Color): RGBA =
+    RGBA(fromInt8(awtColor.getRed),
+         fromInt8(awtColor.getGreen),
+         fromInt8(awtColor.getBlue),
+         fromInt8(awtColor.getAlpha))
 
   /** implementation of the Vectorizer interface for RGBA */
   implicit object RGBAComponents extends ComponentRepresentation[RGBA] with Vectorizer[RGBA] {
@@ -154,6 +154,7 @@ object RGBA {
   }
 
   implicit object RGBAOperations extends ColorSpaceOperations[RGBA] {
+
     /** add two pixels */
     override def add(pix1: RGBA, pix2: RGBA): RGBA = pix1 + pix2
 
@@ -173,11 +174,11 @@ object RGBA {
   }
 
   implicit object RGBAInterpolator extends ValueInterpolator[RGBA] {
-    override def blend(obj1: RGBA, obj2: RGBA, l: Double): RGBA = RGBA(
-      obj1.r * l + (1.0 - l) * obj2.r,
-      obj1.g * l + (1.0 - l) * obj2.g,
-      obj1.b * l + (1.0 - l) * obj2.b,
-      obj1.a * l + (1.0 - l) * obj2.a)
+    override def blend(obj1: RGBA, obj2: RGBA, l: Double): RGBA =
+      RGBA(obj1.r * l + (1.0 - l) * obj2.r,
+           obj1.g * l + (1.0 - l) * obj2.g,
+           obj1.b * l + (1.0 - l) * obj2.b,
+           obj1.a * l + (1.0 - l) * obj2.a)
 
     override def average(first: RGBA, rest: RGBA*): RGBA = {
       var r = first.r
@@ -195,11 +196,10 @@ object RGBA {
     }
 
     override def barycentricInterpolation(v1: RGBA, f1: Double, v2: RGBA, f2: Double, v3: RGBA, f3: Double): RGBA = {
-      RGBA(
-        v1.r * f1 + v2.r * f2 + v3.r * f3,
-        v1.g * f1 + v2.g * f2 + v3.g * f3,
-        v1.b * f1 + v2.b * f2 + v3.b * f3,
-        v1.a * f1 + v2.a * f2 + v3.a * f3)
+      RGBA(v1.r * f1 + v2.r * f2 + v3.r * f3,
+           v1.g * f1 + v2.g * f2 + v3.g * f3,
+           v1.b * f1 + v2.b * f2 + v3.b * f3,
+           v1.a * f1 + v2.a * f2 + v3.a * f3)
     }
   }
 
