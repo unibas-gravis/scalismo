@@ -29,18 +29,18 @@ class MeshBoundaryTests extends ScalismoTestSuite {
 
       val singleTriangleMesh = TriangleMesh3D(
         IndexedSeq(
-        Point(0, 0, 0),
-        Point(0, 0, 1),
-        Point(1, 0, 0)),
+          Point(0, 0, 0),
+          Point(0, 0, 1),
+          Point(1, 0, 0)),
         TriangleList(IndexedSeq(
           TriangleCell(0, 1, 2))))
 
       val twoTraingesMesh = TriangleMesh3D(
         IndexedSeq(
-        Point(0, 0, 0),
-        Point(0, 0, 1),
-        Point(1, 0, 0),
-        Point(0, 1, 1)),
+          Point(0, 0, 0),
+          Point(0, 0, 1),
+          Point(1, 0, 0),
+          Point(0, 1, 1)),
         TriangleList(IndexedSeq(
           TriangleCell(0, 1, 2),
           TriangleCell(0, 2, 3))))
