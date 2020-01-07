@@ -17,7 +17,7 @@ package scalismo.common
 
 import breeze.linalg.DenseVector
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.geometry.{EuclideanVector, NDSpace, Point}
+import scalismo.geometry.{ EuclideanVector, NDSpace, Point }
 
 import scala.reflect.ClassTag
 
@@ -70,7 +70,6 @@ class DiscreteField[D, +DDomain <: DiscreteDomain[D], A](val domain: DDomain, va
 
 object DiscreteField {
   def apply[D, DDomain <: DiscreteDomain[D], A](domain: DDomain, data: IndexedSeq[A]): DiscreteField[D, DDomain, A] = new DiscreteField[D, DDomain, A](domain, data)
-
 
   private[scalismo] def createFromDenseVector[D, DDomain <: DiscreteDomain[D], A](domain: DDomain, d: DenseVector[Double])(implicit vectorizer: Vectorizer[A]) = {
     val dim = vectorizer.dim
@@ -190,7 +189,8 @@ object DiscreteVectorField {
    * If n is the number o fpoints in the domain and d the dimensionality (DO),
    * the vector is ordered as (v_11, v_12, ... v_1d, ...v_n1, v_n2, v_nd)
    */
-  def fromDenseVector[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](domain: DDomain,
+  def fromDenseVector[D: NDSpace, DDomain <: DiscreteDomain[D], DO: NDSpace](
+    domain: DDomain,
     vec: DenseVector[Double]): DiscreteVectorField[D, DDomain, DO] = {
     val dim = implicitly[NDSpace[DO]].dimensionality
     val vectors =

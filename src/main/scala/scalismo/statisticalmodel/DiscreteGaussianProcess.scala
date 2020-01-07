@@ -16,11 +16,11 @@
 
 package scalismo.statisticalmodel
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{ DenseMatrix, DenseVector }
 import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
-import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
+import scalismo.kernels.{ DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel }
 import scalismo.numerics.PivotedCholesky
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.utils.Random
@@ -30,8 +30,9 @@ import scalismo.utils.Random
  * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
  * class that we represent (discrete) functions, defined on the given domain.
  */
-class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (val mean: DiscreteField[D, DDomain, Value],
-    val cov: DiscreteMatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
+class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] private[scalismo] (
+  val mean: DiscreteField[D, DDomain, Value],
+  val cov: DiscreteMatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
   self =>
 
   require(mean.domain == cov.domain)
@@ -112,7 +113,7 @@ class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] 
 
   }
 
-  def interpolate(interpolator : FieldInterpolator[D, DDomain, Value]) : GaussianProcess[D, Value] = {
+  def interpolate(interpolator: FieldInterpolator[D, DDomain, Value]): GaussianProcess[D, Value] = {
 
     // We know how to interpolate DiscreteLowRankGaussianProcesses, but
     // not this more generic type of DiscreteGP. Since we are sure that our
@@ -122,8 +123,7 @@ class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] 
 
     val (basis, scale) = PivotedCholesky.computeApproximateEig(
       cov.asBreezeMatrix,
-      RelativeTolerance(0.0)
-    )
+      RelativeTolerance(0.0))
 
     val nBasisFunctions = basis.cols
 
@@ -135,7 +135,6 @@ class DiscreteGaussianProcess[D: NDSpace, +DDomain <: DiscreteDomain[D], Value] 
     val dgp = DiscreteLowRankGaussianProcess[D, DDomain, Value](mean, klBasis)
     dgp.interpolate(interpolator)
   }
-
 
   /**
    * Discrete version of [[LowRankGaussianProcess.project(IndexedSeq[(Point[D], Vector[DO])], Double)]]

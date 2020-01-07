@@ -155,7 +155,7 @@ case class LineMesh3D(override val pointSet: UnstructuredPointsDomain[_3D], over
 
 /** property constant per line */
 case class LineProperty[A](topology: LineList, lineData: IndexedSeq[A])
-    extends LineContourProperty[A] {
+  extends LineContourProperty[A] {
   require(lineData.size == topology.lines.size)
 
   override def onContour(lineId: LineId, bcc: LineCoordinates): A = lineData(lineId.id)

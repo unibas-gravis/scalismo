@@ -265,8 +265,7 @@ class MeshIOTests extends ScalismoTestSuite {
     val points = IndexedSeq.fill(N)(Point(
       rng.scalaRandom.nextGaussian() * 2,
       rng.scalaRandom.nextGaussian() * 1000,
-      rng.scalaRandom.nextGaussian() * 1000000
-    ))
+      rng.scalaRandom.nextGaussian() * 1000000))
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
@@ -276,8 +275,7 @@ class MeshIOTests extends ScalismoTestSuite {
       rng.scalaRandom.nextInt(N),
       rng.scalaRandom.nextInt(N),
       rng.scalaRandom.nextInt(N),
-      rng.scalaRandom.nextInt(N)
-    ))
+      rng.scalaRandom.nextInt(N)))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)

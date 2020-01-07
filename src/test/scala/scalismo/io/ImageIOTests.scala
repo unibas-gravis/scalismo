@@ -271,8 +271,7 @@ class ImageIOTests extends ScalismoTestSuite {
         convertTo[D, Float](img),
         convertTo[D, UByte](img),
         convertTo[D, UShort](img),
-        convertTo[D, UInt](img)
-      )
+        convertTo[D, UInt](img))
 
       def read[D: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[D, T]] = {
         implicitly[NDSpace[D]].dimensionality match {

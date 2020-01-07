@@ -77,8 +77,7 @@ object MeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTKPolydata(file).flatMap(pd =>
-        MeshConversion.vtkPolyDataToScalarMeshField(pd)
-      )
+        MeshConversion.vtkPolyDataToScalarMeshField(pd))
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
@@ -200,11 +199,9 @@ object MeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTKUnstructuredGrid(file).flatMap(ug =>
-        TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-      )
+        TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug))
       case f if f.endsWith(".vtu") => readVTKXMLUnstructuredGrid(file).flatMap(ug =>
-        TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-      )
+        TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug))
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
@@ -625,12 +622,12 @@ object MeshIO {
   }
 
   private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
-    // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
+    // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
     ndarray.data.grouped(3).map(grp => Point(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
   }
 
   private def NDArrayToCellSeq(ndarray: NDArray[Int]): IndexedSeq[TriangleCell] = {
-    // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq 
+    // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
     ndarray.data.grouped(3).map(grp => TriangleCell(PointId(grp(0)), PointId(grp(1)), PointId(grp(2)))).toIndexedSeq
   }
 

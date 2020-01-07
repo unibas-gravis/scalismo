@@ -30,10 +30,10 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
  */
 
 abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
-    fixedImage: ScalarImage[D, A],
-    movingImage: DifferentiableScalarImage[D, A],
-    transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D]) extends ImageMetric[D, A] {
+  fixedImage: ScalarImage[D, A],
+  movingImage: DifferentiableScalarImage[D, A],
+  transformationSpace: TransformationSpace[D],
+  sampler: Sampler[D]) extends ImageMetric[D, A] {
 
   override val ndSpace: NDSpace[D] = implicitly[NDSpace[D]]
 
@@ -80,7 +80,8 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
     samples.par.map { case (pt, _) => metricValue(pt).getOrElse(0.0) }.sum / samples.size
   }
 
-  private def computeDerivative(parameters: DenseVector[Double],
+  private def computeDerivative(
+    parameters: DenseVector[Double],
     sampler: Sampler[D]): DenseVector[Double] = {
 
     val transform = transformationSpace.transformForParameters(parameters)

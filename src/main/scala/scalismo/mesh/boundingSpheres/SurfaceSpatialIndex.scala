@@ -67,7 +67,8 @@ import scalismo.mesh.boundingSpheres.ClosestPointType._
  * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
  * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
  */
-private case class ClosestPointMeta(distance2: Double,
+private case class ClosestPointMeta(
+  distance2: Double,
   pt: EuclideanVector[_3D],
   ptType: ClosestPointType,
   bc: (Double, Double),
@@ -103,10 +104,11 @@ object TriangleMesh3DSpatialIndex {
 /**
  * Surface distance implementation for TriangleMesh3D.
  */
-private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
+private[mesh] class TriangleMesh3DSpatialIndex(
+  private val bs: BoundingSphere,
   private val mesh: TriangleMesh3D,
   private val triangles: Seq[Triangle])
-    extends SurfaceSpatialIndex[_3D] {
+  extends SurfaceSpatialIndex[_3D] {
 
   /**
    * Calculates the squared closest distance to the surface.
@@ -180,7 +182,8 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   /**
    * Search for the closest point recursively
    */
-  private def distanceToPartition(point: EuclideanVector[_3D],
+  private def distanceToPartition(
+    point: EuclideanVector[_3D],
     partition: BoundingSphere,
     result: CP,
     index: Index): Unit = {

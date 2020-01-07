@@ -75,8 +75,7 @@ case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImage
       val xd = (ctdIndex(0) - x0)
       valueInterpolator.convexCombination(
         (valueAtIdx(IntVector(x0)), (1.0f - xd)),
-        (valueAtIdx(IntVector(x1)), xd)
-      )
+        (valueAtIdx(IntVector(x1)), xd))
     }
 
     Field(domain.imageBoundingBox, interpolatePoint)
@@ -109,16 +108,13 @@ case class LinearImageInterpolator2D[A: ValueInterpolator]() extends LinearImage
       val yd = (ctdIndex(1) - y0)
       val c00 = valueInterpolator.convexCombination(
         (valueAtIdx(IntVector2D(x0, y0)), (1.0f - xd)),
-        (valueAtIdx(IntVector2D(x1, y0)), xd)
-      )
+        (valueAtIdx(IntVector2D(x1, y0)), xd))
       val c10 = valueInterpolator.convexCombination(
         (valueAtIdx(IntVector2D(x0, y1)), (1.0 - xd)),
-        (valueAtIdx(IntVector2D(x1, y1)), xd)
-      )
+        (valueAtIdx(IntVector2D(x1, y1)), xd))
       valueInterpolator.convexCombination(
         (c00, 1.0 - yd),
-        (c10, yd)
-      )
+        (c10, yd))
     }
 
     Field(df.domain.imageBoundingBox, interpolatePoint)
@@ -154,20 +150,16 @@ case class LinearImageInterpolator3D[A: ValueInterpolator]() extends LinearImage
       val zd = (ctdIndex(2) - z0)
       val c00 = valueInterpolator.convexCombination(
         (valueAtIdx(IntVector3D(x0, y0, z0)), (1.0 - xd)),
-        (valueAtIdx(IntVector3D(x1, y0, z0)), xd)
-      )
+        (valueAtIdx(IntVector3D(x1, y0, z0)), xd))
       val c01 = valueInterpolator.convexCombination(
         (valueAtIdx(IntVector3D(x0, y0, z1)), (1.0 - xd)),
-        (valueAtIdx(IntVector3D(x1, y0, z1)), xd)
-      )
+        (valueAtIdx(IntVector3D(x1, y0, z1)), xd))
       val c10 = valueInterpolator.convexCombination(
         (valueAtIdx(IntVector3D(x0, y1, z0)), (1.0 - xd)),
-        (valueAtIdx(IntVector3D(x1, y1, z0)), xd)
-      )
+        (valueAtIdx(IntVector3D(x1, y1, z0)), xd))
       val c11 = valueInterpolator.convexCombination(
         (valueAtIdx(IntVector3D(x0, y1, z1)), (1.0 - xd)),
-        (valueAtIdx(IntVector3D(x1, y1, z1)), xd)
-      )
+        (valueAtIdx(IntVector3D(x1, y1, z1)), xd))
       val c0 = valueInterpolator.convexCombination((c00, (1.0 - yd)), (c10, yd))
       val c1 = valueInterpolator.convexCombination((c01, (1.0 - yd)), (c11, yd))
       val c = valueInterpolator.convexCombination((c0, (1.0 - zd)), (c1, zd))

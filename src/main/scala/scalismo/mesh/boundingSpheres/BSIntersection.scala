@@ -32,20 +32,17 @@ private[boundingSpheres] object BSIntersection {
     val beta = Determinantes.det3x3(
       a.x - point.x, a.x - c.x, direction.x,
       a.y - point.y, a.y - c.y, direction.y,
-      a.z - point.z, a.z - c.z, direction.z
-    ) / det
+      a.z - point.z, a.z - c.z, direction.z) / det
 
     val gamma = Determinantes.det3x3(
       a.x - b.x, a.x - point.x, direction.x,
       a.y - b.y, a.y - point.y, direction.y,
-      a.z - b.z, a.z - point.z, direction.z
-    ) / det
+      a.z - b.z, a.z - point.z, direction.z) / det
 
     val t = Determinantes.det3x3(
       a.x - b.x, a.x - c.x, a.x - point.x,
       a.y - b.y, a.y - c.y, a.y - point.y,
-      a.z - b.z, a.z - c.z, a.z - point.z
-    ) / det
+      a.z - b.z, a.z - c.z, a.z - point.z) / det
 
     if (beta >= 0.0 && gamma >= 0.0 && beta + gamma <= 1.0) {
       (true, Point(
@@ -67,14 +64,12 @@ private[boundingSpheres] object BSIntersection {
     val beta = Determinantes.det3x3(
       a.x - point.x, a.x - c.x, direction.x,
       a.y - point.y, a.y - c.y, direction.y,
-      a.z - point.z, a.z - c.z, direction.z
-    ) / det
+      a.z - point.z, a.z - c.z, direction.z) / det
 
     val gamma = Determinantes.det3x3(
       a.x - b.x, a.x - point.x, direction.x,
       a.y - b.y, a.y - point.y, direction.y,
-      a.z - b.z, a.z - point.z, direction.z
-    ) / det
+      a.z - b.z, a.z - point.z, direction.z) / det
 
     if (beta >= 0.0 && gamma >= 0.0 && beta + gamma <= 1.0) {
       (true, BarycentricCoordinates(1 - beta - gamma, beta, gamma))
@@ -83,7 +78,8 @@ private[boundingSpheres] object BSIntersection {
     }
   }
 
-  def intersectLineSphereSquared(point: EuclideanVector[_3D],
+  def intersectLineSphereSquared(
+    point: EuclideanVector[_3D],
     direction: EuclideanVector[_3D],
     center: EuclideanVector[_3D],
     r2: Double): Boolean = {
@@ -99,8 +95,7 @@ private[boundingSpheres] object Determinantes {
     b1: Double, b2: Double): Double = {
     (
       +a1 * b2
-      - b1 * a2
-    )
+      - b1 * a2)
   }
 
   @inline
@@ -110,8 +105,7 @@ private[boundingSpheres] object Determinantes {
     (
       +a1 * det2x2(b2, b3, c2, c3)
       - b1 * det2x2(a2, a3, c2, c3)
-      + c1 * det2x2(a2, a3, b2, b3)
-    )
+      + c1 * det2x2(a2, a3, b2, b3))
   }
 
   @inline
@@ -135,8 +129,7 @@ private[boundingSpheres] object Determinantes {
       - a4 * det3x3(b1, b2, b3, c1, c2, c3, d1, d2, d3)
       + b4 * det3x3(c1, c2, c3, d1, d2, d3, a1, a2, a3)
       - c4 * det3x3(d1, d2, d3, a1, a2, a3, b1, b2, b3)
-      + d4 * det3x3(a1, a2, a3, b1, b2, b3, c1, c2, c3)
-    )
+      + d4 * det3x3(a1, a2, a3, b1, b2, b3, c1, c2, c3))
   }
 
 }

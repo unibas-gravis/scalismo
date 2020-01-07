@@ -26,9 +26,9 @@ import scalismo.geometry.NDSpace
  *  is a matrix. Furthermore, the class has the knowledge about its domain (the point on which it is defined).
  */
 class DiscreteMatrixValuedPDKernel[D: NDSpace] private[scalismo] (
-    val domain: DiscreteDomain[D],
-    val k: (PointId, PointId) => DenseMatrix[Double],
-    val outputDim: Int) {
+  val domain: DiscreteDomain[D],
+  val k: (PointId, PointId) => DenseMatrix[Double],
+  val outputDim: Int) {
   self =>
 
   def apply(i: PointId, j: PointId): DenseMatrix[Double] = {

@@ -203,8 +203,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
       a *: pointSet.point(tc.ptId1).toVector +
       s *: pointSet.point(tc.ptId2).toVector +
       t *: pointSet.point(tc.ptId3).toVector +
-      u *: pointSet.point(tc.ptId4).toVector
-    ).toPoint
+      u *: pointSet.point(tc.ptId4).toVector).toPoint
   }
 }
 
@@ -212,8 +211,7 @@ object TetrahedralMesh3D {
   def apply(points: IndexedSeq[Point[_3D]], topology: TetrahedralList): TetrahedralMesh3D = {
     TetrahedralMesh3D(
       UnstructuredPointsDomain(points.toIndexedSeq),
-      topology
-    )
+      topology)
   }
 }
 

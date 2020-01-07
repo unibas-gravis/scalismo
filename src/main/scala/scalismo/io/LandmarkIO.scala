@@ -51,7 +51,8 @@ object LandmarkIO {
 
   private case class LandmarkJsonFormat[D: NDSpace]() extends JsonFormat[Landmark[D]] {
     def write(l: Landmark[D]) = {
-      val fixedMap = Map("id" -> JsString(l.id),
+      val fixedMap = Map(
+        "id" -> JsString(l.id),
         "coordinates" -> arrayFormat[Double].write(l.point.toArray))
       val descriptionMap = l.description.map { d => Map("description" -> JsString(d)) }.getOrElse(Map())
       val uncertaintyMap = l.uncertainty.map { u => Map("uncertainty" -> uncertaintyProtocol.write(u)) }.getOrElse(Map())

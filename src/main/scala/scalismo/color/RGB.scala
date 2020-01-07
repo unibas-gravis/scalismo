@@ -170,8 +170,7 @@ object RGB {
     override def blend(obj1: RGB, obj2: RGB, l: Double): RGB = RGB(
       obj1.r * l + (1f - l) * obj2.r,
       obj1.g * l + (1f - l) * obj2.g,
-      obj1.b * l + (1f - l) * obj2.b
-    )
+      obj1.b * l + (1f - l) * obj2.b)
 
     override def average(first: RGB, rest: RGB*): RGB = {
       var r = first.r

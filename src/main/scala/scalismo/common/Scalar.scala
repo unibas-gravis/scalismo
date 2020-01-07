@@ -45,12 +45,12 @@ trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
   def toFloat(a: S): Float
   def toDouble(a: S): Double
 
-  def plus(s1 : S, s2 : S) : S
-  def minus(s1 : S, s2 : S) : S
-  def times(s1 : S, s2 : S) : S
-  def timesDouble(s1 : S, d : Double) : Double
-  def zero : S
-  def one : S
+  def plus(s1: S, s2: S): S
+  def minus(s1: S, s2: S): S
+  def times(s1: S, s2: S): S
+  def timesDouble(s1: S, d: Double): Double
+  def zero: S
+  def one: S
 }
 
 /**
@@ -189,7 +189,6 @@ object Scalar {
 
     override def one: UShort = UShort(1)
   }
-
 
   class UIntIsScalar extends ValueClassScalar[UInt, Int] {
     override def toByte(a: UInt): Byte = a.toByte

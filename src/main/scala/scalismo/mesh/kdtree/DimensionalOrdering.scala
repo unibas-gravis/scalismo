@@ -16,7 +16,7 @@
 
 package scalismo.mesh.kdtree
 
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{ NDSpace, Point }
 
 import scala.annotation.tailrec
 

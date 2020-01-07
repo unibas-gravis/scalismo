@@ -16,17 +16,17 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{DenseMatrix, DenseVector, diag}
+import breeze.linalg.{ DenseMatrix, DenseVector, diag }
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.geometry.{EuclideanVector, NDSpace, Point}
-import scalismo.kernels.{Kernel, MatrixValuedPDKernel}
+import scalismo.geometry.{ EuclideanVector, NDSpace, Point }
+import scalismo.kernels.{ Kernel, MatrixValuedPDKernel }
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
-import scalismo.numerics.{PivotedCholesky, Sampler}
+import scalismo.numerics.{ PivotedCholesky, Sampler }
 import scalismo.registration.RigidTransformation
-import scalismo.statisticalmodel.LowRankGaussianProcess.{Eigenpair, KLBasis}
-import scalismo.utils.{Memoize, Random}
+import scalismo.statisticalmodel.LowRankGaussianProcess.{ Eigenpair, KLBasis }
+import scalismo.utils.{ Memoize, Random }
 
 /**
  *
@@ -38,9 +38,10 @@ import scalismo.utils.{Memoize, Random}
  * @tparam D     The dimensionality of the input space
  * @tparam Value The output type
  */
-class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value],
+class LowRankGaussianProcess[D: NDSpace, Value](
+  mean: Field[D, Value],
   val klBasis: KLBasis[D, Value])(implicit vectorizer: Vectorizer[Value])
-    extends GaussianProcess[D, Value](mean, LowRankGaussianProcess.covFromKLTBasis(klBasis)) {
+  extends GaussianProcess[D, Value](mean, LowRankGaussianProcess.covFromKLTBasis(klBasis)) {
 
   /**
    * the rank (i.e. number of basis functions)
@@ -193,7 +194,8 @@ object LowRankGaussianProcess {
    * @param sampler           determines which points will be used as samples for the nystrom approximation.
    * @param numBasisFunctions The number of basis functions to approximate.
    */
-  def approximateGPNystrom[D : NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGPNystrom[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
     sampler: Sampler[D],
     numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
@@ -201,9 +203,10 @@ object LowRankGaussianProcess {
   }
 
   @deprecated("the method has been renamed to approximateGPNystrom", "0.17")
-  def approximateGP[D : NDSpace, Value](gp: GaussianProcess[D, Value],
-                                              sampler: Sampler[D],
-                                              numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+  def approximateGP[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
+    sampler: Sampler[D],
+    numBasisFunctions: Int)(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     approximateGPNystrom(gp, sampler, numBasisFunctions)
   }
 
@@ -215,60 +218,59 @@ object LowRankGaussianProcess {
    * @param sampler           determines which points will be used as samples for the nystrom approximation.
    * @
    */
-  def approximateGPNystrom[D : NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGPNystrom[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
 
   @deprecated("the method has been renamed to approximateGPNystrom", "0.17")
-  def approximateGP[D: NDSpace, Value](gp: GaussianProcess[D, Value],
+  def approximateGP[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
     sampler: Sampler[D])(implicit vectorizer: Vectorizer[Value], rand: Random) = {
     approximateGPNystrom(gp, sampler)
   }
 
   /**
-    * Perform a low-rank approximation of the Gaussian process using a pivoted Cholesky approximation.
-    * This approximation will automatically compute the required number of basis functions, to achieve a given
-    * approximation quality.
-    *
-    * Note:
-    * The number of basis functions that are generated for a fixed approximation quality depends very much on the
-    * smoothness of the process. The more smooth the modelled functions are, the less basis functions are required.
-    * For models which are highly non-smooth, this method may generate a lot of basis functions.
-    *
-    *
-    * @param domain The domain on which the approximation is performed. This can, for example be the points of a mesh,
-    *               an image domain (regular grid) or any other suitable domain. Note that the number of points in this
-    *               domain influences the approximation accuracy. As the complexity of this method grows at most
-    *               linearly with the number of points, efficient approximations can be computed for domains which contain
-    *               millions of points.
-    *
-    * @param gp     The gaussian process to be approximated
-    *
-    * @param relativeTolerance  The relative tolerance defines the stopping criterion for the approximation. When we
-    *                           choose this parameter as 0.01, the method will stop computing new basis functions, when
-    *                           the variance represented by the approximated Gaussian Process is 99% of the total variance
-    *                           of the original process. A value of 0 will generate new basis functions until all the variance
-    *                           is approximated. Note that this will only terminate when the Gaussian process has finite rank.
-    *
-    * @param interpolator       An interpolator used to interpolate values that lie between the points of the domain
-    *
-    * @return       A low rank approximation of the Gaussian process
-    */
-  def approximateGPCholesky[D : NDSpace, DDomain <: DiscreteDomain[D], Value]
-  (domain: DDomain,
-   gp: GaussianProcess[D, Value],
-   relativeTolerance: Double,
-   interpolator: FieldInterpolator[D, DDomain, Value])
-  (implicit vectorizer: Vectorizer[Value], rand: Random): LowRankGaussianProcess[D, Value] = {
+   * Perform a low-rank approximation of the Gaussian process using a pivoted Cholesky approximation.
+   * This approximation will automatically compute the required number of basis functions, to achieve a given
+   * approximation quality.
+   *
+   * Note:
+   * The number of basis functions that are generated for a fixed approximation quality depends very much on the
+   * smoothness of the process. The more smooth the modelled functions are, the less basis functions are required.
+   * For models which are highly non-smooth, this method may generate a lot of basis functions.
+   *
+   *
+   * @param domain The domain on which the approximation is performed. This can, for example be the points of a mesh,
+   *               an image domain (regular grid) or any other suitable domain. Note that the number of points in this
+   *               domain influences the approximation accuracy. As the complexity of this method grows at most
+   *               linearly with the number of points, efficient approximations can be computed for domains which contain
+   *               millions of points.
+   *
+   * @param gp     The gaussian process to be approximated
+   *
+   * @param relativeTolerance  The relative tolerance defines the stopping criterion for the approximation. When we
+   *                           choose this parameter as 0.01, the method will stop computing new basis functions, when
+   *                           the variance represented by the approximated Gaussian Process is 99% of the total variance
+   *                           of the original process. A value of 0 will generate new basis functions until all the variance
+   *                           is approximated. Note that this will only terminate when the Gaussian process has finite rank.
+   *
+   * @param interpolator       An interpolator used to interpolate values that lie between the points of the domain
+   *
+   * @return       A low rank approximation of the Gaussian process
+   */
+  def approximateGPCholesky[D: NDSpace, DDomain <: DiscreteDomain[D], Value](
+    domain: DDomain,
+    gp: GaussianProcess[D, Value],
+    relativeTolerance: Double,
+    interpolator: FieldInterpolator[D, DDomain, Value])(implicit vectorizer: Vectorizer[Value], rand: Random): LowRankGaussianProcess[D, Value] = {
 
     val (basis, scale) = PivotedCholesky.computeApproximateEig(
       kernel = gp.cov,
       xs = domain.points.toIndexedSeq,
-      stoppingCriterion = RelativeTolerance(relativeTolerance)
-    )
-
+      stoppingCriterion = RelativeTolerance(relativeTolerance))
 
     // Assemble a discrete Gaussian process from the matrix given by the pivoted cholesky and use the interpolator
     // to interpolate it.
@@ -316,7 +318,8 @@ object LowRankGaussianProcess {
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
+  def regression[D: NDSpace, Value](
+    gp: LowRankGaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
     val outputDim = gp.outputDim
 
@@ -360,7 +363,8 @@ object LowRankGaussianProcess {
   /*
   * Internal computations of the regression.
    */
-  private def genericRegressionComputations[D: NDSpace, Value](gp: LowRankGaussianProcess[D, Value],
+  private def genericRegressionComputations[D: NDSpace, Value](
+    gp: LowRankGaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]) = {
 
     val outputDim = gp.outputDim

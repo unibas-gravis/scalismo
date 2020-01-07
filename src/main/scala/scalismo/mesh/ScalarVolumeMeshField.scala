@@ -29,7 +29,7 @@ import scala.reflect.ClassTag
  */
 
 case class ScalarVolumeMeshField[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], override val data: ScalarArray[S])
-    extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
+  extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
   require(mesh.pointSet.numberOfPoints == data.size)
 
   override def values = data.iterator

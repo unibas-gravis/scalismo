@@ -90,8 +90,7 @@ case class RGBA(r: Double, g: Double, b: Double, a: Double) {
       r * a + that.r * that.a * ma,
       g * a + that.g * that.a * ma,
       b * a + that.b * that.a * ma,
-      ao
-    )
+      ao)
   }
 
   /**
@@ -178,8 +177,7 @@ object RGBA {
       obj1.r * l + (1.0 - l) * obj2.r,
       obj1.g * l + (1.0 - l) * obj2.g,
       obj1.b * l + (1.0 - l) * obj2.b,
-      obj1.a * l + (1.0 - l) * obj2.a
-    )
+      obj1.a * l + (1.0 - l) * obj2.a)
 
     override def average(first: RGBA, rest: RGBA*): RGBA = {
       var r = first.r

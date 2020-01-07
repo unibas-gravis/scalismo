@@ -37,8 +37,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
 
     it("can be written and read again") {
       val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
-      )
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -55,8 +54,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
 
     it("can be written and read again in non-standard location") {
       val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
-      )
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -75,8 +73,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
       import StatismoIO.StatismoVersion.v081
 
       val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
-      )
+        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -174,12 +171,10 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val domain = DiscreteImageDomain(
         origin = Point3D(1.0, 3.1, 7.5),
         spacing = EuclideanVector3D(0.8, 0.7, 0.6),
-        size = IntVector3D(10, 12, 9)
-      )
+        size = IntVector3D(10, 12, 9))
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(
-        domain, gp, 0.1, NearestNeighborInterpolator()
-      )
+        domain, gp, 0.1, NearestNeighborInterpolator())
 
       val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
       tmpFile.deleteOnExit()
@@ -206,12 +201,10 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val domain = DiscreteImageDomain(
         origin = Point2D(1.0, 3.1),
         spacing = EuclideanVector2D(0.8, 0.7),
-        size = IntVector2D(10, 12)
-      )
+        size = IntVector2D(10, 12))
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(
-        domain, gp, 0.1, NearestNeighborInterpolator()
-      )
+        domain, gp, 0.1, NearestNeighborInterpolator())
 
       val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
       tmpFile.deleteOnExit()

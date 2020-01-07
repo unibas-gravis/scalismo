@@ -74,7 +74,8 @@ sealed class Tupler[U, T](val tupled: U => T, val untupled: T => U)
 object Tupler {
 
   implicit def function0[R]: Tupler[() => R, Unit => R] =
-    new Tupler((f: () => R) => (_: Unit) => f(),
+    new Tupler(
+      (f: () => R) => (_: Unit) => f(),
       (f: Unit => R) => () => f(()))
 
   implicit def function1[T, R]: Tupler[T => R, T => R] = new Tupler(identity, identity)

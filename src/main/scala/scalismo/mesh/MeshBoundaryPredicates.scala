@@ -61,9 +61,9 @@ trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
  */
 
 private class BoundaryOfATriangleMeshPredicates(
-    private var vertexIsOnBorder: IndexedSeq[Boolean],
-    private var edgeIsOnBorder: CSCMatrix[Boolean],
-    private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundaryPredicates {
+  private var vertexIsOnBorder: IndexedSeq[Boolean],
+  private var edgeIsOnBorder: CSCMatrix[Boolean],
+  private var triangleIsOnBorder: IndexedSeq[Boolean]) extends TriangularMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
     vertexIsOnBorder(id.id)
@@ -145,8 +145,7 @@ object MeshBoundaryPredicates {
     new BoundaryOfATriangleMeshPredicates(
       pointOnBorder.toIndexedSeq,
       edgeOnBorder,
-      triangleOnBorder.toIndexedSeq
-    )
+      triangleOnBorder.toIndexedSeq)
   }
 
   /**

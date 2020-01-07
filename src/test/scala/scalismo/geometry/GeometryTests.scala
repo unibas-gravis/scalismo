@@ -477,7 +477,8 @@ class GeometryTests extends ScalismoTestSuite {
 
     it("is correctly transformed using a rigid transform") {
 
-      val rigidTransform = RigidTransformation(TranslationTransform(EuclideanVector2D(2, 3)),
+      val rigidTransform = RigidTransformation(
+        TranslationTransform(EuclideanVector2D(2, 3)),
         RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
 
       val transformedLm = lm.transform(rigidTransform)

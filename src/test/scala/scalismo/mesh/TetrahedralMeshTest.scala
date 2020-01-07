@@ -35,8 +35,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       Point(0, 0, 1),
       Point(1, 0, 1),
       Point(1, 1, 1),
-      Point(0, 1, 1)
-    )
+      Point(0, 1, 1))
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
@@ -46,8 +45,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       TetrahedralCell(0, 2, 5, 1),
       TetrahedralCell(2, 5, 7, 6),
       TetrahedralCell(0, 5, 7, 4),
-      TetrahedralCell(0, 2, 5, 7)
-    )
+      TetrahedralCell(0, 2, 5, 7))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -67,8 +65,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       Point(0, 0, 2),
       Point(1, 0, 2),
       Point(1, 1, 2),
-      Point(0, 1, 2)
-    )
+      Point(0, 1, 2))
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
@@ -83,8 +80,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       TetrahedralCell(4, 6, 9, 5),
       TetrahedralCell(6, 9, 11, 10),
       TetrahedralCell(4, 9, 11, 8),
-      TetrahedralCell(4, 6, 9, 11)
-    )
+      TetrahedralCell(4, 6, 9, 11))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -96,8 +92,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
     val points = IndexedSeq.fill(N)(Point(
       rng.scalaRandom.nextGaussian() * 2,
       rng.scalaRandom.nextGaussian() * 1000,
-      rng.scalaRandom.nextGaussian() * 1000000
-    ))
+      rng.scalaRandom.nextGaussian() * 1000000))
     val domain = UnstructuredPointsDomain(points)
 
     implicit def intToPointId(i: Int): PointId = PointId(i)
@@ -107,8 +102,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       indices(0),
       indices(1),
       indices(2),
-      indices(3)
-    ))
+      indices(3)))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -123,15 +117,13 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
         val t = TranslationTransform(EuclideanVector3D(
           rng.scalaRandom.nextGaussian() * 50,
           rng.scalaRandom.nextGaussian() * 50,
-          rng.scalaRandom.nextGaussian() * 50
-        ))
+          rng.scalaRandom.nextGaussian() * 50))
 
         val R = RotationTransform(
           rng.scalaRandom.nextGaussian() * Math.PI,
           rng.scalaRandom.nextGaussian() * Math.PI,
           rng.scalaRandom.nextGaussian() * Math.PI,
-          Point3D.origin
-        )
+          Point3D.origin)
         def mapping(pt: Point[_3D]) = R(t(pt))
 
         val tetrahedron = createTetrahedronsInUnitCube().transform(mapping)
