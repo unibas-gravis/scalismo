@@ -25,7 +25,7 @@ import scalismo.geometry._
  * @tparam A The type of the pixel (usually a scalar or a vector)
  */
 class DiscreteImage[D: NDSpace, A](domain: DiscreteImageDomain[D], values: IndexedSeq[A])
-  extends DiscreteField[D, DiscreteImageDomain[D], A](domain, values) {
+    extends DiscreteField[D, DiscreteImageDomain[D], A](domain, values) {
 
   protected[this] def ndSpace: NDSpace[D] = NDSpace[D]
 
@@ -38,4 +38,3 @@ class DiscreteImage[D: NDSpace, A](domain: DiscreteImageDomain[D], values: Index
   }
 
 }
-

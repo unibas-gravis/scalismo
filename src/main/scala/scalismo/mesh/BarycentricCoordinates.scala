@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.geometry.{ EuclideanVector, Point, _2D, _3D }
+import scalismo.geometry.{_2D, _3D, EuclideanVector, Point}
 import scalismo.numerics.ValueInterpolator
 import scalismo.utils.Random
 
@@ -30,7 +30,9 @@ case class BarycentricCoordinates(a: Double, b: Double, c: Double) {
   }
 
   /** perform bcc interpolation: interpolate vertex values within triangle, needs Interpolation[T] */
-  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A)(implicit blender: ValueInterpolator[A]): A = {
+  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A)(
+    implicit blender: ValueInterpolator[A]
+  ): A = {
     blender.barycentricInterpolation(v1, a, v2, b, v3, c)
   }
 }
@@ -40,8 +42,10 @@ object BarycentricCoordinates {
 
   /** coordinates of first vertex */
   val v0 = new BarycentricCoordinates(1.0, 0.0, 0.0)
+
   /** coordinates of second vertex */
   val v1 = new BarycentricCoordinates(0.0, 1.0, 0.0)
+
   /** coordinates of third vertex */
   val v2 = new BarycentricCoordinates(0.0, 0.0, 1.0)
 
@@ -79,10 +83,7 @@ object BarycentricCoordinates {
     val C2 = x3 * y1 - x1 * y3
     val C3 = x1 * y2 - x2 * y1
 
-    new BarycentricCoordinates(
-      A1 * x + B1 * y + C1,
-      A2 * x + B2 * y + C2,
-      A3 * x + B3 * y + C3).normalized
+    new BarycentricCoordinates(A1 * x + B1 * y + C1, A2 * x + B2 * y + C2, A3 * x + B3 * y + C3).normalized
   }
 
   def pointInTriangle3D(point: Point[_3D], v1: Point[_3D], v2: Point[_3D], v3: Point[_3D]): BarycentricCoordinates = {
@@ -110,4 +111,3 @@ object BarycentricCoordinates {
       new BarycentricCoordinates(1.0 - s, 1.0 - t, s + t - 1.0)
   }
 }
-

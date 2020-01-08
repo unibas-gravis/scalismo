@@ -29,6 +29,7 @@ trait RichLogger[A] {
 }
 
 object ChainStateLogger {
+
   /** implicit conversions to attach a logger to a chain iterator or sub sample a logger */
   object implicits {
     implicit def richLogger[A](logger: ChainStateLogger[A]): RichLogger[A] = new RichLogger[A](logger)

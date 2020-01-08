@@ -22,8 +22,13 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel }
+import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.statisticalmodel.{
+  GaussianProcess,
+  LowRankGaussianProcess,
+  StatisticalMeshModel,
+  StatisticalVolumeMeshModel
+}
 
 class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
 
@@ -36,8 +41,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again") {
-      val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -53,8 +57,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     }
 
     it("can be written and read again in non-standard location") {
-      val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -72,8 +75,7 @@ class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
     it("can be written in version 0.81 and read again") {
       import StatismoIO.StatismoVersion.v081
 
-      val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8"))
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
 
@@ -168,13 +170,11 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     it("can be created, saved and reread in 3D") {
       val gk = DiagonalKernel(GaussianKernel[_3D](10.0), 3)
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](gk)
-      val domain = DiscreteImageDomain(
-        origin = Point3D(1.0, 3.1, 7.5),
-        spacing = EuclideanVector3D(0.8, 0.7, 0.6),
-        size = IntVector3D(10, 12, 9))
+      val domain = DiscreteImageDomain(origin = Point3D(1.0, 3.1, 7.5),
+                                       spacing = EuclideanVector3D(0.8, 0.7, 0.6),
+                                       size = IntVector3D(10, 12, 9))
 
-      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(
-        domain, gp, 0.1, NearestNeighborInterpolator())
+      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
       val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
       tmpFile.deleteOnExit()
@@ -198,13 +198,11 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     it("can be created, saved and reread in 2D") {
       val gk = DiagonalKernel(GaussianKernel[_2D](10.0), 2)
       val gp = GaussianProcess[_2D, EuclideanVector[_2D]](gk)
-      val domain = DiscreteImageDomain(
-        origin = Point2D(1.0, 3.1),
-        spacing = EuclideanVector2D(0.8, 0.7),
-        size = IntVector2D(10, 12))
+      val domain = DiscreteImageDomain(origin = Point2D(1.0, 3.1),
+                                       spacing = EuclideanVector2D(0.8, 0.7),
+                                       size = IntVector2D(10, 12))
 
-      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(
-        domain, gp, 0.1, NearestNeighborInterpolator())
+      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
       val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
       tmpFile.deleteOnExit()

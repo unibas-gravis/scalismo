@@ -16,7 +16,7 @@
 package scalismo.sampling.algorithms
 
 import scalismo.sampling._
-import scalismo.sampling.loggers.{ AcceptRejectLogger, SilentLogger }
+import scalismo.sampling.loggers.{AcceptRejectLogger, SilentLogger}
 import scalismo.utils.Random
 
 import scala.math.exp
@@ -25,9 +25,9 @@ import scala.math.exp
  * Metropolis algorithm (MCMC), provides samples from the evaluator distribution by drawing from generator and stochastic accept/reject decisions
  * generator needs to be symmetric
  */
-class Metropolis[A] protected (
-  val generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
-  val evaluator: DistributionEvaluator[A])(implicit val random: Random) extends MarkovChain[A] {
+class Metropolis[A] protected (val generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
+                               val evaluator: DistributionEvaluator[A])(implicit val random: Random)
+    extends MarkovChain[A] {
 
   /** internal fallback logger which does nothing */
   private lazy val silentLogger: AcceptRejectLogger[A] = new SilentLogger[A]()
@@ -58,16 +58,17 @@ class Metropolis[A] protected (
 }
 
 object Metropolis {
+
   /** create a Metropolis MCMC chain, needs a symmetric proposal distribution, with logger attached */
-  def apply[A](
-    generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
-    evaluator: DistributionEvaluator[A])(implicit random: Random) = new Metropolis[A](generator, evaluator)
+  def apply[A](generator: ProposalGenerator[A] with SymmetricTransitionRatio[A], evaluator: DistributionEvaluator[A])(
+    implicit random: Random
+  ) = new Metropolis[A](generator, evaluator)
 }
 
 /** Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a proposal distribution */
-class MetropolisHastings[A] protected (
-  val generator: ProposalGenerator[A] with TransitionRatio[A],
-  val evaluator: DistributionEvaluator[A])(implicit val random: Random) extends MarkovChain[A] {
+class MetropolisHastings[A] protected (val generator: ProposalGenerator[A] with TransitionRatio[A],
+                                       val evaluator: DistributionEvaluator[A])(implicit val random: Random)
+    extends MarkovChain[A] {
 
   private lazy val silentLogger = new SilentLogger[A]()
 
@@ -101,8 +102,7 @@ class MetropolisHastings[A] protected (
 }
 
 object MetropolisHastings {
-  def apply[A](
-    generator: ProposalGenerator[A] with TransitionRatio[A],
-    evaluator: DistributionEvaluator[A])(implicit random: Random) = new MetropolisHastings[A](generator, evaluator)
+  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
+    implicit random: Random
+  ) = new MetropolisHastings[A](generator, evaluator)
 }
-

@@ -20,6 +20,7 @@ import scalismo.sampling.DistributionEvaluator
 /** probability density based on pairs, e.g. Gaussian centered on first evaluated at second */
 trait PairEvaluator[A] {
   self =>
+
   /** probability/density value for a pair (log value) */
   def logValue(first: A, second: A): Double
 

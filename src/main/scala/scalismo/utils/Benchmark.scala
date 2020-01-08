@@ -26,7 +26,6 @@ import java.io.PrintStream
  *
  * Available to call statically (Benchmark.benchmark) or as a mixin trait, for convenience.
  */
-
 object Benchmark {
   def benchmark[R](block: => R, desc: String = "duration", out: PrintStream = System.out): R = {
     val start = System.currentTimeMillis()
@@ -37,5 +36,6 @@ object Benchmark {
 }
 
 trait Benchmark {
-  def benchmark[R](block: => R, desc: String = "duration", out: PrintStream = System.out): R = Benchmark.benchmark(block, desc, out)
+  def benchmark[R](block: => R, desc: String = "duration", out: PrintStream = System.out): R =
+    Benchmark.benchmark(block, desc, out)
 }

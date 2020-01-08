@@ -16,9 +16,9 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.linalg.max
-import breeze.numerics.{ abs, pow, sqrt }
-import scalismo.geometry.{ EuclideanVector, Point, _3D }
-import scalismo.mesh.{ TriangleMesh3D, TetrahedralMesh }
+import breeze.numerics.{abs, pow, sqrt}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.mesh.{TetrahedralMesh, TriangleMesh3D}
 import vtk.vtkTetra
 
 import scala.annotation.tailrec
@@ -28,7 +28,6 @@ import scala.annotation.tailrec
  * The idea for the bounding spheres is taken from the following paper of D. Maier, J. Hesser, R. Männer:
  * Fast and Accurate Closest Point Search on Triangulated Surfaces and its Application to Head Motion Estimation
  */
-
 /**
  * Bounding sphere node of the tree structure.
  *
@@ -36,12 +35,12 @@ import scala.annotation.tailrec
  * @param r2     Squared radius of bounding sphere.
  * @param idx    Index of entity used to form leave.
  */
-private[mesh] abstract class BoundingSphere(
-  val center: EuclideanVector[_3D],
-  val r2: Double,
-  val idx: Int,
-  val left: BoundingSphere,
-  val right: BoundingSphere) {
+abstract private[mesh] class BoundingSphere(val center: EuclideanVector[_3D],
+                                            val r2: Double,
+                                            val idx: Int,
+                                            val left: BoundingSphere,
+                                            val right: BoundingSphere) {
+
   /**
    * true if left child sphere exists
    */
@@ -65,7 +64,6 @@ private[mesh] object BoundingSpheres {
 
     // build triangle list (use only Vector[_3D], no Points)
     val triangles = mesh.triangulation.triangles.map { t =>
-
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
@@ -79,7 +77,6 @@ private[mesh] object BoundingSpheres {
 
     // build tetrahedron list (use only Vector[_3D], no Points)
     val tetrahedrons = mesh.tetrahedralization.tetrahedrons.map { t =>
-
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
@@ -183,9 +180,9 @@ private[mesh] object BoundingSpheres {
       val nb = b.center + ab * sqrt(b.r2 / dist2)
       val newCenter = (na + nb) * 0.5
       // val newRadius = ((na - nb) / 2).norm2 // @note: this is numerically unstable
-      val newRadius = pow(max(
-        (newCenter - a.center).norm + sqrt(a.r2), // numerically more stable
-        (newCenter - b.center).norm + sqrt(b.r2)), 2)
+      val newRadius = pow(max((newCenter - a.center).norm + sqrt(a.r2), // numerically more stable
+                              (newCenter - b.center).norm + sqrt(b.r2)),
+                          2)
       (newCenter, newRadius)
     }
     new BoundingSphereSplit(nc, nr, -1, a, b)
@@ -210,7 +207,6 @@ private[mesh] object BoundingSpheres {
     points.length match {
 
       case 0 =>
-
       case 1 =>
         val p = points.head
         matchedPoints(p._2) = p._2
@@ -219,7 +215,8 @@ private[mesh] object BoundingSpheres {
         val sortedPoints = points.sortBy(_._1(1))
         val closestPointPairs = findClosestPointPairs(sortedPoints)
 
-        val chosen: Array[Boolean] = choosePointPairsAndUpdateMatchedIndex(closestPointPairs, sortedPoints, matchedPoints)
+        val chosen: Array[Boolean] =
+          choosePointPairsAndUpdateMatchedIndex(closestPointPairs, sortedPoints, matchedPoints)
         val stillActive = chosen.zipWithIndex.filter(s => !s._1).map(t => sortedPoints(t._2))
         matchPoints(stillActive, matchedPoints)
     }
@@ -229,25 +226,23 @@ private[mesh] object BoundingSpheres {
    * Find best point pairs, some points might not be matched
    */
   @inline
-  def choosePointPairsAndUpdateMatchedIndex(
-    closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
-    sortedPoints: Seq[(EuclideanVector[_3D], Int)],
-    matchedPoints: Array[Int]): Array[Boolean] = {
+  def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
+                                            sortedPoints: Seq[(EuclideanVector[_3D], Int)],
+                                            matchedPoints: Array[Int]): Array[Boolean] = {
     val chosen = Array.fill[Boolean](closestPointPairs.length)(false)
     val bestPairs = closestPointPairs.sortBy(a => a._1)
-    bestPairs.foreach {
-      cp =>
-        val bestSortedPointIndex = cp._2
-        val sortedPointIdx = cp._3._2
-        val pointIdx = sortedPoints(sortedPointIdx)._2
-        val bestPointIndex = sortedPoints(bestSortedPointIndex)._2
+    bestPairs.foreach { cp =>
+      val bestSortedPointIndex = cp._2
+      val sortedPointIdx = cp._3._2
+      val pointIdx = sortedPoints(sortedPointIdx)._2
+      val bestPointIndex = sortedPoints(bestSortedPointIndex)._2
 
-        if (!chosen(sortedPointIdx) && !chosen(bestSortedPointIndex)) {
-          matchedPoints(pointIdx) = bestPointIndex
-          matchedPoints(bestPointIndex) = pointIdx
-          chosen(sortedPointIdx) = true
-          chosen(bestSortedPointIndex) = true
-        }
+      if (!chosen(sortedPointIdx) && !chosen(bestSortedPointIndex)) {
+        matchedPoints(pointIdx) = bestPointIndex
+        matchedPoints(bestPointIndex) = pointIdx
+        chosen(sortedPointIdx) = true
+        chosen(bestSortedPointIndex) = true
+      }
     }
     chosen
   }
@@ -257,47 +252,44 @@ private[mesh] object BoundingSpheres {
    */
   @inline
   def findClosestPointPairs(sortedPoints: Seq[(EuclideanVector[_3D], Int)]) = {
-    sortedPoints.zipWithIndex.map {
-      e =>
-        val spIndex = e._2
-        val basePoint = e._1._1
+    sortedPoints.zipWithIndex.map { e =>
+      val spIndex = e._2
+      val basePoint = e._1._1
 
-        var bestIndex = (spIndex + 1) % sortedPoints.length
-        var d = (basePoint - sortedPoints(bestIndex)._1).norm2
-        ((spIndex + 2) until sortedPoints.length).takeWhile {
-          j =>
-            val runningPoint = sortedPoints(j)._1
-            val q = basePoint(1) - runningPoint(1)
-            if ((q * q) < d) {
-              // early stopping according to y difference
-              val t = (basePoint - runningPoint).norm2
-              if (t < d) {
-                d = t
-                bestIndex = j
-              }
-              true
-            } else {
-              false
-            }
+      var bestIndex = (spIndex + 1) % sortedPoints.length
+      var d = (basePoint - sortedPoints(bestIndex)._1).norm2
+      ((spIndex + 2) until sortedPoints.length).takeWhile { j =>
+        val runningPoint = sortedPoints(j)._1
+        val q = basePoint(1) - runningPoint(1)
+        if ((q * q) < d) {
+          // early stopping according to y difference
+          val t = (basePoint - runningPoint).norm2
+          if (t < d) {
+            d = t
+            bestIndex = j
+          }
+          true
+        } else {
+          false
         }
+      }
 
-        ((spIndex - 1) to 0 by -1).takeWhile {
-          j =>
-            val runningPoint = sortedPoints(j)._1
-            val q = basePoint(1) - runningPoint(1)
-            if ((q * q) < d) {
-              val t = (basePoint - runningPoint).norm2
-              if (t < d) {
-                d = t
-                bestIndex = j
-              }
-              true
-            } else {
-              false
-            }
+      ((spIndex - 1) to 0 by -1).takeWhile { j =>
+        val runningPoint = sortedPoints(j)._1
+        val q = basePoint(1) - runningPoint(1)
+        if ((q * q) < d) {
+          val t = (basePoint - runningPoint).norm2
+          if (t < d) {
+            d = t
+            bestIndex = j
+          }
+          true
+        } else {
+          false
         }
+      }
 
-        (d, bestIndex, e)
+      (d, bestIndex, e)
     }
   }
 }
@@ -305,13 +297,12 @@ private[mesh] object BoundingSpheres {
 /**
  * Inner node of the search index.
  */
-private class BoundingSphereSplit(
-  center: EuclideanVector[_3D],
-  r2: Double,
-  idx: Int,
-  left: BoundingSphere,
-  right: BoundingSphere)
-  extends BoundingSphere(center, r2, idx, left, right) {
+private class BoundingSphereSplit(center: EuclideanVector[_3D],
+                                  r2: Double,
+                                  idx: Int,
+                                  left: BoundingSphere,
+                                  right: BoundingSphere)
+    extends BoundingSphere(center, r2, idx, left, right) {
   override def hasLeft: Boolean = left != null
 
   override def hasRight: Boolean = right != null
@@ -320,11 +311,8 @@ private class BoundingSphereSplit(
 /**
  * Leave node of the search index.
  */
-private class BoundingSphereLeave(
-  center: EuclideanVector[_3D],
-  r2: Double,
-  idx: Int)
-  extends BoundingSphere(center, r2, idx, null, null) {
+private class BoundingSphereLeave(center: EuclideanVector[_3D], r2: Double, idx: Int)
+    extends BoundingSphere(center, r2, idx, null, null) {
 
   override def hasLeft: Boolean = false
 
@@ -374,7 +362,8 @@ private object Sphere {
   def fromTetrahedron(tetrahedron: Tetrahedron): Sphere = {
     val center = new Array[Double](3)
     val t = new vtkTetra()
-    val sphereradus = t.Circumsphere(tetrahedron.a.toArray, tetrahedron.b.toArray, tetrahedron.c.toArray, tetrahedron.d.toArray, center)
+    val sphereradus =
+      t.Circumsphere(tetrahedron.a.toArray, tetrahedron.b.toArray, tetrahedron.c.toArray, tetrahedron.d.toArray, center)
     val c = EuclideanVector(center(0), center(1), center(2))
     new Sphere(c, sphereradus)
   }
@@ -382,7 +371,9 @@ private object Sphere {
   /**
    * Calculate sphere around three points, e.g. a triangle
    */
-  def triangleCircumSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+  def triangleCircumSphere(a: EuclideanVector[_3D],
+                           b: EuclideanVector[_3D],
+                           c: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
     // rather complex function taken from c++ ... TODO: should be checked if we cant reach the result more easily, pay attention to possible numerical problems
     var center = a
     var radius2 = 1.0
@@ -428,12 +419,13 @@ private object Sphere {
         val d0 = normalToAC(0) * normalToAB(1) - normalToAC(1) * normalToAB(0)
         val d1 = normalToAC(0) * normalToAB(2) - normalToAC(2) * normalToAB(0)
         val d2 = normalToAC(1) * normalToAB(2) - normalToAC(2) * normalToAB(1)
-        val beta1 = if ((abs(d0) >= abs(d1)) && (abs(d0) >= abs(d2)))
-          (m(0) * normalToAB(1) - m(1) * normalToAB(0)) / d0
-        else if ((abs(d1) >= abs(d0)) && (abs(d1) >= abs(d2)))
-          (m(0) * normalToAB(2) - m(2) * normalToAB(0)) / d1
-        else // if ((abs(d2) >= abs(d0)) && (abs(d2) >= abs(d1)))
-          (m(1) * normalToAB(2) - m(2) * normalToAB(1)) / d2
+        val beta1 =
+          if ((abs(d0) >= abs(d1)) && (abs(d0) >= abs(d2)))
+            (m(0) * normalToAB(1) - m(1) * normalToAB(0)) / d0
+          else if ((abs(d1) >= abs(d0)) && (abs(d1) >= abs(d2)))
+            (m(0) * normalToAB(2) - m(2) * normalToAB(0)) / d1
+          else // if ((abs(d2) >= abs(d0)) && (abs(d2) >= abs(d1)))
+            (m(1) * normalToAB(2) - m(2) * normalToAB(1)) / d2
 
         center = aMc + normalToAC * beta1
 
@@ -459,19 +451,21 @@ private object Sphere {
         val d2 = ab(1) * ac(2) - ab(2) * ac(1)
 
         val p = center - a
-        val beta2 = if ((abs(d0) >= abs(d1)) && (abs(d0) >= abs(d2)))
-          (p(1) * ab(0) - p(0) * ab(1)) / d0
-        else if ((abs(d1) >= abs(d0)) && (abs(d1) >= abs(d2)))
-          (p(2) * ab(0) - p(0) * ab(2)) / d1
-        else //if ((abs(d2) >= abs(d0)) && (abs(d2) >= abs(d1)))
-          (p(2) * ab(1) - p(1) * ab(2)) / d2
+        val beta2 =
+          if ((abs(d0) >= abs(d1)) && (abs(d0) >= abs(d2)))
+            (p(1) * ab(0) - p(0) * ab(1)) / d0
+          else if ((abs(d1) >= abs(d0)) && (abs(d1) >= abs(d2)))
+            (p(2) * ab(0) - p(0) * ab(2)) / d1
+          else //if ((abs(d2) >= abs(d0)) && (abs(d2) >= abs(d1)))
+            (p(2) * ab(1) - p(1) * ab(2)) / d2
 
-        val alpha2 = if ((abs(ab(0)) >= abs(ab(1))) && (abs(ab(0)) >= abs(ab(2))))
-          (p(0) - beta2 * ac(0)) / ab(0)
-        else if ((abs(ab(1)) >= abs(ab(0))) && (abs(ab(1)) >= abs(ab(1))))
-          (p(1) - beta2 * ac(1)) / ab(1)
-        else //if ((abs(ab(2)) >= abs(ab(0))) and (abs(ab(2)) >= abs(ab(2))))
-          (p(2) - beta2 * ac(2)) / ab(2)
+        val alpha2 =
+          if ((abs(ab(0)) >= abs(ab(1))) && (abs(ab(0)) >= abs(ab(2))))
+            (p(0) - beta2 * ac(0)) / ab(0)
+          else if ((abs(ab(1)) >= abs(ab(0))) && (abs(ab(1)) >= abs(ab(1))))
+            (p(1) - beta2 * ac(1)) / ab(1)
+          else //if ((abs(ab(2)) >= abs(ab(0))) and (abs(ab(2)) >= abs(ab(2))))
+            (p(2) - beta2 * ac(2)) / ab(2)
 
         if (alpha2 < 0 || beta2 < 0 || alpha2 + beta2 > 1) {
           // center is outside triangle
@@ -488,27 +482,21 @@ private object Sphere {
               center = (b + c) * 0.5
             }
           } else // r2 >= r1
-          {
-            if (r2 > r3) {
-              //  radius_sqr = r2 * 0.25;
-              center = aMc
-            } else {
-              //  radius_sqr = r3 * 0.25;
-              center = (b + c) * 0.5
+            {
+              if (r2 > r3) {
+                //  radius_sqr = r2 * 0.25;
+                center = aMc
+              } else {
+                //  radius_sqr = r3 * 0.25;
+                center = (b + c) * 0.5
+              }
             }
-          }
           // While it would be faster to use the appropriate r_i * 0.25, this is more stable.
-          radius2 = max(
-            (center - a).norm2,
-            (center - b).norm2,
-            (center - c).norm2)
+          radius2 = max((center - a).norm2, (center - b).norm2, (center - c).norm2)
         } else {
           // center is in the triangle
 
-          radius2 = max(
-            (center - a).norm2,
-            (center - b).norm2,
-            (center - c).norm2)
+          radius2 = max((center - a).norm2, (center - b).norm2, (center - c).norm2)
         }
       }
 
@@ -520,7 +508,10 @@ private object Sphere {
   /**
    * Calculate sphere around four points, e.g. a tetrahedron
    */
-  def tetrahedronCircumSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D], d: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+  def tetrahedronCircumSphere(a: EuclideanVector[_3D],
+                              b: EuclideanVector[_3D],
+                              c: EuclideanVector[_3D],
+                              d: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
 
     val v = Array[Double](3)
     val tetra = new vtkTetra()

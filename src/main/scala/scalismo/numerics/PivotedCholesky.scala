@@ -17,10 +17,10 @@
 package scalismo.numerics
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.numerics.pow
 import scalismo.geometry._
-import scalismo.kernels.{ MatrixValuedPDKernel, PDKernel }
+import scalismo.kernels.{MatrixValuedPDKernel, PDKernel}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -72,10 +72,9 @@ object PivotedCholesky {
 
   case class NumberOfEigenfunctions(n: Int) extends StoppingCriterion
 
-  private[this] def computeApproximateCholeskyGeneric[A](
-    kernel: (A, A) => Double,
-    xs: IndexedSeq[A],
-    stoppingCriterion: StoppingCriterion): PivotedCholesky = {
+  private[this] def computeApproximateCholeskyGeneric[A](kernel: (A, A) => Double,
+                                                         xs: IndexedSeq[A],
+                                                         stoppingCriterion: StoppingCriterion): PivotedCholesky = {
 
     val n = xs.size
     val p = scala.collection.mutable.ArrayBuffer.range(0, n)
@@ -95,8 +94,8 @@ object PivotedCholesky {
     val ids = (k until n)
 
     val (tolerance, maxNumEigenfunctions) = stoppingCriterion match {
-      case AbsoluteTolerance(t) => (t, n)
-      case RelativeTolerance(t) => (tr * t, n)
+      case AbsoluteTolerance(t)                 => (t, n)
+      case RelativeTolerance(t)                 => (tr * t, n)
       case NumberOfEigenfunctions(numEigenfuns) => (1e-15, numEigenfuns)
     }
 
@@ -156,10 +155,9 @@ object PivotedCholesky {
     PivotedCholesky(L.toDenseMatrix, p, tr)
   }
 
-  def computeApproximateCholesky[D: NDSpace, DO: NDSpace](
-    kernel: MatrixValuedPDKernel[D],
-    xs: IndexedSeq[Point[D]],
-    stoppingCriterion: StoppingCriterion): PivotedCholesky = {
+  def computeApproximateCholesky[D: NDSpace, DO: NDSpace](kernel: MatrixValuedPDKernel[D],
+                                                          xs: IndexedSeq[Point[D]],
+                                                          stoppingCriterion: StoppingCriterion): PivotedCholesky = {
 
     case class PointWithDim(point: Point[D], dim: Int)
     val dim = NDSpace[DO].dimensionality
@@ -170,10 +168,9 @@ object PivotedCholesky {
 
   }
 
-  def computeApproximateCholesky[D: NDSpace](
-    kernel: PDKernel[D],
-    xs: IndexedSeq[Point[D]],
-    stoppingCriterion: StoppingCriterion): PivotedCholesky = {
+  def computeApproximateCholesky[D: NDSpace](kernel: PDKernel[D],
+                                             xs: IndexedSeq[Point[D]],
+                                             stoppingCriterion: StoppingCriterion): PivotedCholesky = {
     val k: (Point[D], Point[D]) => Double = (x, y) => kernel(x, y)
     computeApproximateCholeskyGeneric[Point[D]](k, xs, stoppingCriterion)
   }
@@ -219,9 +216,9 @@ object PivotedCholesky {
     extractEigenvalues(computeApproximateEigGeneric(kernel, indices, sc))
   }
 
-  def computeApproximateEig[D: NDSpace](
-    kernel: MatrixValuedPDKernel[D],
-    xs: IndexedSeq[Point[D]], stoppingCriterion: StoppingCriterion) = {
+  def computeApproximateEig[D: NDSpace](kernel: MatrixValuedPDKernel[D],
+                                        xs: IndexedSeq[Point[D]],
+                                        stoppingCriterion: StoppingCriterion) = {
 
     case class PointWithDim(point: Point[D], dim: Int)
     val dim = kernel.outputDim
@@ -232,11 +229,10 @@ object PivotedCholesky {
 
   }
 
-  def computeApproximateEig[D: NDSpace, DO: NDSpace](
-    kernel: PDKernel[D],
-    xs: IndexedSeq[Point[D]],
-    D: Double,
-    stoppingCriterion: StoppingCriterion) = {
+  def computeApproximateEig[D: NDSpace, DO: NDSpace](kernel: PDKernel[D],
+                                                     xs: IndexedSeq[Point[D]],
+                                                     D: Double,
+                                                     stoppingCriterion: StoppingCriterion) = {
 
     def k(x: Point[D], y: Point[D]): Double = kernel(x, y)
 

@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.ScalismoTestSuite
 import scalismo.utils.Random
 
@@ -77,7 +77,8 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
 
   describe("An MultivariateNormalDistribution") {
     it("returns the same principal components it was constructed with") {
-      val axes = List(DenseVector[Double](1.0, 0.0, 0.0), DenseVector[Double](0.0, 1.0, 0.0), DenseVector[Double](0.0, 0.0, 1.0))
+      val axes =
+        List(DenseVector[Double](1.0, 0.0, 0.0), DenseVector[Double](0.0, 1.0, 0.0), DenseVector[Double](0.0, 0.0, 1.0))
       // these are knowingly not sorted
       val variances = List(1.0, 4.0, 3.0)
       val data = axes zip variances
@@ -108,8 +109,12 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
       val cov = DenseMatrix.create[Double](2, 2, Array(1.0, 0.0, 0.0, 1.0))
       val mvn = new MultivariateNormalDistribution(mu, cov)
       for (i <- 1 until 10) {
-        mvn.mahalanobisDistance(mu + DenseVector(1.0, i.toDouble)) should be > mvn.mahalanobisDistance(mu + DenseVector(1.0, (i - 1).toDouble))
-        mvn.mahalanobisDistance(mu + DenseVector(i.toDouble, 1.0)) should be > mvn.mahalanobisDistance(mu + DenseVector((i - 1).toDouble, 1.0))
+        mvn.mahalanobisDistance(mu + DenseVector(1.0, i.toDouble)) should be > mvn.mahalanobisDistance(
+          mu + DenseVector(1.0, (i - 1).toDouble)
+        )
+        mvn.mahalanobisDistance(mu + DenseVector(i.toDouble, 1.0)) should be > mvn.mahalanobisDistance(
+          mu + DenseVector((i - 1).toDouble, 1.0)
+        )
       }
     }
     it("gives value 2 for a sample with 2 stddev") {

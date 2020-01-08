@@ -16,12 +16,13 @@
 
 package scalismo.color
 
-import scalismo.geometry.{ EuclideanVector, NDSpace }
+import scalismo.geometry.{EuclideanVector, NDSpace}
 
 import scala.annotation.tailrec
 
 /** vector space operations for a pixel type, necessary for filtering */
 trait ColorSpaceOperations[@specialized(Double, Float) A] {
+
   /** blending using vector space operations */
   def blend(v: A, w: A, l: Double): A = add(scale(v, l), scale(w, 1.0 - l))
 
@@ -86,30 +87,35 @@ object ColorSpaceOperations {
   }
 
   /** implementation for vectors of arbitrary dimension */
-  implicit def vecColorSpaceND[D: NDSpace]: ColorSpaceOperations[EuclideanVector[D]] = new ColorSpaceOperations[EuclideanVector[D]] {
-    override def add(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 + pix2
-    override def multiply(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 :* pix2
-    override def dot(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): Double = pix1 dot pix2
-    override def scale(pix: EuclideanVector[D], l: Double): EuclideanVector[D] = pix * l
-    override val zero: EuclideanVector[D] = EuclideanVector.zeros[D]
-    override val dimensionality: Int = NDSpace[D].dimensionality
-  }
+  implicit def vecColorSpaceND[D: NDSpace]: ColorSpaceOperations[EuclideanVector[D]] =
+    new ColorSpaceOperations[EuclideanVector[D]] {
+      override def add(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 + pix2
+      override def multiply(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): EuclideanVector[D] = pix1 :* pix2
+      override def dot(pix1: EuclideanVector[D], pix2: EuclideanVector[D]): Double = pix1 dot pix2
+      override def scale(pix: EuclideanVector[D], l: Double): EuclideanVector[D] = pix * l
+      override val zero: EuclideanVector[D] = EuclideanVector.zeros[D]
+      override val dimensionality: Int = NDSpace[D].dimensionality
+    }
 
   /** implementation for type A wrapped in Option[A] */
-  implicit def optionSpace[A](implicit ops: ColorSpaceOperations[A]): ColorSpaceOperations[Option[A]] = new ColorSpaceOperations[Option[A]] {
-    override def add(pix1: Option[A], pix2: Option[A]): Option[A] = for (p1 <- pix1; p2 <- pix2) yield ops.add(p1, p2)
-    override def multiply(pix1: Option[A], pix2: Option[A]): Option[A] = for (p1 <- pix1; p2 <- pix2) yield ops.multiply(p1, p2)
-    override def dot(pix1: Option[A], pix2: Option[A]): Double = (for (p1 <- pix1; p2 <- pix2) yield ops.dot(p1, p2)).getOrElse(0.0)
-    override def scale(pix: Option[A], l: Double): Option[A] = for (p1 <- pix) yield ops.scale(p1, l)
-    override val zero: Option[A] = Some(ops.zero)
-    override val dimensionality: Int = ops.dimensionality
-  }
+  implicit def optionSpace[A](implicit ops: ColorSpaceOperations[A]): ColorSpaceOperations[Option[A]] =
+    new ColorSpaceOperations[Option[A]] {
+      override def add(pix1: Option[A], pix2: Option[A]): Option[A] = for (p1 <- pix1; p2 <- pix2) yield ops.add(p1, p2)
+      override def multiply(pix1: Option[A], pix2: Option[A]): Option[A] =
+        for (p1 <- pix1; p2 <- pix2) yield ops.multiply(p1, p2)
+      override def dot(pix1: Option[A], pix2: Option[A]): Double =
+        (for (p1 <- pix1; p2 <- pix2) yield ops.dot(p1, p2)).getOrElse(0.0)
+      override def scale(pix: Option[A], l: Double): Option[A] = for (p1 <- pix) yield ops.scale(p1, l)
+      override val zero: Option[A] = Some(ops.zero)
+      override val dimensionality: Int = ops.dimensionality
+    }
 
   /** implicit conversions to work with infix operator notations for ColorSpaceOperations[A] */
   object implicits {
     import scala.language.implicitConversions
 
-    implicit def toVector[A](color: A)(implicit space: ColorSpaceOperations[A]): ColorSpaceVector[A] = new ColorSpaceVector[A](color)
+    implicit def toVector[A](color: A)(implicit space: ColorSpaceOperations[A]): ColorSpaceVector[A] =
+      new ColorSpaceVector[A](color)
 
     implicit def toColor[A](vector: ColorSpaceVector[A]): A = vector.color
 

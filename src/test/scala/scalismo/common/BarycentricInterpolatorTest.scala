@@ -2,8 +2,8 @@ package scalismo.common
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.BarycentricInterpolator
-import scalismo.geometry.{ Point, Point3D, _3D }
-import scalismo.mesh.{ ScalarVolumeMeshField, TetrahedralCell, TetrahedralList, TetrahedralMesh3D }
+import scalismo.geometry.{_3D, Point, Point3D}
+import scalismo.mesh.{ScalarVolumeMeshField, TetrahedralCell, TetrahedralList, TetrahedralMesh3D}
 import scalismo.utils.Random
 
 class BarycentricInterpolatorTest extends ScalismoTestSuite {
@@ -12,25 +12,23 @@ class BarycentricInterpolatorTest extends ScalismoTestSuite {
 
   def createTetrahedronsInUnitCube(): TetrahedralMesh3D = {
     // points around unit cube
-    val points = IndexedSeq(
-      Point(0, 0, 0),
-      Point(1, 0, 0),
-      Point(1, 1, 0),
-      Point(0, 1, 0),
-      Point(0, 0, 1),
-      Point(1, 0, 1),
-      Point(1, 1, 1),
-      Point(0, 1, 1))
+    val points = IndexedSeq(Point(0, 0, 0),
+                            Point(1, 0, 0),
+                            Point(1, 1, 0),
+                            Point(0, 1, 0),
+                            Point(0, 0, 1),
+                            Point(1, 0, 1),
+                            Point(1, 1, 1),
+                            Point(0, 1, 1))
     val domain = UnstructuredPointsDomain(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
-    val cells = IndexedSeq(
-      TetrahedralCell(0, 2, 7, 3),
-      TetrahedralCell(0, 2, 5, 1),
-      TetrahedralCell(2, 5, 7, 6),
-      TetrahedralCell(0, 5, 7, 4),
-      TetrahedralCell(0, 2, 5, 7))
+    val cells = IndexedSeq(TetrahedralCell(0, 2, 7, 3),
+                           TetrahedralCell(0, 2, 5, 1),
+                           TetrahedralCell(2, 5, 7, 6),
+                           TetrahedralCell(0, 5, 7, 4),
+                           TetrahedralCell(0, 2, 5, 7))
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -46,9 +44,11 @@ class BarycentricInterpolatorTest extends ScalismoTestSuite {
       val interpolatedVolumeMeshField = scalarVolumeMeshField.interpolate(BarycentricInterpolator(tetrahedralMesh))
 
       val vertexValues = tetrahedralMesh.pointSet.points.map(interpolatedVolumeMeshField(_))
-      vertexValues.toIndexedSeq.zip(scalars).foreach(p => {
-        p._1 shouldBe p._2
-      })
+      vertexValues.toIndexedSeq
+        .zip(scalars)
+        .foreach(p => {
+          p._1 shouldBe p._2
+        })
 
     }
 
@@ -57,7 +57,8 @@ class BarycentricInterpolatorTest extends ScalismoTestSuite {
       def getTetrahedralMeshCell(m: TetrahedralMesh3D, p: Point[_3D]): TetrahedralCell = {
         val closestPoint = m.pointSet.findClosestPoint(p)
         val adjacentTetrahedra = m.tetrahedralization.adjacentTetrahedronsForPoint(closestPoint.id)
-        val tetraId = adjacentTetrahedra.filter(tId => m.isInsideTetrahedralCell(p, m.tetrahedralization.tetrahedrons(tId.id))).head
+        val tetraId =
+          adjacentTetrahedra.filter(tId => m.isInsideTetrahedralCell(p, m.tetrahedralization.tetrahedrons(tId.id))).head
         m.tetrahedralization.tetrahedrons(tetraId.id)
       }
 

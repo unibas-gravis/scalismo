@@ -1,9 +1,9 @@
 package scalismo.common.interpolation
 
-import scalismo.common.{ DiscreteField, Field, RealSpace, UnstructuredPointsDomain }
-import scalismo.geometry.{ Point, _3D }
-import scalismo.mesh.{ SurfacePointProperty, TriangleMesh }
-import scalismo.mesh.boundingSpheres.{ ClosestPointInTriangle, ClosestPointIsVertex, ClosestPointOnLine }
+import scalismo.common.{DiscreteField, Field, RealSpace, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, Point}
+import scalismo.mesh.{SurfacePointProperty, TriangleMesh}
+import scalismo.mesh.boundingSpheres.{ClosestPointInTriangle, ClosestPointIsVertex, ClosestPointOnLine}
 import scalismo.numerics.ValueInterpolator
 
 /**
@@ -13,7 +13,8 @@ import scalismo.numerics.ValueInterpolator
  *
  * @param mesh The mesh on which the interpolation is performed.
  */
-case class TriangleMeshInterpolator[A: ValueInterpolator](mesh: TriangleMesh[_3D]) extends FieldInterpolator[_3D, UnstructuredPointsDomain[_3D], A] {
+case class TriangleMeshInterpolator[A: ValueInterpolator](mesh: TriangleMesh[_3D])
+    extends FieldInterpolator[_3D, UnstructuredPointsDomain[_3D], A] {
 
   override def interpolate(field: DiscreteField[_3D, UnstructuredPointsDomain[_3D], A]): Field[_3D, A] = {
 
@@ -37,4 +38,3 @@ case class TriangleMeshInterpolator[A: ValueInterpolator](mesh: TriangleMesh[_3D
     Field(RealSpace[_3D], f)
   }
 }
-

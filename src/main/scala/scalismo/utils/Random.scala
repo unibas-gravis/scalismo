@@ -27,7 +27,6 @@ import breeze.stats.distributions.RandBasis
  *
  * @param seed The seed for the Random number generator
  */
-
 private[utils] case class RandomNumberGenerator(seed: Long) {
 
   implicit val breezeRandBasis: RandBasis = RandBasis.withSeed(seed.toInt)
@@ -46,7 +45,12 @@ private[utils] case class RandomNumberGenerator(seed: Long) {
 
 }
 
-@scala.annotation.implicitNotFound("missing implicit Random\nTo fix the missing implicit either use:\n\timport scalismo.utils.Random.implicits._\n...or create a seeded random object:\n\timport scalismo.utils.Random\n\timplicit val rng = Random(1024L)")
+@scala.annotation.implicitNotFound("""missing implicit Random
+To fix the missing implicit either use:
+	import scalismo.utils.Random.implicits._
+...or create a seeded random object:
+	import scalismo.utils.Random
+	implicit val rng = Random(1024L)""")
 class Random()(implicit val rng: RandomNumberGenerator) {
 
   def scalaRandom = rng.scalaRandom
@@ -69,4 +73,3 @@ object Random {
   }
 
 }
-

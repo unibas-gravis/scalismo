@@ -20,7 +20,7 @@ import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._2D
-import scalismo.io.{ ImageIO, MeshIO }
+import scalismo.io.{ImageIO, MeshIO}
 
 class ConversionTests extends ScalismoTestSuite {
 

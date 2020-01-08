@@ -17,12 +17,14 @@ package scalismo.sampling
 
 /** a probability or density */
 trait DistributionEvaluator[A] {
+
   /** log probability/density of sample */
   def logValue(sample: A): Double
 }
 
 /** gradient evaluator, used together with DistributionEvaluator */
 trait GradientEvaluator[A] {
+
   /** gradient at sample */
   def gradient(sample: A): A
 }

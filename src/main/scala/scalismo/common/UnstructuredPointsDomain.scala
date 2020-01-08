@@ -18,11 +18,13 @@ package scalismo.common
 
 import scalismo.common.UnstructuredPointsDomain.Create
 import scalismo.geometry._
-import scalismo.mesh.kdtree.{ KDTreeMap, RegionBuilder }
+import scalismo.mesh.kdtree.{KDTreeMap, RegionBuilder}
 
 import scala.language.implicitConversions
 
-sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scalismo] (private[scalismo] val pointSequence: IndexedSeq[Point[D]]) extends DiscreteDomain[D] {
+sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scalismo] (
+  private[scalismo] val pointSequence: IndexedSeq[Point[D]]
+) extends DiscreteDomain[D] {
 
   override def points: Iterator[Point[D]] = pointSequence.toIterator
   override def numberOfPoints = pointSequence.size
@@ -45,7 +47,7 @@ sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scali
     // if not, we do a KDtree lookup, which is more expensive
     pointId(pt) match {
       case Some(id) => PointWithId(pt, id)
-      case None => kdtreeLookup(pt)
+      case None     => kdtreeLookup(pt)
     }
   }
 
@@ -55,7 +57,9 @@ sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scali
     val regionBuilder = new RegionBuilder[Point[D]]
     val a = region.origin
     val b = region.origin + region.extent
-    val reg = (0 until dim.dimensionality).foldLeft[RegionBuilder[Point[D]]](regionBuilder) { case (rg, dim) => rg.from(a, dim).to(b, dim) }
+    val reg = (0 until dim.dimensionality).foldLeft[RegionBuilder[Point[D]]](regionBuilder) {
+      case (rg, dim) => rg.from(a, dim).to(b, dim)
+    }
     kdTreeMap.regionQuery(reg).map { case (p, id) => PointWithId(p, PointId(id)) }
 
   }
@@ -68,21 +72,28 @@ sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scali
     pointIDMap.get(pt)
   }
 
-  override def transform(transform: Point[D] => Point[D]): UnstructuredPointsDomain[D] = UnstructuredPointsDomain(pointSequence.par.map(transform).toIndexedSeq)
+  override def transform(transform: Point[D] => Point[D]): UnstructuredPointsDomain[D] =
+    UnstructuredPointsDomain(pointSequence.par.map(transform).toIndexedSeq)
 
 }
 
 object UnstructuredPointsDomain {
 
-  implicit def parametricToConcreteType1D(unstructuredPointsDomain: UnstructuredPointsDomain[_1D]): UnstructuredPointsDomain1D = {
+  implicit def parametricToConcreteType1D(
+    unstructuredPointsDomain: UnstructuredPointsDomain[_1D]
+  ): UnstructuredPointsDomain1D = {
     unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain1D]
   }
 
-  implicit def parametricToConcreteType2D(unstructuredPointsDomain: UnstructuredPointsDomain[_2D]): UnstructuredPointsDomain2D = {
+  implicit def parametricToConcreteType2D(
+    unstructuredPointsDomain: UnstructuredPointsDomain[_2D]
+  ): UnstructuredPointsDomain2D = {
     unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain2D]
   }
 
-  implicit def parametricToConcreteType3D(unstructuredPointsDomain: UnstructuredPointsDomain[_3D]): UnstructuredPointsDomain3D = {
+  implicit def parametricToConcreteType3D(
+    unstructuredPointsDomain: UnstructuredPointsDomain[_3D]
+  ): UnstructuredPointsDomain3D = {
     unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain3D]
   }
 
@@ -114,7 +125,8 @@ object UnstructuredPointsDomain {
 
 }
 
-class UnstructuredPointsDomain1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]]) extends UnstructuredPointsDomain[_1D](pointSequence) {
+class UnstructuredPointsDomain1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]])
+    extends UnstructuredPointsDomain[_1D](pointSequence) {
 
   override def boundingBox: BoxDomain[_1D] = {
     val minx = pointSequence.map(_(0)).min
@@ -128,7 +140,8 @@ class UnstructuredPointsDomain1D private[scalismo] (pointSequence: IndexedSeq[Po
 
 }
 
-class UnstructuredPointsDomain2D private[scalismo] (pointSequence: IndexedSeq[Point[_2D]]) extends UnstructuredPointsDomain[_2D](pointSequence) {
+class UnstructuredPointsDomain2D private[scalismo] (pointSequence: IndexedSeq[Point[_2D]])
+    extends UnstructuredPointsDomain[_2D](pointSequence) {
 
   override def boundingBox: BoxDomain[_2D] = {
     val minx = pointSequence.map(_(0)).min
@@ -144,7 +157,8 @@ class UnstructuredPointsDomain2D private[scalismo] (pointSequence: IndexedSeq[Po
 
 }
 
-class UnstructuredPointsDomain3D private[scalismo] (pointSequence: IndexedSeq[Point[_3D]]) extends UnstructuredPointsDomain[_3D](pointSequence) {
+class UnstructuredPointsDomain3D private[scalismo] (pointSequence: IndexedSeq[Point[_3D]])
+    extends UnstructuredPointsDomain[_3D](pointSequence) {
 
   override def boundingBox: BoxDomain[_3D] = {
     val minx = pointSequence.map(_(0)).min
@@ -161,4 +175,3 @@ class UnstructuredPointsDomain3D private[scalismo] (pointSequence: IndexedSeq[Po
   }
 
 }
-

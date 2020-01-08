@@ -26,6 +26,7 @@ case class GaussianEvaluator(mean: Double, sdev: Double) extends DistributionEva
 }
 
 object GaussianEvaluator {
+
   /** probability density of 1D Gaussian distribution */
   def logDensity(x: Double, mean: Double, sdev: Double): Double = {
     -0.5 * math.log(2 * math.Pi) - math.log(sdev) - 0.5 * (x - mean) * (x - mean) / sdev / sdev

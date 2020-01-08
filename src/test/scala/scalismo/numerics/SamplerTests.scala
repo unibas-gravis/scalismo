@@ -22,7 +22,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
-import scalismo.utils.{ Memoize, Random }
+import scalismo.utils.{Memoize, Random}
 
 class SamplerTests extends ScalismoTestSuite {
 
@@ -35,7 +35,14 @@ class SamplerTests extends ScalismoTestSuite {
     it("yields approximately uniformly spaced points") {
 
       // precalculate values needed for determining if a point lies in a (triangle) cell.
-      case class CellInfo(a: Point[_3D], b: Point[_3D], c: Point[_3D], v0: EuclideanVector[_3D], v1: EuclideanVector[_3D], dot00: Double, dot01: Double, dot11: Double)
+      case class CellInfo(a: Point[_3D],
+                          b: Point[_3D],
+                          c: Point[_3D],
+                          v0: EuclideanVector[_3D],
+                          v1: EuclideanVector[_3D],
+                          dot00: Double,
+                          dot01: Double,
+                          dot11: Double)
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
@@ -112,9 +119,12 @@ class SamplerTests extends ScalismoTestSuite {
         val actualRatio = (facemesh.area * randomAreaSizeRatio + areaAdjust) / facemesh.area
         //println(s"actual ratio of selected areas = $actualRatio")
 
-        val numSampledPointsInArea = randomAreas.par.flatMap(cellId => {
-          samplePoints.filter(sampledPoint => pointInCell(sampledPoint, cellId, facemesh))
-        }).toSet.size
+        val numSampledPointsInArea = randomAreas.par
+          .flatMap(cellId => {
+            samplePoints.filter(sampledPoint => pointInCell(sampledPoint, cellId, facemesh))
+          })
+          .toSet
+          .size
 
         val expectedNumberOfPointsInArea = actualRatio * numSamplingPoints
         //        println(s"expecting ~ ${expectedNumberOfPointsInArea.round} points to be found in randomly selected cells, actual found = $numSampledPointsInArea")

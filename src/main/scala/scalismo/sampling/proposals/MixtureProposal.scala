@@ -20,7 +20,7 @@ import scalismo.utils.Random
 
 /** mixture of proposals: mixture distribution of multiple proposal distributions */
 class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(implicit rnd: Random)
-  extends ProposalGenerator[A] {
+    extends ProposalGenerator[A] {
 
   /** mixture components */
   val generators: IndexedSeq[ProposalGenerator[A]] = proposals.map(_._2)
@@ -47,8 +47,11 @@ class MixtureProposal[A](proposals: IndexedSeq[(Double, ProposalGenerator[A])])(
 }
 
 /** mixture with transition probabilities */
-private class MixtureProposalWithTransition[A](proposals: IndexedSeq[(Double, ProposalGenerator[A] with TransitionProbability[A])])(implicit rnd: Random)
-  extends MixtureProposal[A](proposals) with TransitionProbability[A] {
+private class MixtureProposalWithTransition[A](
+  proposals: IndexedSeq[(Double, ProposalGenerator[A] with TransitionProbability[A])]
+)(implicit rnd: Random)
+    extends MixtureProposal[A](proposals)
+    with TransitionProbability[A] {
 
   override val generators: IndexedSeq[ProposalGenerator[A] with TransitionProbability[A]] = proposals.map(_._2)
 
@@ -67,23 +70,35 @@ private class MixtureProposalWithTransition[A](proposals: IndexedSeq[(Double, Pr
 }
 
 object MixtureProposal {
+
   /** generate a mixture proposal */
-  def fromProposals[A](proposals: (Double, ProposalGenerator[A])*)(implicit rnd: Random): MixtureProposal[A] = new MixtureProposal[A](proposals.toIndexedSeq)
+  def fromProposals[A](proposals: (Double, ProposalGenerator[A])*)(implicit rnd: Random): MixtureProposal[A] =
+    new MixtureProposal[A](proposals.toIndexedSeq)
 
   /** mixture distribution of proposals with a transition probability */
-  def fromProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with TransitionProbability[A])*)(implicit rnd: Random): MixtureProposal[A] with TransitionProbability[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq)
+  def fromProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with TransitionProbability[A])*)(
+    implicit rnd: Random
+  ): MixtureProposal[A] with TransitionProbability[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq)
 
   /** mixture of symmetric proposals (mixture distribution) */
-  def fromSymmetricProposals[A](proposals: (Double, ProposalGenerator[A] with SymmetricTransitionRatio[A])*)(implicit rnd: Random): MixtureProposal[A] with SymmetricTransitionRatio[A] = new MixtureProposal[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
+  def fromSymmetricProposals[A](
+    proposals: (Double, ProposalGenerator[A] with SymmetricTransitionRatio[A])*
+  )(implicit rnd: Random): MixtureProposal[A] with SymmetricTransitionRatio[A] =
+    new MixtureProposal[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
 
   /** mixture of symmetric proposals (mixture distribution) with a transition probability */
-  def fromSymmetricProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with SymmetricTransitionRatio[A] with TransitionProbability[A])*)(implicit rnd: Random): MixtureProposal[A] with SymmetricTransitionRatio[A] with TransitionProbability[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
+  def fromSymmetricProposalsWithTransition[A](
+    proposals: (Double, ProposalGenerator[A] with SymmetricTransitionRatio[A] with TransitionProbability[A])*
+  )(implicit rnd: Random): MixtureProposal[A] with SymmetricTransitionRatio[A] with TransitionProbability[A] =
+    new MixtureProposalWithTransition[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
 
   /** create a mixture proposal from a sequence of components - use together with implicits._ for the simplified operator syntax: MixtureProposal(0.4 *: prop1 + 0.6 *: prop2) */
-  def apply[A](components: Seq[(Double, A)])(implicit builder: CreateMixture[A], rnd: Random): A = builder.create(components)
+  def apply[A](components: Seq[(Double, A)])(implicit builder: CreateMixture[A], rnd: Random): A =
+    builder.create(components)
 
   type SymmetricProposalGenerator[A] = ProposalGenerator[A] with SymmetricTransitionRatio[A]
-  type SymmetricProposalGeneratorWithTransition[A] = ProposalGenerator[A] with SymmetricTransitionRatio[A] with TransitionProbability[A]
+  type SymmetricProposalGeneratorWithTransition[A] =
+    ProposalGenerator[A] with SymmetricTransitionRatio[A] with TransitionProbability[A]
   type ProposalGeneratorWithTransition[A] = ProposalGenerator[A] with TransitionProbability[A]
   type ProposalGeneratorWithTransitionRatio[A] = ProposalGenerator[A] with TransitionRatio[A]
 
@@ -98,28 +113,39 @@ object MixtureProposal {
 
   object CreateMixture {
     implicit def propBuilder[A]: CreateMixture[ProposalGenerator[A]] = new CreateMixture[ProposalGenerator[A]] {
-      override def create(components: Seq[(Double, ProposalGenerator[A])])(implicit rnd: Random): ProposalGenerator[A] = {
+      override def create(
+        components: Seq[(Double, ProposalGenerator[A])]
+      )(implicit rnd: Random): ProposalGenerator[A] = {
         MixtureProposal.fromProposals(normalizeCoefficients(components): _*)
       }
     }
 
-    implicit def symBuilder[A]: CreateMixture[SymmetricProposalGenerator[A]] = new CreateMixture[SymmetricProposalGenerator[A]] {
-      override def create(components: Seq[(Double, SymmetricProposalGenerator[A])])(implicit rnd: Random): SymmetricProposalGenerator[A] = {
-        MixtureProposal.fromSymmetricProposals(normalizeCoefficients(components): _*)
+    implicit def symBuilder[A]: CreateMixture[SymmetricProposalGenerator[A]] =
+      new CreateMixture[SymmetricProposalGenerator[A]] {
+        override def create(
+          components: Seq[(Double, SymmetricProposalGenerator[A])]
+        )(implicit rnd: Random): SymmetricProposalGenerator[A] = {
+          MixtureProposal.fromSymmetricProposals(normalizeCoefficients(components): _*)
+        }
       }
-    }
 
-    implicit def transBuilder[A]: CreateMixture[ProposalGeneratorWithTransition[A]] = new CreateMixture[ProposalGeneratorWithTransition[A]] {
-      override def create(components: Seq[(Double, ProposalGeneratorWithTransition[A])])(implicit rnd: Random): ProposalGeneratorWithTransition[A] = {
-        MixtureProposal.fromProposalsWithTransition(normalizeCoefficients(components): _*)
+    implicit def transBuilder[A]: CreateMixture[ProposalGeneratorWithTransition[A]] =
+      new CreateMixture[ProposalGeneratorWithTransition[A]] {
+        override def create(
+          components: Seq[(Double, ProposalGeneratorWithTransition[A])]
+        )(implicit rnd: Random): ProposalGeneratorWithTransition[A] = {
+          MixtureProposal.fromProposalsWithTransition(normalizeCoefficients(components): _*)
+        }
       }
-    }
 
-    implicit def symTransBuilder[A]: CreateMixture[SymmetricProposalGeneratorWithTransition[A]] = new CreateMixture[SymmetricProposalGeneratorWithTransition[A]] {
-      override def create(components: Seq[(Double, SymmetricProposalGeneratorWithTransition[A])])(implicit rnd: Random): SymmetricProposalGeneratorWithTransition[A] = {
-        MixtureProposal.fromSymmetricProposalsWithTransition(normalizeCoefficients(components): _*)
+    implicit def symTransBuilder[A]: CreateMixture[SymmetricProposalGeneratorWithTransition[A]] =
+      new CreateMixture[SymmetricProposalGeneratorWithTransition[A]] {
+        override def create(
+          components: Seq[(Double, SymmetricProposalGeneratorWithTransition[A])]
+        )(implicit rnd: Random): SymmetricProposalGeneratorWithTransition[A] = {
+          MixtureProposal.fromSymmetricProposalsWithTransition(normalizeCoefficients(components): _*)
+        }
       }
-    }
   }
 
   /** implicit conversions for simple building: MixtureProposal(0.5 *: prop1 + 0.25 *: prop2 + 0.25 *: prop3) - handles all symmetry and transition traits */
@@ -127,10 +153,15 @@ object MixtureProposal {
 
     import scala.language.implicitConversions
 
-    implicit def proposal2Builder[A](comp: ProposalGenerator[A]): MixtureBuilder[A] = new MixtureBuilder[A](IndexedSeq((1.0, comp)))
-    implicit def proposal2BuilderSym[A](comp: SymmetricProposalGenerator[A]): MixtureBuilderSym[A] = new MixtureBuilderSym[A](IndexedSeq((1.0, comp)))
-    implicit def proposal2BuilderTrans[A](comp: ProposalGeneratorWithTransition[A]): MixtureBuilderTrans[A] = new MixtureBuilderTrans[A](IndexedSeq((1.0, comp)))
-    implicit def proposal2BuilderSymTrans[A](comp: SymmetricProposalGeneratorWithTransition[A]): MixtureBuilderSymTrans[A] = new MixtureBuilderSymTrans[A](IndexedSeq((1.0, comp)))
+    implicit def proposal2Builder[A](comp: ProposalGenerator[A]): MixtureBuilder[A] =
+      new MixtureBuilder[A](IndexedSeq((1.0, comp)))
+    implicit def proposal2BuilderSym[A](comp: SymmetricProposalGenerator[A]): MixtureBuilderSym[A] =
+      new MixtureBuilderSym[A](IndexedSeq((1.0, comp)))
+    implicit def proposal2BuilderTrans[A](comp: ProposalGeneratorWithTransition[A]): MixtureBuilderTrans[A] =
+      new MixtureBuilderTrans[A](IndexedSeq((1.0, comp)))
+    implicit def proposal2BuilderSymTrans[A](
+      comp: SymmetricProposalGeneratorWithTransition[A]
+    ): MixtureBuilderSymTrans[A] = new MixtureBuilderSymTrans[A](IndexedSeq((1.0, comp)))
 
     trait MixtureComponentSeq[A] extends Seq[(Double, A)] {
       def components: Seq[(Double, A)]
@@ -139,36 +170,50 @@ object MixtureProposal {
       override def iterator: Iterator[(Double, A)] = components.iterator
     }
 
-    implicit class MixtureBuilder[A](override val components: Seq[(Double, ProposalGenerator[A])]) extends MixtureComponentSeq[ProposalGenerator[A]] {
+    implicit class MixtureBuilder[A](override val components: Seq[(Double, ProposalGenerator[A])])
+        extends MixtureComponentSeq[ProposalGenerator[A]] {
       def +(other: MixtureBuilder[A]) = new MixtureBuilder[A](components ++ other)
 
-      def *(f: Double) = new MixtureBuilder[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
+      def *(f: Double) =
+        new MixtureBuilder[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
       def *:(f: Double): MixtureBuilder[A] = this * f
     }
 
-    implicit class MixtureBuilderSym[A](override val components: Seq[(Double, SymmetricProposalGenerator[A])]) extends MixtureComponentSeq[SymmetricProposalGenerator[A]] {
-      def +(other: MixtureBuilderSym[A]): Seq[(Double, SymmetricProposalGenerator[A])] = new MixtureBuilderSym[A](components ++ other)
+    implicit class MixtureBuilderSym[A](override val components: Seq[(Double, SymmetricProposalGenerator[A])])
+        extends MixtureComponentSeq[SymmetricProposalGenerator[A]] {
+      def +(other: MixtureBuilderSym[A]): Seq[(Double, SymmetricProposalGenerator[A])] =
+        new MixtureBuilderSym[A](components ++ other)
       def +(other: MixtureBuilder[A]): Seq[(Double, ProposalGenerator[A])] = new MixtureBuilder[A](components ++ other)
 
-      def *(f: Double) = new MixtureBuilderSym[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
+      def *(f: Double) =
+        new MixtureBuilderSym[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
       def *:(f: Double): MixtureBuilderSym[A] = this * f
     }
 
-    implicit class MixtureBuilderTrans[A](override val components: Seq[(Double, ProposalGeneratorWithTransition[A])]) extends MixtureComponentSeq[ProposalGeneratorWithTransition[A]] {
-      def +(other: MixtureBuilderTrans[A]): Seq[(Double, ProposalGeneratorWithTransition[A])] = new MixtureBuilderTrans[A](components ++ other)
+    implicit class MixtureBuilderTrans[A](override val components: Seq[(Double, ProposalGeneratorWithTransition[A])])
+        extends MixtureComponentSeq[ProposalGeneratorWithTransition[A]] {
+      def +(other: MixtureBuilderTrans[A]): Seq[(Double, ProposalGeneratorWithTransition[A])] =
+        new MixtureBuilderTrans[A](components ++ other)
       def +(other: MixtureBuilder[A]): Seq[(Double, ProposalGenerator[A])] = new MixtureBuilder[A](components ++ other)
 
-      def *(f: Double) = new MixtureBuilderTrans[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
+      def *(f: Double) =
+        new MixtureBuilderTrans[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
       def *:(f: Double): MixtureBuilderTrans[A] = this * f
     }
 
-    implicit class MixtureBuilderSymTrans[A](override val components: Seq[(Double, SymmetricProposalGeneratorWithTransition[A])]) extends MixtureComponentSeq[SymmetricProposalGeneratorWithTransition[A]] {
-      def +(other: MixtureBuilderSymTrans[A]): Seq[(Double, SymmetricProposalGeneratorWithTransition[A])] = new MixtureBuilderSymTrans[A](components ++ other)
-      def +(other: MixtureBuilderSym[A]): Seq[(Double, SymmetricProposalGenerator[A])] = new MixtureBuilderSym[A](components ++ other)
-      def +(other: MixtureBuilderTrans[A]): Seq[(Double, ProposalGeneratorWithTransition[A])] = new MixtureBuilderTrans[A](components ++ other)
+    implicit class MixtureBuilderSymTrans[A](
+      override val components: Seq[(Double, SymmetricProposalGeneratorWithTransition[A])]
+    ) extends MixtureComponentSeq[SymmetricProposalGeneratorWithTransition[A]] {
+      def +(other: MixtureBuilderSymTrans[A]): Seq[(Double, SymmetricProposalGeneratorWithTransition[A])] =
+        new MixtureBuilderSymTrans[A](components ++ other)
+      def +(other: MixtureBuilderSym[A]): Seq[(Double, SymmetricProposalGenerator[A])] =
+        new MixtureBuilderSym[A](components ++ other)
+      def +(other: MixtureBuilderTrans[A]): Seq[(Double, ProposalGeneratorWithTransition[A])] =
+        new MixtureBuilderTrans[A](components ++ other)
       def +(other: MixtureBuilder[A]): Seq[(Double, ProposalGenerator[A])] = new MixtureBuilder[A](components ++ other)
 
-      def *(f: Double) = new MixtureBuilderSymTrans[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
+      def *(f: Double) =
+        new MixtureBuilderSymTrans[A](normalizeCoefficients(components).map { case (coeff, gen) => (coeff * f, gen) })
       def *:(f: Double): MixtureBuilderSymTrans[A] = this * f
     }
   }

@@ -25,14 +25,15 @@ class Memoize[-T, +R](f: T => R, cacheSizeHint: Int) extends (T => R) {
     def getOrPut(f: => X): X = {
       data match {
         case Some(v) => v
-        case None => this.synchronized {
-          data match {
-            case Some(v) => v
-            case None =>
-              data = Some(f)
-              data.get
+        case None =>
+          this.synchronized {
+            data match {
+              case Some(v) => v
+              case None =>
+                data = Some(f)
+                data.get
+            }
           }
-        }
       }
     }
   }
@@ -45,15 +46,16 @@ class Memoize[-T, +R](f: T => R, cacheSizeHint: Int) extends (T => R) {
     val holder: Holder[R] = {
       cache.get(x) match {
         case h: Holder[R] => h
-        case null => cache.synchronized {
-          cache.get(x) match {
-            case h: Holder[R] => h
-            case null =>
-              val h = new Holder[R]
-              cache.put(x, h)
-              h
+        case null =>
+          cache.synchronized {
+            cache.get(x) match {
+              case h: Holder[R] => h
+              case null =>
+                val h = new Holder[R]
+                cache.put(x, h)
+                h
+            }
           }
-        }
       }
     }
     holder.getOrPut(f(x))
@@ -65,7 +67,8 @@ object Memoize {
 
   def apply[T, R](f: T => R, cacheSizeHint: Int) = new Memoize[T, R](f, cacheSizeHint)
 
-  def memfun2[T, R, F](f: F, cacheSizeHint: Int)(implicit e: Tupler[F, T => R]): F = e.untupled(new Memoize(e.tupled(f), cacheSizeHint))
+  def memfun2[T, R, F](f: F, cacheSizeHint: Int)(implicit e: Tupler[F, T => R]): F =
+    e.untupled(new Memoize(e.tupled(f), cacheSizeHint))
 
 }
 
@@ -74,9 +77,7 @@ sealed class Tupler[U, T](val tupled: U => T, val untupled: T => U)
 object Tupler {
 
   implicit def function0[R]: Tupler[() => R, Unit => R] =
-    new Tupler(
-      (f: () => R) => (_: Unit) => f(),
-      (f: Unit => R) => () => f(()))
+    new Tupler((f: () => R) => (_: Unit) => f(), (f: Unit => R) => () => f(()))
 
   implicit def function1[T, R]: Tupler[T => R, T => R] = new Tupler(identity, identity)
 

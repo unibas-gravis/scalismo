@@ -22,11 +22,13 @@ import scalismo.geometry._
  * Trait for filters to be used in a convolution
  */
 trait Filter[D] extends Function1[Point[D], Float] {
+
   /**
    * Returns the continuous domain on which the filter is defined
    */
   def support: BoxDomain[D]
 }
+
 /**
  * One dimensional Gaussian Blur Filter to be used in a convolution
  * @constructor
@@ -56,6 +58,7 @@ case class GaussianFilter2D(stddev: Double) extends Filter[_2D] {
   val radius = (3.0 * stddev).toFloat
   def support = BoxDomain(Point(-radius, -radius), Point(radius, radius))
 }
+
 /**
  * 3 dimensional Gaussian blur filter. See [[GaussianFilter1D]]
  */
@@ -72,12 +75,12 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
   val radius = (3.0 * stddev).toFloat
   def support = BoxDomain(Point(-radius, -radius, -radius), Point(radius, radius, radius))
 }
+
 /**
  * D- dimensional box Blurring Filter to be used in a convolution. The filter has a value 1 in its support and 0 otherwise
  * @constructor
  * @param width Defines the width of the filter support
  */
-
 case class BoxedFilter[D: NDSpace](width: Double) extends Filter[D] {
   def apply(p: Point[D]) = if (support.isDefinedAt(p)) 1f else 0f
   val w = width / 2.0
@@ -85,4 +88,3 @@ case class BoxedFilter[D: NDSpace](width: Double) extends Filter[D] {
 
   def support = BoxDomain[D]((v * (-w)).toPoint, (v * (w)).toPoint)
 }
-

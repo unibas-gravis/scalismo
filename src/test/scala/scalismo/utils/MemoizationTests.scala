@@ -43,11 +43,11 @@ class MemoizationTests extends ScalismoTestSuite {
       }
 
       val slowFunMemoized = Memoize(slowTestFun, 10)
-      val timeSlowFun = time {
-        () => for (i <- 0 until 10) slowTestFun(0)
+      val timeSlowFun = time { () =>
+        for (i <- 0 until 10) slowTestFun(0)
       }
-      val timeMemoFun = time {
-        () => for (i <- 0 until 10) slowFunMemoized
+      val timeMemoFun = time { () =>
+        for (i <- 0 until 10) slowFunMemoized
       }
       timeSlowFun should be > timeMemoFun
     }

@@ -18,7 +18,7 @@ package scalismo.mesh.kdtree
 
 import scala.language.implicitConversions
 
-private[scalismo] sealed trait Region[A] {
+sealed private[scalismo] trait Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean
 }
@@ -30,9 +30,9 @@ private[scalismo] case class EntireSpace[A]() extends Region[A] {
 
 private[scalismo] case class AboveHyperplane[A](a: A, dim: Int) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = other match {
-    case EntireSpace() => true
-    case AboveHyperplane(b, bdim) => true
-    case BelowHyperplane(b, bdim) => (dim != bdim) || (ord.compareProjection(dim)(b, a) >= 0)
+    case EntireSpace()               => true
+    case AboveHyperplane(b, bdim)    => true
+    case BelowHyperplane(b, bdim)    => (dim != bdim) || (ord.compareProjection(dim)(b, a) >= 0)
     case RegionIntersection(regions) => regions.forall(overlapsWith _)
   }
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean =
@@ -41,9 +41,9 @@ private[scalismo] case class AboveHyperplane[A](a: A, dim: Int) extends Region[A
 
 private[scalismo] case class BelowHyperplane[A](a: A, dim: Int) extends Region[A] {
   def overlapsWith(other: Region[A])(implicit ord: DimensionalOrdering[A]): Boolean = other match {
-    case EntireSpace() => true
-    case AboveHyperplane(b, bdim) => (dim != bdim) || (ord.compareProjection(dim)(b, a) <= 0)
-    case BelowHyperplane(b, bdim) => true
+    case EntireSpace()               => true
+    case AboveHyperplane(b, bdim)    => (dim != bdim) || (ord.compareProjection(dim)(b, a) <= 0)
+    case BelowHyperplane(b, bdim)    => true
     case RegionIntersection(regions) => regions.forall(overlapsWith)
   }
   def contains(p: A)(implicit ord: DimensionalOrdering[A]): Boolean =

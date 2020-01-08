@@ -16,7 +16,7 @@
 package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
-import scalismo.geometry.{ EuclideanVector, _3D }
+import scalismo.geometry.{_3D, EuclideanVector}
 import scalismo.mesh.boundingSpheres.ClosestPointType._
 
 /**
@@ -28,7 +28,9 @@ private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3
   val bc = c - b
   val n = ab.crossproduct(ac)
 
-  val degenerated = if (n.norm == 0.0) { if (a == b && b == c) 2 else 1 } else 0
+  val degenerated = if (n.norm == 0.0) {
+    if (a == b && b == c) 2 else 1
+  } else 0
   // 0: ab, 1: ac, 2: bc
   val longestSide = {
     val bc = c - b
@@ -43,7 +45,10 @@ private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3
 /**
  * Holds tetrahedron and precalculated vectors.
  */
-case class Tetrahedron(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: EuclideanVector[_3D], d: EuclideanVector[_3D]) {
+case class Tetrahedron(a: EuclideanVector[_3D],
+                       b: EuclideanVector[_3D],
+                       c: EuclideanVector[_3D],
+                       d: EuclideanVector[_3D]) {
   val ab = b - a
   val ac = c - a
   val ad = d - a
@@ -80,7 +85,10 @@ case class Tetrahedron(a: EuclideanVector[_3D], b: EuclideanVector[_3D], c: Eucl
       if (areaSquared <= 0.0) 0.0 else math.sqrt(areaSquared)
     }
 
-    val sq = IndexedSeq(computeTriangleArea(a, b, c), computeTriangleArea(a, b, d), computeTriangleArea(a, d, c), computeTriangleArea(b, c, d))
+    val sq = IndexedSeq(computeTriangleArea(a, b, c),
+                        computeTriangleArea(a, b, d),
+                        computeTriangleArea(a, d, c),
+                        computeTriangleArea(b, c, d))
 
     var larg = (0, 0.0)
 
@@ -145,7 +153,11 @@ private object BSDistance {
   // mutable classes
   private[boundingSpheres] case class Index(var idx: Int)
   private[boundingSpheres] case class Distance2(var distance2: Double)
-  private[boundingSpheres] case class CP(var distance2: Double, var pt: EuclideanVector[_3D], var ptType: ClosestPointType, var bc: BC, var idx: (Int, Int))
+  private[boundingSpheres] case class CP(var distance2: Double,
+                                         var pt: EuclideanVector[_3D],
+                                         var ptType: ClosestPointType,
+                                         var bc: BC,
+                                         var idx: (Int, Int))
 
   // immutable classes
 
@@ -193,7 +205,7 @@ private object BSDistance {
       //   4 |    5    \   6
       //     |          \
       // Then calculate the distance to the nearest point or line segment.
-      */
+       */
       if (st < 1.0) {
         if (s > 0) {
           if (t > 0) {
@@ -262,7 +274,11 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceClosestPointAndBCOnLineSegment(p: EuclideanVector[_3D], pt1: EuclideanVector[_3D], pt2: EuclideanVector[_3D]): (Double, EuclideanVector[_3D], Double) = {
+  def squaredDistanceClosestPointAndBCOnLineSegment(
+    p: EuclideanVector[_3D],
+    pt1: EuclideanVector[_3D],
+    pt2: EuclideanVector[_3D]
+  ): (Double, EuclideanVector[_3D], Double) = {
     val dir = pt2 - pt1 // line direction
     val len2 = dir.norm2
     if (len2 < Double.MinPositiveValue) {
@@ -283,7 +299,9 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceAndClosestPointOnLine(p: EuclideanVector[_3D], pt1: EuclideanVector[_3D], pt2: EuclideanVector[_3D]): (Double, EuclideanVector[_3D]) = {
+  def squaredDistanceAndClosestPointOnLine(p: EuclideanVector[_3D],
+                                           pt1: EuclideanVector[_3D],
+                                           pt2: EuclideanVector[_3D]): (Double, EuclideanVector[_3D]) = {
     val dir = (pt2 - pt1).normalize // line direction
     val x = p - pt1 // vector from the point to one point on the line
     val s = dir.dot(x) // length of projection of x onto the line
@@ -302,7 +320,9 @@ private object BSDistance {
   }
 
   @inline
-  def squaredDistanceToLineDirection(p: EuclideanVector[_3D], pointOnLine: EuclideanVector[_3D], direction: EuclideanVector[_3D]): Double = {
+  def squaredDistanceToLineDirection(p: EuclideanVector[_3D],
+                                     pointOnLine: EuclideanVector[_3D],
+                                     direction: EuclideanVector[_3D]): Double = {
     val v = pointOnLine - p
     (v - direction * (direction.dot(v) / direction.norm2)).norm2
   }

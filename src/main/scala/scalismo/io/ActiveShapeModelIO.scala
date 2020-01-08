@@ -15,9 +15,9 @@
  */
 package scalismo.io
 
-import java.io.{ File, IOException }
+import java.io.{File, IOException}
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
 import scalismo.geometry._3D
@@ -26,7 +26,7 @@ import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.statisticalmodel.asm._
 
 import scala.collection.immutable
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 object ActiveShapeModelIO {
 
@@ -72,23 +72,31 @@ object ActiveShapeModelIO {
     } yield ()
   }
 
-  private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles): Try[Unit] = Try {
-    val numberOfPoints = profiles.data.length
-    val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
-    val means: NDArray[Float] = new NDArray(Array[Long](numberOfPoints, profileLength), profiles.data.flatMap(_.distribution.mean.toArray).toArray.map(_.toFloat))
-    val covariances: NDArray[Float] = new NDArray(Array[Long](numberOfPoints * profileLength, profileLength), profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat))
-    val groupName = group.getFullName
+  private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles): Try[Unit] =
+    Try {
+      val numberOfPoints = profiles.data.length
+      val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
+      val means: NDArray[Float] = new NDArray(Array[Long](numberOfPoints, profileLength),
+                                              profiles.data.flatMap(_.distribution.mean.toArray).toArray.map(_.toFloat))
+      val covariances: NDArray[Float] =
+        new NDArray(Array[Long](numberOfPoints * profileLength, profileLength),
+                    profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat))
+      val groupName = group.getFullName
 
-    val result = for {
-      _ <- h5file.writeIntAttribute(groupName, Names.Attribute.NumberOfPoints, numberOfPoints)
-      _ <- h5file.writeIntAttribute(groupName, Names.Attribute.ProfileLength, profileLength)
-      _ <- h5file.writeStringAttribute(groupName, Names.Attribute.Comment, s"${Names.Item.Covariances} consists of $numberOfPoints concatenated ${profileLength}x$profileLength matrices")
-      _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", profiles.data.map(_.pointId.id).toArray)
-      _ <- h5file.writeNDArray[Float](s"$groupName/${Names.Item.Means}", means)
-      _ <- h5file.writeNDArray[Float](s"$groupName/${Names.Item.Covariances}", covariances)
-    } yield ()
-    result // this is a Try[Unit], so the return value is a Try[Try[Unit]]
-  }.flatten
+      val result = for {
+        _ <- h5file.writeIntAttribute(groupName, Names.Attribute.NumberOfPoints, numberOfPoints)
+        _ <- h5file.writeIntAttribute(groupName, Names.Attribute.ProfileLength, profileLength)
+        _ <- h5file.writeStringAttribute(
+          groupName,
+          Names.Attribute.Comment,
+          s"${Names.Item.Covariances} consists of $numberOfPoints concatenated ${profileLength}x$profileLength matrices"
+        )
+        _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", profiles.data.map(_.pointId.id).toArray)
+        _ <- h5file.writeNDArray[Float](s"$groupName/${Names.Item.Means}", means)
+        _ <- h5file.writeNDArray[Float](s"$groupName/${Names.Item.Covariances}", covariances)
+      } yield ()
+      result // this is a Try[Unit], so the return value is a Try[Try[Unit]]
+    }.flatten
 
   def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
     for {
@@ -100,7 +108,7 @@ object ActiveShapeModelIO {
       _ <- {
         (asmVersionMajor, asmVersionMinor) match {
           case (1, 0) => Success(())
-          case _ => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
+          case _      => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
         }
       }
       feGroup <- h5file.getGroup(asmGroup, Names.Group.FeatureExtractor)
@@ -124,7 +132,10 @@ object ActiveShapeModelIO {
       meanArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Means}")
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
-      val dists = meanVecs.zip(covMats).map { case (m, c) => new MultivariateNormalDistribution(m.map(_.toDouble), c.map(_.toDouble)) }.to[immutable.IndexedSeq]
+      val dists = meanVecs
+        .zip(covMats)
+        .map { case (m, c) => new MultivariateNormalDistribution(m.map(_.toDouble), c.map(_.toDouble)) }
+        .to[immutable.IndexedSeq]
       val profiles = dists.zip(pointIds).map { case (d, id) => Profile(PointId(id), d) }
       new Profiles(profiles)
     }

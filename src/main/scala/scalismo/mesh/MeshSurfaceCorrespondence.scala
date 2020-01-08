@@ -40,5 +40,6 @@ trait MeshSurfaceCorrespondence extends MeshSurfaceProperty[(TriangleId, Barycen
    */
   def targetTriangulation: TriangleList
 
-  override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): (TriangleId, BarycentricCoordinates) = correspondingPoint(triangleId: TriangleId, bcc: BarycentricCoordinates)
+  override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): (TriangleId, BarycentricCoordinates) =
+    correspondingPoint(triangleId: TriangleId, bcc: BarycentricCoordinates)
 }

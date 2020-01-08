@@ -16,7 +16,7 @@
 package scalismo.numerics
 
 import breeze.linalg.DenseVector
-import breeze.optimize.{ DiffFunction, LBFGS }
+import breeze.optimize.{DiffFunction, LBFGS}
 import scalismo.registration.TransformationSpace.ParameterVector
 
 import scala.collection.Iterator
@@ -27,7 +27,11 @@ trait CostFunction extends (ParameterVector => (Double, DenseVector[Double])) {
 
 trait Optimizer {
 
-  case class State(iteration: Int, value: Double, gradient: DenseVector[Double], parameters: ParameterVector, stepLength: Double)
+  case class State(iteration: Int,
+                   value: Double,
+                   gradient: DenseVector[Double],
+                   parameters: ParameterVector,
+                   stepLength: Double)
 
   def iterations(x0: ParameterVector, c: CostFunction): Iterator[State]
   def minimize(x0: ParameterVector, c: CostFunction): ParameterVector
@@ -55,14 +59,19 @@ case class LBFGSOptimizer(maxNumberOfIterations: Int, m: Int = 10, tolerance: Do
   }
 }
 
-case class GradientDescentOptimizer(
-  maxNumberOfIterations: Int,
-  stepLength: Double,
-  withLineSearch: Boolean = false,
-  robinsMonroe: Boolean = false,
-  stepDecreaseCoeff: Double = 0.0) extends Optimizer {
+case class GradientDescentOptimizer(maxNumberOfIterations: Int,
+                                    stepLength: Double,
+                                    withLineSearch: Boolean = false,
+                                    robinsMonroe: Boolean = false,
+                                    stepDecreaseCoeff: Double = 0.0)
+    extends Optimizer {
 
-  private def goldenSectionLineSearch(nbPoints: Int, xk: ParameterVector, lowerLimit: Double, upperLimit: Double, normalizedGradient: DenseVector[Double], f: CostFunction): Double = {
+  private def goldenSectionLineSearch(nbPoints: Int,
+                                      xk: ParameterVector,
+                                      lowerLimit: Double,
+                                      upperLimit: Double,
+                                      normalizedGradient: DenseVector[Double],
+                                      f: CostFunction): Double = {
     val r = 0.618
 
     var ll = lowerLimit
@@ -142,5 +151,4 @@ case class GradientDescentOptimizer(
   }
 }
 
-object Optimizer {
-}
+object Optimizer {}

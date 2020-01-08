@@ -18,8 +18,8 @@ package scalismo.numerics
 import breeze.linalg.DenseMatrix
 import breeze.linalg.svd.SVD
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{ Point, _1D }
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel, Kernel }
+import scalismo.geometry.{_1D, Point}
+import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
 import scalismo.utils.Random
 
 class RandomSVDTest extends ScalismoTestSuite {

@@ -18,15 +18,17 @@ package scalismo.statisticalmodel.asm
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
-import scalismo.geometry.{ EuclideanVector, Point, _3D }
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
-import scalismo.statisticalmodel.asm.PreprocessedImage.{ Gradient, Intensity }
+import scalismo.statisticalmodel.asm.PreprocessedImage.{Gradient, Intensity}
 
 import scala.collection.immutable
-import scala.util.{ Failure, Try }
+import scala.util.{Failure, Try}
 
-trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], TriangleMesh[_3D], PointId, Option[DenseVector[Double]]] with HasIOMetadata {
+trait FeatureExtractor
+    extends Function4[PreprocessedImage, Point[_3D], TriangleMesh[_3D], PointId, Option[DenseVector[Double]]]
+    with HasIOMetadata {
 
   /**
    * Actually extracts features from an image.
@@ -40,7 +42,10 @@ trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], Triangle
    * @param profilePointId a point id on the mesh, corresponding to a profiled point id.
    * @return
    */
-  def apply(image: PreprocessedImage, featurePoint: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Double]]
+  def apply(image: PreprocessedImage,
+            featurePoint: Point[_3D],
+            mesh: TriangleMesh[_3D],
+            profilePointId: PointId): Option[DenseVector[Double]]
 
   /**
    * Return the points at which feature components are extracted for a given mesh and point.
@@ -57,7 +62,9 @@ trait FeatureExtractor extends Function4[PreprocessedImage, Point[_3D], Triangle
    * @param featurePoint the actual point in space where the features are to be extracted
    * @return a sequence of points, or [[None]] if there is no sensible correspondence between feature and points, as outlined above.
    */
-  def featurePoints(mesh: TriangleMesh[_3D], profilePointId: PointId, featurePoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]]
+  def featurePoints(mesh: TriangleMesh[_3D],
+                    profilePointId: PointId,
+                    featurePoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]]
 }
 
 trait FeatureExtractorIOHandler extends IOHandler[FeatureExtractor]
@@ -72,8 +79,15 @@ object NormalDirectionFeatureExtractor {
   val IOMetadata_Default = IOMetadata_1_0
 }
 
-case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double, override val ioMetadata: IOMetadata = NormalDirectionFeatureExtractor.IOMetadata_Default) extends FeatureExtractor {
-  override def apply(image: PreprocessedImage, point: Point[_3D], mesh: TriangleMesh[_3D], profilePointId: PointId): Option[DenseVector[Double]] = {
+case class NormalDirectionFeatureExtractor(numberOfPoints: Int,
+                                           spacing: Double,
+                                           override val ioMetadata: IOMetadata =
+                                             NormalDirectionFeatureExtractor.IOMetadata_Default)
+    extends FeatureExtractor {
+  override def apply(image: PreprocessedImage,
+                     point: Point[_3D],
+                     mesh: TriangleMesh[_3D],
+                     profilePointId: PointId): Option[DenseVector[Double]] = {
     val normal: EuclideanVector[_3D] = mesh.vertexNormals(profilePointId) // TODO: this was adapted when switched to new mesh... Check if this is correct.
     val unitNormal = normal * (1.0 / normal.norm)
 
@@ -86,7 +100,10 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double,
           case Gradient =>
             val gradient = EuclideanVector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
             gradient dot unitNormal
-          case _ => throw new IllegalStateException(s"The feature extractor cannot handle preprocessed images of type ${image.valueType}")
+          case _ =>
+            throw new IllegalStateException(
+              s"The feature extractor cannot handle preprocessed images of type ${image.valueType}"
+            )
         }
       } else {
         // fail-fast: immediately return, since the entire feature is "useless"
@@ -99,13 +116,17 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int, spacing: Double,
     Some(DenseVector(features.toArray))
   }
 
-  override def featurePoints(mesh: TriangleMesh[_3D], profilePointId: PointId, centerPoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]] = {
+  override def featurePoints(mesh: TriangleMesh[_3D],
+                             profilePointId: PointId,
+                             centerPoint: Point[_3D]): Option[immutable.IndexedSeq[Point[_3D]]] = {
     val normal: EuclideanVector[_3D] = mesh.vertexNormals(profilePointId)
     val unitNormal = normal * (1.0 / normal.norm)
     require(math.abs(unitNormal.norm - 1.0) < 1e-5)
 
     val range = ((-1 * numberOfPoints / 2) to (numberOfPoints / 2)).to[immutable.IndexedSeq]
-    Some(range map { i => centerPoint + unitNormal * i * spacing })
+    Some(range map { i =>
+      centerPoint + unitNormal * i * spacing
+    })
   }
 
 }

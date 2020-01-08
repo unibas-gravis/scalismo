@@ -22,11 +22,11 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.Field
 import scalismo.geometry._
 import scalismo.io.MeshIO
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.mesh.{ MeshMetrics, TriangleMesh }
+import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.UniformMeshSampler3D
-import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.registration.{LandmarkRegistration, TranslationTransform}
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
 
 class DataCollectionTests extends ScalismoTestSuite {
@@ -116,12 +116,19 @@ class DataCollectionTests extends ScalismoTestSuite {
   object Fixture {
 
     val path: String = getClass.getResource("/nonAlignedFaces").getPath
-    val nonAlignedFaces = new File(URLDecoder.decode(path, "UTF-8")).listFiles.sortBy(_.getName).map { f => MeshIO.readMesh(f).get }.toIndexedSeq
+    val nonAlignedFaces = new File(URLDecoder.decode(path, "UTF-8")).listFiles
+      .sortBy(_.getName)
+      .map { f =>
+        MeshIO.readMesh(f).get
+      }
+      .toIndexedSeq
     val ref = nonAlignedFaces.head
     val dataset = nonAlignedFaces.tail
 
     val aligendDataset = dataset.map { d =>
-      val trans = LandmarkRegistration.rigid3DLandmarkRegistration((d.pointSet.points zip ref.pointSet.points).toIndexedSeq, Point(0, 0, 0))
+      val trans =
+        LandmarkRegistration.rigid3DLandmarkRegistration((d.pointSet.points zip ref.pointSet.points).toIndexedSeq,
+                                                         Point(0, 0, 0))
       d.transform(trans)
     }
 
@@ -154,7 +161,8 @@ class DataCollectionTests extends ScalismoTestSuite {
         distancesMeshesInDC.sum / distancesMeshesInDC.size
       }
 
-      averageDistanceToAllMeshes(Fixture.dc, Fixture.dc.meanSurface) should be > averageDistanceToAllMeshes(gpaDC, gpaMean)
+      averageDistanceToAllMeshes(Fixture.dc, Fixture.dc.meanSurface) should be > averageDistanceToAllMeshes(gpaDC,
+                                                                                                            gpaMean)
     }
 
     it("keeps the reference shape unchanged") {
@@ -170,16 +178,23 @@ class DataCollectionTests extends ScalismoTestSuite {
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => EuclideanVector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
     val bias: GaussianProcess[_3D, EuclideanVector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
-    val biasLowRank = LowRankGaussianProcess.approximateGPNystrom(bias, UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500), Fixture.pcaModel.rank + 5)
+    val biasLowRank =
+      LowRankGaussianProcess.approximateGPNystrom(bias,
+                                                  UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500),
+                                                  Fixture.pcaModel.rank + 5)
     val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, biasLowRank)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {
-      val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get }
+      val gens = (0 until 10) map { _ =>
+        ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get
+      }
       assert(gens.forall(_ - gens(0) < 1.0e-14))
     }
 
     it("gives the same values when evaluated 10 times on augmented model") {
-      val gens = (0 until 10) map { _ => ModelMetrics.generalization(augmentedModel, Fixture.testDC).get }
+      val gens = (0 until 10) map { _ =>
+        ModelMetrics.generalization(augmentedModel, Fixture.testDC).get
+      }
       assert(gens.forall(_ - gens(0) < 1.0e-14))
     }
 

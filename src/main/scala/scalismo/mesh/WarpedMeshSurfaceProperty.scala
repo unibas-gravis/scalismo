@@ -22,8 +22,11 @@ package scalismo.mesh
  * @param correspondence surface correspondence field mapping points in this triangulation to underlying triangulation
  * @tparam A type of property
  */
-case class WarpedMeshSurfaceProperty[A](underlyingProperty: MeshSurfaceProperty[A], correspondence: MeshSurfaceCorrespondence) extends MeshSurfaceProperty[A] {
-  require(underlyingProperty.triangulation == correspondence.targetTriangulation, "correspondence is not compatible with underlying property")
+case class WarpedMeshSurfaceProperty[A](underlyingProperty: MeshSurfaceProperty[A],
+                                        correspondence: MeshSurfaceCorrespondence)
+    extends MeshSurfaceProperty[A] {
+  require(underlyingProperty.triangulation == correspondence.targetTriangulation,
+          "correspondence is not compatible with underlying property")
 
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): A = {
     val oldSurfacePoint = correspondence.onSurface(triangleId, bcc)

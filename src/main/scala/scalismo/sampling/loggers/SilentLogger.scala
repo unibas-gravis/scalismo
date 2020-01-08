@@ -15,7 +15,7 @@
  */
 package scalismo.sampling.loggers
 
-import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 
 object SilentLogger {
   def apply[A]() = new SilentLogger[A]()
@@ -23,7 +23,13 @@ object SilentLogger {
 
 /** silent logger, does nothing */
 class SilentLogger[A] extends AcceptRejectLogger[A] {
-  override def accept(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {}
+  override def accept(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {}
 
-  override def reject(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {}
+  override def reject(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {}
 }

@@ -6,18 +6,13 @@ import scalismo.geometry.Point
 
 class MeshSurfacePropertyTests extends ScalismoTestSuite {
 
-  val points = IndexedSeq(
-    Point(0, 1, 0),
-    Point(0, 0, 0),
-    Point(1, 1, 0),
-    Point(1, 0, 0))
+  val points = IndexedSeq(Point(0, 1, 0), Point(0, 0, 0), Point(1, 1, 0), Point(1, 0, 0))
 
   val values = IndexedSeq(0.0, 1.0, 2.0, 3.0)
 
   val triangulation = TriangleList(
-    IndexedSeq(
-      TriangleCell(PointId(0), PointId(1), PointId(2)),
-      TriangleCell(PointId(2), PointId(1), PointId(3))))
+    IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2)), TriangleCell(PointId(2), PointId(1), PointId(3)))
+  )
 
   val pointProperty = SurfacePointProperty(triangulation, values)
 
@@ -43,7 +38,10 @@ class MeshSurfacePropertyTests extends ScalismoTestSuite {
 
     it("applies function f as expected") {
       mappedProperty(TriangleId(1), BarycentricCoordinates.v1) shouldBe -values(1)
-      mappedProperty(TriangleId(0), BarycentricCoordinates(0.1, 0.2, 0.7)) shouldBe -pointProperty(TriangleId(0), BarycentricCoordinates(0.1, 0.2, 0.7))
+      mappedProperty(TriangleId(0), BarycentricCoordinates(0.1, 0.2, 0.7)) shouldBe -pointProperty(
+        TriangleId(0),
+        BarycentricCoordinates(0.1, 0.2, 0.7)
+      )
     }
 
     it("grants access to its triangulation without an AbstractMethodError (regression check, issue #138)") {

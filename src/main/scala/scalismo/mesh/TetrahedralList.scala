@@ -1,4 +1,3 @@
-
 /*
  * Copyright University of Basel, Graphics and Vision Research Group
  *
@@ -42,7 +41,9 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
 
     val data = tetrahedronMap.mapValues(s => s.toSet) // make immutable
 
-    val dataSeq = IndexedSeq.tabulate(pointIds.size) { i => data(pointIds(i)).toIndexedSeq }
+    val dataSeq = IndexedSeq.tabulate(pointIds.size) { i =>
+      data(pointIds(i)).toIndexedSeq
+    }
     id => dataSeq(id.id)
   }
 
@@ -63,7 +64,9 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
       pointMap(p) -= p
     }
     val mapData = pointMap.mapValues(s => s.toSet) // make immutable
-    val seqData = IndexedSeq.tabulate(pointIds.size) { i => mapData(pointIds(i)).toIndexedSeq }
+    val seqData = IndexedSeq.tabulate(pointIds.size) { i =>
+      mapData(pointIds(i)).toIndexedSeq
+    }
     id => seqData(id.id)
   }
 
@@ -78,23 +81,20 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
       tetrahedronmap(t) -= t
     }
     val mapData = tetrahedronmap.mapValues(s => s.toSet)
-    val seqData = IndexedSeq.tabulate(tetrahedronIds.size) { i => mapData(tetrahedronIds(i)).toIndexedSeq }
+    val seqData = IndexedSeq.tabulate(tetrahedronIds.size) { i =>
+      mapData(tetrahedronIds(i)).toIndexedSeq
+    }
     id => seqData(id.id)
   }
 
   /** Points contained in a tetrahedron, this information is contained in tetrahedron cells. */
-  lazy val adjacentPointsForTetrahedron: TetrahedronId => IndexedSeq[PointId] = {
-    id => tetrahedron(id).pointIds
+  lazy val adjacentPointsForTetrahedron: TetrahedronId => IndexedSeq[PointId] = { id =>
+    tetrahedron(id).pointIds
   }
 
   /** Create a list of all point ids contained in at least one tetrahedral cell. */
   private[this] def extractPointIds(tetrahedrons: IndexedSeq[TetrahedralCell]): IndexedSeq[PointId] = {
-    tetrahedrons.
-      flatMap(t => t.pointIds).
-      map(_.id).
-      distinct.
-      sorted.
-      map(id => PointId(id))
+    tetrahedrons.flatMap(t => t.pointIds).map(_.id).distinct.sorted.map(id => PointId(id))
   }
 }
 
@@ -109,4 +109,3 @@ object TetrahedronId {
 object TetrahedralList {
   val empty = TetrahedralList(IndexedSeq.empty[TetrahedralCell])
 }
-

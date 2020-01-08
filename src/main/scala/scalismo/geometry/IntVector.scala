@@ -115,7 +115,7 @@ object IntVector {
 
   /** spire Module implementation for Index (no scalar division) */
   implicit def spireModule[D: NDSpace] = new spire.algebra.Module[IntVector[D], Int] {
-    override implicit def scalar: Rng[Int] = Rng[Int]
+    implicit override def scalar: Rng[Int] = Rng[Int]
     override def timesl(r: Int, v: IntVector[D]): IntVector[D] = v.map(i => i * r)
     override def negate(x: IntVector[D]): IntVector[D] = x.map(i => -i)
     override def zero: IntVector[D] = zeros[D]

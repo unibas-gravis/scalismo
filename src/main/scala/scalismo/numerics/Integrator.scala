@@ -16,7 +16,7 @@
 package scalismo.numerics
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ Scalar, VectorField }
+import scalismo.common.{Scalar, VectorField}
 import scalismo.geometry._
 import scalismo.image.ScalarImage
 
@@ -45,7 +45,9 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     val samples = sampler.sample
 
     val zeroVector = EuclideanVector.zeros[DO]
-    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }.foldLeft(zeroVector)((a, b) => { a + b })
+    val sum = samples.par
+      .map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }
+      .foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1f / (sampler.numberOfPoints - 1))
   }
 
@@ -53,9 +55,10 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     val samples = sampler.sample
 
     val zeroVector = DenseVector.zeros[Double](dimensionality)
-    val sum = samples.par.map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }.foldLeft(zeroVector)((a, b) => { a + b })
+    val sum = samples.par
+      .map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }
+      .foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1.0 / (sampler.numberOfPoints - 1))
   }
 
 }
-
