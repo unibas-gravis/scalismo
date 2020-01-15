@@ -28,24 +28,29 @@ trait StatisticalVolumeIntensityModel[S] {
 
 object StatisticalVolumeIntensityModel {
 
-  def apply[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
-    shape: StatisticalVolumeMeshModel, intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]): SVIM[S] = {
+  def apply[S: Scalar: TypeTag: ClassTag](
+    referenceMeshField: ScalarVolumeMeshField[S],
+    shape: StatisticalVolumeMeshModel,
+    intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
+  ): SVIM[S] = {
     SVIM(referenceMeshField, shape, intensity)
   }
 
 }
 
-case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMeshField[S],
+case class SVIM[S: Scalar: TypeTag: ClassTag](
+  referenceMeshField: ScalarVolumeMeshField[S],
   shape: StatisticalVolumeMeshModel,
-  intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S])
-    extends StatisticalVolumeIntensityModel[S] {
+  intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
+) extends StatisticalVolumeIntensityModel[S] {
 
   override def mean: ScalarVolumeMeshField[S] = {
     ScalarVolumeMeshField(shape.mean, warpReferenceIntensity(intensity.mean.data))
   }
 
   override def instance(coefficients: SVIMCoefficients): ScalarVolumeMeshField[S] = {
-    ScalarVolumeMeshField(shape.instance(coefficients.shape), warpReferenceIntensity(intensity.instance(coefficients.intensity).data))
+    ScalarVolumeMeshField(shape.instance(coefficients.shape),
+                          warpReferenceIntensity(intensity.instance(coefficients.intensity).data))
   }
 
   override def sample()(implicit rnd: Random): ScalarVolumeMeshField[S] = {
@@ -69,6 +74,11 @@ case class SVIM[S: Scalar: TypeTag: ClassTag](referenceMeshField: ScalarVolumeMe
   }
 
   private def warpReferenceIntensity(scalarData: IndexedSeq[S]): ScalarArray[S] = {
-    ScalarArray[S](referenceMeshField.data.zip(ScalarArray[S](scalarData.toArray)).map { case (r, s) => Scalar[S].plus(r, s) }.toArray)
+    ScalarArray[S](
+      referenceMeshField.data
+        .zip(ScalarArray[S](scalarData.toArray))
+        .map { case (r, s) => Scalar[S].plus(r, s) }
+        .toArray
+    )
   }
 }
