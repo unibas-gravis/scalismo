@@ -1,5 +1,6 @@
-
-resolvers += Resolver.url("bintray-sbt-plugin-releases", url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.url("bintray-sbt-plugin-releases", url("http://dl.bintray.com/banno/oss"))(
+  Resolver.ivyStylePatterns
+)
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
