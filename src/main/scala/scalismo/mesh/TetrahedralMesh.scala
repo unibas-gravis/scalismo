@@ -31,9 +31,9 @@ case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4
 
   /** Ordered list of the triangles of the tetrahedron. */
   val triangles = Seq(TriangleCell(ptId1, ptId2, ptId3),
-                      TriangleCell(ptId1, ptId2, ptId4),
+                      TriangleCell(ptId1, ptId4, ptId2),
                       TriangleCell(ptId1, ptId3, ptId4),
-                      TriangleCell(ptId2, ptId3, ptId4))
+                      TriangleCell(ptId2, ptId4, ptId3))
 
   /** Returns true if @ptId is one of the point ids of the tetrahedral. */
   def containsPoint(ptId: PointId): Boolean = {
