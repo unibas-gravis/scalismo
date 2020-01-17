@@ -268,7 +268,7 @@ case class DiscreteImageDomain1D(size: IntVector[_1D],
     new UnstructuredPointsDomain1D(points.map(t).toIndexedSeq)
   }
 
-  override def boundingBox: BoxDomain[_1D] = BoxDomain(origin, origin + EuclideanVector(size(0) * spacing(0)))
+  override def boundingBox: BoxDomain[_1D] = BoxDomain1D(origin, origin + EuclideanVector(size(0) * spacing(0)))
 
   override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point1D]] = {
     require(nbChunks > 1)
@@ -278,6 +278,8 @@ case class DiscreteImageDomain1D(size: IntVector[_1D],
     } :+ size(0)
     ranges.sliding(2).toIndexedSeq.map(minMaxX => generateIterator(minMaxX(0), minMaxX(1)))
   }
+
+  override def toString: String = s"DiscreteImageDomain1D($size, $spacing, $boundingBox)"
 
 }
 
@@ -329,7 +331,7 @@ case class DiscreteImageDomain2D(size: IntVector[_2D],
     val extendData = (0 until 2).map(i => size(i) * spacing(i))
     val extent = EuclideanVector[_2D](extendData.toArray)
     val oppositeCorner = origin + extent
-    BoxDomain(origin, oppositeCorner)
+    BoxDomain2D(origin, oppositeCorner)
   }
 
   override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point2D]] = {
@@ -340,6 +342,8 @@ case class DiscreteImageDomain2D(size: IntVector[_2D],
     } :+ size(1)
     ranges.sliding(2).toIndexedSeq.map(minMaxY => generateIterator(minMaxY(0), minMaxY(1), 0, size(0)))
   }
+
+  override def toString: String = s"DiscreteImageDomain2D($size, $spacing, $boundingBox)"
 
 }
 
@@ -380,7 +384,7 @@ case class DiscreteImageDomain3D(size: IntVector[_3D],
     val oppositeY = cornerImages.map(p => p(1)).max
     val oppositeZ = cornerImages.map(p => p(2)).max
 
-    BoxDomain(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
+    BoxDomain3D(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
   }
 
   private val iVecImage
@@ -443,6 +447,8 @@ case class DiscreteImageDomain3D(size: IntVector[_3D],
   override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPointsDomain[_3D] = {
     new UnstructuredPointsDomain3D(points.map(t).toIndexedSeq)
   }
+
+  override def toString: String = s"DiscreteImageDomain3D($size, $spacing, $boundingBox)"
 
 }
 
