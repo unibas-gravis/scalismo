@@ -48,6 +48,29 @@ trait ValueInterpolator[@specialized(Double, Float) A] {
       v3
   }
 
+  /** fast explicit barycentric interpolation, most used case of multiple blends */
+  def barycentricInterpolation(v1: A, f1: Double, v2: A, f2: Double, v3: A, f3: Double, v4: A, f4: Double): A = {
+    val f12 = f1 + f2
+    val f123 = f12 + f3
+    if (f123 > 0) {
+      blend(
+        if (f12 > 0) {
+          blend(
+            blend(v1, v2, f1 / f12),
+            v3,
+            f12 / (f3 + f12)
+          )
+        } else {
+          v3
+        },
+        v4,
+        f123 / (f4 + f123)
+      )
+    } else {
+      v4
+    }
+  }
+
   /** direct access to averaging function, warning: unstable for large sequences! (implement hierarchical blending for better stability) */
   def average(first: A, rest: A*): A = {
     var mix: A = first
