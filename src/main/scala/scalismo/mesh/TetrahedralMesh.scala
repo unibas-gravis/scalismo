@@ -142,16 +142,11 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   /** Returns the Barycentric coordinates of a point inside the indicated cell. */
   def getBarycentricCoordinates(point: Point[_3D], tetrathedron: TetrahedralCell): Array[Double] = {
 
-    val a = pointSet.point(tetrathedron.ptId1).toVector
-    val b = pointSet.point(tetrathedron.ptId2).toVector
-    val c = pointSet.point(tetrathedron.ptId3).toVector
-    val d = pointSet.point(tetrathedron.ptId4).toVector
-
-    val barycentricCoordinates = new Array[Double](4)
-    val vtkTetra = new vtkTetra()
-    vtkTetra.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
-    vtkTetra.Delete()
-    barycentricCoordinates
+    val a = pointSet.point(tetrathedron.ptId1)
+    val b = pointSet.point(tetrathedron.ptId2)
+    val c = pointSet.point(tetrathedron.ptId3)
+    val d = pointSet.point(tetrathedron.ptId4)
+    BarycentricCoordinates4.pointInTetrahedron(point, a, b, c, d).toArray
   }
 
   /** Returns true for points within a tetrahedron defined by the indicated cell. */
@@ -186,31 +181,11 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
    * @param rnd implicit [[Random]] object
    */
   def samplePointInTetrahedralCell(tc: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
-    var s = rnd.scalaRandom.nextDouble()
-    var t = rnd.scalaRandom.nextDouble()
-    var u = rnd.scalaRandom.nextDouble()
-
-    if (s + t > 1) {
-      s = 1.0 - s
-      t = 1.0 - t
-    }
-
-    if (s + t + u > 1) {
-      val tu = u
-      if (t + u > 1) {
-        u = 1.0 - s - t
-        t = 1.0 - tu
-      } else {
-        u = s + t + u - 1.0
-        s = 1.0 - t - tu
-      }
-    }
-
-    val a = 1.0 - s - t - u
-    (a *: pointSet.point(tc.ptId1).toVector +
-      s *: pointSet.point(tc.ptId2).toVector +
-      t *: pointSet.point(tc.ptId3).toVector +
-      u *: pointSet.point(tc.ptId4).toVector).toPoint
+    val bc = BarycentricCoordinates4.randomUniform
+    (bc.a *: pointSet.point(tc.ptId1).toVector +
+      bc.b *: pointSet.point(tc.ptId2).toVector +
+      bc.c *: pointSet.point(tc.ptId3).toVector +
+      bc.d *: pointSet.point(tc.ptId4).toVector).toPoint
   }
 }
 
