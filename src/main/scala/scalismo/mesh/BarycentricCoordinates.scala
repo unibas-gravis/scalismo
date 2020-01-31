@@ -87,9 +87,10 @@ object BarycentricCoordinates {
   }
 
   def pointInTriangle3D(point: Point[_3D], v1: Point[_3D], v2: Point[_3D], v3: Point[_3D]): BarycentricCoordinates = {
-    val a: EuclideanVector[_3D] = v2 - v1
-    val b: EuclideanVector[_3D] = v3 - v1
-    val c: EuclideanVector[_3D] = point - v1
+    val a = v2 - v1
+    val b = v3 - v1
+    val c = point - v1
+
     val d00 = a dot a
     val d01 = a dot b
     val d11 = b dot b
@@ -98,7 +99,8 @@ object BarycentricCoordinates {
     val d = d00 * d11 - d01 * d01
     val t = (d11 * d20 - d01 * d21) / d
     val s = (d00 * d21 - d01 * d20) / d
-    new BarycentricCoordinates(s, t, 1f - t - s)
+
+    new BarycentricCoordinates(1f - t - s, t, s)
   }
 
   /** Generate random barycentric coordinates, guaranteed to lie within the triangle, uniform distribution */

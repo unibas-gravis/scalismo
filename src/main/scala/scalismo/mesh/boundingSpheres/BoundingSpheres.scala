@@ -329,6 +329,8 @@ private case class Sphere(center: EuclideanVector[_3D], r2: Double)
  */
 private object Sphere {
 
+  import BoundingSphereHelpers._
+
   /**
    * Create spheres around points with radius.
    */
@@ -339,21 +341,17 @@ private object Sphere {
   /**
    * Create spheres around a line.
    */
-  def fromLine(line: (Point[_3D], Point[_3D])): Sphere = {
-    val a = line._1.toVector
-    val b = line._2.toVector
-    val c = (a + b) * 0.5
-    val r = max((a - c).norm2, (b - c).norm2)
-    Sphere(c, r)
-
+  def fromLine(line: (EuclideanVector[_3D], EuclideanVector[_3D])): Sphere = {
+    val (center, r2) = minContainmentSphere(line._1, line._2)
+    Sphere(center, r2)
   }
 
   /**
    * Create sphere around a triangle
    */
   def fromTriangle(triangle: Triangle): Sphere = {
-    val sphere = triangleCircumSphere(triangle.a, triangle.b, triangle.c)
-    new Sphere(sphere._1, sphere._2)
+    val (center, r2) = minContainmentSphere(triangle.a, triangle.b, triangle.c)
+    Sphere(center, r2)
   }
 
   /**
@@ -368,13 +366,25 @@ private object Sphere {
     new Sphere(c, sphereradus)
   }
 
+}
+
+private[mesh] object BoundingSphereHelpers {
+
   /**
-   * Calculate sphere around three points, e.g. a triangle
+   * Calculate minimal sphere around two points, e.g. a line segment
    */
-  def triangleCircumSphere(a: EuclideanVector[_3D],
+  def minContainmentSphere(a: EuclideanVector[_3D], b: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+    val center = (a + b) * 0.5
+    val r2 = max((a - center).norm2, (b - center).norm2)
+    (center, r2)
+  }
+
+  /**
+   * Calculate minimal sphere around three points, e.g. a triangle
+   */
+  def minContainmentSphere(a: EuclideanVector[_3D],
                            b: EuclideanVector[_3D],
                            c: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
-    // rather complex function taken from c++ ... TODO: should be checked if we cant reach the result more easily, pay attention to possible numerical problems
     var center = a
     var radius2 = 1.0
 
@@ -428,20 +438,6 @@ private object Sphere {
             (m(1) * normalToAB(2) - m(2) * normalToAB(1)) / d2
 
         center = aMc + normalToAC * beta1
-
-        //        {
-        //          // alpha1 should lead to the same center not checked here...
-        //          val alpha = if ((abs(normalToAB(0)) >= abs(normalToAB(1))) && (abs(normalToAB(0)) >= abs(normalToAB(2))))
-        //            (m(0) - beta1 * normalToAC(0)) / normalToAB(0);
-        //          else if ((abs(normalToAB(1)) >= abs(normalToAB(0))) && (abs(normalToAB(1)) >= abs(normalToAB(2))))
-        //            (m(1) - beta1 * normalToAC(1)) / normalToAB(1);
-        //          else //if ((std::abs(n1(2)) >= std::abs(n1(0))) && (std::abs(n1(2)) >= std::abs(n1(1))))
-        //            (m(2) - beta1 * normalToAC(2)) / normalToAB(2);
-        //
-        //          val ncenter = aMb - normalToAB * alpha;
-        //          if ((center - ncenter).norm2 > 1.0e-10)
-        //            println("Passt nicht, sollte gleich sein" + center + " != " + ncenter)
-        //        }
       }
 
       {
@@ -521,5 +517,21 @@ private object Sphere {
     (EuclideanVector(v(0), v(1), v(2)), redius)
 
   }
+
+  def calculateSignedVolume(a: EuclideanVector[_3D],
+                            b: EuclideanVector[_3D],
+                            c: EuclideanVector[_3D],
+                            d: EuclideanVector[_3D]): Double = {
+    val t = b - a
+    val u = c - a
+    val v = d - a
+    determinantVectorsInRows(t, u, v)
+  }
+
+  /**
+   * Helper function to calculate determinant of the matrix when vectors are stacked into the rows.
+   */
+  def determinantVectorsInRows(t: EuclideanVector[_3D], u: EuclideanVector[_3D], v: EuclideanVector[_3D]): Double =
+    (t.x * u.y * v.z + u.x * v.y * t.z + v.x * t.y * u.z - t.x * v.y * u.z - v.x * u.y * t.z - u.x * t.y * v.z)
 
 }
