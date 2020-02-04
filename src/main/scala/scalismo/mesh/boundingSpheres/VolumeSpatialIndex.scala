@@ -19,6 +19,9 @@ import breeze.numerics.pow
 import scalismo.common.PointId
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.boundingSpheres.BSDistance._
+import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType
+import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType.SurfaceClosestPointType
+import scalismo.mesh.boundingSpheres.VolumeSpatialIndex.VolumeClosestPointType.VolumeClosestPointType
 import scalismo.mesh.{
   BarycentricCoordinates,
   BarycentricCoordinates4,
@@ -28,87 +31,69 @@ import scalismo.mesh.{
   TriangleMesh3D
 }
 
-trait SpatialIndex[D] {
-
-  /**
-   * Query the shortest distance for a point to a surface.
-   *
-   * @return Squared distance.
-   */
-  def getSquaredShortestDistance(pt: Point[D]): Double
-
-  /**
-   * Query the closest point on a surface.
-   *
-   * @return The closest point and the squared distance.
-   */
-  def getClosestPoint(pt: Point[D]): ClosestPoint
-}
-
 /**
  * SurfaceDistance trait with the basic queries defined.
  */
-trait SurfaceSpatialIndex[D] extends SpatialIndex[D] {
+trait VolumeSpatialIndex[D] extends SpatialIndex[D] {
 
   /**
    * Query the closest point on a surface.
    *
    * @return A desciption of the closest point.
    */
-  def getClosestPointOnSurface(pt: Point[D]): ClosestPointWithSquaredDistance
+  def getClosestPointToVolume(pt: Point[D]): ClosestPointWithSquaredDistance
 }
 
-object SurfaceSpatialIndex {
+object VolumeSpatialIndex {
 
   /**
    * Type of the closest point. At the moment the names are only suited for a triangular mesh.
    */
-  private[boundingSpheres] object SurfaceClosestPointType extends Enumeration {
-    type SurfaceClosestPointType = Value
-    val POINT, ON_LINE, IN_TRIANGLE = Value
+  private[boundingSpheres] object VolumeClosestPointType extends Enumeration {
+    type VolumeClosestPointType = Value
+    val POINT, ON_LINE, IN_TRIANGLE, IN_TETRAHEDRON = Value
+
+    def fromSurfaceClosestPointType(scpt: SurfaceClosestPointType) = scpt match {
+      case SurfaceClosestPointType.POINT       => POINT
+      case SurfaceClosestPointType.ON_LINE     => ON_LINE
+      case SurfaceClosestPointType.IN_TRIANGLE => IN_TRIANGLE
+    }
   }
+
 }
 
-import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType._
+import VolumeSpatialIndex.VolumeClosestPointType._
 
-/**
- * Descritpion of a closest point
- *
- * @param distance2 the squared distance
- * @param pt        the coordinates
- * @param ptType    on which geometric entity of the surface the closest point lies
- * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
- * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
- */
-private case class ClosestPointMeta(distance2: Double,
-                                    pt: EuclideanVector[_3D],
-                                    ptType: SurfaceClosestPointType,
-                                    bc: (Double, Double),
-                                    idx: (Int, Int))
+private[boundingSpheres] case class VolumeClosestPointMeta(distance2: Double,
+                                                           pt: EuclideanVector[_3D],
+                                                           ptType: VolumeClosestPointType,
+                                                           bc: (Double, Double, Double),
+                                                           idx: (Int, Int, Int))
 
 /**
  * Companion object for the surface distance implementation for TriangleMesh3D.
  */
-object TriangleMesh3DSpatialIndex {
+object TetrahedralMesh3DSpatialIndex {
 
   /**
    * Creates SurfaceDistance for a TriangleMesh3D.
    */
-  def fromTriangleMesh3D(mesh: TriangleMesh3D): SurfaceSpatialIndex[_3D] = {
+  def fromTetrahedralMesh3D(mesh: TetrahedralMesh3D): VolumeSpatialIndex[_3D] = {
 
     // build triangle list (use only Vector[_3D], no Points)
-    val triangles = mesh.triangulation.triangles.map { t =>
+    val tetrahedrons = mesh.tetrahedrons.map { t =>
       val a = mesh.pointSet.point(t.ptId1).toVector
       val b = mesh.pointSet.point(t.ptId2).toVector
       val c = mesh.pointSet.point(t.ptId3).toVector
-      new Triangle(a, b, c)
+      val d = mesh.pointSet.point(t.ptId4).toVector
+      new Tetrahedron(a, b, c, d)
     }
 
     // build up search structure
-    val bs = BoundingSpheres.createForTriangles(triangles)
+    val bs = BoundingSpheres.createForTetrahedrons(tetrahedrons)
 
     // new distance object
-    new TriangleMesh3DSpatialIndex(bs, mesh, triangles)
+    new TetrahedralMesh3DSpatialIndex(bs, mesh, tetrahedrons)
   }
 
 }
@@ -116,10 +101,10 @@ object TriangleMesh3DSpatialIndex {
 /**
  * Surface distance implementation for TriangleMesh3D.
  */
-private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
-                                               private val mesh: TriangleMesh3D,
-                                               private val triangles: Seq[Triangle])
-    extends SurfaceSpatialIndex[_3D] {
+private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere,
+                                                  private val mesh: TetrahedralMesh3D,
+                                                  private val tetrahedrons: Seq[Tetrahedron])
+    extends VolumeSpatialIndex[_3D] {
 
   /**
    * Calculates the squared closest distance to the surface.
@@ -140,43 +125,60 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   /**
    * Returns a description of the closest Point on the surface.
    */
-  override def getClosestPointOnSurface(point: Point[_3D]): ClosestPointWithSquaredDistance = {
+  override def getClosestPointToVolume(point: Point[_3D]): ClosestPointWithSquaredDistance = {
 
     _getClosestPoint(point)
 
     // handle found point type
-    val triangle = mesh.triangulation.triangle(TriangleId(lastIdx.get().idx))
+    val tetrahedron = mesh.tetrahedralization.tetrahedron(TetrahedronId(lastIdx.get().idx))
     res.get().ptType match {
 
       case POINT =>
-        ClosestPointIsVertex(res.get().pt.toPoint, res.get().distance2, PointId(triangle.pointIds(res.get().idx._1).id))
+        ClosestPointIsVertex(res.get().pt.toPoint,
+                             res.get().distance2,
+                             PointId(tetrahedron.pointIds(res.get().idx._1).id))
 
       case ON_LINE =>
-        res.get().idx match {
-          case (0, _) =>
+        val idx = res.get().idx
+        val tri = tetrahedron.triangles(idx._1)
+        idx match {
+          case (_, 0, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
-                               (PointId(triangle.pointIds(0).id), PointId(triangle.pointIds(1).id)),
+                               (PointId(tri.pointIds(0).id), PointId(tri.pointIds(1).id)),
                                res.get().bc.a)
-          case (1, _) =>
+          case (_, 1, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
-                               (PointId(triangle.pointIds(1).id), PointId(triangle.pointIds(2).id)),
+                               (PointId(tri.pointIds(1).id), PointId(tri.pointIds(2).id)),
                                res.get().bc.a)
-          case (2, _) =>
+          case (_, 2, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
-                               (PointId(triangle.pointIds(2).id), PointId(triangle.pointIds(0).id)),
+                               (PointId(tri.pointIds(2).id), PointId(tri.pointIds(0).id)),
                                res.get().bc.a)
-          case _ => throw new RuntimeException("not a valid line index")
+          case _ =>
+            throw new RuntimeException("not a valid line index")
         }
 
       case IN_TRIANGLE =>
-        ClosestPointInTriangle(
+        ClosestPointInTriangleOfTetrahedron(
           res.get().pt.toPoint,
           res.get().distance2,
-          TriangleId(lastIdx.get().idx),
+          TetrahedronId(lastIdx.get().idx),
+          TriangleId(res.get().idx._1),
           BarycentricCoordinates(1.0 - res.get().bc.a - res.get().bc.b, res.get().bc.a, res.get().bc.b)
+        )
+
+      case IN_TETRAHEDRON =>
+        ClosestPointInTetrahedron(
+          res.get().pt.toPoint,
+          res.get().distance2,
+          TetrahedronId(lastIdx.get().idx),
+          BarycentricCoordinates4(1.0 - res.get().bc.a - res.get().bc.b - res.get().bc.c,
+                                  res.get().bc.a,
+                                  res.get().bc.b,
+                                  res.get().bc.c)
         )
 
       case _ => throw new RuntimeException("not a valid PointType")
@@ -191,7 +193,7 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
     val p = point.toVector
 
     // last triangle might be a good candidate
-    val result = BSDistance.toTriangle(point.toVector, triangles(lastIdx.get().idx))
+    val result = BSDistance.toTetrahedron(point.toVector, tetrahedrons(lastIdx.get().idx))
     updateCP(res.get(), result)
 
     // search for true candidate
@@ -204,9 +206,9 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
       new Index(0)
     }
   }
-  private val res: ThreadLocal[CP] = new ThreadLocal[CP]() {
-    override protected def initialValue(): CP = {
-      new CP(Double.MaxValue, EuclideanVector(-1, -1, -1), POINT, BC(0, 0), (-1, -1))
+  private val res: ThreadLocal[CP3] = new ThreadLocal[CP3]() {
+    override protected def initialValue(): CP3 = {
+      new CP3(Double.MaxValue, EuclideanVector(-1, -1, -1), POINT, BC3(0, 0, 0), (-1, -1, -1))
     }
   }
 
@@ -215,11 +217,11 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
    */
   private def distanceToPartition(point: EuclideanVector[_3D],
                                   partition: BoundingSphere,
-                                  result: CP,
+                                  result: CP3,
                                   index: Index): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
-      val res = BSDistance.toTriangle(point, triangles(partition.idx))
+      val res = BSDistance.toTetrahedron(point, tetrahedrons(partition.idx))
       if (res.distance2 < result.distance2) {
         updateCP(result, res)
         index.idx = partition.idx
@@ -286,9 +288,9 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   /**
    * Helper function to update the mutable case class with immutable sibling.
    */
-  private def updateCP(result: CP, res: ClosestPointMeta): Unit = {
+  private def updateCP(result: CP3, res: VolumeClosestPointMeta): Unit = {
     result.distance2 = res.distance2
-    result.bc = BC(res.bc._1, res.bc._2)
+    result.bc = BC3(res.bc._1, res.bc._2, res.bc._3)
     result.idx = res.idx
     result.pt = res.pt
     result.ptType = res.ptType

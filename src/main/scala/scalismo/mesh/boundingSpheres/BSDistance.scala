@@ -17,7 +17,9 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
 import scalismo.geometry.{_3D, EuclideanVector}
-import scalismo.mesh.boundingSpheres.ClosestPointType._
+import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType._
+import scalismo.mesh.boundingSpheres.VolumeSpatialIndex.VolumeClosestPointType
+import scalismo.mesh.boundingSpheres.VolumeSpatialIndex.VolumeClosestPointType.VolumeClosestPointType
 
 /**
  * Holds triangles and precalculated vectors.
@@ -92,7 +94,7 @@ case class Tetrahedron(a: EuclideanVector[_3D],
 
     var larg = (0, 0.0)
 
-    val largestFace = for (i <- 0 to sq.size - 1) {
+    for (i <- 0 to sq.size - 1) {
       if (sq(i) > larg._2) {
         larg = (i, sq(i))
       }
@@ -107,6 +109,11 @@ case class Tetrahedron(a: EuclideanVector[_3D],
  * Barycentric Coordinates. Pair of doubles characterizing a point by the two vectors AB and AC of a triangle.
  */
 private case class BC(var a: Double, var b: Double)
+
+/**
+ * Barycentric coordinates for tetrahedrons. Triplet of doubles characterizing a point by the three vectors AB, AC, and AD of a tetrahedron.
+ */
+private case class BC3(var a: Double, var b: Double, var c: Double)
 
 /**
  * Collection of helper classes and functions for bounding spheres.
@@ -150,17 +157,52 @@ private object BSDistance {
     }
   }
 
+  /**
+   * Calculates the barycentric coordinates of a triangle. Returns also the sum of both.
+   */
+  @inline
+  def calculateBarycentricCoordinates(tetrahedron: Tetrahedron,
+                                      p: EuclideanVector[_3D]): (Double, Double, Double, Double) = {
+    val vap = p - tetrahedron.a
+//    val vbp = p - tetrahedron.b
+
+    val vab = tetrahedron.b - tetrahedron.a
+    val vac = tetrahedron.c - tetrahedron.a
+    val vad = tetrahedron.d - tetrahedron.a
+
+//    val vbc = tetrahedron.c - tetrahedron.b
+//    val vbd = tetrahedron.d - tetrahedron.b
+
+    def scalarTripleProduct(v1: EuclideanVector[_3D], v2: EuclideanVector[_3D], v3: EuclideanVector[_3D]): Double = {
+      v1.dot(v2.crossproduct(v3))
+    }
+
+//    val va6 = scalarTripleProduct(vbp, vbd, vbc)
+    val vb6 = scalarTripleProduct(vap, vac, vad)
+    val vc6 = scalarTripleProduct(vap, vad, vab)
+    val vd6 = scalarTripleProduct(vap, vab, vac)
+    val v6 = 1.0 / scalarTripleProduct(vab, vac, vad)
+    val s = vb6 * v6
+    val t = vc6 * v6
+    val u = vd6 * v6
+    (s, t, u, s + t + u)
+  }
+
   // mutable classes
   private[boundingSpheres] case class Index(var idx: Int)
   private[boundingSpheres] case class Distance2(var distance2: Double)
   private[boundingSpheres] case class CP(var distance2: Double,
                                          var pt: EuclideanVector[_3D],
-                                         var ptType: ClosestPointType,
+                                         var ptType: SurfaceClosestPointType,
                                          var bc: BC,
                                          var idx: (Int, Int))
+  private[boundingSpheres] case class CP3(var distance2: Double,
+                                          var pt: EuclideanVector[_3D],
+                                          var ptType: VolumeClosestPointType,
+                                          var bc: BC3,
+                                          var idx: (Int, Int, Int))
 
   // immutable classes
-
   private[boundingSpheres] case class DistanceSqr(val distance2: Double)
   private[boundingSpheres] case class DistanceSqrAndPoint(val distance2: Double, pt: EuclideanVector[_3D])
 
@@ -247,6 +289,72 @@ private object BSDistance {
         }
       }
 
+    }
+  }
+
+  /**
+   * Finds closest point to triangle.
+   */
+  @inline
+  def toTetrahedron(p: EuclideanVector[_3D], tetrahedron: Tetrahedron): VolumeClosestPointMeta = {
+    import BoundingSphereHelpers.calculateSignedVolume
+
+    val sv = IndexedSeq(
+      calculateSignedVolume(p, tetrahedron.a, tetrahedron.b, tetrahedron.c) > 0,
+      calculateSignedVolume(p, tetrahedron.a, tetrahedron.d, tetrahedron.b) > 0,
+      calculateSignedVolume(p, tetrahedron.a, tetrahedron.c, tetrahedron.d) > 0,
+      calculateSignedVolume(p, tetrahedron.b, tetrahedron.d, tetrahedron.c) > 0
+    )
+    if (sv.exists(b => b)) {
+      IndexedSeq(
+        if (sv(0)) {
+          val cpm = toTriangle(p, Triangle(tetrahedron.a, tetrahedron.b, tetrahedron.c))
+          val (s, t, u, stu) = calculateBarycentricCoordinates(tetrahedron, cpm.pt)
+          Some(
+            VolumeClosestPointMeta(cpm.distance2,
+                                   cpm.pt,
+                                   VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
+                                   (s, t, u),
+                                   (0, cpm.idx._1, cpm.idx._2))
+          )
+        } else None,
+        if (sv(1)) {
+          val cpm = toTriangle(p, Triangle(tetrahedron.a, tetrahedron.d, tetrahedron.b))
+          val (s, t, u, stu) = calculateBarycentricCoordinates(tetrahedron, cpm.pt)
+          Some(
+            VolumeClosestPointMeta(cpm.distance2,
+                                   cpm.pt,
+                                   VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
+                                   (s, t, u),
+                                   (1, cpm.idx._1, cpm.idx._2))
+          )
+        } else None,
+        if (sv(2)) {
+          val cpm = toTriangle(p, Triangle(tetrahedron.a, tetrahedron.c, tetrahedron.d))
+          val (s, t, u, stu) = calculateBarycentricCoordinates(tetrahedron, cpm.pt)
+          Some(
+            VolumeClosestPointMeta(cpm.distance2,
+                                   cpm.pt,
+                                   VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
+                                   (s, t, u),
+                                   (2, cpm.idx._1, cpm.idx._2))
+          )
+        } else None,
+        if (sv(3)) {
+          val cpm = toTriangle(p, Triangle(tetrahedron.b, tetrahedron.d, tetrahedron.c))
+          val (s, t, u, stu) = calculateBarycentricCoordinates(tetrahedron, cpm.pt)
+          Some(
+            VolumeClosestPointMeta(cpm.distance2,
+                                   cpm.pt,
+                                   VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
+                                   (s, t, u),
+                                   (3, cpm.idx._1, cpm.idx._2))
+          )
+        } else None
+      ).flatten.minBy(_.distance2)
+    } else {
+      val (s, t, u, stu) = calculateBarycentricCoordinates(tetrahedron, p)
+      VolumeClosestPointMeta(0.0, p, VolumeClosestPointType.IN_TETRAHEDRON, (s, t, u), (-1, -1, -1))
     }
   }
 

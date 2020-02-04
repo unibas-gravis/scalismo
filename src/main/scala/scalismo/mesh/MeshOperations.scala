@@ -54,7 +54,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double =
     closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
   def closestPoint(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPoint(point)
-  def closestPointOnSurface(point: Point[_3D]): ClosestPointOnSurface =
+  def closestPointOnSurface(point: Point[_3D]): ClosestPointWithSquaredDistance =
     closestPointOnSurface.getClosestPointOnSurface(point)
 
   /**
@@ -226,6 +226,14 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
    */
   private lazy val tetrahedrons = BoundingSpheres.tetrahedronListFromTetrahedralMesh3D(mesh)
   private lazy val boundingSpheres = BoundingSpheres.createForTetrahedrons(tetrahedrons)
+
+  private lazy val closestPointIndex: VolumeSpatialIndex[_3D] =
+    new TetrahedralMesh3DSpatialIndex(boundingSpheres, mesh, tetrahedrons)
+  def shortestDistanceToVolumeSquared(point: Point[_3D]): Double =
+    closestPointIndex.getSquaredShortestDistance(point: Point[_3D])
+  def closestPoint(point: Point[_3D]): ClosestPoint = closestPointIndex.getClosestPoint(point)
+  def closestPointToVolume(point: Point[_3D]): ClosestPointWithSquaredDistance =
+    closestPointIndex.getClosestPointToVolume(point)
 
   private lazy val intersect: TetrahedralizedVolumeIntersectionIndex[_3D] =
     new LineTetrahedralMesh3DIntersectionIndex(boundingSpheres, mesh, tetrahedrons)
