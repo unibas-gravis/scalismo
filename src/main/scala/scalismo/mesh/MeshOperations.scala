@@ -18,6 +18,7 @@ package scalismo.mesh
 import scalismo.common.{PointId, RealSpace}
 import scalismo.geometry._
 import scalismo.image.{DifferentiableScalarImage, ScalarImage}
+import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
 import scalismo.mesh.boundingSpheres._
 import scalismo.utils.MeshConversion
 
@@ -244,6 +245,27 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   def getIntersectionPointsOnSurface(point: Point[_3D],
                                      direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates)] =
     intersect.getVolumeIntersectionPoints(point, direction)
+
+  /**
+   * Boundary predicates
+   */
+  private lazy val boundary: TetrahedralMeshBoundaryPredicates = MeshBoundaryPredicates(mesh)
+  def pointIsOnBoundary(pid: PointId): Boolean = boundary.pointIsOnBoundary(pid)
+  def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
+  def tetrahedronIsOnBoundary(tid: TetrahedronId): Boolean = boundary.tetrahedronIsOnBoundary(tid)
+
+  def getOuterSurface: TriangleMesh[_3D] = {
+    val tetrahedrons = mesh.tetrahedralization.tetrahedrons
+    val triangleOnBorder = fillTriangleOnBorderMap(tetrahedrons)
+    TriangleMesh3D(
+      mesh.pointSet,
+      TriangleList(
+        tetrahedrons
+          .flatMap(_.triangles)
+          .filter(tc => triangleOnBorder.contains(MeshBoundaryPredicates.TriangleSortedPointIds(tc.pointIds)))
+      )
+    ).operations.compact.transformedMesh
+  }
 
   /**
    * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
