@@ -33,7 +33,7 @@ trait VolumeSpatialIndex[D] extends SpatialIndex[D] {
    *
    * @return A desciption of the closest point.
    */
-  def getClosestPointToVolume(pt: Point[D]): ClosestPointSpecialized
+  def getClosestPointToVolume(pt: Point[D]): ClosestPointWithType
 }
 
 /**
@@ -113,7 +113,7 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
   /**
    * Returns a description of the closest Point on the surface.
    */
-  override def getClosestPointToVolume(point: Point[_3D]): ClosestPointSpecialized = {
+  override def getClosestPointToVolume(point: Point[_3D]): ClosestPointWithType = {
 
     _getClosestPoint(point)
 
