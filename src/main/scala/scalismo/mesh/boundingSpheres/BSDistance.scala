@@ -17,9 +17,8 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.numerics.abs
 import scalismo.geometry.{_3D, EuclideanVector}
-import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType._
-import scalismo.mesh.boundingSpheres.VolumeSpatialIndex.VolumeClosestPointType
-import scalismo.mesh.boundingSpheres.VolumeSpatialIndex.VolumeClosestPointType.VolumeClosestPointType
+import scalismo.mesh.boundingSpheres.SurfaceClosestPointType._
+import scalismo.mesh.boundingSpheres.VolumeClosestPointType.VolumeClosestPointType
 
 /**
  * Holds triangles and precalculated vectors.

@@ -19,17 +19,9 @@ import breeze.numerics.pow
 import scalismo.common.PointId
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.boundingSpheres.BSDistance._
-import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType
-import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType.SurfaceClosestPointType
-import scalismo.mesh.boundingSpheres.VolumeSpatialIndex.VolumeClosestPointType.VolumeClosestPointType
-import scalismo.mesh.{
-  BarycentricCoordinates,
-  BarycentricCoordinates4,
-  TetrahedralMesh3D,
-  TetrahedronId,
-  TriangleId,
-  TriangleMesh3D
-}
+import scalismo.mesh.boundingSpheres.SurfaceClosestPointType.SurfaceClosestPointType
+import scalismo.mesh.boundingSpheres.VolumeClosestPointType.VolumeClosestPointType
+import scalismo.mesh._
 
 /**
  * SurfaceDistance trait with the basic queries defined.
@@ -44,25 +36,21 @@ trait VolumeSpatialIndex[D] extends SpatialIndex[D] {
   def getClosestPointToVolume(pt: Point[D]): ClosestPointWithSquaredDistance
 }
 
-object VolumeSpatialIndex {
+/**
+ * Type of the closest point. At the moment the names are only suited for a triangular mesh.
+ */
+private[boundingSpheres] object VolumeClosestPointType extends Enumeration {
+  type VolumeClosestPointType = Value
+  val POINT, ON_LINE, IN_TRIANGLE, IN_TETRAHEDRON = Value
 
-  /**
-   * Type of the closest point. At the moment the names are only suited for a triangular mesh.
-   */
-  private[boundingSpheres] object VolumeClosestPointType extends Enumeration {
-    type VolumeClosestPointType = Value
-    val POINT, ON_LINE, IN_TRIANGLE, IN_TETRAHEDRON = Value
-
-    def fromSurfaceClosestPointType(scpt: SurfaceClosestPointType) = scpt match {
-      case SurfaceClosestPointType.POINT       => POINT
-      case SurfaceClosestPointType.ON_LINE     => ON_LINE
-      case SurfaceClosestPointType.IN_TRIANGLE => IN_TRIANGLE
-    }
+  def fromSurfaceClosestPointType(scpt: SurfaceClosestPointType) = scpt match {
+    case SurfaceClosestPointType.POINT       => POINT
+    case SurfaceClosestPointType.ON_LINE     => ON_LINE
+    case SurfaceClosestPointType.IN_TRIANGLE => IN_TRIANGLE
   }
-
 }
 
-import VolumeSpatialIndex.VolumeClosestPointType._
+import scalismo.mesh.boundingSpheres.VolumeClosestPointType._
 
 private[boundingSpheres] case class VolumeClosestPointMeta(distance2: Double,
                                                            pt: EuclideanVector[_3D],

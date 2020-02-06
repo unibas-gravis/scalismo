@@ -58,18 +58,15 @@ trait SurfaceSpatialIndex[D] extends SpatialIndex[D] {
   def getClosestPointOnSurface(pt: Point[D]): ClosestPointWithSquaredDistance
 }
 
-object SurfaceSpatialIndex {
-
-  /**
-   * Type of the closest point. At the moment the names are only suited for a triangular mesh.
-   */
-  private[boundingSpheres] object SurfaceClosestPointType extends Enumeration {
-    type SurfaceClosestPointType = Value
-    val POINT, ON_LINE, IN_TRIANGLE = Value
-  }
+/**
+ * Type of the closest point. At the moment the names are only suited for a triangular mesh.
+ */
+private[boundingSpheres] object SurfaceClosestPointType extends Enumeration {
+  type SurfaceClosestPointType = Value
+  val POINT, ON_LINE, IN_TRIANGLE = Value
 }
 
-import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType._
+import scalismo.mesh.boundingSpheres.SurfaceClosestPointType._
 
 /**
  * Descritpion of a closest point

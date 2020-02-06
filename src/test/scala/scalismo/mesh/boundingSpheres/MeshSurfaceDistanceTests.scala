@@ -19,7 +19,6 @@ import breeze.linalg.{max, min}
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, EuclideanVector, Point, Point3D}
-import scalismo.mesh.boundingSpheres.SurfaceSpatialIndex.SurfaceClosestPointType
 import scalismo.mesh.{
   BarycentricCoordinates4,
   TetrahedralCell,
