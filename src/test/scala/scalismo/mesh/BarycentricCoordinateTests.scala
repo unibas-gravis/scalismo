@@ -189,14 +189,14 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
       val startVTK = System.currentTimeMillis()
       for (i <- 0 until N) {
         val randomPoint = genPoint()
-        val bcVTK = getBarycentricCoordinatesFromVTK(a, b, c, d, randomPoint)
+        getBarycentricCoordinatesFromVTK(a, b, c, d, randomPoint)
       }
       val vtkTime = System.currentTimeMillis() - startVTK
 
       val startScala = System.currentTimeMillis()
       for (i <- 0 until N) {
         val randomPoint = genPoint()
-        val bc = BarycentricCoordinates4.pointInTetrahedron(randomPoint, a, b, c, d)
+        BarycentricCoordinates4.pointInTetrahedron(randomPoint, a, b, c, d)
       }
       val scalaTime = System.currentTimeMillis() - startScala
 
