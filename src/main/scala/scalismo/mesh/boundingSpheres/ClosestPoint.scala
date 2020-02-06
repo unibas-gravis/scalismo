@@ -26,7 +26,13 @@ import scalismo.mesh.{BarycentricCoordinates, BarycentricCoordinates4, Tetrahedr
  */
 case class ClosestPoint(point: Point[_3D], distanceSquared: Double) {
 
-  def <(that: ClosestPointWithSquaredDistance): Boolean = {
+  def distance = Math.sqrt(distanceSquared)
+
+  def <(that: ClosestPoint): Boolean = {
+    this.distanceSquared < that.distanceSquared
+  }
+
+  def <(that: ClosestPointSpecialized): Boolean = {
     this.distanceSquared < that.distanceSquared
   }
 }
@@ -36,11 +42,13 @@ case class ClosestPoint(point: Point[_3D], distanceSquared: Double) {
  * @param point The closest point location on the surface.
  * @param distanceSquared The squared distance to the closest point location.
  */
-sealed abstract class ClosestPointWithSquaredDistance(val point: Point[_3D], val distanceSquared: Double) {
+sealed abstract class ClosestPointSpecialized(val point: Point[_3D], val distanceSquared: Double) {
 
-  def <(that: ClosestPointWithSquaredDistance): Boolean = {
+  def <(that: ClosestPointSpecialized): Boolean = {
     this.distanceSquared < that.distanceSquared
   }
+
+  def distance = Math.sqrt(distanceSquared)
 }
 
 /**
@@ -49,7 +57,7 @@ sealed abstract class ClosestPointWithSquaredDistance(val point: Point[_3D], val
  * @param pid PointId of the closest vertex.
  */
 case class ClosestPointIsVertex(override val point: Point[_3D], override val distanceSquared: Double, pid: PointId)
-    extends ClosestPointWithSquaredDistance(point, distanceSquared)
+    extends ClosestPointSpecialized(point, distanceSquared)
 
 /**
  * The closest point lies on a line.
@@ -61,7 +69,7 @@ case class ClosestPointOnLine(override val point: Point[_3D],
                               override val distanceSquared: Double,
                               pids: (PointId, PointId),
                               bc: Double)
-    extends ClosestPointWithSquaredDistance(point, distanceSquared)
+    extends ClosestPointSpecialized(point, distanceSquared)
 
 /**
  * The closest point is a vertex.
@@ -73,14 +81,14 @@ case class ClosestPointInTriangle(override val point: Point[_3D],
                                   override val distanceSquared: Double,
                                   tid: TriangleId,
                                   bc: BarycentricCoordinates)
-    extends ClosestPointWithSquaredDistance(point, distanceSquared)
+    extends ClosestPointSpecialized(point, distanceSquared)
 
 case class ClosestPointInTriangleOfTetrahedron(override val point: Point[_3D],
                                                override val distanceSquared: Double,
                                                tetId: TetrahedronId,
                                                triId: TriangleId,
                                                bc: BarycentricCoordinates)
-    extends ClosestPointWithSquaredDistance(point, distanceSquared)
+    extends ClosestPointSpecialized(point, distanceSquared)
 
 /**
  * The closest point is a vertex.
@@ -92,4 +100,4 @@ case class ClosestPointInTetrahedron(override val point: Point[_3D],
                                      override val distanceSquared: Double,
                                      tid: TetrahedronId,
                                      bc: BarycentricCoordinates4)
-    extends ClosestPointWithSquaredDistance(point, distanceSquared)
+    extends ClosestPointSpecialized(point, distanceSquared)

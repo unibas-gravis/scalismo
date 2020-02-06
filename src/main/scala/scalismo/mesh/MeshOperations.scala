@@ -54,7 +54,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double =
     closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
   def closestPoint(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPoint(point)
-  def closestPointOnSurface(point: Point[_3D]): ClosestPointWithSquaredDistance =
+  def closestPointOnSurface(point: Point[_3D]): ClosestPointSpecialized =
     closestPointOnSurface.getClosestPointOnSurface(point)
 
   /**
@@ -232,7 +232,7 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   def shortestDistanceToVolumeSquared(point: Point[_3D]): Double =
     closestPointIndex.getSquaredShortestDistance(point: Point[_3D])
   def closestPoint(point: Point[_3D]): ClosestPoint = closestPointIndex.getClosestPoint(point)
-  def closestPointToVolume(point: Point[_3D]): ClosestPointWithSquaredDistance =
+  def closestPointToVolume(point: Point[_3D]): ClosestPointSpecialized =
     closestPointIndex.getClosestPointToVolume(point)
 
   private lazy val intersect: TetrahedralizedVolumeIntersectionIndex[_3D] =
