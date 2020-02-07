@@ -595,7 +595,6 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       def isInside(pt: Point[_3D]) = {
         tmesh.tetrahedrons.exists { cell =>
           val bc = tmesh.getBarycentricCoordinates(pt, cell)
-          println()
           bc.forall(d => d >= 0.0) &&
           bc.forall(d => d <= 1.0) &&
           bc.sum <= 1.0 + 1.0e-8
