@@ -16,7 +16,14 @@
 package scalismo.mesh.boundingSpheres
 
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.mesh.{BarycentricCoordinates, TetrahedralMesh, TetrahedronId, TriangleId, TriangleMesh3D}
+import scalismo.mesh.{
+  BarycentricCoordinates,
+  BarycentricCoordinates4,
+  TetrahedralMesh,
+  TetrahedronId,
+  TriangleId,
+  TriangleMesh3D
+}
 
 /**
  * The SurfaceIntersectionIndex supports queries about the intersection of a line
@@ -25,14 +32,6 @@ import scalismo.mesh.{BarycentricCoordinates, TetrahedralMesh, TetrahedronId, Tr
  * the complete list of intersection points.
  */
 trait SurfaceIntersectionIndex[D] {
-
-  def hasIntersection(point: Point[D], direction: EuclideanVector[D]): Boolean
-
-  def getIntersectionPoints(point: Point[D], direction: EuclideanVector[D]): Seq[Point[D]]
-
-}
-
-trait VolumeIntersectionIndex[D] {
 
   def hasIntersection(point: Point[D], direction: EuclideanVector[D]): Boolean
 
@@ -49,17 +48,6 @@ trait TriangulatedSurfaceIntersectionIndex[D] extends SurfaceIntersectionIndex[D
 
   def getSurfaceIntersectionPoints(point: Point[D],
                                    direction: EuclideanVector[D]): Seq[(TriangleId, BarycentricCoordinates)]
-}
-
-/**
- * The TetrahedralizedVolumeIntersectionIndex is a specialization of the SurfaceIntersectionIndex
- * for TetrahedralMeshes. The additional query return the intersection points in the
- * (TetrahedronId,BarycentricCoordinates) format.
- */
-trait TetrahedralizedVolumeIntersectionIndex[D] extends VolumeIntersectionIndex[D] {
-
-  def getVolumeIntersectionPoints(point: Point[D],
-                                  direction: EuclideanVector[D]): Seq[(TetrahedronId, BarycentricCoordinates)]
 }
 
 /**
@@ -232,8 +220,29 @@ private[mesh] class LineTriangleMesh3DIntersectionIndex(private val boundingSphe
 
 }
 
+trait VolumeIntersectionIndex[D] {
+
+  def hasIntersection(point: Point[D], direction: EuclideanVector[D]): Boolean
+
+  def getIntersectionPoints(point: Point[D], direction: EuclideanVector[D]): Seq[Point[D]]
+
+}
+
 /**
- * LineTetrahedralMesh3DIntersecitionIndex implements the interface TetrahedralizedvolumeIntersectionIndex for Tetrahedral3D.
+ * The TetrahedralizedVolumeIntersectionIndex is a specialization of the SurfaceIntersectionIndex
+ * for TetrahedralMeshes. The additional query return the intersection points in the
+ * (TetrahedronId,BarycentricCoordinates) format.
+ */
+trait TetrahedralizedVolumeIntersectionIndex[D] extends VolumeIntersectionIndex[D] {
+
+  def getVolumeIntersectionPoints(
+    point: Point[D],
+    direction: EuclideanVector[D]
+  ): Seq[(TetrahedronId, BarycentricCoordinates4)]
+}
+
+/**
+ * LineTetrahedralMesh3DIntersectionIndex implements the interface TetrahedralizedVolumeIntersectionIndex for Tetrahedral3D.
  */
 class LineTetrahedralMesh3DIntersectionIndex(private val boundingSphere: BoundingSphere,
                                              private val mesh: TetrahedralMesh[_3D],
@@ -251,7 +260,7 @@ class LineTetrahedralMesh3DIntersectionIndex(private val boundingSphere: Boundin
   override def getVolumeIntersectionPoints(
     point: Point[_3D],
     direction: EuclideanVector[_3D]
-  ): Seq[(TetrahedronId, BarycentricCoordinates)] = {
+  ): Seq[(TetrahedronId, BarycentricCoordinates4)] = {
     volumeIntersectionPoint(point.toVector, direction, boundingSphere).map(t => (TetrahedronId(t._1), t._2))
   }
 
@@ -272,23 +281,28 @@ class LineTetrahedralMesh3DIntersectionIndex(private val boundingSphere: Boundin
         }
         l ++ r
       } else {
-        val triangle = tetrahedrons(partition.idx)
-        val intersection: (Boolean, Point[_3D]) =
-          BSIntersection.intersectLineWithTriangle(point, direction, triangle.a, triangle.b, triangle.c)
+        val tetrahedron = tetrahedrons(partition.idx)
+        val intersection: (Boolean, Seq[Point[_3D]]) =
+          BSIntersection.intersectLineWithTetrahedron(point,
+                                                      direction,
+                                                      tetrahedron.a,
+                                                      tetrahedron.b,
+                                                      tetrahedron.c,
+                                                      tetrahedron.d)
         if (intersection._1) {
-          List[Point[_3D]](intersection._2)
+          intersection._2
         } else {
-          List[Point[_3D]]()
+          Nil
         }
       }
     } else {
-      List[Point[_3D]]()
+      Nil
     }
   }
 
   private def volumeIntersectionPoint(point: EuclideanVector[_3D],
                                       direction: EuclideanVector[_3D],
-                                      partition: BoundingSphere): List[(Int, BarycentricCoordinates)] = {
+                                      partition: BoundingSphere): List[(Int, BarycentricCoordinates4)] = {
     if (BSIntersection.intersectLineSphereSquared(point, direction, partition.center, partition.r2)) {
       if (partition.idx < 0) {
         val l = if (partition.hasLeft) {
@@ -304,26 +318,20 @@ class LineTetrahedralMesh3DIntersectionIndex(private val boundingSphere: Boundin
         l ++ r
       } else {
         val tetrahedron = tetrahedrons(partition.idx)
-
-        var l = List[(Int, BarycentricCoordinates)]()
-
-        for (i <- 0 to 3) {
-          val intersection = BSIntersection.intersectLineWithTriangleBarycentric(point,
-                                                                                 direction,
-                                                                                 tetrahedron.triangles(i).a,
-                                                                                 tetrahedron.triangles(i).b,
-                                                                                 tetrahedron.triangles(i).c)
-
-          if (intersection._1) {
-            l = l ++ List[(Int, BarycentricCoordinates)]((partition.idx, intersection._2))
-          } else {
-            l = l ++ List[(Int, BarycentricCoordinates)]()
-          }
+        val intersections = BSIntersection.intersectLineWithTetrahedronBarycentric(point,
+                                                                                   direction,
+                                                                                   tetrahedron.a,
+                                                                                   tetrahedron.b,
+                                                                                   tetrahedron.c,
+                                                                                   tetrahedron.d)
+        if (intersections._1)
+          intersections._2.map(e => (partition.idx, e))
+        else {
+          Nil
         }
-        l
       }
     } else {
-      List[(Int, BarycentricCoordinates)]()
+      Nil
     }
   }
 

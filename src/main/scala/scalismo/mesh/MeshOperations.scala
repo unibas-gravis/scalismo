@@ -243,7 +243,7 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] =
     intersect.getIntersectionPoints(point, direction)
   def getIntersectionPointsOnSurface(point: Point[_3D],
-                                     direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates)] =
+                                     direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates4)] =
     intersect.getVolumeIntersectionPoints(point, direction)
 
   /**
