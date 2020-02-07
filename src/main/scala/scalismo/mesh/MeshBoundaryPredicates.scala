@@ -17,10 +17,7 @@ package scalismo.mesh
 
 import breeze.linalg
 import breeze.linalg.CSCMatrix
-import org.junit.runner.manipulation.Sortable
 import scalismo.common.PointId
-
-import scala.collection.mutable
 
 /**
  * MeshBoundary is a property to test if points or an edge between two points is on the boundary of the mesh.
@@ -78,9 +75,9 @@ trait TetrahedralMeshBoundaryPredicates extends MeshBoundaryPredicates {
  *
  * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh.
  */
-private class BoundaryOfATriangleMeshPredicates(private var vertexIsOnBorder: IndexedSeq[Boolean],
-                                                private var edgeIsOnBorder: CSCMatrix[Boolean],
-                                                private var triangleIsOnBorder: IndexedSeq[Boolean])
+private class BoundaryOfATriangleMeshPredicates(private val vertexIsOnBorder: IndexedSeq[Boolean],
+                                                private val edgeIsOnBorder: CSCMatrix[Boolean],
+                                                private val triangleIsOnBorder: IndexedSeq[Boolean])
     extends TriangularMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
@@ -99,10 +96,10 @@ private class BoundaryOfATriangleMeshPredicates(private var vertexIsOnBorder: In
 /**
  * Implementation of a TetrahedralMeshBoundary
  */
-private class BoundaryOfATetrahedralMeshPredicates(private var vertexIsOnBorder: IndexedSeq[Boolean],
-                                                   private var edgeIsOnBorder: CSCMatrix[Boolean],
-                                                   private var triangleIsOnBorder: Map[TriangleCell, Boolean],
-                                                   private var tetrahedronIsOnBorder: IndexedSeq[Boolean])
+private class BoundaryOfATetrahedralMeshPredicates(private val vertexIsOnBorder: IndexedSeq[Boolean],
+                                                   private val edgeIsOnBorder: CSCMatrix[Boolean],
+                                                   private val triangleIsOnBorder: Map[TriangleCell, Boolean],
+                                                   private val tetrahedronIsOnBorder: IndexedSeq[Boolean])
     extends TetrahedralMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
