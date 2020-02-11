@@ -19,7 +19,8 @@ import scalismo.mesh.{
   TriangleMesh,
   TriangleMesh3D
 }
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel}
+import scalismo.statisticalmodel.experimental.StatisticalVolumeMeshModel
+import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel}
 
 import scala.util.{Failure, Success, Try}
 

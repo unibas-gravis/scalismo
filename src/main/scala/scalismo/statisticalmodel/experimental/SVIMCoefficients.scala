@@ -1,4 +1,4 @@
-package scalismo.statisticalmodel
+package scalismo.statisticalmodel.experimental
 
 import breeze.linalg.DenseVector
 

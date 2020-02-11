@@ -19,7 +19,8 @@ import java.io._
 
 import scalismo.geometry.{_2D, _3D, EuclideanVector}
 import scalismo.image.DiscreteImageDomain
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel}
+import scalismo.statisticalmodel.experimental.StatisticalVolumeMeshModel
+import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel}
 
 import scala.util.Try
 
