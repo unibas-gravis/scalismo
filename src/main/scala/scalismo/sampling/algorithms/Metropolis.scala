@@ -19,7 +19,12 @@ import scalismo.sampling._
 import scalismo.sampling.loggers.{AcceptRejectLogger, SilentLogger}
 import scalismo.utils.Random
 
+import scala.collection.mutable
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration._
 import scala.math.exp
+
+import scala.language.postfixOps
 
 /**
  * Metropolis algorithm (MCMC), provides samples from the evaluator distribution by drawing from generator and stochastic accept/reject decisions
@@ -105,4 +110,104 @@ object MetropolisHastings {
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
     implicit random: Random
   ) = new MetropolisHastings[A](generator, evaluator)
+}
+
+/** Metropolis-Hastings algorithm with speculative executing -
+ * generates random samples from a target distribution using only samples
+ * from a proposal distribution
+ *
+ * The prefetching strategy precomputes (part of) the tree of possible future states and
+ * evaluates the states in parallel. If proposals are cheap to compute but evaluation
+ * expensive (and single threaded), this strategy might lead to a speed improvement,
+ * especially when the number of acceptance is quite low.
+ *
+ * See for example
+ * Accelerating Metropolis–Hastings algorithms: Delayed acceptance with prefetching
+ * M. Banterle, C. Grazian, C .Robert
+ * https://arxiv.org/pdf/1406.2660.pdf
+ * for a good discussion of the idea and possibilities for further improvements.
+ *
+ * @param generator The proposal generator
+ * @param evaluator The evaluator used to compute the (log) probability
+ * @param numberOfParallelEvaluations The number of
+ * */
+class MetropolisHastingsWithPrefetching[A] protected (
+  val generator: ProposalGenerator[A] with TransitionRatio[A],
+  val evaluator: DistributionEvaluator[A],
+  val numberOfParallelEvaluations: Int = Runtime.getRuntime.availableProcessors()
+)(implicit val random: Random)
+    extends MarkovChain[A] {
+
+  implicit val executionContext = ExecutionContext.global
+
+  private lazy val silentLogger = new SilentLogger[A]()
+  private val prefetchQueue = mutable.Queue[A]()
+
+  /** start a logged iterator */
+  def iterator(start: A, logger: AcceptRejectLogger[A]): Iterator[A] = Iterator.iterate(start) { next(_, logger) }
+
+  // next sample
+  def next(current: A, logger: AcceptRejectLogger[A]): A = {
+    if (prefetchQueue.isEmpty) {
+      fillPrefetchQueue(current, logger)
+    }
+    prefetchQueue.dequeue()
+  }
+
+  /*
+   * Fills the prefetch queue with new proposals.
+   * The method guarantees that after the call the prefetch queue
+   * contains at least one element.
+   */
+  private def fillPrefetchQueue(current: A, logger: AcceptRejectLogger[A]): Unit = {
+    val currentP = evaluator.logValue(current)
+
+    case class EvaluatedProposal(proposal: A, logprob: Double, transitionRatio: Double)
+
+    val proposals = for (_ <- (0 until numberOfParallelEvaluations)) yield {
+      generator.propose(current)
+    }
+
+    // Evaluation can happen in parallel - no state is changed here
+    val evaluatedProposalsFutures = for (proposal <- proposals) yield {
+      Future(
+        EvaluatedProposal(proposal, evaluator.logValue(proposal), generator.logTransitionRatio(current, proposal))
+      )
+    }
+
+    // we wait for all evaluators to complete. As the same evaluator is run on all
+    // they all need approximately the same time. We cap it at one minute, as no reasonable
+    // MH-algorithm will ever have proposals that need to compute for more than 1 minute
+    val evaluatedProposals = Await.result(Future.sequence(evaluatedProposalsFutures), 1 minute)
+
+    // Now we run the normal metropolis acceptance test. If rejected, we
+    // can go on and also use the next prefetched sample. If it is accepted,
+    // we have to throw away all other samples
+    var firstAccepted = false
+    val it = evaluatedProposals.toSeq.iterator
+    while (it.hasNext && !firstAccepted) {
+      val evaluatedProposal = it.next()
+
+      val a = evaluatedProposal.logprob - currentP - evaluatedProposal.transitionRatio
+
+      if (a > 0.0 || random.scalaRandom.nextDouble() < exp(a)) {
+        logger.accept(current, evaluatedProposal.proposal, generator, evaluator)
+        prefetchQueue.enqueue(evaluatedProposal.proposal)
+        firstAccepted = true
+      } else {
+        logger.reject(current, evaluatedProposal.proposal, generator, evaluator)
+        prefetchQueue.enqueue(current)
+      }
+    }
+
+  }
+
+  /** next sample in chain */
+  override def next(current: A): A = next(current, silentLogger)
+}
+
+object MetropolisHastingsWithPrefetching {
+  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
+    implicit random: Random
+  ) = new MetropolisHastingsWithPrefetching[A](generator, evaluator)
 }
