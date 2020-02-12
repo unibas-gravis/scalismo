@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.statisticalmodel.dataset
+package scalismo.statisticalmodel.experimental.dataset
 
 import scalismo.geometry.{_3D, Point}
-import scalismo.mesh.TriangleMesh
+import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
 import scalismo.registration.Transformation
-import scalismo.mesh.TetrahedralMesh
 
 import scala.util.{Failure, Success, Try}
 
@@ -40,9 +39,10 @@ private object DataUtils {
   }
 
   /**
-   * Create a transformation from a mesh. The transformation maps from the reference mesh to the corresponding target point.
+   * Create a transformation from a mesh volume. The transformation maps from the reference mesh volume to the corresponding target point.
    */
-  def meshToTransformation(refMesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D]): Try[Transformation[_3D]] = {
+  def volumeMeshToTransformation(refMesh: TetrahedralMesh[_3D],
+                                 targetMesh: TetrahedralMesh[_3D]): Try[Transformation[_3D]] = {
     if (refMesh.pointSet.numberOfPoints != targetMesh.pointSet.numberOfPoints)
       Failure(
         new Throwable(

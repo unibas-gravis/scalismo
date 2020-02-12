@@ -1,9 +1,10 @@
-package scalismo.statisticalmodel
+package scalismo.statisticalmodel.experimental
 
 import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.mesh._
+import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess
 import scalismo.utils.Random
 
 import scala.reflect.ClassTag

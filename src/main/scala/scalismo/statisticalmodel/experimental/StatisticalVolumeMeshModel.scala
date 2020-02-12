@@ -1,22 +1,20 @@
-package scalismo.statisticalmodel
+package scalismo.statisticalmodel.experimental
 
-import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.linalg.svd.SVD
+import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.numerics.sqrt
 import scalismo.common.{DiscreteField, Field, PointId, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.mesh.TriangleMesh
-import scalismo.numerics.{FixedPointsUniformMeshSampler3D, PivotedCholesky}
+import scalismo.mesh._
+import scalismo.numerics.PivotedCholesky
 import scalismo.registration.RigidTransformation
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
+import scalismo.statisticalmodel.experimental.dataset.DataCollectionOfVolumeMesh
 import scalismo.statisticalmodel.{
   DiscreteLowRankGaussianProcess,
-  GaussianProcess,
   LowRankGaussianProcess,
-  StatisticalMeshModel
+  MultivariateNormalDistribution
 }
-import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
-import scalismo.statisticalmodel.dataset.DataCollectionOfVolumeMesh
 import scalismo.utils.Random
 
 import scala.util.{Failure, Success, Try}
