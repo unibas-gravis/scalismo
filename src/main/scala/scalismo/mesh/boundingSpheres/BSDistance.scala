@@ -299,10 +299,10 @@ private object BSDistance {
     import BoundingSphereHelpers.calculateSignedVolume
 
     val sv = IndexedSeq(
-      calculateSignedVolume(p, tetrahedron.a, tetrahedron.b, tetrahedron.c) > 0,
-      calculateSignedVolume(p, tetrahedron.a, tetrahedron.d, tetrahedron.b) > 0,
-      calculateSignedVolume(p, tetrahedron.a, tetrahedron.c, tetrahedron.d) > 0,
-      calculateSignedVolume(p, tetrahedron.b, tetrahedron.d, tetrahedron.c) > 0
+      calculateSignedVolume(p, tetrahedron.a, tetrahedron.b, tetrahedron.c) >= 0,
+      calculateSignedVolume(p, tetrahedron.a, tetrahedron.d, tetrahedron.b) >= 0,
+      calculateSignedVolume(p, tetrahedron.a, tetrahedron.c, tetrahedron.d) >= 0,
+      calculateSignedVolume(p, tetrahedron.b, tetrahedron.d, tetrahedron.c) >= 0
     )
     if (sv.exists(b => b)) {
       IndexedSeq(
