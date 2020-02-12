@@ -62,6 +62,30 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       Tetrahedron(a, b, d, c)
   }
 
+  def createTetrahedronsInUnitCube(): TetrahedralMesh3D = {
+    // points around unit cube
+    val points = IndexedSeq(Point(0, 0, 0),
+                            Point(1, 0, 0),
+                            Point(1, 1, 0),
+                            Point(0, 1, 0),
+                            Point(0, 0, 1),
+                            Point(1, 0, 1),
+                            Point(1, 1, 1),
+                            Point(0, 1, 1))
+    val domain = UnstructuredPointsDomain(points)
+
+    // cells covering the complete cube
+    implicit def intToPointId(i: Int): PointId = PointId(i)
+    val cells = IndexedSeq(TetrahedralCell(0, 2, 7, 3),
+                           TetrahedralCell(0, 2, 5, 1),
+                           TetrahedralCell(2, 5, 7, 6),
+                           TetrahedralCell(0, 5, 7, 4),
+                           TetrahedralCell(0, 2, 5, 7))
+    val list = TetrahedralList(cells)
+
+    TetrahedralMesh3D(domain, list)
+  }
+
   def uniform(min: Double = 50.0, max: Double = 50.0): Double = { rnd.scalaRandom.nextDouble() * (max - min) + min }
 
   def createCoLinearTriangle(): Triangle = {
@@ -693,6 +717,16 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
             ).toPoint
             (cp.point - reconstructed).norm < 1.0e-8
         }
+      }
+    }
+
+    it("should return the correct point when queried with points from the mesh") {
+      val mesh = createTetrahedronsInUnitCube()
+      for (i <- 0 until mesh.pointSet.numberOfPoints) {
+        val query = mesh.pointSet.point(PointId(i))
+        val cp = mesh.operations.closestPointToVolume(query)
+        (query - cp.point).norm should be < 1.0e-8
+        require(cp.isInstanceOf[ClosestPointIsVertex])
       }
     }
   }
