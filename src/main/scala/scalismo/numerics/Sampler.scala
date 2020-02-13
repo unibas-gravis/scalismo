@@ -21,7 +21,7 @@ import breeze.stats.distributions.Uniform
 import scalismo.common.BoxDomain
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.mesh.TriangleMesh
+import scalismo.mesh.{TetrahedralMesh, TetrahedralMesh3D, TriangleMesh}
 import scalismo.statisticalmodel.GaussianProcess
 import scalismo.utils.Random
 
@@ -182,4 +182,86 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
   }
 }
 
-//}
+case class RandomTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int, seed: Int)(
+  implicit rand: Random
+) extends Sampler[_3D] {
+
+  val p = 1.0 / mesh.volume
+
+  // should be replaced with real mesh volume
+  val volumeOfSampleRegion = mesh.volume
+  def sample() = {
+    val points = mesh.pointSet.points.toIndexedSeq
+    val distrDim1 = Uniform(0, mesh.pointSet.numberOfPoints)(rand.breezeRandBasis)
+    val pts = (0 until numberOfPoints).map(i => (points(distrDim1.draw().toInt), p))
+    pts
+  }
+}
+
+case class UniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit rand: Random)
+    extends Sampler[_3D] {
+
+  override val volumeOfSampleRegion: Double = mesh.volume
+
+  private val p: Double = 1.0 / mesh.volume
+
+  val accumulatedAreas: Array[Double] = mesh.cells
+    .scanLeft(0.0) {
+      case (sum, cell) =>
+        sum + mesh.computeTetrahedronVolume(cell)
+    }
+    .tail
+    .toArray
+
+  override def sample() = {
+    val samplePoints = {
+      for (i <- 0 until numberOfPoints) yield {
+        val drawnValue = rand.scalaRandom.nextDouble() * mesh.volume
+        val indexOrInsertionPoint = util.Arrays.binarySearch(accumulatedAreas, drawnValue)
+        val index = if (indexOrInsertionPoint >= 0) indexOrInsertionPoint else -(indexOrInsertionPoint + 1)
+        assert(index >= 0 && index < accumulatedAreas.length)
+        mesh.samplePointInTetrahedralCell(mesh.cells(index))
+      }
+    }
+
+    samplePoints.map(pt => (pt, p))
+  }
+
+}
+
+case class FixedPointsUniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(
+  implicit rng: Random
+) extends Sampler[_3D] {
+  override val volumeOfSampleRegion = mesh.volume
+  val samplePoints = UniformTetrahedralMeshSampler3D(mesh, numberOfPoints).sample()
+  override def sample() = samplePoints
+}
+
+case class FixedPointsTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit rand: Random)
+    extends Sampler[_3D] {
+
+  val volumeOfSampleRegion = mesh.volume
+  val p = 1.0 / mesh.volume
+
+  val meshPoints = mesh.pointSet.points.toIndexedSeq
+
+  def samplePoints = for (i <- 0 until numberOfPoints) yield {
+    val idx = rand.scalaRandom.nextInt(mesh.pointSet.numberOfPoints)
+    meshPoints(idx)
+  }
+
+  var lastSampledPoints: Option[IndexedSeq[(Point[_3D], Double)]] = None
+
+  def sample() = {
+
+    lastSampledPoints match {
+      case Some(lastSampledPoints) => lastSampledPoints
+      case None => {
+        val pts = samplePoints.map(pt => (pt, p))
+        lastSampledPoints = Some(pts)
+        pts
+      }
+
+    }
+  }
+}
