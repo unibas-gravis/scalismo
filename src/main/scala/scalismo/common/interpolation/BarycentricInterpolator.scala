@@ -3,7 +3,7 @@ package scalismo.common.interpolation
 import scalismo.common._
 import scalismo.geometry.{_3D, NDSpace, Point}
 import scalismo.mesh.boundingSpheres._
-import scalismo.mesh.{MeshOperations, TetrahedralMesh, TetrahedralMesh3DOperations}
+import scalismo.mesh.{TetrahedralMesh, TetrahedralMesh3DOperations}
 import scalismo.numerics.ValueInterpolator
 
 trait BarycentricInterpolator[D, A] extends FieldInterpolator[D, UnstructuredPointsDomain[D], A] {
