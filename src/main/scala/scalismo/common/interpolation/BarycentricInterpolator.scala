@@ -3,7 +3,7 @@ package scalismo.common.interpolation
 import scalismo.common._
 import scalismo.geometry.{_3D, NDSpace, Point}
 import scalismo.mesh.boundingSpheres._
-import scalismo.mesh.{MeshOperations, TetrahedralMesh}
+import scalismo.mesh.{MeshOperations, TetrahedralMesh, TetrahedralMesh3DOperations}
 import scalismo.numerics.ValueInterpolator
 
 trait BarycentricInterpolator[D, A] extends FieldInterpolator[D, UnstructuredPointsDomain[D], A] {
@@ -33,7 +33,7 @@ object BarycentricInterpolator {
 case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh[_3D])
     extends BarycentricInterpolator[_3D, A] {
 
-  val meshOps = MeshOperations(mesh)
+  val meshOps: TetrahedralMesh3DOperations = mesh.operations
 
   override protected val valueInterpolator: ValueInterpolator[A] = ValueInterpolator[A]
 
@@ -42,24 +42,17 @@ case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh
     def interpolateBarycentric(p: Point[_3D]): A = {
 
       meshOps.closestPointToVolume(p) match {
-        case cp: ClosestPointIsVertex =>
-          df(cp.pid)
-        case cp: ClosestPointOnLine =>
-          ValueInterpolator[A].blend(df(cp.pids._1), df(cp.pids._2), cp.bc)
-        case cp: ClosestPointWithType =>
-          val cell = cp match {
-            case cp: ClosestPointInTriangleOfTetrahedron =>
-              mesh.tetrahedralization.tetrahedron(cp.tetId)
-            case cp: ClosestPointInTetrahedron =>
-              mesh.tetrahedralization.tetrahedron(cp.tid)
-          }
-          val vertexValues = cell.pointIds.map(df(_))
-          val barycentricCoordinates = mesh.getBarycentricCoordinates(p, cell)
-          val valueCoordinatePairs = vertexValues.zip(barycentricCoordinates)
-          ValueInterpolator[A].convexCombination(valueCoordinatePairs(0),
-                                                 valueCoordinatePairs(1),
-                                                 valueCoordinatePairs(2),
-                                                 valueCoordinatePairs(3))
+        case ClosestPointIsVertex(_, _, pId)    => df(pId)
+        case ClosestPointOnLine(_, _, pIds, bc) => ValueInterpolator[A].blend(df(pIds._1), df(pIds._2), bc)
+        case ClosestPointInTriangleOfTetrahedron(_, _, tetId, triId, bc) =>
+          val triangle = mesh.tetrahedralization.tetrahedron(tetId).triangles(triId.id)
+          bc.interpolateProperty(df(triangle.ptId1), df(triangle.ptId2), df(triangle.ptId3))
+        case ClosestPointInTetrahedron(_, _, tId, bc) =>
+          val tetrahedron = mesh.tetrahedralization.tetrahedron(tId)
+          bc.interpolateProperty(df(tetrahedron.ptId1),
+                                 df(tetrahedron.ptId2),
+                                 df(tetrahedron.ptId3),
+                                 df(tetrahedron.ptId4))
       }
     }
     Field(RealSpace[_3D], interpolateBarycentric)
