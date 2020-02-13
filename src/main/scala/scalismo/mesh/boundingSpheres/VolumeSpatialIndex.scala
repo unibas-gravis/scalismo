@@ -124,7 +124,7 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
       case POINT =>
         ClosestPointIsVertex(res.get().pt.toPoint,
                              res.get().distance2,
-                             PointId(tetrahedron.pointIds(res.get().idx._1).id))
+                             PointId(tetrahedron.triangles(res.get().idx._1).pointIds(res.get().idx._2).id))
 
       case ON_LINE =>
         val idx = res.get().idx
