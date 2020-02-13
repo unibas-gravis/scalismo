@@ -729,5 +729,14 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         require(cp.isInstanceOf[ClosestPointIsVertex])
       }
     }
+
+    it("should return the correct pointId when queried with points from the mesh") {
+      val mesh = createTetrahedronsInUnitCube()
+      for (i <- 0 until mesh.pointSet.numberOfPoints) {
+        val query = mesh.pointSet.point(PointId(i))
+        val cp = mesh.operations.closestPointToVolume(query)
+        cp.asInstanceOf[ClosestPointIsVertex].pid.id shouldBe i
+      }
+    }
   }
 }
