@@ -27,8 +27,8 @@ lazy val root = (project in file("."))
     }),
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-      "org.scalanlp" %% "breeze" % "0.13",
-      "org.scalanlp" %% "breeze-natives" % "0.13",
+      "org.scalanlp" %% "breeze" % "1.0",
+      "org.scalanlp" %% "breeze-natives" % "1.0",
       "io.spray" %% "spray-json" % "1.3.3",
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0",
       "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test",
