@@ -257,7 +257,7 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   def getOuterSurface: TriangleMesh[_3D] = {
     val tetrahedrons = mesh.tetrahedralization.tetrahedrons
     val triangleOnBorder = fillTriangleOnBorderMap(tetrahedrons)
-    TriangleMesh3D(
+    val extractedSurface = TriangleMesh3D(
       mesh.pointSet,
       TriangleList(
         tetrahedrons
@@ -265,6 +265,30 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
           .filter(tc => triangleOnBorder.contains(MeshBoundaryPredicates.TriangleSortedPointIds(tc.pointIds)))
       )
     ).operations.compact.transformedMesh
+
+    // fix normals of triangular mesh pointing outwards:
+    // We assume that all tetrahedrons are consistently orientated,
+    // i.e. all have positive or all have a negative volume.
+    val firstNonZeroSignedVolume = tetrahedrons.iterator
+      .map(tet =>
+        BoundingSphereHelpers.calculateSignedVolume(
+          mesh.pointSet.point(tet.ptId1).toVector,
+          mesh.pointSet.point(tet.ptId2).toVector,
+          mesh.pointSet.point(tet.ptId3).toVector,
+          mesh.pointSet.point(tet.ptId4).toVector
+        )
+      )
+      .filter(d => d > 1e-8 || d < -1e-8)
+      .next
+    if (firstNonZeroSignedVolume > 0) {
+      extractedSurface.copy(
+        triangulation = TriangleList(extractedSurface.triangulation.triangles.map { tri =>
+          TriangleCell(tri.ptId1, tri.ptId3, tri.ptId2)
+        })
+      )
+    } else {
+      extractedSurface
+    }
   }
 
   /**
