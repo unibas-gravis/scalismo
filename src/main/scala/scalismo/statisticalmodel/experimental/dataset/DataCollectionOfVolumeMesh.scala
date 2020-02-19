@@ -85,7 +85,7 @@ case class DataCollectionOfVolumeMesh(reference: TetrahedralMesh[_3D], dataItems
 object DataCollectionOfVolumeMesh {
 
   /**
-   * Builds a [[DataCollection]] instance from a reference mesh volume and a sequence of meshes in correspondence.
+   * Builds a [[DataCollectionOfVolumeMesh]] instance from a reference mesh volume and a sequence of meshes in correspondence.
    * Returns a data collection containing the valid elements as well as the list of errors for invalid items.
    */
   def fromMeshSequence(referenceMesh: TetrahedralMesh[_3D], registeredMeshes: Seq[TetrahedralMesh[_3D]])(
@@ -99,7 +99,7 @@ object DataCollectionOfVolumeMesh {
   }
 
   /**
-   * Builds a [[DataCollection]] instance from a reference mesh volume and a directory containing meshe volumes in correspondence with the reference.
+   * Builds a [[DataCollectionOfVolumeMesh]] instance from a reference mesh volume and a directory containing meshe volumes in correspondence with the reference.
    * Only vtk and stl meshes are currently supported.
    *
    * @return a data collection containing the valid elements as well as the list of errors for invalid items.
@@ -110,7 +110,7 @@ object DataCollectionOfVolumeMesh {
     val meshFileNames = meshDirectory
       .listFiles()
       .toSeq
-      .filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".stl"))
+      .filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".vtu")||fn.getAbsolutePath.endsWith(".inp"))
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield {
       MeshIO.readMesh(meshFn).map(m => TetrahedralMesh3D(m.pointSet, referenceMesh.tetrahedralization))
     })
