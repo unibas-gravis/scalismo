@@ -15,18 +15,24 @@
  */
 package scalismo.sampling.loggers
 
-import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 
 class SteppedAcceptRejectLogger[A](stepping: Int, logger: AcceptRejectLogger[A]) extends AcceptRejectLogger[A] {
   private var counter = 0
 
-  override def accept(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {
+  override def accept(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {
     if (counter % stepping == 0)
       logger.accept(current, sample, generator, evaluator)
     counter += 1
   }
 
-  override def reject(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {
+  override def reject(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {
     if (counter % stepping == 0)
       logger.reject(current, sample, generator, evaluator)
     counter += 1

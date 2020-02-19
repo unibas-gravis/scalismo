@@ -15,8 +15,8 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{ DiscreteScalarField, PointId, Scalar, ScalarArray, UnstructuredPointsDomain }
-import scalismo.geometry.{ Point, _3D }
+import scalismo.common.{DiscreteScalarField, PointId, Scalar, ScalarArray, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, Point}
 
 import scala.reflect.ClassTag
 
@@ -27,7 +27,6 @@ import scala.reflect.ClassTag
  * @constructor Returns a scalar volume mesh data given a tetrahedral mesh and an array of values.
  * The number of values and mesh points must be equal.
  */
-
 case class ScalarVolumeMeshField[S: Scalar: ClassTag](mesh: TetrahedralMesh[_3D], override val data: ScalarArray[S])
     extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
   require(mesh.pointSet.numberOfPoints == data.size)

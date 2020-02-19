@@ -16,14 +16,12 @@
 package scalismo.statisticalmodel.asm
 
 import scalismo.common.PointId
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{_3D, Point}
 import scalismo.mesh.TriangleMesh
 
 import scala.collection.immutable
 
-trait SearchPointSampler extends Function2[TriangleMesh[_3D], PointId, immutable.Seq[Point[_3D]]] {
-
-}
+trait SearchPointSampler extends Function2[TriangleMesh[_3D], PointId, immutable.Seq[Point[_3D]]] {}
 
 case class NormalDirectionSearchPointSampler(numberOfPoints: Int, searchDistance: Float) extends SearchPointSampler {
 
@@ -43,4 +41,3 @@ case class NormalDirectionSearchPointSampler(numberOfPoints: Int, searchDistance
     samplePointsOnNormal()
   }
 }
-

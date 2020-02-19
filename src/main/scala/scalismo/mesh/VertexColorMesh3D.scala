@@ -1,7 +1,7 @@
 package scalismo.mesh
 
 import scalismo.color.RGBA
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{_3D, Point}
 
 /**
  * colored mesh with RGBA color per vertex
@@ -16,4 +16,3 @@ case class VertexColorMesh3D(shape: TriangleMesh3D, color: SurfacePointProperty[
     copy(shape = s)
   }
 }
-

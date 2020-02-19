@@ -20,7 +20,7 @@ import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.{ EuclideanVector, Point, _3D }
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.MeshIO
 import scalismo.utils.Random
 
@@ -63,7 +63,9 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
     it("returns the max distance") {
       // create a mesh where the point on the nose is displaced by a value of 1
-      val newMesh = mesh.transform((pt: Point[_3D]) => if (mesh.pointSet.findClosestPoint(pt).id == PointId(8412)) pt + EuclideanVector(0, 0, 1) else pt)
+      val newMesh = mesh.transform((pt: Point[_3D]) =>
+        if (mesh.pointSet.findClosestPoint(pt).id == PointId(8412)) pt + EuclideanVector(0, 0, 1) else pt
+      )
       MeshMetrics.hausdorffDistance(mesh, newMesh) should be(1)
     }
 
@@ -122,4 +124,3 @@ class tetrahedralMeshMetricsTests extends ScalismoTestSuite {
   }
 
 }
-

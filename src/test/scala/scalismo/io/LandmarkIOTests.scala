@@ -15,7 +15,7 @@
  */
 package scalismo.io
 
-import java.io.{ ByteArrayOutputStream, File, InputStream }
+import java.io.{ByteArrayOutputStream, File, InputStream}
 import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
@@ -78,7 +78,8 @@ class LandmarkIOTests extends ScalismoTestSuite {
       val tmpFile = File.createTempFile("landmark", "txt")
       tmpFile.deleteOnExit()
 
-      val landmarks = Seq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t => Landmark(t._1, t._2))
+      val landmarks =
+        Seq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t => Landmark(t._1, t._2))
       LandmarkIO.writeLandmarksCsv(landmarks, tmpFile) should be a 'Success
 
       val restoredLandmarksTry = LandmarkIO.readLandmarksCsv[_3D](tmpFile)

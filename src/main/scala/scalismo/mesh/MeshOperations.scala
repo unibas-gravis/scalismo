@@ -15,9 +15,10 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{ PointId, RealSpace }
+import scalismo.common.{PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
+import scalismo.image.{DifferentiableScalarImage, ScalarImage}
+import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
 import scalismo.mesh.boundingSpheres._
 import scalismo.utils.MeshConversion
 
@@ -39,15 +40,23 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   private lazy val triangles = BoundingSpheres.triangleListFromTriangleMesh3D(mesh)
   private lazy val boundingSpheres = BoundingSpheres.createForTriangles(triangles)
 
-  private lazy val intersect: TriangulatedSurfaceIntersectionIndex[_3D] = new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
-  def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean = intersect.hasIntersection(point, direction)
-  def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
-  def getIntersectionPointsOnSurface(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] = intersect.getSurfaceIntersectionPoints(point, direction)
+  private lazy val intersect: TriangulatedSurfaceIntersectionIndex[_3D] =
+    new LineTriangleMesh3DIntersectionIndex(boundingSpheres, mesh, triangles)
+  def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean =
+    intersect.hasIntersection(point, direction)
+  def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] =
+    intersect.getIntersectionPoints(point, direction)
+  def getIntersectionPointsOnSurface(point: Point[_3D],
+                                     direction: EuclideanVector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] =
+    intersect.getSurfaceIntersectionPoints(point, direction)
 
-  private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] = new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
-  def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double = closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
+  private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] =
+    new TriangleMesh3DSpatialIndex(boundingSpheres, mesh, triangles)
+  def shortestDistanceToSurfaceSquared(point: Point[_3D]): Double =
+    closestPointOnSurface.getSquaredShortestDistance(point: Point[_3D])
   def closestPoint(point: Point[_3D]): ClosestPoint = closestPointOnSurface.getClosestPoint(point)
-  def closestPointOnSurface(point: Point[_3D]): ClosestPointOnSurface = closestPointOnSurface.getClosestPointOnSurface(point)
+  def closestPointOnSurface(point: Point[_3D]): ClosestPointWithType =
+    closestPointOnSurface.getClosestPointOnSurface(point)
 
   /**
    * Boundary predicates
@@ -66,15 +75,19 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
     // predicate tested at the beginning, once.
     val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
 
-    val remainingPointTriplet = mesh.cells.par.map {
-      cell =>
+    val remainingPointTriplet = mesh.cells.par
+      .map { cell =>
         val points = cell.pointIds.map(pointId => meshPoints(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
-    }.filter(_._2).map(_._1)
+      }
+      .filter(_._2)
+      .map(_._1)
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointTriplet.map { case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2)))) }
+    val cells = remainingPointTriplet.map {
+      case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
+    }
 
     TriangleMesh3D(points.toIndexedSeq, TriangleList(cells.toIndexedSeq))
   }
@@ -134,9 +147,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    */
   def maskWithPlane(point: Point[_3D], normal: EuclideanVector[_3D]): MeshCompactifier = {
     val n = normal.normalize
-    maskPoints(
-      (pid: PointId) => (mesh.pointSet.point(pid) - point).dot(n) >= 0.0
-    )
+    maskPoints((pid: PointId) => (mesh.pointSet.point(pid) - point).dot(n) >= 0.0)
   }
 
   /**
@@ -217,10 +228,68 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   private lazy val tetrahedrons = BoundingSpheres.tetrahedronListFromTetrahedralMesh3D(mesh)
   private lazy val boundingSpheres = BoundingSpheres.createForTetrahedrons(tetrahedrons)
 
-  private lazy val intersect: TetrahedralizedVolumeIntersectionIndex[_3D] = new LineTetrahedralMesh3DIntersectionIndex(boundingSpheres, mesh, tetrahedrons)
-  def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean = intersect.hasIntersection(point, direction)
-  def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] = intersect.getIntersectionPoints(point, direction)
-  def getIntersectionPointsOnSurface(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates)] = intersect.getVolumeIntersectionPoints(point, direction)
+  private lazy val closestPointIndex: VolumeSpatialIndex[_3D] =
+    new TetrahedralMesh3DSpatialIndex(boundingSpheres, mesh, tetrahedrons)
+  def shortestDistanceToVolumeSquared(point: Point[_3D]): Double =
+    closestPointIndex.getSquaredShortestDistance(point: Point[_3D])
+  def closestPoint(point: Point[_3D]): ClosestPoint = closestPointIndex.getClosestPoint(point)
+  def closestPointToVolume(point: Point[_3D]): ClosestPointWithType =
+    closestPointIndex.getClosestPointToVolume(point)
+
+  private lazy val intersect: TetrahedralizedVolumeIntersectionIndex[_3D] =
+    new LineTetrahedralMesh3DIntersectionIndex(boundingSpheres, mesh, tetrahedrons)
+  def hasIntersection(point: Point[_3D], direction: EuclideanVector[_3D]): Boolean =
+    intersect.hasIntersection(point, direction)
+  def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] =
+    intersect.getIntersectionPoints(point, direction)
+  def getIntersectionPointsOnSurface(point: Point[_3D],
+                                     direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates4)] =
+    intersect.getVolumeIntersectionPoints(point, direction)
+
+  /**
+   * Boundary predicates
+   */
+  private lazy val boundary: TetrahedralMeshBoundaryPredicates = MeshBoundaryPredicates(mesh)
+  def pointIsOnBoundary(pid: PointId): Boolean = boundary.pointIsOnBoundary(pid)
+  def edgeIsOnBoundary(pid1: PointId, pid2: PointId): Boolean = boundary.edgeIsOnBoundary(pid1, pid2)
+  def tetrahedronIsOnBoundary(tid: TetrahedronId): Boolean = boundary.tetrahedronIsOnBoundary(tid)
+
+  def getOuterSurface: TriangleMesh[_3D] = {
+    val tetrahedrons = mesh.tetrahedralization.tetrahedrons
+    val triangleOnBorder = fillTriangleOnBorderMap(tetrahedrons)
+    val extractedSurface = TriangleMesh3D(
+      mesh.pointSet,
+      TriangleList(
+        tetrahedrons
+          .flatMap(_.triangles)
+          .filter(tc => triangleOnBorder.contains(MeshBoundaryPredicates.TriangleSortedPointIds(tc.pointIds)))
+      )
+    ).operations.compact.transformedMesh
+
+    // fix normals of triangular mesh pointing outwards:
+    // We assume that all tetrahedrons are consistently orientated,
+    // i.e. all have positive or all have a negative volume.
+    val firstNonZeroSignedVolume = tetrahedrons.iterator
+      .map(tet =>
+        BoundingSphereHelpers.calculateSignedVolume(
+          mesh.pointSet.point(tet.ptId1).toVector,
+          mesh.pointSet.point(tet.ptId2).toVector,
+          mesh.pointSet.point(tet.ptId3).toVector,
+          mesh.pointSet.point(tet.ptId4).toVector
+        )
+      )
+      .filter(d => d > 1e-8 || d < -1e-8)
+      .next
+    if (firstNonZeroSignedVolume > 0) {
+      extractedSurface.copy(
+        triangulation = TriangleList(extractedSurface.triangulation.triangles.map { tri =>
+          TriangleCell(tri.ptId1, tri.ptId3, tri.ptId2)
+        })
+      )
+    } else {
+      extractedSurface
+    }
+  }
 
   /**
    * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
@@ -231,15 +300,20 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
     // predicate tested at the beginning, once.
     val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
 
-    val remainingPointQuatriplet = mesh.cells.par.map {
-      cell =>
+    val remainingPointQuatriplet = mesh.cells.par
+      .map { cell =>
         val points = cell.pointIds.map(pointId => meshPoints(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
-    }.filter(_._2).map(_._1)
+      }
+      .filter(_._2)
+      .map(_._1)
 
     val points = remainingPointQuatriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointQuatriplet.map { case vec => TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))), PointId(pt2Id(vec(3)))) }
+    val cells = remainingPointQuatriplet.map {
+      case vec =>
+        TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))), PointId(pt2Id(vec(3))))
+    }
 
     TetrahedralMesh3D(points.toIndexedSeq, TetrahedralList(cells.toIndexedSeq))
   }

@@ -33,13 +33,12 @@ object Field {
    * Lifts a function between pixel values such that it acts on image intensities.
    * This is useful to write functions that manipulate the image intensities.
    */
-  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = {
-    img: Field[D, A] =>
-      new Field[D, A] {
-        override def apply(x: Point[D]) = fl(img.apply(x))
-        override val f = img.f
-        def domain = img.domain
-      }
+  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = { img: Field[D, A] =>
+    new Field[D, A] {
+      override def apply(x: Point[D]) = fl(img.apply(x))
+      override val f = img.f
+      def domain = img.domain
+    }
   }
 
 }
@@ -112,6 +111,7 @@ object DifferentiableField {
 case class ScalarField[D, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] => A) extends Field[D, A] {
 
   val ev = implicitly[Scalar[A]]
+
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: ScalarField[D, A]): ScalarField[D, A] = {
     def f(x: Point[D]): A = ev.plus(this.f(x), that.f(x))
@@ -150,7 +150,8 @@ case class ScalarField[D, A: Scalar: ClassTag](domain: Domain[D], f: Point[D] =>
 /**
  * An vector valued image.
  */
-case class VectorField[D, DO](domain: Domain[D], f: Point[D] => EuclideanVector[DO]) extends Field[D, EuclideanVector[DO]] {
+case class VectorField[D, DO](domain: Domain[D], f: Point[D] => EuclideanVector[DO])
+    extends Field[D, EuclideanVector[DO]] {
 
   /** adds two images. The domain of the new image is the intersection of both */
   def +(that: VectorField[D, DO]): VectorField[D, DO] = {

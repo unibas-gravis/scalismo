@@ -15,11 +15,19 @@
  */
 package scalismo.mesh.boundingSpheres
 
-import breeze.linalg.{ max, min }
+import breeze.linalg.{max, min}
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ PointId, UnstructuredPointsDomain }
-import scalismo.geometry.{ EuclideanVector, Point, _3D }
-import scalismo.mesh.{ TriangleCell, TriangleList, TriangleMesh3D }
+import scalismo.common.{PointId, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, EuclideanVector, Point, Point3D}
+import scalismo.mesh.{
+  BarycentricCoordinates4,
+  TetrahedralCell,
+  TetrahedralList,
+  TetrahedralMesh3D,
+  TriangleCell,
+  TriangleList,
+  TriangleMesh3D
+}
 import scalismo.utils.Random
 
 class MeshSurfaceDistanceTests extends ScalismoTestSuite {
@@ -41,6 +49,41 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     val b = randomVector(offset, scale)
     val c = randomVector(offset, scale)
     Triangle(a, b, c)
+  }
+
+  private def randomTetrahedron(offset: Double, scale: Double): Tetrahedron = {
+    val a = randomVector(offset, scale)
+    val b = randomVector(offset, scale)
+    val c = randomVector(offset, scale)
+    val d = randomVector(offset, scale)
+    if (BoundingSphereHelpers.calculateSignedVolume(a, b, c, d) > 0)
+      Tetrahedron(a, b, c, d)
+    else
+      Tetrahedron(a, b, d, c)
+  }
+
+  def createTetrahedronsInUnitCube(): TetrahedralMesh3D = {
+    // points around unit cube
+    val points = IndexedSeq(Point(0, 0, 0),
+                            Point(1, 0, 0),
+                            Point(1, 1, 0),
+                            Point(0, 1, 0),
+                            Point(0, 0, 1),
+                            Point(1, 0, 1),
+                            Point(1, 1, 1),
+                            Point(0, 1, 1))
+    val domain = UnstructuredPointsDomain(points)
+
+    // cells covering the complete cube
+    implicit def intToPointId(i: Int): PointId = PointId(i)
+    val cells = IndexedSeq(TetrahedralCell(0, 2, 7, 3),
+                           TetrahedralCell(0, 2, 5, 1),
+                           TetrahedralCell(2, 5, 7, 6),
+                           TetrahedralCell(0, 5, 7, 4),
+                           TetrahedralCell(0, 2, 5, 7))
+    val list = TetrahedralList(cells)
+
+    TetrahedralMesh3D(domain, list)
   }
 
   def uniform(min: Double = 50.0, max: Double = 50.0): Double = { rnd.scalaRandom.nextDouble() * (max - min) + min }
@@ -89,15 +132,15 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
               res.bc._1 shouldBe s +- 1.0e-8
               if (res.bc._1 > 0.0) {
                 if (res.bc._1 < 1.0) {
-                  res.ptType shouldBe ClosestPointType.ON_LINE
+                  res.ptType shouldBe SurfaceClosestPointType.ON_LINE
                   aeqV(res.pt, p) shouldBe true
                 } else {
-                  res.ptType shouldBe ClosestPointType.POINT
+                  res.ptType shouldBe SurfaceClosestPointType.POINT
                   res.idx._1 shouldBe 1
                   aeqV(res.pt, b) shouldBe true
                 }
               } else {
-                res.ptType shouldBe ClosestPointType.POINT
+                res.ptType shouldBe SurfaceClosestPointType.POINT
                 res.idx._1 shouldBe 0
                 aeqV(res.pt, a) shouldBe true
               }
@@ -129,15 +172,15 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
               res.bc._1 shouldBe s +- 1.0e-8
               if (res.bc._1 > 0.0) {
                 if (res.bc._1 < 1.0) {
-                  res.ptType shouldBe ClosestPointType.ON_LINE
+                  res.ptType shouldBe SurfaceClosestPointType.ON_LINE
                   aeqV(res.pt, p1) shouldBe true
                 } else {
-                  res.ptType shouldBe ClosestPointType.POINT
+                  res.ptType shouldBe SurfaceClosestPointType.POINT
                   res.idx._1 shouldBe 1
                   aeqV(res.pt, b) shouldBe true
                 }
               } else {
-                res.ptType shouldBe ClosestPointType.POINT
+                res.ptType shouldBe SurfaceClosestPointType.POINT
                 res.idx._1 shouldBe 0
                 aeqV(res.pt, a) shouldBe true
               }
@@ -166,6 +209,31 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
             pt(0) shouldBe ct.pt(0) +- 1.0e-8
             pt(1) shouldBe ct.pt(1) +- 1.0e-8
             pt(2) shouldBe ct.pt(2) +- 1.0e-8
+
+          }
+        }
+      }
+    }
+
+    it("should return the correct barycentric coordinates in a tetrahedron") {
+      val _EPSILON = 1.0e-8
+      (0 until 100) foreach { _ =>
+        val pairs = IndexedSeq((0, 1), (10, 10), (100, 100), (-10, 10))
+        pairs.foreach { pair =>
+          val tet = randomTetrahedron(pair._1, pair._2)
+          (0 until 100) foreach { _ =>
+            val bc = BarycentricCoordinates4.randomUniform
+
+            val pt = tet.a * bc.a + tet.b * bc.b + tet.c * bc.c + tet.d * bc.d
+            val ct = BSDistance.toTetrahedron(pt, tet)
+            val resT = ct.bc
+            max(0.0, min(1.0, bc.b)) shouldBe resT._1 +- _EPSILON
+            max(0.0, min(1.0, bc.c)) shouldBe resT._2 +- _EPSILON
+            max(0.0, min(1.0, bc.d)) shouldBe resT._3 +- _EPSILON
+            max(0.0, min(1.0, bc.a)) shouldBe (1.0 - resT._1 - resT._2 - resT._3) +- _EPSILON
+            pt(0) shouldBe ct.pt(0) +- _EPSILON
+            pt(1) shouldBe ct.pt(1) +- _EPSILON
+            pt(2) shouldBe ct.pt(2) +- _EPSILON
 
           }
         }
@@ -211,6 +279,32 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
+    it("should use correct barycentric coordinates for points randomly placed near or in the tetrahedron") {
+      val _EPSILON = 1.0e-8
+      (0 until 100) foreach { _ =>
+        val pairs = IndexedSeq((0, 1), (10, 10), (100, 100), (-10, 10))
+        pairs.foreach { pair =>
+          val tet = randomTetrahedron(pair._1, pair._2)
+          (0 until 100) foreach { _ =>
+            val pOff = randomVector(pair._1 * 2, pair._2 * 2)
+            val bc = // reference implementation tested against VTK
+              BarycentricCoordinates4.pointInTetrahedron(pOff.toPoint,
+                                                         tet.a.toPoint,
+                                                         tet.b.toPoint,
+                                                         tet.c.toPoint,
+                                                         tet.d.toPoint)
+
+            val res = BSDistance.calculateBarycentricCoordinates(tet, pOff)
+            bc.b shouldBe res._1 +- 1.0e-8
+            bc.c shouldBe res._2 +- 1.0e-8
+            bc.d shouldBe res._3 +- 1.0e-8
+            bc.a shouldBe (1.0 - res._1 - res._2 - res._3) +- 1.0e-8
+
+          }
+        }
+      }
+    }
+
     it("should use reasonable barycentric coordinates for triangles with three times the same point") {
 
       def test(tri: Triangle): Unit = {
@@ -230,9 +324,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     it("should use reasonable barycentric coordinates for triangles with only co-linear points") {
 
-      def test(
-        tri: Triangle,
-        pt: EuclideanVector[_3D]) = {
+      def test(tri: Triangle, pt: EuclideanVector[_3D]) = {
         val bc = BSDistance.calculateBarycentricCoordinates(tri, pt)
         (bc._1 + bc._2 + bc._3) shouldBe 1.0 +- 1.0e-8
         val epsilon = 1.0e-12
@@ -252,7 +344,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
 
       {
-        val tri = Triangle(EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0))
+        val tri =
+          Triangle(EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0))
         test(tri, tri.a)
         test(tri, tri.b)
         test(tri, tri.c)
@@ -260,35 +353,40 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       {
 
-        val tri = Triangle(EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0))
+        val tri =
+          Triangle(EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0))
         test(tri, tri.a)
         test(tri, tri.b)
         test(tri, tri.c)
       }
       {
 
-        val tri = Triangle(EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0))
+        val tri =
+          Triangle(EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0))
         test(tri, tri.a)
         test(tri, tri.b)
         test(tri, tri.c)
       }
       {
 
-        val tri = Triangle(EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0))
+        val tri =
+          Triangle(EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0))
         test(tri, tri.a)
         test(tri, tri.b)
         test(tri, tri.c)
       }
       {
 
-        val tri = Triangle(EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0))
+        val tri =
+          Triangle(EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0))
         test(tri, tri.a)
         test(tri, tri.b)
         test(tri, tri.c)
       }
       {
 
-        val tri = Triangle(EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0))
+        val tri =
+          Triangle(EuclideanVector(2.0, 0.0, 1.0), EuclideanVector(1.0, 0.0, 1.0), EuclideanVector(0.0, 0.0, 1.0))
         test(tri, tri.a)
         test(tri, tri.b)
         test(tri, tri.c)
@@ -316,7 +414,9 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
     }
 
-    it("should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles") {
+    it(
+      "should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles"
+    ) {
 
       val triangles = (0 until 100) map { _ =>
         // test if two function lead to same cp
@@ -330,10 +430,17 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       val pd = UnstructuredPointsDomain(points)
 
-      val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
-        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
+      val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(
+        TriangleMesh3D(
+          triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
+          TriangleList(
+            (0 until 3 * triangles.length)
+              .grouped(3)
+              .map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2))))
+              .toIndexedSeq
+          )
+        )
+      )
 
       (0 until 1000) foreach { _ =>
         val p = randomVector()
@@ -358,10 +465,17 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         Triangle(a, b, c)
       }
 
-      val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(TriangleMesh3D(
-        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
+      val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(
+        TriangleMesh3D(
+          triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
+          TriangleList(
+            (0 until 3 * triangles.length)
+              .grouped(3)
+              .map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2))))
+              .toIndexedSeq
+          )
+        )
+      )
 
       val queries = (0 until 100000) map { _ =>
         randomVector()
@@ -389,10 +503,17 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         Triangle(a, b, c)
       }
 
-      val sd = DiscreteSpatialIndex.fromMesh(TriangleMesh3D(
-        triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
-        TriangleList((0 until 3 * triangles.length).grouped(3).map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2)))).toIndexedSeq)
-      ))
+      val sd = DiscreteSpatialIndex.fromMesh(
+        TriangleMesh3D(
+          triangles.flatMap(t => Seq(t.a.toPoint, t.b.toPoint, t.c.toPoint)),
+          TriangleList(
+            (0 until 3 * triangles.length)
+              .grouped(3)
+              .map(g => TriangleCell(PointId(g(0)), PointId(g(1)), PointId(g(2))))
+              .toIndexedSeq
+          )
+        )
+      )
 
       val queries = (0 until 100000) map { _ =>
         randomVector()
@@ -411,11 +532,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it("should create correct bounding spheres with values for center and radius which do not contain NaN.") {
-      import scala.language.implicitConversions
-      implicit def toPointId(i: Int): PointId = PointId(i)
 
-      def test(
-        tri: Triangle) = {
+      def test(tri: Triangle) = {
         val sphere = Sphere.fromTriangle(tri)
         sphere.r2.isNaN shouldBe false
         sphere.center.x.isNaN shouldBe false
@@ -467,5 +585,158 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
+  }
+
+  describe("The VolumeDistance") {
+    it("should return not a larger value than when querying all triangles or 0 if it is inside a tetrahedron") {
+      val pts = IndexedSeq(
+        Point3D(0, 0, 0),
+        Point3D(5, 0, 0),
+        Point3D(0, 0, 5),
+        Point3D(0, 5, 0),
+        Point3D(5, 5, 5),
+        Point3D(5, 5, 0)
+      )
+      val tmesh = TetrahedralMesh3D(
+        pts,
+        TetrahedralList(
+          IndexedSeq(
+            TetrahedralCell(PointId(0), PointId(2), PointId(1), PointId(4)),
+            TetrahedralCell(PointId(0), PointId(3), PointId(2), PointId(4)),
+            TetrahedralCell(PointId(0), PointId(1), PointId(3), PointId(4)),
+            TetrahedralCell(PointId(1), PointId(5), PointId(3), PointId(4))
+          )
+        )
+      )
+
+      val index = TetrahedralMesh3DSpatialIndex.fromTetrahedralMesh3D(tmesh)
+
+      def genPoint() =
+        Point3D(rnd.scalaRandom.nextDouble() * 10 - 5,
+                rnd.scalaRandom.nextDouble() * 10 - 5,
+                rnd.scalaRandom.nextDouble() * 10 - 5)
+
+      def isInside(pt: Point[_3D]) = {
+        tmesh.tetrahedrons.exists { cell =>
+          val bc = tmesh.getBarycentricCoordinates(pt, cell)
+          bc.forall(d => d >= 0.0) &&
+          bc.forall(d => d <= 1.0) &&
+          bc.sum <= 1.0 + 1.0e-8
+        }
+      }
+
+      def closestPointToOneOfTheTriangles(pt: Point[_3D]) = {
+        val p = pt.toVector
+        tmesh.tetrahedrons
+          .flatMap { tc =>
+            tc.triangles.map { t =>
+              val tr = Triangle(
+                tmesh.pointSet.point(t.ptId1).toVector,
+                tmesh.pointSet.point(t.ptId2).toVector,
+                tmesh.pointSet.point(t.ptId3).toVector
+              )
+              BSDistance.toTriangle(p, tr)
+            }
+          }
+          .minBy(_.distance2)
+      }
+
+      for (i <- 0 until 200) {
+        val query = genPoint()
+        val cp = index.getClosestPointToVolume(query)
+
+        if (isInside(query)) { // inside of one tetrahedron → cp should be equal query
+          assert(cp.isInstanceOf[ClosestPointInTetrahedron])
+          (cp.asInstanceOf[ClosestPointInTetrahedron].point - query).norm should be < 1.0e-8
+        } else { // outside of a tetrahedron → cp should be the same as the minimal distance given all triangles individually
+          val posCP = cp.point.toVector
+          val posCPT = closestPointToOneOfTheTriangles(query).pt
+          (posCP - posCPT).norm should be < 1.0e-8
+        }
+      }
+
+    }
+
+    it("should allow to reconstruct the closest point based on the meta information") {
+      val pts = IndexedSeq(
+        Point3D(0, 0, 0),
+        Point3D(5, 0, 0),
+        Point3D(0, 0, 5),
+        Point3D(0, 5, 0),
+        Point3D(5, 5, 5),
+        Point3D(5, 5, 0)
+      )
+      val tmesh = TetrahedralMesh3D(
+        pts,
+        TetrahedralList(
+          IndexedSeq(
+            TetrahedralCell(PointId(0), PointId(2), PointId(1), PointId(4)),
+            TetrahedralCell(PointId(0), PointId(3), PointId(2), PointId(4)),
+            TetrahedralCell(PointId(0), PointId(1), PointId(3), PointId(4)),
+            TetrahedralCell(PointId(1), PointId(5), PointId(3), PointId(4))
+          )
+        )
+      )
+
+      val index = TetrahedralMesh3DSpatialIndex.fromTetrahedralMesh3D(tmesh)
+
+      def genPoint() =
+        Point3D(rnd.scalaRandom.nextDouble() * 10 - 5,
+                rnd.scalaRandom.nextDouble() * 10 - 5,
+                rnd.scalaRandom.nextDouble() * 10 - 5)
+
+      for (i <- 0 until 200) {
+        val query = genPoint()
+        val cp = index.getClosestPointToVolume(query)
+        cp match {
+          case cpiv: ClosestPointIsVertex =>
+            val reconstructed = tmesh.pointSet.point(cpiv.pid)
+            (cp.point - reconstructed).norm < 1.0e-8
+          case cpol: ClosestPointOnLine =>
+            val reconstructed = (
+              tmesh.pointSet.point(cpol.pids._1).toVector * cpol.bc +
+                tmesh.pointSet.point(cpol.pids._2).toVector * (1.0 - cpol.bc)
+            ).toPoint
+            (cp.point - reconstructed).norm < 1.0e-8
+          case cpitot: ClosestPointInTriangleOfTetrahedron =>
+            val tet = tmesh.tetrahedralization.tetrahedron(cpitot.tetId)
+            val tri = tet.triangles(cpitot.triId.id)
+            val reconstructed = (
+              tmesh.pointSet.point(tri.ptId1).toVector * cpitot.bc.a +
+                tmesh.pointSet.point(tri.ptId2).toVector * cpitot.bc.b +
+                tmesh.pointSet.point(tri.ptId3).toVector * cpitot.bc.c
+            ).toPoint
+            (cp.point - reconstructed).norm < 1.0e-8
+          case cpit: ClosestPointInTetrahedron =>
+            val tet = tmesh.tetrahedralization.tetrahedron(cpit.tid)
+            val reconstructed = (
+              tmesh.pointSet.point(tet.ptId1).toVector * cpit.bc.a +
+                tmesh.pointSet.point(tet.ptId2).toVector * cpit.bc.b +
+                tmesh.pointSet.point(tet.ptId3).toVector * cpit.bc.c +
+                tmesh.pointSet.point(tet.ptId4).toVector * cpit.bc.d
+            ).toPoint
+            (cp.point - reconstructed).norm < 1.0e-8
+        }
+      }
+    }
+
+    it("should return the correct point when queried with points from the mesh") {
+      val mesh = createTetrahedronsInUnitCube()
+      for (i <- 0 until mesh.pointSet.numberOfPoints) {
+        val query = mesh.pointSet.point(PointId(i))
+        val cp = mesh.operations.closestPointToVolume(query)
+        (query - cp.point).norm should be < 1.0e-8
+        require(cp.isInstanceOf[ClosestPointIsVertex])
+      }
+    }
+
+    it("should return the correct pointId when queried with points from the mesh") {
+      val mesh = createTetrahedronsInUnitCube()
+      for (i <- 0 until mesh.pointSet.numberOfPoints) {
+        val query = mesh.pointSet.point(PointId(i))
+        val cp = mesh.operations.closestPointToVolume(query)
+        cp.asInstanceOf[ClosestPointIsVertex].pid.id shouldBe i
+      }
+    }
   }
 }

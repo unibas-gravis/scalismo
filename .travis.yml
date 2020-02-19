@@ -22,5 +22,6 @@ scala:
 
 script:
   - travis_wait sbt ++$TRAVIS_SCALA_VERSION update
+  - sbt scalafmtSbtCheck scalafmtCheck test:scalafmtCheck
   - travis_wait sbt ++$TRAVIS_SCALA_VERSION -Djava.awt.headless=true compile test
-  - sbt scalariformFormat && git diff --exit-code   # fails build if scalariform results in changes to the code
+

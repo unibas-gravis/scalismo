@@ -20,7 +20,7 @@ import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._2D
-import scalismo.io.{ ImageIO, MeshIO }
+import scalismo.io.{ImageIO, MeshIO}
 
 class ConversionTests extends ScalismoTestSuite {
 
@@ -48,6 +48,24 @@ class ConversionTests extends ScalismoTestSuite {
       val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get
 
       origimg should equal(restoredImg)
+
+    }
+  }
+
+  describe("a tetrahedral mesh ") {
+
+    it("can be converted to and from vtk") {
+      val path = getClass.getResource("/tetraMesh.vtk").getPath
+      val origmesh = MeshIO.readTetrahedralMesh(new java.io.File(URLDecoder.decode(path, "UTF-8"))).get
+
+      val vtkug = TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(origmesh)
+      val restoredMesh = TetrahedralMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkug).get
+      origmesh should equal(restoredMesh)
+
+      // test conversion with template
+      val vtkug2 = TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(origmesh, Some(vtkug))
+      val restoredMesh2 = TetrahedralMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkug2).get
+      origmesh should equal(restoredMesh2)
 
     }
   }

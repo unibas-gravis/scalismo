@@ -18,7 +18,7 @@ package scalismo.numerics
 import scalismo.common.Scalar
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
-import spire.math.{ UByte, UInt, UShort }
+import spire.math.{UByte, UInt, UShort}
 
 /** defines (convex) interpolation between two values */
 trait ValueInterpolator[@specialized(Double, Float) A] {
@@ -46,6 +46,29 @@ trait ValueInterpolator[@specialized(Double, Float) A] {
       blend(blend(v1, v2, f1 / f12), v3, f12 / (f3 + f12))
     else
       v3
+  }
+
+  /** fast explicit barycentric interpolation, most used case of multiple blends */
+  def barycentricInterpolation(v1: A, f1: Double, v2: A, f2: Double, v3: A, f3: Double, v4: A, f4: Double): A = {
+    val f12 = f1 + f2
+    val f123 = f12 + f3
+    if (f123 > 0) {
+      blend(
+        if (f12 > 0) {
+          blend(
+            blend(v1, v2, f1 / f12),
+            v3,
+            f12 / (f3 + f12)
+          )
+        } else {
+          v3
+        },
+        v4,
+        f123 / (f4 + f123)
+      )
+    } else {
+      v4
+    }
   }
 
   /** direct access to averaging function, warning: unstable for large sequences! (implement hierarchical blending for better stability) */
@@ -77,7 +100,8 @@ object ValueInterpolator {
   }
 
   implicit val uByteInterpolator = new ValueInterpolator[UByte] {
-    override def blend(obj1: UByte, obj2: UByte, l: Double): UByte = Scalar[UByte].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
+    override def blend(obj1: UByte, obj2: UByte, l: Double): UByte =
+      Scalar[UByte].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
   }
 
   implicit val shortInterpolator = new ValueInterpolator[Short] {
@@ -85,7 +109,8 @@ object ValueInterpolator {
   }
 
   implicit val uShortInterpolator = new ValueInterpolator[UShort] {
-    override def blend(obj1: UShort, obj2: UShort, l: Double): UShort = Scalar[UShort].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
+    override def blend(obj1: UShort, obj2: UShort, l: Double): UShort =
+      Scalar[UShort].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
   }
 
   implicit val intInterpolator = new ValueInterpolator[Int] {
@@ -93,7 +118,8 @@ object ValueInterpolator {
   }
 
   implicit val uIntInterpolator = new ValueInterpolator[UInt] {
-    override def blend(obj1: UInt, obj2: UInt, l: Double): UInt = Scalar[UInt].fromLong(Math.round(obj1.toLong * l + obj2.toLong * (1.0 - l)))
+    override def blend(obj1: UInt, obj2: UInt, l: Double): UInt =
+      Scalar[UInt].fromLong(Math.round(obj1.toLong * l + obj2.toLong * (1.0 - l)))
   }
 
   implicit val longInterpolator = new ValueInterpolator[Long] {
@@ -119,12 +145,16 @@ object ValueInterpolator {
   // ** VectorXD **
 
   implicit val vectorBlender1D = new ValueInterpolator[EuclideanVector1D] {
-    override def blend(obj1: EuclideanVector1D, obj2: EuclideanVector1D, l: Double): EuclideanVector1D = EuclideanVector1D(
-      obj1.x * l + obj2.x * (1.0 - l))
+    override def blend(obj1: EuclideanVector1D, obj2: EuclideanVector1D, l: Double): EuclideanVector1D =
+      EuclideanVector1D(obj1.x * l + obj2.x * (1.0 - l))
 
-    override def barycentricInterpolation(v1: EuclideanVector1D, f1: Double, v2: EuclideanVector1D, f2: Double, v3: EuclideanVector1D, f3: Double): EuclideanVector1D = {
-      EuclideanVector1D(
-        v1.x * f1 + v2.x * f2 + v3.x * f3)
+    override def barycentricInterpolation(v1: EuclideanVector1D,
+                                          f1: Double,
+                                          v2: EuclideanVector1D,
+                                          f2: Double,
+                                          v3: EuclideanVector1D,
+                                          f3: Double): EuclideanVector1D = {
+      EuclideanVector1D(v1.x * f1 + v2.x * f2 + v3.x * f3)
     }
 
     override def average(first: EuclideanVector1D, rest: EuclideanVector1D*): EuclideanVector1D = {
@@ -138,14 +168,16 @@ object ValueInterpolator {
   }
 
   implicit val vectorBlender2D = new ValueInterpolator[EuclideanVector2D] {
-    override def blend(obj1: EuclideanVector2D, obj2: EuclideanVector2D, l: Double): EuclideanVector2D = EuclideanVector2D(
-      obj1.x * l + obj2.x * (1.0 - l),
-      obj1.y * l + obj2.y * (1.0 - l))
+    override def blend(obj1: EuclideanVector2D, obj2: EuclideanVector2D, l: Double): EuclideanVector2D =
+      EuclideanVector2D(obj1.x * l + obj2.x * (1.0 - l), obj1.y * l + obj2.y * (1.0 - l))
 
-    override def barycentricInterpolation(v1: EuclideanVector2D, f1: Double, v2: EuclideanVector2D, f2: Double, v3: EuclideanVector2D, f3: Double): EuclideanVector2D = {
-      EuclideanVector2D(
-        v1.x * f1 + v2.x * f2 + v3.x * f3,
-        v1.y * f1 + v2.y * f2 + v3.y * f3)
+    override def barycentricInterpolation(v1: EuclideanVector2D,
+                                          f1: Double,
+                                          v2: EuclideanVector2D,
+                                          f2: Double,
+                                          v3: EuclideanVector2D,
+                                          f3: Double): EuclideanVector2D = {
+      EuclideanVector2D(v1.x * f1 + v2.x * f2 + v3.x * f3, v1.y * f1 + v2.y * f2 + v3.y * f3)
     }
 
     override def average(first: EuclideanVector2D, rest: EuclideanVector2D*): EuclideanVector2D = {
@@ -161,16 +193,20 @@ object ValueInterpolator {
   }
 
   implicit val vectorBlender3D = new ValueInterpolator[EuclideanVector3D] {
-    override def blend(obj1: EuclideanVector3D, obj2: EuclideanVector3D, l: Double): EuclideanVector3D = EuclideanVector3D(
-      obj1.x * l + obj2.x * (1.0 - l),
-      obj1.y * l + obj2.y * (1.0 - l),
-      obj1.z * l + obj2.z * (1.0 - l))
+    override def blend(obj1: EuclideanVector3D, obj2: EuclideanVector3D, l: Double): EuclideanVector3D =
+      EuclideanVector3D(obj1.x * l + obj2.x * (1.0 - l),
+                        obj1.y * l + obj2.y * (1.0 - l),
+                        obj1.z * l + obj2.z * (1.0 - l))
 
-    override def barycentricInterpolation(v1: EuclideanVector3D, f1: Double, v2: EuclideanVector3D, f2: Double, v3: EuclideanVector3D, f3: Double): EuclideanVector3D = {
-      EuclideanVector3D(
-        v1.x * f1 + v2.x * f2 + v3.x * f3,
-        v1.y * f1 + v2.y * f2 + v3.y * f3,
-        v1.z * f1 + v2.z * f2 + v3.z * f3)
+    override def barycentricInterpolation(v1: EuclideanVector3D,
+                                          f1: Double,
+                                          v2: EuclideanVector3D,
+                                          f2: Double,
+                                          v3: EuclideanVector3D,
+                                          f3: Double): EuclideanVector3D = {
+      EuclideanVector3D(v1.x * f1 + v2.x * f2 + v3.x * f3,
+                        v1.y * f1 + v2.y * f2 + v3.y * f3,
+                        v1.z * f1 + v2.z * f2 + v3.z * f3)
     }
 
     override def average(first: EuclideanVector3D, rest: EuclideanVector3D*): EuclideanVector3D = {
@@ -190,9 +226,16 @@ object ValueInterpolator {
   // ** Vector[D] **
 
   implicit val vectorBlender_1D = new ValueInterpolator[EuclideanVector[_1D]] {
-    override def blend(obj1: EuclideanVector[_1D], obj2: EuclideanVector[_1D], l: Double): EuclideanVector[_1D] = vectorBlender1D.blend(obj1, obj2, l)
+    override def blend(obj1: EuclideanVector[_1D], obj2: EuclideanVector[_1D], l: Double): EuclideanVector[_1D] =
+      vectorBlender1D.blend(obj1, obj2, l)
 
-    override def barycentricInterpolation(v1: EuclideanVector[_1D], f1: Double, v2: EuclideanVector[_1D], f2: Double, v3: EuclideanVector[_1D], f3: Double): EuclideanVector[_1D] = vectorBlender1D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
+    override def barycentricInterpolation(v1: EuclideanVector[_1D],
+                                          f1: Double,
+                                          v2: EuclideanVector[_1D],
+                                          f2: Double,
+                                          v3: EuclideanVector[_1D],
+                                          f3: Double): EuclideanVector[_1D] =
+      vectorBlender1D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
     override def average(first: EuclideanVector[_1D], rest: EuclideanVector[_1D]*): EuclideanVector[_1D] = {
       var x: Double = first.x
@@ -205,9 +248,16 @@ object ValueInterpolator {
   }
 
   implicit val vectorBlender_2D = new ValueInterpolator[EuclideanVector[_2D]] {
-    override def blend(obj1: EuclideanVector[_2D], obj2: EuclideanVector[_2D], l: Double): EuclideanVector[_2D] = vectorBlender2D.blend(obj1, obj2, l)
+    override def blend(obj1: EuclideanVector[_2D], obj2: EuclideanVector[_2D], l: Double): EuclideanVector[_2D] =
+      vectorBlender2D.blend(obj1, obj2, l)
 
-    override def barycentricInterpolation(v1: EuclideanVector[_2D], f1: Double, v2: EuclideanVector[_2D], f2: Double, v3: EuclideanVector[_2D], f3: Double): EuclideanVector[_2D] = vectorBlender2D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
+    override def barycentricInterpolation(v1: EuclideanVector[_2D],
+                                          f1: Double,
+                                          v2: EuclideanVector[_2D],
+                                          f2: Double,
+                                          v3: EuclideanVector[_2D],
+                                          f3: Double): EuclideanVector[_2D] =
+      vectorBlender2D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
     override def average(first: EuclideanVector[_2D], rest: EuclideanVector[_2D]*): EuclideanVector[_2D] = {
       var x: Double = first.x
@@ -222,9 +272,16 @@ object ValueInterpolator {
   }
 
   implicit val vectorBlender_3D = new ValueInterpolator[EuclideanVector[_3D]] {
-    override def blend(obj1: EuclideanVector[_3D], obj2: EuclideanVector[_3D], l: Double): EuclideanVector[_3D] = vectorBlender3D.blend(obj1, obj2, l)
+    override def blend(obj1: EuclideanVector[_3D], obj2: EuclideanVector[_3D], l: Double): EuclideanVector[_3D] =
+      vectorBlender3D.blend(obj1, obj2, l)
 
-    override def barycentricInterpolation(v1: EuclideanVector[_3D], f1: Double, v2: EuclideanVector[_3D], f2: Double, v3: EuclideanVector[_3D], f3: Double): EuclideanVector[_3D] = vectorBlender3D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
+    override def barycentricInterpolation(v1: EuclideanVector[_3D],
+                                          f1: Double,
+                                          v2: EuclideanVector[_3D],
+                                          f2: Double,
+                                          v3: EuclideanVector[_3D],
+                                          f3: Double): EuclideanVector[_3D] =
+      vectorBlender3D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
     override def average(first: EuclideanVector[_3D], rest: EuclideanVector[_3D]*): EuclideanVector[_3D] = {
       var x: Double = first.x
@@ -240,4 +297,3 @@ object ValueInterpolator {
     }
   }
 }
-

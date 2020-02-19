@@ -15,6 +15,7 @@
  */
 package scalismo.common
 
+import breeze.linalg.DenseVector
 import scalismo.utils.ArrayUtils
 import spire.math._
 
@@ -45,12 +46,12 @@ trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
   def toFloat(a: S): Float
   def toDouble(a: S): Double
 
-  def plus(s1 : S, s2 : S) : S
-  def minus(s1 : S, s2 : S) : S
-  def times(s1 : S, s2 : S) : S
-  def timesDouble(s1 : S, d : Double) : Double
-  def zero : S
-  def one : S
+  def plus(s1: S, s2: S): S
+  def minus(s1: S, s2: S): S
+  def times(s1: S, s2: S): S
+  def timesDouble(s1: S, d: Double): Double
+  def zero: S
+  def one: S
 }
 
 /**
@@ -72,7 +73,9 @@ abstract class PrimitiveScalar[S <: AnyVal: ClassTag] extends Scalar[S] {
 abstract class ValueClassScalar[S <: AnyVal, U <: AnyVal: ClassTag] extends Scalar[S] {
 
   protected[scalismo] def convertArray[C](data: Array[C], f: C => S): ValueClassScalarArray[S, U] = {
-    createArray(ArrayUtils.fastMap[C, U](data, { c => toUnderlying(f(c)) }))
+    createArray(ArrayUtils.fastMap[C, U](data, { c =>
+      toUnderlying(f(c))
+    }))
   }
   def createArray(data: Array[U]): ValueClassScalarArray[S, U]
 
@@ -190,7 +193,6 @@ object Scalar {
     override def one: UShort = UShort(1)
   }
 
-
   class UIntIsScalar extends ValueClassScalar[UInt, Int] {
     override def toByte(a: UInt): Byte = a.toByte
     override def toShort(a: UInt): Short = a.toShort
@@ -230,8 +232,8 @@ object Scalar {
  * and the data should be treated as immutable. For instance, data values can be accessed by index, but not updated.
  * @tparam S the type of the contained data.
  */
-
 sealed trait ScalarArray[S] extends IndexedSeq[S] {
+
   /**
    * Returns the <code>index</code>th element of the array
    * @param index the index of the value to return
@@ -248,14 +250,14 @@ sealed trait ScalarArray[S] extends IndexedSeq[S] {
   /**
    * Returns the length of the data array. This is an alias for [[ScalarArray#length]]
    */
-  override final lazy val size = length
+  final override lazy val size = length
 
   /**
    * Determines if <code>index</code> lies within the bounds of the array
    * @param index the index in the array for which to check if it lies within the array bounds
    * @return <code>true</code> if <code>index</code> lies within the array bounds, <code>false</code> otherwise.
    */
-  override final def isDefinedAt(index: Int): Boolean = index < size && index >= 0
+  final override def isDefinedAt(index: Int): Boolean = index < size && index >= 0
 
   /**
    * Maps this [[ScalarArray]] to another [[ScalarArray]] using the given mapping function
@@ -279,11 +281,12 @@ sealed trait ScalarArray[S] extends IndexedSeq[S] {
  * @tparam U the type of the underlying contained raw data
  */
 abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: Array[U]) extends ScalarArray[S] {
+
   /**
    * Returns the length of the data array.
    * @return the length of the data array
    */
-  override final def length: Int = rawData.length
+  final override def length: Int = rawData.length
 
   /**
    * Convert one datum from the underlying type to the [[ScalarArray]]'s type
@@ -301,8 +304,14 @@ abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: A
   override def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T] = {
     val toScalar = implicitly[Scalar[T]]
     toScalar match {
-      case s: PrimitiveScalar[T] => s.createArray(rawData.map { u => f(fromUnderlying(u)) })
-      case s: ValueClassScalar[T, _] => s.convertArray[U](rawData, { u => f(fromUnderlying(u)) })
+      case s: PrimitiveScalar[T] =>
+        s.createArray(rawData.map { u =>
+          f(fromUnderlying(u))
+        })
+      case s: ValueClassScalar[T, _] =>
+        s.convertArray[U](rawData, { u =>
+          f(fromUnderlying(u))
+        })
     }
   }
 
@@ -343,7 +352,7 @@ final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) exten
   override def equals(that: Any) = {
     that match {
       case a: PrimitiveScalarArray[_] => (this canEqual that) && this.rawData.deep == a.rawData.deep
-      case _ => false
+      case _                          => false
     }
   }
 
@@ -356,7 +365,8 @@ final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) exten
  * @tparam S the type of the array's data
  * @tparam U the type of the underlying contained raw data
  */
-final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(implicit scalar: ValueClassScalar[S, U]) extends AbstractScalarArray[S, U](rawData) {
+final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(implicit scalar: ValueClassScalar[S, U])
+    extends AbstractScalarArray[S, U](rawData) {
 
   override protected def fromUnderlying(u: U): S = scalar.fromUnderlying(u)
 
@@ -380,7 +390,7 @@ final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(i
   override def equals(that: Any) = {
     that match {
       case a: ValueClassScalarArray[_, _] => (this canEqual that) && this.rawData.deep == a.rawData.deep
-      case _ => false
+      case _                              => false
     }
   }
 
@@ -388,7 +398,9 @@ final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(i
 
 /** Factory for ValueClassScalarArray instances. */
 object ValueClassScalarArray {
-  def apply[S <: AnyVal, U <: AnyVal](array: Array[U])(implicit s: ValueClassScalar[S, U]): ValueClassScalarArray[S, U] = new ValueClassScalarArray[S, U](array)(s)
+  def apply[S <: AnyVal, U <: AnyVal](array: Array[U])(
+    implicit s: ValueClassScalar[S, U]
+  ): ValueClassScalarArray[S, U] = new ValueClassScalarArray[S, U](array)(s)
 }
 
 /** Factory for ScalarArray instances. */
@@ -404,7 +416,22 @@ object ScalarArray {
     val scalar = implicitly[Scalar[T]]
     scalar match {
       case p: PrimitiveScalar[T] => p.createArray(array)
-      case v: ValueClassScalar[T, _] => v.convertArray[T](array, { t => t })
+      case v: ValueClassScalar[T, _] =>
+        v.convertArray[T](array, { t =>
+          t
+        })
+    }
+  }
+
+  case class ScalarVectorizer[S: Scalar]() extends Vectorizer[S] {
+    override def dim: Int = 1
+
+    def toArray(v: S): Array[Double] = Array[Double](Scalar[S].toDouble(v))
+
+    override def vectorize(v: S): DenseVector[Double] = new DenseVector(toArray(v))
+
+    override def unvectorize(d: DenseVector[Double]): S = {
+      Scalar[S].fromDouble(d(0))
     }
   }
 

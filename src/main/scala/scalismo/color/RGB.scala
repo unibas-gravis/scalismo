@@ -19,9 +19,9 @@ package scalismo.color
 import java.awt.Color
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ ComponentRepresentation, Vectorizer }
+import scalismo.common.{ComponentRepresentation, Vectorizer}
 import scalismo.geometry.EuclideanVector._
-import scalismo.geometry.{ EuclideanVector, _3D }
+import scalismo.geometry.{_3D, EuclideanVector}
 import scalismo.numerics.ValueInterpolator
 
 import scala.annotation.switch
@@ -79,10 +79,7 @@ case class RGB(r: Double, g: Double, b: Double) {
   def blend(color: RGBA): RGB = {
     val a = color.a
     val na = 1.0f - color.a
-    new RGB(
-      na * r + a * color.r,
-      na * g + a * color.g,
-      na * b + a * color.b)
+    new RGB(na * r + a * color.r, na * g + a * color.g, na * b + a * color.b)
   }
 
   /** convert to RGBA with full opacity */
@@ -110,7 +107,8 @@ object RGB {
   def apply(gray: Double): RGB = new RGB(gray, gray, gray)
   def apply(tuple: (Double, Double, Double)) = new RGB(tuple._1, tuple._2, tuple._3)
   def apply(vector3D: EuclideanVector[_3D]) = new RGB(vector3D.x, vector3D.y, vector3D.z)
-  def apply(awtColor: Color) = new RGB(fromInt8(awtColor.getRed), fromInt8(awtColor.getGreen), fromInt8(awtColor.getBlue))
+  def apply(awtColor: Color) =
+    new RGB(fromInt8(awtColor.getRed), fromInt8(awtColor.getGreen), fromInt8(awtColor.getBlue))
 
   implicit object RGBComponents extends ComponentRepresentation[RGB] with Vectorizer[RGB] {
 
@@ -148,6 +146,7 @@ object RGB {
   }
 
   implicit object RGBOperations extends ColorSpaceOperations[RGB] {
+
     /** add two pixels */
     override def add(pix1: RGB, pix2: RGB): RGB = pix1 + pix2
 
@@ -167,11 +166,8 @@ object RGB {
   }
 
   implicit object RGBInterpolator extends ValueInterpolator[RGB] {
-    override def blend(obj1: RGB, obj2: RGB, l: Double): RGB = RGB(
-      obj1.r * l + (1f - l) * obj2.r,
-      obj1.g * l + (1f - l) * obj2.g,
-      obj1.b * l + (1f - l) * obj2.b
-    )
+    override def blend(obj1: RGB, obj2: RGB, l: Double): RGB =
+      RGB(obj1.r * l + (1f - l) * obj2.r, obj1.g * l + (1f - l) * obj2.g, obj1.b * l + (1f - l) * obj2.b)
 
     override def average(first: RGB, rest: RGB*): RGB = {
       var r = first.r
@@ -187,10 +183,7 @@ object RGB {
     }
 
     override def barycentricInterpolation(v1: RGB, f1: Double, v2: RGB, f2: Double, v3: RGB, f3: Double): RGB = {
-      RGB(
-        v1.r * f1 + v2.r * f2 + v3.r * f3,
-        v1.g * f1 + v2.g * f2 + v3.g * f3,
-        v1.b * f1 + v2.b * f2 + v3.b * f3)
+      RGB(v1.r * f1 + v2.r * f2 + v3.r * f3, v1.g * f1 + v2.g * f2 + v3.g * f3, v1.b * f1 + v2.b * f2 + v3.b * f3)
     }
   }
 

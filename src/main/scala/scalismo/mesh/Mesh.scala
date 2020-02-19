@@ -15,9 +15,9 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{ PointId, RealSpace }
+import scalismo.common.{PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage }
+import scalismo.image.{DifferentiableScalarImage}
 import scalismo.mesh.boundingSpheres.TriangleMesh3DSpatialIndex
 
 /**
@@ -54,15 +54,19 @@ object Mesh {
     val remainingPoints = mesh.pointSet.points.toIndexedSeq.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
     val pts = mesh.pointSet.points.toIndexedSeq
 
-    val remainingPointTriplet = mesh.cells.par.map {
-      cell =>
+    val remainingPointTriplet = mesh.cells.par
+      .map { cell =>
         val points = cell.pointIds.map(pointId => pts(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
-    }.filter(_._2).map(_._1)
+      }
+      .filter(_._2)
+      .map(_._1)
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointTriplet.map { case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2)))) }
+    val cells = remainingPointTriplet.map {
+      case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
+    }
 
     TriangleMesh3D(points.toIndexedSeq, TriangleList(cells.toIndexedSeq))
   }

@@ -15,13 +15,13 @@
  */
 package scalismo.io
 
-import java.io.{ Closeable, File, IOException }
+import java.io.{Closeable, File, IOException}
 
 import ncsa.hdf.`object`._
 import ncsa.hdf.`object`.h5._
 
 import scala.collection.JavaConversions._
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.product == data.length, s"${dims.product} != ${data.length}")
@@ -98,7 +98,8 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     Try {
       val s = h5file.get(path)
       val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
-      val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length + 1, Datatype.NATIVE, Datatype.NATIVE)
+      val dtype: Datatype =
+        fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length + 1, Datatype.NATIVE, Datatype.NATIVE)
 
       val attr = new Attribute(attrName, dtype, Array(1))
       attr.setValue(Array(attrValue))
@@ -111,7 +112,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     h5file.get(path) match {
       case null => Failure(new Exception(s"Path $path does not exist"))
       case s: H5ScalarDS => {
-        // we need to explicitly set the selectedDims to dims, in order to avoid that 
+        // we need to explicitly set the selectedDims to dims, in order to avoid that
         // in the three D case only the first slice is read (bug in hdf5?)
         s.read()
         val dims = s.getDims
@@ -141,27 +142,21 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     val (groupname, datasetname) = splitpath(path)
     val maybeGroup: Try[Group] = createGroup(groupname)
     maybeGroup.flatMap { group =>
-
       val dtypeOrFailure = ndArray.data match {
         case _: Array[Byte] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
-            1, Datatype.NATIVE, Datatype.NATIVE))
+          Success(h5file.createDatatype(Datatype.CLASS_INTEGER, 1, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Short] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
-            2, Datatype.NATIVE, Datatype.NATIVE))
+          Success(h5file.createDatatype(Datatype.CLASS_INTEGER, 2, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Int] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
-            4, Datatype.NATIVE, Datatype.NATIVE))
+          Success(h5file.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Long] => {
-          Success(h5file.createDatatype(Datatype.CLASS_INTEGER,
-            8, Datatype.NATIVE, Datatype.NATIVE))
+          Success(h5file.createDatatype(Datatype.CLASS_INTEGER, 8, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _: Array[Float] => {
-          Success(h5file.createDatatype(Datatype.CLASS_FLOAT,
-            4, Datatype.NATIVE, Datatype.NATIVE))
+          Success(h5file.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE))
         }
         case _ => {
           // TODO error handling
@@ -169,7 +164,9 @@ class HDF5File(h5file: FileFormat) extends Closeable {
         }
       }
 
-      val dsOrFailure = dtypeOrFailure.map(dtype => h5file.createScalarDS(datasetname, group, dtype, ndArray.dims.toArray, null, null, 0, ndArray.data))
+      val dsOrFailure = dtypeOrFailure.map(dtype =>
+        h5file.createScalarDS(datasetname, group, dtype, ndArray.dims.toArray, null, null, 0, ndArray.data)
+      )
       dsOrFailure.map(_ => ()) // ignore result and return either failure or unit
     }
   }
@@ -182,7 +179,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     if (exists(groupName))
       h5file.get(groupName) match {
         case g: Group => Success(g)
-        case _ => Failure(new Throwable(s"object $groupName is not a group"))
+        case _        => Failure(new Throwable(s"object $groupName is not a group"))
       }
     else {
       Failure(new Throwable(s"group with name $groupName does not exist"))
@@ -198,8 +195,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     val groupOrFailure = createGroup(groupname)
 
     groupOrFailure.map { group =>
-      val dtype = h5file.createDatatype(Datatype.CLASS_STRING,
-        value.length, Datatype.NATIVE, Datatype.NATIVE)
+      val dtype = h5file.createDatatype(Datatype.CLASS_STRING, value.length, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value))
     }
   }
@@ -264,7 +260,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
 
     val newgroup = getMember(groupnames(0)) match {
       case Some(g) => g.asInstanceOf[Group]
-      case None => h5file.createGroup(groupnames(0), parent)
+      case None    => h5file.createGroup(groupnames(0), parent)
     }
 
     if (groupnames.length == 1) {
@@ -281,13 +277,15 @@ class HDF5File(h5file: FileFormat) extends Closeable {
 
     val normalizedPath = absolutePath.replaceAll("//*", "/")
 
-    val root = if (h5file.getRootNode == null)
-      return Failure(new Throwable("file not correctly opened"))
-    else {
-      h5file.getRootNode
-        .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode].getUserObject
-        .asInstanceOf[Group]
-    }
+    val root =
+      if (h5file.getRootNode == null)
+        return Failure(new Throwable("file not correctly opened"))
+      else {
+        h5file.getRootNode
+          .asInstanceOf[javax.swing.tree.DefaultMutableTreeNode]
+          .getUserObject
+          .asInstanceOf[Group]
+      }
     if (!normalizedPath.startsWith("/"))
       return Failure(new Exception("expected absolute path, but found relative path: " + absolutePath))
     if (absolutePath.trim == "/")
@@ -323,8 +321,8 @@ object HDF5Utils {
   def openFile(file: File, mode: FileAccessMode): Try[HDF5File] = Try {
     val filename = file.getAbsolutePath
     val h5fileAccessMode = mode match {
-      case READ => FileFormat.READ
-      case WRITE => FileFormat.WRITE
+      case READ   => FileFormat.READ
+      case WRITE  => FileFormat.WRITE
       case CREATE => FileFormat.CREATE
     }
 
@@ -346,7 +344,6 @@ object HDF5Utils {
 /**
  * Typeclasses for reading, writing to hdf5 file
  */
-
 trait HDF5ReadWrite[A] extends HDF5Read[A] with HDF5Write[A]
 
 trait HDF5Read[A] {
@@ -356,4 +353,3 @@ trait HDF5Read[A] {
 trait HDF5Write[A] {
   def write(value: A, h5file: HDF5File, group: Group): Try[Unit]
 }
-

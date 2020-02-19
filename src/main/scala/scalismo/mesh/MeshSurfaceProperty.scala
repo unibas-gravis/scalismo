@@ -23,6 +23,7 @@ import scalismo.numerics.ValueInterpolator
  * accessible through the parameterization given by the triangulation of the mesh: TriangleId and BarycentricCoordinates inside the triangle
  */
 trait MeshSurfaceProperty[A] {
+
   /** access property value on surface, via coordinates in triangle */
   def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): A
 
@@ -37,8 +38,7 @@ trait MeshSurfaceProperty[A] {
 }
 
 /** constant property value on complete surface */
-case class ConstantProperty[A](triangulation: TriangleList, value: A)
-    extends MeshSurfaceProperty[A] {
+case class ConstantProperty[A](triangulation: TriangleList, value: A) extends MeshSurfaceProperty[A] {
 
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): A = value
 
@@ -46,8 +46,9 @@ case class ConstantProperty[A](triangulation: TriangleList, value: A)
 }
 
 /** property defined per vertex, with interpolation */
-case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(implicit val interpolator: ValueInterpolator[A])
-    extends MeshSurfaceProperty[A] {
+case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(
+  implicit val interpolator: ValueInterpolator[A]
+) extends MeshSurfaceProperty[A] {
 
   /** access surface property at vertex point */
   def atPoint(pointId: PointId): A = pointData(pointId.id)
@@ -62,12 +63,16 @@ case class SurfacePointProperty[A](triangulation: TriangleList, pointData: Index
     bcc.interpolateProperty(v1, v2, v3)
   }
 
-  def mapPoints[B](f: A => B)(implicit interpolator: ValueInterpolator[B]) = SurfacePointProperty(triangulation, pointData.map(f))
+  def mapPoints[B](f: A => B)(implicit interpolator: ValueInterpolator[B]) =
+    SurfacePointProperty(triangulation, pointData.map(f))
 }
 
 object SurfacePointProperty {
+
   /** average an arbitrary surface property at each vertex point */
-  def averagedPointProperty[A](property: MeshSurfaceProperty[A])(implicit interpolator: ValueInterpolator[A]): SurfacePointProperty[A] = {
+  def averagedPointProperty[A](
+    property: MeshSurfaceProperty[A]
+  )(implicit interpolator: ValueInterpolator[A]): SurfacePointProperty[A] = {
     def averager(data: IndexedSeq[A]): A = {
       data.size match {
         case 0 => throw new Exception("averaging over empty set")
@@ -85,7 +90,9 @@ object SurfacePointProperty {
    * @param interpolator interpolator
    * @return surface property which is backed by the sampled and reduced values at each vertex
    */
-  def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(implicit interpolator: ValueInterpolator[A]): SurfacePointProperty[A] = {
+  def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(
+    implicit interpolator: ValueInterpolator[A]
+  ): SurfacePointProperty[A] = {
     val triangulation = property.triangulation
     // get all data for a single vertex:
     def getVertex(pointId: PointId): A = {
@@ -118,8 +125,11 @@ case class TriangleProperty[A](triangulation: TriangleList, triangleData: Indexe
 }
 
 object TriangleProperty {
+
   /** extract TriangleProperty from the average value of the vertices around each triangle */
-  def fromAveragedPoints[A](property: MeshSurfaceProperty[A])(implicit blender: ValueInterpolator[A]): TriangleProperty[A] = {
+  def fromAveragedPoints[A](
+    property: MeshSurfaceProperty[A]
+  )(implicit blender: ValueInterpolator[A]): TriangleProperty[A] = {
     val triangleData = for (t <- property.triangulation.triangleIds) yield {
       val v1 = property(t, BarycentricCoordinates.v0)
       val v2 = property(t, BarycentricCoordinates.v1)
@@ -137,8 +147,7 @@ object TriangleProperty {
 }
 
 /** function indirection for surface access */
-case class MappedSurfaceProperty[A, B](values: MeshSurfaceProperty[A], f: A => B)
-    extends MeshSurfaceProperty[B] {
+case class MappedSurfaceProperty[A, B](values: MeshSurfaceProperty[A], f: A => B) extends MeshSurfaceProperty[B] {
 
   override def onSurface(triangleId: TriangleId, bcc: BarycentricCoordinates): B = f(values.onSurface(triangleId, bcc))
 
@@ -147,4 +156,3 @@ case class MappedSurfaceProperty[A, B](values: MeshSurfaceProperty[A], f: A => B
   override def map[C](g: B => C): MappedSurfaceProperty[A, C] = MappedSurfaceProperty(values, g compose f)
 
 }
-

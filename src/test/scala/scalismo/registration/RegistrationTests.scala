@@ -19,15 +19,15 @@ import java.io.File
 import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
-import scalismo.common.interpolation.{ BSplineImageInterpolator2D, BSplineImageInterpolator3D }
-import scalismo.{ ScalismoTestSuite, numerics }
-import scalismo.common.{ Field, NearestNeighborInterpolator, PointId, RealSpace }
+import scalismo.common.interpolation.{BSplineImageInterpolator2D, BSplineImageInterpolator3D}
+import scalismo.{numerics, ScalismoTestSuite}
+import scalismo.common.{Field, NearestNeighborInterpolator, PointId, RealSpace}
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.io.{ ImageIO, MeshIO }
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.numerics.{ GridSampler, LBFGSOptimizer, UniformSampler }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess }
+import scalismo.io.{ImageIO, MeshIO}
+import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -52,7 +52,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
         val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
 
-        val regResult = LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
+        val regResult =
+          LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
 
         val alignedPoints = points.map((pt: Point[_2D]) => regResult(pt))
 
@@ -76,7 +77,10 @@ class RegistrationTests extends ScalismoTestSuite {
 
     val rigidTransformed = mesh transform trans
 
-    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq, Point(0, 0, 0))
+    val regResult = LandmarkRegistration.rigid3DLandmarkRegistration(
+      mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq,
+      Point(0, 0, 0)
+    )
 
     //should not test on parameters here since many euler angles can lead to the same rotation matrix
     val rigidRegTransformed = mesh transform regResult
@@ -106,7 +110,10 @@ class RegistrationTests extends ScalismoTestSuite {
 
       // pick any center
       val anyCenter = Point(1254, 488, 78)
-      val newCenterRegResult = LandmarkRegistration.rigid3DLandmarkRegistration(mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq, anyCenter)
+      val newCenterRegResult = LandmarkRegistration.rigid3DLandmarkRegistration(
+        mesh.pointSet.points.zip(rigidTransformed.pointSet.points).toIndexedSeq,
+        anyCenter
+      )
 
       val rigidRegNewCenterTransformed = mesh transform newCenterRegResult
       for ((p, i) <- rigidRegNewCenterTransformed.pointSet.points.zipWithIndex) {
@@ -128,13 +135,15 @@ class RegistrationTests extends ScalismoTestSuite {
         val transParams = DenseVector[Double](1.0, 1.5)
 
         val scalingFactor = scala.util.Random.nextDouble()
-        val productParams = DenseVector.vertcat(DenseVector.vertcat(transParams, rotationParams), DenseVector(scalingFactor))
+        val productParams =
+          DenseVector.vertcat(DenseVector.vertcat(transParams, rotationParams), DenseVector(scalingFactor))
 
         val productSpace = RigidTransformationSpace[_2D](c).product(ScalingSpace[_2D])
 
         val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
 
-        val regResult = LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
+        val regResult =
+          LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
 
         val alignedPoints = points.map(regResult)
         transformedPoints(0)(0) should be(alignedPoints(0)(0) +- 0.0001)
@@ -158,7 +167,10 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val translatedRotatedScaled = mesh transform trans
 
-      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq, Point(0, 0, 0))
+      val regResult = LandmarkRegistration.similarity3DLandmarkRegistration(
+        mesh.pointSet.points.zip(translatedRotatedScaled.pointSet.points).toIndexedSeq,
+        Point(0, 0, 0)
+      )
 
       //should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regSim = mesh transform regResult
@@ -186,7 +198,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val domain = discreteFixedImage.domain
 
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
-      val regIt = Registration(MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, metricSampler),
+      val regIt = Registration(
+        MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, metricSampler),
         L2Regularizer[_2D](transformationSpace),
         regularizationWeight = 0.0,
         LBFGSOptimizer(maxNumberOfIterations = 300)
@@ -211,7 +224,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
-      val regIter = Registration(metric,
+      val regIter = Registration(
+        metric,
         L2Regularizer(transformationSpace),
         0.0,
         numerics.LBFGSOptimizer(maxNumberOfIterations = 100)
@@ -228,7 +242,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val fixedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Float](3))
 
       val domain = discreteFixedImage.domain
-      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
+                               DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)
@@ -241,12 +256,9 @@ class RegistrationTests extends ScalismoTestSuite {
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
-      val regIt = Registration(
-        metric,
-        L2Regularizer(transformationSpace),
-        0.0,
-        LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      val regIt =
+        Registration(metric, L2Regularizer(transformationSpace), 0.0, LBFGSOptimizer(maxNumberOfIterations = 300))
+          .iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
 
       val regResult = regIt.toSeq.last
 
@@ -263,7 +275,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
+                               DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val nnInterpolatedGp = lowRankGp.discretize(domain).interpolate(NearestNeighborInterpolator())
@@ -297,15 +310,15 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]), DiagonalKernel(GaussianKernel[_2D](20.0) * 50.0, 2))
-      val lowRankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator()).truncate(5)
+      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
+                               DiagonalKernel(GaussianKernel[_2D](20.0) * 50.0, 2))
+      val lowRankGp =
+        LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator()).truncate(5)
       val translationSpace = TranslationSpace[_2D]
       val gpTransformationSpace = GaussianProcessTransformationSpace(lowRankGp)
       val transformationSpace = ProductTransformationSpace(translationSpace, gpTransformationSpace)
-      val gtParams = DenseVector.vertcat(
-        DenseVector.ones[Double](translationSpace.parametersDimensionality) * 10.0,
-        DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0
-      )
+      val gtParams = DenseVector.vertcat(DenseVector.ones[Double](translationSpace.parametersDimensionality) * 10.0,
+                                         DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0)
       val groundTruthTransform = transformationSpace.transformForParameters(gtParams)
       val transformedLena = fixedImage compose groundTruthTransform
       val metricSampler = GridSampler(DiscreteImageDomain(domain.imageBoundingBox, IntVector(20, 20)))

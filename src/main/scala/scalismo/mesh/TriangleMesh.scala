@@ -24,6 +24,7 @@ import scala.language.implicitConversions
 
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
 case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends Cell {
+
   /** Identifiers of the points belonging to the cell*/
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
 
@@ -78,8 +79,8 @@ object TriangleMesh {
 }
 
 /** Standard 3D Gravis mesh, geometry only */
-
-case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
+case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation: TriangleList)
+    extends TriangleMesh[_3D] {
 
   val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val triangles = triangulation.triangles
@@ -199,7 +200,8 @@ object TriangleMesh3D {
   }
 }
 
-case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
+case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList)
+    extends TriangleMesh[_2D] {
   val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
 
   override def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh2D = {

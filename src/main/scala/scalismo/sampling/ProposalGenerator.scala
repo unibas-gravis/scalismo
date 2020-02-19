@@ -17,12 +17,14 @@ package scalismo.sampling
 
 /** proposal distribution sampler for Metropolis-Hastings MCMC */
 trait ProposalGenerator[A] {
+
   /** draw a sample from this proposal distribution, may depend on current state */
   def propose(current: A): A
 }
 
 /** ratio of forward and backwards proposal probability/density */
 trait TransitionRatio[A] {
+
   /** total rate of transition from to, corrected for backwards transition (log value) */
   def logTransitionRatio(from: A, to: A): Double
 }
@@ -34,6 +36,7 @@ trait SymmetricTransitionRatio[A] extends TransitionRatio[A] {
 
 /** expresses transition probability between two states */
 trait TransitionProbability[A] extends TransitionRatio[A] {
+
   /** rate of transition from to (log value) */
   def logTransitionProbability(from: A, to: A): Double
 

@@ -15,7 +15,7 @@
  */
 package scalismo.utils
 
-import breeze.stats.distributions.{ Gaussian, Uniform }
+import breeze.stats.distributions.{Gaussian, Uniform}
 import scalismo.ScalismoTestSuite
 
 class RandomTests extends ScalismoTestSuite {

@@ -39,7 +39,9 @@ case class TriangleList(triangles: IndexedSeq[TriangleCell]) {
     }
     val data = triangleMap.mapValues(s => s.toSet) // make immutable
 
-    val dataSeq = IndexedSeq.tabulate(pointIds.size) { i => data(pointIds(i)).toIndexedSeq }
+    val dataSeq = IndexedSeq.tabulate(pointIds.size) { i =>
+      data(pointIds(i)).toIndexedSeq
+    }
     id => dataSeq(id.id)
   }
 
@@ -59,7 +61,9 @@ case class TriangleList(triangles: IndexedSeq[TriangleCell]) {
       pointMap(p) -= p
     }
     val mapData = pointMap.mapValues(s => s.toSet) // make immutable
-    val seqData = IndexedSeq.tabulate(pointIds.size) { i => mapData(pointIds(i)).toIndexedSeq }
+    val seqData = IndexedSeq.tabulate(pointIds.size) { i =>
+      mapData(pointIds(i)).toIndexedSeq
+    }
     id => seqData(id.id)
   }
 
@@ -74,13 +78,15 @@ case class TriangleList(triangles: IndexedSeq[TriangleCell]) {
       triangleMap(t) -= t
     }
     val mapData = triangleMap.mapValues(s => s.toSet)
-    val seqData = IndexedSeq.tabulate(triangleIds.size) { i => mapData(triangleIds(i)).toIndexedSeq }
+    val seqData = IndexedSeq.tabulate(triangleIds.size) { i =>
+      mapData(triangleIds(i)).toIndexedSeq
+    }
     id => seqData(id.id)
   }
 
   /** points connected to a triangle, this information is contained in triangles */
-  lazy val adjacentPointsForTriangle: TriangleId => IndexedSeq[PointId] = {
-    id => triangle(id).pointIds
+  lazy val adjacentPointsForTriangle: TriangleId => IndexedSeq[PointId] = { id =>
+    triangle(id).pointIds
   }
 
   private[this] def extractRange(triangles: IndexedSeq[TriangleCell]): IndexedSeq[PointId] = {

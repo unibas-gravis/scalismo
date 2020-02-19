@@ -15,32 +15,45 @@
  */
 package scalismo.sampling.loggers
 
-import scalismo.sampling.{ DistributionEvaluator, ProposalGenerator }
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 
 import scala.language.implicitConversions
 
 class AllProposalsLogger[A](logger: ChainStateLogger[A]) extends AcceptRejectLogger[A] {
-  override def accept(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
+  override def accept(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
 
-  override def reject(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
+  override def reject(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
 }
 
 class AcceptedProposalLogger[A](logger: ChainStateLogger[A]) extends AcceptRejectLogger[A] {
   private var state: Option[A] = None // keep track of last accepted proposal -> this is the state
 
-  override def accept(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {
+  override def accept(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {
     state = Some(sample)
     logger.logState(sample)
   }
 
-  override def reject(current: A, sample: A, generator: ProposalGenerator[A], evaluator: DistributionEvaluator[A]): Unit = {
+  override def reject(current: A,
+                      sample: A,
+                      generator: ProposalGenerator[A],
+                      evaluator: DistributionEvaluator[A]): Unit = {
     if (state.isDefined) logger.logState(state.get)
   }
 }
 
 object AllProposalsLogger {
   // implicit attachment to a chain logger
-  implicit def stateLoggerOnAllProposals[A](logger: ChainStateLogger[A]): RichChainStateLogger[A] = new RichChainStateLogger[A](logger)
+  implicit def stateLoggerOnAllProposals[A](logger: ChainStateLogger[A]): RichChainStateLogger[A] =
+    new RichChainStateLogger[A](logger)
 
   class RichChainStateLogger[A](logger: ChainStateLogger[A]) {
     def onAllProposals: AcceptRejectLogger[A] = new AllProposalsLogger[A](logger)

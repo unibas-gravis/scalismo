@@ -38,4 +38,3 @@ class DiscreteImage[D: NDSpace, A](domain: DiscreteImageDomain[D], values: Index
   }
 
 }
-

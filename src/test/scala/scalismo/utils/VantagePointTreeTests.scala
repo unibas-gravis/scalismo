@@ -16,7 +16,7 @@
 package scalismo.utils
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{ Point, _2D, _3D }
+import scalismo.geometry.{_2D, _3D, Point}
 
 import scala.collection.immutable.IndexedSeq
 
@@ -25,7 +25,8 @@ class VantagePointTreeTests extends ScalismoTestSuite {
   // seeded random generator
   implicit val rnd = Random(42)
 
-  def randomPoint()(implicit rnd: Random): Point[_3D] = Point(rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble())
+  def randomPoint()(implicit rnd: Random): Point[_3D] =
+    Point(rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble())
 
   // test size, VP size, lookup size
   val n = 50
@@ -87,15 +88,15 @@ class VantagePointTreeTests extends ScalismoTestSuite {
       val vpClosest = rpoints.map(p => t.findKNearestNeighbours(p, k))
       val listClosest = rpoints.map(p => points.sortBy(metric(_, p)).take(k))
       // for each query point we should find the same k neighbors
-      for { (vp, lin) <- vpClosest zip listClosest }
-        vp should contain theSameElementsAs lin
+      for { (vp, lin) <- vpClosest zip listClosest } vp should contain theSameElementsAs lin
     }
 
     it("finds all neighbours within an epsilon region around random points") {
       val eps = 0.2
       val rpoints = IndexedSeq.fill(nQuery)(randomPoint)
       val vpClosest = rpoints.map(p => t.findEpsilonNeighbours(p, eps))
-      val listClosest = rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
+      val listClosest =
+        rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
       vpClosest.zip(listClosest).foreach {
         case (vpLookUp, linLookUp) => vpLookUp should contain theSameElementsAs linLookUp
       }
@@ -105,19 +106,15 @@ class VantagePointTreeTests extends ScalismoTestSuite {
       val eps = 0.2
       val rpoints = points.take(nQuery)
       val vpClosest = rpoints.map(p => t.findEpsilonNeighbours(p, eps))
-      val listClosest = rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
-      for { (vp, lin) <- vpClosest zip listClosest }
-        vp should contain theSameElementsAs lin
+      val listClosest =
+        rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
+      for { (vp, lin) <- vpClosest zip listClosest } vp should contain theSameElementsAs lin
     }
 
     it("finds all points within epsilon distance in a small tree") {
       // regression test: possible issue is usage of a partial ordering in the CandidateSet
       // used SortedSet which assumed elements with same distance to be equal (even if different point)
-      val points = IndexedSeq(
-        Point(0.0, 0.0),
-        Point(0.0, 1.0),
-        Point(0.0, 2.0)
-      )
+      val points = IndexedSeq(Point(0.0, 0.0), Point(0.0, 1.0), Point(0.0, 2.0))
       val tree = VantagePointTree(points, Metric[Point[_2D]]((p, q) => (p - q).norm))
 
       val epsSet = tree.findEpsilonNeighbours(Point(0.0, 1.0), 4.0)

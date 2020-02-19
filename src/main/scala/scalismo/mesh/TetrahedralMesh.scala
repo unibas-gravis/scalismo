@@ -30,8 +30,10 @@ case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3, ptId4)
 
   /** Ordered list of the triangles of the tetrahedron. */
-  val triangles = Seq(TriangleCell(ptId1, ptId2, ptId3), TriangleCell(ptId1, ptId2, ptId4),
-    TriangleCell(ptId1, ptId3, ptId4), TriangleCell(ptId2, ptId3, ptId4))
+  val triangles = Seq(TriangleCell(ptId1, ptId2, ptId3),
+                      TriangleCell(ptId1, ptId4, ptId2),
+                      TriangleCell(ptId1, ptId3, ptId4),
+                      TriangleCell(ptId2, ptId4, ptId3))
 
   /** Returns true if @ptId is one of the point ids of the tetrahedral. */
   def containsPoint(ptId: PointId): Boolean = {
@@ -64,11 +66,13 @@ trait TetrahedralMesh[D] {
 
 object TetrahedralMesh {
 
-  def apply[D: NDSpace](pointList: IndexedSeq[Point[D]], topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
+  def apply[D: NDSpace](pointList: IndexedSeq[Point[D]],
+                        topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(UnstructuredPointsDomain(pointList.toIndexedSeq), topology)
   }
 
-  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
+  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D],
+                        topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(pointSet, topology)
   }
 
@@ -78,7 +82,8 @@ object TetrahedralMesh {
   }
 
   trait Create3D extends Create[_3D] {
-    override def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TetrahedralList): TetrahedralMesh3D = {
+    override def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[_3D],
+                                        topology: TetrahedralList): TetrahedralMesh3D = {
       TetrahedralMesh3D(pointSet, topology)
     }
   }
@@ -89,7 +94,8 @@ object TetrahedralMesh {
 
 }
 
-case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedralization: TetrahedralList) extends TetrahedralMesh[_3D] {
+case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedralization: TetrahedralList)
+    extends TetrahedralMesh[_3D] {
 
   // val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val tetrahedrons: IndexedSeq[TetrahedralCell] = tetrahedralization.tetrahedrons
@@ -136,16 +142,11 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   /** Returns the Barycentric coordinates of a point inside the indicated cell. */
   def getBarycentricCoordinates(point: Point[_3D], tetrathedron: TetrahedralCell): Array[Double] = {
 
-    val a = pointSet.point(tetrathedron.ptId1).toVector
-    val b = pointSet.point(tetrathedron.ptId2).toVector
-    val c = pointSet.point(tetrathedron.ptId3).toVector
-    val d = pointSet.point(tetrathedron.ptId4).toVector
-
-    val barycentricCoordinates = new Array[Double](4)
-    val vtkTetra = new vtkTetra()
-    vtkTetra.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
-    vtkTetra.Delete()
-    barycentricCoordinates
+    val a = pointSet.point(tetrathedron.ptId1)
+    val b = pointSet.point(tetrathedron.ptId2)
+    val c = pointSet.point(tetrathedron.ptId3)
+    val d = pointSet.point(tetrathedron.ptId4)
+    BarycentricCoordinates4.pointInTetrahedron(point, a, b, c, d).toArray
   }
 
   /** Returns true for points within a tetrahedron defined by the indicated cell. */
@@ -162,7 +163,9 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
     // note: replace call to vtk with own implementation
     val barycentricCoordinates = getBarycentricCoordinates(point, tetrahedron)
 
-    val normalized = barycentricCoordinates.map { e => if (Math.abs(e) <= 1E-8) 0.0 else e }
+    val normalized = barycentricCoordinates.map { e =>
+      if (Math.abs(e) <= 1e-8) 0.0 else e
+    }
     val numberOfZeroEntries = countZeroEntries(normalized)
     hasOnlyStrictPositiveElements(normalized) || (numberOfZeroEntries == 2) || (numberOfZeroEntries == 3)
   }
@@ -170,37 +173,24 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
   /**
    * Returns a random point lying within the tetrahedron defined by the indicated cell.
    *
-   * A uniform distribution is used for sampling points.
+   * The sampled points follow a uniform distribution within the tetrahedron. The method
+   * if based on the paper Generating Random Points in a Tetrahedron" from Rocchini et. al.:
+   * https://www.tandfonline.com/doi/abs/10.1080/10867651.2000.10487528
    *
-   * @param tc   Tetrahedral cell in which to draw a random point
-   * @param rnd implicit Random object
+   * @param tc  Tetrahedral cell of the mesh, in which to draw a random point
+   * @param rnd implicit [[Random]] object
    */
   def samplePointInTetrahedralCell(tc: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
-    val A = pointSet.point(tc.ptId2) - pointSet.point(tc.ptId1)
-    val B = pointSet.point(tc.ptId3) - pointSet.point(tc.ptId1)
-    val C = pointSet.point(tc.ptId4) - pointSet.point(tc.ptId1)
-
-    val s = rnd.scalaRandom.nextDouble()
-    val t = rnd.scalaRandom.nextDouble()
-    val u = rnd.scalaRandom.nextDouble()
-    if (s + t + u <= 1) {
-      (A * s + B * t + C * u).toPoint
-    } else if ((s + t + u > 1) && (t + u > 1)) {
-      (A * s + B * (1 - u) + C * (1 - s - t)).toPoint
-    } else if ((s + t + u > 1) && (t + u <= 1)) {
-      (A * (1 - t - u) + B * t + C * (s + t + u - 1)).toPoint
-    } else {
-      throw new Exception("This should never be reached.")
-    }
+    val bc = BarycentricCoordinates4.randomUniform
+    (bc.a *: pointSet.point(tc.ptId1).toVector +
+      bc.b *: pointSet.point(tc.ptId2).toVector +
+      bc.c *: pointSet.point(tc.ptId3).toVector +
+      bc.d *: pointSet.point(tc.ptId4).toVector).toPoint
   }
 }
 
 object TetrahedralMesh3D {
   def apply(points: IndexedSeq[Point[_3D]], topology: TetrahedralList): TetrahedralMesh3D = {
-    TetrahedralMesh3D(
-      UnstructuredPointsDomain(points.toIndexedSeq),
-      topology
-    )
+    TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), topology)
   }
 }
-

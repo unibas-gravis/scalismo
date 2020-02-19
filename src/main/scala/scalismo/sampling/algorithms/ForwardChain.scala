@@ -15,10 +15,11 @@
  */
 package scalismo.sampling.algorithms
 
-import scalismo.sampling.{ MarkovChain, ProposalGenerator }
+import scalismo.sampling.{MarkovChain, ProposalGenerator}
 
 /** Markov chain which draws the next sample from a proposal distribution */
 class ForwardChain[A](proposalGenerator: ProposalGenerator[A]) extends MarkovChain[A] {
+
   /** next sample in chain */
   override def next(current: A): A = proposalGenerator.propose(current)
 }

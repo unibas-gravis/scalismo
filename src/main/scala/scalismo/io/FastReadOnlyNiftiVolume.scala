@@ -25,7 +25,7 @@ import scalismo.io.FastReadOnlyNiftiVolume.NiftiHeader
 import spire.math.{UByte, UInt, UShort}
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{TypeTag, typeOf}
+import scala.reflect.runtime.universe.{typeOf, TypeTag}
 import scala.util.Try
 
 /**
@@ -96,7 +96,12 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     val arrayLength = nx * ny * nz * dim
 
-    def loadArray[U: ClassTag, O](sizeof: Int, load: MappedByteBuffer => U, toDouble: U => Double, fromDouble: Double => O, downcast: O => U, toScalarArray: Array[U] => ScalarArray[O]): ScalarArray[O] = {
+    def loadArray[U: ClassTag, O](sizeof: Int,
+                                  load: MappedByteBuffer => U,
+                                  toDouble: U => Double,
+                                  fromDouble: Double => O,
+                                  downcast: O => U,
+                                  toScalarArray: Array[U] => ScalarArray[O]): ScalarArray[O] = {
       val file = new RandomAccessFile(filename, "r")
       val channel = file.getChannel
       val mapped = channel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, arrayLength * sizeof)
@@ -124,39 +129,79 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     import Scalar._
 
-    val loadShort = if (header.isLittleEndian) { m: MappedByteBuffer => JShort.reverseBytes(m.getShort) } else { m: MappedByteBuffer => m.getShort }
-    val loadChar = { m: MappedByteBuffer => loadShort(m).toChar }
-    val loadInt = if (header.isLittleEndian) { m: MappedByteBuffer => Integer.reverseBytes(m.getInt) } else { m: MappedByteBuffer => m.getInt }
-    val loadFloat = if (header.isLittleEndian) { m: MappedByteBuffer => JFloat.intBitsToFloat(Integer.reverseBytes(m.getInt)) } else { m: MappedByteBuffer => m.getFloat }
-    val loadDouble = if (header.isLittleEndian) { m: MappedByteBuffer => JDouble.longBitsToDouble(JLong.reverseBytes(m.getLong)) } else { m: MappedByteBuffer => m.getDouble }
+    val loadShort = if (header.isLittleEndian) { m: MappedByteBuffer =>
+      JShort.reverseBytes(m.getShort)
+    } else { m: MappedByteBuffer =>
+      m.getShort
+    }
+    val loadChar = { m: MappedByteBuffer =>
+      loadShort(m).toChar
+    }
+    val loadInt = if (header.isLittleEndian) { m: MappedByteBuffer =>
+      Integer.reverseBytes(m.getInt)
+    } else { m: MappedByteBuffer =>
+      m.getInt
+    }
+    val loadFloat = if (header.isLittleEndian) { m: MappedByteBuffer =>
+      JFloat.intBitsToFloat(Integer.reverseBytes(m.getInt))
+    } else { m: MappedByteBuffer =>
+      m.getFloat
+    }
+    val loadDouble = if (header.isLittleEndian) { m: MappedByteBuffer =>
+      JDouble.longBitsToDouble(JLong.reverseBytes(m.getLong))
+    } else { m: MappedByteBuffer =>
+      m.getDouble
+    }
 
     val out = header.datatype match {
       case NIFTI_TYPE_INT8 =>
-        loadArray[Byte, Byte](1, _.get, _.toDouble, _.toByte, { x => x }, Scalar.ByteIsScalar.createArray)
+        loadArray[Byte, Byte](1, _.get, _.toDouble, _.toByte, { x =>
+          x
+        }, Scalar.ByteIsScalar.createArray)
 
       case NIFTI_TYPE_UINT8 =>
-        val toDouble = { x: Byte => if (x >= 0) x.toDouble else x.toDouble + 256.0 }
+        val toDouble = { x: Byte =>
+          if (x >= 0) x.toDouble else x.toDouble + 256.0
+        }
         loadArray[Byte, UByte](1, _.get, toDouble, UByteIsScalar.fromDouble, _.toByte, UByteIsScalar.createArray)
 
       case NIFTI_TYPE_INT16 =>
-        loadArray[Short, Short](2, loadShort, _.toDouble, _.toShort, { x => x }, ShortIsScalar.createArray)
+        loadArray[Short, Short](2, loadShort, _.toDouble, _.toShort, { x =>
+          x
+        }, ShortIsScalar.createArray)
 
       case NIFTI_TYPE_UINT16 =>
-        val toDouble = { x: Short => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 15) }
-        loadArray[Char, UShort](2, loadChar, { x => toDouble(x.toShort) }, UShortIsScalar.fromDouble, _.toChar, UShortIsScalar.createArray)
+        val toDouble = { x: Short =>
+          if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 15)
+        }
+        loadArray[Char, UShort](2, loadChar, { x =>
+          toDouble(x.toShort)
+        }, UShortIsScalar.fromDouble, _.toChar, UShortIsScalar.createArray)
 
       case NIFTI_TYPE_INT32 =>
-        loadArray[Int, Int](4, loadInt, _.toDouble, _.toInt, { x => x }, IntIsScalar.createArray)
+        loadArray[Int, Int](4, loadInt, _.toDouble, _.toInt, { x =>
+          x
+        }, IntIsScalar.createArray)
 
       case NIFTI_TYPE_UINT32 =>
-        val toDouble = { x: Int => if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 31) }
+        val toDouble = { x: Int =>
+          if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 31)
+        }
         loadArray[Int, UInt](4, loadInt, toDouble, UIntIsScalar.fromDouble, _.toInt, UIntIsScalar.createArray)
 
       case NIFTI_TYPE_FLOAT32 =>
-        loadArray[Float, Float](4, loadFloat, _.toDouble, _.toFloat, { x => x }, FloatIsScalar.createArray)
+        loadArray[Float, Float](4, loadFloat, _.toDouble, _.toFloat, { x =>
+          x
+        }, FloatIsScalar.createArray)
 
       case NIFTI_TYPE_FLOAT64 =>
-        loadArray[Double, Double](8, loadDouble, { x => x }, { x => x }, { x => x }, DoubleIsScalar.createArray)
+        loadArray[Double, Double](8, loadDouble, { x =>
+          x
+        }, { x =>
+          x
+        }, { x =>
+          x
+        }, DoubleIsScalar.createArray)
 
       case _ => throw new UnsupportedOperationException(f"Unsupported Nifti data type ${header.datatype}")
     }
@@ -222,7 +267,7 @@ object FastReadOnlyNiftiVolume {
         typeOf[T] match {
           case t if t <:< typeOf[Short] => shortAt(offset + 2 * index).asInstanceOf[T]
           case t if t <:< typeOf[Float] => floatAt(offset + 4 * index).asInstanceOf[T]
-          case _ => throw new Throwable(s"Unsupported datatype ${typeOf[T]}")
+          case _                        => throw new Throwable(s"Unsupported datatype ${typeOf[T]}")
         }
       }
     }

@@ -1,11 +1,11 @@
 package scalismo.statisticalmodel.dataset
 
 import scalismo.geometry._3D
-import scalismo.mesh.{ MeshMetrics, TriangleMesh }
+import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.statisticalmodel.StatisticalMeshModel
 import scalismo.utils.Random
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 /**
  * Implements utility functions for evaluating the quality of a [[StatisticalMeshModel]]
@@ -32,12 +32,15 @@ object ModelMetrics {
    * These steps are then repeated nbSamples times and the average value is returned.
    *
    */
-
-  def specificity(pcaModel: StatisticalMeshModel, data: Iterable[TriangleMesh[_3D]], nbSamples: Int)(implicit rng: Random): Double = {
+  def specificity(pcaModel: StatisticalMeshModel, data: Iterable[TriangleMesh[_3D]], nbSamples: Int)(
+    implicit rng: Random
+  ): Double = {
 
     (0 until nbSamples).par.map { _ =>
       val sample = pcaModel.sample
-      data.map { m => MeshMetrics.avgDistance(m, sample) }.min
+      data.map { m =>
+        MeshMetrics.avgDistance(m, sample)
+      }.min
     }.sum * (1.0 / nbSamples)
   }
 
@@ -54,7 +57,6 @@ object ModelMetrics {
    * To be able to perform the projection, it is important that the data collection is in correspondence with the model.
    * The returned value is a scala.util.Try containing the average over all test data in case of success, or an Exception otherwise
    */
-
   def generalization(pcaModel: StatisticalMeshModel, dc: DataCollection): Try[Double] = {
 
     if (pcaModel.referenceMesh == dc.reference) Success {
@@ -63,8 +65,7 @@ object ModelMetrics {
         val projection = pcaModel.project(mesh)
         MeshMetrics.avgDistance(projection, mesh)
       }.sum / dc.size.toDouble
-    }
-    else Failure(new Exception("pca model and test data collection must have the same reference"))
+    } else Failure(new Exception("pca model and test data collection must have the same reference"))
   }
 
 }

@@ -64,7 +64,10 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       // The difference is, however , guaranteed to be smaller than the spacing in each direction. This is also
       // the difference between bounding and image box.
       newDomain.boundingBox.volume should be >= domain.boundingBox.volume
-      newDomain.boundingBox.volume should be <= BoxDomain(domain.boundingBox.origin, domain.boundingBox.oppositeCorner + EuclideanVector(1.0, 1.0)).volume
+      newDomain.boundingBox.volume should be <= BoxDomain(
+        domain.boundingBox.origin,
+        domain.boundingBox.oppositeCorner + EuclideanVector(1.0, 1.0)
+      ).volume
     }
 
     it("identifies the closest point correctly") {
@@ -172,7 +175,9 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
       assert(inverseTrans(img.domain.origin).toVector.norm < 0.1)
 
       (trans(Point(img.domain.size(0) - 1, img.domain.size(1) - 1, img.domain.size(2) - 1)) - img.domain.boundingBox.oppositeCorner).norm should be < 0.1
-      (inverseTrans(img.domain.boundingBox.oppositeCorner) - Point(img.domain.size(0) - 1, img.domain.size(1) - 1, img.domain.size(2) - 1)).norm should be < 0.1
+      (inverseTrans(img.domain.boundingBox.oppositeCorner) - Point(img.domain.size(0) - 1,
+                                                                   img.domain.size(1) - 1,
+                                                                   img.domain.size(2) - 1)).norm should be < 0.1
     }
 
     it("Domain points in chunks returns the correct list of points") {

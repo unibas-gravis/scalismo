@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.common.BoxDomain
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{_3D, Point}
 import scalismo.numerics.UniformSampler
 import scalismo.registration.LandmarkRegistration
 import scalismo.utils.Random
@@ -31,7 +31,6 @@ object MeshMetrics {
    * For each point of the first mesh, this method computes the shortest distance to the surface of the
    * second mesh and returns the average over all points
    */
-
   def avgDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
 
     val dists = for (ptM1 <- m1.pointSet.points) yield {
@@ -99,13 +98,16 @@ object MeshMetrics {
     val imgA = m1.operations.toBinaryImage
     val imgB = m2.operations.toBinaryImage
 
-    def minPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.min(pt1(0), pt2(0)), math.min(pt1(1), pt2(1)), math.min(pt1(2), pt2(2)))
+    def minPoint(pt1: Point[_3D], pt2: Point[_3D]) =
+      Point(math.min(pt1(0), pt2(0)), math.min(pt1(1), pt2(1)), math.min(pt1(2), pt2(2)))
 
-    def maxPoint(pt1: Point[_3D], pt2: Point[_3D]) = Point(math.max(pt1(0), pt2(0)), math.max(pt1(1), pt2(1)), math.max(pt1(2), pt2(2)))
+    def maxPoint(pt1: Point[_3D], pt2: Point[_3D]) =
+      Point(math.max(pt1(0), pt2(0)), math.max(pt1(1), pt2(1)), math.max(pt1(2), pt2(2)))
 
     val box1 = m1.pointSet.boundingBox
     val box2 = m2.pointSet.boundingBox
-    val evaluationRegion = BoxDomain(minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
+    val evaluationRegion =
+      BoxDomain(minPoint(box1.origin, box2.origin), maxPoint(box1.oppositeCorner, box2.oppositeCorner))
 
     val sampler = UniformSampler[_3D](evaluationRegion, 10000)
     val samplePts = sampler.sample().map(_._1)

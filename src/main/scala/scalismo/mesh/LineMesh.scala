@@ -16,7 +16,7 @@
 
 package scalismo.mesh
 
-import scalismo.common.{ Cell, PointId, UnstructuredPointsDomain }
+import scalismo.common.{Cell, PointId, UnstructuredPointsDomain}
 import scalismo.geometry._
 
 import scala.language.implicitConversions
@@ -107,7 +107,9 @@ object LineMesh {
 
         require(adjLines.size <= 2)
 
-        val adjLine = if (adjLines.head == curLine || adjLines.head == LineCell(curLine.ptId2, curLine.ptId1)) adjLines.last else adjLines.head
+        val adjLine =
+          if (adjLines.head == curLine || adjLines.head == LineCell(curLine.ptId2, curLine.ptId1)) adjLines.last
+          else adjLines.head
 
         val newAdjLine = if (adjLine.ptId1 == curLine.ptId2) {
           adjLine
@@ -123,7 +125,8 @@ object LineMesh {
   }
 }
 
-case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], override val topology: LineList) extends LineMesh[_2D](pointSet, topology) {
+case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], override val topology: LineList)
+    extends LineMesh[_2D](pointSet, topology) {
 
   /** Get all cell normals as a surface property */
   lazy val cellNormals: LineProperty[EuclideanVector[_2D]] = {
@@ -131,7 +134,6 @@ case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], over
   }
 
   /** Get all vertex normals as a surface property */
-
   lazy val vertexNormals: ContourPointProperty[EuclideanVector[_2D]] = {
 
     ContourPointProperty.averagedPointProperty(topology, cellNormals)
@@ -149,13 +151,11 @@ case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], over
 
 }
 
-case class LineMesh3D(override val pointSet: UnstructuredPointsDomain[_3D], override val topology: LineList) extends LineMesh[_3D](pointSet, topology) {
-
-}
+case class LineMesh3D(override val pointSet: UnstructuredPointsDomain[_3D], override val topology: LineList)
+    extends LineMesh[_3D](pointSet, topology) {}
 
 /** property constant per line */
-case class LineProperty[A](topology: LineList, lineData: IndexedSeq[A])
-    extends LineContourProperty[A] {
+case class LineProperty[A](topology: LineList, lineData: IndexedSeq[A]) extends LineContourProperty[A] {
   require(lineData.size == topology.lines.size)
 
   override def onContour(lineId: LineId, bcc: LineCoordinates): A = lineData(lineId.id)

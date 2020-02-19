@@ -16,7 +16,7 @@
 package scalismo.common
 
 import scalismo.geometry._
-import scalismo.registration.{ CanInvert, Transformation }
+import scalismo.registration.{CanInvert, Transformation}
 
 trait Domain[D] {
   self =>
@@ -64,7 +64,8 @@ trait BoxDomain[D] extends Domain[D] {
   }
 
   val extent: EuclideanVector[D] = oppositeCorner - origin
-  val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
+  val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i))
+  )
 
 }
 
@@ -95,7 +96,7 @@ case class BoxDomain2D(origin: Point2D, oppositeCorner: Point2D) extends BoxDoma
   override def isDefinedAt(p: Point[_2D]): Boolean = {
     val pt: Point2D = p
     pt.x >= origin.x && pt.x <= oppositeCorner.x &&
-      pt.y >= origin.y && pt.y <= oppositeCorner.y
+    pt.y >= origin.y && pt.y <= oppositeCorner.y
   }
 }
 
@@ -103,7 +104,7 @@ case class BoxDomain3D(origin: Point3D, oppositeCorner: Point3D) extends BoxDoma
   override def isDefinedAt(p: Point[_3D]): Boolean = {
     val pt: Point3D = p
     pt.x >= origin.x && pt.x <= oppositeCorner.x &&
-      pt.y >= origin.y && pt.y <= oppositeCorner.y &&
-      pt.z >= origin.z && pt.z <= oppositeCorner.z
+    pt.y >= origin.y && pt.y <= oppositeCorner.y &&
+    pt.z >= origin.z && pt.z <= oppositeCorner.z
   }
 }

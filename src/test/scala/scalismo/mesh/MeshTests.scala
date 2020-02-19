@@ -20,11 +20,11 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ PointId, UnstructuredPointsDomain }
+import scalismo.common.{PointId, UnstructuredPointsDomain}
 import scalismo.geometry.Point.implicits._
-import scalismo.geometry.{ Point, _3D }
+import scalismo.geometry.{_3D, Point}
 import scalismo.io.MeshIO
-import scalismo.registration.{ RotationSpace, ScalingSpace }
+import scalismo.registration.{RotationSpace, ScalingSpace}
 
 import scala.language.implicitConversions
 
@@ -68,7 +68,7 @@ class MeshTests extends ScalismoTestSuite {
       val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
       val transformedMesh = mesh.transform(R).transform(s)
       mesh.area should be(0.5 +- 1e-8)
-      transformedMesh.area should be(4.0f * mesh.area +- 1e-5) // scaling by two gives 4 times the area 
+      transformedMesh.area should be(4.0f * mesh.area +- 1e-5) // scaling by two gives 4 times the area
     }
 
     it("computes the right binary image for the unit sphere") {

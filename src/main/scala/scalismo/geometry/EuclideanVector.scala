@@ -185,7 +185,8 @@ case class EuclideanVector3D(x: Double, y: Double, z: Double) extends EuclideanV
     EuclideanVector3D(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x)
   }
 
-  override def mapWithIndex(f: (Double, Int) => Double): EuclideanVector3D = EuclideanVector3D(f(x, 0), f(y, 1), f(z, 2))
+  override def mapWithIndex(f: (Double, Int) => Double): EuclideanVector3D =
+    EuclideanVector3D(f(x, 0), f(y, 1), f(z, 2))
 
 }
 
@@ -252,9 +253,7 @@ object EuclideanVector {
    * @param r radial distance, 0 .. infinity
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromPolar(r: Double, phi: Double): EuclideanVector[_2D] = EuclideanVector(
-    r * math.cos(phi),
-    r * math.sin(phi))
+  def fromPolar(r: Double, phi: Double): EuclideanVector[_2D] = EuclideanVector(r * math.cos(phi), r * math.sin(phi))
 
   /**
    * create a Cartesian vector from spherical coordinates
@@ -263,25 +262,25 @@ object EuclideanVector {
    * @param theta inclination, 0 .. Pi
    * @param phi azimuth, 0 .. 2*Pi
    */
-  def fromSpherical(r: Double, theta: Double, phi: Double): EuclideanVector[_3D] = EuclideanVector(
-    (r * math.cos(phi) * math.sin(theta)),
-    (r * math.sin(phi) * math.sin(theta)),
-    r * math.cos(theta))
+  def fromSpherical(r: Double, theta: Double, phi: Double): EuclideanVector[_3D] =
+    EuclideanVector((r * math.cos(phi) * math.sin(theta)), (r * math.sin(phi) * math.sin(theta)), r * math.cos(theta))
 
   /** spire VectorSpace implementation for Vector */
   implicit def spireVectorSpace[D: NDSpace] = new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
-    override implicit def scalar: Field[Double] = Field[Double]
+    implicit override def scalar: Field[Double] = Field[Double]
     override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
     override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
     override def zero: EuclideanVector[D] = zeros[D]
-    override def plus(x: EuclideanVector[D], y: EuclideanVector[D]): EuclideanVector[D] = x.mapWithIndex((f, i) => f + y(i))
+    override def plus(x: EuclideanVector[D], y: EuclideanVector[D]): EuclideanVector[D] =
+      x.mapWithIndex((f, i) => f + y(i))
   }
 
   object implicits {
     implicit def Vector1DToDouble(v: EuclideanVector[_1D]): Double = v.x
     implicit def doubleToVector1D(f: Double): EuclideanVector[_1D] = EuclideanVector(f)
     implicit def tupleOfDoubleToVector2D(t: (Double, Double)): EuclideanVector[_2D] = EuclideanVector(t._1, t._2)
-    implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)): EuclideanVector[_3D] = EuclideanVector(t._1, t._2, t._3)
+    implicit def tupleOfDoubleToVector3D(t: (Double, Double, Double)): EuclideanVector[_3D] =
+      EuclideanVector(t._1, t._2, t._3)
   }
 
   implicit def parametricToConcrete1D(p: EuclideanVector[_1D]): EuclideanVector1D = p.asInstanceOf[EuclideanVector1D]
@@ -300,7 +299,7 @@ object EuclideanVector {
     override def equals(that: Any): Boolean = {
       that match {
         case t: VectorVectorizer[D] => true
-        case _ => false
+        case _                      => false
       }
     }
   }
@@ -310,4 +309,3 @@ object EuclideanVector {
   implicit val Vector3DVectorizer = new VectorVectorizer[_3D]
 
 }
-

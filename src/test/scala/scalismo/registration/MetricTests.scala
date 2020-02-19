@@ -24,9 +24,9 @@ import scalismo.common.BoxDomain
 import scalismo.common.interpolation.BSplineImageInterpolator2D
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain }
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
 import scalismo.io.ImageIO
-import scalismo.numerics.{ GridSampler, LBFGSOptimizer, UniformSampler }
+import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
 import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
@@ -38,11 +38,13 @@ class MetricTests extends ScalismoTestSuite {
 
       val domain = BoxDomain(0.0, 1.0)
       val img = DifferentiableScalarImage(BoxDomain(0.0, 1.0),
-        (x: Point[_1D]) => (x * x).toFloat,
-        (x: Point[_1D]) => EuclideanVector(2.0) * x(0))
+                                          (x: Point[_1D]) => (x * x).toFloat,
+                                          (x: Point[_1D]) => EuclideanVector(2.0) * x(0))
       val transSpace = TranslationSpace[_1D]
       val sampler = UniformSampler(domain, 1000)
-      MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformParameters) should be(0.0 +- 0.001)
+      MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformParameters) should be(
+        0.0 +- 0.001
+      )
     }
   }
 
@@ -86,7 +88,8 @@ class MetricTests extends ScalismoTestSuite {
       val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, movingImage, translationSpace, sampler)
 
       val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
-      val regIt = Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
+      val regIt =
+        Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
       val finalParams = regIt.toIndexedSeq.last.parameters
 
       breeze.linalg.norm(finalParams - trueParams) should be < 1e-1
@@ -133,7 +136,8 @@ class MetricTests extends ScalismoTestSuite {
       val metric = MeanHuberLossMetric(fixedImageCont, movingImage, translationSpace, sampler)
 
       val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
-      val regIt = Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
+      val regIt =
+        Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
       val regSteps = regIt.toIndexedSeq
       val finalParams = regSteps.last.parameters
 

@@ -19,7 +19,7 @@ import ncsa.hdf.`object`.Group
 import scalismo.io.HDF5File
 
 import scala.collection.immutable.TreeMap
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 // TODO: naming to be discussed (also within the entire project). Right now, I'm using a mix of both styles
 // ("Hdf5", but "IO"), according to the rule "Camel-case acronyms, but only if they're longer than 2 characters."
@@ -30,6 +30,7 @@ import scala.util.{ Failure, Success, Try }
  * a unique identifier used for serialization purposes.
  */
 trait HasIOIdentifier {
+
   /**
    * An identifier uniquely identifying the kind of object.
    * Note: the prefix "builtin::" is reserved for identifiers of objects that are shipped with the scalismo framework.
@@ -64,6 +65,7 @@ trait HasIOMetadata {
  * @tparam T the type of objects which can be constructed from the information present in HDF5 files, and saved into such files.
  */
 trait Hdf5IOHandler[T <: HasIOMetadata] {
+
   /**
    * Load (instantiate) an object of type T from the information in an HDF5 file.
    * The IO metadata present in the file, as well as the file and group with the file, are provided as arguments, so that implementations can read additional data that
@@ -181,8 +183,13 @@ class IOHandlers[T <: HasIOMetadata, IO <: IOHandler[T]] {
   def find(identifier: String): Try[IO] = {
     instances.get(identifier) match {
       case Some(value) => Success(value)
-      case None => Failure(new IllegalArgumentException(s"No instance found for identifier=$identifier." +
-        " You may need to call " + this.getClass.getName + ".register() once to make the implementation available."))
+      case None =>
+        Failure(
+          new IllegalArgumentException(
+            s"No instance found for identifier=$identifier." +
+              " You may need to call " + this.getClass.getName + ".register() once to make the implementation available."
+          )
+        )
     }
   }
 
@@ -218,4 +225,3 @@ class IOHandlers[T <: HasIOMetadata, IO <: IOHandler[T]] {
     } yield ()
   }
 }
-

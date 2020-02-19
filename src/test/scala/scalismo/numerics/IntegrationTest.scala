@@ -19,7 +19,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{ DifferentiableScalarImage, DiscreteImageDomain, ScalarImage }
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, ScalarImage}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -34,7 +34,8 @@ class IntegrationTest extends ScalismoTestSuite {
     it("Correctly integrates x squared on interval [-1,1]") {
 
       val domain = BoxDomain(0f, 1.0f)
-      val img = DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => EuclideanVector(2f) * x(0))
+      val img =
+        DifferentiableScalarImage(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => EuclideanVector(2f) * x(0))
 
       val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), IntVector(255))
       val integrator = Integrator[_1D](GridSampler(grid))
@@ -52,7 +53,9 @@ class IntegrationTest extends ScalismoTestSuite {
       )
 
       val numPoints = 1000
-      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat), EuclideanVector(2 * math.Pi.toFloat / numPoints), IntVector(numPoints))
+      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat),
+                                     EuclideanVector(2 * math.Pi.toFloat / numPoints),
+                                     IntVector(numPoints))
       val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)

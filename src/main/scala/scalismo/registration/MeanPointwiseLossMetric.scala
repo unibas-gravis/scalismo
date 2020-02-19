@@ -17,9 +17,9 @@
 package scalismo.registration
 
 import breeze.linalg.DenseVector
-import scalismo.common.{ Domain, Scalar }
-import scalismo.geometry.{ NDSpace, Point }
-import scalismo.image.{ DifferentiableScalarImage, ScalarImage }
+import scalismo.common.{Domain, Scalar}
+import scalismo.geometry.{NDSpace, Point}
+import scalismo.image.{DifferentiableScalarImage, ScalarImage}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 
@@ -28,12 +28,11 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
  * The total value of the metric is the mean of this pointwise loss. The points are determined by
  * the sampler.
  */
-
-abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
-    fixedImage: ScalarImage[D, A],
-    movingImage: DifferentiableScalarImage[D, A],
-    transformationSpace: TransformationSpace[D],
-    sampler: Sampler[D]) extends ImageMetric[D, A] {
+abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](fixedImage: ScalarImage[D, A],
+                                                              movingImage: DifferentiableScalarImage[D, A],
+                                                              transformationSpace: TransformationSpace[D],
+                                                              sampler: Sampler[D])
+    extends ImageMetric[D, A] {
 
   override val ndSpace: NDSpace[D] = implicitly[NDSpace[D]]
 
@@ -80,8 +79,7 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
     samples.par.map { case (pt, _) => metricValue(pt).getOrElse(0.0) }.sum / samples.size
   }
 
-  private def computeDerivative(parameters: DenseVector[Double],
-    sampler: Sampler[D]): DenseVector[Double] = {
+  private def computeDerivative(parameters: DenseVector[Double], sampler: Sampler[D]): DenseVector[Double] = {
 
     val transform = transformationSpace.transformForParameters(parameters)
 
@@ -95,7 +93,9 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
     val fullMetricGradient = (x: Point[D]) => {
       val domain = Domain.intersection(fixedImage.domain, dDMovingImage.domain)
       if (domain.isDefinedAt(x))
-        Some(dTransformSpaceDAlpha(x).t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector)
+        Some(
+          dTransformSpaceDAlpha(x).t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector
+        )
       else None
     }
 

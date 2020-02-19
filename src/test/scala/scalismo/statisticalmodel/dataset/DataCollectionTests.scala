@@ -20,13 +20,14 @@ import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.Field
+import scalismo.statisticalmodel.experimental.dataset.DataCollectionOfVolumeMesh
 import scalismo.geometry._
 import scalismo.io.MeshIO
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.mesh.{ MeshMetrics, TriangleMesh }
+import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.UniformMeshSampler3D
-import scalismo.registration.{ LandmarkRegistration, TranslationTransform }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel }
+import scalismo.registration.{LandmarkRegistration, TranslationTransform}
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
 
 class DataCollectionTests extends ScalismoTestSuite {
@@ -56,7 +57,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     it("considers every dataset in a leave one out test") {
       val folds = dataCollection.createLeaveOneOutFolds
 
-      // if we accumulated all the testing datasets, we should get all dataItems back. 
+      // if we accumulated all the testing datasets, we should get all dataItems back.
       val accumulatedTestingData = folds.foldLeft(Seq[DataItem[_3D]]())((acc, di) => acc :+ di.testingData.dataItems(0))
       val sortedAccTestData = accumulatedTestingData.sortWith((a, b) => a.info > b.info)
       val sortedDataItems = dataCollection.dataItems.sortWith((a, b) => a.info > b.info)
@@ -116,12 +117,19 @@ class DataCollectionTests extends ScalismoTestSuite {
   object Fixture {
 
     val path: String = getClass.getResource("/nonAlignedFaces").getPath
-    val nonAlignedFaces = new File(URLDecoder.decode(path, "UTF-8")).listFiles.sortBy(_.getName).map { f => MeshIO.readMesh(f).get }.toIndexedSeq
+    val nonAlignedFaces = new File(URLDecoder.decode(path, "UTF-8")).listFiles
+      .sortBy(_.getName)
+      .map { f =>
+        MeshIO.readMesh(f).get
+      }
+      .toIndexedSeq
     val ref = nonAlignedFaces.head
     val dataset = nonAlignedFaces.tail
 
     val aligendDataset = dataset.map { d =>
-      val trans = LandmarkRegistration.rigid3DLandmarkRegistration((d.pointSet.points zip ref.pointSet.points).toIndexedSeq, Point(0, 0, 0))
+      val trans =
+        LandmarkRegistration.rigid3DLandmarkRegistration((d.pointSet.points zip ref.pointSet.points).toIndexedSeq,
+                                                         Point(0, 0, 0))
       d.transform(trans)
     }
 
@@ -154,7 +162,8 @@ class DataCollectionTests extends ScalismoTestSuite {
         distancesMeshesInDC.sum / distancesMeshesInDC.size
       }
 
-      averageDistanceToAllMeshes(Fixture.dc, Fixture.dc.meanSurface) should be > averageDistanceToAllMeshes(gpaDC, gpaMean)
+      averageDistanceToAllMeshes(Fixture.dc, Fixture.dc.meanSurface) should be > averageDistanceToAllMeshes(gpaDC,
+                                                                                                            gpaMean)
     }
 
     it("keeps the reference shape unchanged") {
@@ -170,16 +179,23 @@ class DataCollectionTests extends ScalismoTestSuite {
     val zeroMean = Field(Fixture.dc.reference.boundingBox, (pt: Point[_3D]) => EuclideanVector(0, 0, 0))
     val matrixValuedGaussian = DiagonalKernel(GaussianKernel[_3D](25) * 20, 3)
     val bias: GaussianProcess[_3D, EuclideanVector[_3D]] = GaussianProcess(zeroMean, matrixValuedGaussian)
-    val biasLowRank = LowRankGaussianProcess.approximateGPNystrom(bias, UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500), Fixture.pcaModel.rank + 5)
+    val biasLowRank =
+      LowRankGaussianProcess.approximateGPNystrom(bias,
+                                                  UniformMeshSampler3D(Fixture.pcaModel.referenceMesh, 500),
+                                                  Fixture.pcaModel.rank + 5)
     val augmentedModel = StatisticalMeshModel.augmentModel(Fixture.pcaModel, biasLowRank)
 
     it("gives the same values when evaluated 10 times on normal PCA Model") {
-      val gens = (0 until 10) map { _ => ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get }
+      val gens = (0 until 10) map { _ =>
+        ModelMetrics.generalization(Fixture.pcaModel, Fixture.testDC).get
+      }
       assert(gens.forall(_ - gens(0) < 1.0e-14))
     }
 
     it("gives the same values when evaluated 10 times on augmented model") {
-      val gens = (0 until 10) map { _ => ModelMetrics.generalization(augmentedModel, Fixture.testDC).get }
+      val gens = (0 until 10) map { _ =>
+        ModelMetrics.generalization(augmentedModel, Fixture.testDC).get
+      }
       assert(gens.forall(_ - gens(0) < 1.0e-14))
     }
 
@@ -192,72 +208,6 @@ class DataCollectionTests extends ScalismoTestSuite {
         assert(genAugmented < genOriginal)
       }
     }
-  }
-
-}
-
-class DataCollectionVolumeMeshTests extends ScalismoTestSuite {
-
-  implicit val rng = Random(42L)
-
-  describe("A datacollection Volume Mesh") {
-
-    val transformations = for (i <- 0 until 10) yield TranslationTransform(EuclideanVector(i.toDouble, 0.0, 0.0))
-    val dataItems = for ((t, i) <- transformations.zipWithIndex) yield DataItem(s"transformation-$i", t)
-    val meshPath = getClass.getResource("/tetraMesh.vtu").getPath
-    val referenceMesh = MeshIO.readTetrahedralMesh(new File(URLDecoder.decode(meshPath, "UTF-8"))).get
-
-    val dataCollection = DataCollectionOfVolumeMesh(referenceMesh, dataItems)
-
-    it("yields the right number of cross-validation folds") {
-      def createFolds(nFolds: Int) = {
-        dataCollection.createCrossValidationFolds(nFolds)
-      }
-
-      createFolds(1).size should be(1)
-      createFolds(4).size should be(4)
-      createFolds(2).size should be(2)
-      dataCollection.createLeaveOneOutFolds.size should be(dataItems.size)
-    }
-
-    it("considers every dataset in a leave one out test") {
-      val folds = dataCollection.createLeaveOneOutFolds
-
-      // if we accumulated all the testing datasets, we should get all dataItems back.
-      val accumulatedTestingData = folds.foldLeft(Seq[DataItem[_3D]]())((acc, di) => acc :+ di.testingData.dataItems(0))
-      val sortedAccTestData = accumulatedTestingData.sortWith((a, b) => a.info > b.info)
-      val sortedDataItems = dataCollection.dataItems.sortWith((a, b) => a.info > b.info)
-      sortedAccTestData should equal(sortedDataItems)
-
-    }
-
-    it("yields the right fold sizes for a leave one out test") {
-      for (fold <- dataCollection.createLeaveOneOutFolds) {
-        fold.trainingData.size should be(dataCollection.size - 1)
-        fold.testingData.size should be(1)
-        fold.trainingData.dataItems.contains(fold.testingData) should be(false)
-      }
-    }
-
-    it("has all distinct training datasets in a leave one out test") {
-      val folds = dataCollection.createLeaveOneOutFolds
-      for (fold <- folds) {
-        fold.trainingData.dataItems.toSet.size should be(fold.trainingData.size)
-      }
-
-    }
-
-    it("returns a mean surface, which is the arithmetic mean of the meshes represented by the collection") {
-      val computedMean = dataCollection.meanSurface
-      val meshes = dataCollection.dataItems.map(di => dataCollection.reference.transform(di.transformation))
-
-      for (pointId <- util.Random.shuffle(dataCollection.reference.pointSet.pointIds.toIndexedSeq).take(100)) {
-        val pointsOnMeshes = meshes.map(mesh => mesh.pointSet.point(pointId))
-        val meanOfPoint = pointsOnMeshes.foldLeft(Point(0, 0, 0))((acc, p) => acc + p.toVector / pointsOnMeshes.size)
-        (computedMean.pointSet.point(pointId) - meanOfPoint).norm should be < 1e-5
-      }
-    }
-
   }
 
 }

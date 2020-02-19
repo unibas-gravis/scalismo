@@ -16,7 +16,7 @@
 package scalismo.numerics
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.utils.Random
 
@@ -28,7 +28,8 @@ import scalismo.utils.Random
  */
 object RandomSVD {
 
-  def computeSVD(A: DenseMatrix[Double], k: Int)(implicit rand: Random): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
+  def computeSVD(A: DenseMatrix[Double],
+                 k: Int)(implicit rand: Random): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
 
     require(A.rows == A.cols) // might be removed later (check in Halko paper)
 

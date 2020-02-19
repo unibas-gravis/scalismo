@@ -20,6 +20,7 @@ import scalismo.common._
 import scalismo.geometry._
 import scalismo.kernels._
 import scalismo.utils.Random
+
 /**
  * A gaussian process from a D dimensional input space, whose input values are points,
  * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
@@ -28,8 +29,9 @@ import scalismo.utils.Random
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
  */
-class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value],
-    val cov: MatrixValuedPDKernel[D])(implicit val vectorizer: Vectorizer[Value]) {
+class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value], val cov: MatrixValuedPDKernel[D])(
+  implicit val vectorizer: Vectorizer[Value]
+) {
 
   def outputDim = vectorizer.dim
 
@@ -39,7 +41,9 @@ class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value],
    *
    * Sample values of the Gaussian process evaluated at the given points.
    */
-  def sampleAtPoints[DDomain <: DiscreteDomain[D]](domain: DDomain)(implicit rand: Random): DiscreteField[D, DDomain, Value] = {
+  def sampleAtPoints[DDomain <: DiscreteDomain[D]](
+    domain: DDomain
+  )(implicit rand: Random): DiscreteField[D, DDomain, Value] = {
     this.marginal(domain).sample()
   }
 
@@ -69,7 +73,8 @@ class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value],
    * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
    */
   def posterior(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): GaussianProcess[D, Value] = {
-    val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
+    val cov =
+      MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val fullTrainingData = trainingData.map { case (p, v) => (p, v, cov) }
     GaussianProcess.regression(this, fullTrainingData)
   }
@@ -78,7 +83,9 @@ class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value],
    * The posterior distribution of the gaussian process, with respect to the given trainingData.
    * It is computed using Gaussian process regression.
    */
-  def posterior(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): GaussianProcess[D, Value] = {
+  def posterior(
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  ): GaussianProcess[D, Value] = {
     GaussianProcess.regression(this, trainingData)
   }
 }
@@ -91,14 +98,18 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
+  def apply[D: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(
+    implicit vectorizer: Vectorizer[Value]
+  ): GaussianProcess[D, Value] = {
     new GaussianProcess[D, Value](mean, cov)
   }
 
   /**
    * Creates a new zero-mean Gaussian process with the given covariance function.
    */
-  def apply[D: NDSpace, Value](cov: MatrixValuedPDKernel[D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
+  def apply[D: NDSpace, Value](
+    cov: MatrixValuedPDKernel[D]
+  )(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
     val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
     val zeroField = Field[D, Value](RealSpace[D], (p: Point[D]) => zeroVec)
     GaussianProcess[D, Value](zeroField, cov)
@@ -110,8 +121,10 @@ object GaussianProcess {
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
    */
-  def regression[D: NDSpace, Value](gp: GaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
+  def regression[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  )(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
 
     val outputDim = vectorizer.dim
 
@@ -159,8 +172,10 @@ object GaussianProcess {
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  def marginalLikelihood[D: NDSpace, Value](gp: GaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)])(implicit vectorizer: Vectorizer[Value]): Double = {
+  def marginalLikelihood[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  )(implicit vectorizer: Vectorizer[Value]): Double = {
 
     val outputDim = gp.outputDim
 

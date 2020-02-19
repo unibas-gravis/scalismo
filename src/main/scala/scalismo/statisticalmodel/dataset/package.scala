@@ -21,6 +21,4 @@ package scalismo.statisticalmodel
  * The most important class of this package is the [[scalismo.statisticalmodel.dataset.DataCollection]].
  *
  */
-package object dataset {
-
-}
+package object dataset {}

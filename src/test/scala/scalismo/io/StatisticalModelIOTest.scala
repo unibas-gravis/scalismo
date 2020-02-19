@@ -22,77 +22,9 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
-import scalismo.kernels.{ DiagonalKernel, GaussianKernel }
-import scalismo.statisticalmodel.{ GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel, StatisticalVolumeMeshModel }
-
-class StatisticalVolumeMeshModelIOTest extends ScalismoTestSuite {
-
-  describe("a Statismo Mesh volume Model") {
-
-    def assertModelAlmostEqual(model1: StatisticalVolumeMeshModel, model2: StatisticalVolumeMeshModel): Unit = {
-      assert(model1.mean == model2.mean)
-      assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
-      assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
-    }
-
-    it("can be written and read again") {
-      val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
-      )
-      val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit()
-
-      val t = for {
-        model <- StatismoIO.readStatismoVolumeMeshModel(statismoFile)
-        _ <- StatismoIO.writeStatismoVolumeMeshModel(model, dummyFile)
-        readModel <- StatismoIO.readStatismoVolumeMeshModel(dummyFile)
-      } yield {
-        assertModelAlmostEqual(model, readModel)
-      }
-      t.get
-
-    }
-
-    it("can be written and read again in non-standard location") {
-      val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
-      )
-      val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit()
-
-      val t = for {
-        model <- StatismoIO.readStatismoVolumeMeshModel(statismoFile)
-        _ <- StatismoIO.writeStatismoVolumeMeshModel(model, dummyFile, "/someLocation")
-        readModel <- StatismoIO.readStatismoVolumeMeshModel(dummyFile, "/someLocation")
-      } yield {
-        assertModelAlmostEqual(model, readModel)
-      }
-      t.get
-
-    }
-
-    it("can be written in version 0.81 and read again") {
-      import StatismoIO.StatismoVersion.v081
-
-      val statismoFile = new File(
-        URLDecoder.decode(getClass.getResource("/TetraMeshModel2.h5").getPath, "UTF-8")
-      )
-      val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit()
-
-      val t = for {
-        model <- StatismoIO.readStatismoVolumeMeshModel(statismoFile)
-        _ <- StatismoIO.writeStatismoVolumeMeshModel(model, dummyFile, statismoVersion = v081)
-        readModel <- StatismoIO.readStatismoVolumeMeshModel(dummyFile)
-      } yield {
-        assertModelAlmostEqual(model, readModel)
-      }
-      t.get
-
-    }
-  }
-
-}
+import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.statisticalmodel.experimental.StatisticalVolumeMeshModel
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
@@ -171,15 +103,11 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     it("can be created, saved and reread in 3D") {
       val gk = DiagonalKernel(GaussianKernel[_3D](10.0), 3)
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](gk)
-      val domain = DiscreteImageDomain(
-        origin = Point3D(1.0, 3.1, 7.5),
-        spacing = EuclideanVector3D(0.8, 0.7, 0.6),
-        size = IntVector3D(10, 12, 9)
-      )
+      val domain = DiscreteImageDomain(origin = Point3D(1.0, 3.1, 7.5),
+                                       spacing = EuclideanVector3D(0.8, 0.7, 0.6),
+                                       size = IntVector3D(10, 12, 9))
 
-      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(
-        domain, gp, 0.1, NearestNeighborInterpolator()
-      )
+      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
       val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
       tmpFile.deleteOnExit()
@@ -203,15 +131,11 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
     it("can be created, saved and reread in 2D") {
       val gk = DiagonalKernel(GaussianKernel[_2D](10.0), 2)
       val gp = GaussianProcess[_2D, EuclideanVector[_2D]](gk)
-      val domain = DiscreteImageDomain(
-        origin = Point2D(1.0, 3.1),
-        spacing = EuclideanVector2D(0.8, 0.7),
-        size = IntVector2D(10, 12)
-      )
+      val domain = DiscreteImageDomain(origin = Point2D(1.0, 3.1),
+                                       spacing = EuclideanVector2D(0.8, 0.7),
+                                       size = IntVector2D(10, 12))
 
-      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(
-        domain, gp, 0.1, NearestNeighborInterpolator()
-      )
+      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
       val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
       tmpFile.deleteOnExit()

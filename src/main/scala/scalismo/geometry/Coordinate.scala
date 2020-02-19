@@ -35,7 +35,7 @@ abstract class Coordinate[D: NDSpace, @specialized(Int, Float, Double) S] {
 
   override def equals(other: Any): Boolean = other match {
     case that: Coordinate[D, S] => that.canEqual(this) && this.data.deep == that.data.deep
-    case _ => false
+    case _                      => false
   }
 
   protected def canEqual(other: Any): Boolean

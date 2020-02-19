@@ -19,7 +19,7 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{ BoxDomain, UnstructuredPointsDomain }
+import scalismo.common.{BoxDomain, UnstructuredPointsDomain}
 import scalismo.geometry._
 import scalismo.image.DiscreteImageDomain
 import scalismo.io.MeshIO

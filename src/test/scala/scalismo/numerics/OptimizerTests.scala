@@ -41,7 +41,7 @@ class OptimizerTests extends ScalismoTestSuite {
     //    it("test") {
     //
     //      object OptimizationProcedure extends Reactor {
-    //        def optimize() { 
+    //        def optimize() {
     //        val optimizer = GradientDescentOptimizer(GradientDescentConfiguration(100, 0.1))
     //        listenTo(optimizer) {
     //          case IterationEvent(s, it, params, v, gradients) => println(s"value $v at iteration $it")

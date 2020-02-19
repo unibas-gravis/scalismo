@@ -15,7 +15,7 @@
  */
 package scalismo.kernels
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common.RealSpace
 import scalismo.geometry._
 import scalismo.numerics.BSpline
@@ -33,7 +33,8 @@ case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
   }
 }
 
-case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000) extends MatrixValuedPDKernel[D] {
+case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000)
+    extends MatrixValuedPDKernel[D] {
 
   override val outputDim = NDSpace[D].dimensionality
 
@@ -170,7 +171,9 @@ class BSplineKernel3D(order: Int, scale: Int) extends BSplineKernel[_3D](order, 
         var kz = kl_z
         while (kz <= ku_z) {
 
-          sum_j = sum_j + (bspline3D(xVec_j(0) - kx, xVec_j(1) - ky, xVec_j(2) - kz) * bspline3D(yVec_j(0) - kx, yVec_j(1) - ky, yVec_j(2) - kz))
+          sum_j = sum_j + (bspline3D(xVec_j(0) - kx, xVec_j(1) - ky, xVec_j(2) - kz) * bspline3D(yVec_j(0) - kx,
+                                                                                                 yVec_j(1) - ky,
+                                                                                                 yVec_j(2) - kz))
 
           kz = kz + 1
         }

@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 import breeze.linalg._
 import breeze.linalg.svd.SVD
 import breeze.stats.distributions.Gaussian
-import scalismo.geometry.{ EuclideanVector, _ }
+import scalismo.geometry.{EuclideanVector, _}
 import scalismo.utils.Random
 
 import scala.util.Try
@@ -56,10 +56,12 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
   // The cholesky sometimes fails for ill conditioned matrices. We increase
   // the regularization weight until it converges
   private lazy val root = {
-    Iterator.iterate(1e-10)(w => w * 2)
+    Iterator
+      .iterate(1e-10)(w => w * 2)
       .map(w => regularizedCholesky(w))
       .dropWhile(_.isFailure) // we drop the result if the cholesky fails
-      .next().get
+      .next()
+      .get
   }
 
   /**
@@ -199,9 +201,11 @@ object MultivariateNormalDistribution {
 
 }
 
-@deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.", "0.13.0")
+@deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.",
+            "0.13.0")
 object NDimensionalNormalDistribution {
-  def apply[D: NDSpace](mean: EuclideanVector[D], principalComponents: Seq[(EuclideanVector[D], Double)]): NDimensionalNormalDistribution[D] = {
+  def apply[D: NDSpace](mean: EuclideanVector[D],
+                        principalComponents: Seq[(EuclideanVector[D], Double)]): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
@@ -218,7 +222,8 @@ object NDimensionalNormalDistribution {
   }
 }
 
-@deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.", "0.13.0")
+@deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.",
+            "0.13.0")
 case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], cov: SquareMatrix[D])
     extends MultivariateNormalDistributionLike[EuclideanVector[D], SquareMatrix[D]] {
 
@@ -232,7 +237,9 @@ case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], 
 
   override def sample()(implicit rand: Random): EuclideanVector[D] = EuclideanVector.fromBreezeVector(impl.sample)
 
-  override def principalComponents: Seq[(EuclideanVector[D], Double)] = impl.principalComponents.map { case (v, d) => (EuclideanVector.fromBreezeVector(v), d) }
+  override def principalComponents: Seq[(EuclideanVector[D], Double)] = impl.principalComponents.map {
+    case (v, d) => (EuclideanVector.fromBreezeVector(v), d)
+  }
 
   override def mahalanobisDistance(x: EuclideanVector[D]): Double = impl.mahalanobisDistance(x.toBreezeVector)
 

@@ -34,7 +34,7 @@ trait FieldInterpolator[D, -DDomain <: DiscreteDomain[D], A] {
 }
 
 trait DifferentiableFieldInterpolator[D, -DDomain <: DiscreteDomain[D], A, dA]
-extends FieldInterpolator [D, DDomain, A] {
+    extends FieldInterpolator[D, DDomain, A] {
 
   override def interpolate(df: DiscreteField[D, DDomain, A]): DifferentiableField[D, A, dA]
 }

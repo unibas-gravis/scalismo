@@ -15,7 +15,7 @@
  */
 package scalismo.geometry
 
-import breeze.linalg.{ DenseMatrix, DenseVector }
+import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.ScalismoTestSuite
 import scalismo.registration._
 import scalismo.statisticalmodel.MultivariateNormalDistribution
@@ -85,7 +85,8 @@ class GeometryTests extends ScalismoTestSuite {
   checkPoint[_3D]()
 
   def checkVector[D: NDSpace]() = {
-    def randomVector(): EuclideanVector[D] = EuclideanVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
+    def randomVector(): EuclideanVector[D] =
+      EuclideanVector[D](Array.fill(NDSpace[D].dimensionality)(random.scalaRandom.nextDouble()))
     val v = randomVector()
 
     describe(s"A random nD Vector $v (n=${NDSpace[D].dimensionality})") {
@@ -478,7 +479,7 @@ class GeometryTests extends ScalismoTestSuite {
     it("is correctly transformed using a rigid transform") {
 
       val rigidTransform = RigidTransformation(TranslationTransform(EuclideanVector2D(2, 3)),
-        RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
+                                               RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
 
       val transformedLm = lm.transform(rigidTransform)
 
@@ -491,7 +492,9 @@ class GeometryTests extends ScalismoTestSuite {
 
       // a rigid transformation retains the variance
       for (i <- 0 until 2) {
-        lm.uncertainty.get.principalComponents(i)._2 should be(transformedLm.uncertainty.get.principalComponents(i)._2 +- 1e-1)
+        lm.uncertainty.get.principalComponents(i)._2 should be(
+          transformedLm.uncertainty.get.principalComponents(i)._2 +- 1e-1
+        )
       }
     }
 
