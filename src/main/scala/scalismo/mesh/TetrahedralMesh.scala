@@ -18,6 +18,7 @@ package scalismo.mesh
 import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
+import scalismo.registration.Transformation
 import scalismo.utils.Random
 import vtk.vtkTetra
 
@@ -45,7 +46,7 @@ case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4
 }
 
 /** Represents a tetrahedral mesh. */
-trait TetrahedralMesh[D] {
+trait TetrahedralMesh[D] extends DiscreteDomain[D] {
 
   /** Ordered list of tetrahedrals forming the tetrahedral mesh. */
   def tetrahedralization: TetrahedralList
@@ -57,10 +58,7 @@ trait TetrahedralMesh[D] {
    * points used in a tetrahedral. Points not used in any
    * tetrahedral are allowed.
    */
-  def pointSet: UnstructuredPointsDomain[D]
-
-  /** Applies the point transformation to the point set only and returns the transformed mesh. */
-  def transform(transform: Point[D] => Point[D]): TetrahedralMesh[D]
+  def pointSet: UnstructuredPoints[D]
 
 }
 
@@ -68,21 +66,21 @@ object TetrahedralMesh {
 
   def apply[D: NDSpace](pointList: IndexedSeq[Point[D]],
                         topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
-    creator.createTetrahedraleMesh(UnstructuredPointsDomain(pointList.toIndexedSeq), topology)
+    creator.createTetrahedraleMesh(UnstructuredPoints(pointList.toIndexedSeq), topology)
   }
 
-  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D],
+  def apply[D: NDSpace](pointSet: UnstructuredPoints[D],
                         topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(pointSet, topology)
   }
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  trait Create[D] extends UnstructuredPointsDomain.Create[D] {
-    def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[D], topology: TetrahedralList): TetrahedralMesh[D]
+  trait Create[D] extends UnstructuredPoints.Create[D] {
+    def createTetrahedraleMesh(pointSet: UnstructuredPoints[D], topology: TetrahedralList): TetrahedralMesh[D]
   }
 
   trait Create3D extends Create[_3D] {
-    override def createTetrahedraleMesh(pointSet: UnstructuredPointsDomain[_3D],
+    override def createTetrahedraleMesh(pointSet: UnstructuredPoints[_3D],
                                         topology: TetrahedralList): TetrahedralMesh3D = {
       TetrahedralMesh3D(pointSet, topology)
     }
@@ -92,9 +90,33 @@ object TetrahedralMesh {
     tetrahedralMesh.asInstanceOf[TetrahedralMesh3D]
   }
 
+  implicit object domainWarp extends DomainWarp[_3D, TetrahedralMesh] {
+
+    /**
+     * Warp the points of the domain of the discrete field and turn it into the
+     * warped domain
+     */
+    override def transformWithField(
+      domain: TetrahedralMesh[_3D],
+      warpField: DiscreteField[_3D, TetrahedralMesh, EuclideanVector[_3D]]
+    ): TetrahedralMesh[_3D] = {
+
+      // we should require(domain.pointSet == warpField.pointSet)
+      // but we
+      require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
+
+      val newPoints = warpField.pointsWithValues.map { case (pt, v) => pt + v }
+      TetrahedralMesh3D(UnstructuredPoints(newPoints.toIndexedSeq), domain.tetrahedralization)
+    }
+
+    override def transform(pointSet: TetrahedralMesh[_3D],
+                           transformation: Transformation[_3D]): TetrahedralMesh[_3D] = {
+      TetrahedralMesh3D(pointSet.pointSet.transform(transformation), pointSet.tetrahedralization)
+    }
+  }
 }
 
-case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedralization: TetrahedralList)
+case class TetrahedralMesh3D(pointSet: UnstructuredPoints[_3D], tetrahedralization: TetrahedralList)
     extends TetrahedralMesh[_3D] {
 
   // val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
@@ -113,7 +135,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
    *
    * @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
-  override def transform(transform: Point[_3D] => Point[_3D]): TetrahedralMesh3D = {
+  def transform(transform: Point[_3D] => Point[_3D]): TetrahedralMesh3D = {
     TetrahedralMesh3D(pointSet.points.map(transform).toIndexedSeq, tetrahedralization)
   }
 
@@ -191,6 +213,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPointsDomain[_3D], tetrahedra
 
 object TetrahedralMesh3D {
   def apply(points: IndexedSeq[Point[_3D]], topology: TetrahedralList): TetrahedralMesh3D = {
-    TetrahedralMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), topology)
+    TetrahedralMesh3D(UnstructuredPoints(points.toIndexedSeq), topology)
   }
+
 }

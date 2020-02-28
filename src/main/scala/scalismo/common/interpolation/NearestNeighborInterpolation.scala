@@ -18,16 +18,21 @@ package scalismo.common
 import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry.{_1D, _2D, _3D, Point}
 
+import scala.language.higherKinds
+
 /**
  * Nearest neighbor interpolation of a discrete field. This implementation is generic and
  * works for any discrete field.
  */
-case class NearestNeighborInterpolator[D, A]() extends FieldInterpolator[D, DiscreteDomain[D], A] {
+case class NearestNeighborInterpolator[D, DDomain[DD] <: DiscreteDomain[DD], A]()
+    extends FieldInterpolator[D, DDomain, A] {
 
-  override def interpolate(df: DiscreteField[D, DiscreteDomain[D], A]): Field[D, A] = {
+  override def interpolate(df: DiscreteField[D, DDomain, A]): Field[D, A] = {
+
+    val pointSet = df.domain.pointSet
 
     def valueAtClosestPoint(p: Point[D]): A = {
-      val closestPointId = df.domain.findClosestPoint(p).id
+      val closestPointId = pointSet.findClosestPoint(p).id
       df(closestPointId)
     }
 
@@ -37,12 +42,15 @@ case class NearestNeighborInterpolator[D, A]() extends FieldInterpolator[D, Disc
 }
 
 object NearestNeighborInterpolator1D {
-  def apply[A](): NearestNeighborInterpolator[_1D, A] = NearestNeighborInterpolator[_1D, A]()
+  def apply[DDomain[D] <: DiscreteDomain[D], A](): NearestNeighborInterpolator[_1D, DDomain, A] =
+    NearestNeighborInterpolator[_1D, DDomain, A]()
 }
 
 object NearestNeighborInterpolator2D {
-  def apply[A](): NearestNeighborInterpolator[_2D, A] = NearestNeighborInterpolator[_2D, A]()
+  def apply[DDomain[D] <: DiscreteDomain[D], A](): NearestNeighborInterpolator[_2D, DDomain, A] =
+    NearestNeighborInterpolator[_2D, DDomain, A]()
 }
 object NearestNeighborInterpolator3D {
-  def apply[A](): NearestNeighborInterpolator[_3D, A] = NearestNeighborInterpolator[_3D, A]()
+  def apply[DDomain[D] <: DiscreteDomain[D], A](): NearestNeighborInterpolator[_3D, DDomain, A] =
+    NearestNeighborInterpolator[_3D, DDomain, A]()
 }

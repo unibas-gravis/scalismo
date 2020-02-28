@@ -17,7 +17,7 @@
 package scalismo.kernels
 
 import breeze.linalg.DenseMatrix
-import scalismo.common.{DiscreteDomain, PointId}
+import scalismo.common.{DiscreteDomain, PointId, PointSet}
 import scalismo.geometry.NDSpace
 
 /**
@@ -29,12 +29,12 @@ class DiscreteMatrixValuedPDKernel[D: NDSpace] private[scalismo] (val domain: Di
                                                                   val k: (PointId, PointId) => DenseMatrix[Double],
                                                                   val outputDim: Int) {
   self =>
-
+  val pointSet = domain.pointSet
   def apply(i: PointId, j: PointId): DenseMatrix[Double] = {
-    if (i.id < domain.numberOfPoints && j.id < domain.numberOfPoints)
+    if (i.id < pointSet.numberOfPoints && j.id < pointSet.numberOfPoints)
       k(i, j)
     else {
-      if (i.id >= domain.numberOfPoints) {
+      if (i.id >= pointSet.numberOfPoints) {
         throw new IllegalArgumentException((s"$i is not a valid index"))
       } else {
         throw new IllegalArgumentException((s"$j is not a valid index"))
@@ -47,7 +47,7 @@ class DiscreteMatrixValuedPDKernel[D: NDSpace] private[scalismo] (val domain: Di
    * (This is a covariance matrix, consisting of blocks of size DO times DO)
    */
   def asBreezeMatrix: DenseMatrix[Double] = {
-    val xs = domain.points.toIndexedSeq
+    val xs = domain.pointSet.points.toIndexedSeq
 
     val K = DenseMatrix.zeros[Double](xs.size * outputDim, xs.size * outputDim)
     for { i <- xs.indices; j <- 0 to i } {

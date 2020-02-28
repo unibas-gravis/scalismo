@@ -23,7 +23,7 @@ import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
+import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.utils.CanConvertToVtk
 import spire.math.{UByte, UInt, UShort}
 

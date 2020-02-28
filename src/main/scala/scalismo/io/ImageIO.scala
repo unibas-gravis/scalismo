@@ -21,7 +21,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import niftijio.{NiftiHeader, NiftiVolume}
 import scalismo.common.{RealSpace, Scalar}
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
+import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.registration._
 import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
 import spire.math.{UByte, UInt, UShort}
@@ -422,7 +422,7 @@ object ImageIO {
       if (approxErrors.max > 0.01f)
         throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
       else {
-        val newDomain = DiscreteImageDomain[_3D](IntVector(nx, ny, nz), transform)
+        val newDomain = DiscreteImageDomain(StructuredPoints[_3D](IntVector(nx, ny, nz), transform))
         val im = DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
 
         // if the domain is rotated, we resample the image to RAI voxel ordering
@@ -510,7 +510,7 @@ object ImageIO {
     val scalarConv = implicitly[Scalar[S]]
 
     val domain = img.domain
-    val size = domain.size
+    val size = domain.pointSet.size
     val dim = 1
 
     Try {
@@ -523,21 +523,21 @@ object ImageIO {
         volume.data.set(i, j, k, d, scalarConv.toDouble(img(IntVector(i, j, k))))
       }
 
-      val innerAffineMatrix = DiscreteImageDomain.computeInnerAffineMatrix(img.domain)
+      val innerAffineMatrix = StructuredPoints.computeInnerAffineMatrix(img.domain.pointSet)
       val M = DenseMatrix.zeros[Double](4, 4)
 
       M(0, 0) = innerAffineMatrix(0, 0) * -1f
       M(0, 1) = innerAffineMatrix(0, 1) * -1f
       M(0, 2) = innerAffineMatrix(0, 2) * -1f
-      M(0, 3) = -domain.origin(0)
+      M(0, 3) = -domain.pointSet.origin(0)
       M(1, 0) = innerAffineMatrix(1, 0) * -1f
       M(1, 1) = innerAffineMatrix(1, 1) * -1f
       M(1, 2) = innerAffineMatrix(1, 2) * -1f
-      M(1, 3) = -domain.origin(1)
+      M(1, 3) = -domain.pointSet.origin(1)
       M(2, 0) = innerAffineMatrix(2, 0)
       M(2, 1) = innerAffineMatrix(2, 1)
       M(2, 2) = innerAffineMatrix(2, 2)
-      M(2, 3) = domain.origin(2)
+      M(2, 3) = domain.pointSet.origin(2)
       M(3, 3) = 1
 
       // the header
@@ -550,9 +550,9 @@ object ImageIO {
       volume.header.srow_x = data.take(4)
       volume.header.srow_y = data.slice(4, 8)
       volume.header.srow_z = data.slice(8, 12)
-      volume.header.pixdim(1) = domain.spacing(0).toFloat
-      volume.header.pixdim(2) = domain.spacing(1).toFloat
-      volume.header.pixdim(3) = domain.spacing(2).toFloat
+      volume.header.pixdim(1) = domain.pointSet.spacing(0).toFloat
+      volume.header.pixdim(2) = domain.pointSet.spacing(1).toFloat
+      volume.header.pixdim(3) = domain.pointSet.spacing(2).toFloat
 
       volume.write(file.getAbsolutePath)
     }

@@ -16,15 +16,46 @@
 
 package scalismo.common
 
-import scalismo.common.UnstructuredPointsDomain.Create
+import scalismo.common.UnstructuredPoints.Create
 import scalismo.geometry._
 import scalismo.mesh.kdtree.{KDTreeMap, RegionBuilder}
+import scalismo.registration.Transformation
 
 import scala.language.implicitConversions
 
-sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scalismo] (
+case class UnstructuredPointsDomain[D](pointSet: UnstructuredPoints[D]) extends DiscreteDomain[D] {}
+
+object UnstructuredPointsDomain {
+  def apply[D: NDSpace: Create](points: IndexedSeq[Point[D]]): UnstructuredPointsDomain[D] = {
+    UnstructuredPointsDomain(UnstructuredPoints(points))
+  }
+
+  implicit def warper[D: NDSpace](
+    implicit
+    creator: UnstructuredPoints.Create[D]
+  ): DomainWarp[D, UnstructuredPointsDomain] = {
+    new DomainWarp[D, UnstructuredPointsDomain] {
+      override def transformWithField(
+        domain: UnstructuredPointsDomain[D],
+        warpField: DiscreteField[D, UnstructuredPointsDomain, EuclideanVector[D]]
+      ): UnstructuredPointsDomain[D] = {
+        val warpedPoints = for ((p, v) <- warpField.pointsWithValues) yield {
+          p + v
+        }
+        UnstructuredPointsDomain(UnstructuredPoints(warpedPoints.toIndexedSeq))
+      }
+
+      override def transform(domain: UnstructuredPointsDomain[D],
+                             transformation: Transformation[D]): UnstructuredPointsDomain[D] = {
+        UnstructuredPointsDomain(domain.pointSet.transform(transformation))
+      }
+    }
+  }
+}
+
+sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
   private[scalismo] val pointSequence: IndexedSeq[Point[D]]
-) extends DiscreteDomain[D] {
+) extends PointSet[D] {
 
   override def points: Iterator[Point[D]] = pointSequence.toIterator
   override def numberOfPoints = pointSequence.size
@@ -72,32 +103,26 @@ sealed abstract class UnstructuredPointsDomain[D: NDSpace: Create] private[scali
     pointIDMap.get(pt)
   }
 
-  override def transform(transform: Point[D] => Point[D]): UnstructuredPointsDomain[D] =
-    UnstructuredPointsDomain(pointSequence.par.map(transform).toIndexedSeq)
+  override def transform(transform: Point[D] => Point[D]): UnstructuredPoints[D] =
+    UnstructuredPoints(pointSequence.par.map(transform).toIndexedSeq)
 
 }
 
-object UnstructuredPointsDomain {
+object UnstructuredPoints {
 
-  implicit def parametricToConcreteType1D(
-    unstructuredPointsDomain: UnstructuredPointsDomain[_1D]
-  ): UnstructuredPointsDomain1D = {
-    unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain1D]
+  implicit def parametricToConcreteType1D(unstructuredPointsDomain: UnstructuredPoints[_1D]): UnstructuredPoints1D = {
+    unstructuredPointsDomain.asInstanceOf[UnstructuredPoints1D]
   }
 
-  implicit def parametricToConcreteType2D(
-    unstructuredPointsDomain: UnstructuredPointsDomain[_2D]
-  ): UnstructuredPointsDomain2D = {
-    unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain2D]
+  implicit def parametricToConcreteType2D(unstructuredPointsDomain: UnstructuredPoints[_2D]): UnstructuredPoints2D = {
+    unstructuredPointsDomain.asInstanceOf[UnstructuredPoints2D]
   }
 
-  implicit def parametricToConcreteType3D(
-    unstructuredPointsDomain: UnstructuredPointsDomain[_3D]
-  ): UnstructuredPointsDomain3D = {
-    unstructuredPointsDomain.asInstanceOf[UnstructuredPointsDomain3D]
+  implicit def parametricToConcreteType3D(unstructuredPointsDomain: UnstructuredPoints[_3D]): UnstructuredPoints3D = {
+    unstructuredPointsDomain.asInstanceOf[UnstructuredPoints3D]
   }
 
-  def apply[D: NDSpace](points: IndexedSeq[Point[D]])(implicit creator: Create[D]): UnstructuredPointsDomain[D] = {
+  def apply[D: NDSpace](points: IndexedSeq[Point[D]])(implicit creator: Create[D]): UnstructuredPoints[D] = {
     creator.create(points)
   }
 
@@ -107,26 +132,26 @@ object UnstructuredPointsDomain {
   }
 
   trait Create[D] {
-    def create(points: IndexedSeq[Point[D]]): UnstructuredPointsDomain[D]
+    def create(points: IndexedSeq[Point[D]]): UnstructuredPoints[D]
   }
 
   object Create {
     implicit object CreateUnstructuredPointsDomain1D extends Create[_1D] {
-      override def create(points: IndexedSeq[Point[_1D]]) = new UnstructuredPointsDomain1D(points)
+      override def create(points: IndexedSeq[Point[_1D]]) = new UnstructuredPoints1D(points)
     }
     implicit object CreateUnstructuredPointsDomain2D extends Create[_2D] {
-      override def create(points: IndexedSeq[Point[_2D]]) = new UnstructuredPointsDomain2D(points)
+      override def create(points: IndexedSeq[Point[_2D]]) = new UnstructuredPoints2D(points)
     }
     implicit object CreateUnstructuredPointsDomain3D extends Create[_3D] {
-      override def create(points: IndexedSeq[Point[_3D]]) = new UnstructuredPointsDomain3D(points)
+      override def create(points: IndexedSeq[Point[_3D]]) = new UnstructuredPoints3D(points)
     }
 
   }
 
 }
 
-class UnstructuredPointsDomain1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]])
-    extends UnstructuredPointsDomain[_1D](pointSequence) {
+class UnstructuredPoints1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]])
+    extends UnstructuredPoints[_1D](pointSequence) {
 
   override def boundingBox: BoxDomain[_1D] = {
     val minx = pointSequence.map(_(0)).min
@@ -134,14 +159,14 @@ class UnstructuredPointsDomain1D private[scalismo] (pointSequence: IndexedSeq[Po
     BoxDomain(Point(minx), Point(maxx))
   }
 
-  override def transform(t: Point[_1D] => Point[_1D]): UnstructuredPointsDomain1D = {
-    new UnstructuredPointsDomain1D(pointSequence.map(t).toIndexedSeq)
+  override def transform(t: Point[_1D] => Point[_1D]): UnstructuredPoints1D = {
+    new UnstructuredPoints1D(pointSequence.map(t).toIndexedSeq)
   }
 
 }
 
-class UnstructuredPointsDomain2D private[scalismo] (pointSequence: IndexedSeq[Point[_2D]])
-    extends UnstructuredPointsDomain[_2D](pointSequence) {
+class UnstructuredPoints2D private[scalismo] (pointSequence: IndexedSeq[Point[_2D]])
+    extends UnstructuredPoints[_2D](pointSequence) {
 
   override def boundingBox: BoxDomain[_2D] = {
     val minx = pointSequence.map(_(0)).min
@@ -151,14 +176,14 @@ class UnstructuredPointsDomain2D private[scalismo] (pointSequence: IndexedSeq[Po
     BoxDomain(Point(minx, miny), Point(maxx, maxy))
   }
 
-  override def transform(t: Point[_2D] => Point[_2D]): UnstructuredPointsDomain2D = {
-    new UnstructuredPointsDomain2D(pointSequence.map(t).toIndexedSeq)
+  override def transform(t: Point[_2D] => Point[_2D]): UnstructuredPoints2D = {
+    new UnstructuredPoints2D(pointSequence.map(t).toIndexedSeq)
   }
 
 }
 
-class UnstructuredPointsDomain3D private[scalismo] (pointSequence: IndexedSeq[Point[_3D]])
-    extends UnstructuredPointsDomain[_3D](pointSequence) {
+class UnstructuredPoints3D private[scalismo] (pointSequence: IndexedSeq[Point[_3D]])
+    extends UnstructuredPoints[_3D](pointSequence) {
 
   override def boundingBox: BoxDomain[_3D] = {
     val minx = pointSequence.map(_(0)).min
@@ -170,8 +195,8 @@ class UnstructuredPointsDomain3D private[scalismo] (pointSequence: IndexedSeq[Po
     BoxDomain(Point(minx, miny, minz), Point(maxx, maxy, maxz))
   }
 
-  override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPointsDomain3D = {
-    new UnstructuredPointsDomain3D(pointSequence.map(t).toIndexedSeq)
+  override def transform(t: Point[_3D] => Point[_3D]): UnstructuredPoints3D = {
+    new UnstructuredPoints3D(pointSequence.map(t).toIndexedSeq)
   }
 
 }

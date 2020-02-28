@@ -17,7 +17,7 @@ package scalismo.mesh.boundingSpheres
 
 import breeze.linalg.{max, min}
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, UnstructuredPointsDomain}
+import scalismo.common.{PointId, UnstructuredPoints, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, EuclideanVector, Point, Point3D}
 import scalismo.mesh.{
   BarycentricCoordinates4,
@@ -72,7 +72,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
                             Point(1, 0, 1),
                             Point(1, 1, 1),
                             Point(0, 1, 1))
-    val domain = UnstructuredPointsDomain(points)
+    val domain = UnstructuredPoints(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
@@ -393,10 +393,10 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
     }
 
-    it("should return the same when used for points as the findClosestPoint from UnstructuredPointsDomain") {
+    it("should return the same when used for points as the findClosestPoint from UnstructuredPoints") {
 
       val points = for (_ <- 0 until 10000) yield randomPoint()
-      val pd = UnstructuredPointsDomain(points)
+      val pd = UnstructuredPoints(points)
 
       val md = DiscreteSpatialIndex.fromPointList(points)
 
@@ -415,7 +415,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
     }
 
     it(
-      "should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPointsDomain for triangles"
+      "should return an equal or smaller distance when used for points than the findClosestPoint from UnstructuredPoints for triangles"
     ) {
 
       val triangles = (0 until 100) map { _ =>
@@ -428,7 +428,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
       val points = triangles.flatMap(t => Array(t.a.toPoint, t.b.toPoint, t.c.toPoint))
 
-      val pd = UnstructuredPointsDomain(points)
+      val pd = UnstructuredPoints(points)
 
       val sd = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(
         TriangleMesh3D(
@@ -445,7 +445,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       (0 until 1000) foreach { _ =>
         val p = randomVector()
 
-        // findClosestPoint from UnstructuredPointsDomain
+        // findClosestPoint from UnstructuredPoints
         val vp = pd.findClosestPoint(p.toPoint)
         val vd = (vp.point - p.toPoint).norm2
 

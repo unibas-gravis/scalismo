@@ -15,7 +15,7 @@
  */
 package scalismo.image.filter
 
-import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator2D, BSplineImageInterpolator3D}
+import scalismo.common.interpolation.{BSplineImageInterpolator}
 import scalismo.common.{Scalar, ScalarArray}
 import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage
@@ -88,14 +88,15 @@ object DiscreteImageFilter {
    * Smoothing of an image using a Gaussian filter kernel with the given stddev
    */
   def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A], stddev: Double)(
-    implicit vtkConversion: CanConvertToVtk[D]
+    implicit
+    vtkConversion: CanConvertToVtk[D]
   ): DiscreteScalarImage[D, A] = {
 
     val vtkImg = vtkConversion.toVtk[A](img)
     val dim = img.dimensionality
     val gaussianFilter = new vtkImageGaussianSmooth()
     gaussianFilter.SetInputData(vtkImg)
-    val unitsAdjustedSpacing = img.domain.spacing.map(s => stddev * (1f / s))
+    val unitsAdjustedSpacing = img.domain.pointSet.spacing.map(s => stddev * (1f / s))
 
     unitsAdjustedSpacing.dimensionality match {
       case 2 => gaussianFilter.SetStandardDeviation(unitsAdjustedSpacing(0), unitsAdjustedSpacing(1))

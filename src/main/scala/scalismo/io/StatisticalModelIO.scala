@@ -18,8 +18,7 @@ package scalismo.io
 import java.io._
 
 import scalismo.geometry.{_2D, _3D, EuclideanVector}
-import scalismo.image.DiscreteImageDomain
-import scalismo.statisticalmodel.experimental.StatisticalVolumeMeshModel
+import scalismo.image.{DiscreteImageDomain}
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel}
 
 import scala.util.Try
@@ -54,39 +53,13 @@ object StatisticalModelIO {
   }
 
   /**
-   * Reads a statistical mesh volume model. The file type is determined
-   * based on the extension. Currently on the Scalismo format (.h5)
-   * is supported.
-   *
-   * @param file The statismo file
-   * @return A StatisticalVolMeshModel or the Failure
-   */
-  def readStatisticalVolumeMeshModel(file: File): Try[StatisticalVolumeMeshModel] = {
-    // currently, we support only the statismo format
-    StatismoIO.readStatismoVolumeMeshModel(file, "/")
-  }
-
-  /**
-   * Write a statistical mesh volume model.
-   * Currently on the Scalismo format (.h5) is supported.
-   *
-   * @param model The volume mesh model
-   * @param file The statismo file
-   * @return A StatisticalMeshVolumeModel or the Failure
-   */
-  def writeStatisticalVolumeMeshModel(model: StatisticalVolumeMeshModel, file: File): Try[Unit] = {
-    // currently, we support only the statismo format
-    StatismoIO.writeStatismoVolumeMeshModel(model, file, "/")
-  }
-
-  /**
    * Reads a model of 2D deformation fields defined on a 2D image domain
    * @param file the file from which the model is read
    * @return a 2D deformation model
    */
   def readDeformationModel2D(
     file: java.io.File
-  ): Try[DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain[_2D], EuclideanVector[_2D]]] = {
+  ): Try[DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain, EuclideanVector[_2D]]] = {
     StatismoIO.readStatismoImageModel[_2D, EuclideanVector[_2D]](file, "/")
   }
 
@@ -97,7 +70,7 @@ object StatisticalModelIO {
    */
   def readDeformationModel3D(
     file: java.io.File
-  ): Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain[_3D], EuclideanVector[_3D]]] = {
+  ): Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, EuclideanVector[_3D]]] = {
     StatismoIO.readStatismoImageModel[_3D, EuclideanVector[_3D]](file, "/")
   }
 
@@ -108,7 +81,7 @@ object StatisticalModelIO {
    * @param file the file to which the model is written
    * @return Success if model could be read, Failure otherwise
    */
-  def writeDeformationModel2D(gp: DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain[_2D], EuclideanVector[_2D]],
+  def writeDeformationModel2D(gp: DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain, EuclideanVector[_2D]],
                               file: File): Try[Unit] = {
     StatismoIO.writeStatismoImageModel[_2D, EuclideanVector[_2D]](gp, file, "/")
   }
@@ -120,7 +93,7 @@ object StatisticalModelIO {
    * @param file the file to which the model is written
    * @return Success if model could be read, Failure otherwise
    */
-  def writeDeformationModel3D(gp: DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain[_3D], EuclideanVector[_3D]],
+  def writeDeformationModel3D(gp: DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, EuclideanVector[_3D]],
                               file: File): Try[Unit] = {
     StatismoIO.writeStatismoImageModel[_3D, EuclideanVector[_3D]](gp, file, "/")
   }

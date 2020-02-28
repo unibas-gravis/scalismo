@@ -19,9 +19,9 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{BoxDomain, UnstructuredPointsDomain}
+import scalismo.common.{BoxDomain, UnstructuredPoints}
 import scalismo.geometry._
-import scalismo.image.DiscreteImageDomain
+import scalismo.image.StructuredPoints
 import scalismo.io.MeshIO
 
 class RegionQueryTest extends ScalismoTestSuite {
@@ -35,9 +35,9 @@ class RegionQueryTest extends ScalismoTestSuite {
 
     it("finds points in the 2D bounding box region") {
 
-      val img = DiscreteImageDomain(Point(0, 0), EuclideanVector(1, 1), IntVector(10, 10))
+      val img = StructuredPoints(Point(0, 0), EuclideanVector(1, 1), IntVector(10, 10))
       val bigBox = img.boundingBox
-      val dom = UnstructuredPointsDomain[_2D](img.points.toIndexedSeq)
+      val dom = UnstructuredPoints[_2D](img.points.toIndexedSeq)
 
       // Smaller Region
       val o = bigBox.origin

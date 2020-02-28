@@ -20,7 +20,7 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, UnstructuredPointsDomain}
+import scalismo.common.{PointId, UnstructuredPoints}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{_3D, Point}
 import scalismo.io.MeshIO
@@ -50,7 +50,7 @@ class MeshTests extends ScalismoTestSuite {
     it("finds the right closest point for a point that is not defined on the mesh") {
       val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
-      val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells))
+      val mesh = TriangleMesh3D(UnstructuredPoints(pts), TriangleList(cells))
 
       val newPt = Point(1.1, 1.1, 4)
       val ptWithID = mesh.pointSet.findClosestPoint(newPt)
@@ -62,7 +62,7 @@ class MeshTests extends ScalismoTestSuite {
     it("computes its area correctly for a triangle") {
       val pts: IndexedSeq[Point[_3D]] = IndexedSeq((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0))
       val cells = IndexedSeq(TriangleCell(0, 1, 2))
-      val mesh = TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells))
+      val mesh = TriangleMesh3D(UnstructuredPoints(pts), TriangleList(cells))
 
       val R = RotationSpace[_3D]((0.0, 0.0, 0.0)).transformForParameters(DenseVector(0.3, 0.4, 0.1))
       val s = ScalingSpace[_3D].transformForParameters(DenseVector(2.0))
@@ -83,7 +83,7 @@ class MeshTests extends ScalismoTestSuite {
       val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0))
       val cells = IndexedSeq[TriangleCell]()
       try {
-        TriangleMesh3D(UnstructuredPointsDomain(pts), TriangleList(cells)) // would throw exception on fail
+        TriangleMesh3D(UnstructuredPoints(pts), TriangleList(cells)) // would throw exception on fail
       } catch {
         case e: Exception => fail("It should be possible to create triangleMesh with an empty cell list")
       }

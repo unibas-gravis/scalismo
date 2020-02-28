@@ -4,8 +4,9 @@ import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.mesh._
-import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess
+import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel}
 import scalismo.utils.Random
+import scalismo.common.DiscreteField.ScalarVolumeMeshField
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.TypeTag
@@ -14,9 +15,9 @@ trait StatisticalVolumeIntensityModel[S] {
 
   def referenceMeshField: ScalarVolumeMeshField[S]
 
-  def shape: StatisticalVolumeMeshModel
+  def shape: PointDistributionModel[_3D, TetrahedralMesh]
 
-  def intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
+  def intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain, S]
 
   def mean: ScalarVolumeMeshField[S]
 
@@ -31,8 +32,8 @@ object StatisticalVolumeIntensityModel {
 
   def apply[S: Scalar: TypeTag: ClassTag](
     referenceMeshField: ScalarVolumeMeshField[S],
-    shape: StatisticalVolumeMeshModel,
-    intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
+    shape: PointDistributionModel[_3D, TetrahedralMesh],
+    intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain, S]
   ): SVIM[S] = {
     SVIM(referenceMeshField, shape, intensity)
   }
@@ -41,8 +42,8 @@ object StatisticalVolumeIntensityModel {
 
 case class SVIM[S: Scalar: TypeTag: ClassTag](
   referenceMeshField: ScalarVolumeMeshField[S],
-  shape: StatisticalVolumeMeshModel,
-  intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain[_3D], S]
+  shape: PointDistributionModel[_3D, TetrahedralMesh],
+  intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain, S]
 ) extends StatisticalVolumeIntensityModel[S] {
 
   override def mean: ScalarVolumeMeshField[S] = {

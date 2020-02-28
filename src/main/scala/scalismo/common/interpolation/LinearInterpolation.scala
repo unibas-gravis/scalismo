@@ -18,10 +18,10 @@ package scalismo.common.interpolation
 
 import scalismo.common.{DiscreteField, Field}
 import scalismo.geometry._
-import scalismo.image.DiscreteImageDomain
+import scalismo.image.{DiscreteImageDomain}
 import scalismo.numerics.ValueInterpolator
 
-trait LinearImageInterpolator[D, A] extends FieldInterpolator[D, DiscreteImageDomain[D], A] {
+trait LinearImageInterpolator[D, A] extends FieldInterpolator[D, DiscreteImageDomain, A] {
 
   implicit protected def ndSpace: NDSpace[D]
 
@@ -44,7 +44,8 @@ trait LinearImageInterpolator[D, A] extends FieldInterpolator[D, DiscreteImageDo
 object LinearImageInterpolator {
 
   def apply[D, A: ValueInterpolator]()(
-    implicit interpolator: LinearImageInterpolator[D, A]
+    implicit
+    interpolator: LinearImageInterpolator[D, A]
   ): LinearImageInterpolator[D, A] = interpolator
 
   implicit def linearImageInterpolator1D[A: ValueInterpolator] = LinearImageInterpolator1D[A]()
@@ -60,12 +61,13 @@ case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImage
 
   override protected val valueInterpolator = ValueInterpolator[A]
 
-  override def interpolate(df: DiscreteField[_1D, DiscreteImageDomain[_1D], A]): Field[_1D, A] = {
+  override def interpolate(df: DiscreteField[_1D, DiscreteImageDomain, A]): Field[_1D, A] = {
 
     val domain = df.domain
+    val pointSet = domain.pointSet
 
     def valueAtIdx(idx: IntVector[_1D]): A = {
-      val id = domain.pointId(idx)
+      val id = pointSet.pointId(idx)
       df(id)
     }
 
@@ -78,7 +80,7 @@ case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImage
       valueInterpolator.convexCombination((valueAtIdx(IntVector(x0)), (1.0f - xd)), (valueAtIdx(IntVector(x1)), xd))
     }
 
-    Field(domain.imageBoundingBox, interpolatePoint)
+    Field(domain.boundingBox, interpolatePoint)
   }
 }
 
@@ -88,12 +90,13 @@ case class LinearImageInterpolator2D[A: ValueInterpolator]() extends LinearImage
 
   override protected val valueInterpolator = ValueInterpolator[A]
 
-  override def interpolate(df: DiscreteField[_2D, DiscreteImageDomain[_2D], A]): Field[_2D, A] = {
+  override def interpolate(df: DiscreteField[_2D, DiscreteImageDomain, A]): Field[_2D, A] = {
 
     val domain = df.domain
+    val pointSet = domain.pointSet
 
     def valueAtIdx(idx: IntVector[_2D]): A = {
-      val id = domain.pointId(idx)
+      val id = pointSet.pointId(idx)
       df(id)
     }
 
@@ -113,7 +116,7 @@ case class LinearImageInterpolator2D[A: ValueInterpolator]() extends LinearImage
       valueInterpolator.convexCombination((c00, 1.0 - yd), (c10, yd))
     }
 
-    Field(df.domain.imageBoundingBox, interpolatePoint)
+    Field(df.domain.boundingBox, interpolatePoint)
   }
 }
 
@@ -123,12 +126,13 @@ case class LinearImageInterpolator3D[A: ValueInterpolator]() extends LinearImage
 
   override protected val valueInterpolator = ValueInterpolator[A]
 
-  override def interpolate(df: DiscreteField[_3D, DiscreteImageDomain[_3D], A]): Field[_3D, A] = {
+  override def interpolate(df: DiscreteField[_3D, DiscreteImageDomain, A]): Field[_3D, A] = {
 
     val domain = df.domain
+    val pointSet = domain.pointSet
 
     def valueAtIdx(idx: IntVector[_3D]): A = {
-      val id = domain.pointId(idx)
+      val id = pointSet.pointId(idx)
       df(id)
     }
 
@@ -158,6 +162,6 @@ case class LinearImageInterpolator3D[A: ValueInterpolator]() extends LinearImage
       c
     }
 
-    Field(domain.imageBoundingBox, interpolatePoint)
+    Field(domain.boundingBox, interpolatePoint)
   }
 }

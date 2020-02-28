@@ -23,7 +23,7 @@ import scalismo.common.interpolation.{BSplineImageInterpolator2D, BSplineImageIn
 import scalismo.{numerics, ScalismoTestSuite}
 import scalismo.common.{Field, NearestNeighborInterpolator, PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.DiscreteImageDomain
+import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.io.{ImageIO, MeshIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
@@ -321,7 +321,7 @@ class RegistrationTests extends ScalismoTestSuite {
                                          DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0)
       val groundTruthTransform = transformationSpace.transformForParameters(gtParams)
       val transformedLena = fixedImage compose groundTruthTransform
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.imageBoundingBox, IntVector(20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIt = Registration(

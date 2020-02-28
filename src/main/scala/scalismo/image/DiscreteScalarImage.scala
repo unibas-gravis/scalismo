@@ -34,7 +34,7 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
                                                            override val data: ScalarArray[A])
     extends DiscreteImage[D, A](domain, data) {
 
-  require(domain.numberOfPoints == data.size)
+  require(domain.pointSet.numberOfPoints == data.size)
 
   override protected def ndSpace = implicitly[NDSpace[D]]
 
@@ -48,7 +48,7 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
    *
    * @param interpolator The interpolator used to interpolate the image
    */
-  override def interpolate(interpolator: FieldInterpolator[D, DiscreteImageDomain[D], A]): ScalarImage[D, A] = {
+  override def interpolate(interpolator: FieldInterpolator[D, DiscreteImageDomain, A]): ScalarImage[D, A] = {
     val f = interpolator.interpolate(this)
     ScalarImage(f.domain, f.f)
   }
@@ -60,7 +60,7 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
    * @param interpolator The interpolator used to interpolate the image
    */
   def interpolate(
-    interpolator: DifferentiableFieldInterpolator[D, DiscreteImageDomain[D], A, EuclideanVector[D]]
+    interpolator: DifferentiableFieldInterpolator[D, DiscreteImageDomain, A, EuclideanVector[D]]
   ): DifferentiableScalarImage[D, A] = {
     val f = interpolator.interpolate(this)
     DifferentiableScalarImage(f.domain, f.f, f.df)
@@ -76,7 +76,8 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
 
   @deprecated("please use resample with an explicit interpolator instead", "v0.18")
   def resample(newDomain: DiscreteImageDomain[D], interpolationDegree: Int, outsideValue: A)(
-    implicit bsplineCreator: BSplineImageInterpolator.Create[D]
+    implicit
+    bsplineCreator: BSplineImageInterpolator.Create[D]
   ): DiscreteScalarImage[D, A] = {
 
     val contImg = interpolate(bsplineCreator.createBSplineInterpolator(interpolationDegree))
@@ -85,7 +86,7 @@ class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: 
 
   /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
   def resample(newDomain: DiscreteImageDomain[D],
-               interpolator: FieldInterpolator[D, DiscreteImageDomain[D], A],
+               interpolator: FieldInterpolator[D, DiscreteImageDomain, A],
                outsideValue: A): DiscreteScalarImage[D, A] = {
 
     val contImg = interpolate(interpolator)
@@ -101,13 +102,13 @@ object DiscreteScalarImage {
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
   def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], v: => A): DiscreteScalarImage[D, A] = {
-    DiscreteScalarImage(domain, ScalarArray(Array.fill(domain.numberOfPoints)(v)))
+    DiscreteScalarImage(domain, ScalarArray(Array.fill(domain.pointSet.numberOfPoints)(v)))
   }
 
   /** create a new DiscreteScalarImage, with all pixel values set to the given value */
   def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D],
                                              f: Point[D] => A): DiscreteScalarImage[D, A] = {
-    val data = domain.points.map(f)
+    val data = domain.pointSet.points.map(f)
     DiscreteScalarImage(domain, ScalarArray(data.toArray))
   }
 

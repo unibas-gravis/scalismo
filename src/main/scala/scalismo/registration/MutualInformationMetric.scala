@@ -20,7 +20,7 @@ import breeze.linalg.DenseVector
 import breeze.numerics._
 import scalismo.common.Scalar
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, ScalarImage}
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, ScalarImage, StructuredPoints}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.utils.{Memoize, Random}

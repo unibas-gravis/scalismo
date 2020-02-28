@@ -24,7 +24,7 @@ import scalismo.common.BoxDomain
 import scalismo.common.interpolation.BSplineImageInterpolator2D
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, StructuredPoints}
 import scalismo.io.ImageIO
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
 import scalismo.utils.Random

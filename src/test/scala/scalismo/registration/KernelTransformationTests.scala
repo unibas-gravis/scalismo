@@ -21,7 +21,7 @@ import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.geometry.EuclideanVector._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, StructuredPoints}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
 import scalismo.numerics.{GridSampler, Integrator, RandomSVD, UniformSampler}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair

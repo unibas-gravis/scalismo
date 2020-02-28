@@ -19,20 +19,20 @@ package scalismo.common
 import scalismo.ScalismoTestSuite
 import scalismo.geometry.Point
 
-class UnstructuredPointsDomainTests extends ScalismoTestSuite {
+class UnstructuredPointsTests extends ScalismoTestSuite {
 
-  describe("An UnstructuredPointsDomain[_3D]") {
+  describe("An UnstructuredPoints[_3D]") {
     // point sequence, note double occurrence of last point
     val points = IndexedSeq(Point(0.23, 189.0, 23), Point(2.3, -189.0, 45), Point(-32, 8.0, -56), Point(-32, 8.0, -56))
-    val dom = UnstructuredPointsDomain(points)
+    val dom = UnstructuredPoints(points)
 
     it("is equal if constructed from same point set") {
-      UnstructuredPointsDomain(points) shouldBe dom
+      UnstructuredPoints(points) shouldBe dom
     }
 
     it("has a consistent hash value") {
       dom.hashCode() shouldBe dom.hashCode()
-      UnstructuredPointsDomain(points).hashCode() shouldBe dom.hashCode()
+      UnstructuredPoints(points).hashCode() shouldBe dom.hashCode()
     }
 
     it("has the same hash value as the underlying point sequence") {

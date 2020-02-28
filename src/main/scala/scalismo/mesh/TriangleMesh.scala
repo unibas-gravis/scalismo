@@ -18,6 +18,7 @@ package scalismo.mesh
 import scalismo.common._
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
+import scalismo.registration.Transformation
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -34,36 +35,34 @@ case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends 
   def toIntVector3D = IntVector(ptId1.id, ptId2.id, ptId3.id)
 }
 
-trait TriangleMesh[D] {
+trait TriangleMesh[D] extends DiscreteDomain[D] {
   def triangulation: TriangleList
-  def pointSet: UnstructuredPointsDomain[D]
-  def transform(transform: Point[D] => Point[D]): TriangleMesh[D]
-
+  def pointSet: UnstructuredPoints[D]
 }
 
 object TriangleMesh {
 
-  def apply[D: NDSpace](pointSet: UnstructuredPointsDomain[D], topology: TriangleList)(implicit creator: Create[D]) = {
+  def apply[D: NDSpace](pointSet: UnstructuredPoints[D], topology: TriangleList)(implicit creator: Create[D]) = {
     creator.createTriangleMesh(pointSet, topology)
   }
 
   def apply[D: NDSpace](points: IndexedSeq[Point[D]], topology: TriangleList)(implicit creator: Create[D]) = {
-    creator.createTriangleMesh(UnstructuredPointsDomain(points.toIndexedSeq), topology)
+    creator.createTriangleMesh(UnstructuredPoints(points.toIndexedSeq), topology)
   }
 
   /** Typeclass for creating domains of arbitrary dimensionality */
-  trait Create[D] extends UnstructuredPointsDomain.Create[D] {
-    def createTriangleMesh(pointSet: UnstructuredPointsDomain[D], topology: TriangleList): TriangleMesh[D]
+  trait Create[D] extends UnstructuredPoints.Create[D] {
+    def createTriangleMesh(pointSet: UnstructuredPoints[D], topology: TriangleList): TriangleMesh[D]
   }
 
   trait Create2D extends Create[_2D] {
-    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_2D], topology: TriangleList) = {
+    override def createTriangleMesh(pointSet: UnstructuredPoints[_2D], topology: TriangleList) = {
       TriangleMesh2D(pointSet, topology)
     }
   }
 
   trait Create3D extends Create[_3D] {
-    override def createTriangleMesh(pointSet: UnstructuredPointsDomain[_3D], topology: TriangleList) = {
+    override def createTriangleMesh(pointSet: UnstructuredPoints[_3D], topology: TriangleList) = {
       TriangleMesh3D(pointSet, topology)
     }
   }
@@ -76,11 +75,32 @@ object TriangleMesh {
     triangleMesh.asInstanceOf[TriangleMesh3D]
   }
 
+  implicit object domainWarp extends DomainWarp[_3D, TriangleMesh] {
+
+    /**
+     * Warp the points of the domain of the discrete field and turn it into the
+     * warped domain
+     */
+    override def transformWithField(
+      domain: TriangleMesh[_3D],
+      warpField: DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]]
+    ): TriangleMesh[_3D] = {
+
+      require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
+
+      val newPoints = for ((p, v) <- warpField.pointsWithValues) yield { p + v }
+      TriangleMesh3D(newPoints.toIndexedSeq, warpField.domain.triangulation)
+    }
+
+    override def transform(mesh: TriangleMesh[_3D], transformation: Transformation[_3D]): TriangleMesh[_3D] = {
+      mesh.transform(transformation)
+    }
+  }
+
 }
 
 /** Standard 3D Gravis mesh, geometry only */
-case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation: TriangleList)
-    extends TriangleMesh[_3D] {
+case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: TriangleList) extends TriangleMesh[_3D] {
 
   val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
   val triangles = triangulation.triangles
@@ -132,17 +152,6 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
     sum
   }
 
-  /**
-   *  Returns a triangle mesh that is the image of this mesh by the given transform.
-   *
-   *  This method maps all mesh points to their images by the given transform while maintaining the same triangle cell relations.
-   *
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
-   */
-  override def transform(transform: Point[_3D] => Point[_3D]): TriangleMesh3D = {
-    TriangleMesh3D(pointSet.points.map(transform).toIndexedSeq, triangulation)
-  }
-
   /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
   def computeCellNormal(cell: TriangleCell): EuclideanVector[_3D] = {
     val pt1 = pointSet.point(cell.ptId1)
@@ -192,19 +201,24 @@ case class TriangleMesh3D(pointSet: UnstructuredPointsDomain[_3D], triangulation
     Point(s(0), s(1), s(2))
   }
 
+  def transform(transformation: Point[_3D] => Point[_3D]): TriangleMesh[_3D] = {
+    TriangleMesh3D(pointSet.transform(transformation), triangulation)
+  }
+
 }
 
 object TriangleMesh3D {
   def apply(points: IndexedSeq[Point[_3D]], topology: TriangleList): TriangleMesh3D = {
-    TriangleMesh3D(UnstructuredPointsDomain(points.toIndexedSeq), topology)
+    TriangleMesh3D(UnstructuredPoints(points.toIndexedSeq), topology)
   }
+
 }
 
-case class TriangleMesh2D(pointSet: UnstructuredPointsDomain[_2D], triangulation: TriangleList)
-    extends TriangleMesh[_2D] {
+case class TriangleMesh2D(pointSet: UnstructuredPoints[_2D], triangulation: TriangleList) extends TriangleMesh[_2D] {
   val position = SurfacePointProperty(triangulation, pointSet.points.toIndexedSeq)
 
-  override def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh2D = {
-    TriangleMesh2D(UnstructuredPointsDomain(pointSet.points.map(transform).toIndexedSeq), triangulation)
+  def transform(transform: Point[_2D] => Point[_2D]): TriangleMesh[_2D] = {
+    TriangleMesh2D(UnstructuredPoints(pointSet.points.map(transform).toIndexedSeq), triangulation)
   }
+
 }

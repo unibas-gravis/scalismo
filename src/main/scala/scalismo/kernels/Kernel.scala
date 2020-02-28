@@ -133,9 +133,10 @@ abstract class MatrixValuedPDKernel[D: NDSpace] {
    * discretize the kernel at the given points
    */
   def discretize(domain: DiscreteDomain[D]): DiscreteMatrixValuedPDKernel[D] = {
+    val pointSet = domain.pointSet
 
     def k(i: PointId, j: PointId): DenseMatrix[Double] = {
-      self.k(domain.point(i), domain.point(j))
+      self.k(pointSet.point(i), pointSet.point(j))
     }
 
     DiscreteMatrixValuedPDKernel[D](domain, k, outputDim)
@@ -270,7 +271,8 @@ object Kernel {
    * @return The leading eigenvalue / eigenfunction pairs
    */
   def computeNystromApproximation[D: NDSpace, Value](k: MatrixValuedPDKernel[D], sampler: Sampler[D])(
-    implicit vectorizer: Vectorizer[Value]
+    implicit
+    vectorizer: Vectorizer[Value]
   ): KLBasis[D, Value] = {
 
     // procedure for the nystrom approximation as described in

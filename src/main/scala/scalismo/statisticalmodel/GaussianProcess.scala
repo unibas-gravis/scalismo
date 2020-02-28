@@ -30,7 +30,8 @@ import scalismo.utils.Random
  * @tparam D The dimensionality of the input space
  */
 class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value], val cov: MatrixValuedPDKernel[D])(
-  implicit val vectorizer: Vectorizer[Value]
+  implicit
+  val vectorizer: Vectorizer[Value]
 ) {
 
   def outputDim = vectorizer.dim
@@ -41,8 +42,8 @@ class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value], v
    *
    * Sample values of the Gaussian process evaluated at the given points.
    */
-  def sampleAtPoints[DDomain <: DiscreteDomain[D]](
-    domain: DDomain
+  def sampleAtPoints[DDomain[DD] <: DiscreteDomain[DD]](
+    domain: DDomain[D]
   )(implicit rand: Random): DiscreteField[D, DDomain, Value] = {
     this.marginal(domain).sample()
   }
@@ -51,9 +52,9 @@ class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value], v
    * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
    * is defined by the given points.
    */
-  def marginal[DDomain <: DiscreteDomain[D]](domain: DDomain): DiscreteGaussianProcess[D, DDomain, Value] = {
-    val meanField = DiscreteField[D, DDomain, Value](domain, domain.points.toIndexedSeq.map(pt => mean(pt)))
-    val pts = domain.points.toIndexedSeq
+  def marginal[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D]): DiscreteGaussianProcess[D, DDomain, Value] = {
+    val meanField = DiscreteField[D, DDomain, Value](domain, domain.pointSet.points.toIndexedSeq.map(pt => mean(pt)))
+    val pts = domain.pointSet.points.toIndexedSeq
     def newCov(i: PointId, j: PointId): DenseMatrix[Double] = {
       cov(pts(i.id), pts(j.id))
     }
@@ -99,7 +100,8 @@ object GaussianProcess {
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
   def apply[D: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(
-    implicit vectorizer: Vectorizer[Value]
+    implicit
+    vectorizer: Vectorizer[Value]
   ): GaussianProcess[D, Value] = {
     new GaussianProcess[D, Value](mean, cov)
   }

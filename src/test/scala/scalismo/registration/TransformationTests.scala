@@ -26,7 +26,7 @@ import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain}
+import scalismo.image.{DifferentiableScalarImage, StructuredPoints}
 import scalismo.io.{ImageIO, MeshIO}
 
 import scala.language.implicitConversions
@@ -131,7 +131,7 @@ class TransformationTests extends ScalismoTestSuite {
     }
 
     it("translates a 1D image") {
-      val domain = DiscreteImageDomain[_1D](-50.0, 1.0, 100)
+      val domain = StructuredPoints[_1D](-50.0, 1.0, 100)
       val continuousImage = DifferentiableScalarImage(domain.boundingBox,
                                                       (x: Point[_1D]) => (x * x),
                                                       (x: Point[_1D]) => EuclideanVector(2f * x))
@@ -156,7 +156,7 @@ class TransformationTests extends ScalismoTestSuite {
       val inverseTransform = TranslationSpace[_3D].transformForParameters(parameterVector).inverse
       val translatedForthBackImg = continuousImage.compose(translation).compose(inverseTransform)
 
-      for (p <- discreteImage.domain.points.filter(translatedForthBackImg.isDefinedAt))
+      for (p <- discreteImage.domain.pointSet.points.filter(translatedForthBackImg.isDefinedAt))
         assert(translatedForthBackImg(p) === continuousImage(p))
     }
 
@@ -171,7 +171,7 @@ class TransformationTests extends ScalismoTestSuite {
 
       val rotatedImage = continuousImage.compose(rotation)
 
-      for (p <- discreteImage.domain.points.filter(rotatedImage.isDefinedAt))
+      for (p <- discreteImage.domain.pointSet.points.filter(rotatedImage.isDefinedAt))
         rotatedImage(p) should equal(continuousImage(p))
     }
 

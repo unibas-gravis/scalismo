@@ -5,11 +5,13 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{_3D, Point}
+import scalismo.common.{DiscreteField, NearestNeighborInterpolator}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.{ImageIO, MeshIO, StatismoIO}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.{Sampler, UniformMeshSampler3D}
-import scalismo.registration.LandmarkRegistration
+import scalismo.registration.{LandmarkRegistration, Transformation}
+import scalismo.statisticalmodel.asm.ActiveShapeModel.TrainingData
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
@@ -47,8 +49,12 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val trainMeshes = meshes
       val trainImages = images
 
-      val dc = DataCollection.fromMeshSequence(shapeModel.referenceMesh, trainMeshes.toIndexedSeq)._1.get
-      val trainingData = trainImages zip dc.dataItems.toIterator.map(_.transformation)
+      val dc = DataCollection.fromTriangleMeshSequence(shapeModel.referenceMesh, trainMeshes.toIndexedSeq)
+      def itemsToTransform(item: DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]]): Transformation[_3D] = {
+        val field = item.interpolate(NearestNeighborInterpolator())
+        Transformation((p: Point[_3D]) => p + field(p))
+      }
+      val trainingData: TrainingData = trainImages zip dc.dataItems.map(itemsToTransform).iterator
 
       val asm =
         ActiveShapeModel.trainModel(shapeModel, trainingData, imagePreprocessor, featureExtractor, samplerPerMesh)

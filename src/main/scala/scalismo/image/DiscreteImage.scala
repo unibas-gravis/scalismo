@@ -25,16 +25,17 @@ import scalismo.geometry._
  * @tparam A The type of the pixel (usually a scalar or a vector)
  */
 class DiscreteImage[D: NDSpace, A](domain: DiscreteImageDomain[D], values: IndexedSeq[A])
-    extends DiscreteField[D, DiscreteImageDomain[D], A](domain, values) {
+    extends DiscreteField[D, DiscreteImageDomain, A](domain, values) {
 
   protected[this] def ndSpace: NDSpace[D] = NDSpace[D]
 
+  private val pointSet = domain.pointSet
   val dimensionality = ndSpace.dimensionality
 
-  def apply(idx: IntVector[D]): A = this(domain.pointId(idx))
+  def apply(idx: IntVector[D]): A = this(pointSet.pointId(idx))
 
   def isDefinedAt(idx: IntVector[D]): Boolean = {
-    (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < domain.size(d))
+    (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < pointSet.size(d))
   }
 
 }

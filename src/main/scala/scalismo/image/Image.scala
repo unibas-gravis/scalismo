@@ -107,7 +107,7 @@ class ScalarImage[D: NDSpace, A: Scalar: ClassTag] protected (override val domai
   def sample(domain: DiscreteImageDomain[D], outsideValue: A): DiscreteScalarImage[D, A] = {
 
     val nbChunks = Runtime.getRuntime().availableProcessors() * 2
-    val parallelArrays = domain.pointsInChunks(nbChunks).par.map { chunkIterator =>
+    val parallelArrays = domain.pointSet.pointsInChunks(nbChunks).par.map { chunkIterator =>
       chunkIterator
         .map(pt => {
           if (isDefinedAt(pt)) f(pt)
@@ -179,7 +179,8 @@ class DifferentiableScalarImage[D: NDSpace, A: Scalar: ClassTag](_domain: Domain
   }
 
   override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(
-    implicit c: CreateDiscreteImageDomain[D]
+    implicit
+    c: CreateDiscreteImageDomain[D]
   ): DifferentiableScalarImage[D, A] = {
 
     val convolvedImage = super.convolve(filter, numberOfPointsPerDim)

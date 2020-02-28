@@ -6,38 +6,35 @@ import scalismo.mesh.boundingSpheres._
 import scalismo.mesh.{TetrahedralMesh, TetrahedralMesh3DOperations}
 import scalismo.numerics.ValueInterpolator
 
-trait BarycentricInterpolator[D, A] extends FieldInterpolator[D, UnstructuredPointsDomain[D], A] {
+trait BarycentricInterpolator[D, A] extends FieldInterpolator[D, TetrahedralMesh, A] {
   implicit protected val valueInterpolator: ValueInterpolator[A]
 }
 
 object BarycentricInterpolator {
 
   trait Create[D] {
-    def createBarycentricInterpolator[A: ValueInterpolator](m: TetrahedralMesh[D]): BarycentricInterpolator[D, A]
+    def createBarycentricInterpolator[A: ValueInterpolator](): BarycentricInterpolator[D, A]
   }
 
   implicit object create3D extends Create[_3D] {
-    override def createBarycentricInterpolator[A: ValueInterpolator](
-      m: TetrahedralMesh[_3D]
-    ): BarycentricInterpolator[_3D, A] = new BarycentricInterpolator3D[A](m)
+    override def createBarycentricInterpolator[A: ValueInterpolator](): BarycentricInterpolator[_3D, A] =
+      new BarycentricInterpolator3D[A]()
   }
 
-  def apply[D: NDSpace, A: ValueInterpolator](
-    m: TetrahedralMesh[D]
-  )(implicit creator: Create[D]): BarycentricInterpolator[D, A] = {
-    creator.createBarycentricInterpolator(m)
+  def apply[D: NDSpace, A: ValueInterpolator]()(implicit creator: Create[D]): BarycentricInterpolator[D, A] = {
+    creator.createBarycentricInterpolator()
   }
 
 }
 
-case class BarycentricInterpolator3D[A: ValueInterpolator](mesh: TetrahedralMesh[_3D])
-    extends BarycentricInterpolator[_3D, A] {
-
-  val meshOps: TetrahedralMesh3DOperations = mesh.operations
+case class BarycentricInterpolator3D[A: ValueInterpolator]() extends BarycentricInterpolator[_3D, A] {
 
   override protected val valueInterpolator: ValueInterpolator[A] = ValueInterpolator[A]
 
-  override def interpolate(df: DiscreteField[_3D, UnstructuredPointsDomain[_3D], A]): Field[_3D, A] = {
+  override def interpolate(df: DiscreteField[_3D, TetrahedralMesh, A]): Field[_3D, A] = {
+
+    val mesh = df.domain
+    val meshOps: TetrahedralMesh3DOperations = mesh.operations
 
     def interpolateBarycentric(p: Point[_3D]): A = {
 

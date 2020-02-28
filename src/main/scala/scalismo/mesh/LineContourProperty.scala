@@ -55,7 +55,8 @@ case class ContourPointProperty[A](topology: LineList, pointData: IndexedSeq[A])
 object ContourPointProperty {
 
   def averagedPointProperty[A](linetopology: LineList, property: LineContourProperty[A])(
-    implicit ops: ValueInterpolator[A]
+    implicit
+    ops: ValueInterpolator[A]
   ): ContourPointProperty[A] = {
     def averager(data: IndexedSeq[A]): A = {
       data.size match {
@@ -68,7 +69,8 @@ object ContourPointProperty {
   }
 
   def sampleContourProperty[A](lineTopology: LineList, property: LineContourProperty[A], reducer: IndexedSeq[A] => A)(
-    implicit ops: ValueInterpolator[A]
+    implicit
+    ops: ValueInterpolator[A]
   ): ContourPointProperty[A] = {
 
     // get all data for a single vertex:

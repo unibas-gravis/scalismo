@@ -1,5 +1,5 @@
 /*
- * This code adapted the code by Philippe Thevenaz, made publically available. 
+ * This code adapted the code by Philippe Thevenaz, made publically available.
  * See copyright information below
  */
 
@@ -49,75 +49,72 @@ package scalismo.common.interpolation;
 
 public class BSplineCoefficients {
 
-	
-	private static float getInitialAntiCausalCoefficientMirrorOnBounds(float[] c,
-			float z, float tolerance) {
-		return (float) ((z * c[c.length - 2] + c[c.length - 1]) * z / (z * z - 1.0));
-	} /* end getInitialAntiCausalCoefficientMirrorOnBounds */
 
-	/*------------------------------------------------------------------*/
-	private static float getInitialCausalCoefficientMirrorOnBounds(float[] c, float z,
-			float tolerance) {
-		float z1 = z, zn = (float) Math.pow(z, c.length - 1);
-		float sum = c[0] + zn * c[c.length - 1];
-		int horizon = c.length;
+  private static float getInitialAntiCausalCoefficientMirrorOnBounds(float[] c,
+                                                                     float z, float tolerance) {
+    return (float) ((z * c[c.length - 2] + c[c.length - 1]) * z / (z * z - 1.0));
+  } /* end getInitialAntiCausalCoefficientMirrorOnBounds */
 
-		if (0.0 < tolerance) {
-			horizon = 2 + (int) (Math.log(tolerance) / Math.log(Math.abs(z)));
-			horizon = (horizon < c.length) ? (horizon) : (c.length);
-		}
-		zn = zn * zn;
-		for (int n = 1; (n < (horizon - 1)); n++) {
-			zn = zn / z;
-			sum = sum + (z1 + zn) * c[n];
-			z1 = z1 * z;
-		}
-		return (float) (sum / (1.0 - Math.pow(z, 2 * c.length - 2)));
-	} /* end getInitialCausalCoefficientMirrorOnBounds */
+  /*------------------------------------------------------------------*/
+  private static float getInitialCausalCoefficientMirrorOnBounds(float[] c, float z,
+                                                                 float tolerance) {
+    float z1 = z, zn = (float) Math.pow(z, c.length - 1);
+    float sum = c[0] + zn * c[c.length - 1];
+    int horizon = c.length;
+
+    if (0.0 < tolerance) {
+      horizon = 2 + (int) (Math.log(tolerance) / Math.log(Math.abs(z)));
+      horizon = (horizon < c.length) ? (horizon) : (c.length);
+    }
+    zn = zn * zn;
+    for (int n = 1; (n < (horizon - 1)); n++) {
+      zn = zn / z;
+      sum = sum + (z1 + zn) * c[n];
+      z1 = z1 * z;
+    }
+    return (float) (sum / (1.0 - Math.pow(z, 2 * c.length - 2)));
+  } /* end getInitialCausalCoefficientMirrorOnBounds */
 
 
-	public static void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
-		
-		float z[] = null;
-		if (degree == 0 || degree == 1) { 
-			z = new float[0];			
-		}
-		else if (degree == 2) { 
-			z = new float[1];
-			z[0] = (float)(Math.sqrt(8.0) - 3.0);
-		}
-		else if(degree == 3) { 
-			z = new float[1];
-			z[0] =(float) (Math.sqrt(3.0) - 2.0);
-		}
-		else {
-			throw new Exception("SplineOrder must be between 0 and 3");
-		}
-		
-		float tolerance = 0;//1.;//  Float.intBitsToFloat((int)0x33FFFFFF);
-		
+  public static void getSplineInterpolationCoefficients(int degree, float[] c) throws Exception {
 
-		float lambda = 1;
+    float z[] = null;
+    if (degree == 0 || degree == 1) {
+      z = new float[0];
+    } else if (degree == 2) {
+      z = new float[1];
+      z[0] = (float) (Math.sqrt(8.0) - 3.0);
+    } else if (degree == 3) {
+      z = new float[1];
+      z[0] = (float) (Math.sqrt(3.0) - 2.0);
+    } else {
+      throw new Exception("SplineOrder must be between 0 and 3");
+    }
 
-		if (c.length == 1) {
-			return;
-		}
-		for (int k = 0; (k < z.length); k++) {
-			lambda = lambda * (1 - z[k]) * (1 - 1 / z[k]);
-		}
-		for (int n = 0; (n < c.length); n++) {
-			c[n] = c[n] * lambda;
-		}
-		for (int k = 0; (k < z.length); k++) {
-			c[0] = getInitialCausalCoefficientMirrorOnBounds(c, z[k], tolerance);
-			for (int n = 1; (n < c.length); n++) {
-				c[n] = c[n] + z[k] * c[n - 1];
-			}
-			c[c.length - 1] = getInitialAntiCausalCoefficientMirrorOnBounds(c,
-					z[k], tolerance);
-			for (int n = c.length - 2; (0 <= n); n--) {
-				c[n] = z[k] * (c[n + 1] - c[n]);
-			}
-		}
-	} /* end getSplineInterpolation */
+    float tolerance = 0;//1.;//  Float.intBitsToFloat((int)0x33FFFFFF);
+
+
+    float lambda = 1;
+
+    if (c.length == 1) {
+      return;
+    }
+    for (int k = 0; (k < z.length); k++) {
+      lambda = lambda * (1 - z[k]) * (1 - 1 / z[k]);
+    }
+    for (int n = 0; (n < c.length); n++) {
+      c[n] = c[n] * lambda;
+    }
+    for (int k = 0; (k < z.length); k++) {
+      c[0] = getInitialCausalCoefficientMirrorOnBounds(c, z[k], tolerance);
+      for (int n = 1; (n < c.length); n++) {
+        c[n] = c[n] + z[k] * c[n - 1];
+      }
+      c[c.length - 1] = getInitialAntiCausalCoefficientMirrorOnBounds(c,
+          z[k], tolerance);
+      for (int n = c.length - 2; (0 <= n); n--) {
+        c[n] = z[k] * (c[n + 1] - c[n]);
+      }
+    }
+  } /* end getSplineInterpolation */
 }

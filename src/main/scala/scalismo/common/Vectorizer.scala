@@ -25,3 +25,60 @@ trait Vectorizer[Value] {
   def unvectorize(d: DenseVector[Double]): Value
 
 }
+object Vectorizer {
+  implicit object ShortVectorizer extends Vectorizer[Short] {
+    override def dim: Int = 1
+
+    override def vectorize(v: Short): DenseVector[Double] = {
+      val dv = DenseVector[Double](1)
+      dv(0) = v
+      dv
+    }
+
+    override def unvectorize(d: DenseVector[Double]): Short = {
+      d(0).toShort
+    }
+  }
+
+  implicit object IntVectorizer extends Vectorizer[Int] {
+    override def dim: Int = 1
+
+    override def vectorize(v: Int): DenseVector[Double] = {
+      val dv = DenseVector[Double](1)
+      dv(0) = v
+      dv
+    }
+
+    override def unvectorize(d: DenseVector[Double]): Int = {
+      d(0).toInt
+    }
+  }
+
+  implicit object FloatVectorizer extends Vectorizer[Float] {
+    override def dim: Int = 1
+
+    override def vectorize(v: Float): DenseVector[Double] = {
+      val dv = DenseVector[Double](1)
+      dv(0) = v
+      dv
+    }
+
+    override def unvectorize(d: DenseVector[Double]): Float = {
+      d(0).toFloat
+    }
+  }
+
+  implicit object DoubleVectorizer extends Vectorizer[Double] {
+    override def dim: Int = 1
+
+    override def vectorize(v: Double): DenseVector[Double] = {
+      val dv = DenseVector[Double](1)
+      dv(0) = v
+      dv
+    }
+
+    override def unvectorize(d: DenseVector[Double]): Double = {
+      d(0)
+    }
+  }
+}

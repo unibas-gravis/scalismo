@@ -23,7 +23,8 @@ import scalismo.statisticalmodel.LowRankGaussianProcess
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 
 class GaussianProcessTransformationSpace[D] private (gp: LowRankGaussianProcess[D, EuclideanVector[D]])(
-  implicit vectorizer: VectorVectorizer[D]
+  implicit
+  vectorizer: VectorVectorizer[D]
 ) extends TransformationSpace[D] {
 
   override type T = GaussianProcessTransformation[D]

@@ -18,7 +18,7 @@ package scalismo.common
 
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage}
+import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.common.interpolation.{LinearImageInterpolator, LinearImageInterpolator3D}
 
 class LinearInterpolatorTest extends ScalismoTestSuite {
@@ -30,8 +30,8 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
       val dom = DiscreteImageDomain(Point(0, 0, 0), EuclideanVector(1, 1, 1), IntVector(2, 2, 2))
       val img = DiscreteScalarImage(dom, (p: Point[_3D]) => p.x)
       val img_interpolated = img.interpolate(LinearImageInterpolator[_3D, Double])
-      val id = img.domain.pointId(IntVector(1, 1, 1))
-      val point = img.domain.point(id)
+      val id = img.domain.pointSet.pointId(IntVector(1, 1, 1))
+      val point = img.domain.pointSet.point(id)
 
       img(id) shouldBe img_interpolated(point)
 
@@ -73,10 +73,10 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
     it("can be evaluated everywhere where the original image is defined") {
       val originalDomain = DiscreteImageDomain(Point(0, 0, 0), EuclideanVector(0.1, 0.1, 0.1), IntVector(10, 10, 10))
       val img = DiscreteScalarImage(originalDomain, (p: Point[_3D]) => p.x)
-      val fineDomain = DiscreteImageDomain(originalDomain.imageBoundingBox, IntVector(100, 100, 100))
+      val fineDomain = DiscreteImageDomain(originalDomain.boundingBox, IntVector(100, 100, 100))
 
       val interpolatedImg = img.interpolate(LinearImageInterpolator3D[Double]())
-      for (pt <- fineDomain.points) {
+      for (pt <- fineDomain.pointSet.points) {
         interpolatedImg.isDefinedAt(pt) shouldBe (true)
       }
 

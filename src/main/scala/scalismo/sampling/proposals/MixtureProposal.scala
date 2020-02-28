@@ -77,7 +77,8 @@ object MixtureProposal {
 
   /** mixture distribution of proposals with a transition probability */
   def fromProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with TransitionProbability[A])*)(
-    implicit rnd: Random
+    implicit
+    rnd: Random
   ): MixtureProposal[A] with TransitionProbability[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq)
 
   /** mixture of symmetric proposals (mixture distribution) */

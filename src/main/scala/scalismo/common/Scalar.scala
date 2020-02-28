@@ -398,9 +398,10 @@ final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(i
 
 /** Factory for ValueClassScalarArray instances. */
 object ValueClassScalarArray {
-  def apply[S <: AnyVal, U <: AnyVal](array: Array[U])(
-    implicit s: ValueClassScalar[S, U]
-  ): ValueClassScalarArray[S, U] = new ValueClassScalarArray[S, U](array)(s)
+  def apply[S <: AnyVal, U <: AnyVal](
+    array: Array[U]
+  )(implicit s: ValueClassScalar[S, U]): ValueClassScalarArray[S, U] =
+    new ValueClassScalarArray[S, U](array)(s)
 }
 
 /** Factory for ScalarArray instances. */

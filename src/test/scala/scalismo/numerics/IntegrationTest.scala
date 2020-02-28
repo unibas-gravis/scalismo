@@ -19,7 +19,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, ScalarImage}
+import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, ScalarImage, StructuredPoints}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions

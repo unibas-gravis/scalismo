@@ -16,7 +16,7 @@
 package scalismo.mesh
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, UnstructuredPointsDomain}
+import scalismo.common.{PointId, UnstructuredPoints}
 import scalismo.geometry.{_3D, EuclideanVector3D, Point, Point3D}
 import scalismo.registration.{RotationTransform, TranslationTransform}
 import scalismo.utils.Random
@@ -35,7 +35,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
                             Point(1, 0, 1),
                             Point(1, 1, 1),
                             Point(0, 1, 1))
-    val domain = UnstructuredPointsDomain(points)
+    val domain = UnstructuredPoints(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
@@ -65,7 +65,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       Point(1, 1, 2),
       Point(0, 1, 2)
     )
-    val domain = UnstructuredPointsDomain(points)
+    val domain = UnstructuredPoints(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
@@ -94,7 +94,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
             rng.scalaRandom.nextGaussian() * 1000,
             rng.scalaRandom.nextGaussian() * 1000000)
     )
-    val domain = UnstructuredPointsDomain(points)
+    val domain = UnstructuredPoints(points)
 
     implicit def intToPointId(i: Int): PointId = PointId(i)
     val T = 200
@@ -138,7 +138,7 @@ class TetrahedralMeshTest extends ScalismoTestSuite {
       val pts = IndexedSeq(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0), Point(1.0, 1.0, 5.0), Point(1.0, -1.0, 5.0))
       val cells = IndexedSeq[TetrahedralCell]()
       try {
-        TetrahedralMesh3D(UnstructuredPointsDomain(pts), TetrahedralList(cells)) // would throw exception on fail
+        TetrahedralMesh3D(UnstructuredPoints(pts), TetrahedralList(cells)) // would throw exception on fail
       } catch {
         case e: Exception => fail("It should be possible to create tetrahedralMesh with an empty cell list")
       }

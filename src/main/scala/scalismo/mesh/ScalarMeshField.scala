@@ -19,31 +19,3 @@ import scalismo.common._
 import scalismo.geometry._3D
 
 import scala.reflect.ClassTag
-
-/**
- * 3-dimensional triangle mesh with scalar values associated to mesh points.
- *
- * @tparam S type of the scalar values defined over the mesh (Short, Int, Float, Double)
- * @constructor Returns a scalar mesh data given a triangle mesh and an array of values.
- * The number of values and mesh points must be equal.
- */
-case class ScalarMeshField[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], override val data: ScalarArray[S])
-    extends DiscreteScalarField[_3D, UnstructuredPointsDomain[_3D], S](mesh.pointSet, data) {
-  require(mesh.pointSet.numberOfPoints == data.size)
-
-  override def values = data.iterator
-  override val domain = mesh.pointSet
-
-  override def apply(ptId: PointId) = data(ptId.id)
-  override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
-
-  override def map[S2: Scalar: ClassTag](f: S => S2): ScalarMeshField[S2] = {
-    ScalarMeshField(mesh, data.map(f))
-  }
-}
-
-object ScalarMeshField {
-  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Traversable[S]): ScalarMeshField[S] = {
-    ScalarMeshField(mesh, ScalarArray(data.toArray))
-  }
-}

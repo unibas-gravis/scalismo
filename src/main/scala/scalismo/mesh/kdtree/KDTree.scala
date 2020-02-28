@@ -187,8 +187,7 @@ private[scalismo] case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
 }
 
 object KDTreeNode {
-  def buildTreeNode[A, B](depth: Int, points: Seq[(A, B)])(implicit
-                                                           ord: DimensionalOrdering[A]): KDTreeNode[A, B] = {
+  def buildTreeNode[A, B](depth: Int, points: Seq[(A, B)])(implicit ord: DimensionalOrdering[A]): KDTreeNode[A, B] = {
     def findSplit(points: Seq[(A, B)], i: Int): ((A, B), Seq[(A, B)], Seq[(A, B)]) = {
       val sp = points.sortBy(_._1)(ord.orderingBy(i))
       val medIndex = sp.length / 2

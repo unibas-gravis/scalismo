@@ -19,7 +19,8 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId, Scalar, ScalarArray, UnstructuredPointsDomain}
+import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
+import scalismo.common.{DiscreteField, PointId, Scalar, ScalarArray, ScalarMeshField, UnstructuredPoints}
 import scalismo.geometry.{_3D, Point}
 import scalismo.mesh._
 import scalismo.utils.Random
@@ -133,8 +134,8 @@ class MeshIOTests extends ScalismoTestSuite {
       val loadingMesh = MeshIO.readScalarVolumeMeshField[Int](temporaryFile)
       assert(loadingMesh.isSuccess)
       loadingMesh.map { loadedMesh =>
-        assert(loadedMesh.mesh.pointSet == originalMesh.mesh.pointSet)
-        assert(loadedMesh.mesh.tetrahedralization == originalMesh.mesh.tetrahedralization)
+        assert(loadedMesh.domain.pointSet == originalMesh.domain.pointSet)
+        assert(loadedMesh.domain.tetrahedralization == originalMesh.domain.tetrahedralization)
         assert(loadedMesh.data == originalMesh.data)
       }
     }
@@ -146,8 +147,8 @@ class MeshIOTests extends ScalismoTestSuite {
       val loadingMesh = MeshIO.readScalarVolumeMeshField[Int](temporaryFile)
       assert(loadingMesh.isSuccess)
       loadingMesh.map { loadedMesh =>
-        assert(loadedMesh.mesh.pointSet == originalMesh.mesh.pointSet)
-        assert(loadedMesh.mesh.tetrahedralization == originalMesh.mesh.tetrahedralization)
+        assert(loadedMesh.domain.pointSet == originalMesh.domain.pointSet)
+        assert(loadedMesh.domain.tetrahedralization == originalMesh.domain.tetrahedralization)
         assert(loadedMesh.data == originalMesh.data)
       }
     }
@@ -173,6 +174,7 @@ class MeshIOTests extends ScalismoTestSuite {
     }
 
     it("can write and correctly read a ScalarMeshField") {
+
       val f = Fixture
       val readTry = sameWriteRead[Int]()
       assert(readTry.isSuccess)
@@ -210,7 +212,7 @@ class MeshIOTests extends ScalismoTestSuite {
 
     object Fixture {
       val meshData: ScalarVolumeMeshField[Int] = createRandomScalarVolumeMeshField()
-      val mesh = meshData.mesh
+      val mesh = meshData.domain
     }
 
     def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarVolumeMeshField[S]] = {
@@ -267,7 +269,7 @@ class MeshIOTests extends ScalismoTestSuite {
             rng.scalaRandom.nextGaussian() * 1000,
             rng.scalaRandom.nextGaussian() * 1000000)
     )
-    val domain = UnstructuredPointsDomain(points)
+    val domain = UnstructuredPoints(points)
 
     // cells covering the complete cube
     implicit def intToPointId(i: Int): PointId = PointId(i)
@@ -290,7 +292,7 @@ class MeshIOTests extends ScalismoTestSuite {
     val scalars = tetraMesh.pointSet.points.map { p =>
       1
     }.toIndexedSeq
-    ScalarVolumeMeshField(tetraMesh, scalars)
+    DiscreteField(tetraMesh, scalars)
   }
 
 }

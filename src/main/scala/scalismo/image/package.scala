@@ -25,7 +25,7 @@ package scalismo
  * of images is much more flexible and most method for manipulating images are defined only on this image type.
  * A discrete image can be converted to a continuous image by using an interpolation procedure:
  * {{{
- * val domain = DiscreteImageDomain(Point(0,0), Vector(1,1), Index(255,255))
+ * val domain = StructuredPoints(Point(0,0), Vector(1,1), Index(255,255))
  * val di = DiscreteScalarImage(domain)(0)
  * val discreteImage =  DiscreteScalarImage(domain, (_ : Point[_2D]) => 1.0f)
  * val continuousImage = discreteImage.interpolate(3)
@@ -33,7 +33,7 @@ package scalismo
  *
  * To get back the discrete representation, we can sample the image values on a regular grid:
  * {{{
- *  val newDomain = DiscreteImageDomain(Point(0,0), Vector(1,1), Index(128,128))
+ *  val newDomain = StructuredPoints(Point(0,0), Vector(1,1), Index(128,128))
  *  val resampledDiscreteImage = continuousImage.sample(domain, 0)
  * }}}
  */

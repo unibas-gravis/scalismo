@@ -47,7 +47,8 @@ object MetropolisFilterProposal {
     new MetropolisFilterProposal[A](generator, evaluator, logger)
 
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
-    implicit random: Random
+    implicit
+    random: Random
   ) = new MetropolisFilterProposal[A](generator, evaluator, new SilentLogger[A])
 
 }
@@ -82,7 +83,8 @@ object CorrectedMetropolisFilterProposal {
     new CorrectedMetropolisFilterProposal[A](generator, evaluator, logger)
 
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
-    implicit random: Random
+    implicit
+    random: Random
   ) = new CorrectedMetropolisFilterProposal[A](generator, evaluator, new SilentLogger[A])
 
 }

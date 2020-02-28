@@ -15,15 +15,17 @@
  */
 package scalismo.common.interpolation
 
-import scalismo.common.{DifferentiableField, DiscreteDomain, DiscreteField, Field}
+import scalismo.common.{DifferentiableField, DiscreteDomain, DiscreteField, Field, PointSet}
+import scala.language.higherKinds
 
 /**
  * Base trait for all interpolators that can be used to interpolate a [[DiscreteField]]
- * @tparam D Dimensionality
- * @tparam DDomain Type of the [[DiscreteDomain]] that the interpolator can interpolate
- * @tparam A The value type
+ *
+ * @tparam D       Dimensionality
+ * @tparam DDomain Type of the [[PointSet]] that the interpolator can interpolate
+ * @tparam A       The value type
  */
-trait FieldInterpolator[D, -DDomain <: DiscreteDomain[D], A] {
+trait FieldInterpolator[D, DDomain[D] <: DiscreteDomain[D], A] {
 
   /**
    * Interpolates a given discrete field using the given interpolator.
@@ -33,7 +35,7 @@ trait FieldInterpolator[D, -DDomain <: DiscreteDomain[D], A] {
   def interpolate(df: DiscreteField[D, DDomain, A]): Field[D, A]
 }
 
-trait DifferentiableFieldInterpolator[D, -DDomain <: DiscreteDomain[D], A, dA]
+trait DifferentiableFieldInterpolator[D, DDomain[D] <: DiscreteDomain[D], A, dA]
     extends FieldInterpolator[D, DDomain, A] {
 
   override def interpolate(df: DiscreteField[D, DDomain, A]): DifferentiableField[D, A, dA]

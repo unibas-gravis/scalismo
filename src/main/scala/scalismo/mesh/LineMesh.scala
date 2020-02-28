@@ -16,7 +16,7 @@
 
 package scalismo.mesh
 
-import scalismo.common.{Cell, PointId, UnstructuredPointsDomain}
+import scalismo.common.{Cell, PointId, UnstructuredPoints}
 import scalismo.geometry._
 
 import scala.language.implicitConversions
@@ -33,7 +33,7 @@ case class LineCell(ptId1: PointId, ptId2: PointId) extends Cell {
   def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId
 }
 
-abstract class LineMesh[D: NDSpace](val pointSet: UnstructuredPointsDomain[D], val topology: LineList) {
+abstract class LineMesh[D: NDSpace](val pointSet: UnstructuredPoints[D], val topology: LineList) {
 
   val position = ContourPointProperty(topology, pointSet.pointSequence)
   val lines = topology.lines
@@ -70,17 +70,17 @@ object LineMesh {
 
   /** Typeclass for creating domains of arbitrary dimensionality */
   trait Create[D] {
-    def createLineMesh(pointSet: UnstructuredPointsDomain[D], topology: LineList): LineMesh[D]
+    def createLineMesh(pointSet: UnstructuredPoints[D], topology: LineList): LineMesh[D]
   }
 
   implicit object Create2D extends Create[_2D] {
-    override def createLineMesh(pointSet: UnstructuredPointsDomain[_2D], topology: LineList) = {
+    override def createLineMesh(pointSet: UnstructuredPoints[_2D], topology: LineList) = {
       LineMesh2D(pointSet, topology)
     }
   }
 
   implicit object Create3D extends Create[_3D] {
-    override def createLineMesh(pointSet: UnstructuredPointsDomain[_3D], topology: LineList) = {
+    override def createLineMesh(pointSet: UnstructuredPoints[_3D], topology: LineList) = {
       LineMesh3D(pointSet, topology)
     }
   }
@@ -93,7 +93,7 @@ object LineMesh {
     polyLine.asInstanceOf[LineMesh3D]
   }
 
-  def apply[D](points: UnstructuredPointsDomain[D], topology: LineList)(implicit creator: Create[D]): LineMesh[D] = {
+  def apply[D](points: UnstructuredPoints[D], topology: LineList)(implicit creator: Create[D]): LineMesh[D] = {
     creator.createLineMesh(points, topology)
   }
 
@@ -125,7 +125,7 @@ object LineMesh {
   }
 }
 
-case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], override val topology: LineList)
+case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override val topology: LineList)
     extends LineMesh[_2D](pointSet, topology) {
 
   /** Get all cell normals as a surface property */
@@ -151,7 +151,7 @@ case class LineMesh2D(override val pointSet: UnstructuredPointsDomain[_2D], over
 
 }
 
-case class LineMesh3D(override val pointSet: UnstructuredPointsDomain[_3D], override val topology: LineList)
+case class LineMesh3D(override val pointSet: UnstructuredPoints[_3D], override val topology: LineList)
     extends LineMesh[_3D](pointSet, topology) {}
 
 /** property constant per line */

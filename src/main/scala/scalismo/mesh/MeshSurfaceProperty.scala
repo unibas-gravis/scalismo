@@ -47,7 +47,8 @@ case class ConstantProperty[A](triangulation: TriangleList, value: A) extends Me
 
 /** property defined per vertex, with interpolation */
 case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(
-  implicit val interpolator: ValueInterpolator[A]
+  implicit
+  val interpolator: ValueInterpolator[A]
 ) extends MeshSurfaceProperty[A] {
 
   /** access surface property at vertex point */
@@ -91,7 +92,8 @@ object SurfacePointProperty {
    * @return surface property which is backed by the sampled and reduced values at each vertex
    */
   def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(
-    implicit interpolator: ValueInterpolator[A]
+    implicit
+    interpolator: ValueInterpolator[A]
   ): SurfacePointProperty[A] = {
     val triangulation = property.triangulation
     // get all data for a single vertex:
