@@ -18,6 +18,7 @@ package scalismo.utils
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common._
 import scalismo.geometry._
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.io.ImageIO
 import scalismo.mesh._
@@ -47,7 +48,7 @@ object VtkHelpers {
   // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
   // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
   // This conversion must take place on the vtkStructuredPoints object containing the data, so we leave it to the caller of this method.
-  def scalarArrayToVtkDataArray[A: TypeTag](data: ScalarArray[A], numComp: Int): vtkDataArray = {
+  def scalarArrayToVtkDataArray[A: TypeTag](data: IndexedSeq[A], numComp: Int): vtkDataArray = {
     def init[T <: vtkDataArray](a: T): T = {
       a.SetNumberOfComponents(numComp)
       a.SetNumberOfTuples(data.length / numComp)
@@ -448,7 +449,10 @@ trait CanConvertToVtk[D] {
   def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
-    val dataArray = VtkHelpers.scalarArrayToVtkDataArray(img.data, 1)
+    val dataArray = img.data match {
+      case data: ScalarArray[Pixel] => VtkHelpers.scalarArrayToVtkDataArray(data, 1)
+      case data: IndexedSeq[Pixel]  => VtkHelpers.scalarArrayToVtkDataArray(ScalarArray(data.toArray), 1)
+    }
     sp.GetPointData().SetScalars(dataArray)
 
     // In the case of 3D, this might create a new vtkStructuredPoints data due to image orientation

@@ -17,8 +17,10 @@ package scalismo.common
 
 import breeze.linalg.DenseVector
 import scalismo.common.DiscreteField.ScalarMeshField
-import scalismo.common.interpolation.FieldInterpolator
-import scalismo.geometry.{_3D, EuclideanVector}
+import scalismo.common.interpolation.{DifferentiableFieldInterpolator, FieldInterpolator}
+import scalismo.geometry.{_3D, EuclideanVector, IntVector, NDSpace, Point}
+import scalismo.image.DiscreteImageDomain
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
 import scalismo.registration.Transformation
 
@@ -34,7 +36,10 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
   private val pointSet = domain.pointSet
 
   def values: Iterator[A] = data.iterator
-  override def apply(ptId: PointId) = data(ptId.id)
+
+  override def apply(ptId: PointId) = {
+    data(ptId.id)
+  }
   override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
   def valuesWithIds = values zip pointSet.pointIds
@@ -42,6 +47,10 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
   def pointsWithIds = pointSet.points.zipWithIndex
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
+
+  def map[B](f: A => B): DiscreteField[D, DDomain, B] = {
+    new DiscreteField(this.domain, data.map(f))
+  }
 
   def transform(
     transformation: Transformation[D]
@@ -56,6 +65,17 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
    * @return A continuous field of the same type.
    */
   def interpolate(interpolator: FieldInterpolator[D, DDomain, A]): Field[D, A] = {
+    interpolator.interpolate(this)
+  }
+
+  /**
+   * Interpolates the discrete field using the given interpolator.
+   * @param interpolator Implements an interpolation scheme (e.g. Nearest Neighbor, B-Spline, ...)
+   * @return A continuous field of the same type.
+   */
+  def interpolateDifferentiable(
+    interpolator: DifferentiableFieldInterpolator[D, DDomain, A, EuclideanVector[D]]
+  )(implicit scalar: Scalar[A]): DifferentiableField[D, A] = {
     interpolator.interpolate(this)
   }
 
@@ -90,6 +110,12 @@ object DiscreteField {
   def apply[D, DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[D],
                                                    data: IndexedSeq[A]): DiscreteField[D, DDomain, A] =
     new DiscreteField[D, DDomain, A](domain, data)
+
+  def apply[D, DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[D],
+                                                   values: Point[D] => A): DiscreteField[D, DDomain, A] = {
+    val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
+    new DiscreteField(domain, valueSeq)
+  }
 
   private[scalismo] def createFromDenseVector[D, DDomain[D] <: DiscreteDomain[D], A](
     domain: DDomain[D],
@@ -130,6 +156,20 @@ object DiscreteField {
     }
     M
   }
+
+  implicit class DiscreteImage[D: NDSpace, A](discreteField: DiscreteField[D, DiscreteImageDomain, A]) {
+
+    //private val pointSet = discreteField.pointSet
+    //val dimensionality = ndSpace.dimensionality
+
+    def apply(idx: IntVector[D]): A = discreteField(discreteField.domain.pointSet.pointId(idx))
+
+    def isDefinedAt(idx: IntVector[D]): Boolean = {
+      discreteField.domain.pointSet.isDefinedAt(idx)
+    }
+
+  }
+
 }
 
 trait DiscreteFieldWarp[D, DDomain[D] <: DiscreteDomain[D], Value] {

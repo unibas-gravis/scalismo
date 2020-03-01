@@ -120,6 +120,11 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     isIndex(pointToContinuousIndex(pt))
   }
 
+  /** true if the point is part of the grid points */
+  def isDefinedAt(idx: IntVector[D]): Boolean = {
+    (0 until dimensionality).forall(i => idx(i) < size(i))
+  }
+
   /** returns the point id in case it is defined, None otherwise. */
   override def pointId(pt: Point[D]): Option[PointId] = {
     val cidx = pointToContinuousIndex(pt)

@@ -50,7 +50,7 @@ case class BSplineImageInterpolator1D[A: Scalar](degree: Int) extends BSplineIma
 
   override def interpolate(
     discreteField: DiscreteField[_1D, DiscreteImageDomain, A]
-  ): DifferentiableField[_1D, A, EuclideanVector[_1D]] = {
+  ): DifferentiableField[_1D, A] = {
 
     val domain = discreteField.domain
 
@@ -89,7 +89,7 @@ case class BSplineImageInterpolator1D[A: Scalar](degree: Int) extends BSplineIma
       }
       EuclideanVector(iterateOnPoints(x, splineBasisD1))
     }
-    DifferentiableField[_1D, A, EuclideanVector[_1D]](domain.boundingBox, f, df)
+    DifferentiableField[_1D, A](domain.boundingBox, f, df)
   }
 
   /* determine the b-spline coefficients for a 1D image */
@@ -110,7 +110,7 @@ case class BSplineImageInterpolator2D[A: Scalar](degree: Int) extends BSplineIma
 
   override def interpolate(
     discreteField: DiscreteField[_2D, DiscreteImageDomain, A]
-  ): DifferentiableField[_2D, A, EuclideanVector[_2D]] = {
+  ): DifferentiableField[_2D, A] = {
     val domain = discreteField.domain
     val pointSet = domain.pointSet
 
@@ -159,7 +159,7 @@ case class BSplineImageInterpolator2D[A: Scalar](degree: Int) extends BSplineIma
       EuclideanVector(dfx, dfy)
     }
 
-    DifferentiableField[_2D, A, EuclideanVector[_2D]](discreteField.domain.boundingBox, f, df)
+    DifferentiableField[_2D, A](discreteField.domain.boundingBox, f, df)
   }
 
   /* determine the b-spline coefficients for a 2D image. The coefficients are returned
@@ -190,7 +190,7 @@ case class BSplineImageInterpolator3D[A: Scalar](degree: Int) extends BSplineIma
 
   override def interpolate(
     discreteField: DiscreteField[_3D, DiscreteImageDomain, A]
-  ): DifferentiableField[_3D, A, EuclideanVector[_3D]] = {
+  ): DifferentiableField[_3D, A] = {
     val domain = discreteField.domain
     val pointSet = domain.pointSet
 

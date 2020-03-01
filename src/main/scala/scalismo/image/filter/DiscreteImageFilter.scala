@@ -15,10 +15,11 @@
  */
 package scalismo.image.filter
 
-import scalismo.common.interpolation.{BSplineImageInterpolator}
+import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator3D}
 import scalismo.common.{Scalar, ScalarArray}
 import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import vtk.{vtkImageCast, vtkImageEuclideanDistance, vtkImageGaussianSmooth, vtkObjectBase}
 
@@ -70,7 +71,7 @@ object DiscreteImageFilter {
       vtkdistTransform.Delete()
       System.gc() // make sure it deletes the intermediate resuls
 
-      dt.resample(img.domain, BSplineImageInterpolator[D, Float](0), 0)
+      dt.interpolateDifferentiable(BSplineImageInterpolator(degree = 0)).discretize(img.domain, 0)
     }
 
     val dt1 = doDistanceTransformVTK(img)
@@ -93,7 +94,7 @@ object DiscreteImageFilter {
   ): DiscreteScalarImage[D, A] = {
 
     val vtkImg = vtkConversion.toVtk[A](img)
-    val dim = img.dimensionality
+    val dim = NDSpace[D].dimensionality
     val gaussianFilter = new vtkImageGaussianSmooth()
     gaussianFilter.SetInputData(vtkImg)
     val unitsAdjustedSpacing = img.domain.pointSet.spacing.map(s => stddev * (1f / s))

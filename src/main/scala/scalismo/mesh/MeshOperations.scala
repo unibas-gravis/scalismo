@@ -15,9 +15,8 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{PointId, RealSpace}
+import scalismo.common.{DifferentiableField, Field, PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, ScalarImage}
 import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
 import scalismo.mesh.boundingSpheres._
 import scalismo.utils.MeshConversion
@@ -95,7 +94,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
   /**
    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
-  def toDistanceImage: DifferentiableScalarImage[_3D, Float] = {
+  def toDistanceImage: DifferentiableField[_3D, Float] = {
     def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurfaceSquared(pt)).toFloat
 
     def grad(pt: Point[_3D]) = {
@@ -104,7 +103,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
       grad * (1.0 / grad.norm)
     }
 
-    DifferentiableScalarImage(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
+    DifferentiableField(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
   }
 
   /**
@@ -113,7 +112,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
    *
    */
-  def toBinaryImage: ScalarImage[_3D, Short] = {
+  def toBinaryImage: Field[_3D, Short] = {
 
     val meshOps = mesh.operations
 
@@ -136,7 +135,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
       val dotprod = normalAtClosestPoint dot (closestPoint - pt)
       if (dotprod > 0.0) 1 else 0
     }
-    ScalarImage(RealSpace[_3D], (pt: Point[_3D]) => inside(pt))
+    Field(RealSpace[_3D], (pt: Point[_3D]) => inside(pt))
   }
 
   /**

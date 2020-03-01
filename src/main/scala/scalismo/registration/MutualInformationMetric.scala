@@ -18,9 +18,9 @@ package scalismo.registration
 
 import breeze.linalg.DenseVector
 import breeze.numerics._
-import scalismo.common.Scalar
+import scalismo.common.{DifferentiableField, Field, Scalar}
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, ScalarImage, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.utils.{Memoize, Random}
@@ -40,9 +40,9 @@ import scalismo.utils.{Memoize, Random}
  *                recommended choice is a random sampler (which combined with a gradient descent algorithm leads to a stochastic gradient descent.
  * @param numberOfBins The number of bins used for the intensity histograms (which approximates the joint distribution)
  */
-case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: ScalarImage[D, A],
+case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A],
                                                           fixedImageDomain: DiscreteImageDomain[D],
-                                                          movingImage: DifferentiableScalarImage[D, A],
+                                                          movingImage: DifferentiableField[D, A],
                                                           transformationSpace: TransformationSpace[D],
                                                           sampler: Sampler[D],
                                                           numberOfBins: Int = 30)(implicit rng: Random)
@@ -52,7 +52,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: ScalarImag
   type JointHistogramDerivative = (Int, Int) => DenseVector[Double]
   type MarginalHistogram = Int => Double
 
-  private val scalar = Scalar[A]
+  val scalar = Scalar[A]
 
   override val ndSpace: NDSpace[D] = implicitly[NDSpace[D]]
 
@@ -65,7 +65,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: ScalarImag
   private val fixedImagePoints =
     UniformSampler(fixedImageDomain.boundingBox, numberOfPoints = 100000).sample().map(_._1)
 
-  private def minMaxValue(img: ScalarImage[D, A]): (Double, Double) = {
+  private def minMaxValue(img: Field[D, A]): (Double, Double) = {
 
     val values = for (pt <- fixedImagePoints if img.isDefinedAt(pt)) yield scalar.toDouble(img(pt))
     (values.min, values.max)

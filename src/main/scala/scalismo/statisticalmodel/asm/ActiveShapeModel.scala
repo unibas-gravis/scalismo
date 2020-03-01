@@ -19,6 +19,7 @@ import breeze.linalg.{convert, DenseVector}
 import scalismo.common.{PointId, UnstructuredPoints, UnstructuredPoints3D, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, Point}
 import scalismo.image.DiscreteScalarImage
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
 import scalismo.registration.{LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation}

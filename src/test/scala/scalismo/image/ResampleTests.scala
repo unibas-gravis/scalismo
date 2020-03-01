@@ -19,7 +19,7 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.PointId
+import scalismo.common.{NearestNeighborInterpolator, PointId}
 import scalismo.common.interpolation.{BSplineImageInterpolator2D, BSplineImageInterpolator3D}
 import scalismo.io.ImageIO
 
@@ -27,15 +27,16 @@ class ResampleTests extends ScalismoTestSuite {
 
   describe("Resampling a 2D image") {
 
-    val testImgUrl = getClass.getResource("/lena.vtk").getPath
-    val discreteImage = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
+    lazy val testImgUrl = getClass.getResource("/lena.vtk").getPath
+    lazy val discreteImage = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
 
     // here we do 1st order interpolation. 3rd order would not work, as it does not necessarily preserve the
     // pixel values at the strong edges - and we thus could not formulate a reasonable test
-    val continuousImage = discreteImage.interpolate(BSplineImageInterpolator2D[Short](1))
+    lazy val continuousImage = discreteImage.interpolate(BSplineImageInterpolator2D[Short](1))
 
     it("yields the original discrete image") {
-      val resampledImage = continuousImage.sample(discreteImage.domain, 0)
+
+      val resampledImage = continuousImage.discretize(discreteImage.domain, 0)
       discreteImage.values.size should equal(resampledImage.values.size)
       for (i <- 0 until discreteImage.values.size) {
         discreteImage(PointId(i)) should be(resampledImage(PointId(i)))
@@ -49,7 +50,7 @@ class ResampleTests extends ScalismoTestSuite {
     val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("yields the original discrete image") {
-      val resampledImage = continuousImage.sample(discreteImage.domain, 0)
+      val resampledImage = continuousImage.discretize(discreteImage.domain, 0)
       for (i <- 0 until discreteImage.values.size by 100) {
         discreteImage(PointId(i)) should be(resampledImage(PointId(i)))
       }

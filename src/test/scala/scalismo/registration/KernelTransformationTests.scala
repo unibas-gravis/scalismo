@@ -17,11 +17,11 @@ package scalismo.registration
 
 import breeze.linalg.DenseMatrix
 import scalismo.ScalismoTestSuite
-import scalismo.common.BoxDomain
+import scalismo.common.{BoxDomain, DifferentiableField}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.geometry.EuclideanVector._
-import scalismo.image.{DifferentiableScalarImage, DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
 import scalismo.numerics.{GridSampler, Integrator, RandomSVD, UniformSampler}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
@@ -123,9 +123,9 @@ class KernelTransformationTests extends ScalismoTestSuite {
         val Eigenpair(_, phi_i) = eigPairs(i)
         def p(x: Point[_1D]) =
           1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
-        val phiImg = DifferentiableScalarImage(domain,
-                                               (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x),
-                                               (pt: Point[_1D]) => EuclideanVector(0.0))
+        val phiImg = DifferentiableField(domain,
+                                         (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x),
+                                         (pt: Point[_1D]) => EuclideanVector(0.0))
 
         val v = integrator.integrateScalar(phiImg)
         v should be(1.0 +- 0.1)

@@ -21,6 +21,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import niftijio.{NiftiHeader, NiftiVolume}
 import scalismo.common.{RealSpace, Scalar}
 import scalismo.geometry._
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.registration._
 import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
@@ -479,29 +480,30 @@ object ImageIO {
     // for details about the nifti format
 
     transformMatrixFromNifti(volume, favourQform).map { affineTransMatrix =>
-      val t = new Transformation[_3D] {
-        override val domain = RealSpace[_3D]
-        override val f = (x: Point[_3D]) => {
+      {
+        val domain = RealSpace[_3D]
+        val f = (x: Point[_3D]) => {
           val xh = DenseVector(x(0), x(1), x(2), 1.0)
           val t: DenseVector[Double] = affineTransMatrix * xh
 
           // We flip after applying the transform as Nifti uses RAS coordinates
           Point(t(0).toFloat * -1f, t(1).toFloat * -1f, t(2).toFloat)
         }
-      }
+        val t = Transformation(domain, f)
 
-      val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
-      val tinv = new Transformation[_3D] {
-        override val f = (x: Point[_3D]) => {
-          // Here as it is the inverse, we flip before applying the affine matrix
-          val xh: DenseVector[Double] = DenseVector(x(0) * -1.0, x(1) * -1, x(2), 1.0)
-          val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
-          Point(t(0), t(1), t(2))
+        val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
+        val tinv = {
+          val f = (x: Point[_3D]) => {
+            // Here as it is the inverse, we flip before applying the affine matrix
+            val xh: DenseVector[Double] = DenseVector(x(0) * -1.0, x(1) * -1, x(2), 1.0)
+            val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
+            Point(t(0), t(1), t(2))
+          }
+          val domain = RealSpace[_3D]
+          Transformation[_3D](domain, f)
         }
-        override val domain = RealSpace[_3D]
+        (t, tinv)
       }
-
-      (t, tinv)
     }
   }
 

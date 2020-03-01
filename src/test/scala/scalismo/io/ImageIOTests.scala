@@ -23,6 +23,7 @@ import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
 import scalismo.geometry._
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.utils.CanConvertToVtk
 import spire.math.{UByte, UInt, UShort}
@@ -158,7 +159,7 @@ class ImageIOTests extends ScalismoTestSuite {
                                             EuclideanVector(0.85546875f, 0.85546875f, 1.5f),
                                             IntVector(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
-      val discreteImage = DiscreteScalarImage(domain, values.toSeq)
+      val discreteImage = DiscreteScalarImage(domain, ScalarArray(values))
       val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()
       ImageIO.writeVTK(discreteImage, f)

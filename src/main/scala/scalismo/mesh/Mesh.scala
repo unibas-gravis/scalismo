@@ -15,9 +15,8 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{PointId, RealSpace}
+import scalismo.common.{DifferentiableField, PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage}
 import scalismo.mesh.boundingSpheres.TriangleMesh3DSpatialIndex
 
 /**
@@ -29,7 +28,7 @@ object Mesh {
    * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
    */
   @deprecated("Is moved to TriangleMesh3DMeshOperations.", "0.14")
-  def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableScalarImage[_3D, Float] = {
+  def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableField[_3D, Float] = {
     val spIndex = TriangleMesh3DSpatialIndex.fromTriangleMesh3D(mesh)
 
     def dist(pt: Point[_3D]): Float = Math.sqrt(spIndex.getSquaredShortestDistance(pt)).toFloat
@@ -39,7 +38,7 @@ object Mesh {
       val grad = EuclideanVector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
       grad * (1.0 / grad.norm)
     }
-    DifferentiableScalarImage(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
+    DifferentiableField(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
   }
 
   /**

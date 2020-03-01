@@ -114,8 +114,9 @@ object MeshMetrics {
 
     val numSamplesInA = samplePts.map(imgA).sum
     val numSamplesInB = samplePts.map(imgB).sum
-    val AIntersectB = (imgA + imgB) andThen ((v: Short) => if (v > 1) 1f else 0f)
-
+    val AIntersectB = (p: Point[_3D]) => {
+      if (imgA(p) + imgB(p) > 1) 1f else 0f
+    }
     val numSamplesInAIB = samplePts.map(AIntersectB).sum
     2 * numSamplesInAIB / (numSamplesInA + numSamplesInB)
   }

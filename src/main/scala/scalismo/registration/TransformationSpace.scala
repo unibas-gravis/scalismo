@@ -39,9 +39,16 @@ object Transformation {
    */
   def apply[D](t: Point[D] => Point[D]): Transformation[D] = {
     new Transformation[D] {
-      override val f: (Point[D]) => Point[D] = t
+      override val domain = RealSpace[D]
+      override val f = t
+    }
+  }
 
-      override def domain: Domain[D] = RealSpace[D]
+  def apply[D](domain: Domain[D], t: Point[D] => Point[D]): Transformation[D] = {
+    val outerDom = domain;
+    new Transformation[D] {
+      override val domain = outerDom
+      override val f = t
     }
   }
 
@@ -49,17 +56,16 @@ object Transformation {
    * Returns a new transformation that memoizes (caches) the values that have already been
    * computed. The size of the cache used is given by the argument cacheSizeHint.
    */
-  def memoize[D](t: Transformation[D], cacheSizeHint: Int) = new Transformation[D] {
-    override protected[scalismo] val f: (Point[D]) => Point[D] = Memoize(t.f, cacheSizeHint)
-    override def domain: Domain[D] = t.domain
+  def memoize[D](t: Transformation[D], cacheSizeHint: Int) = {
+    val f: (Point[D]) => Point[D] = Memoize(t.f, cacheSizeHint)
+    val domain: Domain[D] = t.domain
+    Transformation(domain, f)
   }
 
 }
 
 trait ParametricTransformation[D] extends Transformation[D] {
-
-  /** the parameters defining the transform*/
-  val parameters: TransformationSpace.ParameterVector
+  def parameters: DenseVector[Double]
 }
 
 /** Trait for invertible D-dimensional transformation */

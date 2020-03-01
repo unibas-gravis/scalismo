@@ -19,9 +19,10 @@ package scalismo.statisticalmodel.asm
 import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.interpolation.BSplineImageInterpolator3D
-import scalismo.common.{Domain, Field, VectorField}
-import scalismo.geometry.{_3D, Point}
+import scalismo.common.{Domain, Field}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.image.DiscreteScalarImage
+import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.HDF5File
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
@@ -87,7 +88,7 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
 
     override def domain: Domain[_3D] = interpolated.domain
 
-    override protected[scalismo] val f: (Point[_3D]) => DenseVector[Float] = { point =>
+    override val f: (Point[_3D]) => DenseVector[Float] = { point =>
       DenseVector(interpolated(point))
     }
   }
@@ -132,17 +133,17 @@ case class GaussianGradientImagePreprocessor(stddev: Double,
   override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
-    val gradientImage: VectorField[_3D, _3D] = {
+    val gradientImage: Field[_3D, EuclideanVector[_3D]] = {
       if (stddev > 0) {
         DiscreteImageFilter.gaussianSmoothing(inputImage, stddev)
       } else {
         inputImage
       }
-    }.interpolate(BSplineImageInterpolator3D[Float](1)).differentiate
+    }.interpolateDifferentiable(BSplineImageInterpolator3D[Float](1)).differentiate
 
     override def domain: Domain[_3D] = gradientImage.domain
 
-    override protected[scalismo] val f: (Point[_3D]) => DenseVector[Float] = { point =>
+    override val f: (Point[_3D]) => DenseVector[Float] = { point =>
       gradientImage(point).toFloatBreezeVector
     }
   }

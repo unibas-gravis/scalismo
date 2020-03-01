@@ -42,10 +42,10 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
     it("interpolates the values for origin 2.3 and spacing 1.5") {
       val domain = DiscreteImageDomain[_1D](2.3, 1.5, 7)
-      val discreteImage = DiscreteScalarImage(domain, Seq[Float](1.4, 2.1, 7.5, 9.0, 8.0, 0.0, 2.1))
+      val discreteImage = DiscreteScalarImage(domain, IndexedSeq[Float](1.4, 2.1, 7.5, 9.0, 8.0, 0.0, 2.1))
       val continuousImg = discreteImage.interpolate(BSplineImageInterpolator1D[Float](0))
       for ((pt, idx) <- discreteImage.domain.pointSet.points.zipWithIndex) {
-        continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+        continuousImg(pt) should be(discreteImage(IntVector(idx)) +- 0.0001f)
       }
     }
   }
@@ -54,19 +54,19 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
     it("interpolates the values for origin 2.3 and spacing 1.5") {
       val domain = DiscreteImageDomain[_1D](2.3, 1.5, 7)
-      val discreteImage = DiscreteScalarImage[_1D, Float](domain, Seq[Float](1.4, 2.1, 7.5, 9, 8, 0, 2.1))
+      val discreteImage = DiscreteScalarImage[_1D, Float](domain, IndexedSeq[Float](1.4, 2.1, 7.5, 9, 8, 0, 2.1))
       val continuousImg = discreteImage.interpolate(BSplineImageInterpolator1D[Float](1))
       for ((pt, idx) <- discreteImage.domain.pointSet.points.zipWithIndex) {
-        continuousImg(pt) should be(discreteImage(idx) +- 0.0001f)
+        continuousImg(pt) should be(discreteImage(IntVector(idx)) +- 0.0001f)
       }
     }
 
     it("interpolates the values for origin 0 and spacing 1") {
       val domain = DiscreteImageDomain[_1D](0.0, 1.0, 5)
-      val discreteImage = DiscreteScalarImage(domain, Seq(3.0, 2.0, 1.5, 1.0, 0.0))
+      val discreteImage = DiscreteScalarImage(domain, IndexedSeq(3.0, 2.0, 1.5, 1.0, 0.0))
       val continuousImg = discreteImage.interpolate(BSplineImageInterpolator1D[Double](0))
       for ((pt, idx) <- discreteImage.domain.pointSet.points.zipWithIndex) {
-        assert(continuousImg(pt) === discreteImage(idx))
+        assert(continuousImg(pt) === discreteImage(IntVector(idx)))
       }
     }
 
@@ -77,14 +77,14 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
         val discreteSinImage =
           DiscreteScalarImage(domain, domain.pointSet.points.map(x => math.sin(x * math.Pi)).toIndexedSeq)
-        val interpolatedSinImage = discreteSinImage.interpolate(BSplineImageInterpolator1D[Double](3))
+        val interpolatedSinImage = discreteSinImage.interpolateDifferentiable(BSplineImageInterpolator1D[Double](3))
         val derivativeImage = interpolatedSinImage.differentiate
 
         val discreteCosImage =
           DiscreteScalarImage(domain, domain.pointSet.points.map(x => math.Pi * math.cos(x * math.Pi)).toIndexedSeq)
 
         for ((pt, idx) <- domain.pointSet.points.zipWithIndex.filter(x => math.abs(x._1) < 1.90)) {
-          derivativeImage(pt)(0).toDouble should be(discreteCosImage(idx) +- 0.0001f)
+          derivativeImage(pt)(0).toDouble should be(discreteCosImage(IntVector(idx)) +- 0.0001f)
         }
       }
     }
@@ -96,7 +96,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
       it("Interpolates the values for a simple domain") {
         val domain = DiscreteImageDomain[_2D]((0.0, 0.0), (1.0, 1.0), (2, 3))
-        val discreteImage = DiscreteScalarImage(domain, Seq(1f, 2f, 3f, 4f, 5f, 6f))
+        val discreteImage = DiscreteScalarImage(domain, IndexedSeq(1f, 2f, 3f, 4f, 5f, 6f))
 
         val continuousImg = discreteImage.interpolate(BSplineImageInterpolator2D[Float](0))
 
@@ -107,7 +107,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
       it("Interpolates the values for origin (2,3) and spacing (1.5, 2.3)") {
         val domain = DiscreteImageDomain[_2D]((2.0, 3.0), (1.5, 0.1), (2, 3))
-        val discreteImage = DiscreteScalarImage(domain, Seq(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
+        val discreteImage = DiscreteScalarImage(domain, IndexedSeq(1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
         val continuousImg = discreteImage.interpolate(BSplineImageInterpolator2D[Float](0))
 
@@ -119,7 +119,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
     describe(" of degree 3") {
       it("Interpolates the values for origin (2,3) and spacing (1.5, 2.3)") {
         val domain = DiscreteImageDomain[_2D]((2.0, 3.0), (1.5, 1.3), (10, 10))
-        val discreteImage = DiscreteScalarImage(domain, domain.pointSet.points.map(x => x(0).toFloat).toSeq)
+        val discreteImage = DiscreteScalarImage(domain, domain.pointSet.points.map(x => x(0).toFloat).toIndexedSeq)
 
         val continuousImg = discreteImage.interpolate(BSplineImageInterpolator2D[Float](3))
 
@@ -142,8 +142,8 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val domain = DiscreteImageDomain[_2D]((-2.0, -2.0), (0.01, 0.01), (400, 400))
 
         val discreteFImage =
-          DiscreteScalarImage(domain, domain.pointSet.points.map(x => x(0) * x(0) + x(1) * x(1)).toSeq)
-        val interpolatedFImage = discreteFImage.interpolate(BSplineImageInterpolator2D[Double](3))
+          DiscreteScalarImage(domain, domain.pointSet.points.map(x => x(0) * x(0) + x(1) * x(1)).toIndexedSeq)
+        val interpolatedFImage = discreteFImage.interpolateDifferentiable(BSplineImageInterpolator2D[Double](3))
         val derivativeImage = interpolatedFImage.differentiate
 
         for ((pt, idx) <- domain.pointSet.points.zipWithIndex.filter(x =>
@@ -202,8 +202,9 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val domain = DiscreteImageDomain[_3D]((-2.0, -2.0, -2.0), (0.1, 0.1, 0.1), (40, 40, 40))
 
         val discreteFImage =
-          DiscreteScalarImage(domain, domain.pointSet.points.map(x => x(0) * x(0) + x(1) * x(1) + x(2) * x(2)).toSeq)
-        val interpolatedFImage = discreteFImage.interpolate(BSplineImageInterpolator3D[Double](3))
+          DiscreteScalarImage(domain,
+                              domain.pointSet.points.map(x => x(0) * x(0) + x(1) * x(1) + x(2) * x(2)).toIndexedSeq)
+        val interpolatedFImage = discreteFImage.interpolateDifferentiable(BSplineImageInterpolator3D[Double](3))
         val derivativeImage = interpolatedFImage.differentiate
 
         for ((pt, idx) <- domain.pointSet.points.zipWithIndex.filter(x =>

@@ -16,13 +16,12 @@
 package scalismo.numerics
 
 import breeze.linalg.DenseVector
-import scalismo.common.{Scalar, VectorField}
+import scalismo.common.{Field, Scalar}
 import scalismo.geometry._
-import scalismo.image.ScalarImage
 
 case class Integrator[D: NDSpace](sampler: Sampler[D]) {
 
-  def integrateScalar[A: Scalar](img: ScalarImage[D, A]): A = {
+  def integrateScalar[A: Scalar](img: Field[D, A]): A = {
     integrateScalar(img.liftValues)
   }
 
@@ -37,7 +36,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     scalar.fromDouble(sum / samples.size)
   }
 
-  def integrateVector[DO: NDSpace](img: VectorField[D, DO]): EuclideanVector[DO] = {
+  def integrateVector[DO: NDSpace](img: Field[D, EuclideanVector[DO]]): EuclideanVector[DO] = {
     integrateVector(img.liftValues)
   }
 

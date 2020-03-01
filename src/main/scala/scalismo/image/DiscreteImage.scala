@@ -15,7 +15,7 @@
  */
 package scalismo.image
 
-import scalismo.common.DiscreteField
+import scalismo.common.{DiscreteDomain, DiscreteField, Scalar, ScalarArray}
 import scalismo.geometry._
 
 /**
@@ -24,18 +24,16 @@ import scalismo.geometry._
  * @tparam D  The dimensionality of the image
  * @tparam A The type of the pixel (usually a scalar or a vector)
  */
-class DiscreteImage[D: NDSpace, A](domain: DiscreteImageDomain[D], values: IndexedSeq[A])
-    extends DiscreteField[D, DiscreteImageDomain, A](domain, values) {
+object DiscreteImage {}
 
-  protected[this] def ndSpace: NDSpace[D] = NDSpace[D]
+object DiscreteScalarImage {
+  type DiscreteScalarImage[D, A] = DiscreteField[D, DiscreteImageDomain, A]
 
-  private val pointSet = domain.pointSet
-  val dimensionality = ndSpace.dimensionality
+  def apply[D, A](domain: DiscreteImageDomain[D], data: IndexedSeq[A]): DiscreteScalarImage[D, A] =
+    new DiscreteField[D, DiscreteImageDomain, A](domain, data)
 
-  def apply(idx: IntVector[D]): A = this(pointSet.pointId(idx))
-
-  def isDefinedAt(idx: IntVector[D]): Boolean = {
-    (0 until dimensionality).foldLeft(true)((res, d) => res && idx(d) >= 0 && idx(d) < pointSet.size(d))
+  def apply[D, A](domain: DiscreteImageDomain[D], values: Point[D] => A): DiscreteScalarImage[D, A] = {
+    val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
+    new DiscreteField(domain, valueSeq)
   }
-
 }

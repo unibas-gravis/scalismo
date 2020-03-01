@@ -20,13 +20,13 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.PointId
+import scalismo.common.{DifferentiableField, PointId}
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
-import scalismo.image.{DifferentiableScalarImage, StructuredPoints}
+import scalismo.image.StructuredPoints
 import scalismo.io.{ImageIO, MeshIO}
 
 import scala.language.implicitConversions
@@ -132,14 +132,13 @@ class TransformationTests extends ScalismoTestSuite {
 
     it("translates a 1D image") {
       val domain = StructuredPoints[_1D](-50.0, 1.0, 100)
-      val continuousImage = DifferentiableScalarImage(domain.boundingBox,
-                                                      (x: Point[_1D]) => (x * x),
-                                                      (x: Point[_1D]) => EuclideanVector(2f * x))
+      val continuousImage =
+        DifferentiableField(domain.boundingBox, (x: Point[_1D]) => (x * x), (x: Point[_1D]) => EuclideanVector(2f * x))
 
       val translation = TranslationSpace[_1D].transformForParameters(DenseVector[Double](10))
       val translatedImg = continuousImage.compose(translation)
 
-      translatedImg(-10) should equal(0)
+      translatedImg(Point(-10)) should equal(0)
     }
   }
 
