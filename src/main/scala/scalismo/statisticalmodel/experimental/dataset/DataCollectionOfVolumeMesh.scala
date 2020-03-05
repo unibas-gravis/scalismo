@@ -110,9 +110,12 @@ object DataCollectionOfVolumeMesh {
     val meshFileNames = meshDirectory
       .listFiles()
       .toSeq
-      .filter(fn => fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".vtu")||fn.getAbsolutePath.endsWith(".inp"))
+      .filter(fn =>
+        fn.getAbsolutePath.endsWith(".vtk") || fn.getAbsolutePath.endsWith(".vtu") || fn.getAbsolutePath
+          .endsWith(".inp")
+      )
     val (meshes, ioErrors) = DataUtils.partitionSuccAndFailedTries(for (meshFn <- meshFileNames) yield {
-      MeshIO.readMesh(meshFn).map(m => TetrahedralMesh3D(m.pointSet, referenceMesh.tetrahedralization))
+      MeshIO.readTetrahedralMesh(meshFn).map(m => TetrahedralMesh3D(m.pointSet, referenceMesh.tetrahedralization))
     })
     val (dc, meshErrors) = fromMeshSequence(referenceMesh, meshes)
     (dc, ioErrors ++ meshErrors)
