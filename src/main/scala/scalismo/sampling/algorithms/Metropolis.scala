@@ -134,7 +134,7 @@ object MetropolisHastings {
 class MetropolisHastingsWithPrefetching[A] protected (
   val generator: ProposalGenerator[A] with TransitionRatio[A],
   val evaluator: DistributionEvaluator[A],
-  val numberOfParallelEvaluations: Int = Runtime.getRuntime.availableProcessors()
+  val numberOfParallelEvaluations: Int
 )(implicit val random: Random)
     extends MarkovChain[A] {
 
@@ -207,7 +207,9 @@ class MetropolisHastingsWithPrefetching[A] protected (
 }
 
 object MetropolisHastingsWithPrefetching {
-  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
+  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A],
+               evaluator: DistributionEvaluator[A],
+               numberOfParallelEvaluations: Int = Runtime.getRuntime.availableProcessors())(
     implicit random: Random
-  ) = new MetropolisHastingsWithPrefetching[A](generator, evaluator)
+  ) = new MetropolisHastingsWithPrefetching[A](generator, evaluator, numberOfParallelEvaluations)
 }
