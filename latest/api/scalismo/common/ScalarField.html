@@ -146,6 +146,10 @@
                         <a class="trait" href="ComponentRepresentation.html" title="Vectorizer linearize an object to and from an Array"></a>
                         <a href="ComponentRepresentation.html" title="Vectorizer linearize an object to and from an Array">ComponentRepresentation</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="DifferentiableField$.html" title=""></a>
+                        <a class="trait" href="DifferentiableField.html" title=""></a>
+                        <a href="DifferentiableField.html" title="">DifferentiableField</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="DiscreteDomain.html" title=""></a>
                         <a href="DiscreteDomain.html" title="">DiscreteDomain</a>
@@ -173,6 +177,18 @@
                         <span class="separator"></span>
                         <a class="class" href="NearestNeighborInterpolator.html" title="Nearest neighbor interpolation of a discrete field."></a>
                         <a href="NearestNeighborInterpolator.html" title="Nearest neighbor interpolation of a discrete field.">NearestNeighborInterpolator</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="NearestNeighborInterpolator1D$.html" title=""></a>
+                        <a href="NearestNeighborInterpolator1D$.html" title="">NearestNeighborInterpolator1D</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="NearestNeighborInterpolator2D$.html" title=""></a>
+                        <a href="NearestNeighborInterpolator2D$.html" title="">NearestNeighborInterpolator2D</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="NearestNeighborInterpolator3D$.html" title=""></a>
+                        <a href="NearestNeighborInterpolator3D$.html" title="">NearestNeighborInterpolator3D</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="PointGenerator.html" title=""></a>
@@ -274,7 +290,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>], (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]) ⇒ <span class="extype" name="scalismo.common.ScalarField.A">A</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="Field.html" class="extype" name="scalismo.common.Field">Field</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>], (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]) ⇒ <span class="extype" name="scalismo.common.ScalarField.A">A</span>, <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
             <span class="toggle">
               Known Subclasses
@@ -384,9 +400,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.common.ScalarField#*" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="*(s:Double):scalismo.common.ScalarField[D,A]"></a><a id="*(Double):ScalarField[D,A]"></a>
+      <a id="*(s:Double):scalismo.common.ScalarField[D,Double]"></a><a id="*(Double):ScalarField[D,Double]"></a>
       <span class="permalink">
-      <a href="../../scalismo/common/ScalarField.html#*(s:Double):scalismo.common.ScalarField[D,A]" title="Permalink">
+      <a href="../../scalismo/common/ScalarField.html#*(s:Double):scalismo.common.ScalarField[D,Double]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -395,7 +411,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>]</span>
+        <span title="gt4s: $times" class="name">*</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <a href="" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scala.Double">Double</span>]</span>
       </span>
       
       <p class="shortcomment cmt">scalar multiplication of a vector field</p>
@@ -431,6 +447,22 @@
       </span>
       
       <p class="shortcomment cmt">subtract two images.</p><div class="fullcomment"><div class="comment cmt"><p>subtract two images. The domain of the new image is the intersection of the domains of the individual images</p></div></div>
+    </li><li name="scalismo.common.ScalarField#:*" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id=":*(that:scalismo.common.ScalarField[D,A]):scalismo.common.ScalarField[D,A]"></a><a id=":*(ScalarField[D,A]):ScalarField[D,A]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/common/ScalarField.html#:*(that:scalismo.common.ScalarField[D,A]):scalismo.common.ScalarField[D,A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $colon$times" class="name">:*</span><span class="params">(<span name="that">that: <a href="" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">scalar multiplication of a vector field</p>
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
@@ -512,7 +544,7 @@ if an image is accessed outside of its definition, an exception is thrown
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -526,6 +558,22 @@ if an image is accessed outside of its definition, an exception is thrown
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scalismo.common.ScalarField#compose" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="compose(t:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.common.ScalarField[D,A]"></a><a id="compose((Point[D])⇒Point[D]):ScalarField[D,A]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/common/ScalarField.html#compose(t:scalismo.geometry.Point[D]=&gt;scalismo.geometry.Point[D]):scalismo.common.ScalarField[D,A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">compose</span><span class="params">(<span name="t">t: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]) ⇒ <a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]</span>)</span><span class="result">: <a href="" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>, <span class="extype" name="scalismo.common.ScalarField.A">A</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.Function1#compose" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a><a id="compose[A]((A)⇒Point[D]):(A)⇒A"></a>
       <span class="permalink">
@@ -573,7 +621,7 @@ if an image is accessed outside of its definition, an exception is thrown
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -694,7 +742,7 @@ but yields none if the value is outside of the domain
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -773,28 +821,6 @@ but yields none if the value is outside of the domain
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1 → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait():Unit"></a>
-      <span class="permalink">
-      <a href="../../scalismo/common/ScalarField.html#wait():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">(<span>
-      
-      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
-    </span>)</span>
-              
-        </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
       <a href="../../scalismo/common/ScalarField.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
@@ -834,6 +860,28 @@ but yields none if the value is outside of the domain
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@native</span><span class="args">()</span>
               
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/common/ScalarField.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
@@ -892,7 +940,7 @@ but yields none if the value is outside of the domain
             </div><div class="parent" name="scala.Function1">
               <h3>Inherited from (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.common.ScalarField.D">D</span>]) ⇒ <span class="extype" name="scalismo.common.ScalarField.A">A</span></h3>
             </div><div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+              <h3>Inherited from <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>

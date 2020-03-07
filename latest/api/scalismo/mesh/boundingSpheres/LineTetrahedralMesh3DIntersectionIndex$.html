@@ -8,21 +8,21 @@
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
-      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
-      <script type="text/javascript" src="../../lib/index.js"></script>
-      <script type="text/javascript" src="../../index.js"></script>
-      <script type="text/javascript" src="../../lib/scheduler.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../../lib/index.js"></script>
+      <script type="text/javascript" src="../../../index.js"></script>
+      <script type="text/javascript" src="../../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
-        var toRoot = '../../';
+        var toRoot = '../../../';
       </script>
     
         </head>
@@ -65,10 +65,10 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="../../index.html"><span class="name">root</span></a>
+        <a title="" href="../../../index.html"><span class="name">root</span></a>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
     </li><li name="_root_.scalismo" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="scalismo"></a><a id="scalismo:scalismo"></a>
       <span class="permalink">
@@ -81,14 +81,14 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="../index.html"><span class="name">scalismo</span></a>
+        <a title="" href="../../index.html"><span class="name">scalismo</span></a>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
-    </li><li name="scalismo.image" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="image"></a><a id="image:image"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="scalismo.mesh" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mesh"></a><a id="mesh:mesh"></a>
       <span class="permalink">
-      <a href="../scalismo/index.html#image" title="Permalink">
+      <a href="../scalismo/index.html#mesh" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -97,50 +97,110 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="Contains classes for representing discrete and continuous images as well as filters for filtering both types of images." href="index.html"><span class="name">image</span></a>
+        <a title="" href="../index.html"><span class="name">mesh</span></a>
       </span>
       
-      <p class="shortcomment cmt">Contains classes for representing discrete and continuous images as well as filters for filtering both types of images.</p><div class="fullcomment"><div class="comment cmt"><p>Contains classes for representing discrete and continuous images as well as filters for filtering both types of images.</p><p>In this library, the standard type of images are just functions, defined on some domain.
-There is also the more traditional discrete image type, which represents image data on a regular pixel/voxel grid.</p><p>DiscreteImages are mainly used for reading/writing and simple manipulation of image values. The continuous representation
-of images is much more flexible and most method for manipulating images are defined only on this image type.
-A discrete image can be converted to a continuous image by using an interpolation procedure:</p><pre><span class="kw">val</span> domain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">255</span>,<span class="num">255</span>))
-<span class="kw">val</span> di = DiscreteScalarImage(domain)(<span class="num">0</span>)
-<span class="kw">val</span> discreteImage =  DiscreteScalarImage(domain, (_ : Point[_2D]) <span class="kw">=&gt;</span> <span class="num">1.0</span>f)
-<span class="kw">val</span> continuousImage = discreteImage.interpolate(<span class="num">3</span>)</pre><p>To get back the discrete representation, we can sample the image values on a regular grid:</p><pre><span class="kw">val</span> newDomain = DiscreteImageDomain(Point(<span class="num">0</span>,<span class="num">0</span>), Vector(<span class="num">1</span>,<span class="num">1</span>), Index(<span class="num">128</span>,<span class="num">128</span>))
-<span class="kw">val</span> resampledDiscreteImage = continuousImage.sample(domain, <span class="num">0</span>)</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="scalismo">scalismo</a></dd></dl></div>
-    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DiscreteScalarImage"></a><a id="DiscreteScalarImage:DiscreteScalarImage"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="scalismo">scalismo</a></dd></dl></div>
+    </li><li name="scalismo.mesh.boundingSpheres" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="boundingSpheres"></a><a id="boundingSpheres:boundingSpheres"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/index.html#DiscreteScalarImage" title="Permalink">
+      <a href="../../scalismo/mesh/index.html#boundingSpheres" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images." href="DiscreteScalarImage$.html"><span class="name">DiscreteScalarImage</span></a>
+        <a title="" href="index.html"><span class="name">boundingSpheres</span></a>
       </span>
       
-      <p class="shortcomment cmt">Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.</p><div class="fullcomment"><div class="comment cmt"><p>Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="scalismo.image">image</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="scalismo.mesh">mesh</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="DiscreteScalarImage$$Create.html" title=""></a>
-                        <a href="DiscreteScalarImage$$Create.html" title="">Create</a>
+                        <a class="class" href="ClosestPoint.html" title="A class that contains the location and the distance to the closest point on a surface."></a>
+                        <a href="ClosestPoint.html" title="A class that contains the location and the distance to the closest point on a surface.">ClosestPoint</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="DiscreteScalarImage$$Create1D$.html" title=""></a>
-                        <a href="DiscreteScalarImage$$Create1D$.html" title="">Create1D</a>
+                        <a class="class" href="ClosestPointInTetrahedron.html" title="The closest point is a vertex."></a>
+                        <a href="ClosestPointInTetrahedron.html" title="The closest point is a vertex.">ClosestPointInTetrahedron</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="DiscreteScalarImage$$Create2D$.html" title=""></a>
-                        <a href="DiscreteScalarImage$$Create2D$.html" title="">Create2D</a>
+                        <a class="class" href="ClosestPointInTriangle.html" title="The closest point is a vertex."></a>
+                        <a href="ClosestPointInTriangle.html" title="The closest point is a vertex.">ClosestPointInTriangle</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="" title=""></a>
-                        <a href="" title="">Create3D</a>
+                        <a class="class" href="ClosestPointInTriangleOfTetrahedron.html" title=""></a>
+                        <a href="ClosestPointInTriangleOfTetrahedron.html" title="">ClosestPointInTriangleOfTetrahedron</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ClosestPointIsVertex.html" title="The closest point is a vertex."></a>
+                        <a href="ClosestPointIsVertex.html" title="The closest point is a vertex.">ClosestPointIsVertex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ClosestPointOnLine.html" title="The closest point lies on a line."></a>
+                        <a href="ClosestPointOnLine.html" title="The closest point lies on a line.">ClosestPointOnLine</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="ClosestPointWithType.html" title="The base type for all closest point types with additional information about the location of the point."></a>
+                        <a href="ClosestPointWithType.html" title="The base type for all closest point types with additional information about the location of the point.">ClosestPointWithType</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="DiscreteSpatialIndex$.html" title="SpatialIndex for a set of points."></a>
+                        <a class="trait" href="DiscreteSpatialIndex.html" title="SpatialIndex for a set of points"></a>
+                        <a href="DiscreteSpatialIndex.html" title="SpatialIndex for a set of points">DiscreteSpatialIndex</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="" title="LineTetrahedralMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D."></a>
+                        <a class="class" href="LineTetrahedralMesh3DIntersectionIndex.html" title="LineTetrahedralMesh3DIntersectionIndex implements the interface TetrahedralizedVolumeIntersectionIndex for Tetrahedral3D."></a>
+                        <a href="LineTetrahedralMesh3DIntersectionIndex.html" title="LineTetrahedralMesh3DIntersectionIndex implements the interface TetrahedralizedVolumeIntersectionIndex for Tetrahedral3D.">LineTetrahedralMesh3DIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="LineTriangleMesh3DIntersectionIndex$.html" title="LineTriangleMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D."></a>
+                        <a href="LineTriangleMesh3DIntersectionIndex$.html" title="LineTriangleMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D.">LineTriangleMesh3DIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="LineTrinagleMesh3DIntersectionIndex$.html" title="LineTriangleMesh3DIntersecitionIndex implements the interface TetrahedralizedVolumeIntersectionIndex for TetrahedralMesh3D."></a>
+                        <a href="LineTrinagleMesh3DIntersectionIndex$.html" title="LineTriangleMesh3DIntersecitionIndex implements the interface TetrahedralizedVolumeIntersectionIndex for TetrahedralMesh3D.">LineTrinagleMesh3DIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="SpatialIndex.html" title=""></a>
+                        <a href="SpatialIndex.html" title="">SpatialIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="SurfaceIntersectionIndex.html" title="The SurfaceIntersectionIndex supports queries about the intersection of a line with a surface."></a>
+                        <a href="SurfaceIntersectionIndex.html" title="The SurfaceIntersectionIndex supports queries about the intersection of a line with a surface.">SurfaceIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="SurfaceSpatialIndex.html" title="SurfaceDistance trait with the basic queries defined."></a>
+                        <a href="SurfaceSpatialIndex.html" title="SurfaceDistance trait with the basic queries defined.">SurfaceSpatialIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="TetrahedralMesh3DSpatialIndex$.html" title="Companion object for the surface distance implementation for TriangleMesh3D."></a>
+                        <a href="TetrahedralMesh3DSpatialIndex$.html" title="Companion object for the surface distance implementation for TriangleMesh3D.">TetrahedralMesh3DSpatialIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="TetrahedralizedVolumeIntersectionIndex.html" title="The TetrahedralizedVolumeIntersectionIndex is a specialization of the SurfaceIntersectionIndex for TetrahedralMeshes."></a>
+                        <a href="TetrahedralizedVolumeIntersectionIndex.html" title="The TetrahedralizedVolumeIntersectionIndex is a specialization of the SurfaceIntersectionIndex for TetrahedralMeshes.">TetrahedralizedVolumeIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Tetrahedron.html" title="Holds tetrahedron and precalculated vectors."></a>
+                        <a href="Tetrahedron.html" title="Holds tetrahedron and precalculated vectors.">Tetrahedron</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="TriangleMesh3DSpatialIndex$.html" title="Companion object for the surface distance implementation for TriangleMesh3D."></a>
+                        <a href="TriangleMesh3DSpatialIndex$.html" title="Companion object for the surface distance implementation for TriangleMesh3D.">TriangleMesh3DSpatialIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="TriangulatedSurfaceIntersectionIndex.html" title="The TriangulatedSurfaceIntersectionIndex is a specialization of the SurfaceIntersectionIndex for TriangleMeshs."></a>
+                        <a href="TriangulatedSurfaceIntersectionIndex.html" title="The TriangulatedSurfaceIntersectionIndex is a specialization of the SurfaceIntersectionIndex for TriangleMeshs.">TriangulatedSurfaceIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="VolumeIntersectionIndex.html" title=""></a>
+                        <a href="VolumeIntersectionIndex.html" title="">VolumeIntersectionIndex</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="VolumeSpatialIndex.html" title="SurfaceDistance trait with the basic queries defined."></a>
+                        <a href="VolumeSpatialIndex.html" title="SurfaceDistance trait with the basic queries defined.">VolumeSpatialIndex</a>
                       </li>
               </ul>
             </div>
@@ -148,32 +208,35 @@ A discrete image can be converted to a continuous image by using an interpolatio
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <div class="big-circle object">o</div>
-        <p id="owner"><a href="../index.html" class="extype" name="scalismo">scalismo</a>.<a href="index.html" class="extype" name="scalismo.image">image</a>.<a href="DiscreteScalarImage$.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a></p>
-        <h1>Create3D<span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html" title="Permalink">
+        <a href="LineTetrahedralMesh3DIntersectionIndex.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <p id="owner"><a href="../../index.html" class="extype" name="scalismo">scalismo</a>.<a href="../index.html" class="extype" name="scalismo.mesh">mesh</a>.<a href="index.html" class="extype" name="scalismo.mesh.boundingSpheres">boundingSpheres</a></p>
+        <h1><a href="LineTetrahedralMesh3DIntersectionIndex.html" title="See companion class">LineTetrahedralMesh3DIntersectionIndex</a><span class="permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"></span></h3>
+        <h3><span class="morelinks"><div>
+            Companion <a href="LineTetrahedralMesh3DIntersectionIndex.html" title="See companion class">class LineTetrahedralMesh3DIntersectionIndex</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">implicit </span>
+        <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Create3D</span><span class="result"> extends <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+        <span class="name">LineTetrahedralMesh3DIntersectionIndex</span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>LineTetrahedralMesh3DIntersecitionIndex implements the interface TriangulatedSurfaceIntersectionIndex for TriangleMesh3D.
+</p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -199,7 +262,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="scalismo.image.DiscreteScalarImage.Create3D"><span>Create3D</span></li><li class="in" name="scalismo.image.DiscreteScalarImage.Create"><span>Create</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="scalismo.mesh.boundingSpheres.LineTetrahedralMesh3DIntersectionIndex"><span>LineTetrahedralMesh3DIntersectionIndex</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -229,7 +292,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -245,7 +308,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html###():Int" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -261,7 +324,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -277,7 +340,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -293,7 +356,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#clone():Object" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -302,10 +365,10 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@native</span><span class="args">()</span>
               
                 <span class="name">@HotSpotIntrinsicCandidate</span><span class="args">()</span>
@@ -316,26 +379,10 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.image.DiscreteScalarImage.Create3D#create" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="create[A](domain:scalismo.image.DiscreteImageDomain[scalismo.geometry._3D],values:scalismo.common.ScalarArray[A])(implicitevidence$13:scalismo.common.Scalar[A],implicitevidence$14:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,A]"></a><a id="create[A](DiscreteImageDomain[_3D],ScalarArray[A])(Scalar[A],ClassTag[A]):DiscreteScalarImage[_3D,A]"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#create[A](domain:scalismo.image.DiscreteImageDomain[scalismo.geometry._3D],values:scalismo.common.ScalarArray[A])(implicitevidence$13:scalismo.common.Scalar[A],implicitevidence$14:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[scalismo.geometry._3D,A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">create</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>, <span name="values">values: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.Create3D.create.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.Create3D.create.A">A</span>]</span>, <span name="arg1">arg1: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.Create3D.create.A">A</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>, <span class="extype" name="scalismo.image.DiscreteScalarImage.Create3D.create.A">A</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.image.DiscreteScalarImage.Create3D">Create3D</a> → <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -344,14 +391,14 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -364,10 +411,26 @@ A discrete image can be converted to a continuous image by using an interpolatio
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scalismo.mesh.boundingSpheres.LineTetrahedralMesh3DIntersectionIndex#fromTetrahedralMesh3D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromTetrahedralMesh3D(mesh:scalismo.mesh.TetrahedralMesh[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.TetrahedralizedVolumeIntersectionIndex[scalismo.geometry._3D]"></a><a id="fromTetrahedralMesh3D(TetrahedralMesh[_3D]):TetrahedralizedVolumeIntersectionIndex[_3D]"></a>
+      <span class="permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#fromTetrahedralMesh3D(mesh:scalismo.mesh.TetrahedralMesh[scalismo.geometry._3D]):scalismo.mesh.boundingSpheres.TetrahedralizedVolumeIntersectionIndex[scalismo.geometry._3D]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromTetrahedralMesh3D</span><span class="params">(<span name="mesh">mesh: <a href="../TetrahedralMesh.html" class="extype" name="scalismo.mesh.TetrahedralMesh">TetrahedralMesh</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>)</span><span class="result">: <a href="TetrahedralizedVolumeIntersectionIndex.html" class="extype" name="scalismo.mesh.boundingSpheres.TetrahedralizedVolumeIntersectionIndex">TetrahedralizedVolumeIntersectionIndex</a>[<a href="../../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates VolumeDistance for a TetrahedralMesh3D.</p>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -388,7 +451,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#hashCode():Int" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -409,7 +472,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -425,7 +488,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -434,14 +497,14 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#notify():Unit" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -462,7 +525,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -483,7 +546,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -499,7 +562,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#toString():String" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -513,31 +576,9 @@ A discrete image can be converted to a continuous image by using an interpolatio
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait():Unit"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#wait():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">(<span>
-      
-      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
-    </span>)</span>
-              
-        </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -559,7 +600,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -580,6 +621,28 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <span class="permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li>
               </ol>
             </div>
@@ -591,7 +654,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
               <ol><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$$Create3D$.html#finalize():Unit" title="Permalink">
+      <a href="../../../scalismo/mesh/boundingSpheres/LineTetrahedralMesh3DIntersectionIndex$.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -603,7 +666,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="name deprecated" title="Deprecated: (Since version ) see corresponding Javadoc for more information.">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@Deprecated</span>
               
                 <span class="name">@deprecated</span>
@@ -619,10 +682,8 @@ A discrete image can be converted to a continuous image by using an interpolatio
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scalismo.image.DiscreteScalarImage.Create">
-              <h3>Inherited from <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</h3>
-            </div><div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>

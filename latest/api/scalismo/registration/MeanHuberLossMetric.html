@@ -135,6 +135,14 @@
                         <a href="CreateRotationSpace.html" title="Type class required for the creation of D-dimensional Rotation spaces">CreateRotationSpace</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="DifferentiableCompositeTransformation.html" title="Class defining transformations composed of two argument transforms."></a>
+                        <a href="DifferentiableCompositeTransformation.html" title="Class defining transformations composed of two argument transforms.">DifferentiableCompositeTransformation</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="DifferentiableProductTransformationSpace$.html" title=""></a>
+                        <a class="class" href="DifferentiableProductTransformationSpace.html" title="Parametric Transformation Space Combining two transformation spaces passed as arguments"></a>
+                        <a href="DifferentiableProductTransformationSpace.html" title="Parametric Transformation Space Combining two transformation spaces passed as arguments">DifferentiableProductTransformationSpace</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="DifferentiableTransforms.html" title="Trait for a parametric transformation space returning differentiable transforms"></a>
                         <a href="DifferentiableTransforms.html" title="Trait for a parametric transformation space returning differentiable transforms">DifferentiableTransforms</a>
                       </li><li class="current-entities indented2">
@@ -182,7 +190,7 @@
                         <a class="class" href="ProductTransformation.html" title=""></a>
                         <a href="ProductTransformation.html" title="">ProductTransformation</a>
                       </li><li class="current-entities indented2">
-                        <span class="separator"></span>
+                        <a class="object" href="ProductTransformationSpace$.html" title=""></a>
                         <a class="class" href="ProductTransformationSpace.html" title="Parametric Transformation Space Combining two transformation spaces passed as arguments"></a>
                         <a href="ProductTransformationSpace.html" title="Parametric Transformation Space Combining two transformation spaces passed as arguments">ProductTransformationSpace</a>
                       </li><li class="current-entities indented2">
@@ -268,7 +276,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">MeanHuberLossMetric</span><span class="tparams">[<span name="D">D</span>]</span><span class="params">(<span name="fixedImage">fixedImage: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="movingImage">movingImage: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="transformationSpace">transformationSpace: <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="delta">delta: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1.345</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>)</span><span class="result"> extends <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">MeanHuberLossMetric</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="fixedImage">fixedImage: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>, <span name="movingImage">movingImage: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>, <span name="transformationSpace">transformationSpace: <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="delta">delta: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1.345</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="evidence$2">evidence$2: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>)</span><span class="result"> extends <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -279,7 +287,7 @@ values below this threshold and linearly for values above this threshold.</p></d
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>], <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>], <a href="RegistrationMetric.html" class="extype" name="scalismo.registration.RegistrationMetric">RegistrationMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>], <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>], <a href="RegistrationMetric.html" class="extype" name="scalismo.registration.RegistrationMetric">RegistrationMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>], <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -326,9 +334,9 @@ values below this threshold and linearly for values above this threshold.</p></d
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="scalismo.registration.MeanHuberLossMetric#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(fixedImage:scalismo.image.ScalarImage[D],movingImage:scalismo.image.DifferentiableScalarImage[D],transformationSpace:scalismo.registration.TransformationSpace[D],sampler:scalismo.numerics.Sampler[D],delta:Double)(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.registration.MeanHuberLossMetric[D]"></a><a id="&lt;init&gt;:MeanHuberLossMetric[D]"></a>
+      <a id="&lt;init&gt;(fixedImage:scalismo.image.ScalarImage[D,A],movingImage:scalismo.image.DifferentiableScalarImage[D,A],transformationSpace:scalismo.registration.TransformationSpace[D],sampler:scalismo.numerics.Sampler[D],delta:Double)(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitevidence$2:scalismo.common.Scalar[A]):scalismo.registration.MeanHuberLossMetric[D,A]"></a><a id="&lt;init&gt;:MeanHuberLossMetric[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/registration/MeanHuberLossMetric.html#&lt;init&gt;(fixedImage:scalismo.image.ScalarImage[D],movingImage:scalismo.image.DifferentiableScalarImage[D],transformationSpace:scalismo.registration.TransformationSpace[D],sampler:scalismo.numerics.Sampler[D],delta:Double)(implicitevidence$1:scalismo.geometry.NDSpace[D]):scalismo.registration.MeanHuberLossMetric[D]" title="Permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#&lt;init&gt;(fixedImage:scalismo.image.ScalarImage[D,A],movingImage:scalismo.image.DifferentiableScalarImage[D,A],transformationSpace:scalismo.registration.TransformationSpace[D],sampler:scalismo.numerics.Sampler[D],delta:Double)(implicitevidence$1:scalismo.geometry.NDSpace[D],implicitevidence$2:scalismo.common.Scalar[A]):scalismo.registration.MeanHuberLossMetric[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -337,7 +345,7 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">MeanHuberLossMetric</span><span class="params">(<span name="fixedImage">fixedImage: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="movingImage">movingImage: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="transformationSpace">transformationSpace: <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="delta">delta: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1.345</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>)</span>
+        <span class="name">MeanHuberLossMetric</span><span class="params">(<span name="fixedImage">fixedImage: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>, <span name="movingImage">movingImage: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>, <span name="transformationSpace">transformationSpace: <a href="TransformationSpace.html" class="extype" name="scalismo.registration.TransformationSpace">TransformationSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="sampler">sampler: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="delta">delta: <span class="extype" name="scala.Double">Double</span> = <span class="symbol">1.345</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>)</span>
       </span>
       
       
@@ -427,7 +435,7 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -486,14 +494,14 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="scalismo.registration.MeanHuberLossMetric#fixedImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fixedImage:scalismo.image.ScalarImage[D]"></a><a id="fixedImage:ScalarImage[D]"></a>
+      <a id="fixedImage:scalismo.image.ScalarImage[D,A]"></a><a id="fixedImage:ScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/registration/MeanHuberLossMetric.html#fixedImage:scalismo.image.ScalarImage[D]" title="Permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#fixedImage:scalismo.image.ScalarImage[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -502,7 +510,7 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">fixedImage</span><span class="result">: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>
+        <span class="name">fixedImage</span><span class="result">: <a href="../image/ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.MeanHuberLossMetric">MeanHuberLossMetric</a> → <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a></dd></dl></div>
@@ -544,9 +552,9 @@ values below this threshold and linearly for values above this threshold.</p></d
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scalismo.registration.MeanHuberLossMetric#lossFunction" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="lossFunction(v:Float):Float"></a><a id="lossFunction(Float):Float"></a>
+      <a id="lossFunction(v:A):Double"></a><a id="lossFunction(A):Double"></a>
       <span class="permalink">
-      <a href="../../scalismo/registration/MeanHuberLossMetric.html#lossFunction(v:Float):Float" title="Permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#lossFunction(v:A):Double" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -555,14 +563,14 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">lossFunction</span><span class="params">(<span name="v">v: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
+        <span class="name">lossFunction</span><span class="params">(<span name="v">v: <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.MeanHuberLossMetric">MeanHuberLossMetric</a> → <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a></dd></dl></div>
     </li><li name="scalismo.registration.MeanHuberLossMetric#lossFunctionDerivative" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="lossFunctionDerivative(v:Float):Float"></a><a id="lossFunctionDerivative(Float):Float"></a>
+      <a id="lossFunctionDerivative(v:A):Double"></a><a id="lossFunctionDerivative(A):Double"></a>
       <span class="permalink">
-      <a href="../../scalismo/registration/MeanHuberLossMetric.html#lossFunctionDerivative(v:Float):Float" title="Permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#lossFunctionDerivative(v:A):Double" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -571,14 +579,14 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">lossFunctionDerivative</span><span class="params">(<span name="v">v: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result">: <span class="extype" name="scala.Float">Float</span></span>
+        <span class="name">lossFunctionDerivative</span><span class="params">(<span name="v">v: <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span></span>)</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.MeanHuberLossMetric">MeanHuberLossMetric</a> → <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a></dd></dl></div>
     </li><li name="scalismo.registration.MeanHuberLossMetric#movingImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="movingImage:scalismo.image.DifferentiableScalarImage[D]"></a><a id="movingImage:DifferentiableScalarImage[D]"></a>
+      <a id="movingImage:scalismo.image.DifferentiableScalarImage[D,A]"></a><a id="movingImage:DifferentiableScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/registration/MeanHuberLossMetric.html#movingImage:scalismo.image.DifferentiableScalarImage[D]" title="Permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#movingImage:scalismo.image.DifferentiableScalarImage[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -587,7 +595,7 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">movingImage</span><span class="result">: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>
+        <span class="name">movingImage</span><span class="result">: <a href="../image/DifferentiableScalarImage.html" class="extype" name="scalismo.image.DifferentiableScalarImage">DifferentiableScalarImage</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scalismo.registration.MeanHuberLossMetric">MeanHuberLossMetric</a> → <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a></dd></dl></div>
@@ -619,7 +627,7 @@ values below this threshold and linearly for values above this threshold.</p></d
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -678,6 +686,22 @@ values below this threshold and linearly for values above this threshold.</p></d
       </span>
       <span class="symbol">
         <span class="name">sampler</span><span class="result">: <a href="../numerics/Sampler.html" class="extype" name="scalismo.numerics.Sampler">Sampler</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</span>
+      </span>
+      
+      
+    </li><li name="scalismo.registration.MeanHuberLossMetric#scalar" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="scalar:scalismo.common.Scalar[A]"></a><a id="scalar:Scalar[A]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#scalar:scalismo.common.Scalar[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">scalar</span><span class="result">: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</span>
       </span>
       
       
@@ -749,28 +773,6 @@ values below this threshold and linearly for values above this threshold.</p></d
       <p class="shortcomment cmt">Computes value and derivative in one go.</p><div class="fullcomment"><div class="comment cmt"><p>Computes value and derivative in one go. It should be the same as calling value and takeDerivative
 separately, but allows for more efficient implementations.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a> → <a href="RegistrationMetric.html" class="extype" name="scalismo.registration.RegistrationMetric">RegistrationMetric</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait():Unit"></a>
-      <span class="permalink">
-      <a href="../../scalismo/registration/MeanHuberLossMetric.html#wait():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">(<span>
-      
-      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
-    </span>)</span>
-              
-        </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
       <a href="../../scalismo/registration/MeanHuberLossMetric.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
@@ -810,6 +812,28 @@ separately, but allows for more efficient implementations.</p></div><dl class="a
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@native</span><span class="args">()</span>
               
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <span class="permalink">
+      <a href="../../scalismo/registration/MeanHuberLossMetric.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
@@ -864,13 +888,13 @@ separately, but allows for more efficient implementations.</p></div><dl class="a
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="scalismo.registration.MeanPointwiseLossMetric">
-              <h3>Inherited from <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</h3>
+              <h3>Inherited from <a href="MeanPointwiseLossMetric.html" class="extype" name="scalismo.registration.MeanPointwiseLossMetric">MeanPointwiseLossMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</h3>
             </div><div class="parent" name="scalismo.registration.ImageMetric">
-              <h3>Inherited from <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</h3>
+              <h3>Inherited from <a href="ImageMetric.html" class="extype" name="scalismo.registration.ImageMetric">ImageMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>, <span class="extype" name="scalismo.registration.MeanHuberLossMetric.A">A</span>]</h3>
             </div><div class="parent" name="scalismo.registration.RegistrationMetric">
               <h3>Inherited from <a href="RegistrationMetric.html" class="extype" name="scalismo.registration.RegistrationMetric">RegistrationMetric</a>[<span class="extype" name="scalismo.registration.MeanHuberLossMetric.D">D</span>]</h3>
             </div><div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+              <h3>Inherited from <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>

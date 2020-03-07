@@ -129,6 +129,10 @@
                         <a class="object" href="MetropolisHastings$.html" title=""></a>
                         <a class="class" href="MetropolisHastings.html" title="Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a proposal distribution"></a>
                         <a href="MetropolisHastings.html" title="Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a proposal distribution">MetropolisHastings</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="MetropolisHastingsWithPrefetching$.html" title=""></a>
+                        <a class="class" href="MetropolisHastingsWithPrefetching.html" title="Metropolis-Hastings algorithm with speculative executing - generates random samples from a target distribution using only samples from a proposal distribution"></a>
+                        <a href="MetropolisHastingsWithPrefetching.html" title="Metropolis-Hastings algorithm with speculative executing - generates random samples from a target distribution using only samples from a proposal distribution">MetropolisHastingsWithPrefetching</a>
                       </li><li name="scalismo.sampling.evaluators" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="evaluators"></a><a id="evaluators:evaluators"></a>
       <span class="permalink">
@@ -290,6 +294,34 @@ generator needs to be symmetric
       </span>
       
       <p class="shortcomment cmt">Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a proposal distribution</p>
+    </li><li name="scalismo.sampling.algorithms.MetropolisHastingsWithPrefetching" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MetropolisHastingsWithPrefetching[A]extendsMarkovChain[A]"></a><a id="MetropolisHastingsWithPrefetching[A]:MetropolisHastingsWithPrefetching[A]"></a>
+      <span class="permalink">
+      <a href="../../../scalismo/sampling/algorithms/index.html#MetropolisHastingsWithPrefetching[A]extendsMarkovChain[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="Metropolis-Hastings algorithm with speculative executing - generates random samples from a target distribution using only samples from a proposal distribution" href="MetropolisHastingsWithPrefetching.html"><span class="name">MetropolisHastingsWithPrefetching</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="../MarkovChain.html" class="extype" name="scalismo.sampling.MarkovChain">MarkovChain</a>[<span class="extype" name="scalismo.sampling.algorithms.MetropolisHastingsWithPrefetching.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Metropolis-Hastings algorithm with speculative executing -
+generates random samples from a target distribution using only samples
+from a proposal distribution</p><div class="fullcomment"><div class="comment cmt"><p>Metropolis-Hastings algorithm with speculative executing -
+generates random samples from a target distribution using only samples
+from a proposal distribution</p><p>The prefetching strategy precomputes (part of) the tree of possible future states and
+evaluates the states in parallel. If proposals are cheap to compute but evaluation
+expensive (and single threaded), this strategy might lead to a speed improvement,
+especially when the number of acceptance is quite low.</p><p>See for example
+Accelerating Metropolis–Hastings algorithms: Delayed acceptance with prefetching
+M. Banterle, C. Grazian, C .Robert
+https://arxiv.org/pdf/1406.2660.pdf
+for a good discussion of the idea and possibilities for further improvements.
+</p></div></div>
     </li></ol>
             </div>
 
@@ -343,6 +375,22 @@ generator needs to be symmetric
       </span>
       <span class="symbol">
         <a title="" href="MetropolisHastings$.html"><span class="name">MetropolisHastings</span></a>
+      </span>
+      
+      
+    </li><li name="scalismo.sampling.algorithms.MetropolisHastingsWithPrefetching" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MetropolisHastingsWithPrefetching"></a><a id="MetropolisHastingsWithPrefetching:MetropolisHastingsWithPrefetching"></a>
+      <span class="permalink">
+      <a href="../../../scalismo/sampling/algorithms/index.html#MetropolisHastingsWithPrefetching" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="MetropolisHastingsWithPrefetching$.html"><span class="name">MetropolisHastingsWithPrefetching</span></a>
       </span>
       
       

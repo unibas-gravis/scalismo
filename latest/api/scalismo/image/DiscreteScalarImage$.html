@@ -153,9 +153,21 @@ A discrete image can be converted to a continuous image by using an interpolatio
                         <a class="class" href="DiscreteImageDomain3D.html" title=""></a>
                         <a href="DiscreteImageDomain3D.html" title="">DiscreteImageDomain3D</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="" title="Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images."></a>
+                        <a class="object" href="" title=""></a>
                         <a class="class" href="DiscreteScalarImage.html" title="A scalar valued discrete image."></a>
                         <a href="DiscreteScalarImage.html" title="A scalar valued discrete image.">DiscreteScalarImage</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="DiscreteScalarImage1D$.html" title=""></a>
+                        <a href="DiscreteScalarImage1D$.html" title="">DiscreteScalarImage1D</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="DiscreteScalarImage2D$.html" title=""></a>
+                        <a href="DiscreteScalarImage2D$.html" title="">DiscreteScalarImage2D</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="DiscreteScalarImage3D$.html" title=""></a>
+                        <a href="DiscreteScalarImage3D$.html" title="">DiscreteScalarImage3D</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ScalarImage$.html" title="Factory methods for creating scalar images"></a>
                         <a class="class" href="ScalarImage.html" title="An image whose values are scalar."></a>
@@ -190,12 +202,11 @@ A discrete image can be converted to a continuous image by using an interpolatio
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -241,26 +252,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <div id="allMembers">
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="scalismo.image.DiscreteScalarImage.Create" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Create[D]extendsAnyRef"></a><a id="Create[D]:Create[D]"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#Create[D]extendsAnyRef" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="DiscreteScalarImage$$Create.html"><span class="name">Create</span></a><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      
-    </li></ol>
-            </div>
+        
 
         
 
@@ -316,9 +308,9 @@ A discrete image can be converted to a continuous image by using an interpolatio
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scalismo.image.DiscreteScalarImage#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D])(v:=&gt;A)(implicitevidence$24:scalismo.geometry.NDSpace[D],implicitevidence$25:scalismo.common.Scalar[A],implicitevidence$26:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D])(⇒A)(NDSpace[D],Scalar[A],ClassTag[A],Create[D]):DiscreteScalarImage[D,A]"></a>
+      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],values:Traversable[A])(implicitevidence$15:scalismo.geometry.NDSpace[D],implicitevidence$16:scalismo.common.Scalar[A],implicitevidence$17:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],Traversable[A])(NDSpace[D],Scalar[A],ClassTag[A]):DiscreteScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D])(v:=&gt;A)(implicitevidence$24:scalismo.geometry.NDSpace[D],implicitevidence$25:scalismo.common.Scalar[A],implicitevidence$26:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
+      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],values:Traversable[A])(implicitevidence$15:scalismo.geometry.NDSpace[D],implicitevidence$16:scalismo.common.Scalar[A],implicitevidence$17:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -327,14 +319,30 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>)</span><span class="params">(<span name="v">v: ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="create">create: <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="values">values: <a href="../../scala/index.html#Traversable[+A]=Traversable[A]" class="extmbr" name="scala.Traversable">Traversable</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">create a new DiscreteScalarImage with given domain and values</p>
+    </li><li name="scalismo.image.DiscreteScalarImage#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],f:scalismo.geometry.Point[D]=&gt;A)(implicitevidence$12:scalismo.geometry.NDSpace[D],implicitevidence$13:scalismo.common.Scalar[A],implicitevidence$14:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],(Point[D])⇒A)(NDSpace[D],Scalar[A],ClassTag[A]):DiscreteScalarImage[D,A]"></a>
+      <span class="permalink">
+      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],f:scalismo.geometry.Point[D]=&gt;A)(implicitevidence$12:scalismo.geometry.NDSpace[D],implicitevidence$13:scalismo.common.Scalar[A],implicitevidence$14:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="f">f: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]) ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">create a new DiscreteScalarImage, with all pixel values set to the given value</p>
     </li><li name="scalismo.image.DiscreteScalarImage#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],f:scalismo.geometry.Point[D]=&gt;A)(implicitevidence$21:scalismo.geometry.NDSpace[D],implicitevidence$22:scalismo.common.Scalar[A],implicitevidence$23:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],(Point[D])⇒A)(NDSpace[D],Scalar[A],ClassTag[A],Create[D]):DiscreteScalarImage[D,A]"></a>
+      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],v:=&gt;A)(implicitevidence$9:scalismo.geometry.NDSpace[D],implicitevidence$10:scalismo.common.Scalar[A],implicitevidence$11:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],⇒A)(NDSpace[D],Scalar[A],ClassTag[A]):DiscreteScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],f:scalismo.geometry.Point[D]=&gt;A)(implicitevidence$21:scalismo.geometry.NDSpace[D],implicitevidence$22:scalismo.common.Scalar[A],implicitevidence$23:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
+      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],v:=&gt;A)(implicitevidence$9:scalismo.geometry.NDSpace[D],implicitevidence$10:scalismo.common.Scalar[A],implicitevidence$11:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -343,14 +351,14 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="f">f: (<a href="../geometry/Point.html" class="extype" name="scalismo.geometry.Point">Point</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]) ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="create">create: <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="v">v: ⇒ <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">create a new DiscreteScalarImage with given domain and values which are defined by the given function f</p>
+      <p class="shortcomment cmt">create a new DiscreteScalarImage, with all pixel values set to the given value</p>
     </li><li name="scalismo.image.DiscreteScalarImage#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],values:Traversable[A])(implicitevidence$18:scalismo.geometry.NDSpace[D],implicitevidence$19:scalismo.common.Scalar[A],implicitevidence$20:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],Traversable[A])(NDSpace[D],Scalar[A],ClassTag[A],Create[D]):DiscreteScalarImage[D,A]"></a>
+      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],data:scalismo.common.ScalarArray[A])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitevidence$7:scalismo.common.Scalar[A],implicitevidence$8:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],ScalarArray[A])(NDSpace[D],Scalar[A],ClassTag[A]):DiscreteScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],values:Traversable[A])(implicitevidence$18:scalismo.geometry.NDSpace[D],implicitevidence$19:scalismo.common.Scalar[A],implicitevidence$20:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
+      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],data:scalismo.common.ScalarArray[A])(implicitevidence$6:scalismo.geometry.NDSpace[D],implicitevidence$7:scalismo.common.Scalar[A],implicitevidence$8:scala.reflect.ClassTag[A]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -359,26 +367,10 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="values">values: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="create">create: <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="data">data: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">create a new DiscreteScalarImage with given domain and values</p>
-    </li><li name="scalismo.image.DiscreteScalarImage#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],values:scalismo.common.ScalarArray[A])(implicitevidence$15:scalismo.geometry.NDSpace[D],implicitevidence$16:scalismo.common.Scalar[A],implicitevidence$17:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]"></a><a id="apply[D,A](DiscreteImageDomain[D],ScalarArray[A])(NDSpace[D],Scalar[A],ClassTag[A],Create[D]):DiscreteScalarImage[D,A]"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#apply[D,A](domain:scalismo.image.DiscreteImageDomain[D],values:scalismo.common.ScalarArray[A])(implicitevidence$15:scalismo.geometry.NDSpace[D],implicitevidence$16:scalismo.common.Scalar[A],implicitevidence$17:scala.reflect.ClassTag[A],implicitcreate:scalismo.image.DiscreteScalarImage.Create[D]):scalismo.image.DiscreteScalarImage[D,A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="params">(<span name="domain">domain: <a href="DiscreteImageDomain.html" class="extype" name="scalismo.image.DiscreteImageDomain">DiscreteImageDomain</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="values">values: <a href="../common/ScalarArray.html" class="extype" name="scalismo.common.ScalarArray">ScalarArray</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../geometry/NDSpace.html" class="extype" name="scalismo.geometry.NDSpace">NDSpace</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>, <span name="arg1">arg1: <a href="../common/Scalar.html" class="extype" name="scalismo.common.Scalar">Scalar</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="arg2">arg2: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>, <span name="create">create: <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>]</span>)</span><span class="result">: <a href="DiscreteScalarImage.html" class="extype" name="scalismo.image.DiscreteScalarImage">DiscreteScalarImage</a>[<span class="extype" name="scalismo.image.DiscreteScalarImage.apply.D">D</span>, <span class="extype" name="scalismo.image.DiscreteScalarImage.apply.A">A</span>]</span>
-      </span>
       
-      <p class="shortcomment cmt">create a new DiscreteScalarImage with given domain and values</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -407,7 +399,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -433,7 +425,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -523,7 +515,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -602,28 +594,6 @@ A discrete image can be converted to a continuous image by using an interpolatio
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait():Unit"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#wait():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">(<span>
-      
-      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
-    </span>)</span>
-              
-        </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
       <a href="../../scalismo/image/DiscreteScalarImage$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
@@ -669,54 +639,28 @@ A discrete image can be converted to a continuous image by using an interpolatio
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scalismo.image.DiscreteScalarImage.Create1D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Create1D"></a><a id="Create1D:Create1D"></a>
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#Create1D" title="Permalink">
+      <a href="../../scalismo/image/DiscreteScalarImage$.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">object</span>
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <a title="" href="DiscreteScalarImage$$Create1D$.html"><span class="name">Create1D</span></a><span class="result"> extends <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<a href="../geometry/_1D.html" class="extype" name="scalismo.geometry._1D">_1D</a>]</span>
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
       
-    </li><li name="scalismo.image.DiscreteScalarImage.Create2D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Create2D"></a><a id="Create2D:Create2D"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#Create2D" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="DiscreteScalarImage$$Create2D$.html"><span class="name">Create2D</span></a><span class="result"> extends <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<a href="../geometry/_2D.html" class="extype" name="scalismo.geometry._2D">_2D</a>]</span>
-      </span>
-      
-      
-    </li><li name="scalismo.image.DiscreteScalarImage.Create3D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Create3D"></a><a id="Create3D:Create3D"></a>
-      <span class="permalink">
-      <a href="../../scalismo/image/DiscreteScalarImage$.html#Create3D" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="DiscreteScalarImage$$Create3D$.html"><span class="name">Create3D</span></a><span class="result"> extends <a href="DiscreteScalarImage$$Create.html" class="extype" name="scalismo.image.DiscreteScalarImage.Create">Create</a>[<a href="../geometry/_3D.html" class="extype" name="scalismo.geometry._3D">_3D</a>]</span>
-      </span>
-      
-      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li>
               </ol>
             </div>
@@ -757,7 +701,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+              <h3>Inherited from <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>

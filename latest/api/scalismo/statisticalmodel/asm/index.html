@@ -252,7 +252,23 @@
         <a title="Contains classes for handling datasets of registered meshes and building PCA model out of them." href="../dataset/index.html"><span class="name">dataset</span></a>
       </span>
       
-      <p class="shortcomment cmt">Contains classes for handling datasets of registered meshes and building PCA model out of them.</p><div class="fullcomment"><div class="comment cmt"><p>Contains classes for handling datasets of registered meshes and building PCA model out of them.</p><p>The most important class of this package is the <a href="../dataset/DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">DataCollection</a>.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></dd></dl></div>
+      <p class="shortcomment cmt">Contains classes for handling datasets of registered meshes and building PCA model out of them.</p><div class="fullcomment"><div class="comment cmt"><p>Contains classes for handling datasets of registered meshes and building PCA model out of them.</p><p>The most important class of this package is the <a href="../dataset/DataCollection.html" class="extype" name="scalismo.statisticalmodel.dataset.DataCollection">scalismo.statisticalmodel.dataset.DataCollection</a>.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></dd></dl></div>
+    </li><li name="scalismo.statisticalmodel.experimental" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="experimental"></a><a id="experimental:experimental"></a>
+      <span class="permalink">
+      <a href="../../scalismo/statisticalmodel/index.html#experimental" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../experimental/index.html"><span class="name">experimental</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="scalismo.statisticalmodel">statisticalmodel</a></dd></dl></div>
     </li>
               </ul>
             </div>
@@ -443,7 +459,7 @@ It's essentially provided for user convenience, because it would be very likely 
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Image preprocessor that calculates a gradient image from the input image." href="GaussianGradientImagePreprocessor.html"><span class="name">GaussianGradientImagePreprocessor</span></a><span class="params">(<span name="stddev">stddev: <span class="extype" name="scala.Float">Float</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name='<span class="name"><a href="GaussianGradientImagePreprocessor$.html">GaussianGradientImagePreprocessor.IOMetadata_Default</a></span>'>...</span></span>)</span><span class="result"> extends <a href="ImagePreprocessor.html" class="extype" name="scalismo.statisticalmodel.asm.ImagePreprocessor">ImagePreprocessor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Image preprocessor that calculates a gradient image from the input image." href="GaussianGradientImagePreprocessor.html"><span class="name">GaussianGradientImagePreprocessor</span></a><span class="params">(<span name="stddev">stddev: <span class="extype" name="scala.Double">Double</span></span>, <span name="ioMetadata">ioMetadata: <a href="IOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.IOMetadata">IOMetadata</a> = <span class="defval" name='<span class="name"><a href="GaussianGradientImagePreprocessor$.html">GaussianGradientImagePreprocessor.IOMetadata_Default</a></span>'>...</span></span>)</span><span class="result"> extends <a href="ImagePreprocessor.html" class="extype" name="scalismo.statisticalmodel.asm.ImagePreprocessor">ImagePreprocessor</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Image preprocessor that calculates a gradient image from the input image.</p><div class="fullcomment"><div class="comment cmt"><p>Image preprocessor that calculates a gradient image from the input image.
@@ -463,7 +479,7 @@ The following steps are performed:</p><p>1. The image is filtered using a Gaussi
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="A trait signifying that the implementing object provides a unique identifier used for serialization purposes." href="HasIOIdentifier.html"><span class="name">HasIOIdentifier</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="A trait signifying that the implementing object provides a unique identifier used for serialization purposes." href="HasIOIdentifier.html"><span class="name">HasIOIdentifier</span></a><span class="result"> extends <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <p class="shortcomment cmt">A trait signifying that the implementing object provides
@@ -480,7 +496,7 @@ a unique identifier used for serialization purposes.</p>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="A trait signifying that the implementing object provides identity and version information for (de)serialization purposes." href="HasIOMetadata.html"><span class="name">HasIOMetadata</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="A trait signifying that the implementing object provides identity and version information for (de)serialization purposes." href="HasIOMetadata.html"><span class="name">HasIOMetadata</span></a><span class="result"> extends <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <p class="shortcomment cmt">A trait signifying that the implementing object provides
@@ -497,7 +513,7 @@ identity and version information for (de)serialization purposes.</p>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Trait providing methods for serializing/deserializing objects of type T to/from HDF5 files." href="Hdf5IOHandler.html"><span class="name">Hdf5IOHandler</span></a><span class="tparams">[<span name="T">T &lt;: <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Trait providing methods for serializing/deserializing objects of type T to/from HDF5 files." href="Hdf5IOHandler.html"><span class="name">Hdf5IOHandler</span></a><span class="tparams">[<span name="T">T &lt;: <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></span>]</span><span class="result"> extends <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <p class="shortcomment cmt">Trait providing methods for serializing/deserializing objects of type T
@@ -533,7 +549,7 @@ In addition, the object specifies which IO Identifier it can handle.</p><p>Curre
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="An object representing a collection of IO handlers providing load/save capabilities for a given object type." href="IOHandlers.html"><span class="name">IOHandlers</span></a><span class="tparams">[<span name="T">T &lt;: <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></span>, <span name="IO">IO &lt;: <a href="IOHandler.html" class="extype" name="scalismo.statisticalmodel.asm.IOHandler">IOHandler</a>[<span class="extype" name="scalismo.statisticalmodel.asm.IOHandlers.T">T</span>]</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="An object representing a collection of IO handlers providing load/save capabilities for a given object type." href="IOHandlers.html"><span class="name">IOHandlers</span></a><span class="tparams">[<span name="T">T &lt;: <a href="HasIOMetadata.html" class="extype" name="scalismo.statisticalmodel.asm.HasIOMetadata">HasIOMetadata</a></span>, <span name="IO">IO &lt;: <a href="IOHandler.html" class="extype" name="scalismo.statisticalmodel.asm.IOHandler">IOHandler</a>[<span class="extype" name="scalismo.statisticalmodel.asm.IOHandlers.T">T</span>]</span>]</span><span class="result"> extends <a href="../../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <p class="shortcomment cmt">An object representing a collection of IO handlers providing load/save capabilities for a given object type.</p><div class="fullcomment"><div class="comment cmt"><p>An object representing a collection of IO handlers providing load/save capabilities for a given object type.
@@ -719,7 +735,7 @@ and returns a PreprocessedImage which will serve as input to a <a href="FeatureE
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="" href="Profiles.html"><span class="name">Profiles</span></a><span class="params">(<span name="data">data: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Traversable">Traversable</span>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="Profiles.html"><span class="name">Profiles</span></a><span class="params">(<span name="data">data: <span class="extype" name="scala.collection.immutable.IndexedSeq">IndexedSeq</span>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>]</span>)</span><span class="result"> extends <a href="../../../scala/index.html#Traversable[+A]=Traversable[A]" class="extmbr" name="scala.Traversable">Traversable</a>[<a href="Profile.html" class="extype" name="scalismo.statisticalmodel.asm.Profile">Profile</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       

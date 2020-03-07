@@ -201,9 +201,21 @@ A discrete image can be converted to a continuous image by using an interpolatio
                         <a class="class" href="DiscreteImageDomain3D.html" title=""></a>
                         <a href="DiscreteImageDomain3D.html" title="">DiscreteImageDomain3D</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="DiscreteScalarImage$.html" title="Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images."></a>
+                        <a class="object" href="DiscreteScalarImage$.html" title=""></a>
                         <a class="class" href="DiscreteScalarImage.html" title="A scalar valued discrete image."></a>
                         <a href="DiscreteScalarImage.html" title="A scalar valued discrete image.">DiscreteScalarImage</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="DiscreteScalarImage1D$.html" title=""></a>
+                        <a href="DiscreteScalarImage1D$.html" title="">DiscreteScalarImage1D</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="DiscreteScalarImage2D$.html" title=""></a>
+                        <a href="DiscreteScalarImage2D$.html" title="">DiscreteScalarImage2D</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="DiscreteScalarImage3D$.html" title=""></a>
+                        <a href="DiscreteScalarImage3D$.html" title="">DiscreteScalarImage3D</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="ScalarImage$.html" title="Factory methods for creating scalar images"></a>
                         <a class="class" href="ScalarImage.html" title="An image whose values are scalar."></a>
@@ -375,7 +387,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -435,14 +447,14 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a title="Typeclass for creating domains of arbitrary dimensionality" href="CreateDiscreteImageDomain.html"><span class="name">CreateDiscreteImageDomain</span></a><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Typeclass for creating domains of arbitrary dimensionality" href="CreateDiscreteImageDomain.html"><span class="name">CreateDiscreteImageDomain</span></a><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
       <p class="shortcomment cmt">Typeclass for creating domains of arbitrary dimensionality</p>
     </li><li name="scalismo.image.DifferentiableScalarImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DifferentiableScalarImage[D]extendsScalarImage[D]"></a><a id="DifferentiableScalarImage[D]:DifferentiableScalarImage[D]"></a>
+      <a id="DifferentiableScalarImage[D,A]extendsScalarImage[D,A]"></a><a id="DifferentiableScalarImage[D,A]:DifferentiableScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/index.html#DifferentiableScalarImage[D]extendsScalarImage[D]" title="Permalink">
+      <a href="../../scalismo/image/index.html#DifferentiableScalarImage[D,A]extendsScalarImage[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -451,7 +463,7 @@ A discrete image can be converted to a continuous image by using an interpolatio
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="A scalar image that is once differentiable" href="DifferentiableScalarImage.html"><span class="name">DifferentiableScalarImage</span></a><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>]</span>
+        <a title="A scalar image that is once differentiable" href="DifferentiableScalarImage.html"><span class="name">DifferentiableScalarImage</span></a><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="ScalarImage.html" class="extype" name="scalismo.image.ScalarImage">ScalarImage</a>[<span class="extype" name="scalismo.image.DifferentiableScalarImage.D">D</span>, <span class="extype" name="scalismo.image.DifferentiableScalarImage.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">A scalar image that is once differentiable
@@ -540,7 +552,7 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       </span>
       
       
-    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+    </li><li name="scalismo.image.DiscreteScalarImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="DiscreteScalarImage[D,A]extendsDiscreteImage[D,A]"></a><a id="DiscreteScalarImage[D,A]:DiscreteScalarImage[D,A]"></a>
       <span class="permalink">
       <a href="../../scalismo/image/index.html#DiscreteScalarImage[D,A]extendsDiscreteImage[D,A]" title="Permalink">
@@ -548,7 +560,7 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
+        <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -558,9 +570,9 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
       <p class="shortcomment cmt">A scalar valued discrete image.</p><div class="fullcomment"><div class="comment cmt"><p>A scalar valued discrete image.
 </p></div><dl class="paramcmts block"><dt class="tparam">D</dt><dd class="cmt"><p>The dimensionality of the image</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>The type of the pixel (needs to implement Scalar).</p></dd></dl></div>
     </li><li name="scalismo.image.ScalarImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ScalarImage[D]extendsScalarField[D,Float]"></a><a id="ScalarImage[D]:ScalarImage[D]"></a>
+      <a id="ScalarImage[D,A]extendsScalarField[D,A]"></a><a id="ScalarImage[D,A]:ScalarImage[D,A]"></a>
       <span class="permalink">
-      <a href="../../scalismo/image/index.html#ScalarImage[D]extendsScalarField[D,Float]" title="Permalink">
+      <a href="../../scalismo/image/index.html#ScalarImage[D,A]extendsScalarField[D,A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -569,7 +581,7 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="An image whose values are scalar." href="ScalarImage.html"><span class="name">ScalarImage</span></a><span class="tparams">[<span name="D">D</span>]</span><span class="result"> extends <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.ScalarImage.D">D</span>, <span class="extype" name="scala.Float">Float</span>]</span>
+        <a title="An image whose values are scalar." href="ScalarImage.html"><span class="name">ScalarImage</span></a><span class="tparams">[<span name="D">D</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="../common/ScalarField.html" class="extype" name="scalismo.common.ScalarField">ScalarField</a>[<span class="extype" name="scalismo.image.ScalarImage.D">D</span>, <span class="extype" name="scalismo.image.ScalarImage.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">An image whose values are scalar.</p>
@@ -643,10 +655,58 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images." href="DiscreteScalarImage$.html"><span class="name">DiscreteScalarImage</span></a>
+        <a title="" href="DiscreteScalarImage$.html"><span class="name">DiscreteScalarImage</span></a>
       </span>
       
-      <p class="shortcomment cmt">Factory methods for creating a new DiscreteScalarImage, as well as method to interpolate and resample images.</p>
+      
+    </li><li name="scalismo.image.DiscreteScalarImage1D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteScalarImage1D"></a><a id="DiscreteScalarImage1D:DiscreteScalarImage1D"></a>
+      <span class="permalink">
+      <a href="../../scalismo/image/index.html#DiscreteScalarImage1D" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DiscreteScalarImage1D$.html"><span class="name">DiscreteScalarImage1D</span></a>
+      </span>
+      
+      
+    </li><li name="scalismo.image.DiscreteScalarImage2D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteScalarImage2D"></a><a id="DiscreteScalarImage2D:DiscreteScalarImage2D"></a>
+      <span class="permalink">
+      <a href="../../scalismo/image/index.html#DiscreteScalarImage2D" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DiscreteScalarImage2D$.html"><span class="name">DiscreteScalarImage2D</span></a>
+      </span>
+      
+      
+    </li><li name="scalismo.image.DiscreteScalarImage3D" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DiscreteScalarImage3D"></a><a id="DiscreteScalarImage3D:DiscreteScalarImage3D"></a>
+      <span class="permalink">
+      <a href="../../scalismo/image/index.html#DiscreteScalarImage3D" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DiscreteScalarImage3D$.html"><span class="name">DiscreteScalarImage3D</span></a>
+      </span>
+      
+      
     </li><li name="scalismo.image.ScalarImage" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ScalarImage"></a><a id="ScalarImage:ScalarImage"></a>
       <span class="permalink">
@@ -675,7 +735,7 @@ and the size (number of points) in each direction.</p><p>A global coordinate sys
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+              <h3>Inherited from <a href="../../scala/index.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>
