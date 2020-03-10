@@ -85,6 +85,10 @@ class MeshIOTests extends ScalismoTestSuite {
       reRead should equal(shape)
     }
 
+    it("does not throw an exception when called with an nonexistant file") {
+      noException should be thrownBy MeshIO.readMesh(new java.io.File("idonotexist.ply"))
+    }
+
     it("yields the original mesh when reading and writing a vertex color ply") {
       val path = getClass.getResource("/mean_vertexColor.ply").getPath
       val shape = MeshIO.readVertexColorMesh3D(new File(URLDecoder.decode(path, "UTF-8"))).get
