@@ -596,7 +596,7 @@ object MeshIO {
       if (headerLines.exists(_.contains("TextureFile")) && headerLines.exists(_.contains("format ascii"))) {
         Failure(
           new IOException(
-            "PLY file seems to be a textured mesh in ASCII format which creates issues with the VTK ply reader. Please convert it to a binary ply or to a vertex color or shape only ply."
+            "PLY file $filename seems to be a textured mesh in ASCII format which creates issues with the VTK ply reader. Please convert it to a binary ply or to a vertex color or shape only ply."
           )
         )
       } else {
@@ -606,13 +606,14 @@ object MeshIO {
   }
 
   private def readPLYUsingVTK(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
+    val filename = file.getCanonicalFile
     val plyReader = new vtkPLYReader()
     plyReader.SetFileName(file.getAbsolutePath)
     plyReader.Update()
 
     val errCode = plyReader.GetErrorCode()
     if (errCode != 0) {
-      return Failure(new IOException(s"Could not read ply mesh (received VTK error code $errCode"))
+      return Failure(new IOException(s"Could not read ply mesh $filename (received VTK error code $errCode"))
     }
 
     val vtkPd = plyReader.GetOutput()
