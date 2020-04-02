@@ -96,7 +96,6 @@ case class PointDistributionModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]] p
     ptIds: IndexedSeq[PointId]
   )(implicit creator: UnstructuredPoints.Create[D]): PointDistributionModel[D, UnstructuredPointsDomain] = {
     PointDistributionModel(gp.marginal(ptIds))
-
   }
 
   /**
@@ -111,7 +110,7 @@ case class PointDistributionModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]] p
   /**
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
-  def project(pointData: DDomain[D]) = {
+  def project(pointData: DDomain[D]): DDomain[D] = {
     val displacements =
       reference.pointSet.points
         .zip(pointData.pointSet.points)

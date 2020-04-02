@@ -33,7 +33,7 @@ object ModelMetrics {
    * These steps are then repeated nbSamples times and the average value is returned.
    *
    */
-  def specificity(pcaModel: StatisticalMeshModel, data: Iterable[TriangleMesh[_3D]], nbSamples: Int)(
+  def specificity(pcaModel: PointDistributionModel[_3D, TriangleMesh], data: Iterable[TriangleMesh[_3D]], nbSamples: Int)(
     implicit
     rng: Random
   ): Double = {

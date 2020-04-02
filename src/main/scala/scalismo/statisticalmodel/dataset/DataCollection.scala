@@ -1,17 +1,9 @@
 package scalismo.statisticalmodel.dataset
 
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.common.{
-  DiscreteDomain,
-  DiscreteField,
-  Field,
-  NearestNeighborInterpolator,
-  Scalar,
-  UnstructuredPointsDomain
-}
-
-import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
-import scalismo.mesh.{MeshMetrics, TetrahedralMesh, TriangleMesh}
+import scalismo.common.{DiscreteDomain, DiscreteField, Field, NearestNeighborInterpolator, Scalar, UnstructuredPointsDomain}
+import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, Point3D, _3D}
+import scalismo.mesh.{LineMesh, MeshMetrics, TetrahedralMesh, TriangleMesh}
 import scalismo.registration.{LandmarkRegistration, Transformation}
 import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
@@ -20,9 +12,9 @@ import scala.annotation.tailrec
 import scala.language.higherKinds
 
 case class CrossvalidationFold[D, DDomain[D] <: DiscreteDomain[D], Value](
-  trainingData: DataCollection[D, DDomain, Value],
-  testingData: DataCollection[D, DDomain, Value]
-)
+                                                                           trainingData: DataCollection[D, DDomain, Value],
+                                                                           testingData: DataCollection[D, DDomain, Value]
+                                                                         )
 
 case class DataCollection[D, DDomain[D] <: DiscreteDomain[D], Value](dataItems: Seq[DiscreteField[D, DDomain, Value]]) {
   require(dataItems.size > 0 && dataItems.forall(di => di.domain == dataItems.head.domain))
@@ -32,8 +24,8 @@ case class DataCollection[D, DDomain[D] <: DiscreteDomain[D], Value](dataItems: 
   def reference: DDomain[D] = dataItems.head.domain
 
   def createCrossValidationFolds(
-    nFolds: Int
-  )(implicit rng: scalismo.utils.Random): Seq[CrossvalidationFold[D, DDomain, Value]] = {
+                                  nFolds: Int
+                                )(implicit rng: scalismo.utils.Random): Seq[CrossvalidationFold[D, DDomain, Value]] = {
     require(nFolds > 1)
     val shuffledDataItems = rng.scalaRandom.shuffle(dataItems)
     val foldSize = shuffledDataItems.size / nFolds
@@ -62,9 +54,9 @@ case class DataCollection[D, DDomain[D] <: DiscreteDomain[D], Value](dataItems: 
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
   def createLeaveOneOutFolds(
-    implicit
-    rng: scalismo.utils.Random
-  ): Seq[CrossvalidationFold[D, DDomain, Value]] = {
+                              implicit
+                              rng: scalismo.utils.Random
+                            ): Seq[CrossvalidationFold[D, DDomain, Value]] = {
     createCrossValidationFolds(size)
   }
 
@@ -75,6 +67,8 @@ object DataCollection {
   type TriangleMeshDataCollection = DataCollection[_3D, TriangleMesh, EuclideanVector[_3D]]
   type TetrahedralMeshDataCollection = DataCollection[_3D, TetrahedralMesh, EuclideanVector[_3D]]
   type ScalarVolumeMeshFieldDataCollection[A] = DataCollection[_3D, TetrahedralMesh, A]
+  type LineMeshDataCollection[D] = DataCollection[D, LineMesh, EuclideanVector[D]]
+  type UnstructuredPointsDomainCollection[D] = DataCollection[D, UnstructuredPointsDomain, EuclideanVector[D]]
 
   /*
    * Performs a Generalized Procrustes Analysis on the data collection.
@@ -91,21 +85,21 @@ object DataCollection {
     TriangleMeshDataCollection.gpa(dc, maxIteration, haltDistance)
   }
 
+  private def differenceFieldToReference[D, DDomain[D] <: DiscreteDomain[D]](reference : DDomain[D], mesh : DDomain[D]): DiscreteField[D, DDomain, EuclideanVector[D]] = {
+    require(reference.pointSet.numberOfPoints == mesh.pointSet.numberOfPoints)
+
+    val vecs = for ((refPt, meshPt) <- reference.pointSet.points.zip(mesh.pointSet.points)) yield {
+      meshPt - refPt
+    }
+    DiscreteField(reference, vecs.toIndexedSeq)
+  }
+
+
   def fromTriangleMeshSequence(reference: TriangleMesh[_3D],
                                meshes: Seq[TriangleMesh[_3D]]): TriangleMeshDataCollection = {
 
-    def differenceFieldToReference(reference: TriangleMesh[_3D],
-                                   mesh: TriangleMesh[_3D]): DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]] = {
-      require(reference.pointSet.numberOfPoints == mesh.pointSet.numberOfPoints)
-
-      val vecs = for ((refPt, meshPt) <- reference.pointSet.points.zip(mesh.pointSet.points)) yield {
-        meshPt - refPt
-      }
-      DiscreteField(reference, vecs.toIndexedSeq)
-    }
-
     val dfs = for (mesh <- meshes) yield {
-      differenceFieldToReference(reference, mesh)
+      differenceFieldToReference[_3D, TriangleMesh](reference, mesh)
     }
     new DataCollection(dfs)
   }
@@ -113,32 +107,37 @@ object DataCollection {
   def fromTetrahedralMeshSequence(reference: TetrahedralMesh[_3D],
                                   meshes: Seq[TetrahedralMesh[_3D]]): TetrahedralMeshDataCollection = {
 
-    def differenceFieldToReference(
-      reference: TetrahedralMesh[_3D],
-      mesh: TetrahedralMesh[_3D]
-    ): DiscreteField[_3D, TetrahedralMesh, EuclideanVector[_3D]] = {
-      require(reference.pointSet.numberOfPoints == mesh.pointSet.numberOfPoints)
-
-      val vecs = for ((refPt, meshPt) <- reference.pointSet.points.zip(mesh.pointSet.points)) yield {
-        meshPt - refPt
-      }
-      DiscreteField(reference, vecs.toIndexedSeq)
-    }
-
     val dfs = for (mesh <- meshes) yield {
-      differenceFieldToReference(reference, mesh)
+      differenceFieldToReference[_3D, TetrahedralMesh](reference, mesh)
     }
     new DataCollection(dfs)
   }
 
   def fromScalarVolumeMeshSequence[A: Scalar](
-    scalarVolumeMeshFields: Seq[DiscreteField[_3D, TetrahedralMesh, A]]
-  ): ScalarVolumeMeshFieldDataCollection[A] = {
+                                               scalarVolumeMeshFields: Seq[DiscreteField[_3D, TetrahedralMesh, A]]
+                                             ): ScalarVolumeMeshFieldDataCollection[A] = {
     new DataCollection[_3D, TetrahedralMesh, A](scalarVolumeMeshFields)
   }
 
+
+  def fromLineMeshSequence[D](reference: LineMesh[D],
+                              meshes: Seq[LineMesh[D]]): LineMeshDataCollection[D] = {
+    val dfs = for (mesh <- meshes) yield {
+      differenceFieldToReference[D, LineMesh](reference, mesh)
+    }
+    new DataCollection(dfs)
+  }
+
+  def fromUnstructuredPointsDomainSequence[D](reference: UnstructuredPointsDomain[D],
+                              meshes: Seq[UnstructuredPointsDomain[D]]): UnstructuredPointsDomainCollection[D] = {
+    val dfs = for (mesh <- meshes) yield {
+      differenceFieldToReference[D, UnstructuredPointsDomain](reference, mesh)
+    }
+    new DataCollection(dfs)
+  }
 }
 
+// TODO: Implement more general version of GPA
 object TriangleMeshDataCollection {
 
   /**
@@ -148,15 +147,15 @@ object TriangleMeshDataCollection {
     val fields = dc.fields(NearestNeighborInterpolator())
 
     Transformation { (pt: Point[_3D]) =>
-      {
-        var meanPoint = EuclideanVector3D(0, 0, 0)
+    {
+      var meanPoint = EuclideanVector3D(0, 0, 0)
 
-        for (field <- fields) {
-          meanPoint = meanPoint + (pt + field(pt)).toVector
-        }
-        (meanPoint / fields.size).toPoint
-
+      for (field <- fields) {
+        meanPoint = meanPoint + (pt + field(pt)).toVector
       }
+      (meanPoint / fields.size).toPoint
+
+    }
     }
   }
 
@@ -193,7 +192,7 @@ object TriangleMeshDataCollection {
       val surface = dc.reference.transform(p => p + field(p))
       val transform =
         LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints),
-                                                         referenceCenterOfMass)
+          referenceCenterOfMass)
       val newVecs = dc.reference.pointSet.points.toIndexedSeq.map(p => transform(p) - p)
       new DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]](dc.reference, newVecs)
     }

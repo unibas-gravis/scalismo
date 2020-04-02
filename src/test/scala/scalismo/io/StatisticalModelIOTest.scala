@@ -23,6 +23,7 @@ import scalismo.common.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
@@ -43,9 +44,9 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       dummyFile.deleteOnExit()
 
       val t = for {
-        model <- StatismoIO.readStatismoMeshModel(statismoFile)
-        _ <- StatismoIO.writeStatismoMeshModel(model, dummyFile)
-        readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
+        model <- StatisticalModelIO.readStatisticalMeshModel(statismoFile)
+        _ <- StatisticalModelIO.writeStatisticalMeshModel(model, dummyFile)
+        readModel <- StatisticalModelIO.readStatisticalMeshModel(dummyFile)
       } yield {
         assertModelAlmostEqual(model, readModel)
       }
@@ -59,9 +60,9 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       dummyFile.deleteOnExit()
 
       val t = for {
-        model <- StatismoIO.readStatismoMeshModel(statismoFile)
-        _ <- StatismoIO.writeStatismoMeshModel(model, dummyFile, "/someLocation")
-        readModel <- StatismoIO.readStatismoMeshModel(dummyFile, "/someLocation")
+        model <- StatisticalModelIO.readStatisticalMeshModel(statismoFile)
+        _ <- StatisticalModelIO.writeStatisticalMeshModel(model, dummyFile, "/someLocation")
+        readModel <- StatisticalModelIO.readStatisticalMeshModel(dummyFile, "/someLocation")
       } yield {
         assertModelAlmostEqual(model, readModel)
       }
@@ -69,23 +70,23 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
 
     }
 
-    it("can be written in version 0.81 and read again") {
-      import StatismoIO.StatismoVersion.v081
-
-      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-      val dummyFile = File.createTempFile("dummy", "h5")
-      dummyFile.deleteOnExit()
-
-      val t = for {
-        model <- StatismoIO.readStatismoMeshModel(statismoFile)
-        _ <- StatismoIO.writeStatismoMeshModel(model, dummyFile, statismoVersion = v081)
-        readModel <- StatismoIO.readStatismoMeshModel(dummyFile)
-      } yield {
-        assertModelAlmostEqual(model, readModel)
-      }
-      t.get
-
-    }
+//    it("can be written in version 0.81 and read again") {
+//      import StatismoIO.StatismoVersion.v081
+//
+//      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
+//      val dummyFile = File.createTempFile("dummy", "h5")
+//      dummyFile.deleteOnExit()
+//
+//      val t = for {
+//        model <- StatisticalModelIO.readStatisticalMeshModel(statismoFile)
+//        _ <- StatisticalModelIO.writeStatisticalMeshModel(model, dummyFile, statismoVersion = v081)
+//        readModel <- StatisticalModelIO.readStatisticalMeshModel(dummyFile)
+//      } yield {
+//        assertModelAlmostEqual(model, readModel)
+//      }
+//      t.get
+//
+//    }
   }
 
   it("can read a catalog") {

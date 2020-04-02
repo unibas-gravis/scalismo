@@ -105,13 +105,13 @@ object UnstructuredPoints {
   }
 
   object Create {
-    implicit object CreateUnstructuredPointsDomain1D extends Create[_1D] {
+    implicit object CreateUnstructuredPoints1D extends Create[_1D] {
       override def create(points: IndexedSeq[Point[_1D]]) = new UnstructuredPoints1D(points)
     }
-    implicit object CreateUnstructuredPointsDomain2D extends Create[_2D] {
+    implicit object CreateUnstructuredPoints2D extends Create[_2D] {
       override def create(points: IndexedSeq[Point[_2D]]) = new UnstructuredPoints2D(points)
     }
-    implicit object CreateUnstructuredPointsDomain3D extends Create[_3D] {
+    implicit object CreateUnstructuredPoints3D extends Create[_3D] {
       override def create(points: IndexedSeq[Point[_3D]]) = new UnstructuredPoints3D(points)
     }
 
@@ -120,7 +120,7 @@ object UnstructuredPoints {
 }
 
 class UnstructuredPoints1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]])
-    extends UnstructuredPoints[_1D](pointSequence) {
+  extends UnstructuredPoints[_1D](pointSequence) {
 
   override def boundingBox: BoxDomain[_1D] = {
     val minx = pointSequence.map(_(0)).min

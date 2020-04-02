@@ -17,13 +17,23 @@ package scalismo.io
 
 import java.io._
 
-import scalismo.geometry.{_2D, _3D, EuclideanVector}
-import scalismo.image.{DiscreteImageDomain}
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.geometry.{EuclideanVector, _2D, _3D}
+import scalismo.image.DiscreteImageDomain
+import scalismo.mesh.TriangleMesh
+import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel, StatisticalMeshModel}
 
 import scala.util.Try
 
 object StatisticalModelIO {
+
+  private def modelConverterToPointDistribution(model: StatisticalMeshModel): PointDistributionModel[_3D, TriangleMesh] = {
+    // add for loop - remove .get\
+      PointDistributionModel(model.gp)
+  }
+
+  private def modelConverterToMeshModel(model: PointDistributionModel[_3D, TriangleMesh]): StatisticalMeshModel = {
+    StatisticalMeshModel(model.reference, model.gp)
+  }
 
   /**
    * Reads a statistical mesh model. The file type is determined
@@ -33,9 +43,13 @@ object StatisticalModelIO {
    * @param file The statismo file
    * @return A StatisticalMeshModel or the Failure
    */
-  def readStatisticalMeshModel(file: File): Try[StatisticalMeshModel] = {
+  def readStatisticalMeshModel(file: File, modelPath: String = "/"): Try[StatisticalMeshModel] = {
     // currently, we support only the statismo format
-    StatismoIO.readStatismoMeshModel(file, "/")
+    val pModel = PointDistributionModelIO.readStatisticalMeshModel(file, modelPath)
+    for{
+      model <- pModel
+    }
+    yield modelConverterToMeshModel(model)
   }
 
   /**
@@ -47,9 +61,10 @@ object StatisticalModelIO {
    * @param file  The file to which the model is written
    * @return In case of Failure, the Failure is returned.
    */
-  def writeStatisticalMeshModel(model: StatisticalMeshModel, file: File): Try[Unit] = {
+  def writeStatisticalMeshModel(model: StatisticalMeshModel, file: File, modelPath: String = "/"): Try[Unit] = {
     // currently, we support only the statismo format
-    StatismoIO.writeStatismoMeshModel(model, file, "/")
+    val pModel = modelConverterToPointDistribution(model)
+    PointDistributionModelIO.writeStatisticalMeshModel(pModel, file, modelPath)
   }
 
   /**

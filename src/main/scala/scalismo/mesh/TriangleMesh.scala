@@ -15,6 +15,7 @@
  */
 package scalismo.mesh
 
+import scalismo.common.UnstructuredPoints.Create.CreateUnstructuredPoints2D
 import scalismo.common._
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
@@ -75,7 +76,7 @@ object TriangleMesh {
     triangleMesh.asInstanceOf[TriangleMesh3D]
   }
 
-  implicit object domainWarp extends DomainWarp[_3D, TriangleMesh] {
+  implicit object domainWarp3D extends DomainWarp[_3D, TriangleMesh] {
 
     /**
      * Warp the points of the domain of the discrete field and turn it into the
@@ -93,6 +94,28 @@ object TriangleMesh {
     }
 
     override def transform(mesh: TriangleMesh[_3D], transformation: Transformation[_3D]): TriangleMesh[_3D] = {
+      mesh.transform(transformation)
+    }
+  }
+
+  implicit object domainWarp2D extends DomainWarp[_2D, TriangleMesh] {
+
+    /**
+     * Warp the points of the domain of the discrete field and turn it into the
+     * warped domain
+     */
+    override def transformWithField(
+                                     domain: TriangleMesh[_2D],
+                                     warpField: DiscreteField[_2D, TriangleMesh, EuclideanVector[_2D]]
+                                   ): TriangleMesh[_2D] = {
+
+      require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
+
+      val newPoints = for ((p, v) <- warpField.pointsWithValues) yield { p + v }
+      TriangleMesh2D(CreateUnstructuredPoints2D.create(newPoints.toIndexedSeq), warpField.domain.triangulation)
+    }
+
+    override def transform(mesh: TriangleMesh[_2D], transformation: Transformation[_2D]): TriangleMesh[_2D] = {
       mesh.transform(transformation)
     }
   }

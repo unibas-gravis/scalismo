@@ -22,7 +22,7 @@ import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
-import scalismo.statisticalmodel.MultivariateNormalDistribution
+import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel, StatisticalMeshModel}
 import scalismo.statisticalmodel.asm._
 
 import scala.collection.immutable
@@ -56,8 +56,10 @@ object ActiveShapeModelIO {
   }
 
   def writeActiveShapeModel(asm: ActiveShapeModel, file: File): Try[Unit] = {
+
+    val pointModel = PointDistributionModel[_3D, TriangleMesh](asm.statisticalModel.gp)
     for {
-      _ <- StatismoIO.writeStatismoMeshModel(asm.statisticalModel, file)
+      _ <- StatismoIO.writeStatismoPointModel(pointModel, file)
       h5 <- HDF5Utils.openFileForWriting(file)
       asmGroup <- h5.createGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
@@ -100,7 +102,7 @@ object ActiveShapeModelIO {
 
   def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
     for {
-      shapeModel <- StatismoIO.readStatismoMeshModel(fn)
+      pointModel <- StatismoIO.readStatismoPointModel[_3D, TriangleMesh](fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
       asmVersionMajor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion)
@@ -116,8 +118,12 @@ object ActiveShapeModelIO {
       preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
       featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
-      profiles <- readProfiles(h5file, profilesGroup, shapeModel.referenceMesh)
-    } yield ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
+      profiles <- readProfiles(h5file, profilesGroup, pointModel.reference)
+    } yield {
+      val shapeModel = StatisticalMeshModel(pointModel.reference, pointModel.gp)
+      ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
+    }
+
   }
 
   private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
