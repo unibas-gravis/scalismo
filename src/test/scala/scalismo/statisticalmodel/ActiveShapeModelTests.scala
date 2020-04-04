@@ -67,11 +67,11 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val alignedASM = asm.transform(alignment)
 
     }
-//    it("Can be built, transformed and correctly fitted from/to artificial data") {
-//
-//      val fit = Fixture.alignedASM.fit(Fixture.targetImage, Fixture.searchMethod, 20, Fixture.fittingConfig).get.mesh
-//      assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.94)
-//    }
+    it("Can be built, transformed and correctly fitted from/to artificial data") {
+
+      val fit = Fixture.alignedASM.fit(Fixture.targetImage, Fixture.searchMethod, 20, Fixture.fittingConfig).get.mesh
+      assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.94)
+    }
 
     it("Can be transformed correctly from within the fitting") {
 

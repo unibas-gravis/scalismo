@@ -99,7 +99,8 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * @param newRank: The rank of the new model.
    */
   def truncate(newRank: Int): StatisticalMeshModel = {
-    new StatisticalMeshModel(referenceMesh, gp.truncate(newRank))
+    val truncate = pModel.truncate(newRank)
+    new StatisticalMeshModel(truncate.reference, truncate.gp)
   }
 
   /**
@@ -116,8 +117,8 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
-    val posteriorGp = pModel.posterior(trainingData, sigma2).gp
-    new StatisticalMeshModel(referenceMesh, posteriorGp)
+    val posterior = pModel.posterior(trainingData, sigma2)
+    new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
 
   /**
@@ -126,8 +127,8 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
   def posterior(
                  trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]
                ): StatisticalMeshModel = {
-    val posteriorGp = pModel.posterior(trainingData).gp
-    new StatisticalMeshModel(referenceMesh, posteriorGp)
+    val posterior = pModel.posterior(trainingData)
+    new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
 
   /**
@@ -135,14 +136,16 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * The spanned shape space is not affected by this operations.
    */
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
-    new StatisticalMeshModel(referenceMesh, pModel.transform(rigidTransform).gp)
+    val transformModel = pModel.transform(rigidTransform)
+    new StatisticalMeshModel(transformModel.reference, transformModel.gp)
   }
 
   /**
    * Warps the reference mesh with the given transform. The space spanned by the model is not affected.
    */
   def changeReference(t: Point[_3D] => Point[_3D]): StatisticalMeshModel = {
-    new StatisticalMeshModel(referenceMesh, pModel.changeReference(t).gp)
+    val changeRef = pModel.changeReference(t)
+    new StatisticalMeshModel(changeRef.reference, changeRef.gp)
   }
 
   /**
@@ -151,7 +154,6 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * @return The new model
    */
   def decimate(targetNumberOfVertices: Int): StatisticalMeshModel = {
-
     val newReference = referenceMesh.operations.decimate(targetNumberOfVertices)
     val interpolator = TriangleMeshInterpolator[EuclideanVector[_3D]]()
     val newGp = gp.interpolate(interpolator)

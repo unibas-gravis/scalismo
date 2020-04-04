@@ -88,7 +88,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
    */
   def mean(): ASMSample = {
     val smean = statisticalModel.mean
-    val meanProfilePoints: IndexedSeq[Point[_3D]] = profiles.data.map(p => smean.pointSet.point(p.pointId))
+    val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
     val meanFeatures = profiles.data.map(_.distribution.mean)
     val featureField = DiscreteFeatureField[_3D, UnstructuredPointsDomain](
       CreateUnstructuredPointsDomain3D.create(meanProfilePoints),
