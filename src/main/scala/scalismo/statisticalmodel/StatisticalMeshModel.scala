@@ -38,41 +38,41 @@ import scala.util.Try
 case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
                                          gp: DiscreteLowRankGaussianProcess[_3D, TriangleMesh, EuclideanVector[_3D]]) {
 
-  private val pModel = PointDistributionModel[_3D, TriangleMesh](gp)
+  private val pdm = PointDistributionModel[_3D, TriangleMesh](gp)
 
   /** @see [[scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.rank]] */
-  val rank: Int = pModel.rank
+  val rank: Int = pdm.rank
 
   /**
    * The mean shape
    * @see [[DiscreteLowRankGaussianProcess.mean]]
    */
-  lazy val mean: TriangleMesh[_3D] = pModel.mean
+  lazy val mean: TriangleMesh[_3D] = pdm.mean
 
   /**
    * The covariance between two points of the  mesh with given point id.
    * @see [[DiscreteLowRankGaussianProcess.cov]]
    */
-  def cov(ptId1: PointId, ptId2: PointId): DenseMatrix[Double] = pModel.cov(ptId1, ptId2)
+  def cov(ptId1: PointId, ptId2: PointId): DenseMatrix[Double] = pdm.cov(ptId1, ptId2)
 
   /**
    * draws a random shape.
    * @see [[DiscreteLowRankGaussianProcess.sample]]
    */
-  def sample()(implicit rand: Random): TriangleMesh3D = pModel.sample()
+  def sample()(implicit rand: Random): TriangleMesh3D = pdm.sample()
 
   /**
    * returns the probability density for an instance of the model
    * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
    *
    */
-  def pdf(instanceCoefficients: DenseVector[Double]): Double = pModel.pdf(instanceCoefficients)
+  def pdf(instanceCoefficients: DenseVector[Double]): Double = pdm.pdf(instanceCoefficients)
 
   /**
    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
    *  @see [[DiscreteLowRankGaussianProcess.instance]]
    */
-  def instance(c: DenseVector[Double]): TriangleMesh[_3D] = pModel.instance(c)
+  def instance(c: DenseVector[Double]): TriangleMesh[_3D] = pdm.instance(c)
 
   /**
    *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
@@ -89,7 +89,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    */
   def marginal(ptIds: IndexedSeq[PointId]): StatisticalMeshModel = {
     val newRef: TriangleMesh[_3D] = referenceMesh.operations.maskPoints(f => ptIds.contains(f)).transformedMesh
-    val marginalModel = pModel.newReference(newRef, NearestNeighborInterpolator3D())
+    val marginalModel = pdm.newReference(newRef, NearestNeighborInterpolator3D())
     new StatisticalMeshModel(marginalModel.reference, marginalModel.gp)
   }
 
@@ -99,25 +99,25 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * @param newRank: The rank of the new model.
    */
   def truncate(newRank: Int): StatisticalMeshModel = {
-    val truncate = pModel.truncate(newRank)
+    val truncate = pdm.truncate(newRank)
     new StatisticalMeshModel(truncate.reference, truncate.gp)
   }
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
-  def project(mesh: TriangleMesh[_3D]): TriangleMesh3D = pModel.project(mesh)
+  def project(mesh: TriangleMesh[_3D]): TriangleMesh3D = pdm.project(mesh)
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.coefficients]]
    */
-  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = pModel.coefficients(mesh)
+  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = pdm.coefficients(mesh)
 
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
-    val posterior = pModel.posterior(trainingData, sigma2)
+    val posterior = pdm.posterior(trainingData, sigma2)
     new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
 
@@ -127,7 +127,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
   def posterior(
                  trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]
                ): StatisticalMeshModel = {
-    val posterior = pModel.posterior(trainingData)
+    val posterior = pdm.posterior(trainingData)
     new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
 
@@ -136,7 +136,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * The spanned shape space is not affected by this operations.
    */
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
-    val transformModel = pModel.transform(rigidTransform)
+    val transformModel = pdm.transform(rigidTransform)
     new StatisticalMeshModel(transformModel.reference, transformModel.gp)
   }
 
@@ -144,7 +144,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * Warps the reference mesh with the given transform. The space spanned by the model is not affected.
    */
   def changeReference(t: Point[_3D] => Point[_3D]): StatisticalMeshModel = {
-    val changeRef = pModel.changeReference(t)
+    val changeRef = pdm.changeReference(t)
     new StatisticalMeshModel(changeRef.reference, changeRef.gp)
   }
 

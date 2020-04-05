@@ -102,7 +102,7 @@ object ActiveShapeModelIO {
 
   def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
     for {
-      pointModel <- StatismoIO.readStatismoPointModel[_3D, TriangleMesh](fn)
+      pdm <- StatismoIO.readStatismoPointModel[_3D, TriangleMesh](fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
       asmVersionMajor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion)
@@ -118,9 +118,9 @@ object ActiveShapeModelIO {
       preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
       profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
       featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
-      profiles <- readProfiles(h5file, profilesGroup, pointModel.reference)
+      profiles <- readProfiles(h5file, profilesGroup, pdm.reference)
     } yield {
-      val shapeModel = StatisticalMeshModel(pointModel.reference, pointModel.gp)
+      val shapeModel = StatisticalMeshModel(pdm.reference, pdm.gp)
       ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
     }
 

@@ -15,6 +15,8 @@
  */
 package scalismo.io
 
+import java.io.File
+
 import breeze.linalg.DenseMatrix
 import scalismo.common.UnstructuredPointsDomain.Create.{CreateUnstructuredPointsDomain1D, CreateUnstructuredPointsDomain2D, CreateUnstructuredPointsDomain3D}
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPoints, UnstructuredPointsDomain}
@@ -22,13 +24,21 @@ import scalismo.geometry.{Point, _1D, _2D, _3D}
 import scalismo.mesh.{LineCell, LineList, LineMesh, LineMesh2D, LineMesh3D, TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D, TriangleCell, TriangleList, TriangleMesh, TriangleMesh2D, TriangleMesh3D}
 
 import scala.language.higherKinds
+import scala.util.{Failure, Try}
 
-
+/**
+ * IO handling of PointDistributionModels with different point connectivity
+ *
+ * @tparam D       : Domain dimensionality
+ * @tparam DDomain : DiscretePointDomain
+ */
 trait StatismoDomainIO[D, DDomain[D] <: DiscreteDomain[D]] {
 
   def createDomainWithCells(cellMatrix: DenseMatrix[Int], points: IndexedSeq[Point[D]]): DDomain[D]
 
   def cellsToArray(mesh: DDomain[D]): NDArray[Int]
+
+  def readMesh(file: File): Try[DDomain[D]] = Failure(new Throwable("Unsupported model mesh type"))
 }
 
 
@@ -60,6 +70,8 @@ object StatismoDomainIO {
       val cellArray = triangles.map(_.ptId1.id) ++ triangles.map(_.ptId2.id) ++ triangles.map(_.ptId3.id)
       NDArray(IndexedSeq(3, triangles.size), cellArray.toArray)
     }
+
+    override def readMesh(file: File): Try[TriangleMesh[_3D]] = MeshIO.readMesh(file)
   }
 
   implicit object domainIOTetrahedralMesh3D extends StatismoDomainIO[_3D, TetrahedralMesh] {
@@ -74,6 +86,9 @@ object StatismoDomainIO {
       val cellArray = tetrahedrons.map(_.ptId1.id) ++ tetrahedrons.map(_.ptId2.id) ++ tetrahedrons.map(_.ptId3.id) ++ tetrahedrons.map(_.ptId4.id)
       NDArray(IndexedSeq(4, tetrahedrons.size), cellArray.toArray)
     }
+
+    override def readMesh(file: File): Try[TetrahedralMesh[_3D]] = MeshIO.readTetrahedralMesh(file)
+
   }
 
   implicit object domainIOLineMesh2D extends StatismoDomainIO[_2D, LineMesh] {
@@ -87,6 +102,9 @@ object StatismoDomainIO {
       val cellArray = mesh.cells.map(_.ptId1.id) ++ mesh.cells.map(_.ptId2.id)
       NDArray(IndexedSeq(2, mesh.cells.size), cellArray.toArray)
     }
+
+    override def readMesh(file: File): Try[LineMesh[_2D]] = MeshIO.readLineMesh2D(file)
+
   }
 
   implicit object domainIOLineMesh3D extends StatismoDomainIO[_3D, LineMesh] {
@@ -100,6 +118,9 @@ object StatismoDomainIO {
       val cellArray = mesh.cells.map(_.ptId1.id) ++ mesh.cells.map(_.ptId2.id)
       NDArray(IndexedSeq(2, mesh.cells.size), cellArray.toArray)
     }
+
+    override def readMesh(file: File): Try[LineMesh[_3D]] = MeshIO.readLineMesh3D(file)
+
   }
 
 

@@ -70,23 +70,19 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
 
     }
 
-//    it("can be written in version 0.81 and read again") {
-//      import StatismoIO.StatismoVersion.v081
-//
-//      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-//      val dummyFile = File.createTempFile("dummy", "h5")
-//      dummyFile.deleteOnExit()
-//
-//      val t = for {
-//        model <- StatisticalModelIO.readStatisticalMeshModel(statismoFile)
-//        _ <- StatisticalModelIO.writeStatisticalMeshModel(model, dummyFile, statismoVersion = v081)
-//        readModel <- StatisticalModelIO.readStatisticalMeshModel(dummyFile)
-//      } yield {
-//        assertModelAlmostEqual(model, readModel)
-//      }
-//      t.get
-//
-//    }
+    it("model in version 0.81 can be read") {
+      val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
+      val statismoOldFile = new File(URLDecoder.decode(getClass.getResource("/facemodel_v081.h5").getPath, "UTF-8"))
+
+      val t = for {
+        model <- StatisticalModelIO.readStatisticalMeshModel(statismoFile)
+        modelOld <- StatisticalModelIO.readStatisticalMeshModel(statismoOldFile)
+      } yield {
+        assertModelAlmostEqual(model, modelOld)
+      }
+      t.get
+
+    }
   }
 
   it("can read a catalog") {
