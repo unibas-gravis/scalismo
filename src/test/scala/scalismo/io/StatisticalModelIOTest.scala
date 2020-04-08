@@ -21,9 +21,8 @@ import java.net.URLDecoder
 import scalismo.ScalismoTestSuite
 import scalismo.common.NearestNeighborInterpolator
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 
 class StatisticalModelIOTest extends ScalismoTestSuite {

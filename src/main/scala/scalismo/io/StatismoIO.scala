@@ -3,12 +3,13 @@ package scalismo.io
 import java.io._
 import java.util.Calendar
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{*, DenseMatrix, DenseVector}
 import ncsa.hdf.`object`.Group
 import scalismo.common.{DiscreteDomain, DomainWarp, Vectorizer}
 import scalismo.geometry._
 import scalismo.image.{CreateDiscreteImageDomain, DiscreteImageDomain, StructuredPoints}
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
+import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel}
 
 import scala.util.{Failure, Success, Try}
@@ -79,68 +80,51 @@ object StatismoIO {
                                                                          (implicit typeHelper: StatismoDomainIO[D, DDomain], canWarp: DomainWarp[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]):
   Try[PointDistributionModel[D, DDomain]] = {
 
-    val dim: Int = vectorizer.dim // NDSpace[D].dimensionality
+    val dim: Int = vectorizer.dim
 
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
 
       representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
       mesh <- representerName match {
-        case ("vtkPolyDataRepresenter") => readVTKMeshFromRepresenterGroup(h5file, modelPath)
-        case ("itkMeshRepresenter") => readVTKMeshFromRepresenterGroup(h5file, modelPath)
+        case ("vtkPolyDataRepresenter") => for {
+          domain <- readVTKMeshFromRepresenterGroup(h5file, modelPath).map(m => m.asInstanceOf[DDomain[D]])
+        } yield domain
+        case ("itkMeshRepresenter") => for {
+          domain <- readVTKMeshFromRepresenterGroup(h5file, modelPath).map(m => m.asInstanceOf[DDomain[D]])
+        } yield domain
         case _ =>
           h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
             case Success("POLYGON_MESH") => {
               for {
                 pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
-                connectivityMatrix <- readStandardConnectiveityRepresenterGroup(h5file, modelPath)
+                points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+                domain <- typeHelper.createDomainWithCells(readStandardConnectiveityRepresenterGroup(h5file, modelPath), points)
               }
-                yield {
-                  // TODO: Below can probably be written a lot nicer.
-                  val points = for (i <- 0 until pointsMatrix.cols) yield {
-                    val col: DenseVector[Double] = DenseVector((0 until dim).map(j => pointsMatrix(j, i)).toArray)
-                    val vec: EuclideanVector[D] = vectorizer.unvectorize(col)
-                    vec.toPoint
-                  }
-                  typeHelper.createDomainWithCells(connectivityMatrix, points)
-                }
+                yield domain
             }
             case Success(datasetType) =>
               Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
             case Failure(t) => Failure(t)
           }
       }
-
       meanVector <- readStandardMeanVector(h5file, modelPath)
 
       (pcaVarianceVector, pcaBasis) <- readStandardPCAbasis(h5file, modelPath)
 
-      _ <- Try {
-        h5file.close()
-      }
+      _ <- Try(h5file.close())
     } yield {
-      // TODO: Fold to avoid loop over dim
-      val refVector: DenseVector[Double] = DenseVector(mesh.pointSet.points.toIndexedSeq.flatMap(p => (0 until dim).map(i => p(i))).toArray)
-
+      val refVector: DenseVector[Double] = DenseVector(mesh.pointSet.points.toIndexedSeq.flatMap(p => p.toBreezeVector.toArray).toArray)
       val meanDefVector: DenseVector[Double] = meanVector - refVector
-
       PointDistributionModel[D, DDomain](mesh, meanDefVector, pcaVarianceVector, pcaBasis)
     }
 
     modelOrFailure
   }
 
-  object StatismoVersion extends Enumeration {
-    type StatismoVersion = Value
-    val v090 = Value
-  }
-
-  import StatismoVersion._
-
   def writeStatismoPointModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](model: PointDistributionModel[D, DDomain],
                                                                            file: File,
-                                                                           modelPath: String = "/",
-                                                                           statismoVersion: StatismoVersion = v090)(implicit typeHelper: StatismoDomainIO[D, DDomain]): Try[Unit] = {
+                                                                           modelPath: String = "/")(implicit typeHelper: StatismoDomainIO[D, DDomain]): Try[Unit] = {
     val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
 
     val variance = model.gp.variance
@@ -175,6 +159,13 @@ object StatismoIO {
     maybeError
   }
 
+  private def writeCells(h5file: HDF5File, modelPath: String, cells: NDArray[Int]): Try[Unit]= {
+    if(cells.data.length > 0){
+      Try(h5file.writeNDArray[Int] (s"$modelPath/representer/cells", cells))
+    }
+    else Success(())
+  }
+
   private def writeRepresenterStatismov090[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](h5file: HDF5File,
                                                                                         group: Group,
                                                                                         model: PointDistributionModel[D, DDomain],
@@ -184,20 +175,19 @@ object StatismoIO {
     val dim: Int = NDSpace[D].dimensionality
 
     val dv: Array[Float] = (0 until dim).flatMap(i => model.reference.pointSet.points.toIndexedSeq.map(p => p(i))).toArray.map(_.toFloat)
-    //    val dv2: Array[Float] = model.reference.pointSet.points.toIndexedSeq.flatMap(_.toBreezeVector.data).toArray.map(_.toFloat) // wrong order
 
     val points: NDArray[Float] = NDArray(
       IndexedSeq(dim, model.reference.pointSet.numberOfPoints), dv
     )
+
 
     for {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
       _ <- h5file.writeStringAttribute(group.getFullName, "version/majorVersion", "0")
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
-
-      _ <- h5file.writeNDArray[Int](s"$modelPath/representer/cells", cells)
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", points)
+      _ <- writeCells(h5file, modelPath, cells)
     } yield Success(())
   }
 
@@ -207,13 +197,6 @@ object StatismoIO {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
-  }
-
-  private def ndIntArrayToIntMatrix(array: NDArray[Int]) = {
-    // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
-    // do switch dimensions and transpose
-
-    DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
   private def readStandardPCAbasis(h5file: HDF5File, modelPath: String): Try[(DenseVector[Double], DenseMatrix[Double])] = {
@@ -255,7 +238,9 @@ object StatismoIO {
             Success(vertArray)
         )
     }
-      yield ndFloatArrayToDoubleMatrix(vertArray)
+      yield {
+        ndFloatArrayToDoubleMatrix(vertArray)
+      }
   }
 
 
@@ -266,22 +251,21 @@ object StatismoIO {
       yield DenseVector(meanArray.data.map(_.toDouble))
   }
 
-  private def readStandardConnectiveityRepresenterGroup(h5file: HDF5File, modelPath: String): Try[DenseMatrix[Int]] = {
-    for {
-      cellArray <- h5file
-        .readNDArray[Int](s"$modelPath/representer/cells")
-    }
-      yield ndIntArrayToIntMatrix(cellArray)
+  private def readStandardConnectiveityRepresenterGroup(h5file: HDF5File, modelPath: String): Try[NDArray[Int]] = {
+    val cells = if (h5file.exists(s"$modelPath/representer/cells")) h5file.readNDArray[Int](s"$modelPath/representer/cells")
+    else Failure(new Throwable("No cells found in representer"))
+    cells
   }
 
   /*
  * reads the reference (a vtk file, which is stored as a byte array in the hdf5 file)
  */
-  private def readVTKMeshFromRepresenterGroup[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](h5file: HDF5File, modelPath: String)(implicit typeHelper: StatismoDomainIO[D, DDomain]): Try[DDomain[D]] = {
+  //(implicit typeHelper: StatismoDomainIO[D, DDomain])
+  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh[_3D]] = {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)
-      mesh <- typeHelper.readMesh(vtkFile)
+      mesh <- MeshIO.readMesh(vtkFile)
     } yield mesh
   }
 
@@ -323,6 +307,7 @@ object StatismoIO {
   /**
    * Writes a GP defined on an image domain with values of type A
    * as a statismo file.
+   * createDomainWithCells
    *
    * @param gp        the gaussian process
    * @param file      the file to which it is written
