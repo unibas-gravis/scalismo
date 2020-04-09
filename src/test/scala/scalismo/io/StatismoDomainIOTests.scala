@@ -32,9 +32,9 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val unstructuredPoints = CreateUnstructuredPoints2D.create(IndexedSeq(Point2D(0,0), Point2D(1,0), Point2D(1,1)))
       val topology = TriangleList(IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2))))
       val input = TriangleMesh2D(unstructuredPoints, topology)
-      val cellsAsArray: Try[NDArray[Int]] = Try(StatismoDomainIO.domainIOTriangleMesh2D.cellsToArray(input))
+      val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTriangleMesh2D.cellsToArray(input)
       val t = for {
-        output <- StatismoDomainIO.domainIOTriangleMesh2D.createDomainWithCells(cellsAsArray, unstructuredPoints.points.toIndexedSeq)
+        output <- StatismoDomainIO.domainIOTriangleMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq, Option(cellsAsArray))
       } yield {
         assert(input == output)
       }
@@ -45,9 +45,9 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val unstructuredPoints = CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0,0,0), Point3D(1,0,0), Point3D(1,1,0)))
       val topology = TriangleList(IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2))))
       val input = TriangleMesh3D(unstructuredPoints, topology)
-      val cellsAsArray: Try[NDArray[Int]] = Try(StatismoDomainIO.domainIOTriangleMesh3D.cellsToArray(input))
+      val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTriangleMesh3D.cellsToArray(input)
       val t = for {
-        output <- StatismoDomainIO.domainIOTriangleMesh3D.createDomainWithCells(cellsAsArray, unstructuredPoints.points.toIndexedSeq)
+        output <- StatismoDomainIO.domainIOTriangleMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq, Option(cellsAsArray))
       } yield {
         assert(input == output)
       }
@@ -58,9 +58,9 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val unstructuredPoints = CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0,0,0), Point3D(1,0,0), Point3D(1,1,0), Point3D(1,1,1)))
       val topology = TetrahedralList(IndexedSeq(TetrahedralCell(PointId(0), PointId(1), PointId(2), PointId(3))))
       val input = TetrahedralMesh3D(unstructuredPoints, topology)
-      val cellsAsArray: Try[NDArray[Int]] = Try(StatismoDomainIO.domainIOTetrahedralMesh3D.cellsToArray(input))
+      val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTetrahedralMesh3D.cellsToArray(input)
       val t = for {
-        output <- StatismoDomainIO.domainIOTetrahedralMesh3D.createDomainWithCells(cellsAsArray, unstructuredPoints.points.toIndexedSeq)
+        output <- StatismoDomainIO.domainIOTetrahedralMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq, Option(cellsAsArray))
       } yield {
         assert(input == output)
       }
@@ -71,9 +71,9 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val unstructuredPoints = CreateUnstructuredPoints2D.create(IndexedSeq(Point2D(0,0), Point2D(1,0)))
       val topology = LineList(IndexedSeq(LineCell(PointId(0), PointId(1))))
       val input = LineMesh2D(unstructuredPoints, topology)
-      val cellsAsArray: Try[NDArray[Int]] = Try(StatismoDomainIO.domainIOLineMesh2D.cellsToArray(input))
+      val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOLineMesh2D.cellsToArray(input)
       val t = for {
-        output <- StatismoDomainIO.domainIOLineMesh2D.createDomainWithCells(cellsAsArray, unstructuredPoints.points.toIndexedSeq)
+        output <- StatismoDomainIO.domainIOLineMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq, Option(cellsAsArray))
       } yield {
         assert(input == output)
       }
@@ -84,9 +84,9 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val unstructuredPoints = CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0,0,0), Point3D(1,0,0), Point3D(1,1,0)))
       val topology = LineList(IndexedSeq(LineCell(PointId(0), PointId(1))))
       val input = LineMesh3D(unstructuredPoints, topology)
-      val cellsAsArray: Try[NDArray[Int]] = Try(StatismoDomainIO.domainIOLineMesh3D.cellsToArray(input))
+      val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOLineMesh3D.cellsToArray(input)
       val t = for {
-        output <- StatismoDomainIO.domainIOLineMesh3D.createDomainWithCells(cellsAsArray, unstructuredPoints.points.toIndexedSeq)
+        output <- StatismoDomainIO.domainIOLineMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq, Option(cellsAsArray))
       } yield {
         assert(input == output)
       }

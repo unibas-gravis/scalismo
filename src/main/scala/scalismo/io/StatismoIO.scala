@@ -20,11 +20,16 @@ object StatismoIO {
 
   object StatismoModelType extends Enumeration {
     type StatismoModelType = Value
-    val Polygon_Mesh, Unknown = Value
+    val Pointset, Polygon_Mesh, Volume_Mesh, Image, Polygon_Mesh_Data, Volume_Mesh_Data, Unknown = Value
 
     def fromString(s: String): Value = {
       s match {
+        case "POINTSET_MODEL" => Pointset
         case "POLYGON_MESH_MODEL" => Polygon_Mesh
+        case "VOLUME_MESH_MODEL" => Volume_Mesh
+        case "IMAGE_MODEL" => Image
+        case "POLYGON_MESH_DATA_MODEL" => Polygon_Mesh_Data
+        case "VOLUME_MESH_DATA_MODEL" => Volume_Mesh_Data
         case _ => Unknown
       }
     }
@@ -80,8 +85,6 @@ object StatismoIO {
                                                                          (implicit typeHelper: StatismoDomainIO[D, DDomain], canWarp: DomainWarp[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]):
   Try[PointDistributionModel[D, DDomain]] = {
 
-    val dim: Int = vectorizer.dim
-
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
 
@@ -95,14 +98,10 @@ object StatismoIO {
         } yield domain
         case _ =>
           h5file.readStringAttribute(s"$modelPath/representer/", "datasetType") match {
-            case Success("POLYGON_MESH") => {
-              for {
-                pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
-                points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
-                domain <- typeHelper.createDomainWithCells(readStandardConnectiveityRepresenterGroup(h5file, modelPath), points)
-              }
-                yield domain
-            }
+            case Success("POINT_SET") => readPointSetRepresentation(h5file, modelPath)
+            case Success("POLYGON_MESH") => readStandardMeshRepresentation(h5file, modelPath)
+            case Success("VOLUME_MESH") => readStandardMeshRepresentation(h5file, modelPath)
+//            case Success("IMAGE") => ???
             case Success(datasetType) =>
               Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
             case Failure(t) => Failure(t)
@@ -185,7 +184,7 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "name", "itkStandardMeshRepresenter")
       _ <- h5file.writeStringAttribute(group.getFullName, "version/majorVersion", "0")
       _ <- h5file.writeStringAttribute(group.getFullName, "version/minorVersion", "9")
-      _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", "POLYGON_MESH")
+      _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", typeHelper.datasetType)
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", points)
       _ <- writeCells(h5file, modelPath, cells)
     } yield Success(())
@@ -241,6 +240,27 @@ object StatismoIO {
       yield {
         ndFloatArrayToDoubleMatrix(vertArray)
       }
+  }
+
+  private def readPointSetRepresentation[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](h5file: HDF5File, modelPath: String)(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
+    val dim: Int = vectorizer.dim
+    for {
+      pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
+      points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+      domain <- typeHelper.createDomainWithCells(points, None)
+    }
+      yield domain
+  }
+
+  private def readStandardMeshRepresentation[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](h5file: HDF5File, modelPath: String)(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
+    val dim: Int = vectorizer.dim
+    for {
+      pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
+      points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+      cells <- readStandardConnectiveityRepresenterGroup(h5file, modelPath)
+      domain <- typeHelper.createDomainWithCells(points, Option(cells))
+    }
+      yield domain
   }
 
 
