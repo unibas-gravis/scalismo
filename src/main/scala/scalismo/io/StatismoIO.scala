@@ -101,9 +101,10 @@ object StatismoIO {
             case Success("POINT_SET") => readPointSetRepresentation(h5file, modelPath)
             case Success("POLYGON_MESH") => readStandardMeshRepresentation(h5file, modelPath)
             case Success("VOLUME_MESH") => readStandardMeshRepresentation(h5file, modelPath)
-//            case Success("IMAGE") => ???
+            case Success("LINE_MESH") => readStandardMeshRepresentation(h5file, modelPath)
+            //            case Success("IMAGE") => ???
             case Success(datasetType) =>
-              Failure(new Exception(s"can only read model of datasetType POLYGON_MESH. Got $datasetType instead"))
+              Failure(new Exception(s"cannot read model of datasetType $datasetType"))
             case Failure(t) => Failure(t)
           }
       }
