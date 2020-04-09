@@ -81,8 +81,8 @@ object StatismoIO {
    * @param modelPath a path in the hdf5 file where the model is stored
    * @return
    */
-  def readStatismoPointModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](file: File, modelPath: String = "/")
-                                                                         (implicit typeHelper: StatismoDomainIO[D, DDomain], canWarp: DomainWarp[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]):
+  def readStatismoPDM[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](file: File, modelPath: String = "/")
+                                                                  (implicit typeHelper: StatismoDomainIO[D, DDomain], canWarp: DomainWarp[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]):
   Try[PointDistributionModel[D, DDomain]] = {
 
     val modelOrFailure = for {
@@ -122,9 +122,9 @@ object StatismoIO {
     modelOrFailure
   }
 
-  def writeStatismoPointModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](model: PointDistributionModel[D, DDomain],
-                                                                           file: File,
-                                                                           modelPath: String = "/")(implicit typeHelper: StatismoDomainIO[D, DDomain]): Try[Unit] = {
+  def writeStatismoPDM[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](model: PointDistributionModel[D, DDomain],
+                                                                    file: File,
+                                                                    modelPath: String = "/")(implicit typeHelper: StatismoDomainIO[D, DDomain]): Try[Unit] = {
     val discretizedMean = model.mean.pointSet.points.toIndexedSeq.flatten(_.toArray)
 
     val variance = model.gp.variance

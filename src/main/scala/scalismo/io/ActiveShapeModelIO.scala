@@ -59,7 +59,7 @@ object ActiveShapeModelIO {
 
     val pointModel = PointDistributionModel[_3D, TriangleMesh](asm.statisticalModel.gp)
     for {
-      _ <- StatismoIO.writeStatismoPointModel(pointModel, file)
+      _ <- StatismoIO.writeStatismoPDM(pointModel, file)
       h5 <- HDF5Utils.openFileForWriting(file)
       asmGroup <- h5.createGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
@@ -102,7 +102,7 @@ object ActiveShapeModelIO {
 
   def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
     for {
-      pdm <- StatismoIO.readStatismoPointModel[_3D, TriangleMesh](fn)
+      pdm <- StatismoIO.readStatismoPDM[_3D, TriangleMesh](fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
       asmVersionMajor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion)

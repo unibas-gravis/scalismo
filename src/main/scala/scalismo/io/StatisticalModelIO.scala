@@ -41,7 +41,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalTriangleMeshModel2D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_2D, TriangleMesh]] = {
-    StatismoIO.readStatismoPointModel[_2D, TriangleMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_2D, TriangleMesh](file, modelPath)
   }
 
   /**
@@ -51,7 +51,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalTriangleMeshModel2D(model: PointDistributionModel[_2D, TriangleMesh], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_2D, TriangleMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_2D, TriangleMesh](model, file, modelPath)
   }
 
   /**
@@ -61,7 +61,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalTriangleMeshModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, TriangleMesh]] = {
-    StatismoIO.readStatismoPointModel[_3D, TriangleMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, TriangleMesh](file, modelPath)
   }
 
   /**
@@ -71,7 +71,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalTriangleMeshModel3D(model: PointDistributionModel[_3D, TriangleMesh], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_3D, TriangleMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, TriangleMesh](model, file, modelPath)
   }
 
   /**
@@ -81,7 +81,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalLineMeshModel2D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_2D, LineMesh]] = {
-    StatismoIO.readStatismoPointModel[_2D, LineMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_2D, LineMesh](file, modelPath)
   }
 
   /**
@@ -91,7 +91,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalLineMeshModel2D(model: PointDistributionModel[_2D, LineMesh], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_2D, LineMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_2D, LineMesh](model, file, modelPath)
   }
 
   /**
@@ -101,7 +101,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalLineMeshModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, LineMesh]] = {
-    StatismoIO.readStatismoPointModel[_3D, LineMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, LineMesh](file, modelPath)
   }
 
   /**
@@ -111,7 +111,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalLineMeshModel3D(model: PointDistributionModel[_3D, LineMesh], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_3D, LineMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, LineMesh](model, file, modelPath)
   }
 
   /**
@@ -121,7 +121,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalTetrahedralMeshModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, TetrahedralMesh]] = {
-    StatismoIO.readStatismoPointModel[_3D, TetrahedralMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, TetrahedralMesh](file, modelPath)
   }
 
   /**
@@ -131,7 +131,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalTetrahedralMeshModel3D(model: PointDistributionModel[_3D, TetrahedralMesh], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_3D, TetrahedralMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, TetrahedralMesh](model, file, modelPath)
   }
 
   /**
@@ -141,7 +141,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalPointModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, UnstructuredPointsDomain]] = {
-    StatismoIO.readStatismoPointModel[_3D, UnstructuredPointsDomain](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, UnstructuredPointsDomain](file, modelPath)
   }
 
   /**
@@ -151,7 +151,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalPointModel3D(model: PointDistributionModel[_3D, UnstructuredPointsDomain], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_3D, UnstructuredPointsDomain](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, UnstructuredPointsDomain](model, file, modelPath)
   }
 
   /**
@@ -161,7 +161,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalPointModel2D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_2D, UnstructuredPointsDomain]] = {
-    StatismoIO.readStatismoPointModel[_2D, UnstructuredPointsDomain](file, modelPath)
+    StatismoIO.readStatismoPDM[_2D, UnstructuredPointsDomain](file, modelPath)
   }
 
   /**
@@ -171,7 +171,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalPointModel2D(model: PointDistributionModel[_2D, UnstructuredPointsDomain], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_2D, UnstructuredPointsDomain](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_2D, UnstructuredPointsDomain](model, file, modelPath)
   }
 
   /**
@@ -181,7 +181,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def readStatisticalPointModel1D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_1D, UnstructuredPointsDomain]] = {
-    StatismoIO.readStatismoPointModel[_1D, UnstructuredPointsDomain](file, modelPath)
+    StatismoIO.readStatismoPDM[_1D, UnstructuredPointsDomain](file, modelPath)
   }
 
   /**
@@ -191,7 +191,7 @@ object StatisticalModelIO {
    * @return A PointDistributionModel or the Failure
    */
   def writeStatisticalPointModel1D(model: PointDistributionModel[_1D, UnstructuredPointsDomain], file: File, modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPointModel[_1D, UnstructuredPointsDomain](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_1D, UnstructuredPointsDomain](model, file, modelPath)
   }
 
 
