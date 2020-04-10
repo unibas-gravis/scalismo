@@ -16,8 +16,10 @@
 
 package scalismo.mesh
 
-import scalismo.common.{Cell, PointId, UnstructuredPoints}
+import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
+import scalismo.common.{BoxDomain, Cell, DiscreteDomain, DiscreteField, DomainWarp, PointId, UnstructuredPoints}
 import scalismo.geometry._
+import scalismo.registration.Transformation
 
 import scala.language.implicitConversions
 
@@ -30,23 +32,25 @@ case class LineCell(ptId1: PointId, ptId2: PointId) extends Cell {
   val pointIds = IndexedSeq(ptId1, ptId2)
 
   /** Returns true if the given point identifier is part of the line cell*/
-  def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId
+  def containsPoint(ptId: PointId): Boolean = ptId1 == ptId || ptId2 == ptId
 }
 
-abstract class LineMesh[D: NDSpace](val pointSet: UnstructuredPoints[D], val topology: LineList) {
+trait LineMesh[D] extends DiscreteDomain[D]{ //(val pointSet: UnstructuredPoints[D], val topology: LineList) {
+  val topology: LineList
+  val pointSet: UnstructuredPoints[D]
 
-  val position = ContourPointProperty(topology, pointSet.pointSequence)
-  val lines = topology.lines
-  val cells = lines
+  val position: ContourPointProperty[Point[D]] = ContourPointProperty(topology, pointSet.pointSequence)
+  val lines: IndexedSeq[LineCell] = topology.lines
+  val cells: IndexedSeq[LineCell] = lines
 
-  lazy val boundingBox = pointSet.boundingBox
+  lazy val boundingBox: BoxDomain[D] = pointSet.boundingBox
 
   /**
    * Length of the line contour.
    *
    * The computed area is the sum of all the line cell areas.
    */
-  lazy val length = lines.map(line => computeLineLength(line)).sum
+  lazy val length: Double = lines.map(line => computeLineLength(line)).sum
 
   /**
    *  Returns a line mesh that is the image of this mesh by the given transform.
@@ -68,19 +72,23 @@ abstract class LineMesh[D: NDSpace](val pointSet: UnstructuredPoints[D], val top
 
 object LineMesh {
 
+  def apply[D](points: UnstructuredPoints[D], topology: LineList)(implicit creator: Create[D]): LineMesh[D] = {
+    creator.createLineMesh(points, topology)
+  }
+
   /** Typeclass for creating domains of arbitrary dimensionality */
   trait Create[D] {
     def createLineMesh(pointSet: UnstructuredPoints[D], topology: LineList): LineMesh[D]
   }
 
   implicit object Create2D extends Create[_2D] {
-    override def createLineMesh(pointSet: UnstructuredPoints[_2D], topology: LineList) = {
+    override def createLineMesh(pointSet: UnstructuredPoints[_2D], topology: LineList): LineMesh[_2D] = {
       LineMesh2D(pointSet, topology)
     }
   }
 
   implicit object Create3D extends Create[_3D] {
-    override def createLineMesh(pointSet: UnstructuredPoints[_3D], topology: LineList) = {
+    override def createLineMesh(pointSet: UnstructuredPoints[_3D], topology: LineList): LineMesh[_3D] = {
       LineMesh3D(pointSet, topology)
     }
   }
@@ -93,12 +101,9 @@ object LineMesh {
     polyLine.asInstanceOf[LineMesh3D]
   }
 
-  def apply[D](points: UnstructuredPoints[D], topology: LineList)(implicit creator: Create[D]): LineMesh[D] = {
-    creator.createLineMesh(points, topology)
-  }
-
   def enforceConsistentCellDirections[D](lineMesh: LineMesh[D])(implicit creator: LineMesh.Create[D]): LineMesh[D] = {
 
+    @scala.annotation.tailrec
     def reorientRecursive(curLine: LineCell, reorientedLines: IndexedSeq[LineCell]): IndexedSeq[LineCell] = {
       if (reorientedLines.contains(curLine)) {
         reorientedLines
@@ -123,10 +128,55 @@ object LineMesh {
     val consistentLineList = LineList(reorientRecursive(lineMesh.lines.head, IndexedSeq[LineCell]()))
     creator.createLineMesh(lineMesh.pointSet, consistentLineList)
   }
+
+  implicit object domainWarp2D extends DomainWarp[_2D, LineMesh] {
+
+    /**
+     * Warp the points of the domain of the discrete field and turn it into the
+     * warped domain
+     */
+    override def transformWithField(
+                                     domain: LineMesh[_2D],
+                                     warpField: DiscreteField[_2D, LineMesh, EuclideanVector[_2D]]
+                                   ): LineMesh[_2D] = {
+
+      require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
+
+      val newPoints = for ((p, v) <- warpField.pointsWithValues) yield { p + v }
+      LineMesh2D(CreateUnstructuredPoints2D.create(newPoints.toIndexedSeq), domain.topology)
+    }
+
+    override def transform(mesh: LineMesh[_2D], transformation: Transformation[_2D]): LineMesh[_2D] = {
+      mesh.transform(transformation)
+    }
+  }
+
+  implicit object domainWarp3D extends DomainWarp[_3D, LineMesh] {
+
+    /**
+     * Warp the points of the domain of the discrete field and turn it into the
+     * warped domain
+     */
+    override def transformWithField(
+                                     domain: LineMesh[_3D],
+                                     warpField: DiscreteField[_3D, LineMesh, EuclideanVector[_3D]]
+                                   ): LineMesh[_3D] = {
+
+      require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
+
+      val newPoints = for ((p, v) <- warpField.pointsWithValues) yield { p + v }
+      LineMesh3D(CreateUnstructuredPoints3D.create(newPoints.toIndexedSeq), domain.topology)
+    }
+
+    override def transform(mesh: LineMesh[_3D], transformation: Transformation[_3D]): LineMesh[_3D] = {
+      mesh.transform(transformation)
+    }
+  }
+
 }
 
 case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override val topology: LineList)
-    extends LineMesh[_2D](pointSet, topology) {
+  extends LineMesh[_2D] {
 
   /** Get all cell normals as a surface property */
   lazy val cellNormals: LineProperty[EuclideanVector[_2D]] = {
@@ -152,7 +202,7 @@ case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override v
 }
 
 case class LineMesh3D(override val pointSet: UnstructuredPoints[_3D], override val topology: LineList)
-    extends LineMesh[_3D](pointSet, topology) {}
+  extends LineMesh[_3D] {}
 
 /** property constant per line */
 case class LineProperty[A](topology: LineList, lineData: IndexedSeq[A]) extends LineContourProperty[A] {

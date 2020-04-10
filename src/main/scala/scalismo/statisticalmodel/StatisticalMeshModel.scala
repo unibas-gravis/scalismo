@@ -15,22 +15,18 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.svd.SVD
 import breeze.linalg.{DenseMatrix, DenseVector}
-import breeze.numerics.sqrt
 import scalismo.common._
 import scalismo.common.interpolation.TriangleMeshInterpolator
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
-import scalismo.numerics.{FixedPointsUniformMeshSampler3D, PivotedCholesky}
+import scalismo.numerics.PivotedCholesky
 import scalismo.registration.RigidTransformation
-import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
-import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 /**
  * A StatisticalMeshModel is isomorphic to a [[DiscreteLowRankGaussianProcess]]. The difference is that while the DiscreteLowRankGaussianProcess
@@ -42,42 +38,41 @@ import scala.util.{Failure, Success, Try}
 case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
                                          gp: DiscreteLowRankGaussianProcess[_3D, TriangleMesh, EuclideanVector[_3D]]) {
 
+  private val pdm = PointDistributionModel[_3D, TriangleMesh](gp)
+
   /** @see [[scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.rank]] */
-  val rank = gp.rank
+  val rank: Int = pdm.rank
 
   /**
    * The mean shape
    * @see [[DiscreteLowRankGaussianProcess.mean]]
    */
-  lazy val mean: TriangleMesh[_3D] = warpReference(gp.mean)
+  lazy val mean: TriangleMesh[_3D] = pdm.mean
 
   /**
    * The covariance between two points of the  mesh with given point id.
    * @see [[DiscreteLowRankGaussianProcess.cov]]
    */
-  def cov(ptId1: PointId, ptId2: PointId) = gp.cov(ptId1, ptId2)
+  def cov(ptId1: PointId, ptId2: PointId): DenseMatrix[Double] = pdm.cov(ptId1, ptId2)
 
   /**
    * draws a random shape.
    * @see [[DiscreteLowRankGaussianProcess.sample]]
    */
-  def sample()(implicit rand: Random) = warpReference(gp.sample())
+  def sample()(implicit rand: Random): TriangleMesh3D = pdm.sample()
 
   /**
    * returns the probability density for an instance of the model
    * @param instanceCoefficients coefficients of the instance in the model. For shapes in correspondence, these can be obtained using the coefficients method
    *
    */
-  def pdf(instanceCoefficients: DenseVector[Double]): Double = {
-    val disVecField = gp.instance(instanceCoefficients)
-    gp.pdf(disVecField)
-  }
+  def pdf(instanceCoefficients: DenseVector[Double]): Double = pdm.pdf(instanceCoefficients)
 
   /**
    * returns a shape that corresponds to a linear combination of the basis functions with the given coefficients c.
    *  @see [[DiscreteLowRankGaussianProcess.instance]]
    */
-  def instance(c: DenseVector[Double]): TriangleMesh[_3D] = warpReference(gp.instance(c))
+  def instance(c: DenseVector[Double]): TriangleMesh[_3D] = pdm.instance(c)
 
   /**
    *  Returns a marginal StatisticalMeshModel, modelling deformations only on the chosen points of the reference
@@ -93,7 +88,9 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * @see [[DiscreteLowRankGaussianProcess.marginal]]
    */
   def marginal(ptIds: IndexedSeq[PointId]): StatisticalMeshModel = {
-    ???
+    val newRef: TriangleMesh[_3D] = referenceMesh.operations.maskPoints(f => ptIds.contains(f)).transformedMesh
+    val marginalModel = pdm.newReference(newRef, NearestNeighborInterpolator3D())
+    new StatisticalMeshModel(marginalModel.reference, marginalModel.gp)
   }
 
   /**
@@ -102,53 +99,36 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * @param newRank: The rank of the new model.
    */
   def truncate(newRank: Int): StatisticalMeshModel = {
-    new StatisticalMeshModel(referenceMesh, gp.truncate(newRank))
+    val truncate = pdm.truncate(newRank)
+    new StatisticalMeshModel(truncate.reference, truncate.gp)
   }
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.project]]
    */
-  def project(mesh: TriangleMesh[_3D]) = {
-    val displacements =
-      referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
-    val dvf =
-      DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]](referenceMesh, displacements)
-    warpReference(gp.project(dvf))
-  }
+  def project(mesh: TriangleMesh[_3D]): TriangleMesh3D = pdm.project(mesh)
 
   /**
    * @see [[DiscreteLowRankGaussianProcess.coefficients]]
    */
-  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = {
-    val displacements =
-      referenceMesh.pointSet.points.zip(mesh.pointSet.points).map({ case (refPt, tgtPt) => tgtPt - refPt }).toIndexedSeq
-    val dvf =
-      DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]](referenceMesh, displacements)
-    gp.coefficients(dvf)
-  }
+  def coefficients(mesh: TriangleMesh[_3D]): DenseVector[Double] = pdm.coefficients(mesh)
 
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D])], sigma2: Double)]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): StatisticalMeshModel = {
-    val trainingDataWithDisplacements = trainingData.map {
-      case (id, targetPoint) => (id, targetPoint - referenceMesh.pointSet.point(id))
-    }
-    val posteriorGp = gp.posterior(trainingDataWithDisplacements, sigma2)
-    new StatisticalMeshModel(referenceMesh, posteriorGp)
+    val posterior = pdm.posterior(trainingData, sigma2)
+    new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
 
   /**
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(
-    trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]
-  ): StatisticalMeshModel = {
-    val trainingDataWithDisplacements = trainingData.map {
-      case (id, targetPoint, cov) => (id, targetPoint - referenceMesh.pointSet.point(id), cov)
-    }
-    val posteriorGp = gp.posterior(trainingDataWithDisplacements)
-    new StatisticalMeshModel(referenceMesh, posteriorGp)
+                 trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]
+               ): StatisticalMeshModel = {
+    val posterior = pdm.posterior(trainingData)
+    new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
 
   /**
@@ -156,49 +136,16 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * The spanned shape space is not affected by this operations.
    */
   def transform(rigidTransform: RigidTransformation[_3D]): StatisticalMeshModel = {
-    val newRef = referenceMesh.transform(rigidTransform)
-
-    val newMean: DenseVector[Double] = {
-      val newMeanVecs = for ((pt, meanAtPoint) <- gp.mean.pointsWithValues) yield {
-        rigidTransform(pt + meanAtPoint) - rigidTransform(pt)
-      }
-      val data = newMeanVecs.map(_.toArray).flatten.toArray
-      DenseVector(data)
-    }
-
-    val newBasisMat = DenseMatrix.zeros[Double](gp.basisMatrix.rows, gp.basisMatrix.cols)
-
-    for ((Eigenpair(_, ithKlBasis), i) <- gp.klBasis.zipWithIndex) {
-      val newIthBasis = for ((pt, basisAtPoint) <- ithKlBasis.pointsWithValues) yield {
-        rigidTransform(pt + basisAtPoint) - rigidTransform(pt)
-      }
-      val data = newIthBasis.map(_.toArray).flatten.toArray
-      newBasisMat(::, i) := DenseVector(data)
-    }
-    val newGp = new DiscreteLowRankGaussianProcess[_3D, TriangleMesh, EuclideanVector[_3D]](
-      gp.domain.transform(rigidTransform),
-      newMean,
-      gp.variance,
-      newBasisMat
-    )
-
-    new StatisticalMeshModel(newRef, newGp)
-
+    val transformModel = pdm.transform(rigidTransform)
+    new StatisticalMeshModel(transformModel.reference, transformModel.gp)
   }
 
   /**
    * Warps the reference mesh with the given transform. The space spanned by the model is not affected.
    */
   def changeReference(t: Point[_3D] => Point[_3D]): StatisticalMeshModel = {
-
-    val newRef = referenceMesh.transform(t)
-    val newMean = gp.mean.pointsWithValues.map { case (refPt, meanVec) => (refPt - t(refPt)) + meanVec }
-    val newMeanVec = DenseVector(newMean.map(_.toArray).flatten.toArray)
-    val newGp = new DiscreteLowRankGaussianProcess[_3D, TriangleMesh, EuclideanVector[_3D]](newRef,
-                                                                                            newMeanVec,
-                                                                                            gp.variance,
-                                                                                            gp.basisMatrix)
-    new StatisticalMeshModel(newRef, newGp)
+    val changeRef = pdm.changeReference(t)
+    new StatisticalMeshModel(changeRef.reference, changeRef.gp)
   }
 
   /**
@@ -207,19 +154,12 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * @return The new model
    */
   def decimate(targetNumberOfVertices: Int): StatisticalMeshModel = {
-
     val newReference = referenceMesh.operations.decimate(targetNumberOfVertices)
     val interpolator = TriangleMeshInterpolator[EuclideanVector[_3D]]()
     val newGp = gp.interpolate(interpolator)
 
     StatisticalMeshModel(newReference, newGp)
   }
-
-  private def warpReference(vectorPointData: DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]]) = {
-    val newPoints = vectorPointData.pointsWithValues.map { case (pt, v) => pt + v }
-    TriangleMesh3D(UnstructuredPoints(newPoints.toIndexedSeq), referenceMesh.triangulation)
-  }
-
 }
 
 object StatisticalMeshModel {
@@ -241,64 +181,18 @@ object StatisticalMeshModel {
   private[scalismo] def apply(referenceMesh: TriangleMesh[_3D],
                               meanVector: DenseVector[Double],
                               variance: DenseVector[Double],
-                              basisMatrix: DenseMatrix[Double]) = {
-    val gp = new DiscreteLowRankGaussianProcess[_3D, TriangleMesh, EuclideanVector[_3D]](referenceMesh,
-                                                                                         meanVector,
-                                                                                         variance,
-                                                                                         basisMatrix)
-    new StatisticalMeshModel(referenceMesh, gp)
-  }
-
-  /**
-   *  @deprecated
-   *  Biasmodel can now be approximated before and the augment method is just an addition of two lowrank Gaussian processes.
-   *  Please use approximate the biasModel before as a LowRankGaussianProcess and use the new method to create the bias model.
-   */
-
-  @deprecated("Please use the new method augmentModel(model,biasModel : LowRankGaussianProcess)", "20-04-2016")
-  def augmentModel(model: StatisticalMeshModel,
-                   biasModel: GaussianProcess[_3D, EuclideanVector[_3D]],
-                   numBasisFunctions: Int)(implicit rand: Random): StatisticalMeshModel = {
-
-    val modelGP = model.gp.interpolateNearestNeighbor
-    // TODO: check if there is a better alternative (move method to Field?)
-    val newMean =
-      Field[_3D, EuclideanVector[_3D]](modelGP.domain, (p: Point[_3D]) => modelGP.mean(p) + biasModel.mean(p))
-    val newCov = modelGP.cov + biasModel.cov
-    val newGP = GaussianProcess(newMean, newCov)
-    val sampler = FixedPointsUniformMeshSampler3D(model.referenceMesh, 2 * numBasisFunctions)
-    val newLowRankGP = LowRankGaussianProcess.approximateGPNystrom(newGP, sampler, numBasisFunctions)
-    StatisticalMeshModel(model.referenceMesh, newLowRankGP)
+                              basisMatrix: DenseMatrix[Double]): StatisticalMeshModel = {
+    val pdModel = PointDistributionModel(referenceMesh, meanVector, variance, basisMatrix)
+    new StatisticalMeshModel(pdModel.reference, pdModel.gp)
   }
 
   /**
    *  Adds a bias model to the given statistical shape model
    */
-  def augmentModel(model: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]) = {
-
-    val discretizedBiasModel = biasModel.discretize(model.referenceMesh)
-    val eigenvalues = DenseVector.vertcat(model.gp.variance, discretizedBiasModel.variance).map(sqrt(_))
-    val eigenvectors = DenseMatrix.horzcat(model.gp.basisMatrix, discretizedBiasModel.basisMatrix)
-
-    for (i <- 0 until eigenvalues.length) {
-      eigenvectors(::, i) :*= eigenvalues(i)
-    }
-
-    val l: DenseMatrix[Double] = eigenvectors.t * eigenvectors
-    val SVD(v, _, _) = breeze.linalg.svd(l)
-    val U: DenseMatrix[Double] = eigenvectors * v
-    val d: DenseVector[Double] = DenseVector.zeros(U.cols)
-    for (i <- 0 until U.cols) {
-      d(i) = breeze.linalg.norm(U(::, i))
-      U(::, i) := U(::, i) * (1.0 / d(i))
-    }
-
-    val r = model.gp.copy[_3D, TriangleMesh, EuclideanVector[_3D]](
-      meanVector = model.gp.meanVector + discretizedBiasModel.meanVector,
-      variance = breeze.numerics.pow(d, 2),
-      basisMatrix = U
-    )
-    StatisticalMeshModel(model.referenceMesh, r)
+  def augmentModel(model: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]): StatisticalMeshModel = {
+    val pdModel = PointDistributionModel(model.gp)
+    val augmentModel = PointDistributionModel.augmentModel(pdModel, biasModel)
+    new StatisticalMeshModel(augmentModel.reference, augmentModel.gp)
   }
 
   /**
@@ -335,5 +229,3 @@ object StatisticalMeshModel {
   }
 
 }
-
-object PointD

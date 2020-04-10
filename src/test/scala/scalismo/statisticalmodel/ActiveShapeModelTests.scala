@@ -6,8 +6,8 @@ import java.net.URLDecoder
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.{DiscreteField, NearestNeighborInterpolator}
-import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.io.{ImageIO, MeshIO, StatismoIO}
+import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.io.{ImageIO, MeshIO, StatismoIO, StatisticalModelIO}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.{Sampler, UniformMeshSampler3D}
 import scalismo.registration.{LandmarkRegistration, Transformation}
@@ -32,7 +32,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
         FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 
       val path: String = URLDecoder.decode(getClass.getResource(s"/asmData/model.h5").getPath, "UTF-8")
-      val shapeModel = StatismoIO.readStatismoMeshModel(new File(path)).get
+      val shapeModel = StatisticalModelIO.readStatisticalMeshModel(new File(path)).get
       val nbFiles = 7
       // use iterators so files are only loaded when required (and memory can be reclaimed after use)
       val meshes = (0 until nbFiles).toIterator map { i =>

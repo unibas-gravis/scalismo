@@ -24,7 +24,7 @@ import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, StructuredPoints}
-import scalismo.io.StatismoIO
+import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{GridSampler, UniformSampler}
 import scalismo.utils.Random
@@ -372,7 +372,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("approximate the right amount of variance based on the relative error") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val ssm = StatismoIO.readStatismoMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
+      val ssm = StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
       val gpToApproximate = ssm.gp.interpolate(NearestNeighborInterpolator())
 
       val origVariance = gpToApproximate.klBasis.map(_.eigenvalue).sum
@@ -392,7 +392,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the probability of samples unchanged") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val fullSsm = StatismoIO.readStatismoMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
+      val fullSsm = StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
 
       // we truncate the ssm to avoid numerical error
       val ssm = fullSsm.truncate(fullSsm.rank / 2)
