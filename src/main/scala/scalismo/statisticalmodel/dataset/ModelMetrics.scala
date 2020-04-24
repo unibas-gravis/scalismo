@@ -7,6 +7,7 @@ import scalismo.statisticalmodel.{PointDistributionModel, StatisticalMeshModel}
 import scalismo.utils.Random
 
 import scala.util.{Failure, Success, Try}
+import scala.collection.parallel.CollectionConverters._
 
 /**
  * Implements utility functions for evaluating the quality of a [[StatisticalMeshModel]]
@@ -33,7 +34,9 @@ object ModelMetrics {
    * These steps are then repeated nbSamples times and the average value is returned.
    *
    */
-  def specificity(pcaModel: PointDistributionModel[_3D, TriangleMesh], data: Iterable[TriangleMesh[_3D]], nbSamples: Int)(
+  def specificity(pcaModel: PointDistributionModel[_3D, TriangleMesh],
+                  data: Iterable[TriangleMesh[_3D]],
+                  nbSamples: Int)(
     implicit
     rng: Random
   ): Double = {

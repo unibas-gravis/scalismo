@@ -19,7 +19,7 @@ package scalismo.common
 import scalismo.common.UnstructuredPoints.Create
 import scalismo.geometry._
 import scalismo.mesh.kdtree.{KDTreeMap, RegionBuilder}
-
+import scala.collection.parallel.CollectionConverters._
 import scala.language.implicitConversions
 
 sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
@@ -120,7 +120,7 @@ object UnstructuredPoints {
 }
 
 class UnstructuredPoints1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]])
-  extends UnstructuredPoints[_1D](pointSequence) {
+    extends UnstructuredPoints[_1D](pointSequence) {
 
   override def boundingBox: BoxDomain[_1D] = {
     val minx = pointSequence.map(_(0)).min

@@ -120,11 +120,11 @@ class SquareMatrix[D: NDSpace] private (private[scalismo] val data: Array[Double
     SquareMatrix[D](this.toBreezeMatrix.t.toArray)
   }
 
-  override def hashCode = data.deep.hashCode()
+  override def hashCode = data.toSeq.hashCode()
 
   override def equals(other: Any): Boolean = other match {
     case that: SquareMatrix[D] =>
-      that.canEqual(this) && this.data.deep == that.data.deep
+      that.canEqual(this) && this.data.sameElements(that.data)
     case _ => false
   }
 

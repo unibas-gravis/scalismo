@@ -15,10 +15,10 @@
  */
 package scalismo.statisticalmodel.asm
 
-import breeze.linalg.{DenseVector, convert}
+import breeze.linalg.{convert, DenseVector}
 import scalismo.common.UnstructuredPointsDomain.Create.CreateUnstructuredPointsDomain3D
 import scalismo.common.{PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
@@ -28,6 +28,7 @@ import scalismo.utils.Random
 
 import scala.collection.immutable
 import scala.util.{Failure, Try}
+import scala.collection.parallel.CollectionConverters._
 
 object ActiveShapeModel {
   type TrainingData = Iterator[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]
@@ -41,7 +42,7 @@ object ActiveShapeModel {
                  featureExtractor: FeatureExtractor,
                  sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
-    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
+    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).toIndexedSeq
     val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.

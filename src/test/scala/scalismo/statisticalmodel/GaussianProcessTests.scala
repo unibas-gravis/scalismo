@@ -30,6 +30,7 @@ import scalismo.numerics.{GridSampler, UniformSampler}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
+import scala.collection.parallel.CollectionConverters._
 
 class GaussianProcessTests extends ScalismoTestSuite {
 
@@ -392,7 +393,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the probability of samples unchanged") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val fullSsm = StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
+      val fullSsm =
+        StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
 
       // we truncate the ssm to avoid numerical error
       val ssm = fullSsm.truncate(fullSsm.rank / 2)

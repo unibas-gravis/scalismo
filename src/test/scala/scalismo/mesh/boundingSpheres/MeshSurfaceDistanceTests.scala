@@ -29,6 +29,7 @@ import scalismo.mesh.{
   TriangleMesh3D
 }
 import scalismo.utils.Random
+import scala.collection.parallel.CollectionConverters._
 
 class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 

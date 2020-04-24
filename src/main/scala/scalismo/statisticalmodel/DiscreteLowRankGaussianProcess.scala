@@ -31,6 +31,7 @@ import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.{Memoize, Random}
 
 import scala.language.higherKinds
+import scala.collection.parallel.CollectionConverters._
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.

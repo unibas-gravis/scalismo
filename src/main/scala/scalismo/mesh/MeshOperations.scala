@@ -20,6 +20,7 @@ import scalismo.geometry._
 import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
 import scalismo.mesh.boundingSpheres._
 import scalismo.utils.MeshConversion
+import scala.collection.parallel.CollectionConverters._
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)

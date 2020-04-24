@@ -24,6 +24,7 @@ import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.utils.{Memoize, Random}
+import scala.collection.parallel.CollectionConverters._
 
 /**
  * Implementation of the Mutual Information Metric, described in the following paper:

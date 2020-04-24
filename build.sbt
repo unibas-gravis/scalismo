@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
-    scalaVersion := "2.12.6",
+    scalaVersion := "2.13.2",
     crossScalaVersions := Seq("2.11.12", "2.12.6"),
     resolvers ++= Seq(
       Resolver.jcenterRepo,
@@ -26,10 +26,11 @@ lazy val root = (project in file("."))
       case _ => Seq("-encoding", "UTF-8", "-Xlint", "-deprecation", "-unchecked", "-feature", "-target:jvm-1.8")
     }),
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+      "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
+      "org.scalatest" %% "scalatest" % "3.0.8" % "test",
       "org.scalanlp" %% "breeze" % "1.0",
       "org.scalanlp" %% "breeze-natives" % "1.0",
-      "io.spray" %% "spray-json" % "1.3.3",
+      "io.spray" %% "spray-json" % "1.3.5",
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0",
       "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes

@@ -31,16 +31,16 @@ abstract class Coordinate[D: NDSpace, @specialized(Int, Float, Double) S] {
 
   def toBreezeVector = DenseVector(data)
 
-  override def hashCode = data.deep.hashCode()
+  override def hashCode = data.toSeq.hashCode()
 
   override def equals(other: Any): Boolean = other match {
-    case that: Coordinate[D, S] => that.canEqual(this) && this.data.deep == that.data.deep
+    case that: Coordinate[D, S] => that.canEqual(this) && this.data.sameElements(that.data)
     case _                      => false
   }
 
   protected def canEqual(other: Any): Boolean
 
-  override def toString = data.deep.toString()
+  override def toString = data.toSeq.toString()
 }
 
 /**

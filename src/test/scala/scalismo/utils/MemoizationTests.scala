@@ -27,7 +27,7 @@ class MemoizationTests extends ScalismoTestSuite {
     it("yields the same results after memoizing") {
       val testFunMemoized = Memoize(testFun, 100000)
       for (x <- BigDecimal(-2.0 * Math.PI) until (2.0 * Math.PI) by 0.1)
-        testFun(x.doubleValue()) should be(testFunMemoized(x.doubleValue()))
+        testFun(x.doubleValue) should be(testFunMemoized(x.doubleValue))
     }
 
     it("evaluates faster after memoization") {

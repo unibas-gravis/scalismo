@@ -42,7 +42,7 @@ object Metric {
  *
  *  WARNING: the tree only works with a metric (positive, symmetric, triangle inequality)
  */
-sealed trait VantagePointTree[A] extends Traversable[A] {
+sealed trait VantagePointTree[A] extends Iterable[A] {
 
   /** metric of the space */
   def metric: Metric[A]
@@ -52,6 +52,12 @@ sealed trait VantagePointTree[A] extends Traversable[A] {
 
   /** return true of the tree contains the point */
   def contains(point: A): Boolean
+
+  override def iterator: Iterator[A] = {
+    val collectedValues = new mutable.ArrayBuffer[A]()
+    this.foreach(a => collectedValues.addOne(a))
+    collectedValues.iterator
+  }
 
   /** find k nearest neighbours */
   def findKNearestNeighbours(point: A, k: Int): IndexedSeq[A] = {
@@ -223,10 +229,11 @@ private case class EmptyVP[A](metric: Metric[A]) extends VantagePointTree[A] {
   override def foreach[U](f: (A) => U): Unit = {}
 
   override def findNN(point: A, candidates: CandidateSet[A]): Unit = {}
+
 }
 
 /** leaf node of VP tree */
-private case class VPLeaf[A](metric: Metric[A], center: A) extends VantagePointTree[A] {
+private case class VPLeaf[A](metric: Metric[A], center: A) extends VantagePointTree[A] { self =>
 
   override def contains(point: A): Boolean = point == center
 
@@ -238,6 +245,7 @@ private case class VPLeaf[A](metric: Metric[A], center: A) extends VantagePointT
 
 /** link node: list element, only a single child - should only appear before a leaf */
 private case class VPLink[A](metric: Metric[A], center: A, next: VantagePointTree[A]) extends VantagePointTree[A] {
+  self =>
 
   override def findNN(point: A, candidates: CandidateSet[A]): Unit = {
     candidates.addCandidate(center, metric(center, point))
