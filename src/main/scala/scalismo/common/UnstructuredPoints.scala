@@ -19,7 +19,8 @@ package scalismo.common
 import scalismo.common.UnstructuredPoints.Create
 import scalismo.geometry._
 import scalismo.mesh.kdtree.{KDTreeMap, RegionBuilder}
-import scala.collection.parallel.CollectionConverters._
+
+import scala.collection.parallel.immutable.ParVector
 import scala.language.implicitConversions
 
 sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
@@ -72,9 +73,10 @@ sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
     pointIDMap.get(pt)
   }
 
-  override def transform(transform: Point[D] => Point[D]): UnstructuredPoints[D] =
-    UnstructuredPoints(pointSequence.par.map(transform).toIndexedSeq)
-
+  override def transform(t: Point[D] => Point[D]): UnstructuredPoints[D] = {
+    val mappedPoints = new ParVector(pointSequence.toVector).map((p: Point[D]) => t(p)).toIndexedSeq
+    UnstructuredPoints(mappedPoints)
+  }
 }
 
 object UnstructuredPoints {

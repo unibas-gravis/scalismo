@@ -20,7 +20,8 @@ import scalismo.geometry._
 import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
 import scalismo.mesh.boundingSpheres._
 import scalismo.utils.MeshConversion
-import scala.collection.parallel.CollectionConverters._
+
+import scala.collection.parallel.immutable.ParVector
 
 object MeshOperations {
   def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
@@ -73,9 +74,9 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
    */
   def clip(clipPointPredicate: Point[_3D] => Boolean): TriangleMesh[_3D] = {
     // predicate tested at the beginning, once.
-    val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
+    val remainingPoints = new ParVector(meshPoints.toVector).filter { !clipPointPredicate(_) }.zipWithIndex.toMap
 
-    val remainingPointTriplet = mesh.cells.par
+    val remainingPointTriplet = new ParVector(mesh.cells.toVector)
       .map { cell =>
         val points = cell.pointIds.map(pointId => meshPoints(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))
@@ -298,9 +299,12 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
    */
   def clip(clipPointPredicate: Point[_3D] => Boolean): TetrahedralMesh[_3D] = {
     // predicate tested at the beginning, once.
-    val remainingPoints = meshPoints.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
+    val remainingPoints = new ParVector(meshPoints.toVector)
+      .filter { !clipPointPredicate(_) }
+      .zipWithIndex
+      .toMap
 
-    val remainingPointQuatriplet = mesh.cells.par
+    val remainingPointQuatriplet = new ParVector(mesh.cells.toVector)
       .map { cell =>
         val points = cell.pointIds.map(pointId => meshPoints(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))

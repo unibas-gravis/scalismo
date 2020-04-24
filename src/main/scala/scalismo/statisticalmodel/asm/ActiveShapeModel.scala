@@ -27,8 +27,8 @@ import scalismo.statisticalmodel.{MultivariateNormalDistribution, StatisticalMes
 import scalismo.utils.Random
 
 import scala.collection.immutable
+import scala.collection.parallel.immutable.ParVector
 import scala.util.{Failure, Try}
-import scala.collection.parallel.CollectionConverters._
 
 object ActiveShapeModel {
   type TrainingData = Iterator[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]
@@ -266,7 +266,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
     poseTransform: RigidTransformation[_3D]
   ): IndexedSeq[(PointId, Point[_3D])] = {
 
-    val matchingPts = profiles.ids.par.map { index =>
+    val matchingPts = new ParVector(profiles.ids.toVector).map { index =>
       (profiles(index).pointId,
        findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform))
     }

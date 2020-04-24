@@ -22,8 +22,9 @@ import scalismo.numerics.UniformSampler
 import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
-import scalismo.{ScalismoTestSuite}
-import scala.collection.parallel.CollectionConverters._
+import scalismo.ScalismoTestSuite
+
+import scala.collection.parallel.immutable.ParVector
 
 class KernelTests extends ScalismoTestSuite {
 
@@ -88,14 +89,14 @@ class KernelTests extends ScalismoTestSuite {
 
       // since mu always returns the same vector, it's enough to calculate it once
       val mux = mu(Point(0, 0, 0))
-      for (x <- pts.par) {
+      for (x <- new ParVector(pts.toVector)) {
         val mu2 = sampleCovKernel.mu(x)
         for (d <- 0 until 3) {
           mu2(d) should be(mux(d) +- 0.2)
         }
       }
 
-      for (x <- pts.par; y <- pts) {
+      for (x <- new ParVector(pts.toVector); y <- pts) {
         val gpxy = gp.cov(x, y)
         val sampleCovxy = sampleCovKernel(x, y)
         for (d1 <- 0 until 3; d2 <- 0 until 3) {

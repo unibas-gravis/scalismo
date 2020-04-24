@@ -30,7 +30,7 @@ import scalismo.numerics.{GridSampler, UniformSampler}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.immutable.ParVector
 
 class GaussianProcessTests extends ScalismoTestSuite {
 
@@ -293,7 +293,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val fewPointsSampler =
         GridSampler(DiscreteImageDomain(f.domain.origin, f.domain.extent * (1.0 / 8.0), IntVector(2, 2, 2)))
       val pts = fewPointsSampler.sample.map(_._1)
-      for (pt1 <- pts.par; pt2 <- pts) {
+      for (pt1 <- new ParVector(pts.toVector); pt2 <- pts) {
         val covGP = f.gp.cov(pt1, pt2)
         val covKernel = f.kernel(pt1, pt2)
         for (i <- 0 until 3; j <- 0 until 3) {

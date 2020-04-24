@@ -17,7 +17,7 @@ import scalismo.utils.Random
 
 import scala.annotation.tailrec
 import scala.language.higherKinds
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.immutable.ParVector
 
 case class CrossvalidationFold[D, DDomain[D] <: DiscreteDomain[D], Value](
   trainingData: DataCollection[D, DDomain, Value],
@@ -198,7 +198,7 @@ object TriangleMeshDataCollection {
     val fields = dc.fields(NearestNeighborInterpolator())
 
     // align all shape to it and create a transformation from the mean to the aligned shape
-    val newDiscreteFields = fields.par.map { field =>
+    val newDiscreteFields = new ParVector(fields.toVector).map { field =>
       val surface = dc.reference.transform(p => p + field(p))
       val transform =
         LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints),

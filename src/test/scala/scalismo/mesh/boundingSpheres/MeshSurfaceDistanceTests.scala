@@ -29,7 +29,8 @@ import scalismo.mesh.{
   TriangleMesh3D
 }
 import scalismo.utils.Random
-import scala.collection.parallel.CollectionConverters._
+
+import scala.collection.parallel.immutable.ParVector
 
 class MeshSurfaceDistanceTests extends ScalismoTestSuite {
 
@@ -478,12 +479,12 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
         )
       )
 
-      val queries = (0 until 100000) map { _ =>
+      val queries = ParVector.range(0, 100000) map { _ =>
         randomVector()
       }
 
       val cpsSeq = queries.map(q => sd.getClosestPoint(q.toPoint))
-      val cpsPar = queries.par.map(q => sd.getClosestPoint(q.toPoint))
+      val cpsPar = queries.map(q => sd.getClosestPoint(q.toPoint))
 
       cpsSeq.zip(cpsPar) foreach { pair =>
         val seq = pair._1
@@ -521,7 +522,7 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       }
 
       val cpsSeq = queries.map(q => sd.closestPoint(q.toPoint))
-      val cpsPar = queries.par.map(q => sd.closestPoint(q.toPoint))
+      val cpsPar = new ParVector(queries.toVector).map(q => sd.closestPoint(q.toPoint))
 
       cpsSeq.zip(cpsPar) foreach { pair =>
         val seq = pair._1

@@ -55,7 +55,7 @@ sealed trait VantagePointTree[A] extends Iterable[A] {
 
   override def iterator: Iterator[A] = {
     val collectedValues = new mutable.ArrayBuffer[A]()
-    this.foreach(a => collectedValues.addOne(a))
+    this.foreach(a => collectedValues += a)
     collectedValues.iterator
   }
 

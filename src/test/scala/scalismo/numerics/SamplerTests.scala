@@ -23,7 +23,8 @@ import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
 import scalismo.utils.{Memoize, Random}
-import scala.collection.parallel.CollectionConverters._
+
+import scala.collection.parallel.immutable.ParVector
 
 class SamplerTests extends ScalismoTestSuite {
 
@@ -120,7 +121,7 @@ class SamplerTests extends ScalismoTestSuite {
         val actualRatio = (facemesh.area * randomAreaSizeRatio + areaAdjust) / facemesh.area
         //println(s"actual ratio of selected areas = $actualRatio")
 
-        val numSampledPointsInArea = randomAreas.par
+        val numSampledPointsInArea = new ParVector(randomAreas.toVector)
           .flatMap(cellId => {
             samplePoints.filter(sampledPoint => pointInCell(sampledPoint, cellId, facemesh))
           })

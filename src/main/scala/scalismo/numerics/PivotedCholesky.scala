@@ -23,8 +23,7 @@ import scalismo.geometry._
 import scalismo.kernels.{MatrixValuedPDKernel, PDKernel}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.parallel.CollectionConverters._
-import scala.Ordering.Double.IeeeOrdering
+import scala.collection.parallel.immutable.ParVector
 
 /**
  * Result object for the pivoted cholesky of a matrix A
@@ -115,13 +114,15 @@ object PivotedCholesky {
       S(p(k)) = D
 
       val pointIds = ids.splitAt(k + 1)._2
-      val chunks = pointIds.grouped(Math.max(1, n / Runtime.getRuntime().availableProcessors())).toIndexedSeq.par
+      val chunks = new ParVector(
+        pointIds.grouped(Math.max(1, n / Runtime.getRuntime().availableProcessors())).toVector
+      )
 
       var c = 0
 
       while (c < k) {
         val tmp = L(p(k), c)
-        for (r <- pointIds.par) {
+        for (r <- new ParVector(pointIds.toVector)) {
           S(p(r)) += L(p(r), c) * tmp
         }
         c += 1

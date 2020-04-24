@@ -7,7 +7,7 @@ import scalismo.statisticalmodel.{PointDistributionModel, StatisticalMeshModel}
 import scalismo.utils.Random
 
 import scala.util.{Failure, Success, Try}
-import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.immutable.ParVector
 
 /**
  * Implements utility functions for evaluating the quality of a [[StatisticalMeshModel]]
@@ -41,12 +41,15 @@ object ModelMetrics {
     rng: Random
   ): Double = {
 
-    (0 until nbSamples).par.map { _ =>
-      val sample = pcaModel.sample
-      data.map { m =>
-        MeshMetrics.avgDistance(m, sample)
-      }.min
-    }.sum * (1.0 / nbSamples)
+    ParVector
+      .range(0, nbSamples)
+      .map { _ =>
+        val sample = pcaModel.sample
+        data.map { m =>
+          MeshMetrics.avgDistance(m, sample)
+        }.min
+      }
+      .sum * (1.0 / nbSamples)
   }
 
   /**
@@ -68,7 +71,7 @@ object ModelMetrics {
   )(implicit warper: DomainWarp[_3D, TriangleMesh]): Try[Double] = {
 
     if (pcaModel.reference == dc.reference) Success {
-      dc.dataItems.par.map { item =>
+      new ParVector(dc.dataItems.toVector).map { item =>
         val mesh = warper.transformWithField(dc.reference, item)
         val projection = pcaModel.project(mesh)
         MeshMetrics.avgDistance(projection, mesh)
