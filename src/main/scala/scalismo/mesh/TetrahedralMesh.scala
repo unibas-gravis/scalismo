@@ -18,7 +18,7 @@ package scalismo.mesh
 import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.utils.Random
 import vtk.vtkTetra
 
@@ -130,7 +130,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPoints[_3D], tetrahedralizati
   lazy val boundingBox: BoxDomain[_3D] = pointSet.boundingBox
 
   /**
-   * Applies a point transformation to the point set and returns a new transformed mesh.
+   * Applies a point transformations to the point set and returns a new transformed mesh.
    * The method keeps the tetrahedralization as it is and only changes the location of the points.
    *
    * @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.

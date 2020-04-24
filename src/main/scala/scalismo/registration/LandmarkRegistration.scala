@@ -19,39 +19,23 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, svd, _}
 import breeze.stats.mean
 import scalismo.geometry._
+import scalismo.transformations.{
+  RigidTransformation,
+  RigidTransformationSpace,
+  RigidTransformationSpace2D,
+  RigidTransformationSpace3D,
+  Rotation,
+  RotationSpace3D,
+  Scaling,
+  Scaling2D,
+  SimilarityTransformation,
+  Translation
+}
 
 object LandmarkRegistration {
 
   private val origin2D = Point(0f, 0f)
   private val origin3D = Point(0f, 0f, 0f)
-
-  def rotMatrixToEulerAngles(rotMat: DenseMatrix[Double]) = {
-    // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix
-    // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
-
-    if (Math.abs(Math.abs(rotMat(2, 0)) - 1) > 0.0001) {
-      val theta1 = Math.asin(-rotMat(2, 0))
-
-      val psi1 = Math.atan2(rotMat(2, 1) / Math.cos(theta1), rotMat(2, 2) / Math.cos(theta1))
-
-      val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta1))
-
-      DenseVector(phi1, theta1, psi1)
-    } else {
-      /* Gimbal lock, we simply set phi to be 0 */
-      val phi = 0.0
-      if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
-        val theta = Math.PI / 2.0
-        val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
-        DenseVector(phi, theta, psi)
-      } else {
-
-        val theta = -Math.PI / 2.0
-        val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
-        DenseVector(phi, theta, psi)
-      }
-    }
-  }
 
   private def rigidSimilarity3DCommon(landmarks: Seq[(Point[_3D], Point[_3D])],
                                       center: Point[_3D],
@@ -60,12 +44,12 @@ object LandmarkRegistration {
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
 
-    val rotparams = rotMatrixToEulerAngles(rotMat)
+    val rotparams = RotationSpace3D.rotMatrixToEulerAngles(rotMat)
     (t, rotparams, s)
   }
 
   /**
-   * Returns a rigid transformation mapping the original landmarks into the target. Attention : correspondence between landmarks is
+   * Returns a rigid transformations mapping the original landmarks into the target. Attention : correspondence between landmarks is
    * inferred based on the Landmark identifier and not their order in the sequence.
    *
    * @param originalLms original set of landmarks to be transformed
@@ -87,17 +71,17 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformations mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
-   * @param center center of rotation to be used for the rigid transformation
+   * @param center center of rotation to be used for the rigid transformations
    */
   def rigid3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])],
                                   center: Point[_3D]): RigidTransformation[_3D] = {
     val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks, center)
     val optimalParameters = DenseVector.vertcat(t, rotparams)
-    val rigidSpace = RigidTransformationSpace[_3D](center)
-    rigidSpace.transformForParameters(optimalParameters)
+    val rigidSpace = RigidTransformationSpace3D(center)
+    rigidSpace.transformationForParameters(optimalParameters)
   }
 
   @deprecated("Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
@@ -106,17 +90,17 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformations mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
-   * @param center center of rotation to be used for the rigid transformation
+   * @param center center of rotation to be used for the rigid transformations
    */
   def rigid2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])],
                                   center: Point[_2D]): RigidTransformation[_2D] = {
     val (t, rotparams, _) = rigidSimilarity2DCommon(landmarks, center)
     val optimalParameters = DenseVector.vertcat(t, DenseVector(Array(rotparams)))
-    val rigidSpace = RigidTransformationSpace[_2D](center)
-    rigidSpace.transformForParameters(optimalParameters)
+    val rigidSpace = RigidTransformationSpace2D(center)
+    rigidSpace.transformationForParameters(optimalParameters)
   }
 
   @deprecated("Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
@@ -125,7 +109,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformations mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
    * @param center - center of the rotation
@@ -146,7 +130,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
+   * Returns a similarity transformations mapping the original landmarks (first elements of the tuples)
    * into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
@@ -158,9 +142,9 @@ object LandmarkRegistration {
     val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, center, similarityFlag = true)
 
     // as the computations above compute the soultion for the formula sRx + t, but we compute s(Rx + t), we need to divide the translation t by s
-    val rigidTransform = RigidTransformation(TranslationTransform(EuclideanVector3D(t(0) / s, t(1) / s, t(2) / s)),
-                                             RotationTransform(rotparams(0), rotparams(1), rotparams(2), center))
-    val scalingTransform = ScalingTransformation[_3D](s)
+    val rigidTransform = RigidTransformation(Translation(EuclideanVector3D(t(0) / s, t(1) / s, t(2) / s)),
+                                             Rotation(rotparams(0), rotparams(1), rotparams(2), center))
+    val scalingTransform = Scaling[_3D](s)
     SimilarityTransformation(scalingTransform, rigidTransform)
   }
 
@@ -171,7 +155,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformations mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
    * @param center - center of the rotation
@@ -193,7 +177,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformations mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
    * @param center - center of the rotation
@@ -220,9 +204,9 @@ object LandmarkRegistration {
 
     // as the computations above compute the soultion for the formula sRx + t, but we compute s(Rx + t), we need to divide the translation t by s
     val rigidTransform =
-      RigidTransformation(TranslationTransform(EuclideanVector2D(t(0) / s, t(1) / s)), RotationTransform(phi, center))
+      RigidTransformation(Translation(EuclideanVector2D(t(0) / s, t(1) / s)), Rotation(phi, center))
 
-    val scalingTransform = ScalingTransformation[_2D](s)
+    val scalingTransform = Scaling2D(s)
     SimilarityTransformation(scalingTransform, rigidTransform)
   }
 
@@ -257,7 +241,7 @@ object LandmarkRegistration {
     similarityFlag: Boolean
   ): (DenseVector[Double], DenseMatrix[Double], Double) = {
 
-    //  see Umeyama: Least squares estimation of transformation parameters between two point patterns
+    //  see Umeyama: Least squares estimation of transformations parameters between two point patterns
 
     val n = landmarks.size
 

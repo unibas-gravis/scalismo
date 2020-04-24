@@ -18,6 +18,7 @@ package scalismo.geometry
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.ScalismoTestSuite
 import scalismo.registration._
+import scalismo.transformations.{RigidTransformation, RotationSpace, RotationSpace2D, Transformation, Translation}
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.utils.Random
 
@@ -478,8 +479,9 @@ class GeometryTests extends ScalismoTestSuite {
 
     it("is correctly transformed using a rigid transform") {
 
-      val rigidTransform = RigidTransformation(TranslationTransform(EuclideanVector2D(2, 3)),
-                                               RotationSpace[_2D]().transformForParameters(DenseVector(Math.PI / 2)))
+      val rigidTransform =
+        RigidTransformation(Translation(EuclideanVector2D(2, 3)),
+                            RotationSpace2D(Point2D(0, 0)).transformationForParameters(DenseVector(Math.PI / 2)))
 
       val transformedLm = lm.transform(rigidTransform)
 
@@ -490,7 +492,7 @@ class GeometryTests extends ScalismoTestSuite {
       // the uncertainty is transformed stochastically. We therefore do not require strict equivalence
       breeze.linalg.norm(lm.uncertainty.get.mean - transformedLm.uncertainty.get.mean) should be < 1e-1
 
-      // a rigid transformation retains the variance
+      // a rigid transformations retains the variance
       for (i <- 0 until 2) {
         lm.uncertainty.get.principalComponents(i)._2 should be(
           transformedLm.uncertainty.get.principalComponents(i)._2 +- 1e-1

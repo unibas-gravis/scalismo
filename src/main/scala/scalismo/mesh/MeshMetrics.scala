@@ -42,7 +42,7 @@ object MeshMetrics {
 
   /**
    * Partial Procrustes distance - returns the average mesh correspondence point distance after performing a rigid alignment
-   * between the two meshes. Note that no scale transformation is applied in the shape alignment.
+   * between the two meshes. Note that no scale transformations is applied in the shape alignment.
    * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
    */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {

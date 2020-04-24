@@ -19,7 +19,7 @@ import scalismo.common.UnstructuredPoints.Create.CreateUnstructuredPoints2D
 import scalismo.common._
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -105,9 +105,9 @@ object TriangleMesh {
      * warped domain
      */
     override def transformWithField(
-                                     domain: TriangleMesh[_2D],
-                                     warpField: DiscreteField[_2D, TriangleMesh, EuclideanVector[_2D]]
-                                   ): TriangleMesh[_2D] = {
+      domain: TriangleMesh[_2D],
+      warpField: DiscreteField[_2D, TriangleMesh, EuclideanVector[_2D]]
+    ): TriangleMesh[_2D] = {
 
       require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
 

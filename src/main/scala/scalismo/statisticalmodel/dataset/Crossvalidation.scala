@@ -77,7 +77,7 @@
 //        }
 //        val evalResults = for (testingItem <- fold.testingData.dataItems) yield {
 //
-//          val testMesh = dc.reference.transform(testingItem.transformation)
+//          val testMesh = dc.reference.transform(testingItem.transformations)
 //          evalFun(model, testMesh)
 //        }
 //        evalResults

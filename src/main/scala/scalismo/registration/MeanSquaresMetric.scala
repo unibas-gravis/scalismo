@@ -19,6 +19,7 @@ package scalismo.registration
 import scalismo.common.{DifferentiableField, Field, Scalar}
 import scalismo.geometry.NDSpace
 import scalismo.numerics.Sampler
+import scalismo.transformations.TransformationSpace
 
 /**
  * The mean squares image to image metric.

@@ -22,7 +22,7 @@ import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
 import scalismo.numerics.PivotedCholesky
-import scalismo.registration.RigidTransformation
+import scalismo.transformations.RigidTransformation
 import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
 
@@ -125,8 +125,8 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    * Similar to [[DiscreteLowRankGaussianProcess.posterior(Int, Point[_3D], Double)]]], but the training data is defined by specifying the target point instead of the displacement vector
    */
   def posterior(
-                 trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]
-               ): StatisticalMeshModel = {
+    trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]
+  ): StatisticalMeshModel = {
     val posterior = pdm.posterior(trainingData)
     new StatisticalMeshModel(posterior.reference, posterior.gp)
   }
@@ -189,7 +189,8 @@ object StatisticalMeshModel {
   /**
    *  Adds a bias model to the given statistical shape model
    */
-  def augmentModel(model: StatisticalMeshModel, biasModel: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]): StatisticalMeshModel = {
+  def augmentModel(model: StatisticalMeshModel,
+                   biasModel: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]): StatisticalMeshModel = {
     val pdModel = PointDistributionModel(model.gp)
     val augmentModel = PointDistributionModel.augmentModel(pdModel, biasModel)
     new StatisticalMeshModel(augmentModel.reference, augmentModel.gp)

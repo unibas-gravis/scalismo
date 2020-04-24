@@ -17,7 +17,7 @@ package scalismo.numerics
 
 import breeze.linalg.DenseVector
 import breeze.optimize.{DiffFunction, LBFGS}
-import scalismo.registration.TransformationSpace.ParameterVector
+import scalismo.transformations.TransformationSpace.ParameterVector
 
 import scala.collection.Iterator
 

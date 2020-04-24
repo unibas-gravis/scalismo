@@ -22,7 +22,7 @@ import scalismo.geometry.{_3D, EuclideanVector, IntVector, NDSpace, Point}
 import scalismo.image.DiscreteImageDomain
 import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 
 import scala.language.higherKinds
 import scala.reflect.ClassTag

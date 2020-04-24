@@ -25,7 +25,7 @@ import scalismo.geometry._
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.registration.{RigidTransformation, RigidTransformationSpace}
+import scalismo.transformations.{RigidTransformation, RigidTransformationSpace}
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 
@@ -79,7 +79,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val model = StatisticalModelIO.readStatisticalMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
+      val rigidTransform = RigidTransformationSpace[_3D]().transformationForParameters(parameterVector)
       val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
       val transformedModel = model.transform(rigidTransform)
       val newModel = transformedModel.transform(inverseTransform)

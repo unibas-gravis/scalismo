@@ -11,7 +11,8 @@ import scalismo.common.{
 }
 import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
 import scalismo.mesh.{LineMesh, MeshMetrics, TetrahedralMesh, TriangleMesh}
-import scalismo.registration.{LandmarkRegistration, Transformation}
+import scalismo.registration.LandmarkRegistration
+import scalismo.transformations.Transformation
 import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
 
@@ -151,7 +152,7 @@ object DataCollection {
 object TriangleMeshDataCollection {
 
   /**
-   * Returns the mean transformation from all the transformation in the datacollection
+   * Returns the mean transformations from all the transformations in the datacollection
    */
   private def meanTransformation(dc: TriangleMeshDataCollection): Transformation[_3D] = {
     val fields = dc.fields(NearestNeighborInterpolator())
@@ -197,7 +198,7 @@ object TriangleMeshDataCollection {
 
     val fields = dc.fields(NearestNeighborInterpolator())
 
-    // align all shape to it and create a transformation from the mean to the aligned shape
+    // align all shape to it and create a transformations from the mean to the aligned shape
     val newDiscreteFields = new ParVector(fields.toVector).map { field =>
       val surface = dc.reference.transform(p => p + field(p))
       val transform =

@@ -6,11 +6,12 @@ import java.net.URLDecoder
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.{DiscreteField, NearestNeighborInterpolator}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.{ImageIO, MeshIO, StatismoIO, StatisticalModelIO}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.{Sampler, UniformMeshSampler3D}
-import scalismo.registration.{LandmarkRegistration, Transformation}
+import scalismo.registration.LandmarkRegistration
+import scalismo.transformations.Transformation
 import scalismo.statisticalmodel.asm.ActiveShapeModel.TrainingData
 import scalismo.statisticalmodel.asm._
 import scalismo.statisticalmodel.dataset.DataCollection

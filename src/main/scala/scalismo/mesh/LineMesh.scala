@@ -19,7 +19,7 @@ package scalismo.mesh
 import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
 import scalismo.common.{BoxDomain, Cell, DiscreteDomain, DiscreteField, DomainWarp, PointId, UnstructuredPoints}
 import scalismo.geometry._
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 
 import scala.language.implicitConversions
 
@@ -35,7 +35,7 @@ case class LineCell(ptId1: PointId, ptId2: PointId) extends Cell {
   def containsPoint(ptId: PointId): Boolean = ptId1 == ptId || ptId2 == ptId
 }
 
-trait LineMesh[D] extends DiscreteDomain[D]{ //(val pointSet: UnstructuredPoints[D], val topology: LineList) {
+trait LineMesh[D] extends DiscreteDomain[D] { //(val pointSet: UnstructuredPoints[D], val topology: LineList) {
   val topology: LineList
   val pointSet: UnstructuredPoints[D]
 
@@ -57,7 +57,7 @@ trait LineMesh[D] extends DiscreteDomain[D]{ //(val pointSet: UnstructuredPoints
    *
    *  This method maps all mesh points to their images by the given transform while maintaining the same line cell relations.
    *
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
+   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.transformation.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
   def transform(transform: Point[D] => Point[D])(implicit creator: LineMesh.Create[D]): LineMesh[D] = {
     creator.createLineMesh(pointSet.transform(transform), topology)
@@ -136,9 +136,9 @@ object LineMesh {
      * warped domain
      */
     override def transformWithField(
-                                     domain: LineMesh[_2D],
-                                     warpField: DiscreteField[_2D, LineMesh, EuclideanVector[_2D]]
-                                   ): LineMesh[_2D] = {
+      domain: LineMesh[_2D],
+      warpField: DiscreteField[_2D, LineMesh, EuclideanVector[_2D]]
+    ): LineMesh[_2D] = {
 
       require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
 
@@ -158,9 +158,9 @@ object LineMesh {
      * warped domain
      */
     override def transformWithField(
-                                     domain: LineMesh[_3D],
-                                     warpField: DiscreteField[_3D, LineMesh, EuclideanVector[_3D]]
-                                   ): LineMesh[_3D] = {
+      domain: LineMesh[_3D],
+      warpField: DiscreteField[_3D, LineMesh, EuclideanVector[_3D]]
+    ): LineMesh[_3D] = {
 
       require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
 
@@ -176,7 +176,7 @@ object LineMesh {
 }
 
 case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override val topology: LineList)
-  extends LineMesh[_2D] {
+    extends LineMesh[_2D] {
 
   /** Get all cell normals as a surface property */
   lazy val cellNormals: LineProperty[EuclideanVector[_2D]] = {
@@ -202,7 +202,7 @@ case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override v
 }
 
 case class LineMesh3D(override val pointSet: UnstructuredPoints[_3D], override val topology: LineList)
-  extends LineMesh[_3D] {}
+    extends LineMesh[_3D] {}
 
 /** property constant per line */
 case class LineProperty[A](topology: LineList, lineData: IndexedSeq[A]) extends LineContourProperty[A] {

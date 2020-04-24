@@ -24,6 +24,12 @@ import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
 import scalismo.registration._
+import scalismo.transformations.{
+  AnisotropicScalingSpace,
+  AnisotropicSimilarityTransformationSpace,
+  AnisotropicSimilarityTransformationSpace3D,
+  Transformation
+}
 import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
 import spire.math.{UByte, UInt, UShort}
 import vtk._
@@ -389,7 +395,7 @@ object ImageIO {
 
       val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
 
-      val anisotropicScaling = new AnisotropicScalingSpace[_3D].transformForParameters(spacing)
+      val anisotropicScaling = new AnisotropicScalingSpace[_3D].transformationForParameters(spacing)
 
       /* get a rigid registration by mapping a few points */
       val origPs = List(Point(0, 0, nz),
@@ -403,8 +409,8 @@ object ImageIO {
       val imgPs = origPs.map(transVoxelToWorld)
 
       val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point(0, 0, 0))
-      val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0))
-        .transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
+      val transform = AnisotropicSimilarityTransformationSpace3D(Point(0, 0, 0))
+        .transformationForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
       val rotationResiduals = rigidReg.parameters(3 to 5).toArray.map { a =>
         val rest = math.abs(a) % (math.Pi * 0.5)

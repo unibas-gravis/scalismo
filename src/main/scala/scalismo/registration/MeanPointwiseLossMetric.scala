@@ -21,6 +21,7 @@ import scalismo.common.{DifferentiableField, Domain, Field, Scalar}
 import scalismo.geometry.{NDSpace, Point}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
+import scalismo.transformations.TransformationSpace
 
 import scala.collection.parallel.immutable.ParVector
 
@@ -70,7 +71,7 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
 
   private def computeValue(parameters: DenseVector[Double], sampler: Sampler[D]) = {
 
-    val transform = transformationSpace.transformForParameters(parameters)
+    val transform = transformationSpace.transformationForParameters(parameters)
 
     val warpedImage = movingImage.compose(transform)
     val metricValue = (fixedImage - warpedImage).andThen(lossFunction _).liftValues
@@ -82,7 +83,7 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
 
   private def computeDerivative(parameters: DenseVector[Double], sampler: Sampler[D]): DenseVector[Double] = {
 
-    val transform = transformationSpace.transformForParameters(parameters)
+    val transform = transformationSpace.transformationForParameters(parameters)
 
     val movingImageGradient = movingImage.differentiate
     val warpedImage = movingImage.compose(transform)
@@ -91,20 +92,18 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
 
     val dMovingImageDomain = Domain.intersection(warpedImage.domain, fixedImage.domain)
 
-    val dTransformSpaceDAlpha = transformationSpace.takeDerivativeWRTParameters(parameters)
-
     val fullMetricGradient = (x: Point[D]) => {
       val domain = Domain.intersection(fixedImage.domain, dMovingImageDomain)
       if (domain.isDefinedAt(x))
         Some(
-          dTransformSpaceDAlpha(x).t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector
+          transform.jacobian(x).t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector
         )
       else None
     }
 
     // we compute the mean using a monte carlo integration
     val samples = sampler.sample
-    val zeroVector = DenseVector.zeros[Double](transformationSpace.parametersDimensionality)
+    val zeroVector = DenseVector.zeros[Double](transformationSpace.numberOfParameters)
     val gradientValues = new ParVector(samples.toVector).map {
       case (pt, _) => fullMetricGradient(pt).getOrElse(zeroVector)
     }

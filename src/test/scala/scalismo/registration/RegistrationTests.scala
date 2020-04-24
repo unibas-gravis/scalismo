@@ -27,6 +27,14 @@ import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.io.{ImageIO, MeshIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
+import scalismo.transformations.{
+  ProductTransformationSpace,
+  RigidTransformation,
+  RigidTransformationSpace,
+  RotationSpace,
+  ScalingSpace,
+  TranslationSpace
+}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
 
@@ -50,7 +58,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
         val productSpace = RigidTransformationSpace[_2D](c)
 
-        val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
+        val transformedPoints =
+          points.map((pt: Point[_2D]) => productSpace.transformationForParameters(productParams)(pt))
 
         val regResult =
           LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
@@ -73,7 +82,7 @@ class RegistrationTests extends ScalismoTestSuite {
     val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
     val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-    val trans = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
+    val trans = RigidTransformationSpace[_3D]().transformationForParameters(parameterVector)
 
     val rigidTransformed = mesh transform trans
 
@@ -106,7 +115,7 @@ class RegistrationTests extends ScalismoTestSuite {
       }
     }
 
-    it("can retrieve correct transformation when requested with a different center") {
+    it("can retrieve correct transformations when requested with a different center") {
 
       // pick any center
       val anyCenter = Point(1254, 488, 78)
@@ -140,7 +149,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
         val productSpace = RigidTransformationSpace[_2D](c).product(ScalingSpace[_2D])
 
-        val transformedPoints = points.map((pt: Point[_2D]) => productSpace.transformForParameters(productParams)(pt))
+        val transformedPoints =
+          points.map((pt: Point[_2D]) => productSpace.transformationForParameters(productParams)(pt))
 
         val regResult =
           LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
@@ -163,7 +173,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2.0)
-      val trans = RigidTransformationSpace[_3D]().product(ScalingSpace[_3D]).transformForParameters(parameterVector)
+      val trans =
+        RigidTransformationSpace[_3D]().product(ScalingSpace[_3D]).transformationForParameters(parameterVector)
 
       val translatedRotatedScaled = mesh transform trans
 
@@ -192,7 +203,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val fixedImage = discreteFixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](2))
       val transformationSpace = TranslationSpace[_2D]
       val translationParams = DenseVector[Double](-10.0, 5.0)
-      val translationTransform = transformationSpace.transformForParameters(translationParams)
+      val translationTransform = transformationSpace.transformationForParameters(translationParams)
       val transformedLena = fixedImage compose translationTransform
 
       val domain = discreteFixedImage.domain
@@ -203,7 +214,7 @@ class RegistrationTests extends ScalismoTestSuite {
         L2Regularizer[_2D](transformationSpace),
         regularizationWeight = 0.0,
         LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      ).iterator(DenseVector.zeros[Double](transformationSpace.numberOfParameters))
 
       val regResult = regIt.toSeq.last
       -regResult.parameters(0) should be(translationParams(0) +- 0.01)
@@ -218,7 +229,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
       val transformationSpace = RotationSpace[_2D](center)
       val rotationParams = DenseVector[Double](math.Pi / 8.0)
-      val transform = transformationSpace.transformForParameters(rotationParams)
+      val transform = transformationSpace.transformationForParameters(rotationParams)
       val transformedLena = fixedImage compose transform
 
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
@@ -229,7 +240,7 @@ class RegistrationTests extends ScalismoTestSuite {
         L2Regularizer(transformationSpace),
         0.0,
         numerics.LBFGSOptimizer(maxNumberOfIterations = 100)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      ).iterator(DenseVector.zeros[Double](transformationSpace.numberOfParameters))
 
       val regResult = regIter.toSeq.last
       regResult.parameters(0) should be(rotationParams(0) +- 0.01)
@@ -249,7 +260,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)
       val transformationSpace = GaussianProcessTransformationSpace(lowRankGp)
 
-      val groundTruthTransform = transformationSpace.transformForParameters(gpParams)
+      val groundTruthTransform = transformationSpace.transformationForParameters(gpParams)
 
       val transformedLena = fixedImage compose groundTruthTransform
 
@@ -258,7 +269,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val regIt =
         Registration(metric, L2Regularizer(transformationSpace), 0.0, LBFGSOptimizer(maxNumberOfIterations = 300))
-          .iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+          .iterator(DenseVector.zeros[Double](transformationSpace.numberOfParameters))
 
       val regResult = regIt.toSeq.last
 
@@ -283,7 +294,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val transformationSpace = GaussianProcessTransformationSpace(nnInterpolatedGp)
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)
-      val groundTruthTransform = transformationSpace.transformForParameters(gpParams)
+      val groundTruthTransform = transformationSpace.transformationForParameters(gpParams)
       val transformedLena = fixedImage compose groundTruthTransform
 
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
@@ -294,7 +305,7 @@ class RegistrationTests extends ScalismoTestSuite {
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
         LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      ).iterator(DenseVector.zeros[Double](transformationSpace.numberOfParameters))
 
       val regResult = regIt.toSeq.last
       for (i <- 0 until regResult.parameters.size) {
@@ -317,9 +328,9 @@ class RegistrationTests extends ScalismoTestSuite {
       val translationSpace = TranslationSpace[_2D]
       val gpTransformationSpace = GaussianProcessTransformationSpace(lowRankGp)
       val transformationSpace = ProductTransformationSpace(translationSpace, gpTransformationSpace)
-      val gtParams = DenseVector.vertcat(DenseVector.ones[Double](translationSpace.parametersDimensionality) * 10.0,
-                                         DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0)
-      val groundTruthTransform = transformationSpace.transformForParameters(gtParams)
+      val gtParams = DenseVector.vertcat(DenseVector.ones[Double](translationSpace.numberOfParameters) * 10.0,
+                                         DenseVector.ones[Double](gpTransformationSpace.numberOfParameters) * 1.0)
+      val groundTruthTransform = transformationSpace.transformationForParameters(gtParams)
       val transformedLena = fixedImage compose groundTruthTransform
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
@@ -329,7 +340,7 @@ class RegistrationTests extends ScalismoTestSuite {
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
         LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      ).iterator(DenseVector.zeros[Double](transformationSpace.numberOfParameters))
       val regItPrinting = for (it <- regIt) yield {
         println(it.value)
         println(it.parameters)
@@ -355,7 +366,7 @@ class RegistrationTests extends ScalismoTestSuite {
     it("Recovers the correct parameters for a translation transform") {
 
       val translationParams = DenseVector[Double](-10.0, 0.0, 0.0)
-      val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
+      val translationTransform = TranslationSpace[_3D].transformationForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
       val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20, 20)))
@@ -366,7 +377,7 @@ class RegistrationTests extends ScalismoTestSuite {
         L2Regularizer(transformationSpace),
         regularizationWeight = 0.0,
         LBFGSOptimizer(maxNumberOfIterations = 300)
-      ).iterator(DenseVector.zeros[Double](transformationSpace.parametersDimensionality))
+      ).iterator(DenseVector.zeros[Double](transformationSpace.numberOfParameters))
 
       val regResult = regIt.toSeq.last
 

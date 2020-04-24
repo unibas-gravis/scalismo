@@ -17,15 +17,15 @@ package scalismo.statisticalmodel.dataset
 
 import scalismo.geometry.{_3D, Point}
 import scalismo.mesh.TriangleMesh
-import scalismo.registration.Transformation
 import scalismo.mesh.TetrahedralMesh
+import scalismo.transformations.Transformation
 
 import scala.util.{Failure, Success, Try}
 
 private object DataUtils {
 
   /**
-   * Partitions a list os possible transformation (tries) into those that succeeded and those who failed
+   * Partitions a list os possible transformations (tries) into those that succeeded and those who failed
    */
   def partitionSuccAndFailedTries[A](tries: Seq[Try[A]]): (Seq[A], Seq[Throwable]) = {
     val (s, f) = tries.partition(_.isSuccess)
@@ -40,7 +40,7 @@ private object DataUtils {
   }
 
   /**
-   * Create a transformation from a mesh. The transformation maps from the reference mesh to the corresponding target point.
+   * Create a transformations from a mesh. The transformations maps from the reference mesh to the corresponding target point.
    */
   def meshToTransformation(refMesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D]): Try[Transformation[_3D]] = {
     if (refMesh.pointSet.numberOfPoints != targetMesh.pointSet.numberOfPoints)

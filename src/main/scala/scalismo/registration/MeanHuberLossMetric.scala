@@ -17,8 +17,9 @@
 package scalismo.registration
 
 import scalismo.common.{DifferentiableField, Field, Scalar}
-import scalismo.geometry.{NDSpace}
+import scalismo.geometry.NDSpace
 import scalismo.numerics._
+import scalismo.transformations.TransformationSpace
 
 /**
  * Image to image metric which applies the Huber Loss function to the pointwise pixel difference.

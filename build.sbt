@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
-    scalaVersion := "2.13.2",
+    scalaVersion := "2.12.11",
     crossScalaVersions := Seq("2.12.11", "2.13.2"),
     resolvers ++= Seq(
       Resolver.jcenterRepo,
@@ -63,3 +63,8 @@ lazy val root = (project in file("."))
     git.remoteRepo := "git@github.com:unibas-gravis/scalismo.git"
   )
   .enablePlugins(SiteScaladocPlugin)
+
+lazy val docs = project // new documentation project
+  .in(file("myproject-docs")) // important: it must not be docs/
+  .dependsOn(root)
+  .enablePlugins(MdocPlugin)

@@ -20,7 +20,6 @@ import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.filter.Filter
 import scalismo.numerics.{GridSampler, Integrator}
-import scalismo.registration.{CanDifferentiate, Transformation}
 
 import scala.reflect.ClassTag
 
@@ -55,7 +54,7 @@ import scala.reflect.ClassTag
 //    new ScalarImage(field.domain, field.f)
 //  }
 //
-//  /** composes (i.e. warp) an image with a transformation. */
+//  /** composes (i.e. warp) an image with a transformations. */
 //  override def compose(t: Point[D] => Point[D]): ScalarImage[D, A] = {
 //    val field = super.compose(t)
 //    new ScalarImage(field.domain, field.f)
@@ -75,7 +74,7 @@ import scala.reflect.ClassTag
 //   * support size of the filter and the Frequency of the image, increasing this value can help avoid artifacts (at the cost of heavier computation)
 //   */
 //  def convolve(filter: Filter[D],
-//               numberOfPointsPerDim: Int)(implicit c: CreateDiscreteImageDomain[D]): ScalarImage[D, A] = {
+//               numberOfPointsPerDim: Int)(implicit c: CreateStructuredPoints[D]): ScalarImage[D, A] = {
 //    val scalar = Scalar[A]
 //
 //    val dim = implicitly[NDSpace[D]].dimensionality
@@ -181,7 +180,7 @@ import scala.reflect.ClassTag
 //
 //  override def convolve(filter: Filter[D], numberOfPointsPerDim: Int)(
 //    implicit
-//    c: CreateDiscreteImageDomain[D]
+//    c: CreateStructuredPoints[D]
 //  ): DifferentiableScalarImage[D, A] = {
 //
 //    val convolvedImage = super.convolve(filter, numberOfPointsPerDim)

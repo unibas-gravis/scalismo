@@ -22,7 +22,13 @@ import scalismo.geometry.{_3D, Point}
 import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
-import scalismo.registration.{LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation}
+import scalismo.registration.LandmarkRegistration
+import scalismo.transformations.{
+  RigidTransformation,
+  RigidTransformationSpace,
+  RigidTransformationSpace3D,
+  Transformation
+}
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, StatisticalMeshModel}
 import scalismo.utils.Random
 
@@ -129,7 +135,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
 
   /**
    * Returns an Active Shape Model where both the statistical shape Model and the profile points distributions are correctly transformed
-   * according to the provided rigid transformation
+   * according to the provided rigid transformations
    *
    */
   def transform(rigidTransformation: RigidTransformation[_3D]): ActiveShapeModel = {
@@ -140,8 +146,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
   private def noTransformations =
     ModelTransformations(
       statisticalModel.coefficients(statisticalModel.mean),
-      RigidTransformationSpace[_3D]()
-        .transformForParameters(RigidTransformationSpace[_3D]().identityTransformParameters)
+      RigidTransformationSpace3D(Point(0, 0, 0)).identityTransformation
     )
 
   /**
@@ -152,7 +157,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
    * @param searchPointSampler sampler that defines the strategy where profiles are to be sampled.
    * @param iterations maximum number of iterations for the fitting.
    * @param config fitting configuration (thresholds). If omitted, uses [[FittingConfiguration.Default]]
-   * @param startingTransformations initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the fitting starts from the mean shape, with no rigid transformation)
+   * @param startingTransformations initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the fitting starts from the mean shape, with no rigid transformations)
    * @return fitting result after the given number of iterations
    */
   def fit(targetImage: DiscreteScalarImage[_3D, Float],
@@ -348,8 +353,8 @@ object FittingConfiguration {
  *
  * Sample usage: <code>val mesh = ssm.instance(t.coefficients).transform(t.rigidTransform)</code>
  *
- * @param coefficients model coefficients to apply. These determine the shape transformation.
- * @param rigidTransform rigid transformation to apply. These determine translation and rotation.
+ * @param coefficients model coefficients to apply. These determine the shape transformations.
+ * @param rigidTransform rigid transformations to apply. These determine translation and rotation.
  */
 case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: RigidTransformation[_3D])
 

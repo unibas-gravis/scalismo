@@ -19,7 +19,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common.RealSpace
 import scalismo.geometry._
 import scalismo.numerics.BSpline
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.utils.Memoize
 
 case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {

@@ -15,7 +15,7 @@
  */
 package scalismo.geometry
 
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 case class Landmark[D: NDSpace](id: String,
@@ -24,7 +24,7 @@ case class Landmark[D: NDSpace](id: String,
                                 uncertainty: Option[MultivariateNormalDistribution] = None) {
 
   /**
-   * Transforms a landmark point with the given transformation.
+   * Transforms a landmark point with the given transformations.
    * The method transforms both the point and the uncertainty. The new uncertainty is
    * estimated stochastically and is only an approximation to the real uncertainty
    * (for non-rigid transformations, the uncertainty would not even be gaussian)

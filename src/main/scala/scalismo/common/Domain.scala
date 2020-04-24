@@ -16,7 +16,7 @@
 package scalismo.common
 
 import scalismo.geometry._
-import scalismo.registration.{CanInvert, Transformation}
+import scalismo.transformations.{CanInvert, Transformation}
 
 trait Domain[D] {
   self =>
@@ -45,11 +45,25 @@ object Domain {
   }
 }
 
+class EuclideanSpace[D]() extends Domain[D] {
+  override def isDefinedAt(pt: Point[D]) = true
+}
+
+object EuclideanSpace {
+  def apply[D]: EuclideanSpace[D] = new EuclideanSpace[D]()
+}
+
+object EuclideanSpace1D extends EuclideanSpace[_1D]
+object EuclideanSpace2D extends EuclideanSpace[_2D]
+object EuclideanSpace3D extends EuclideanSpace[_3D]
+
+@deprecated("please use EuclideanSpace instead", "v0.18")
 class RealSpace[D] extends Domain[D] {
   override def isDefinedAt(pt: Point[D]) = true
 }
 
 object RealSpace {
+  @deprecated("please use EuclideanSpace instead", "v0.18")
   def apply[D] = new RealSpace[D]
 }
 

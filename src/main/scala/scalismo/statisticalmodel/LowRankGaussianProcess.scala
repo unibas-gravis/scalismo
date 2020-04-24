@@ -24,7 +24,7 @@ import scalismo.geometry.{EuclideanVector, NDSpace, Point}
 import scalismo.kernels.{Kernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{PivotedCholesky, Sampler}
-import scalismo.registration.RigidTransformation
+import scalismo.transformations.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{Eigenpair, KLBasis}
 import scalismo.utils.{Memoize, Random}
 
@@ -417,7 +417,7 @@ object LowRankGaussianProcess {
   }
 
   /**
-   * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
+   * perform a rigid transformations of the gaussian process, i.e. it is later defined on the transformed domain and its
    * vectors are transformed along the domain.
    */
   def transform[D: NDSpace](gp: LowRankGaussianProcess[D, EuclideanVector[D]], rigidTransform: RigidTransformation[D])(

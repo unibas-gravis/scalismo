@@ -16,7 +16,7 @@
 package scalismo.common
 
 import scalismo.geometry._
-import scalismo.registration.{CanDifferentiate, DifferentiableTransforms, Transformation}
+import scalismo.transformations.{CanDifferentiate, Transformation}
 
 import scala.reflect.ClassTag
 
@@ -138,7 +138,7 @@ trait DifferentiableField[D, A] extends Field[D, A] { self =>
     def f(x: Point[D]) = this.f(t(x))
     val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => this.isDefinedAt(t(pt)))
     val df = (x: Point[D]) => {
-      val dtx = t.takeDerivative(x)
+      val dtx = t.derivative(x)
       val dftx: EuclideanVector[D] = this.df(t(x))
       dtx * dftx
     }

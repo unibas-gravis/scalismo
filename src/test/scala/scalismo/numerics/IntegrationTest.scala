@@ -16,7 +16,7 @@
 package scalismo.numerics
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{BoxDomain, DifferentiableField, Field}
+import scalismo.common.{BoxDomain, BoxDomain1D, DifferentiableField, Field}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, StructuredPoints}
@@ -33,7 +33,7 @@ class IntegrationTest extends ScalismoTestSuite {
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val domain = BoxDomain(0f, 1.0f)
+      val domain = BoxDomain1D(0.0, 1.0)
       val img =
         DifferentiableField(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => EuclideanVector(2f) * x(0))
 
