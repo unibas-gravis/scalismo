@@ -96,7 +96,7 @@ abstract class DiscreteImageDomain[D: NDSpace] extends DiscreteDomain[D] with Eq
 
   /** true if the point is part of the grid points */
   override def isDefinedAt(pt: Point[D]): Boolean = {
-    isIndex(pointToContinuousIndex(pt))
+    boundingBox.isDefinedAt(pt) && isIndex(pointToContinuousIndex(pt))
   }
 
   /** returns the point id in case it is defined, None otherwise. */
