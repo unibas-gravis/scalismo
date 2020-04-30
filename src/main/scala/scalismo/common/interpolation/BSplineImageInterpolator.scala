@@ -88,7 +88,7 @@ case class BSplineImageInterpolator1D[A: Scalar](degree: Int) extends BSplineIma
       }
       EuclideanVector(iterateOnPoints(x, splineBasisD1))
     }
-    DifferentiableField[_1D, A, EuclideanVector[_1D]](domain.boundingBox, f, df)
+    DifferentiableField[_1D, A, EuclideanVector[_1D]](domain.imageBoundingBox, f, df)
   }
 
   /* determine the b-spline coefficients for a 1D image */
@@ -158,7 +158,7 @@ case class BSplineImageInterpolator2D[A: Scalar](degree: Int) extends BSplineIma
       EuclideanVector(dfx, dfy)
     }
 
-    DifferentiableField[_2D, A, EuclideanVector[_2D]](discreteField.domain.boundingBox, f, df)
+    DifferentiableField[_2D, A, EuclideanVector[_2D]](discreteField.domain.imageBoundingBox, f, df)
   }
 
   /* determine the b-spline coefficients for a 2D image. The coefficients are returned
@@ -254,7 +254,7 @@ case class BSplineImageInterpolator3D[A: Scalar](degree: Int) extends BSplineIma
       EuclideanVector(dfx, dfy, dfz)
     }
 
-    val bbox = domain.boundingBox
+    val bbox = domain.imageBoundingBox
     DifferentiableField(BoxDomain3D(bbox.origin, bbox.oppositeCorner), f, df)
   }
 
