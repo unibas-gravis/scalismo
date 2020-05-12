@@ -978,7 +978,7 @@ trait AnisotropicSimilarityTransformation[D] extends DifferentiableCompositeTran
   override def inverse: AnisotropicSimilarityTransformation[D]
 }
 
-private class RigidTransformationThenAnisotropicScaling[D: NDSpace](
+private[scalismo] class RigidTransformationThenAnisotropicScaling[D: NDSpace](
   anisotropicScaling: AnisotropicScalingTransformation[D],
   rigidTransform: RigidTransformation[D]
 ) extends DifferentiableCompositeTransformation[D](anisotropicScaling, rigidTransform)
@@ -988,7 +988,7 @@ private class RigidTransformationThenAnisotropicScaling[D: NDSpace](
     new AnisotropicScalingThenRigidTransformation[D](rigidTransform.inverse, anisotropicScaling.inverse)
 }
 
-private class AnisotropicScalingThenRigidTransformation[D: NDSpace](
+private[scalismo] class AnisotropicScalingThenRigidTransformation[D: NDSpace](
   rigidTransform: RigidTransformation[D],
   anisotropicScaling: AnisotropicScalingTransformation[D]
 ) extends DifferentiableCompositeTransformation[D](rigidTransform, anisotropicScaling)

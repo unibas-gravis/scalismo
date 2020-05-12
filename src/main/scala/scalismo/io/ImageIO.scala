@@ -22,7 +22,7 @@ import niftijio.{NiftiHeader, NiftiVolume}
 import scalismo.common.{RealSpace, Scalar}
 import scalismo.geometry._
 import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints, StructuredPoints3D}
 import scalismo.registration._
 import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
 import spire.math.{UByte, UInt, UShort}
@@ -403,6 +403,8 @@ object ImageIO {
       val imgPs = origPs.map(transVoxelToWorld)
 
       val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point(0, 0, 0))
+      val orig = rigidReg(Point3D(0, 0, 0))
+
       val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0))
         .transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
 
@@ -423,7 +425,12 @@ object ImageIO {
       if (approxErrors.max > 0.01f)
         throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
       else {
-        val newDomain = DiscreteImageDomain(StructuredPoints[_3D](IntVector(nx, ny, nz), transform))
+        val (roll, pitch, yaw) =
+          (rigidReg.rotation.parameters(0), rigidReg.rotation.parameters(1), rigidReg.rotation.parameters(2))
+        val size = IntVector(nx, ny, nz)
+        val newDomain = DiscreteImageDomain(
+          StructuredPoints3D(orig, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, roll, pitch, yaw)
+        )
         val im = DiscreteScalarImage(newDomain, volume.dataAsScalarArray)
 
         // if the domain is rotated, we resample the image to RAI voxel ordering

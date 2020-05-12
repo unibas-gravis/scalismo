@@ -32,7 +32,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
 
   implicit val rng = Random(42)
 
-  describe("a discreteImageDomain domain") {
+  describe("a structured points pointset") {
     it("correctly reports the number of points") {
       val domain = StructuredPoints[_2D]((0.0, 0.0), (1.0, 2.0), (42, 49))
       assert(domain.numberOfPoints === domain.points.size)
