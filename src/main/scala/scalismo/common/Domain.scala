@@ -85,14 +85,14 @@ object BoxDomain {
   }
 }
 
-case class BoxDomain1D(origin: Point1D, oppositeCorner: Point1D) extends BoxDomain[_1D] {
+case class BoxDomain1D(origin: Point[_1D], oppositeCorner: Point[_1D]) extends BoxDomain[_1D] {
   override def isDefinedAt(p: Point[_1D]): Boolean = {
     val pt: Point1D = p
     pt.x >= origin.x && pt.x <= oppositeCorner.x
   }
 }
 
-case class BoxDomain2D(origin: Point2D, oppositeCorner: Point2D) extends BoxDomain[_2D] {
+case class BoxDomain2D(origin: Point[_2D], oppositeCorner: Point[_2D]) extends BoxDomain[_2D] {
   override def isDefinedAt(p: Point[_2D]): Boolean = {
     val pt: Point2D = p
     pt.x >= origin.x && pt.x <= oppositeCorner.x &&
@@ -100,7 +100,7 @@ case class BoxDomain2D(origin: Point2D, oppositeCorner: Point2D) extends BoxDoma
   }
 }
 
-case class BoxDomain3D(origin: Point3D, oppositeCorner: Point3D) extends BoxDomain[_3D] {
+case class BoxDomain3D(origin: Point[_3D], oppositeCorner: Point[_3D]) extends BoxDomain[_3D] {
   override def isDefinedAt(p: Point[_3D]): Boolean = {
     val pt: Point3D = p
     pt.x >= origin.x && pt.x <= oppositeCorner.x &&

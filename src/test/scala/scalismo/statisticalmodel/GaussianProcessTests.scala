@@ -23,7 +23,13 @@ import scalismo.ScalismoTestSuite
 import scalismo.common._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{
+  DiscreteImageDomain,
+  DiscreteImageDomain1D,
+  DiscreteImageDomain2D,
+  DiscreteImageDomain3D,
+  StructuredPoints
+}
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{GridSampler, UniformSampler}
@@ -235,7 +241,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
   describe("a lowRankGaussian process") {
     object Fixture {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val sampler = GridSampler(DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 7), IntVector(7, 7, 7)))
+      val sampler = GridSampler(DiscreteImageDomain3D(domain.origin, domain.extent * (1.0 / 7), IntVector(7, 7, 7)))
       val kernel = DiagonalKernel(GaussianKernel[_3D](10), 3)
       val gp = {
         LowRankGaussianProcess.approximateGPNystrom[_3D, EuclideanVector[_3D]](
@@ -290,7 +296,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yields the same covariance as given by the kernel") {
       val f = Fixture
       val fewPointsSampler =
-        GridSampler(DiscreteImageDomain(f.domain.origin, f.domain.extent * (1.0 / 8.0), IntVector(2, 2, 2)))
+        GridSampler(DiscreteImageDomain3D(f.domain.origin, f.domain.extent * (1.0 / 8.0), IntVector(2, 2, 2)))
       val pts = fewPointsSampler.sample.map(_._1)
       for (pt1 <- pts.par; pt2 <- pts) {
         val covGP = f.gp.cov(pt1, pt2)
@@ -392,7 +398,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the probability of samples unchanged") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val fullSsm = StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
+      val fullSsm =
+        StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
 
       // we truncate the ssm to avoid numerical error
       val ssm = fullSsm.truncate(fullSsm.rank / 2)
