@@ -117,7 +117,7 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
 
   /** true if the point is part of the grid points */
   override def isDefinedAt(pt: Point[D]): Boolean = {
-    isIndex(pointToContinuousIndex(pt))
+    boundingBox.isDefinedAt(pt) && isIndex(pointToContinuousIndex(pt))
   }
 
   /** true if the point is part of the grid points */

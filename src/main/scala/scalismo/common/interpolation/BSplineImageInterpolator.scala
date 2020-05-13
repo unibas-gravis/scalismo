@@ -89,6 +89,7 @@ case class BSplineImageInterpolator1D[A: Scalar](degree: Int) extends BSplineIma
       }
       EuclideanVector(iterateOnPoints(x, splineBasisD1))
     }
+
     DifferentiableField[_1D, A](domain.boundingBox, f, df)
   }
 
