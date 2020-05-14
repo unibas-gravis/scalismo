@@ -21,8 +21,7 @@ import ncsa.hdf.`object`.Group
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{Domain, Field}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.image.DiscreteScalarImage
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
+import scalismo.image.DiscreteImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.HDF5File
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
@@ -51,7 +50,7 @@ trait PreprocessedImage extends Field[_3D, DenseVector[Float]] {
  * @see ImagePreprocessorIOHandler
  * @see ImagePreprocessorIOHandlers
  */
-trait ImagePreprocessor extends Function1[DiscreteScalarImage[_3D, Float], PreprocessedImage] with HasIOMetadata
+trait ImagePreprocessor extends Function1[DiscreteImage[_3D, Float], PreprocessedImage] with HasIOMetadata
 
 /**
  * IO Handler for the [[ImagePreprocessor]] type.
@@ -81,7 +80,7 @@ object IdentityImagePreprocessor {
  */
 case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = IdentityImagePreprocessor.IOMetadata_Default)
     extends ImagePreprocessor {
-  override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
+  override def apply(inputImage: DiscreteImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Intensity
 
     val interpolated = inputImage.interpolate(BSplineImageInterpolator3D[Float](3))
@@ -130,7 +129,7 @@ case class GaussianGradientImagePreprocessor(stddev: Double,
                                              override val ioMetadata: IOMetadata =
                                                GaussianGradientImagePreprocessor.IOMetadata_Default)
     extends ImagePreprocessor {
-  override def apply(inputImage: DiscreteScalarImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
+  override def apply(inputImage: DiscreteImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
     val gradientImage: Field[_3D, EuclideanVector[_3D]] = {

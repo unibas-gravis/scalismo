@@ -23,12 +23,12 @@ import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
+
 import scalismo.image.{
+  DiscreteImage,
   DiscreteImageDomain,
   DiscreteImageDomain2D,
   DiscreteImageDomain3D,
-  DiscreteScalarImage,
   StructuredPoints
 }
 import scalismo.utils.CanConvertToVtk
@@ -40,7 +40,7 @@ import scala.util.{Failure, Success, Try}
 
 class ImageIOTests extends ScalismoTestSuite {
 
-  def equalImages(img1: DiscreteScalarImage[_3D, _], img2: DiscreteScalarImage[_3D, _]): Boolean = {
+  def equalImages(img1: DiscreteImage[_3D, _], img2: DiscreteImage[_3D, _]): Boolean = {
 
     val valFlag = (0 until img1.values.size by img1.values.size / 1000).forall { i =>
       img1.data(i) == img2.data(i)
@@ -68,9 +68,9 @@ class ImageIOTests extends ScalismoTestSuite {
       }
     }
 
-    def readImage[T: Scalar: TypeTag: ClassTag](f: File): Try[DiscreteScalarImage[D, T]] = {
+    def readImage[T: Scalar: TypeTag: ClassTag](f: File): Try[DiscreteImage[D, T]] = {
       val r = if (dim == 2) ImageIO.read2DScalarImage[T](f) else ImageIO.read3DScalarImage[T](f)
-      r.asInstanceOf[Try[DiscreteScalarImage[D, T]]]
+      r.asInstanceOf[Try[DiscreteImage[D, T]]]
     }
 
     def testReadWrite[T: Scalar: TypeTag: ClassTag]() = {
@@ -109,7 +109,7 @@ class ImageIOTests extends ScalismoTestSuite {
       if (dim == 3) {
         val nii = File.createTempFile("imageio", ".nii")
         nii.deleteOnExit()
-        ImageIO.writeNifti(read.get.asInstanceOf[DiscreteScalarImage[_3D, T]], nii) should be a 'Success
+        ImageIO.writeNifti(read.get.asInstanceOf[DiscreteImage[_3D, T]], nii) should be a 'Success
         val reread = ImageIO.read3DScalarImage[T](nii)
         reread match {
           case Failure(e) => e.printStackTrace()
@@ -165,7 +165,7 @@ class ImageIOTests extends ScalismoTestSuite {
                                          EuclideanVector(0.85546875f, 0.85546875f, 1.5f),
                                          IntVector(15, 15, 15))
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
-      val discreteImage = DiscreteScalarImage(domain, ScalarArray(values))
+      val discreteImage = DiscreteImage(domain, ScalarArray(values))
       val f = File.createTempFile("dummy", ".vtk")
       f.deleteOnExit()
       ImageIO.writeVTK(discreteImage, f)
@@ -255,19 +255,19 @@ class ImageIOTests extends ScalismoTestSuite {
     it("is type safe") {
 
       case class ImageWithType[D: NDSpace: CanConvertToVtk, T: Scalar: TypeTag: ClassTag](
-        img: DiscreteScalarImage[D, T],
+        img: DiscreteImage[D, T],
         typeName: String
       ) {
         def writeVtk(file: File) = ImageIO.writeVTK(img, file)
         def writeNii(file: File) = {
           if (implicitly[NDSpace[D]].dimensionality == 3)
-            ImageIO.writeNifti(img.asInstanceOf[DiscreteScalarImage[_3D, T]], file)
+            ImageIO.writeNifti(img.asInstanceOf[DiscreteImage[_3D, T]], file)
           else Failure(new NotImplementedError)
         }
       }
 
       def convertTo[D: NDSpace: CanConvertToVtk, OUT: Scalar: TypeTag: ClassTag](
-        in: DiscreteScalarImage[D, Int]
+        in: DiscreteImage[D, Int]
       ): ImageWithType[D, OUT] = {
         val img = in.map(implicitly[Scalar[OUT]].fromInt)
         ImageWithType(img, ImageIO.ScalarType.fromType[OUT].toString)
@@ -275,11 +275,11 @@ class ImageIOTests extends ScalismoTestSuite {
 
       val data = (1 to 8).toArray
       val dom2 = DiscreteImageDomain2D(Point(0, 0), EuclideanVector(1, 1), IntVector(2, 2))
-      val img2 = DiscreteScalarImage(dom2, ScalarArray(data.take(4)))
+      val img2 = DiscreteImage(dom2, ScalarArray(data.take(4)))
       val dom3 = DiscreteImageDomain3D(Point(0, 0, 0), EuclideanVector(1, 1, 1), IntVector(2, 2, 2))
-      val img3 = DiscreteScalarImage(dom3, ScalarArray(data))
+      val img3 = DiscreteImage(dom3, ScalarArray(data))
 
-      def imageSeq[D: NDSpace: CanConvertToVtk](img: DiscreteScalarImage[D, Int]) =
+      def imageSeq[D: NDSpace: CanConvertToVtk](img: DiscreteImage[D, Int]) =
         Seq(
           convertTo[D, Byte](img),
           convertTo[D, Short](img),
@@ -291,15 +291,15 @@ class ImageIOTests extends ScalismoTestSuite {
           convertTo[D, UInt](img)
         )
 
-      def read[D: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteScalarImage[D, T]] = {
+      def read[D: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteImage[D, T]] = {
         implicitly[NDSpace[D]].dimensionality match {
-          case 3 => ImageIO.read3DScalarImage[T](file).asInstanceOf[Try[DiscreteScalarImage[D, T]]]
-          case 2 => ImageIO.read2DScalarImage[T](file).asInstanceOf[Try[DiscreteScalarImage[D, T]]]
+          case 3 => ImageIO.read3DScalarImage[T](file).asInstanceOf[Try[DiscreteImage[D, T]]]
+          case 2 => ImageIO.read2DScalarImage[T](file).asInstanceOf[Try[DiscreteImage[D, T]]]
           case _ => Failure(new NotImplementedError())
         }
       }
 
-      def check[D: NDSpace, T: Scalar: TypeTag: ClassTag](result: Try[DiscreteScalarImage[D, T]],
+      def check[D: NDSpace, T: Scalar: TypeTag: ClassTag](result: Try[DiscreteImage[D, T]],
                                                           actualType: String): Unit = {
         val tryType = ImageIO.ScalarType.fromType[T].toString
         if (tryType == actualType) {

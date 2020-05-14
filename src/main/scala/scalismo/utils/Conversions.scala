@@ -18,8 +18,7 @@ package scalismo.utils
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
-import scalismo.image.{DiscreteImageDomain, DiscreteScalarImage, StructuredPoints}
+import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints}
 import scalismo.io.ImageIO
 import scalismo.mesh._
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
@@ -446,7 +445,7 @@ object CommonConversions {
 }
 
 trait CanConvertToVtk[D] {
-  def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, Pixel]): vtkStructuredPoints = {
+  def toVtk[Pixel: Scalar: ClassTag: TypeTag](img: DiscreteImage[D, Pixel]): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
     val dataArray = img.data match {
@@ -467,7 +466,7 @@ trait CanConvertToVtk[D] {
 
   def setDomainInfo(domain: StructuredPoints[D], sp: vtkStructuredPoints): vtkStructuredPoints
 
-  def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[D, Pixel]]
+  def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteImage[D, Pixel]]
 
   // ATTENTION: Writing out (signed) bytes using vtkCharArray seems to be broken in VTK, so we need to work around it.
   // We do this by writing the bytes into a vtkUnsignedCharArray first, then converting the scalar data.
@@ -496,7 +495,7 @@ object CanConvertToVtk {
       sp
     }
 
-    override def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[_2D, Pixel]] = {
+    override def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteImage[_2D, Pixel]] = {
       if (sp.GetNumberOfScalarComponents() != 1) {
         return Failure(
           new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}")
@@ -522,7 +521,7 @@ object CanConvertToVtk {
       val scalars = sp.GetPointData().GetScalars()
 
       val pixelArrayOrFailure = VtkHelpers.vtkDataArrayToScalarArray[Pixel](sp.GetScalarType(), scalars)
-      pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage(domain, pixelArray))
+      pixelArrayOrFailure.map(pixelArray => DiscreteImage(domain, pixelArray))
 
     }
   }
@@ -588,7 +587,7 @@ object CanConvertToVtk {
       conv.GetStructuredPointsOutput()
     }
 
-    override def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteScalarImage[_3D, Pixel]] = {
+    override def fromVtk[Pixel: Scalar: TypeTag: ClassTag](sp: vtkImageData): Try[DiscreteImage[_3D, Pixel]] = {
       if (sp.GetNumberOfScalarComponents() != 1) {
         return Failure(
           new Exception(s"The image is not a scalar image (number of components is ${sp.GetNumberOfScalarComponents()}")
@@ -613,7 +612,7 @@ object CanConvertToVtk {
       val domain = DiscreteImageDomain(StructuredPoints[_3D](origin, spacing, size))
       val scalars = sp.GetPointData().GetScalars()
       val pixelArrayOrFailure = VtkHelpers.vtkDataArrayToScalarArray[Pixel](sp.GetScalarType(), scalars)
-      pixelArrayOrFailure.map(pixelArray => DiscreteScalarImage(domain, pixelArray))
+      pixelArrayOrFailure.map(pixelArray => DiscreteImage(domain, pixelArray))
     }
 
   }
@@ -623,14 +622,14 @@ object CanConvertToVtk {
 object ImageConversion {
 
   def imageToVtkStructuredPoints[D: CanConvertToVtk, Pixel: Scalar: ClassTag: TypeTag](
-    img: DiscreteScalarImage[D, Pixel]
+    img: DiscreteImage[D, Pixel]
   ): vtkStructuredPoints = {
     implicitly[CanConvertToVtk[D]].toVtk(img)
   }
 
   def vtkStructuredPointsToScalarImage[D: CanConvertToVtk, Pixel: Scalar: TypeTag: ClassTag](
     sp: vtkImageData
-  ): Try[DiscreteScalarImage[D, Pixel]] = {
+  ): Try[DiscreteImage[D, Pixel]] = {
     implicitly[CanConvertToVtk[D]].fromVtk(sp)
   }
 }

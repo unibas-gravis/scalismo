@@ -17,7 +17,6 @@ package scalismo.image
 
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.image.filter.Filter
 import scalismo.numerics.{GridSampler, Integrator}
 import scalismo.registration.{CanDifferentiate, Transformation}
@@ -105,7 +104,7 @@ import scala.reflect.ClassTag
 //   * Returns a discrete scalar image with the given domain, whose values are obtained by sampling the scalarImage at the domain points.
 //   * If the image is not defined at a domain point, the outside value is used.
 //   */
-//  def sample(domain: DiscreteImageDomain[D], outsideValue: A): DiscreteScalarImage[D, A] = {
+//  def sample(domain: DiscreteImageDomain[D], outsideValue: A): DiscreteImage[D, A] = {
 //
 //    val nbChunks = Runtime.getRuntime().availableProcessors() * 2
 //    val parallelArrays = domain.pointSet.pointsInChunks(nbChunks).par.map { chunkIterator =>
@@ -117,7 +116,7 @@ import scala.reflect.ClassTag
 //        .toArray
 //    }
 //
-//    DiscreteScalarImage(domain, ScalarArray(parallelArrays.reduce(_ ++ _)))
+//    DiscreteImage(domain, ScalarArray(parallelArrays.reduce(_ ++ _)))
 //  }
 //
 //}

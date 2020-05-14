@@ -18,8 +18,7 @@ package scalismo.image.filter
 import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator3D}
 import scalismo.common.{Scalar, ScalarArray}
 import scalismo.geometry._
-import scalismo.image.DiscreteScalarImage
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
+import scalismo.image.DiscreteImage
 import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import vtk.{vtkImageCast, vtkImageEuclideanDistance, vtkImageGaussianSmooth, vtkObjectBase}
 
@@ -33,12 +32,12 @@ object DiscreteImageFilter {
    * @note The value that is returned is not the euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
    */
   def distanceTransform[D: NDSpace: CanConvertToVtk: BSplineImageInterpolator.Create, A: Scalar: ClassTag: TypeTag](
-    img: DiscreteScalarImage[D, A]
-  ): DiscreteScalarImage[D, Float] = {
+    img: DiscreteImage[D, A]
+  ): DiscreteImage[D, Float] = {
 
     val scalar = implicitly[Scalar[A]]
 
-    def doDistanceTransformVTK(img: DiscreteScalarImage[D, A]) = {
+    def doDistanceTransformVTK(img: DiscreteImage[D, A]) = {
       val imgvtk = ImageConversion.imageToVtkStructuredPoints(img)
 
       val vtkdistTransform = new vtkImageEuclideanDistance()
@@ -81,17 +80,17 @@ object DiscreteImageFilter {
 
     val newPixelValues = dt1.values.zip(dt2.values).map { case (p1, p2) => p1 - p2 }.toArray
 
-    DiscreteScalarImage(dt1.domain, ScalarArray(newPixelValues))
+    DiscreteImage(dt1.domain, ScalarArray(newPixelValues))
 
   }
 
   /**
    * Smoothing of an image using a Gaussian filter kernel with the given stddev
    */
-  def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteScalarImage[D, A], stddev: Double)(
+  def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteImage[D, A], stddev: Double)(
     implicit
     vtkConversion: CanConvertToVtk[D]
-  ): DiscreteScalarImage[D, A] = {
+  ): DiscreteImage[D, A] = {
 
     val vtkImg = vtkConversion.toVtk[A](img)
     val dim = NDSpace[D].dimensionality
