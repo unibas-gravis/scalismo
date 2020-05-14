@@ -22,6 +22,8 @@ import scalismo.geometry.{NDSpace, Point}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
 
+import scala.collection.parallel.immutable.ParVector
+
 /**
  * Image to image metric which applies a loss function to the pointwise pixel difference.
  * The total value of the metric is the mean of this pointwise loss. The points are determined by
@@ -75,7 +77,7 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
 
     // we compute the mean using a monte carlo integration
     val samples = sampler.sample()
-    samples.par.map { case (pt, _) => metricValue(pt).getOrElse(0.0) }.sum / samples.size
+    new ParVector(samples.toVector).map { case (pt, _) => metricValue(pt).getOrElse(0.0) }.sum / samples.size
   }
 
   private def computeDerivative(parameters: DenseVector[Double], sampler: Sampler[D]): DenseVector[Double] = {
@@ -103,7 +105,9 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
     // we compute the mean using a monte carlo integration
     val samples = sampler.sample
     val zeroVector = DenseVector.zeros[Double](transformationSpace.parametersDimensionality)
-    val gradientValues = samples.par.map { case (pt, _) => fullMetricGradient(pt).getOrElse(zeroVector) }
+    val gradientValues = new ParVector(samples.toVector).map {
+      case (pt, _) => fullMetricGradient(pt).getOrElse(zeroVector)
+    }
 
     gradientValues.foldLeft(zeroVector)((acc, g) => acc + g) * (1.0 / samples.size)
 

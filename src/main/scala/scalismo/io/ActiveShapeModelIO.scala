@@ -141,7 +141,7 @@ object ActiveShapeModelIO {
       val dists = meanVecs
         .zip(covMats)
         .map { case (m, c) => new MultivariateNormalDistribution(m.map(_.toDouble), c.map(_.toDouble)) }
-        .to[immutable.IndexedSeq]
+        .toIndexedSeq
       val profiles = dists.zip(pointIds).map { case (d, id) => Profile(PointId(id), d) }
       new Profiles(profiles)
     }

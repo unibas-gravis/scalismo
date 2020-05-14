@@ -31,6 +31,7 @@ import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.{Memoize, Random}
 
 import scala.language.higherKinds
+import scala.collection.parallel.immutable.ParVector
 
 /**
  * Represents a low-rank gaussian process, that is only defined at a finite, discrete set of points.
@@ -378,14 +379,14 @@ object DiscreteLowRankGaussianProcess {
     // precompute all the at the given points
 
     val m = DenseVector.zeros[Double](points.size * outputDim)
-    for (xWithIndex <- points.zipWithIndex.par) {
+    for (xWithIndex <- new ParVector(points.toVector.zipWithIndex)) {
       val (x, i) = xWithIndex
       m((i * outputDim) until ((i + 1) * outputDim)) := vectorizer.vectorize(gp.mean(x))
     }
 
     val U = DenseMatrix.zeros[Double](points.size * outputDim, gp.rank)
     val lambdas = DenseVector.zeros[Double](gp.rank)
-    for (xWithIndex <- points.zipWithIndex.par; (eigenPair_j, j) <- gp.klBasis.zipWithIndex) {
+    for (xWithIndex <- new ParVector(points.zipWithIndex.toVector); (eigenPair_j, j) <- gp.klBasis.zipWithIndex) {
       val LowRankGaussianProcess.Eigenpair(lambda_j, phi_j) = eigenPair_j
       val (x, i) = xWithIndex
       val v = phi_j(x)
@@ -441,7 +442,7 @@ object DiscreteLowRankGaussianProcess {
     // val eigenMatrix_p = gp.eigenMatrix * innerU // IS this correct?
     // but in parallel
     val eigenMatrix_p = DenseMatrix.zeros[Double](gp.basisMatrix.rows, innerU.cols)
-    for (rowInd <- (0 until gp.basisMatrix.rows).par) {
+    for (rowInd <- ParVector.range(0, gp.basisMatrix.rows)) {
 
       // TODO maybe this strange transposing can be alleviated? It seems breeze does not support
       // row-vector matrix multiplication
@@ -481,7 +482,7 @@ object DiscreteLowRankGaussianProcess {
 
     // create the data matrix - note, it will be manipulated inplace
     val X = DenseMatrix.zeros[Double](n, p * dim)
-    for (p1 <- fields.zipWithIndex.par; p2 <- domain.pointSet.pointsWithId) {
+    for (p1 <- new ParVector(fields.zipWithIndex.toVector); p2 <- domain.pointSet.pointsWithId) {
       val (f, i) = p1
       val (x, ptId) = p2
       val ux = vectorizer.vectorize(f(x))
@@ -568,7 +569,7 @@ object DiscreteLowRankGaussianProcess {
       // the upper command does a lot of  unnecessary computations
       val covValue = DenseMatrix.zeros[Double](outputDim, outputDim)
 
-      for (i <- (0 until outputDim).par) {
+      for (i <- ParVector.range(0, outputDim)) {
         val ind1 = ptId1.id * outputDim + i
         var j = 0
         while (j < outputDim) {
