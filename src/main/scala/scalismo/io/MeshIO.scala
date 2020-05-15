@@ -584,58 +584,65 @@ object MeshIO {
   private def readPLY(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
 
     // read the ply header to find out if the ply is a textured mesh in ASCII (in which case we return a failure since VTKPLYReader Update() would crash otherwise)
-    val breader = new BufferedReader(new FileReader(file))
-    val lineIterator = Iterator.continually(breader.readLine())
 
-    val headerLines = lineIterator.dropWhile(_ != "ply").takeWhile(_ != "end_header").toIndexedSeq
-
-    if (headerLines.exists(_.contains("TextureFile")) && headerLines.exists(_.contains("format ascii"))) {
-      Failure(
-        new Exception(
-          "PLY file seems to be a textured mesh in ASCII format which creates issues with the VTK ply reader. Please convert it to a binary ply or to a vertex color or shape only ply."
-        )
-      )
+    if (!file.exists()) {
+      val filename = file.getCanonicalFile
+      Failure(new IOException(s"Could not read ply file with name $filename. Reason: The file does not exist"))
     } else {
+      val breader = new BufferedReader(new FileReader(file))
+      val lineIterator = Iterator.continually(breader.readLine())
 
-      val plyReader = new vtkPLYReader()
-      plyReader.SetFileName(file.getAbsolutePath)
+      val headerLines = lineIterator.dropWhile(_ != "ply").takeWhile(_ != "end_header").toIndexedSeq
 
-      plyReader.Update()
-
-      val errCode = plyReader.GetErrorCode()
-      if (errCode != 0) {
-        return Failure(new IOException(s"Could not read ply mesh (received VTK error code $errCode"))
+      if (headerLines.exists(_.contains("TextureFile")) && headerLines.exists(_.contains("format ascii"))) {
+        Failure(
+          new IOException(
+            "PLY file $filename seems to be a textured mesh in ASCII format which creates issues with the VTK ply reader. Please convert it to a binary ply or to a vertex color or shape only ply."
+          )
+        )
+      } else {
+        readPLYUsingVTK(file)
       }
-
-      val vtkPd = plyReader.GetOutput()
-
-      val mesh = for {
-        meshGeometry <- MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
-      } yield {
-        getColorArray(vtkPd) match {
-          case Some(("RGBA", colorArray)) => {
-            val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
-              val rgba = colorArray.GetTuple4(i)
-              RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3) / 255.0)
-            }
-            Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
-          }
-          case Some(("RGB", colorArray)) => {
-            val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
-              val rgb = colorArray.GetTuple3(i)
-              RGBA(RGB(rgb(0) / 255.0, rgb(1) / 255.0, rgb(2) / 255.0))
-            }
-            Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
-          }
-          case Some(_) => Left(meshGeometry)
-          case None    => Left(meshGeometry)
-        }
-      }
-      plyReader.Delete()
-      vtkPd.Delete()
-
-      mesh
     }
+  }
+
+  private def readPLYUsingVTK(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
+    val filename = file.getCanonicalFile
+    val plyReader = new vtkPLYReader()
+    plyReader.SetFileName(file.getAbsolutePath)
+    plyReader.Update()
+
+    val errCode = plyReader.GetErrorCode()
+    if (errCode != 0) {
+      return Failure(new IOException(s"Could not read ply mesh $filename (received VTK error code $errCode"))
+    }
+
+    val vtkPd = plyReader.GetOutput()
+    val mesh = for {
+      meshGeometry <- MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
+    } yield {
+      getColorArray(vtkPd) match {
+        case Some(("RGBA", colorArray)) => {
+          val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
+            val rgba = colorArray.GetTuple4(i)
+            RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3) / 255.0)
+          }
+          Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
+        }
+        case Some(("RGB", colorArray)) => {
+          val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
+            val rgb = colorArray.GetTuple3(i)
+            RGBA(RGB(rgb(0) / 255.0, rgb(1) / 255.0, rgb(2) / 255.0))
+          }
+          Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
+        }
+        case Some(_) => Left(meshGeometry)
+        case None    => Left(meshGeometry)
+      }
+    }
+    plyReader.Delete()
+    vtkPd.Delete()
+    mesh
   }
 
   def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
