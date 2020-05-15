@@ -30,6 +30,7 @@ import scalismo.numerics.{GridSampler, UniformSampler}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
+import scala.collection.parallel.immutable.ParVector
 
 class GaussianProcessTests extends ScalismoTestSuite {
 
@@ -292,7 +293,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val fewPointsSampler =
         GridSampler(DiscreteImageDomain(f.domain.origin, f.domain.extent * (1.0 / 8.0), IntVector(2, 2, 2)))
       val pts = fewPointsSampler.sample.map(_._1)
-      for (pt1 <- pts.par; pt2 <- pts) {
+      for (pt1 <- new ParVector(pts.toVector); pt2 <- pts) {
         val covGP = f.gp.cov(pt1, pt2)
         val covKernel = f.kernel(pt1, pt2)
         for (i <- 0 until 3; j <- 0 until 3) {
@@ -392,7 +393,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("keeps the probability of samples unchanged") {
       val ssmPath = getClass.getResource("/facemodel.h5").getPath
-      val fullSsm = StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
+      val fullSsm =
+        StatisticalModelIO.readStatisticalMeshModel(new java.io.File(URLDecoder.decode(ssmPath, "UTF-8"))).get
 
       // we truncate the ssm to avoid numerical error
       val ssm = fullSsm.truncate(fullSsm.rank / 2)

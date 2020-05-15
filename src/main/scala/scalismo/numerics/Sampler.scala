@@ -25,6 +25,8 @@ import scalismo.mesh.{TetrahedralMesh, TetrahedralMesh3D, TriangleMesh}
 import scalismo.statisticalmodel.GaussianProcess
 import scalismo.utils.Random
 
+import scala.collection.parallel.immutable.ParVector
+
 /** sample generator typeclass */
 trait Sampler[D] {
 
@@ -90,7 +92,7 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, Euclid
   val meanPts = refmesh.pointSet.points.map { x: Point[_3D] =>
     x + gp.mean(x)
   }
-  val ptsWithDist = refmesh.pointSet.points.toIndexedSeq.zipWithIndex.par
+  val ptsWithDist = new ParVector(refmesh.pointSet.points.toVector.zipWithIndex)
     .map {
       case (refPt, refPtId) =>
         val closestTgtPt = targetMesh.pointSet.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point

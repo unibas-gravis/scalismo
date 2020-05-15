@@ -248,11 +248,6 @@ sealed trait ScalarArray[S] extends IndexedSeq[S] {
   def length: Int
 
   /**
-   * Returns the length of the data array. This is an alias for [[ScalarArray#length]]
-   */
-  final override lazy val size = length
-
-  /**
    * Determines if <code>index</code> lies within the bounds of the array
    * @param index the index in the array for which to check if it lies within the array bounds
    * @return <code>true</code> if <code>index</code> lies within the array bounds, <code>false</code> otherwise.
@@ -345,13 +340,13 @@ final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) exten
    */
   override def iterator: Iterator[S] = rawData.iterator
 
-  override lazy val hashCode: Int = rawData.deep.hashCode()
+  override lazy val hashCode: Int = rawData.toSeq.hashCode()
 
   override def canEqual(that: Any): Boolean = that.isInstanceOf[PrimitiveScalarArray[_]]
 
   override def equals(that: Any) = {
     that match {
-      case a: PrimitiveScalarArray[_] => (this canEqual that) && this.rawData.deep == a.rawData.deep
+      case a: PrimitiveScalarArray[_] => (this canEqual that) && this.rawData.sameElements(rawData)
       case _                          => false
     }
   }
@@ -383,13 +378,13 @@ final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(i
    */
   override def iterator: Iterator[S] = rawData.iterator.map(scalar.fromUnderlying)
 
-  override lazy val hashCode: Int = rawData.deep.hashCode()
+  override lazy val hashCode: Int = rawData.toSeq.hashCode()
 
   override def canEqual(that: Any): Boolean = that.isInstanceOf[ValueClassScalarArray[_, _]]
 
   override def equals(that: Any) = {
     that match {
-      case a: ValueClassScalarArray[_, _] => (this canEqual that) && this.rawData.deep == a.rawData.deep
+      case a: ValueClassScalarArray[_, _] => (this canEqual that) && this.rawData.sameElements(a.rawData)
       case _                              => false
     }
   }
