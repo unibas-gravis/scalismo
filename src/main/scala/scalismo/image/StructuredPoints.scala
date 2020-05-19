@@ -18,10 +18,15 @@ package scalismo.image
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.transformations.{
+import scalismo.registration.{
+  AnisotropicScalingThenRigidTransformation,
+  AnisotropicScalingTransformation,
   AnisotropicSimilarityTransformation,
-  AnisotropicSimilarityTransformationSpace,
-  RotationSpace
+  RigidTransformation,
+  RotationSpace,
+  RotationTransform,
+  RotationTransform1D,
+  TranslationTransform
 }
 
 import scala.language.implicitConversions
@@ -55,6 +60,9 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
 
   override def numberOfPoints = (0 until size.dimensionality).foldLeft(1)((res, d) => res * size(d))
 
+  /**
+   * returns the points belonging to the given id
+   */
   override def point(id: PointId): Point[D] = indexToPoint(index(id))
 
   /** converts a grid index into a id that identifies a point */
@@ -63,24 +71,8 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
   /** The index for the given point id */
   def index(pointId: PointId): IntVector[D]
 
-  /** the point corresponding to the given index */
-  //def indexToPoint(i: Index[D]): Point[D]
-
-  /** the index corresponding to the physical point coordinate */
-  //def pointToIndex(p: Point[D]): Index[D]
-
   /**
-   * a rectangular region that represents the area, which defines the bounding box of the points that make up the
-   * image domain. Warning: This is by one "Voxel" smaller than the region on which the image is defined, as each point
-   * of the domain represents one "voxel".
-   *
-   * The bounding box origin is always the lower left corner of the image domain, which might be different
-   * from the image domain's origin if it is not RAI oriented.
-   *
-   * An important assumption here is that all images in Scalismo are oriented along the spatial axis (i.e. no oblique images.
-   * These are handled at IO by resampling to axis oriented images).
-   *
-   * @see imageBoundingBox
+   * a rectangular region that represents the area, which defines the bounding box of the points
    */
   override def boundingBox: BoxDomain[D]
 
@@ -101,6 +93,9 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     if (isIndex(cidx)) Some(ptId) else None
   }
 
+  /**
+   * returns the closest point in this set to the given point
+   */
   override def findClosestPoint(pt: Point[D]): PointWithId[D] = {
     val cidx = pointToContinuousIndex(pt)
     val idxClosestPoint = continuousIndextoIndex(cidx)
@@ -108,6 +103,9 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     PointWithId(indexToPoint(idxClosestPoint), ptIdClosestPoint)
   }
 
+  /**
+   * returns the n closest points to the given set of points
+   */
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = throw new UnsupportedOperationException
 
   private def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
@@ -164,88 +162,24 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
   override def hashCode() = origin.hashCode + spacing.hashCode + size.hashCode
 }
 
-/**
- * Factory methods for creating StructuredPoints objects
- */
-object StructuredPoints {
-
-  /** Create a new discreteImageDomain with given origin, spacing and size*/
-  def apply[D](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(
-    implicit
-    evCreate: CreateStructuredPoints[D]
-  ) = {
-    evCreate.createImageDomain(origin, spacing, size)
-  }
-
-  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D](imageBox: BoxDomain[D],
-               size: IntVector[D])(implicit evCreate: CreateStructuredPoints[D]): StructuredPoints[D] = {
-    val spacing = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / size(i) })
-    evCreate.createImageDomain(imageBox.origin, spacing, size)
-  }
-
-  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-  def apply[D: NDSpace](imageBox: BoxDomain[D], spacing: EuclideanVector[D])(
-    implicit
-    evCreate: CreateStructuredPoints[D]
-  ): StructuredPoints[D] = {
-    val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
-    val size = IntVector.apply[D](sizeFractional.toArray.map(s => Math.ceil(s).toInt))
-    evCreate.createImageDomain(imageBox.origin, spacing, size)
-  }
-
-  /**
-   * Create a discreteImageDomain where the points are defined as transformations of the indices (from (0,0,0) to (size - 1, size - 1 , size -1)
-   * This makes it possible to define image regions which are not aligned to the coordinate axis.
-   */
-  private[scalismo] def apply[D](size: IntVector[D], transform: AnisotropicSimilarityTransformation[D])(
-    implicit
-    evCreateRot: CreateStructuredPoints[D]
-  ) = {
-    evCreateRot.createWithTransform(size, transform)
-  }
-
-  implicit def parametricToConcreteType1D(discreteImageDomain: StructuredPoints[_1D]): StructuredPoints1D = {
-    discreteImageDomain.asInstanceOf[StructuredPoints1D]
-  }
-
-  implicit def parametricToConcreteType2D(discreteImageDomain: StructuredPoints[_2D]): StructuredPoints2D = {
-    discreteImageDomain.asInstanceOf[StructuredPoints2D]
-  }
-
-  implicit def paramDiscreteImageDomain3D(discreteImageDomain: StructuredPoints[_3D]): StructuredPoints3D = {
-    discreteImageDomain.asInstanceOf[StructuredPoints3D]
-  }
-
-  /**
-   * *
-   * internal usage method that returns for an image domain the inner 3 by3 matrix of the affine transform
-   * defining the domain points
-   *
-   */
-  private[scalismo] def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
-    val parameters = domain.indexToPhysicalCoordinateTransform.parameters
-    val rotParams = parameters(3 to 5)
-    val scalingParams = parameters(6 to 8)
-    val scalingMatrix = diag(scalingParams)
-    val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
-    innerAffineMatrix
-  }
-}
-
 //
 // The actual implementations for each dimension
 //
-case class StructuredPoints1D(size: IntVector[_1D],
-                              indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D])
+case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D], size: IntVector[_1D])
     extends StructuredPoints[_1D] {
+
+  val indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D] = {
+    val scaling = AnisotropicScalingTransformation[_1D](EuclideanVector1D(spacing(0)))
+    val translation = TranslationTransform(origin - Point1D(0.0))
+    val rigidTransform = RigidTransformation(translation, RotationTransform1D())
+    new AnisotropicScalingThenRigidTransformation[_1D](rigidTransform, scaling)
+
+  }
 
   override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
 
-  override val origin = Point1D(indexToPhysicalCoordinateTransform(Point(0))(0))
   private val iVecImage
     : EuclideanVector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
-  override val spacing = EuclideanVector1D(iVecImage.norm.toFloat)
 
   private def generateIterator(minX: Int, maxX: Int) = {
     for (i <- Iterator.range(minX, maxX)) yield { Point1D(origin.x + iVecImage.x * i) }
@@ -259,7 +193,7 @@ case class StructuredPoints1D(size: IntVector[_1D],
 
   override val directions = SquareMatrix(1.0)
 
-  //  private val transform = SimilarityTransformationSpace1D().transformationForParameters(DenseVector(origin.data ++ spacing.data))
+  //  private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   //  private val inverseTransform = transform.inverse
 
   override def transform(t: Point[_1D] => Point[_1D]): UnstructuredPoints[_1D] = {
@@ -281,13 +215,15 @@ case class StructuredPoints1D(size: IntVector[_1D],
 
 }
 
-case class StructuredPoints2D(size: IntVector[_2D],
-                              indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D])
+case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D], phi: Double)
     extends StructuredPoints[_2D] {
 
-  override val origin = {
-    val p = indexToPhysicalCoordinateTransform(Point(0, 0))
-    Point2D(p(0), p(1))
+  val indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D] = {
+    val scaling = AnisotropicScalingTransformation[_2D](EuclideanVector2D(spacing(0), spacing(1)))
+    val translation = TranslationTransform(origin - Point2D(0.0, 0.0))
+    val rigidTransform = RigidTransformation(translation, RotationTransform(phi, Point2D(0, 0)))
+    new AnisotropicScalingThenRigidTransformation[_2D](rigidTransform, scaling)
+
   }
 
   override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
@@ -303,7 +239,6 @@ case class StructuredPoints2D(size: IntVector[_2D],
 
   override val directions =
     SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
-  override val spacing = EuclideanVector2D(iVecImage.norm.toFloat, jVecImage.norm.toFloat)
 
   private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) =
     for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield { ijToPoint(i, j) }
@@ -345,20 +280,33 @@ case class StructuredPoints2D(size: IntVector[_2D],
 
 }
 
-case class StructuredPoints3D(size: IntVector[_3D],
-                              indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_3D])
+object StructuredPoints2D {
+
+  def apply(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D]): StructuredPoints[_2D] = {
+    StructuredPoints2D(origin, spacing, size, phi = 0.0)
+  }
+
+}
+
+case class StructuredPoints3D(origin: Point[_3D],
+                              spacing: EuclideanVector[_3D],
+                              size: IntVector[_3D],
+                              yaw: Double,
+                              pitch: Double,
+                              roll: Double)
     extends StructuredPoints[_3D] {
 
-  override val origin = {
-    val p = indexToPhysicalCoordinateTransform(Point(0, 0, 0))
-    Point3D(p(0), p(1), p(2))
+  val indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_3D] = {
+    val scaling = AnisotropicScalingTransformation[_3D](EuclideanVector3D(spacing(0), spacing(1), spacing(2)))
+    val translation = TranslationTransform(origin - Point3D(0.0, 0.0, 0.0))
+    val rigidTransform = RigidTransformation(translation, RotationTransform(yaw, pitch, roll, Point3D(0, 0, 0)))
+    new AnisotropicScalingThenRigidTransformation[_3D](rigidTransform, scaling)
+
   }
 
   override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
 
   private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
-  override val spacing =
-    EuclideanVector3D(positiveScalingParameters(0), positiveScalingParameters(1), positiveScalingParameters(2))
 
   override def boundingBox: BoxDomain[_3D] = {
 
@@ -450,62 +398,84 @@ case class StructuredPoints3D(size: IntVector[_3D],
 
 }
 
+object StructuredPoints3D {
+
+  def apply(origin: Point[_3D], spacing: EuclideanVector[_3D], size: IntVector[_3D]): StructuredPoints[_3D] = {
+    StructuredPoints3D(origin, spacing, size, 0, 0, 0)
+  }
+}
+
+/**
+ * Factory methods for creating StructuredPoints objects
+ */
+object StructuredPoints {
+
+  /** Create a new discreteImageDomain with given origin, spacing and size*/
+  def apply[D](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(
+    implicit
+    evCreate: CreateStructuredPoints[D]
+  ) = {
+    evCreate.create(origin, spacing, size)
+  }
+
+  implicit def parametricToConcreteType1D(discreteImageDomain: StructuredPoints[_1D]): StructuredPoints1D = {
+    discreteImageDomain.asInstanceOf[StructuredPoints1D]
+  }
+
+  implicit def parametricToConcreteType2D(discreteImageDomain: StructuredPoints[_2D]): StructuredPoints2D = {
+    discreteImageDomain.asInstanceOf[StructuredPoints2D]
+  }
+
+  implicit def paramDiscreteImageDomain3D(discreteImageDomain: StructuredPoints[_3D]): StructuredPoints3D = {
+    discreteImageDomain.asInstanceOf[StructuredPoints3D]
+  }
+
+  /**
+   * *
+   * internal usage method that returns for an image domain the inner 3 by3 matrix of the affine transform
+   * defining the domain points
+   *
+   */
+  private[scalismo] def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
+    val parameters = domain.indexToPhysicalCoordinateTransform.parameters
+    val rotParams = parameters(3 to 5)
+    val scalingParams = parameters(6 to 8)
+    val scalingMatrix = diag(scalingParams)
+    val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
+    innerAffineMatrix
+  }
+
+}
+
 /** Typeclass for creating domains of arbitrary dimensionality */
 sealed trait CreateStructuredPoints[D] {
-  def createImageDomain(origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D]): StructuredPoints[D]
-  def createWithTransform(size: IntVector[D], transform: AnisotropicSimilarityTransformation[D]): StructuredPoints[D]
+  def create(origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D]): StructuredPoints[D]
 }
 
 object CreateStructuredPoints {
-
   implicit object CreateStructuredPoints1D extends CreateStructuredPoints[_1D] {
-    override def createImageDomain(origin: Point[_1D],
-                                   spacing: EuclideanVector[_1D],
-                                   size: IntVector[_1D]): StructuredPoints[_1D] = {
-      val rigidParameters = origin.toArray ++ Array(0.0)
-      val anisotropicScalingParameters = spacing.toArray
-      val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_1D](Point(0))
-        .transformationForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
-      new StructuredPoints1D(size, anisotropSimTransform)
-
+    override def create(origin: Point[_1D],
+                        spacing: EuclideanVector[_1D],
+                        size: IntVector[_1D]): StructuredPoints[_1D] = {
+      StructuredPoints1D(origin, spacing, size)
     }
 
-    override def createWithTransform(size: IntVector[_1D],
-                                     transform: AnisotropicSimilarityTransformation[_1D]): StructuredPoints[_1D] = {
-      new StructuredPoints1D(size, transform)
-    }
   }
 
-  implicit object CreateStructuredPoints2D$$ extends CreateStructuredPoints[_2D] {
-    override def createImageDomain(origin: Point[_2D],
-                                   spacing: EuclideanVector[_2D],
-                                   size: IntVector[_2D]): StructuredPoints[_2D] = {
-      val rigidParameters = origin.toArray ++ Array(0.0)
-      val anisotropicScalingParameters = spacing.toArray
-      val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_2D](Point(0, 0))
-        .transformationForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
-      new StructuredPoints2D(size, anisotropSimTransform)
+  implicit object CreateStructuredPoints2D extends CreateStructuredPoints[_2D] {
+    override def create(origin: Point[_2D],
+                        spacing: EuclideanVector[_2D],
+                        size: IntVector[_2D]): StructuredPoints[_2D] = {
+      new StructuredPoints2D(origin, spacing, size, 0.0)
     }
 
-    override def createWithTransform(size: IntVector[_2D],
-                                     transform: AnisotropicSimilarityTransformation[_2D]): StructuredPoints[_2D] =
-      new StructuredPoints2D(size, transform)
   }
 
-  implicit object CreateStructuredPoints3D$$ extends CreateStructuredPoints[_3D] {
-    override def createImageDomain(origin: Point[_3D],
-                                   spacing: EuclideanVector[_3D],
-                                   size: IntVector[_3D]): StructuredPoints[_3D] = {
-      val rigidParameters = origin.toArray ++ Array(0.0, 0.0, 0.0)
-      val anisotropicScalingParameters = spacing.toArray
-      val anisotropSimTransform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0))
-        .transformationForParameters(DenseVector(rigidParameters ++ anisotropicScalingParameters))
-      new StructuredPoints3D(size, anisotropSimTransform)
+  implicit object CreateStructuredPoints3D extends CreateStructuredPoints[_3D] {
+    override def create(origin: Point[_3D],
+                        spacing: EuclideanVector[_3D],
+                        size: IntVector[_3D]): StructuredPoints[_3D] = {
+      new StructuredPoints3D(origin, spacing, size, 0.0, 0.0, 0.0)
     }
-
-    override def createWithTransform(size: IntVector[_3D],
-                                     transform: AnisotropicSimilarityTransformation[_3D]): StructuredPoints[_3D] =
-      new StructuredPoints3D(size, transform)
   }
-
 }

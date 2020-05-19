@@ -19,25 +19,18 @@ import breeze.linalg.{convert, DenseVector}
 import scalismo.common.UnstructuredPointsDomain.Create.CreateUnstructuredPointsDomain3D
 import scalismo.common.{PointId, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, Point}
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
+import scalismo.image.DiscreteImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
-import scalismo.registration.LandmarkRegistration
-import scalismo.transformations.{
-  RigidTransformation,
-  RigidTransformationSpace,
-  RigidTransformationSpace3D,
-  Transformation
-}
+import scalismo.registration.{LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation}
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, StatisticalMeshModel}
 import scalismo.utils.Random
 
 import scala.collection.immutable
-import scala.collection.parallel.immutable.ParVector
 import scala.util.{Failure, Try}
 
 object ActiveShapeModel {
-  type TrainingData = Iterator[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]
+  type TrainingData = Iterator[(DiscreteImage[_3D, Float], Transformation[_3D])]
 
   /**
    * Train an active shape model using an existing PCA model
@@ -48,7 +41,7 @@ object ActiveShapeModel {
                  featureExtractor: FeatureExtractor,
                  sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
-    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).toIndexedSeq
+    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
     val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
@@ -135,7 +128,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
 
   /**
    * Returns an Active Shape Model where both the statistical shape Model and the profile points distributions are correctly transformed
-   * according to the provided rigid transformations
+   * according to the provided rigid transformation
    *
    */
   def transform(rigidTransformation: RigidTransformation[_3D]): ActiveShapeModel = {
@@ -146,7 +139,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
   private def noTransformations =
     ModelTransformations(
       statisticalModel.coefficients(statisticalModel.mean),
-      RigidTransformationSpace3D(Point(0, 0, 0)).identityTransformation
+      RigidTransformationSpace[_3D]()
+        .transformForParameters(RigidTransformationSpace[_3D]().identityTransformParameters)
     )
 
   /**
@@ -157,10 +151,10 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
    * @param searchPointSampler sampler that defines the strategy where profiles are to be sampled.
    * @param iterations maximum number of iterations for the fitting.
    * @param config fitting configuration (thresholds). If omitted, uses [[FittingConfiguration.Default]]
-   * @param startingTransformations initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the fitting starts from the mean shape, with no rigid transformations)
+   * @param startingTransformations initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the fitting starts from the mean shape, with no rigid transformation)
    * @return fitting result after the given number of iterations
    */
-  def fit(targetImage: DiscreteScalarImage[_3D, Float],
+  def fit(targetImage: DiscreteImage[_3D, Float],
           searchPointSampler: SearchPointSampler,
           iterations: Int,
           config: FittingConfiguration = FittingConfiguration.Default,
@@ -184,7 +178,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
    * @see [[fit()]] for a description of the parameters.
    *
    */
-  def fitIterator(targetImage: DiscreteScalarImage[_3D, Float],
+  def fitIterator(targetImage: DiscreteImage[_3D, Float],
                   searchPointSampler: SearchPointSampler,
                   iterations: Int,
                   config: FittingConfiguration = FittingConfiguration.Default,
@@ -271,7 +265,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
     poseTransform: RigidTransformation[_3D]
   ): IndexedSeq[(PointId, Point[_3D])] = {
 
-    val matchingPts = new ParVector(profiles.ids.toVector).map { index =>
+    val matchingPts = profiles.ids.par.map { index =>
       (profiles(index).pointId,
        findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform))
     }
@@ -353,8 +347,8 @@ object FittingConfiguration {
  *
  * Sample usage: <code>val mesh = ssm.instance(t.coefficients).transform(t.rigidTransform)</code>
  *
- * @param coefficients model coefficients to apply. These determine the shape transformations.
- * @param rigidTransform rigid transformations to apply. These determine translation and rotation.
+ * @param coefficients model coefficients to apply. These determine the shape transformation.
+ * @param rigidTransform rigid transformation to apply. These determine translation and rotation.
  */
 case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: RigidTransformation[_3D])
 

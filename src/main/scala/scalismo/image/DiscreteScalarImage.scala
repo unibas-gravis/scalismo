@@ -31,7 +31,7 @@
 // * @tparam D  The dimensionality of the image
 // * @tparam A The type of the pixel (needs to implement Scalar).
 // */
-//class DiscreteScalarImage[D: NDSpace, A: Scalar: ClassTag](override val domain: DiscreteImageDomain[D],
+//class DiscreteImage[D: NDSpace, A: Scalar: ClassTag](override val domain: DiscreteImageDomain[D],
 //                                                           override val data: ScalarArray[A])
 //    extends DiscreteImage[D, A](domain, data) {
 //
@@ -40,8 +40,8 @@
 //  override protected def ndSpace = implicitly[NDSpace[D]]
 //
 //  /** returns a new image whose whose pixel values have been mapped using the function f */
-//  def map[B: Scalar: ClassTag](f: A => B): DiscreteScalarImage[D, B] = {
-//    DiscreteScalarImage(domain, data.map(f))
+//  def map[B: Scalar: ClassTag](f: A => B): DiscreteImage[D, B] = {
+//    DiscreteImage(domain, data.map(f))
 //  }
 //
 //  /**
@@ -67,99 +67,99 @@
 //    DifferentiableScalarImage(f.domain, f.f, f.df)
 //  }
 //
-//  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteScalarImage using b-spline interpolation of given order */
+//  /** Returns a new ContinuousScalarImage by interpolating the given DiscreteImage using b-spline interpolation of given order */
 //  def resample(newDomain: DiscreteImageDomain[D],
 //               interpolator: FieldInterpolator[D, DiscreteImageDomain, A],
-//               outsideValue: A): DiscreteScalarImage[D, A] = {
+//               outsideValue: A): DiscreteImage[D, A] = {
 //
 //    val contImg = interpolate(interpolator)
 //    contImg.sample(newDomain, outsideValue)
 //  }
 //}
 //
-//object DiscreteScalarImage {
+//object DiscreteImage {
 //  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D],
-//                                             data: ScalarArray[A]): DiscreteScalarImage[D, A] = {
-//    new DiscreteScalarImage(domain, data)
+//                                             data: ScalarArray[A]): DiscreteImage[D, A] = {
+//    new DiscreteImage(domain, data)
 //  }
 //
-//  /** create a new DiscreteScalarImage, with all pixel values set to the given value */
-//  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], v: => A): DiscreteScalarImage[D, A] = {
-//    DiscreteScalarImage(domain, ScalarArray(Array.fill(domain.pointSet.numberOfPoints)(v)))
+//  /** create a new DiscreteImage, with all pixel values set to the given value */
+//  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D], v: => A): DiscreteImage[D, A] = {
+//    DiscreteImage(domain, ScalarArray(Array.fill(domain.pointSet.numberOfPoints)(v)))
 //  }
 //
-//  /** create a new DiscreteScalarImage, with all pixel values set to the given value */
+//  /** create a new DiscreteImage, with all pixel values set to the given value */
 //  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D],
-//                                             f: Point[D] => A): DiscreteScalarImage[D, A] = {
+//                                             f: Point[D] => A): DiscreteImage[D, A] = {
 //    val data = domain.pointSet.points.map(f)
-//    DiscreteScalarImage(domain, ScalarArray(data.toArray))
+//    DiscreteImage(domain, ScalarArray(data.toArray))
 //  }
 //
-//  /** create a new DiscreteScalarImage with given domain and values */
+//  /** create a new DiscreteImage with given domain and values */
 //  def apply[D: NDSpace, A: Scalar: ClassTag](domain: DiscreteImageDomain[D],
-//                                             values: Traversable[A]): DiscreteScalarImage[D, A] = {
-//    DiscreteScalarImage(domain, ScalarArray(values.toArray))
+//                                             values: Traversable[A]): DiscreteImage[D, A] = {
+//    DiscreteImage(domain, ScalarArray(values.toArray))
 //  }
 //
 //}
 //
 //object DiscreteScalarImage1D {
 //  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D],
-//                                 data: ScalarArray[A]): DiscreteScalarImage[_1D, A] = {
-//    new DiscreteScalarImage[_1D, A](domain, data)
+//                                 data: ScalarArray[A]): DiscreteImage[_1D, A] = {
+//    new DiscreteImage[_1D, A](domain, data)
 //  }
 //
-//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D], v: => A): DiscreteScalarImage[_1D, A] = {
-//    DiscreteScalarImage(domain, v)
+//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D], v: => A): DiscreteImage[_1D, A] = {
+//    DiscreteImage(domain, v)
 //  }
 //
-//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D], f: Point[_1D] => A): DiscreteScalarImage[_1D, A] = {
-//    DiscreteScalarImage(domain, f)
+//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D], f: Point[_1D] => A): DiscreteImage[_1D, A] = {
+//    DiscreteImage(domain, f)
 //  }
 //
 //  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_1D],
-//                                 values: Traversable[A]): DiscreteScalarImage[_1D, A] = {
-//    DiscreteScalarImage(domain, values)
+//                                 values: Traversable[A]): DiscreteImage[_1D, A] = {
+//    DiscreteImage(domain, values)
 //  }
 //
 //}
 //
 //object DiscreteScalarImage2D {
 //  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_2D],
-//                                 data: ScalarArray[A]): DiscreteScalarImage[_2D, A] = {
-//    new DiscreteScalarImage[_2D, A](domain, data)
+//                                 data: ScalarArray[A]): DiscreteImage[_2D, A] = {
+//    new DiscreteImage[_2D, A](domain, data)
 //  }
 //
-//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_2D], v: => A): DiscreteScalarImage[_2D, A] = {
-//    DiscreteScalarImage(domain, v)
+//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_2D], v: => A): DiscreteImage[_2D, A] = {
+//    DiscreteImage(domain, v)
 //  }
 //
-//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_2D], f: Point[_2D] => A): DiscreteScalarImage[_2D, A] = {
-//    DiscreteScalarImage(domain, f)
+//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_2D], f: Point[_2D] => A): DiscreteImage[_2D, A] = {
+//    DiscreteImage(domain, f)
 //  }
 //
 //  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_2D],
-//                                 values: Traversable[A]): DiscreteScalarImage[_2D, A] = {
-//    DiscreteScalarImage(domain, values)
+//                                 values: Traversable[A]): DiscreteImage[_2D, A] = {
+//    DiscreteImage(domain, values)
 //  }
 //}
 //
 //object DiscreteScalarImage3D {
 //  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D],
-//                                 data: ScalarArray[A]): DiscreteScalarImage[_3D, A] = {
-//    new DiscreteScalarImage[_3D, A](domain, data)
+//                                 data: ScalarArray[A]): DiscreteImage[_3D, A] = {
+//    new DiscreteImage[_3D, A](domain, data)
 //  }
 //
-//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D], v: => A): DiscreteScalarImage[_3D, A] = {
-//    DiscreteScalarImage(domain, v)
+//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D], v: => A): DiscreteImage[_3D, A] = {
+//    DiscreteImage(domain, v)
 //  }
 //
-//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D], f: Point[_3D] => A): DiscreteScalarImage[_3D, A] = {
-//    DiscreteScalarImage(domain, f)
+//  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D], f: Point[_3D] => A): DiscreteImage[_3D, A] = {
+//    DiscreteImage(domain, f)
 //  }
 //
 //  def apply[A: Scalar: ClassTag](domain: DiscreteImageDomain[_3D],
-//                                 values: Traversable[A]): DiscreteScalarImage[_3D, A] = {
-//    DiscreteScalarImage(domain, values)
+//                                 values: Traversable[A]): DiscreteImage[_3D, A] = {
+//    DiscreteImage(domain, values)
 //  }
 //}

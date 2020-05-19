@@ -21,7 +21,7 @@ import scalismo.common.{BoxDomain, DifferentiableField}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.geometry.EuclideanVector._
-import scalismo.image.{DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, StructuredPoints}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
 import scalismo.numerics.{GridSampler, Integrator, RandomSVD, UniformSampler}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
@@ -111,7 +111,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
     it("It leads to orthogonal basis functions on the domain (-5, 5)") {
       val kernel = DiagonalKernel(GaussianKernel[_1D](1.0), 1)
       val domain = BoxDomain(-5.0, 5.0)
-      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
+      val grid = DiscreteImageDomain1D(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
       val sampler = GridSampler(grid)
 
       val eigPairs = Kernel.computeNystromApproximation[_1D, EuclideanVector[_1D]](kernel, sampler)
@@ -136,7 +136,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val kernelLessSmooth = DiagonalKernel(GaussianKernel[_1D](0.5), 1)
       val kernelMoreSmooth = DiagonalKernel(GaussianKernel[_1D](2.0), 1)
       val domain = BoxDomain(-5.0, 5.0)
-      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
+      val grid = DiscreteImageDomain1D(domain.origin, domain.extent * (1.0 / 1000.0), IntVector(1000))
       val sampler = GridSampler(grid)
 
       val eigPairsLessSmooth = Kernel.computeNystromApproximation[_1D, EuclideanVector[_1D]](kernelLessSmooth, sampler)

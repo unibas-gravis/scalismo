@@ -24,7 +24,7 @@ import scalismo.common.{BoxDomain, DifferentiableField}
 import scalismo.common.interpolation.BSplineImageInterpolator2D
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, StructuredPoints}
 import scalismo.io.ImageIO
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
 import scalismo.transformations.TranslationSpace
@@ -55,7 +55,7 @@ class MetricTests extends ScalismoTestSuite {
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
     val translationSpace = TranslationSpace[_2D]
-    val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
+    val sampler = GridSampler(DiscreteImageDomain2D(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
     it("has the global minimum where the images are similar") {
 
@@ -103,7 +103,7 @@ class MetricTests extends ScalismoTestSuite {
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
     val translationSpace = TranslationSpace[_2D]
-    val sampler = GridSampler(DiscreteImageDomain(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
+    val sampler = GridSampler(DiscreteImageDomain2D(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
     it("has the global minimum where the images are similar") {
 
