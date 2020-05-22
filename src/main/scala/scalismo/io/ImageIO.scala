@@ -17,7 +17,7 @@ package scalismo.io
 
 import java.io.{File, IOException}
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{diag, DenseMatrix, DenseVector}
 import niftijio.{NiftiHeader, NiftiVolume}
 import scalismo.common.{RealSpace, Scalar}
 import scalismo.geometry._
@@ -531,7 +531,15 @@ object ImageIO {
         volume.data.set(i, j, k, d, scalarConv.toDouble(img(IntVector(i, j, k))))
       }
 
-      val innerAffineMatrix = StructuredPoints.computeInnerAffineMatrix(img.domain.pointSet)
+      def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
+        val rotParams = DenseVector[Double](domain.yaw, domain.pitch, domain.roll)
+        val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
+        val scalingMatrix = diag(scalingParams)
+        val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
+        innerAffineMatrix
+      }
+
+      val innerAffineMatrix = computeInnerAffineMatrix(img.domain.pointSet)
       val M = DenseMatrix.zeros[Double](4, 4)
 
       M(0, 0) = innerAffineMatrix(0, 0) * -1f

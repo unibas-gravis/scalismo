@@ -196,7 +196,7 @@ case class BSplineImageInterpolator3D[A: Scalar](degree: Int) extends BSplineIma
     val pointSet = domain.pointSet
 
     val ck = determineCoefficients3D(degree, discreteField)
-    val pointToIdx = pointSet.indexToPhysicalCoordinateTransform.inverse
+    val pointToIdx = pointSet.physicalCoordinateToContinuousIndex
 
     def iterateOnPoints(x: Point[_3D], splineBasis: ((Double, Double, Double) => Double)): Double = {
 

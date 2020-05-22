@@ -81,11 +81,6 @@ class StructuredPointsTests extends ScalismoTestSuite {
       assert(recIdx === idx)
     }
 
-    it("domains with same parameters yield the same anisotropic similarity transform ") {
-      val domain1 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
-      val domain2 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
-      assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
-    }
     it("equality works for image domains ") {
       val domain1 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
       val domain2 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
@@ -129,11 +124,6 @@ class StructuredPointsTests extends ScalismoTestSuite {
       }
     }
 
-    it("domains with same parameters yield the same anisotropic similarity transform ") {
-      val domain1 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 0.0), (42, 49, 74))
-      val domain2 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 0.0), (42, 49, 74))
-      assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
-    }
     it("equality works for image domains ") {
       val domain1 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 1.0), (42, 49, 74))
       val domain2 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 1.0), (42, 49, 74))
@@ -145,7 +135,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
       val img = Fixture.img
 
       val trans = img.domain.pointSet.indexToPhysicalCoordinateTransform
-      val inverseTrans = trans.inverse
+      val inverseTrans = img.domain.pointSet.physicalCoordinateToContinuousIndex
 
       assert((trans(Point(0, 0, 0)) - img.domain.origin).norm < 0.1)
       assert(inverseTrans(img.domain.origin).toVector.norm < 0.1)
