@@ -76,7 +76,7 @@ as we will see later.
 
 ### Images
 To create an image, we need to specify a value for each 
-domain points. In this example, we create an image which assigns a zero value to each image.
+point in the domain. In this example, we create an image which assigns a zero value to each point.
 ```scala mdoc:silent
 val image = DiscreteImage3D(imageDomain, p => 0.toShort)
 ```

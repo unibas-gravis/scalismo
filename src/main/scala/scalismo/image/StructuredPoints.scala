@@ -19,13 +19,10 @@ import breeze.linalg.{diag, DenseMatrix, DenseVector}
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.registration.{
-  AnisotropicScalingThenRigidTransformation,
-  AnisotropicScalingTransformation,
-  AnisotropicSimilarityTransformation,
   RigidTransformation,
-  RotationSpace,
   RotationTransform,
   RotationTransform1D,
+  Transformation,
   TranslationTransform
 }
 
@@ -128,8 +125,8 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     (0 until dimensionality).forall(i => continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8)
 
   /** the anisotropic similarity transform that maps between the index and physical coordinates*/
-  private[scalismo] def indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[D]
-  private[scalismo] def physicalCoordinateToContinuousIndex: AnisotropicSimilarityTransformation[D]
+  private[scalismo] def indexToPhysicalCoordinateTransform: Transformation[D]
+  private[scalismo] def physicalCoordinateToContinuousIndex: Transformation[D]
 
   /**
    * *
@@ -168,15 +165,25 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
 case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D], size: IntVector[_1D])
     extends StructuredPoints[_1D] {
 
-  val indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_1D] = {
-    val scaling = AnisotropicScalingTransformation[_1D](EuclideanVector1D(spacing(0)))
-    val translation = TranslationTransform(origin - Point1D(0.0))
-    val rigidTransform = RigidTransformation(translation, RotationTransform1D())
-    new AnisotropicScalingThenRigidTransformation[_1D](rigidTransform, scaling)
+  private val rigidTransform = RigidTransformation(TranslationTransform(origin - Point1D(0.0)), RotationTransform1D())
+  private val invRigidTransform = rigidTransform.inverse
 
+  override val indexToPhysicalCoordinateTransform: Transformation[_1D] = new Transformation[_1D] {
+    override def domain: Domain[_1D] = RealSpace[_1D]
+    override def f: Point[_1D] => Point[_1D] = pt => {
+      val scaledPoint = Point1D(pt(0) * spacing(0))
+      rigidTransform(scaledPoint)
+    }
   }
 
-  override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
+  override private[scalismo] val physicalCoordinateToContinuousIndex: Transformation[_1D] =
+    new Transformation[_1D] {
+      override def domain: Domain[_1D] = RealSpace[_1D]
+      override def f: Point[_1D] => Point[_1D] = pt => {
+        val pointInStandardPosition = invRigidTransform(pt)
+        Point1D(pointInStandardPosition(0) / spacing(0))
+      }
+    }
 
   private val iVecImage
     : EuclideanVector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
@@ -218,15 +225,26 @@ case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D],
 case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D], phi: Double)
     extends StructuredPoints[_2D] {
 
-  val indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_2D] = {
-    val scaling = AnisotropicScalingTransformation[_2D](EuclideanVector2D(spacing(0), spacing(1)))
-    val translation = TranslationTransform(origin - Point2D(0.0, 0.0))
-    val rigidTransform = RigidTransformation(translation, RotationTransform(phi, Point2D(0, 0)))
-    new AnisotropicScalingThenRigidTransformation[_2D](rigidTransform, scaling)
+  private val rigidTransform =
+    RigidTransformation(TranslationTransform(origin - Point2D(0.0, 0.0)), RotationTransform(phi, Point2D(0, 0)))
+  private val invRigidTransform = rigidTransform.inverse
 
+  override val indexToPhysicalCoordinateTransform: Transformation[_2D] = new Transformation[_2D] {
+    override def domain: Domain[_2D] = RealSpace[_2D]
+    override def f: Point[_2D] => Point[_2D] = pt => {
+      val scaledPoint = Point2D(pt(0) * spacing(0), pt(1) * spacing(1))
+      rigidTransform(scaledPoint)
+    }
   }
 
-  override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
+  override private[scalismo] val physicalCoordinateToContinuousIndex: Transformation[_2D] =
+    new Transformation[_2D] {
+      override def domain: Domain[_2D] = RealSpace[_2D]
+      override def f: Point[_2D] => Point[_2D] = pt => {
+        val pointInStandardPosition = invRigidTransform(pt)
+        Point2D(pointInStandardPosition(0) / spacing(0), pointInStandardPosition(1) / spacing(1))
+      }
+    }
 
   private val iVecImage
     : EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(
@@ -296,17 +314,30 @@ case class StructuredPoints3D(origin: Point[_3D],
                               roll: Double)
     extends StructuredPoints[_3D] {
 
-  val indexToPhysicalCoordinateTransform: AnisotropicSimilarityTransformation[_3D] = {
-    val scaling = AnisotropicScalingTransformation[_3D](EuclideanVector3D(spacing(0), spacing(1), spacing(2)))
-    val translation = TranslationTransform(origin - Point3D(0.0, 0.0, 0.0))
-    val rigidTransform = RigidTransformation(translation, RotationTransform(yaw, pitch, roll, Point3D(0, 0, 0)))
-    new AnisotropicScalingThenRigidTransformation[_3D](rigidTransform, scaling)
+  val rigidTransform = RigidTransformation(TranslationTransform(origin - Point3D(0.0, 0.0, 0.0)),
+                                           RotationTransform(yaw, pitch, roll, Point3D(0, 0, 0)))
+  private val invRigidTransform = rigidTransform.inverse
 
+  override val indexToPhysicalCoordinateTransform: Transformation[_3D] = new Transformation[_3D] {
+    override def domain: Domain[_3D] = RealSpace[_3D]
+    override def f: Point[_3D] => Point[_3D] = pt => {
+      val scaledPoint = Point3D(pt(0) * spacing(0), pt(1) * spacing(1), pt(2) * spacing(2))
+      rigidTransform(scaledPoint)
+    }
   }
 
-  override private[scalismo] val physicalCoordinateToContinuousIndex = indexToPhysicalCoordinateTransform.inverse
+  override private[scalismo] val physicalCoordinateToContinuousIndex: Transformation[_3D] =
+    new Transformation[_3D] {
+      override def domain: Domain[_3D] = RealSpace[_3D]
+      override def f: Point[_3D] => Point[_3D] = pt => {
+        val pointInStandardPosition = invRigidTransform(pt)
+        Point3D(pointInStandardPosition(0) / spacing(0),
+                pointInStandardPosition(1) / spacing(1),
+                pointInStandardPosition(2) / spacing(2))
+      }
+    }
 
-  private val positiveScalingParameters = indexToPhysicalCoordinateTransform.parameters(6 to 8).map(math.abs)
+  private val positiveScalingParameters = spacing.map(math.abs)
 
   override def boundingBox: BoxDomain[_3D] = {
 
@@ -428,21 +459,6 @@ object StructuredPoints {
 
   implicit def paramDiscreteImageDomain3D(discreteImageDomain: StructuredPoints[_3D]): StructuredPoints3D = {
     discreteImageDomain.asInstanceOf[StructuredPoints3D]
-  }
-
-  /**
-   * *
-   * internal usage method that returns for an image domain the inner 3 by3 matrix of the affine transform
-   * defining the domain points
-   *
-   */
-  private[scalismo] def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
-    val parameters = domain.indexToPhysicalCoordinateTransform.parameters
-    val rotParams = parameters(3 to 5)
-    val scalingParams = parameters(6 to 8)
-    val scalingMatrix = diag(scalingParams)
-    val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
-    innerAffineMatrix
   }
 
 }
