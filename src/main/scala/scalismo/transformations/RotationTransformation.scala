@@ -12,9 +12,14 @@ import scala.annotation.implicitNotFound
 /**
  * D-dimensional Rotation transform that is parametric, invertible and differentiable.
  */
-abstract class Rotation[D: NDSpace] extends ParametricTransformation[D] with CanInvert[D] with CanDifferentiate[D] {
+abstract class Rotation[D: NDSpace]
+    extends ParametricTransformation[D]
+    with CanInvert[D, Rotation]
+    with CanDifferentiateWRTPosition[D] {
 
   override def inverse: Rotation[D]
+
+  def rotationMatrix: SquareMatrix[D]
 
   def center: Point[D]
 }
@@ -43,22 +48,22 @@ object Rotation {
 
 case class Rotation2D(phi: Double, val center: Point[_2D]) extends Rotation[_2D] {
 
-  val rotMatrix = SquareMatrix(
+  val rotationMatrix = SquareMatrix(
     (math.cos(phi), -math.sin(phi)),
     (math.sin(phi), math.cos(phi))
   )
 
   override val f = (pt: Point[_2D]) => {
     val ptCentered = pt - center
-    val rotCentered = rotMatrix * ptCentered
+    val rotCentered = rotationMatrix * ptCentered
     center + EuclideanVector(rotCentered(0), rotCentered(1))
   }
   override def domain = EuclideanSpace2D
 
   val parameters = DenseVector(phi)
 
-  def derivative: Point[_2D] => SquareMatrix[_2D] = { x =>
-    rotMatrix
+  override def derivativeWRTPosition: Point[_2D] => SquareMatrix[_2D] = { x =>
+    rotationMatrix
   }
 
   override def inverse: Rotation2D = {
@@ -67,7 +72,7 @@ case class Rotation2D(phi: Double, val center: Point[_2D]) extends Rotation[_2D]
 
   override def numberOfParameters: Int = 1
 
-  override def jacobian: JacobianField[_2D] = {
+  override def derivativeWRTParameters: JacobianField[_2D] = {
     val df = (x: Point[_2D]) => {
       val sa = math.sin(parameters(0))
       val ca = math.cos(parameters(0))
@@ -80,31 +85,29 @@ case class Rotation2D(phi: Double, val center: Point[_2D]) extends Rotation[_2D]
   }
 }
 
-case class Rotation3D(phi: Double, theta: Double, psi: Double, val center: Point[_3D]) extends Rotation[_3D] {
+case class Rotation3D(val rotationMatrix: SquareMatrix[_3D], val center: Point[_3D]) extends Rotation[_3D] {
 
-  val rotMatrix = RotationSpace3D.eulerAnglesToRotMatrix(DenseVector(phi, theta, psi))
+  lazy val (phi, theta, psi): (Double, Double, Double) = RotationSpace3D.rotMatrixToEulerAngles(rotationMatrix)
 
   override val f = (pt: Point[_3D]) => {
     val ptCentered = pt - center
-    val rotCentered = rotMatrix * ptCentered
+    val rotCentered = rotationMatrix * ptCentered
     center + EuclideanVector(rotCentered(0), rotCentered(1), rotCentered(2))
   }
 
   override val domain = RealSpace[_3D]
 
-  val parameters = RotationSpace3D.rotMatrixToEulerAngles(rotMatrix.toBreezeMatrix)
-
-  def derivative: Point[_3D] => SquareMatrix[_3D] = { x =>
-    rotMatrix
+  override def derivativeWRTPosition: Point[_3D] => SquareMatrix[_3D] = { x =>
+    rotationMatrix
   }
 
   override def inverse: Rotation3D = {
-    Rotation3D(-phi, -theta, -psi, center)
+    Rotation3D(SquareMatrix.inv(rotationMatrix), center)
   }
 
   override def numberOfParameters: Int = 3
 
-  override def jacobian: JacobianField[_3D] = {
+  override def derivativeWRTParameters: JacobianField[_3D] = {
     val df = (x: Point[_3D]) => {
       val cospsi = Math.cos(psi)
       val sinpsi = Math.sin(psi)
@@ -133,6 +136,14 @@ case class Rotation3D(phi: Double, theta: Double, psi: Double, val center: Point
       DenseMatrix((dr00, dr01, dr02), (dr10, dr11, dr12), (dr20, dr21, dr22))
     }
     Field(domain, df)
+  }
+
+  override def parameters: DenseVector[Double] = DenseVector(phi, theta, psi)
+}
+
+object Rotation3D {
+  def apply(phi: Double, theta: Double, psi: Double, center: Point[_3D]): Rotation[_3D] = {
+    Rotation3D(RotationSpace3D.eulerAnglesToRotMatrix(phi, theta, psi), center)
   }
 }
 
@@ -187,7 +198,7 @@ case class RotationSpace3D(val center: Point[_3D]) extends RotationSpace[_3D] {
 }
 
 object RotationSpace3D {
-  def rotMatrixToEulerAngles(rotMat: DenseMatrix[Double]) = {
+  def rotMatrixToEulerAngles(rotMat: SquareMatrix[_3D]): (Double, Double, Double) = {
     // have to determine the Euler angles (phi, theta, psi) from the retrieved rotation matrix
     // this follows a pdf document entitled : "Computing Euler angles from a rotation matrix" by Gregory G. Slabaugh (see pseudo-code)
 
@@ -198,34 +209,34 @@ object RotationSpace3D {
 
       val phi1 = Math.atan2(rotMat(1, 0) / Math.cos(theta1), rotMat(0, 0) / Math.cos(theta1))
 
-      DenseVector(phi1, theta1, psi1)
+      (phi1, theta1, psi1)
     } else {
       /* Gimbal lock, we simply set phi to be 0 */
       val phi = 0.0
       if (Math.abs(rotMat(2, 0) + 1) < 0.0001) { // if R(2,0) == -1
         val theta = Math.PI / 2.0
         val psi = phi + Math.atan2(rotMat(0, 1), rotMat(0, 2))
-        DenseVector(phi, theta, psi)
+        (phi, theta, psi)
       } else {
 
         val theta = -Math.PI / 2.0
         val psi = -phi + Math.atan2(-rotMat(0, 1), -rotMat(0, 2))
-        DenseVector(phi, theta, psi)
+        (phi, theta, psi)
       }
     }
   }
 
-  private[scalismo] def eulerAnglesToRotMatrix(p: DenseVector[Double]): SquareMatrix[_3D] = {
+  private[scalismo] def eulerAnglesToRotMatrix(phi: Double, theta: Double, psi: Double): SquareMatrix[_3D] = {
     val rotMatrix = {
       // rotation matrix according to the "x-convention"
-      val cospsi = Math.cos(p(2))
-      val sinpsi = Math.sin(p(2))
+      val cospsi = Math.cos(psi)
+      val sinpsi = Math.sin(psi)
 
-      val costh = Math.cos(p(1))
-      val sinth = Math.sin(p(1))
+      val costh = Math.cos(theta)
+      val sinth = Math.sin(theta)
 
-      val cosphi = Math.cos(p(0))
-      val sinphi = Math.sin(p(0))
+      val cosphi = Math.cos(phi)
+      val sinphi = Math.sin(phi)
 
       SquareMatrix(
         (costh * cosphi, sinpsi * sinth * cosphi - cospsi * sinphi, sinpsi * sinphi + cospsi * sinth * cosphi),

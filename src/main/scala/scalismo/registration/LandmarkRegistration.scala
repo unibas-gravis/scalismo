@@ -21,15 +21,21 @@ import breeze.stats.mean
 import scalismo.geometry._
 import scalismo.transformations.{
   RigidTransformation,
-  RigidTransformationSpace,
-  RigidTransformationSpace2D,
-  RigidTransformationSpace3D,
   Rotation,
+  Rotation2D,
+  Rotation3D,
   RotationSpace3D,
+  RotationThenScalingThenTranslation,
+  RotationThenScalingThenTranslation3D,
+  RotationThenTranslation,
+  RotationThenTranslation2D,
   Scaling,
   Scaling2D,
+  Scaling3D,
   SimilarityTransformation,
-  Translation
+  Translation,
+  Translation2D,
+  Translation3D
 }
 
 object LandmarkRegistration {
@@ -44,7 +50,7 @@ object LandmarkRegistration {
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
 
-    val rotparams = RotationSpace3D.rotMatrixToEulerAngles(rotMat)
+    val rotparams = RotationSpace3D.rotMatrixToEulerAngles(SquareMatrix(rotMat.toArray))
     (t, rotparams, s)
   }
 
@@ -57,17 +63,11 @@ object LandmarkRegistration {
    */
   def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]],
                                   targetLms: Seq[Landmark[_3D]],
-                                  center: Point[_3D]): RigidTransformation[_3D] = {
+                                  center: Point[_3D]): RotationThenTranslation[_3D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
     LandmarkRegistration.rigid3DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
-  }
-
-  @deprecated("Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
-  def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]],
-                                  targetLms: Seq[Landmark[_3D]]): RigidTransformation[_3D] = {
-    LandmarkRegistration.rigid3DLandmarkRegistration(originalLms, targetLms, center = origin3D)
   }
 
   /**
@@ -77,16 +77,12 @@ object LandmarkRegistration {
    * @param center center of rotation to be used for the rigid transformations
    */
   def rigid3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])],
-                                  center: Point[_3D]): RigidTransformation[_3D] = {
-    val (t, rotparams, _) = rigidSimilarity3DCommon(landmarks, center)
-    val optimalParameters = DenseVector.vertcat(t, rotparams)
-    val rigidSpace = RigidTransformationSpace3D(center)
-    rigidSpace.transformationForParameters(optimalParameters)
-  }
-
-  @deprecated("Calling rigid3DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
-  def rigid3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])]): RigidTransformation[_3D] = {
-    LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, center = origin3D)
+                                  center: Point[_3D]): RotationThenTranslation[_3D] = {
+    val (t, (phi, theta, psi), _) = rigidSimilarity3DCommon(landmarks, center)
+    RotationThenTranslation(
+      Rotation3D(phi, theta, psi, center),
+      Translation3D(EuclideanVector3D(t(0), t(1), t(2)))
+    )
   }
 
   /**
@@ -96,16 +92,9 @@ object LandmarkRegistration {
    * @param center center of rotation to be used for the rigid transformations
    */
   def rigid2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])],
-                                  center: Point[_2D]): RigidTransformation[_2D] = {
+                                  center: Point[_2D]): RotationThenTranslation[_2D] = {
     val (t, rotparams, _) = rigidSimilarity2DCommon(landmarks, center)
-    val optimalParameters = DenseVector.vertcat(t, DenseVector(Array(rotparams)))
-    val rigidSpace = RigidTransformationSpace2D(center)
-    rigidSpace.transformationForParameters(optimalParameters)
-  }
-
-  @deprecated("Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
-  def rigid2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])]): RigidTransformation[_2D] = {
-    rigid2DLandmarkRegistration(landmarks, center = origin2D)
+    RotationThenTranslation2D(Rotation2D(rotparams, center), Translation2D(EuclideanVector2D(t(0), t(1))))
   }
 
   /**
@@ -116,17 +105,11 @@ object LandmarkRegistration {
    */
   def rigid2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]],
                                   targetLms: Seq[Landmark[_2D]],
-                                  center: Point[_2D]): RigidTransformation[_2D] = {
+                                  center: Point[_2D]): RotationThenTranslation[_2D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
     LandmarkRegistration.rigid2DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
-  }
-
-  @deprecated("Calling rigid2DLandmarkRegistration without a center is deprecated. Please specify the center", "0.15")
-  def rigid2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]],
-                                  targetLms: Seq[Landmark[_2D]]): RigidTransformation[_2D] = {
-    LandmarkRegistration.rigid2DLandmarkRegistration(originalLms, targetLms, center = origin2D)
   }
 
   /**
@@ -137,21 +120,15 @@ object LandmarkRegistration {
    * @param center - center of the rotation
    */
   def similarity3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])],
-                                       center: Point[_3D]): SimilarityTransformation[_3D] = {
+                                       center: Point[_3D]): RotationThenScalingThenTranslation[_3D] = {
 
-    val (t, rotparams, s) = rigidSimilarity3DCommon(landmarks, center, similarityFlag = true)
+    val (t, (phi, theta, psi), s) = rigidSimilarity3DCommon(landmarks, center, similarityFlag = true)
 
-    // as the computations above compute the soultion for the formula sRx + t, but we compute s(Rx + t), we need to divide the translation t by s
-    val rigidTransform = RigidTransformation(Translation(EuclideanVector3D(t(0) / s, t(1) / s, t(2) / s)),
-                                             Rotation(rotparams(0), rotparams(1), rotparams(2), center))
-    val scalingTransform = Scaling[_3D](s)
-    SimilarityTransformation(scalingTransform, rigidTransform)
-  }
-
-  @deprecated("Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center",
-              "0.15")
-  def similarity3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])]): SimilarityTransformation[_3D] = {
-    similarity3DLandmarkRegistration(landmarks, origin3D)
+    RotationThenScalingThenTranslation3D(
+      Translation3D(EuclideanVector3D(t(0), t(1), t(2))),
+      Scaling3D(s),
+      Rotation3D(phi, theta, psi, center)
+    )
   }
 
   /**
@@ -162,18 +139,11 @@ object LandmarkRegistration {
    */
   def similarity3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]],
                                        targetLms: Seq[Landmark[_3D]],
-                                       center: Point[_3D]): SimilarityTransformation[_3D] = {
+                                       center: Point[_3D]): RotationThenScalingThenTranslation[_3D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
     LandmarkRegistration.similarity3DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
-  }
-
-  @deprecated("Calling similarity3DLandmarkRegistration without a center is deprecated. Please specify the center",
-              "0.15")
-  def similarity3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]],
-                                       targetLms: Seq[Landmark[_3D]]): SimilarityTransformation[_3D] = {
-    similarity3DLandmarkRegistration(originalLms, targetLms, origin3D)
   }
 
   /**
@@ -184,36 +154,22 @@ object LandmarkRegistration {
    */
   def similarity2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]],
                                        targetLms: Seq[Landmark[_2D]],
-                                       center: Point[_2D]): SimilarityTransformation[_2D] = {
+                                       center: Point[_2D]): RotationThenScalingThenTranslation[_2D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
     LandmarkRegistration.similarity2DLandmarkRegistration(landmarksPairs.toIndexedSeq, center)
   }
 
-  @deprecated("Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center",
-              "0.15")
-  def similarity2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]],
-                                       targetLms: Seq[Landmark[_2D]]): SimilarityTransformation[_2D] = {
-    LandmarkRegistration.similarity2DLandmarkRegistration(originalLms, targetLms, center = origin2D)
-  }
-
   def similarity2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])],
-                                       center: Point[_2D]): SimilarityTransformation[_2D] = {
+                                       center: Point[_2D]): RotationThenScalingThenTranslation[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, similarityFlag = true, center = center)
 
-    // as the computations above compute the soultion for the formula sRx + t, but we compute s(Rx + t), we need to divide the translation t by s
-    val rigidTransform =
-      RigidTransformation(Translation(EuclideanVector2D(t(0) / s, t(1) / s)), Rotation(phi, center))
-
-    val scalingTransform = Scaling2D(s)
-    SimilarityTransformation(scalingTransform, rigidTransform)
-  }
-
-  @deprecated("Calling similarity2DLandmarkRegistration without a center is deprecated. Please specify the center",
-              "0.15")
-  def similarity2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])]): SimilarityTransformation[_2D] = {
-    LandmarkRegistration.similarity2DLandmarkRegistration(landmarks, center = origin2D)
+    RotationThenScalingThenTranslation(
+      Rotation(phi, center),
+      Scaling2D(s),
+      Translation(EuclideanVector2D(t(0), t(1)))
+    )
   }
 
   def rotationMatrixToAngle2D(rotMat: DenseMatrix[Double]) = {

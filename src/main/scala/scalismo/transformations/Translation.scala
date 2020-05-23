@@ -1,11 +1,11 @@
 package scalismo.transformations
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import scalismo.common.{EuclideanSpace, Field, RealSpace}
-import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, NDSpace, Point, SquareMatrix}
+import scalismo.common.{Domain, EuclideanSpace, Field, RealSpace}
+import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, EuclideanVector1D, NDSpace, Point, SquareMatrix}
 import scalismo.transformations.ParametricTransformation.JacobianField
-import scalismo.transformations.{TransformationSpace}
-import scalismo.transformations.TransformationSpace.{ParameterVector}
+import scalismo.transformations.TransformationSpace
+import scalismo.transformations.TransformationSpace.ParameterVector
 
 /**
  * D-dimensional translation transform that is parametric, invertible and differentiable
@@ -14,8 +14,8 @@ import scalismo.transformations.TransformationSpace.{ParameterVector}
  */
 case class Translation[D: NDSpace](t: EuclideanVector[D])
     extends ParametricTransformation[D]
-    with CanInvert[D]
-    with CanDifferentiate[D] {
+    with CanInvert[D, Translation]
+    with CanDifferentiateWRTPosition[D] {
 
   override val f = (pt: Point[D]) => pt + t
 
@@ -23,14 +23,14 @@ case class Translation[D: NDSpace](t: EuclideanVector[D])
 
   override val numberOfParameters: Int = NDSpace[D].dimensionality
 
-  override def derivative: Point[D] => SquareMatrix[D] = (_: Point[D]) => SquareMatrix.eye[D]
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = (_: Point[D]) => SquareMatrix.eye[D]
 
   override def inverse: Translation[D] = new Translation(t * (-1f))
 
   /**parameters are the coordinates of the translation vector*/
   val parameters = t.toBreezeVector
 
-  override def jacobian: JacobianField[D] = {
+  override def derivativeWRTParameters: JacobianField[D] = {
     Field(domain, (x: Point[D]) => DenseMatrix.eye[Double](numberOfParameters))
 
   }
@@ -57,7 +57,7 @@ object Translation3D {
 /**
  * Parametric transformations space producing translation transforms
  */
-case class TranslationSpace[D: NDSpace]() extends TransformationSpaceWithDifferentiableTransforms[D] {
+class TranslationSpace[D: NDSpace]() extends TransformationSpaceWithDifferentiableTransforms[D] {
 
   override type T[D] = Translation[D]
   override val domain = EuclideanSpace[D]
@@ -73,14 +73,8 @@ case class TranslationSpace[D: NDSpace]() extends TransformationSpaceWithDiffere
 
 }
 
-object TranslationSpace1D {
-  def apply(): TranslationSpace[_1D] = TranslationSpace[_1D]()
-}
+object TranslationSpace1D extends TranslationSpace[_1D] {}
 
-object TranslationSpace2D {
-  def apply(): TranslationSpace[_2D] = TranslationSpace[_2D]()
-}
+object TranslationSpace2D extends TranslationSpace[_2D] {}
 
-object TranslationSpace3D {
-  def apply(): TranslationSpace[_3D] = TranslationSpace[_3D]()
-}
+object TranslationSpace3D extends TranslationSpace[_3D] {}

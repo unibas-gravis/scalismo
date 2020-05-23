@@ -170,7 +170,7 @@ import scala.reflect.ClassTag
 //    new DifferentiableScalarImage(multipliedField.domain, multipliedField.f, df)
 //  }
 //
-//  def compose(t: Transformation[D] with CanDifferentiate[D]): DifferentiableScalarImage[D, A] = {
+//  def compose(t: Transformation[D] with CanDifferentiateWRTPosition[D]): DifferentiableScalarImage[D, A] = {
 //    val composedField = super.compose(t)
 //    val df = (x: Point[D]) => t.takeDerivative(x) * this.df(t(x))
 //

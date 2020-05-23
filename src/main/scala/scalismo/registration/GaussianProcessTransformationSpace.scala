@@ -39,10 +39,10 @@ case class GaussianProcessTransformation[D](gp: LowRankGaussianProcess[D, Euclid
     x + newPointAsVector
   }
 
-  override def jacobian: JacobianField[D] = {
+  override def derivativeWRTParameters: JacobianField[D] = {
 
     /**
-     * The jacobian matrix of a sample, with respect to the given parameters.
+     * The derivativeWRTParameters matrix of a sample, with respect to the given parameters.
      * @return
      */
     val jacobian = (x: Point[D]) => {

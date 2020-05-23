@@ -96,7 +96,9 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
       val domain = Domain.intersection(fixedImage.domain, dMovingImageDomain)
       if (domain.isDefinedAt(x))
         Some(
-          transform.jacobian(x).t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector
+          transform
+            .derivativeWRTParameters(x)
+            .t * (movingImageGradient(transform(x)) * dDMovingImage(x).toDouble).toBreezeVector
         )
       else None
     }

@@ -22,7 +22,7 @@ import scalismo.geometry.IntVector.implicits._
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.EuclideanVector.implicits._
 import scalismo.geometry._
-import scalismo.registration.TranslationSpace
+import scalismo.transformations.{Translation1D, Translation2D}
 
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
@@ -60,7 +60,7 @@ class ImageTests extends ScalismoTestSuite {
       val image = DifferentiableField(BoxDomain(-4.0, 6.0),
                                       (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
                                       (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
-      val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(1.0))
+      val translationTransform = Translation1D(EuclideanVector1D(1.0))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4.0) === true)
       assert(composedImage.isDefinedAt(5.0) === true)
@@ -75,7 +75,7 @@ class ImageTests extends ScalismoTestSuite {
                                       (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
                                       (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
 
-      val translationTransform = TranslationSpace[_1D].transformForParameters(DenseVector(-1.0))
+      val translationTransform = Translation1D(EuclideanVector1D(-1.0))
 
       val warpedImage = image.compose(translationTransform)
 
@@ -96,7 +96,7 @@ class ImageTests extends ScalismoTestSuite {
 
       val cImg = Field(BoxDomain((0.0, 0.0), (1.0, 1.0)), (_: Point[_2D]) => 1f)
 
-      def t = TranslationSpace[_2D].transformForParameters(DenseVector(2.0, 2.0))
+      def t = Translation2D(EuclideanVector2D(2.0, 2.0))
       val warpedImg = cImg.compose(t)
 
       warpedImg.isDefinedAt((-0.5, -0.5)) should equal(false)

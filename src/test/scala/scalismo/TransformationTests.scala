@@ -88,44 +88,36 @@ class TransformationTests extends ScalismoTestSuite {
 
     describe("composed with a rotation") {
 
-      val ts = TranslationSpace2D()
+      val ts = TranslationSpace2D
       val center = Point(2.0, 3.5)
       val rs = RotationSpace2D(center)
 
-      val productSpace = ProductTransformationSpace(ts, rs)
-
-      it("can be composed with a rotation 2D") {
-        productSpace.numberOfParameters should equal(ts.numberOfParameters + rs.numberOfParameters)
-      }
-
-      val transParams = DenseVector[Double](1.0, 1.5)
-      val translate = ts.transformationForParameters(transParams)
+      val translation = Translation2D(EuclideanVector2D(1.0, 1.5))
 
       val phi = scala.math.Pi / 2
-      val rotationParams = DenseVector(phi)
-      val rotate = rs.transformationForParameters(rotationParams)
+      val rotation = Rotation2D(phi, center = Point2D(0, 0))
 
       val pt = Point(2.0f, 2.0f)
-      val rotatedPt = rotate(pt)
+      val rotatedPt = rotation(pt)
 
-      val translatedRotatedPt = translate(rotatedPt)
+      val translatedRotatedPt = translation(rotatedPt)
 
-      val productParams = DenseVector.vertcat(transParams, rotationParams)
-      val productTransform = productSpace.transformationForParameters(productParams)
-
+      val compositeTransformation = CompositeDifferentiableTransformation(translation, rotation)
       it("correctly transforms a point") {
-        productTransform(pt) should equal(translatedRotatedPt)
+
+        compositeTransformation(pt) should equal(translatedRotatedPt)
       }
 
       val productDerivative =
-        (x: Point[_2D]) => breeze.linalg.DenseMatrix.horzcat(translate.jacobian(x), rotate.jacobian(x))
+        (x: Point[_2D]) =>
+          breeze.linalg.DenseMatrix.horzcat(translation.derivativeWRTParameters(x), rotation.derivativeWRTParameters(x))
 
       it("differentiates correctly with regard to parameters") {
-        productTransform.jacobian(pt) should equal(productDerivative(pt))
+        compositeTransformation.derivativeWRTParameters(pt) should equal(productDerivative(pt))
       }
       it("correctly differentiates the parametrized transforms") {
-        productTransform.derivative(pt) should equal(
-          translate.derivative(rotate(pt)) * rotate.derivative(pt)
+        compositeTransformation.derivativeWRTPosition(pt) should equal(
+          translation.derivativeWRTPosition(rotation(pt)) * rotation.derivativeWRTPosition(pt)
         )
       }
 
@@ -152,8 +144,8 @@ class TransformationTests extends ScalismoTestSuite {
     it("translation forth and back of a real dataset yields the same image") {
 
       val parameterVector = DenseVector[Double](75.0, 50.0, 25.0)
-      val translation = TranslationSpace[_3D].transformationForParameters(parameterVector)
-      val inverseTransform = TranslationSpace[_3D].transformationForParameters(parameterVector).inverse
+      val translation = TranslationSpace3D.transformationForParameters(parameterVector)
+      val inverseTransform = TranslationSpace3D.transformationForParameters(parameterVector).inverse
       val translatedForthBackImg = continuousImage.compose(translation).compose(inverseTransform)
 
       for (p <- discreteImage.domain.pointSet.points.filter(translatedForthBackImg.isDefinedAt))
@@ -194,103 +186,32 @@ class TransformationTests extends ScalismoTestSuite {
           p(2) should be(mesh.pointSet.point(id)(2) +- 0.000001)
       }
     }
-
-    it("a rigid transformations yields the same result as the rigid transform composed of rotation and translation") {
-
-      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val translationParams = DenseVector(1.5, 1.0, 3.5)
-      val rotation =
-        RotationSpace3D(Point(0f, 0f, 0f))
-          .transformationForParameters(DenseVector(Math.PI, -Math.PI / 2.0, -Math.PI))
-      val translation = TranslationSpace[_3D].transformationForParameters(translationParams)
-
-      val rigid = RigidTransformationSpace3D(Point(0, 0, 0)).transformationForParameters(parameterVector)
-
-      val transformedRigid = mesh.transform(rigid)
-      val transformedComposed = mesh.transform(translation compose rotation)
-
-      val diffNormMax = transformedRigid.pointSet.points
-        .zip(transformedComposed.pointSet.points)
-        .map { case (p1, p2) => (p1 - p2).norm }
-        .max
-      assert(diffNormMax < 0.00001)
-
-    }
   }
 
-  describe("An anisotropic similarity transform") {
-
-    val translationParams = DenseVector(1.0, 2.0, 3.0)
-    val rotationParams = DenseVector(0.0, Math.PI / 2.0, Math.PI / 4.0)
-    val anisotropScalingParams = DenseVector(2.0, 3.0, 1.0)
-
-    val translation = TranslationSpace3D().transformationForParameters(translationParams)
-    val rotation = RotationSpace3D(Point(0, 0, 0)).transformationForParameters(rotationParams)
-    val anisotropicScaling = AnisotropicScalingSpace[_3D]().transformationForParameters(anisotropScalingParams)
-
-    val p = Point(1, 1, 1)
-    it("Anisotropic scaling is correctly invertible") {
-      val inverseScaling = anisotropicScaling.inverse
-      assert((inverseScaling(anisotropicScaling(p)) - p).norm < 0.1f)
-    }
-
-    val composedTrans = translation compose rotation compose anisotropicScaling
-    val combinedParams = DenseVector(translationParams.data ++ rotationParams.data ++ anisotropScalingParams.data)
-    val anisotropicSimTrans =
-      AnisotropicSimilarityTransformationSpace3D(Point(0, 0, 0)).transformationForParameters(combinedParams)
+  describe("A 2D rigid transform") {
 
     val rigidTransformation =
-      RigidTransformationSpace3D(Point(0, 0, 0))
-        .transformationForParameters(DenseVector(translationParams.data ++ rotationParams.data))
-
-    it("yields the right result as a composition of unit transform") {
-      assert((anisotropicSimTrans(p) - composedTrans(p)).norm < 0.1f)
-    }
-
-    it("yields the right result as a composition of anisotropic scaling and rigid transform") {
-      val composedTrans2 = rigidTransformation compose anisotropicScaling
-      assert((anisotropicSimTrans(p) - composedTrans2(p)).norm < 0.1f)
-    }
-
-    it("a rigid transformations is correctly invertible") {
-      val inverseRigid = rigidTransformation.inverse
-      assert((inverseRigid(rigidTransformation(p)) - p).norm < 0.1f)
-    }
-
-    it("Anisotropic similarity is correctly invertible") {
-      val inverseTrans = anisotropicSimTrans.inverse
-      val shouldBeP = inverseTrans(anisotropicSimTrans(p))
-      assert((shouldBeP - p).norm < 0.1f)
-    }
-
-  }
-
-  describe("A 2D similarity transform") {
-
-    val rigidTransformation =
-      RigidTransformation(Translation(EuclideanVector2D(2.0, 5.0)), Rotation(Math.PI / 2.0, Point2D(0, 0)))
-    val similarityTransform = SimilarityTransformation(Scaling2D(2.0), rigidTransformation)
+      RotationThenTranslation2D(Rotation(Math.PI / 2.0, Point2D(0, 0)), Translation(EuclideanVector2D(2.0, 5.0)))
 
     it("correctly transforms a 2D point") {
       val point = Point(1.0, 1.0)
-      val correctlyTransformedPoint = Point(2.0, 12.0)
-      (similarityTransform(point) - correctlyTransformedPoint).norm should be < 1e-5
+      val correctlyTransformedPoint = Point(1.0, 6.0)
+      (rigidTransformation(point) - correctlyTransformedPoint).norm should be < 1e-5
     }
 
   }
+  describe("A 2D similarity transform") {
 
-  describe("A 3D similarity transform") {
+    val similarityTransformation =
+      RotationThenScalingThenTranslation2D(Rotation(Math.PI / 2.0, Point2D(0, 0)),
+                                           Scaling(2.0),
+                                           Translation(EuclideanVector2D(2.0, 5.0)))
 
-    val rigidTransformation = RigidTransformation(Translation(EuclideanVector3D(2.0, 5.0, 1.0)),
-                                                  Rotation(Math.PI / 2.0, 0.0, 0.0, Point3D(0, 0, 0)))
-    val similarityTransform = SimilarityTransformation(Scaling3D(2.0), rigidTransformation)
-
-    it("correctly transforms a 3D point") {
-      val point = Point(1.0, 1.0, 1.0)
-      val correctlyTransformedPoint = Point(2.0, 12.0, 4.0)
-      (similarityTransform(point) - correctlyTransformedPoint).norm should be < 1e-5
+    it("correctly transforms a 2D point") {
+      val point = Point(1.0, 1.0)
+      val correctlyTransformedPoint = Point(0, 7.0)
+      (similarityTransformation(point) - correctlyTransformedPoint).norm should be < 1e-5
     }
 
   }
-
 }

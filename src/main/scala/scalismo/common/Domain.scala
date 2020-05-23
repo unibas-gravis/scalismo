@@ -22,7 +22,7 @@ trait Domain[D] {
   self =>
   def isDefinedAt(pt: Point[D]): Boolean
 
-  def warp(t: Transformation[D] with CanInvert[D]): Domain[D] = new Domain[D] {
+  def warp(t: Transformation[D] with CanInvert[D, Transformation]): Domain[D] = new Domain[D] {
     val tinv = t.inverse
 
     override def isDefinedAt(pt: Point[D]): Boolean = {

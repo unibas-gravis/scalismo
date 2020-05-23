@@ -19,7 +19,12 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common.{Domain, Field}
 import scalismo.geometry._
 import scalismo.transformations.TransformationSpace.{ParameterVector}
-import scalismo.transformations.{CanDifferentiate, CompositeTransformation, ParametricTransformation, Translation}
+import scalismo.transformations.{
+  CanDifferentiateWRTPosition,
+  CompositeTransformation,
+  ParametricTransformation,
+  Translation
+}
 import scalismo.utils.Memoize
 
 import scala.annotation._
@@ -52,14 +57,11 @@ trait TransformationSpace[D] {
   def identityTransformation: T[D]
 }
 
-trait TransformationSpaceWithDifferentiableTransforms[D] {
+trait TransformationSpaceWithDifferentiableTransforms[D] extends TransformationSpace[D] {
 
-  type T[D] <: ParametricTransformation[D] with CanDifferentiate[D]
+  type T[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D]
 
   def domain: Domain[D]
-
-  @deprecated("please use numberOfParameters instead", "v0.19")
-  def parametersDimensionality = numberOfParameters
 
   def numberOfParameters: Int
 

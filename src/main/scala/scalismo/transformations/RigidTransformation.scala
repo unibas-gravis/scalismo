@@ -14,113 +14,76 @@ import scalismo.geometry.{
   SquareMatrix
 }
 import scalismo.transformations.ParametricTransformation.JacobianField
-import scalismo.transformations.RigidTransformation.ApplicationOrder
-import scalismo.transformations.RigidTransformation.ApplicationOrder.ApplicationOrder
-import scalismo.transformations.TransformationSpace.ParameterVector
 
 /**
  * Trait for D-dimensional rigid transform, that is a composition of rotation and translation transform.
  * Instances of this trait exist only for [[_2D]] and [[_3D]] as [[Rotation]] is not defined for [[_1D]]
  */
-case class RigidTransformation[D](translation: Translation[D], rotation: Rotation[D], isInverse: Boolean = false)
-    extends ParametricTransformation[D]
-    with CanDifferentiate[D]
-    with CanInvert[D] {
+trait RigidTransformation[D]
+    extends SimilarityTransformation[D]
+    with CanDifferentiateWRTPosition[D]
+    with CanInvert[D, RigidTransformation] {}
 
-  override val domain: Domain[D] = EuclideanSpace[D]
+case class RotationThenTranslation[D](rotation: Rotation[D], translation: Translation[D])
+    extends RigidTransformation[D] {
 
-  private val compositeTransformation = if (!isInverse) {
-    CompositeTransformation(translation, rotation)
-  } else {
-    CompositeTransformation(rotation, translation)
-  }
+  private val compTrans = CompositeDifferentiableTransformation(translation, rotation)
 
-  override def parameters = compositeTransformation.parameters
+  override def inverse = TranslationThenRotation(translation.inverse, rotation.inverse)
 
-  override def numberOfParameters: Int = compositeTransformation.numberOfParameters
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = compTrans.derivativeWRTPosition
 
-  override def inverse: RigidTransformation[D] = {
-    RigidTransformation(translation.inverse, rotation.inverse, !isInverse)
-  }
+  override def parameters: DenseVector[Double] = compTrans.parameters
 
-  /** Derivative of the transform evaluated at a point */
-  override def derivative: Point[D] => SquareMatrix[D] = compositeTransformation.derivative
+  override def numberOfParameters: Int = compTrans.numberOfParameters
 
-  override def f: Point[D] => Point[D] = compositeTransformation.f
+  override def derivativeWRTParameters: JacobianField[D] = compTrans.derivativeWRTParameters
 
-  override def jacobian: JacobianField[D] = compositeTransformation.jacobian
+  override def domain: Domain[D] = rotation.domain
+
+  override def f: Point[D] => Point[D] = compTrans.f
 }
 
-object RigidTransformation {
-  object ApplicationOrder extends Enumeration {
-    type ApplicationOrder = Value
-    val ApplyRotationFirst, ApplyTranslationFirst = Value
+object RotationThenTranslation2D {
+  def apply(rotation: Rotation[_2D], translation: Translation[_2D]): RotationThenTranslation[_2D] = {
+    RotationThenTranslation(rotation, translation)
   }
 }
 
-object RigidTransformation1D {
-  def apply(translation: Translation[_1D]): RigidTransformation[_1D] = {
-    RigidTransformation1D(translation, isInverse = true)
+object RotationThenTranslation3D {
+  def apply(rotation: Rotation[_3D], translation: Translation[_3D]): RotationThenTranslation[_3D] = {
+    RotationThenTranslation(rotation, translation)
   }
 }
 
-object RigidTransformation2D {
-  def apply(translation: Translation[_2D], rotation: Rotation[_2D]): RigidTransformation[_2D] = {
-    RigidTransformation(translation, rotation, isInverse = true)
+case class TranslationThenRotation[D](translation: Translation[D], rotation: Rotation[D])
+    extends RigidTransformation[D] {
+
+  private val compTrans = CompositeDifferentiableTransformation(rotation, translation)
+
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = compTrans.derivativeWRTPosition
+
+  override def parameters: DenseVector[Double] = compTrans.parameters
+
+  override def numberOfParameters: Int = compTrans.numberOfParameters
+
+  override def derivativeWRTParameters: JacobianField[D] = compTrans.derivativeWRTParameters
+
+  override def domain: Domain[D] = rotation.domain
+
+  override def f: Point[D] => Point[D] = compTrans.f
+
+  override def inverse = RotationThenTranslation(rotation.inverse, translation.inverse)
+}
+
+object TranslationThenRotation2D {
+  def apply(translation: Translation[_2D], rotation: Rotation[_2D]): TranslationThenRotation[_2D] = {
+    TranslationThenRotation(translation, rotation)
   }
 }
 
-object RigidTransformation3D {
-  def apply(translation: Translation[_3D], rotation: Rotation[_3D]): RigidTransformation[_3D] = {
-    RigidTransformation(translation, rotation, isInverse = false)
+object TranslationThenRotation3D {
+  def apply(translation: Translation[_3D], rotation: Rotation[_3D]): TranslationThenRotation[_3D] = {
+    TranslationThenRotation(translation, rotation)
   }
-}
-
-/**
- * Parametric transformations space producing rigid transforms.
- */
-trait RigidTransformationSpace[D] extends TransformationSpaceWithDifferentiableTransforms[D] {
-
-  def translationSpace: TranslationSpace[D]
-  def rotationSpace: RotationSpace[D]
-
-  override type T[D] = RigidTransformation[D]
-
-  override def transformationForParameters(p: ParameterVector) = {
-    val tparams = p(0 until translationSpace.numberOfParameters)
-    val rparams = p(translationSpace.numberOfParameters until p.length)
-    RigidTransformation(translationSpace.transformationForParameters(tparams),
-                        rotationSpace.transformationForParameters(rparams))
-  }
-
-  override val domain = rotationSpace.domain
-  override val numberOfParameters = translationSpace.numberOfParameters + rotationSpace.numberOfParameters
-
-}
-
-case class RigidTransformationSpace1D(rotationCenter: Point[_1D]) extends RigidTransformationSpace[_1D] {
-  val rotationSpace = RotationSpace1D(rotationCenter)
-  val translationSpace = TranslationSpace1D()
-
-  /** returns identity transformation) */
-  override def identityTransformation: RigidTransformation[_1D] =
-    RigidTransformation1D(Translation1D(EuclideanVector1D(0)), Rotation1D(0, rotationCenter))
-}
-
-case class RigidTransformationSpace1D(rotationCenter: Point[_1D]) extends RigidTransformationSpace[_1D] {
-  val rotationSpace = RotationSpace1D(rotationCenter)
-  val translationSpace = TranslationSpace1D()
-
-  /** returns identity transformation) */
-  override def identityTransformation: RigidTransformation[_1D] =
-    RigidTransformation1D(Translation1D(EuclideanVector1D(0)), Rotation1D(0, rotationCenter))
-}
-
-case class RigidTransformationSpace3D(rotationCenter: Point[_3D]) extends RigidTransformationSpace[_3D] {
-  val rotationSpace = RotationSpace3D(rotationCenter)
-  val translationSpace = TranslationSpace3D()
-
-  /** returns identity transformation) */
-  override def identityTransformation: RigidTransformation[_3D] =
-    RigidTransformation3D(Translation3D(EuclideanVector3D(0, 0, 0)), Rotation3D(0, 0, 0, rotationCenter))
 }

@@ -16,7 +16,7 @@
 package scalismo.common
 
 import scalismo.geometry._
-import scalismo.transformations.{CanDifferentiate, Transformation}
+import scalismo.transformations.{CanDifferentiateWRTPosition, Transformation}
 
 import scala.reflect.ClassTag
 
@@ -134,11 +134,11 @@ trait DifferentiableField[D, A] extends Field[D, A] { self =>
     Field(domain, df)
   }
 
-  def compose(t: Transformation[D] with CanDifferentiate[D]): DifferentiableField[D, A] = {
+  def compose(t: Transformation[D] with CanDifferentiateWRTPosition[D]): DifferentiableField[D, A] = {
     def f(x: Point[D]) = this.f(t(x))
     val newDomain = Domain.fromPredicate[D]((pt: Point[D]) => this.isDefinedAt(t(pt)))
     val df = (x: Point[D]) => {
-      val dtx = t.derivative(x)
+      val dtx = t.derivativeWRTPosition(x)
       val dftx: EuclideanVector[D] = this.df(t(x))
       dtx * dftx
     }

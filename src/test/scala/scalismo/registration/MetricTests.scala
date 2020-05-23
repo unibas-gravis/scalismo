@@ -27,7 +27,7 @@ import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, StructuredPoints}
 import scalismo.io.ImageIO
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
-import scalismo.transformations.TranslationSpace
+import scalismo.transformations.{TranslationSpace, TranslationSpace1D, TranslationSpace2D}
 import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
@@ -41,7 +41,7 @@ class MetricTests extends ScalismoTestSuite {
       val img = DifferentiableField(BoxDomain(0.0, 1.0),
                                     (x: Point[_1D]) => (x * x).toFloat,
                                     (x: Point[_1D]) => EuclideanVector(2.0) * x(0))
-      val transSpace = TranslationSpace[_1D]
+      val transSpace = TranslationSpace1D
       val sampler = UniformSampler(domain, 1000)
       MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformation.parameters) should be(
         0.0 +- 0.001
@@ -54,7 +54,7 @@ class MetricTests extends ScalismoTestSuite {
 
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
-    val translationSpace = TranslationSpace[_2D]
+    val translationSpace = TranslationSpace2D
     val sampler = GridSampler(DiscreteImageDomain2D(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
     it("has the global minimum where the images are similar") {
@@ -102,7 +102,7 @@ class MetricTests extends ScalismoTestSuite {
 
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
-    val translationSpace = TranslationSpace[_2D]
+    val translationSpace = TranslationSpace2D
     val sampler = GridSampler(DiscreteImageDomain2D(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
     it("has the global minimum where the images are similar") {

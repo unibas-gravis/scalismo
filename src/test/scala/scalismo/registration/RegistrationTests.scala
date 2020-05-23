@@ -21,19 +21,28 @@ import java.net.URLDecoder
 import breeze.linalg.DenseVector
 import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator2D, BSplineImageInterpolator3D}
 import scalismo.{numerics, ScalismoTestSuite}
-import scalismo.common.{Field, NearestNeighborInterpolator, PointId, RealSpace}
+import scalismo.common.{EuclideanSpace2D, Field, NearestNeighborInterpolator, PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.io.{ImageIO, MeshIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
 import scalismo.transformations.{
   ProductTransformationSpace,
   RigidTransformation,
-  RigidTransformationSpace,
-  RotationSpace,
-  ScalingSpace,
-  TranslationSpace
+  Rotation2D,
+  Rotation3D,
+  RotationSpace2D,
+  RotationThenScalingThenTranslation2D,
+  RotationThenScalingThenTranslation3D,
+  RotationThenTranslation2D,
+  RotationThenTranslation3D,
+  Scaling2D,
+  Scaling3D,
+  Translation2D,
+  Translation3D,
+  TranslationSpace2D,
+  TranslationSpace3D
 }
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
@@ -52,14 +61,12 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
-        val rotationParams = DenseVector[Double](-angle)
-        val transParams = DenseVector[Double](1.0, 1.5)
-        val productParams = DenseVector.vertcat(transParams, rotationParams)
-
-        val productSpace = RigidTransformationSpace[_2D](c)
+        val rotation = Rotation2D(-angle, Point2D(0, 0))
+        val translation = Translation2D(EuclideanVector2D(1.0, 1.5))
+        val compositeTransformation = RotationThenTranslation2D(rotation, translation)
 
         val transformedPoints =
-          points.map((pt: Point[_2D]) => productSpace.transformationForParameters(productParams)(pt))
+          points.map((pt: Point[_2D]) => compositeTransformation(pt))
 
         val regResult =
           LandmarkRegistration.rigid2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
@@ -81,8 +88,9 @@ class RegistrationTests extends ScalismoTestSuite {
     val path = getClass.getResource("/facemesh.stl").getPath
     val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
-    val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-    val trans = RigidTransformationSpace[_3D]().transformationForParameters(parameterVector)
+    val translation = Translation3D(EuclideanVector3D(1.5, 1.0, 3.5))
+    val rotation = Rotation3D(Math.PI, -Math.PI / 2.0, -Math.PI, center = Point3D(0, 0, 0))
+    val trans = RotationThenTranslation3D(rotation, translation)
 
     val rigidTransformed = mesh transform trans
 
@@ -104,7 +112,7 @@ class RegistrationTests extends ScalismoTestSuite {
     }
 
     it("Rigid Transformation forth and back of a mesh gives the same points") {
-      val inverseTrans = regResult.asInstanceOf[RigidTransformation[_3D]].inverse
+      val inverseTrans = regResult.inverse
       val transformed = mesh.transform(regResult).transform(inverseTrans)
 
       for ((p, i) <- transformed.pointSet.points.zipWithIndex) {
@@ -140,17 +148,16 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val c = Point(1.0, 4 / 3.0)
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
-        val rotationParams = DenseVector[Double](-angle)
-        val transParams = DenseVector[Double](1.0, 1.5)
+        val rotation = Rotation2D(-angle, c)
+        val translation = Translation2D(EuclideanVector2D(1.0, 1.5))
 
-        val scalingFactor = scala.util.Random.nextDouble()
-        val productParams =
-          DenseVector.vertcat(DenseVector.vertcat(transParams, rotationParams), DenseVector(scalingFactor))
+        val scalingFactor = 2.0 //scala.util.Random.nextDouble()
 
-        val productSpace = RigidTransformationSpace[_2D](c).product(ScalingSpace[_2D])
+        val similarityTransformation =
+          RotationThenScalingThenTranslation2D(rotation, Scaling2D(scalingFactor), translation)
 
         val transformedPoints =
-          points.map((pt: Point[_2D]) => productSpace.transformationForParameters(productParams)(pt))
+          points.map((pt: Point[_2D]) => similarityTransformation(pt))
 
         val regResult =
           LandmarkRegistration.similarity2DLandmarkRegistration(points.zip(transformedPoints), center = Point2D(0, 0))
@@ -172,9 +179,10 @@ class RegistrationTests extends ScalismoTestSuite {
       val path = getClass.getResource("/facemesh.stl").getPath
       val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
-      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI, 2.0)
-      val trans =
-        RigidTransformationSpace[_3D]().product(ScalingSpace[_3D]).transformationForParameters(parameterVector)
+      val translation = Translation3D(EuclideanVector3D(1.5, 1.0, 3.5))
+      val rotation = Rotation3D(Math.PI, -Math.PI / 2.0, -Math.PI, Point3D(0, 0, 0))
+      val scaling = Scaling3D(2.0)
+      val trans = RotationThenScalingThenTranslation3D(translation, scaling, rotation)
 
       val translatedRotatedScaled = mesh transform trans
 
@@ -201,7 +209,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val discreteFixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
       val fixedImage = discreteFixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](2))
-      val transformationSpace = TranslationSpace[_2D]
+      val transformationSpace = TranslationSpace2D
       val translationParams = DenseVector[Double](-10.0, 5.0)
       val translationTransform = transformationSpace.transformationForParameters(translationParams)
       val transformedLena = fixedImage compose translationTransform
@@ -227,7 +235,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val fixedImage = discreteFixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
       val domain = discreteFixedImage.domain
       val center = ((domain.boundingBox.oppositeCorner - domain.origin) * 0.5).toPoint
-      val transformationSpace = RotationSpace[_2D](center)
+      val transformationSpace = RotationSpace2D(center)
       val rotationParams = DenseVector[Double](math.Pi / 8.0)
       val transform = transformationSpace.transformationForParameters(rotationParams)
       val transformedLena = fixedImage compose transform
@@ -321,13 +329,17 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val gp = GaussianProcess(Field(RealSpace[_2D], (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
+      val gp = GaussianProcess(Field(EuclideanSpace2D, (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
                                DiagonalKernel(GaussianKernel[_2D](20.0) * 50.0, 2))
       val lowRankGp =
         LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator()).truncate(5)
-      val translationSpace = TranslationSpace[_2D]
-      val gpTransformationSpace = GaussianProcessTransformationSpace(lowRankGp)
-      val transformationSpace = ProductTransformationSpace(translationSpace, gpTransformationSpace)
+      val translationSpace = TranslationSpace2D
+      val gpTransformationSpace = GaussianProcessTransformationSpace2D(lowRankGp)
+      val transformationSpace =
+        ProductTransformationSpace(
+          translationSpace,
+          gpTransformationSpace
+        )
       val gtParams = DenseVector.vertcat(DenseVector.ones[Double](translationSpace.numberOfParameters) * 10.0,
                                          DenseVector.ones[Double](gpTransformationSpace.numberOfParameters) * 1.0)
       val groundTruthTransform = transformationSpace.transformationForParameters(gtParams)
@@ -360,13 +372,13 @@ class RegistrationTests extends ScalismoTestSuite {
     val discreteFixedImage = ImageIO.read3DScalarImage[Float](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
     val fixedImage = discreteFixedImage.interpolateDifferentiable(BSplineImageInterpolator3D[Float](3))
 
-    val transformationSpace = TranslationSpace[_3D]
+    val transformationSpace = TranslationSpace3D
     val domain = discreteFixedImage.domain
 
     it("Recovers the correct parameters for a translation transform") {
 
       val translationParams = DenseVector[Double](-10.0, 0.0, 0.0)
-      val translationTransform = TranslationSpace[_3D].transformationForParameters(translationParams)
+      val translationTransform = TranslationSpace3D.transformationForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
       val metricSampler = GridSampler(DiscreteImageDomain3D(domain.boundingBox, IntVector(20, 20, 20)))

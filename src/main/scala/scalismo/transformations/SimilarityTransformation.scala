@@ -3,229 +3,150 @@ package scalismo.transformations
 import breeze.linalg.DenseVector
 import scalismo.common.{Domain, EuclideanSpace}
 import scalismo.geometry.{_1D, _2D, _3D, NDSpace, Point, SquareMatrix}
+import scalismo.transformations
 import scalismo.transformations.ParametricTransformation.JacobianField
 import scalismo.transformations.TransformationSpace.ParameterVector
 
-case class SimilarityTransformation[D](scaling: Scaling[D],
-                                       rigidTranform: RigidTransformation[D],
-                                       isInverse: Boolean = false)
+trait SimilarityTransformation[D]
     extends ParametricTransformation[D]
-    with CanDifferentiate[D]
-    with CanInvert[D] {
+    with CanDifferentiateWRTPosition[D]
+    with CanInvert[D, SimilarityTransformation]
 
-  override val domain: Domain[D] = EuclideanSpace[D]
+case class RotationThenScaling[D](rotation: Rotation[D], scaling: Scaling[D]) extends SimilarityTransformation[D] {
 
-  private val compositeTransformation = if (!isInverse) {
-    CompositeTransformation(scaling, rigidTranform)
-  } else {
-    CompositeTransformation(rigidTranform, scaling)
-  }
+  private val compTrans = CompositeDifferentiableTransformation(scaling, rotation)
 
-  override val numberOfParameters = compositeTransformation.numberOfParameters
-  override val parameters = compositeTransformation.parameters
-  override val jacobian = compositeTransformation.jacobian
+  override def inverse = new ScalingThenRotation(scaling.inverse, rotation.inverse)
 
-  override def inverse: SimilarityTransformation[D] = {
-    SimilarityTransformation(scaling.inverse, rigidTranform.inverse, !isInverse)
-  }
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = compTrans.derivativeWRTPosition
 
-  /** Derivative of the transform evaluated at a point */
-  override def derivative: Point[D] => SquareMatrix[D] = compositeTransformation.derivative
-  override def f: Point[D] => Point[D] = compositeTransformation.f
+  override def parameters: DenseVector[Double] = compTrans.parameters
+
+  override def numberOfParameters: Int = compTrans.numberOfParameters
+
+  override def derivativeWRTParameters: JacobianField[D] = compTrans.derivativeWRTParameters
+
+  override def domain: Domain[D] = rotation.domain
+
+  override def f: Point[D] => Point[D] = compTrans.f
 }
 
-object SimilarityTransformation3D {
-  def apply(scaling: Scaling[_3D], rigidTransformation: RigidTransformation[_3D]): SimilarityTransformation[_3D] = {
-    SimilarityTransformation(scaling, rigidTransformation, false)
-  }
-}
-
-object SimilarityTransformation2D {
-  def apply(scaling: Scaling[_2D], rigidTransformation: RigidTransformation[_2D]): SimilarityTransformation[_2D] = {
-    SimilarityTransformation(scaling, rigidTransformation, false)
+object RotationThenScaling2D {
+  def apply(rotation: Rotation[_2D], scaling: Scaling[_2D]): RotationThenScaling[_2D] = {
+    RotationThenScaling(rotation, scaling)
   }
 }
 
-trait SimilarityTransformationSpace[D] extends TransformationSpace[D] {
-
-  def scalingSpace: ScalingSpace[D]
-  def rigidTransformationSpace: RigidTransformationSpace[D]
-
-  override type T[D] = SimilarityTransformation[D]
-
-  override def transformationForParameters(p: ParameterVector): SimilarityTransformation[D] = {
-    val tparams = p(0 until scalingSpace.numberOfParameters)
-    val rparams = p(rigidTransformationSpace.numberOfParameters until p.length)
-    SimilarityTransformation(scalingSpace.transformationForParameters(tparams),
-                             rigidTransformationSpace.transformationForParameters(rparams))
-  }
-
-  override val domain = rigidTransformationSpace.domain
-  override val numberOfParameters = scalingSpace.numberOfParameters + rigidTransformationSpace.numberOfParameters
-
-}
-
-/**
- * Trait for D-dimensional anisotropic similarity transform that is a combination of a rigid transform and anisotropic scaling.
- *
- * There are different possibilities to define such a similarity transform. Either we first do a rigid transform and then scaling,
- * or vice versa. We support only one way where we scale first, then transform rigidly.
- *
- * The order of the rigid transform in this case is also fixed : first rotate then translate.
- *
- */
-trait AnisotropicSimilarityTransformation[D]
-    extends ParametricTransformation[D]
-    with CanDifferentiate[D]
-    with CanInvert[D] {
-
-  override def inverse: AnisotropicSimilarityTransformation[D]
-}
-
-private case class RigidTransformationThenAnisotropicScaling[D: NDSpace](
-  anisotropicScaling: AnisotropicScalingTransformation[D],
-  rigidTransform: RigidTransformation[D]
-) extends AnisotropicSimilarityTransformation[D] {
-
-  private val compositeTranform = CompositeTransformation(anisotropicScaling, rigidTransform)
-
-  override def inverse: AnisotropicSimilarityTransformation[D] =
-    new AnisotropicScalingThenRigidTransformation[D](rigidTransform.inverse, anisotropicScaling.inverse)
-
-  override def numberOfParameters: Int = compositeTranform.numberOfParameters
-
-  /** Derivative of the transform evaluated at a point */
-  override def derivative: Point[D] => SquareMatrix[D] = compositeTranform.derivative
-
-  override def parameters: DenseVector[Double] = compositeTranform.parameters
-
-  override def jacobian: JacobianField[D] = compositeTranform.jacobian
-
-  override def domain: Domain[D] = compositeTranform.domain
-
-  override def f: Point[D] => Point[D] = compositeTranform.f
-}
-
-private case class AnisotropicScalingThenRigidTransformation[D: NDSpace](
-  rigidTransform: RigidTransformation[D],
-  anisotropicScaling: AnisotropicScalingTransformation[D]
-) extends AnisotropicSimilarityTransformation[D] {
-
-  private val compositeTranform = CompositeTransformation(anisotropicScaling, rigidTransform)
-
-  override def inverse: AnisotropicSimilarityTransformation[D] =
-    new RigidTransformationThenAnisotropicScaling[D](anisotropicScaling.inverse, rigidTransform.inverse)
-
-  /** Derivative of the transform evaluated at a point */
-  override def derivative: Point[D] => SquareMatrix[D] = compositeTranform.derivative
-
-  override def parameters: DenseVector[Double] = compositeTranform.parameters
-
-  override def numberOfParameters: Int = compositeTranform.numberOfParameters
-
-  override def jacobian: JacobianField[D] = compositeTranform.jacobian
-
-  override def domain: Domain[D] = compositeTranform.domain
-
-  override def f: Point[D] => Point[D] = compositeTranform.f
-}
-
-object AnisotropicSimilarityTransformation1D {
-  def apply(scaling: AnisotropicScalingTransformation[_1D],
-            rigidTransformation: RigidTransformation[_1D]): AnisotropicSimilarityTransformation[_1D] = {
-    RigidTransformationThenAnisotropicScaling(scaling, rigidTransformation)
+object RotationThenScaling3D {
+  def apply(rotation: Rotation[_3D], scaling: Scaling[_3D]): RotationThenScaling[_3D] = {
+    RotationThenScaling(rotation, scaling)
   }
 }
 
-object AnisotropicSimilarityTransformation2D {
-  def apply(scaling: AnisotropicScalingTransformation[_2D],
-            rigidTransformation: RigidTransformation[_2D]): AnisotropicSimilarityTransformation[_2D] = {
-    RigidTransformationThenAnisotropicScaling(scaling, rigidTransformation)
+case class ScalingThenRotation[D](scaling: Scaling[D], rotation: Rotation[D]) extends SimilarityTransformation[D] {
+
+  private val compTrans = CompositeDifferentiableTransformation(rotation, scaling)
+
+  override def inverse = RotationThenScaling[D](rotation.inverse, scaling.inverse)
+
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = compTrans.derivativeWRTPosition
+
+  override def parameters: DenseVector[Double] = compTrans.parameters
+
+  override def numberOfParameters: Int = compTrans.numberOfParameters
+
+  override def derivativeWRTParameters: JacobianField[D] = compTrans.derivativeWRTParameters
+
+  override def domain: Domain[D] = rotation.domain
+
+  override def f: Point[D] => Point[D] = compTrans.f
+}
+
+object ScalingThenRotation2D {
+  def apply(scaling: Scaling[_2D], rotation: Rotation[_2D]): ScalingThenRotation[_2D] = {
+    ScalingThenRotation(scaling, rotation)
   }
 }
 
-object AnisotropicSimilarityTransformation3D {
-  def apply(scaling: AnisotropicScalingTransformation[_3D],
-            rigidTransformation: RigidTransformation[_3D]): AnisotropicSimilarityTransformation[_3D] = {
-    RigidTransformationThenAnisotropicScaling(scaling, rigidTransformation)
+object ScalingThenRotation3D {
+  def apply(scaling: Scaling[_3D], rotation: Rotation[_3D]): ScalingThenRotation[_3D] = {
+    ScalingThenRotation(scaling, rotation)
   }
 }
 
-/**
- * Parametric transformations space producing anisotropic similarity transforms.
- *
- * @constructor Returns a parametric space generating anisotropic similarity transforms
- * @param center : center of rotation used in the rigid transform
- */
-trait AnisotropicSimilarityTransformationSpace[D] extends TransformationSpaceWithDifferentiableTransforms[D] {
-  def center: Point[D]
-}
+case class RotationThenScalingThenTranslation[D](rotation: Rotation[D],
+                                                 scaling: Scaling[D],
+                                                 translation: Translation[D])
+    extends SimilarityTransformation[D] {
 
-case class AnisotropicSimilarityTransformationSpace1D(center: Point[_1D])
-    extends AnisotropicSimilarityTransformationSpace[_1D] {
+  val compTrans = CompositeDifferentiableTransformation(translation, RotationThenScaling(rotation, scaling))
 
-  override type T[_1D] = AnisotropicSimilarityTransformation[_1D]
-  private val productSpace = ProductTransformationSpace(AnisotropicScalingSpace3D(), RigidTransformationSpace3D(center))
+  override def inverse = TranslationThenScalingThenRotation[D](translation.inverse, scaling.inverse, rotation.inverse)
 
-  override def domain: Domain[_1D] = productSpace.domain
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = compTrans.derivativeWRTPosition
 
-  override def numberOfParameters: Int = productSpace.numberOfParameters
+  override def parameters: DenseVector[Double] = compTrans.parameters
 
-  override def transformationForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[_1D] = {
-    val ct = productSpace.transformationForParameters(p)
-    AnisotropicSimilarityTransformation1D(ct.outerTransform, ct.innerTransform)
-  }
+  override def numberOfParameters: Int = compTrans.numberOfParameters
 
-  /** returns identity transformation) */
-  override def identityTransformation: AnisotropicSimilarityTransformation[_1D] = {
-    AnisotropicSimilarityTransformation1D(AnisotropicScalingSpace3D().identityTransformation,
-                                          RigidTransformationSpace3D(center).identityTransformation)
-  }
+  override def derivativeWRTParameters: JacobianField[D] = compTrans.derivativeWRTParameters
+
+  override def domain: Domain[D] = rotation.domain
+
+  override def f: Point[D] => Point[D] = compTrans.f
 
 }
-
-case class AnisotropicSimilarityTranformationSpace2D(center: Point[_2D])
-    extends AnisotropicSimilarityTransformationSpace[_2D] {
-
-  override type T[_2D] = AnisotropicSimilarityTransformation[_2D]
-  private val productSpace = ProductTransformationSpace(AnisotropicScalingSpace2D(), RigidTransformationSpace2D(center))
-
-  override def domain: Domain[_2D] = productSpace.domain
-
-  override def numberOfParameters: Int = productSpace.numberOfParameters
-
-  override def transformationForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[_2D] = {
-    val ct = productSpace.transformationForParameters(p)
-    AnisotropicSimilarityTransformation2D(ct.outerTransform, ct.innerTransform)
+object RotationThenScalingThenTranslation2D {
+  def apply(rotation: Rotation[_2D],
+            scaling: Scaling[_2D],
+            translation: Translation[_2D]): RotationThenScalingThenTranslation[_2D] = {
+    RotationThenScalingThenTranslation(rotation, scaling, translation)
   }
+}
 
-  /** returns identity transformation) */
-  override def identityTransformation: AnisotropicSimilarityTransformation[_2D] = {
-    AnisotropicSimilarityTransformation2D(AnisotropicScalingSpace2D().identityTransformation,
-                                          RigidTransformationSpace2D(center).identityTransformation)
+object RotationThenScalingThenTranslation3D {
+  def apply(translation: Translation[_3D],
+            scaling: Scaling[_3D],
+            rotation: Rotation[_3D]): RotationThenScalingThenTranslation[_3D] = {
+    RotationThenScalingThenTranslation(rotation, scaling, translation)
   }
+}
+
+case class TranslationThenScalingThenRotation[D](translation: Translation[D],
+                                                 scaling: Scaling[D],
+                                                 rotation: Rotation[D])
+    extends SimilarityTransformation[D] {
+
+  val compTrans = CompositeDifferentiableTransformation(ScalingThenRotation(scaling, rotation), translation)
+
+  override def inverse = RotationThenScalingThenTranslation[D](rotation.inverse, scaling.inverse, translation.inverse)
+
+  override def derivativeWRTPosition: Point[D] => SquareMatrix[D] = compTrans.derivativeWRTPosition
+
+  override def parameters: DenseVector[Double] = compTrans.parameters
+
+  override def numberOfParameters: Int = compTrans.numberOfParameters
+
+  override def derivativeWRTParameters: JacobianField[D] = compTrans.derivativeWRTParameters
+
+  override def domain: Domain[D] = rotation.domain
+
+  override def f: Point[D] => Point[D] = compTrans.f
 
 }
 
-case class AnisotropicSimilarityTranformationSpace3D(center: Point[_3D])
-    extends AnisotropicSimilarityTransformationSpace[_3D] {
-
-  override type T[_3D] = AnisotropicSimilarityTransformation[_3D]
-  private val productSpace = ProductTransformationSpace(AnisotropicScalingSpace3D(), RigidTransformationSpace3D(center))
-
-  override def domain: Domain[_3D] = productSpace.domain
-
-  override def numberOfParameters: Int = productSpace.numberOfParameters
-
-  override def transformationForParameters(p: ParameterVector): AnisotropicSimilarityTransformation[_3D] = {
-    val ct = productSpace.transformationForParameters(p)
-    AnisotropicSimilarityTransformation3D(ct.outerTransform, ct.innerTransform)
+object TranslationThenScalingThenRotation2D {
+  def apply(translation: Translation[_2D],
+            scaling: Scaling[_2D],
+            rotation: Rotation[_2D]): TranslationThenScalingThenRotation[_2D] = {
+    TranslationThenScalingThenRotation(translation, scaling, rotation)
   }
+}
 
-  /** returns identity transformation) */
-  override def identityTransformation: AnisotropicSimilarityTransformation[_3D] = {
-    AnisotropicSimilarityTransformation3D(AnisotropicScalingSpace3D().identityTransformation,
-                                          RigidTransformationSpace3D(center).identityTransformation)
+object TranslationThenScalingThenRotation3D {
+  def apply(translation: Translation[_3D],
+            scaling: Scaling[_3D],
+            rotation: Rotation[_3D]): TranslationThenScalingThenRotation[_3D] = {
+    TranslationThenScalingThenRotation(translation, scaling, rotation)
   }
-
 }

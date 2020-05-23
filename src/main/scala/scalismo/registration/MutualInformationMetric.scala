@@ -192,7 +192,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
 
             if (Math.abs(termTestSpline) > 1e-10) {
               val termTestDerivative: DenseVector[Double] = -movingImage.differentiate(transformedPoint).toBreezeVector
-              val termTransSpace: JacobianField[D] = transform.jacobian
+              val termTransSpace: JacobianField[D] = transform.derivativeWRTParameters
               termTransSpace(point).t * termTestDerivative * termRefSpline * termTestSpline
             } else {
               zeroVec

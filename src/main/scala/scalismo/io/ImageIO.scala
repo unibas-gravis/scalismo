@@ -23,6 +23,7 @@ import scalismo.common.{RealSpace, Scalar}
 import scalismo.geometry._
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints, StructuredPoints3D}
 import scalismo.registration._
+import scalismo.transformations.{RotationSpace3D, Transformation}
 import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
 import spire.math.{UByte, UInt, UShort}
 import vtk._
@@ -386,9 +387,7 @@ object ImageIO {
 
       val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toDouble
 
-      val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
-
-      val anisotropicScaling = new AnisotropicScalingSpace[_3D].transformForParameters(spacing)
+      val spacing = EuclideanVector3D(s(1), s(2), s(3) * mirrorScale)
 
       /* get a rigid registration by mapping a few points */
       val origPs = List(Point(0, 0, nz),
@@ -398,16 +397,19 @@ object ImageIO {
                         Point(nx, 0, nz),
                         Point(nx, ny, 0),
                         Point(nx, ny, nz))
-      val scaledPS = origPs.map(anisotropicScaling)
+
+      val scaledPS = origPs.map(p => Point(p(0) * spacing(0), p(1) * spacing(1), p(2) * spacing(2)))
       val imgPs = origPs.map(transVoxelToWorld)
 
-      val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point(0, 0, 0))
-      val orig = rigidReg(Point3D(0, 0, 0))
+      val rigidReg =
+        LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point3D(0, 0, 0))
+      val origin = rigidReg(Point3D(0, 0, 0))
 
-      val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0))
-        .transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
+      val testDomain = StructuredPoints3D(origin, spacing, IntVector(nx, ny, nz))
 
-      val rotationResiduals = rigidReg.parameters(3 to 5).toArray.map { a =>
+      val transform = testDomain.indexToPhysicalCoordinateTransform
+
+      val rotationResiduals = rigidReg.rotation.parameters.map { a =>
         val rest = math.abs(a) % (math.Pi * 0.5)
         math.min(rest, (math.Pi * 0.5) - rest)
       }
@@ -424,11 +426,11 @@ object ImageIO {
       if (approxErrors.max > 0.01f)
         throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
       else {
-        val (roll, pitch, yaw) =
+        val (phi, theta, psi) =
           (rigidReg.rotation.parameters(0), rigidReg.rotation.parameters(1), rigidReg.rotation.parameters(2))
         val size = IntVector(nx, ny, nz)
         val newDomain = DiscreteImageDomain(
-          StructuredPoints3D(orig, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, roll, pitch, yaw)
+          StructuredPoints3D(origin, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, phi, theta, psi)
         )
         val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
 
@@ -532,10 +534,11 @@ object ImageIO {
       }
 
       def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
-        val rotParams = DenseVector[Double](domain.yaw, domain.pitch, domain.roll)
         val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
         val scalingMatrix = diag(scalingParams)
-        val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
+        val innerAffineMatrix = RotationSpace3D
+          .eulerAnglesToRotMatrix(domain.phi, domain.theta, domain.psi)
+          .toBreezeMatrix * scalingMatrix
         innerAffineMatrix
       }
 

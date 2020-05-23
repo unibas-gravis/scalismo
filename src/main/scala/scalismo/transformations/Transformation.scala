@@ -78,7 +78,7 @@ trait ParametricTransformation[D] extends Transformation[D] {
 
   def numberOfParameters: Int
 
-  def jacobian: JacobianField[D]
+  def derivativeWRTParameters: JacobianField[D]
 
 }
 object ParametricTransformation {
@@ -86,20 +86,22 @@ object ParametricTransformation {
 }
 
 /** Trait for invertible D-dimensional transformations */
-trait CanInvert[D] {
-  self: ParametricTransformation[D] =>
+trait CanInvert[D, +T[D] <: Transformation[D]] {
+  self: Transformation[D] =>
 
-  def inverse: ParametricTransformation[D] with CanInvert[D]
+  // InverseTransformation = T[D]
+
+  def inverse: T[D]
 }
 
 /** Trait for differentiable D-dimensional transformations */
-trait CanDifferentiate[D] {
+trait CanDifferentiateWRTPosition[D] {
   self: ParametricTransformation[D] =>
 
   /** Derivative of the transform evaluated at a point */
-  def derivative: Point[D] => SquareMatrix[D]
+  def derivativeWRTPosition: Point[D] => SquareMatrix[D]
 
   @deprecated("please use derivative instead", "v0.19")
-  def takeDerivative(p: Point[D]): SquareMatrix[D] = derivative(p)
+  def takeDerivative(p: Point[D]): SquareMatrix[D] = derivativeWRTPosition(p)
 
 }
