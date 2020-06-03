@@ -12,10 +12,7 @@ import scala.annotation.implicitNotFound
 /**
  * D-dimensional Rotation transform that is parametric, invertible and differentiable.
  */
-abstract class Rotation[D: NDSpace]
-    extends ParametricTransformation[D]
-    with CanInvert[D, Rotation]
-    with CanDifferentiateWRTPosition[D] {
+abstract class Rotation[D: NDSpace] extends RigidTransformation[D] {
 
   override def inverse: Rotation[D]
 

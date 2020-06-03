@@ -12,10 +12,7 @@ import scalismo.transformations.TransformationSpace.{ParameterVector}
  *
  *  @param t Translation vector
  */
-case class Scaling[D: NDSpace](s: Double)
-    extends ParametricTransformation[D]
-    with CanInvert[D, Scaling]
-    with CanDifferentiateWRTPosition[D] {
+case class Scaling[D: NDSpace](s: Double) extends RigidTransformation[D] {
 
   override val parameters = DenseVector[Double](s)
 

@@ -12,10 +12,7 @@ import scalismo.transformations.TransformationSpace.ParameterVector
  *
  *  @param t Translation vector
  */
-case class Translation[D: NDSpace](t: EuclideanVector[D])
-    extends ParametricTransformation[D]
-    with CanInvert[D, Translation]
-    with CanDifferentiateWRTPosition[D] {
+case class Translation[D: NDSpace](t: EuclideanVector[D]) extends RigidTransformation[D] {
 
   override val f = (pt: Point[D]) => pt + t
 
