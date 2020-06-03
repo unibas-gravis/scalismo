@@ -35,7 +35,7 @@ case class LineCell(ptId1: PointId, ptId2: PointId) extends Cell {
   def containsPoint(ptId: PointId): Boolean = ptId1 == ptId || ptId2 == ptId
 }
 
-trait LineMesh[D] extends DiscreteDomain[D]{ //(val pointSet: UnstructuredPoints[D], val topology: LineList) {
+trait LineMesh[D] extends DiscreteDomain[D] { //(val pointSet: UnstructuredPoints[D], val topology: LineList) {
   val topology: LineList
   val pointSet: UnstructuredPoints[D]
 
@@ -136,9 +136,9 @@ object LineMesh {
      * warped domain
      */
     override def transformWithField(
-                                     domain: LineMesh[_2D],
-                                     warpField: DiscreteField[_2D, LineMesh, EuclideanVector[_2D]]
-                                   ): LineMesh[_2D] = {
+      domain: LineMesh[_2D],
+      warpField: DiscreteField[_2D, LineMesh, EuclideanVector[_2D]]
+    ): LineMesh[_2D] = {
 
       require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
 
@@ -158,9 +158,9 @@ object LineMesh {
      * warped domain
      */
     override def transformWithField(
-                                     domain: LineMesh[_3D],
-                                     warpField: DiscreteField[_3D, LineMesh, EuclideanVector[_3D]]
-                                   ): LineMesh[_3D] = {
+      domain: LineMesh[_3D],
+      warpField: DiscreteField[_3D, LineMesh, EuclideanVector[_3D]]
+    ): LineMesh[_3D] = {
 
       require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
 
@@ -176,7 +176,7 @@ object LineMesh {
 }
 
 case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override val topology: LineList)
-  extends LineMesh[_2D] {
+    extends LineMesh[_2D] {
 
   /** Get all cell normals as a surface property */
   lazy val cellNormals: LineProperty[EuclideanVector[_2D]] = {
@@ -202,7 +202,7 @@ case class LineMesh2D(override val pointSet: UnstructuredPoints[_2D], override v
 }
 
 case class LineMesh3D(override val pointSet: UnstructuredPoints[_3D], override val topology: LineList)
-  extends LineMesh[_3D] {}
+    extends LineMesh[_3D] {}
 
 /** property constant per line */
 case class LineProperty[A](topology: LineList, lineData: IndexedSeq[A]) extends LineContourProperty[A] {

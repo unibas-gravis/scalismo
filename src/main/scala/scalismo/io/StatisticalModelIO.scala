@@ -18,7 +18,7 @@ package scalismo.io
 import java.io._
 
 import scalismo.common.UnstructuredPointsDomain
-import scalismo.geometry.{EuclideanVector, _1D, _2D, _3D}
+import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector}
 import scalismo.image.DiscreteImageDomain
 import scalismo.mesh.{LineMesh, TetrahedralMesh, TriangleMesh}
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel, StatisticalMeshModel}
@@ -27,20 +27,19 @@ import scala.util.Try
 
 object StatisticalModelIO {
 
-
   /**
- * Reads and write of point distribution models with different domain types.
- * The model file type is determined based on the extension.
- * Currently only the Scalismo format (.h5) is supported.
-*/
-
+   * Reads and write of point distribution models with different domain types.
+   * The model file type is determined based on the extension.
+   * Currently only the Scalismo format (.h5) is supported.
+   */
   /**
    * Reads a PDM with TriangleMesh[_2D] as the domain
    * @param file The statismo file
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalTriangleMeshModel2D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_2D, TriangleMesh]] = {
+  def readStatisticalTriangleMeshModel2D(file: File,
+                                         modelPath: String = "/"): Try[PointDistributionModel[_2D, TriangleMesh]] = {
     StatismoIO.readStatismoPDM[_2D, TriangleMesh](file, modelPath)
   }
 
@@ -50,7 +49,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalTriangleMeshModel2D(model: PointDistributionModel[_2D, TriangleMesh], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalTriangleMeshModel2D(model: PointDistributionModel[_2D, TriangleMesh],
+                                          file: File,
+                                          modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_2D, TriangleMesh](model, file, modelPath)
   }
 
@@ -60,7 +61,8 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalTriangleMeshModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, TriangleMesh]] = {
+  def readStatisticalTriangleMeshModel3D(file: File,
+                                         modelPath: String = "/"): Try[PointDistributionModel[_3D, TriangleMesh]] = {
     StatismoIO.readStatismoPDM[_3D, TriangleMesh](file, modelPath)
   }
 
@@ -70,7 +72,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalTriangleMeshModel3D(model: PointDistributionModel[_3D, TriangleMesh], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalTriangleMeshModel3D(model: PointDistributionModel[_3D, TriangleMesh],
+                                          file: File,
+                                          modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_3D, TriangleMesh](model, file, modelPath)
   }
 
@@ -80,7 +84,8 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalLineMeshModel2D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_2D, LineMesh]] = {
+  def readStatisticalLineMeshModel2D(file: File,
+                                     modelPath: String = "/"): Try[PointDistributionModel[_2D, LineMesh]] = {
     StatismoIO.readStatismoPDM[_2D, LineMesh](file, modelPath)
   }
 
@@ -90,7 +95,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalLineMeshModel2D(model: PointDistributionModel[_2D, LineMesh], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalLineMeshModel2D(model: PointDistributionModel[_2D, LineMesh],
+                                      file: File,
+                                      modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_2D, LineMesh](model, file, modelPath)
   }
 
@@ -100,7 +107,8 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalLineMeshModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, LineMesh]] = {
+  def readStatisticalLineMeshModel3D(file: File,
+                                     modelPath: String = "/"): Try[PointDistributionModel[_3D, LineMesh]] = {
     StatismoIO.readStatismoPDM[_3D, LineMesh](file, modelPath)
   }
 
@@ -110,7 +118,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalLineMeshModel3D(model: PointDistributionModel[_3D, LineMesh], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalLineMeshModel3D(model: PointDistributionModel[_3D, LineMesh],
+                                      file: File,
+                                      modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_3D, LineMesh](model, file, modelPath)
   }
 
@@ -120,7 +130,10 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalTetrahedralMeshModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, TetrahedralMesh]] = {
+  def readStatisticalTetrahedralMeshModel3D(
+    file: File,
+    modelPath: String = "/"
+  ): Try[PointDistributionModel[_3D, TetrahedralMesh]] = {
     StatismoIO.readStatismoPDM[_3D, TetrahedralMesh](file, modelPath)
   }
 
@@ -130,7 +143,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalTetrahedralMeshModel3D(model: PointDistributionModel[_3D, TetrahedralMesh], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalTetrahedralMeshModel3D(model: PointDistributionModel[_3D, TetrahedralMesh],
+                                             file: File,
+                                             modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_3D, TetrahedralMesh](model, file, modelPath)
   }
 
@@ -140,7 +155,10 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalPointModel3D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_3D, UnstructuredPointsDomain]] = {
+  def readStatisticalPointModel3D(
+    file: File,
+    modelPath: String = "/"
+  ): Try[PointDistributionModel[_3D, UnstructuredPointsDomain]] = {
     StatismoIO.readStatismoPDM[_3D, UnstructuredPointsDomain](file, modelPath)
   }
 
@@ -150,7 +168,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalPointModel3D(model: PointDistributionModel[_3D, UnstructuredPointsDomain], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalPointModel3D(model: PointDistributionModel[_3D, UnstructuredPointsDomain],
+                                   file: File,
+                                   modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_3D, UnstructuredPointsDomain](model, file, modelPath)
   }
 
@@ -160,7 +180,10 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalPointModel2D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_2D, UnstructuredPointsDomain]] = {
+  def readStatisticalPointModel2D(
+    file: File,
+    modelPath: String = "/"
+  ): Try[PointDistributionModel[_2D, UnstructuredPointsDomain]] = {
     StatismoIO.readStatismoPDM[_2D, UnstructuredPointsDomain](file, modelPath)
   }
 
@@ -170,7 +193,9 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalPointModel2D(model: PointDistributionModel[_2D, UnstructuredPointsDomain], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalPointModel2D(model: PointDistributionModel[_2D, UnstructuredPointsDomain],
+                                   file: File,
+                                   modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_2D, UnstructuredPointsDomain](model, file, modelPath)
   }
 
@@ -180,7 +205,10 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def readStatisticalPointModel1D(file: File, modelPath: String = "/"): Try[PointDistributionModel[_1D, UnstructuredPointsDomain]] = {
+  def readStatisticalPointModel1D(
+    file: File,
+    modelPath: String = "/"
+  ): Try[PointDistributionModel[_1D, UnstructuredPointsDomain]] = {
     StatismoIO.readStatismoPDM[_1D, UnstructuredPointsDomain](file, modelPath)
   }
 
@@ -190,18 +218,21 @@ object StatisticalModelIO {
    * @param modelPath in the hdf5 directory
    * @return A PointDistributionModel or the Failure
    */
-  def writeStatisticalPointModel1D(model: PointDistributionModel[_1D, UnstructuredPointsDomain], file: File, modelPath: String = "/"): Try[Unit] = {
+  def writeStatisticalPointModel1D(model: PointDistributionModel[_1D, UnstructuredPointsDomain],
+                                   file: File,
+                                   modelPath: String = "/"): Try[Unit] = {
     StatismoIO.writeStatismoPDM[_1D, UnstructuredPointsDomain](model, file, modelPath)
   }
-
 
   /**
    * Conversion between old format only supporting TriangleMesh PDMs and the new general PDM format
    * @param model statisticalMeshModel
    * @return PointDistributionModel with a TriangleMesh[_3D] as the domain
    */
-  private def modelConverterToPointDistribution(model: StatisticalMeshModel): PointDistributionModel[_3D, TriangleMesh] = {
-      PointDistributionModel(model.gp)
+  private def modelConverterToPointDistribution(
+    model: StatisticalMeshModel
+  ): PointDistributionModel[_3D, TriangleMesh] = {
+    PointDistributionModel(model.gp)
   }
 
   /**
@@ -223,10 +254,9 @@ object StatisticalModelIO {
    */
   def readStatisticalMeshModel(file: File, modelPath: String = "/"): Try[StatisticalMeshModel] = {
     val pModel = readStatisticalTriangleMeshModel3D(file, modelPath)
-    for{
+    for {
       model <- pModel
-    }
-    yield modelConverterToMeshModel(model)
+    } yield modelConverterToMeshModel(model)
   }
 
   /**

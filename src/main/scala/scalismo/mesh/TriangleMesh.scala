@@ -105,9 +105,9 @@ object TriangleMesh {
      * warped domain
      */
     override def transformWithField(
-                                     domain: TriangleMesh[_2D],
-                                     warpField: DiscreteField[_2D, TriangleMesh, EuclideanVector[_2D]]
-                                   ): TriangleMesh[_2D] = {
+      domain: TriangleMesh[_2D],
+      warpField: DiscreteField[_2D, TriangleMesh, EuclideanVector[_2D]]
+    ): TriangleMesh[_2D] = {
 
       require(domain.pointSet.numberOfPoints == warpField.domain.pointSet.numberOfPoints)
 

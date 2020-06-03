@@ -1,12 +1,14 @@
 package scalismo.common
 
-import scalismo.geometry.{EuclideanVector, NDSpace, Point, _1D, _2D, _3D}
+import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, NDSpace, Point}
 import scalismo.registration.Transformation
 
 case class UnstructuredPointsDomain[D](pointSet: UnstructuredPoints[D]) extends DiscreteDomain[D] {}
 
 object UnstructuredPointsDomain {
-  def apply[D: NDSpace: Create](points: IndexedSeq[Point[D]])(implicit creator: UnstructuredPoints.Create[D]): UnstructuredPointsDomain[D] = {
+  def apply[D: NDSpace: Create](
+    points: IndexedSeq[Point[D]]
+  )(implicit creator: UnstructuredPoints.Create[D]): UnstructuredPointsDomain[D] = {
     UnstructuredPointsDomain(UnstructuredPoints(points))
   }
 
@@ -16,13 +18,16 @@ object UnstructuredPointsDomain {
 
   object Create {
     implicit object CreateUnstructuredPointsDomain1D extends Create[_1D] {
-      override def create(points: IndexedSeq[Point[_1D]]) = new UnstructuredPointsDomain[_1D](UnstructuredPoints[_1D](points))
+      override def create(points: IndexedSeq[Point[_1D]]) =
+        new UnstructuredPointsDomain[_1D](UnstructuredPoints[_1D](points))
     }
     implicit object CreateUnstructuredPointsDomain2D extends Create[_2D] {
-      override def create(points: IndexedSeq[Point[_2D]]) = new UnstructuredPointsDomain[_2D](UnstructuredPoints[_2D](points))
+      override def create(points: IndexedSeq[Point[_2D]]) =
+        new UnstructuredPointsDomain[_2D](UnstructuredPoints[_2D](points))
     }
     implicit object CreateUnstructuredPointsDomain3D extends Create[_3D] {
-      override def create(points: IndexedSeq[Point[_3D]]) = new UnstructuredPointsDomain[_3D](UnstructuredPoints[_3D](points))
+      override def create(points: IndexedSeq[Point[_3D]]) =
+        new UnstructuredPointsDomain[_3D](UnstructuredPoints[_3D](points))
     }
   }
 
