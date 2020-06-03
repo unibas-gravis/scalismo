@@ -184,7 +184,7 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
       val c = tmesh.pointSet.point(cell.ptId3)
       val d = tmesh.pointSet.point(cell.ptId4)
 
-      val N = 1000
+      val N = 10000
 
       val startVTK = System.currentTimeMillis()
       for (i <- 0 until N) {

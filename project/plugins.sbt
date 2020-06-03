@@ -1,4 +1,4 @@
-resolvers += Resolver.url("bintray-sbt-plugin-releases", url("http://dl.bintray.com/banno/oss"))(
+resolvers += Resolver.url("bintray-sbt-plugin-releases", url("https://dl.bintray.com/banno/oss"))(
   Resolver.ivyStylePatterns
 )
 

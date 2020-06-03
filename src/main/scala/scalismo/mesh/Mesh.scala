@@ -19,6 +19,8 @@ import scalismo.common.{DifferentiableField, PointId, RealSpace}
 import scalismo.geometry._
 import scalismo.mesh.boundingSpheres.TriangleMesh3DSpatialIndex
 
+import scala.collection.parallel.immutable.ParVector
+
 /**
  * Defines utility functions on [[TriangleMesh]] instances
  */
@@ -50,10 +52,11 @@ object Mesh {
   def clipMesh(mesh: TriangleMesh[_3D], clipPointPredicate: Point[_3D] => Boolean): TriangleMesh[_3D] = {
 
     // predicate tested at the beginning, once.
-    val remainingPoints = mesh.pointSet.points.toIndexedSeq.par.filter { !clipPointPredicate(_) }.zipWithIndex.toMap
+    val remainingPoints =
+      new ParVector(mesh.pointSet.points.toVector).filter { !clipPointPredicate(_) }.zipWithIndex.toMap
     val pts = mesh.pointSet.points.toIndexedSeq
 
-    val remainingPointTriplet = mesh.cells.par
+    val remainingPointTriplet = new ParVector(mesh.cells.toVector)
       .map { cell =>
         val points = cell.pointIds.map(pointId => pts(pointId.id))
         (points, points.map(p => remainingPoints.get(p).isDefined).reduce(_ && _))

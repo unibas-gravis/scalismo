@@ -19,6 +19,8 @@ import breeze.linalg.DenseVector
 import scalismo.common.{Field, Scalar}
 import scalismo.geometry._
 
+import scala.collection.parallel.immutable.ParVector
+
 case class Integrator[D: NDSpace](sampler: Sampler[D]) {
 
   def integrateScalar[A: Scalar](img: Field[D, A]): A = {
@@ -29,7 +31,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     val scalar = Scalar[A]
     val zero = scalar.fromInt(0)
     val samples = sampler.sample
-    val sum = samples.par.map {
+    val sum = new ParVector(samples.toVector).map {
       case (pt, p) =>
         scalar.toDouble(f(pt).getOrElse(zero)) * (1.0 / p.toFloat)
     }.sum
@@ -44,7 +46,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     val samples = sampler.sample
 
     val zeroVector = EuclideanVector.zeros[DO]
-    val sum = samples.par
+    val sum = new ParVector(samples.toVector)
       .map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }
       .foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1f / (sampler.numberOfPoints - 1))
@@ -54,7 +56,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     val samples = sampler.sample
 
     val zeroVector = DenseVector.zeros[Double](dimensionality)
-    val sum = samples.par
+    val sum = new ParVector(samples.toVector)
       .map { case (pt, p) => f(pt).getOrElse(zeroVector) * (1.0 / p) }
       .foldLeft(zeroVector)((a, b) => { a + b })
     sum * (1.0 / (sampler.numberOfPoints - 1))
