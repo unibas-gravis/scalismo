@@ -36,6 +36,7 @@ import scalismo.transformations.{
 import scalismo.utils.Random
 
 import scala.collection.immutable
+import scala.collection.parallel.immutable.ParVector
 import scala.util.{Failure, Try}
 
 object ActiveShapeModel {
@@ -50,7 +51,7 @@ object ActiveShapeModel {
                  featureExtractor: FeatureExtractor,
                  sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
-    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).to[immutable.IndexedSeq]
+    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).toIndexedSeq
     val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
@@ -274,7 +275,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
     poseTransform: RigidTransformation[_3D]
   ): IndexedSeq[(PointId, Point[_3D])] = {
 
-    val matchingPts = profiles.ids.par.map { index =>
+    val matchingPts = new ParVector(profiles.ids.toVector).map { index =>
       (profiles(index).pointId,
        findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform))
     }
