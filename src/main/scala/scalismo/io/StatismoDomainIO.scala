@@ -16,14 +16,32 @@
 package scalismo.io
 
 import breeze.linalg.DenseMatrix
-import scalismo.common.UnstructuredPointsDomain.Create.{CreateUnstructuredPointsDomain1D, CreateUnstructuredPointsDomain2D, CreateUnstructuredPointsDomain3D}
+import scalismo.common.UnstructuredPointsDomain.Create.{
+  CreateUnstructuredPointsDomain1D,
+  CreateUnstructuredPointsDomain2D,
+  CreateUnstructuredPointsDomain3D
+}
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPoints, UnstructuredPointsDomain}
-import scalismo.geometry.{Point, _1D, _2D, _3D}
-import scalismo.mesh.{LineCell, LineList, LineMesh, LineMesh2D, LineMesh3D, TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D, TriangleCell, TriangleList, TriangleMesh, TriangleMesh2D, TriangleMesh3D}
+import scalismo.geometry.{_1D, _2D, _3D, Point}
+import scalismo.mesh.{
+  LineCell,
+  LineList,
+  LineMesh,
+  LineMesh2D,
+  LineMesh3D,
+  TetrahedralCell,
+  TetrahedralList,
+  TetrahedralMesh,
+  TetrahedralMesh3D,
+  TriangleCell,
+  TriangleList,
+  TriangleMesh,
+  TriangleMesh2D,
+  TriangleMesh3D
+}
 
 import scala.language.higherKinds
 import scala.util.{Failure, Success, Try}
-
 
 /**
  * IO handling of PointDistributionModels with different point connectivity
@@ -48,11 +66,11 @@ object StatismoDomainIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data)
   }
 
-
   implicit object domainIOTriangleMesh2D extends StatismoDomainIO[_2D, TriangleMesh] {
     override val datasetType: String = "POLYGON_MESH"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_2D]], cellArray: Option[NDArray[Int]]): Try[TriangleMesh[_2D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_2D]],
+                                       cellArray: Option[NDArray[Int]]): Try[TriangleMesh[_2D]] = {
       cellArray match {
         case None => Failure(new Throwable("Triangle cells missing"))
         case Some(c) =>
@@ -66,7 +84,6 @@ object StatismoDomainIO {
           }
       }
 
-
     }
 
     override def cellsToArray(mesh: TriangleMesh[_2D]): NDArray[Int] = {
@@ -79,17 +96,19 @@ object StatismoDomainIO {
   implicit object domainIOTriangleMesh3D extends StatismoDomainIO[_3D, TriangleMesh] {
     override val datasetType: String = "POLYGON_MESH"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_3D]], cellArray: Option[NDArray[Int]]): Try[TriangleMesh[_3D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_3D]],
+                                       cellArray: Option[NDArray[Int]]): Try[TriangleMesh[_3D]] = {
       cellArray match {
         case None => Failure(new Throwable("Triangle cells missing"))
         case Some(c) =>
           val cellMatrix = ndIntArrayToIntMatrix(c)
           if (cellMatrix.cols != 3) Failure(new Exception("Representer cells are not triangles"))
           else {
-            val cells = for (i <- 0 until cellMatrix.rows)
-              yield {
-                TriangleCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)), PointId(cellMatrix(i, 2)))
-              }
+            val cells =
+              for (i <- 0 until cellMatrix.rows)
+                yield {
+                  TriangleCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)), PointId(cellMatrix(i, 2)))
+                }
             Success(TriangleMesh3D(UnstructuredPoints(points), TriangleList(cells)))
           }
       }
@@ -105,17 +124,22 @@ object StatismoDomainIO {
   implicit object domainIOTetrahedralMesh3D extends StatismoDomainIO[_3D, TetrahedralMesh] {
     override val datasetType: String = "VOLUME_MESH"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_3D]], cellArray: Option[NDArray[Int]]): Try[TetrahedralMesh[_3D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_3D]],
+                                       cellArray: Option[NDArray[Int]]): Try[TetrahedralMesh[_3D]] = {
       cellArray match {
         case None => Failure(new Throwable("Tetrahedral cells missing"))
         case Some(c) =>
           val cellMatrix = ndIntArrayToIntMatrix(c)
           if (cellMatrix.cols != 4) Failure(new Exception("Representer cells are not tetrahedrons"))
           else {
-            val cells = for (i <- 0 until cellMatrix.rows)
-              yield {
-                TetrahedralCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)), PointId(cellMatrix(i, 2)), PointId(cellMatrix(i, 3)))
-              }
+            val cells =
+              for (i <- 0 until cellMatrix.rows)
+                yield {
+                  TetrahedralCell(PointId(cellMatrix(i, 0)),
+                                  PointId(cellMatrix(i, 1)),
+                                  PointId(cellMatrix(i, 2)),
+                                  PointId(cellMatrix(i, 3)))
+                }
             Success(TetrahedralMesh3D(UnstructuredPoints(points), TetrahedralList(cells)))
           }
       }
@@ -123,7 +147,8 @@ object StatismoDomainIO {
 
     override def cellsToArray(mesh: TetrahedralMesh[_3D]): NDArray[Int] = {
       val tetrahedrons = mesh.tetrahedralization.tetrahedrons
-      val cellArray = tetrahedrons.map(_.ptId1.id) ++ tetrahedrons.map(_.ptId2.id) ++ tetrahedrons.map(_.ptId3.id) ++ tetrahedrons.map(_.ptId4.id)
+      val cellArray = tetrahedrons.map(_.ptId1.id) ++ tetrahedrons.map(_.ptId2.id) ++ tetrahedrons.map(_.ptId3.id) ++ tetrahedrons
+        .map(_.ptId4.id)
       NDArray(IndexedSeq(4, tetrahedrons.size), cellArray.toArray)
     }
 
@@ -132,17 +157,19 @@ object StatismoDomainIO {
   implicit object domainIOLineMesh2D extends StatismoDomainIO[_2D, LineMesh] {
     override val datasetType: String = "LINE_MESH"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_2D]], cellArray: Option[NDArray[Int]]): Try[LineMesh[_2D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_2D]],
+                                       cellArray: Option[NDArray[Int]]): Try[LineMesh[_2D]] = {
       cellArray match {
         case None => Failure(new Throwable("Line cells missing"))
         case Some(c) =>
           val cellMatrix = ndIntArrayToIntMatrix(c)
           if (cellMatrix.cols != 2) Failure(new Exception("Representer cells are not lines"))
           else {
-            val cells = for (i <- 0 until cellMatrix.rows)
-              yield {
-                LineCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)))
-              }
+            val cells =
+              for (i <- 0 until cellMatrix.rows)
+                yield {
+                  LineCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)))
+                }
             Try(LineMesh2D(UnstructuredPoints(points), LineList(cells)))
           }
       }
@@ -158,17 +185,19 @@ object StatismoDomainIO {
   implicit object domainIOLineMesh3D extends StatismoDomainIO[_3D, LineMesh] {
     override val datasetType: String = "LINE_MESH"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_3D]], cellArray: Option[NDArray[Int]]): Try[LineMesh[_3D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_3D]],
+                                       cellArray: Option[NDArray[Int]]): Try[LineMesh[_3D]] = {
       cellArray match {
         case None => Failure(new Throwable("Line cells missing"))
         case Some(c) =>
           val cellMatrix = ndIntArrayToIntMatrix(c)
           if (cellMatrix.cols != 2) Failure(new Exception("Representer cells are not lines"))
           else {
-            val cells = for (i <- 0 until cellMatrix.rows)
-              yield {
-                LineCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)))
-              }
+            val cells =
+              for (i <- 0 until cellMatrix.rows)
+                yield {
+                  LineCell(PointId(cellMatrix(i, 0)), PointId(cellMatrix(i, 1)))
+                }
             Success(LineMesh3D(UnstructuredPoints(points), LineList(cells)))
           }
       }
@@ -181,11 +210,11 @@ object StatismoDomainIO {
 
   }
 
-
   implicit object domainIOUnstructuredPoints1D extends StatismoDomainIO[_1D, UnstructuredPointsDomain] {
     override val datasetType: String = "POINT_SET"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_1D]], cellArray: Option[NDArray[Int]]): Try[UnstructuredPointsDomain[_1D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_1D]],
+                                       cellArray: Option[NDArray[Int]]): Try[UnstructuredPointsDomain[_1D]] = {
       Success(CreateUnstructuredPointsDomain1D.create(points))
     }
 
@@ -197,7 +226,8 @@ object StatismoDomainIO {
   implicit object domainIOUnstructuredPoints2D extends StatismoDomainIO[_2D, UnstructuredPointsDomain] {
     override val datasetType: String = "POINT_SET"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_2D]], cellArray: Option[NDArray[Int]]): Try[UnstructuredPointsDomain[_2D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_2D]],
+                                       cellArray: Option[NDArray[Int]]): Try[UnstructuredPointsDomain[_2D]] = {
       Success(CreateUnstructuredPointsDomain2D.create(points))
     }
 
@@ -209,7 +239,8 @@ object StatismoDomainIO {
   implicit object domainIOUnstructuredPoints3D extends StatismoDomainIO[_3D, UnstructuredPointsDomain] {
     override val datasetType: String = "POINT_SET"
 
-    override def createDomainWithCells(points: IndexedSeq[Point[_3D]], cellArray: Option[NDArray[Int]]): Try[UnstructuredPointsDomain[_3D]] = {
+    override def createDomainWithCells(points: IndexedSeq[Point[_3D]],
+                                       cellArray: Option[NDArray[Int]]): Try[UnstructuredPointsDomain[_3D]] = {
       Success(CreateUnstructuredPointsDomain3D.create(points))
     }
 
@@ -217,6 +248,5 @@ object StatismoDomainIO {
       NDArray(IndexedSeq(0), Array.empty)
     }
   }
-
 
 }

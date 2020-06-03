@@ -20,10 +20,27 @@ import java.io.File
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.common.{DiscreteDomain, NearestNeighborInterpolator, PointId, UnstructuredPointsDomain}
-import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints1D, CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
-import scalismo.common.UnstructuredPointsDomain.Create.{CreateUnstructuredPointsDomain1D, CreateUnstructuredPointsDomain2D, CreateUnstructuredPointsDomain3D}
+import scalismo.common.UnstructuredPoints.Create.{
+  CreateUnstructuredPoints1D,
+  CreateUnstructuredPoints2D,
+  CreateUnstructuredPoints3D
+}
+import scalismo.common.UnstructuredPointsDomain.Create.{
+  CreateUnstructuredPointsDomain1D,
+  CreateUnstructuredPointsDomain2D,
+  CreateUnstructuredPointsDomain3D
+}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.mesh.{LineCell, LineList, LineMesh, LineMesh2D, TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
+import scalismo.mesh.{
+  LineCell,
+  LineList,
+  LineMesh,
+  LineMesh2D,
+  TriangleCell,
+  TriangleList,
+  TriangleMesh,
+  TriangleMesh3D
+}
 import scalismo.numerics.Sampler
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
 
@@ -35,7 +52,10 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
 
   describe("a Point Distribution Model") {
 
-    def assertModelAlmostEqual[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](model1: PointDistributionModel[D, DDomain], model2: PointDistributionModel[D, DDomain]): Unit = {
+    def assertModelAlmostEqual[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
+      model1: PointDistributionModel[D, DDomain],
+      model2: PointDistributionModel[D, DDomain]
+    ): Unit = {
       assert(model1.mean == model2.mean)
       assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
       assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
@@ -56,8 +76,12 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     def create3Dmodel(): PointDistributionModel[_3D, TriangleMesh] = {
       val gk = DiagonalKernel(GaussianKernel[_3D](10.0), 3)
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](gk)
-      val pointSet = CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 1, 0), Point3D(0, 1, 0)))
-      val topology = TriangleList(IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2)), TriangleCell(PointId(1), PointId(2), PointId(3))))
+      val pointSet = CreateUnstructuredPoints3D.create(
+        IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 1, 0), Point3D(0, 1, 0))
+      )
+      val topology = TriangleList(
+        IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2)), TriangleCell(PointId(1), PointId(2), PointId(3)))
+      )
       val reference = TriangleMesh3D(pointSet, topology)
       val sampler = DummySampler(reference)
       val gpLwRnk = LowRankGaussianProcess.approximateGPNystrom(gp, sampler)
@@ -68,7 +92,9 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
       val gk = DiagonalKernel(GaussianKernel[_2D](10.0), 2)
       val gp = GaussianProcess[_2D, EuclideanVector[_2D]](gk)
       val pointSet = CreateUnstructuredPoints2D.create(IndexedSeq(Point2D(0, 0), Point2D(1, 0), Point2D(1, 1)))
-      val topology = LineList(IndexedSeq(LineCell(PointId(0), PointId(1)), LineCell(PointId(1), PointId(2)), LineCell(PointId(2), PointId(0))))
+      val topology = LineList(
+        IndexedSeq(LineCell(PointId(0), PointId(1)), LineCell(PointId(1), PointId(2)), LineCell(PointId(2), PointId(0)))
+      )
       val reference = LineMesh2D(pointSet, topology)
       val sampler = DummySampler(reference)
       val gpLwRnk = LowRankGaussianProcess.approximateGPNystrom(gp, sampler)
@@ -127,7 +153,6 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
       t.get
     }
 
-
     it("can read a 2D TriangleMeshModel as a PDM without cell connectivity") {
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
@@ -144,7 +169,11 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     it("can write and read a 3D PDM") {
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
-      val model3Dpdm: PointDistributionModel[_3D, UnstructuredPointsDomain] = model3D.newReference[UnstructuredPointsDomain](CreateUnstructuredPointsDomain3D.create(model3D.reference.pointSet.points.toIndexedSeq), NearestNeighborInterpolator())
+      val model3Dpdm: PointDistributionModel[_3D, UnstructuredPointsDomain] =
+        model3D.newReference[UnstructuredPointsDomain](
+          CreateUnstructuredPointsDomain3D.create(model3D.reference.pointSet.points.toIndexedSeq),
+          NearestNeighborInterpolator()
+        )
 
       val t = for {
         _ <- StatisticalModelIO.writeStatisticalPointModel3D(model3Dpdm, dummyFile)
@@ -158,7 +187,11 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     it("can write and read a 2D PDM") {
       val dummyFile = File.createTempFile("dummy", "h5")
       dummyFile.deleteOnExit()
-      val model2Dpdm: PointDistributionModel[_2D, UnstructuredPointsDomain] = model2D.newReference[UnstructuredPointsDomain](CreateUnstructuredPointsDomain2D.create(model2D.reference.pointSet.points.toIndexedSeq), NearestNeighborInterpolator())
+      val model2Dpdm: PointDistributionModel[_2D, UnstructuredPointsDomain] =
+        model2D.newReference[UnstructuredPointsDomain](
+          CreateUnstructuredPointsDomain2D.create(model2D.reference.pointSet.points.toIndexedSeq),
+          NearestNeighborInterpolator()
+        )
       val t = for {
         _ <- StatisticalModelIO.writeStatisticalPointModel2D(model2Dpdm, dummyFile)
         readModel <- StatisticalModelIO.readStatisticalPointModel2D(dummyFile)
@@ -206,7 +239,6 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
       }
       t.isFailure should be(true)
     }
-
 
   }
 }
