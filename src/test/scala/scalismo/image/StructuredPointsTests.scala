@@ -32,7 +32,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
 
   implicit val rng = Random(42)
 
-  describe("a discreteImageDomain domain") {
+  describe("a structured points pointset") {
     it("correctly reports the number of points") {
       val domain = StructuredPoints[_2D]((0.0, 0.0), (1.0, 2.0), (42, 49))
       assert(domain.numberOfPoints === domain.points.size)
@@ -44,30 +44,6 @@ class StructuredPointsTests extends ScalismoTestSuite {
         val ptId = domain.pointId(pt).get
         ptId.id should be < domain.numberOfPoints
       }
-    }
-
-    it("keeps the same bounding box when it is created with a new size") {
-      val domain = StructuredPoints[_2D]((1.0, 3.5), (1.0, 2.1), (42, 49))
-      val newDomain = StructuredPoints(domain.boundingBox, size = domain.size.map(i => (i * 1.5).toInt))
-
-      newDomain.boundingBox.origin should equal(domain.boundingBox.origin)
-      newDomain.boundingBox.volume should be(domain.boundingBox.volume +- 1e-1)
-    }
-
-    it("keeps approximately the same bounding box when it is created with a new spacing") {
-      val domain = StructuredPoints[_2D]((1.0, 3.5), (1.0, 2.1), (42, 49))
-      val newDomain = StructuredPoints(domain.boundingBox, spacing = domain.spacing.map(i => i * 1.5))
-
-      newDomain.boundingBox.origin should equal(domain.boundingBox.origin)
-
-      // as the size needs to be integer, it can be that the imageBox is slightly larger.
-      // The difference is, however , guaranteed to be smaller than the spacing in each direction. This is also
-      // the difference between bounding and image box.
-      newDomain.boundingBox.volume should be >= domain.boundingBox.volume
-      newDomain.boundingBox.volume should be <= BoxDomain(
-        domain.boundingBox.origin,
-        domain.boundingBox.oppositeCorner + EuclideanVector(1.0, 1.0)
-      ).volume
     }
 
     it("identifies the closest point correctly") {
@@ -105,11 +81,6 @@ class StructuredPointsTests extends ScalismoTestSuite {
       assert(recIdx === idx)
     }
 
-    it("domains with same parameters yield the same anisotropic similarity transform ") {
-      val domain1 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
-      val domain2 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
-      assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
-    }
     it("equality works for image domains ") {
       val domain1 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
       val domain2 = StructuredPoints[_2D]((1.0, 2.0), (2.0, 1.0), (42, 49))
@@ -153,11 +124,6 @@ class StructuredPointsTests extends ScalismoTestSuite {
       }
     }
 
-    it("domains with same parameters yield the same anisotropic similarity transform ") {
-      val domain1 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 0.0), (42, 49, 74))
-      val domain2 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 0.0), (42, 49, 74))
-      assert(domain1.indexToPhysicalCoordinateTransform == domain2.indexToPhysicalCoordinateTransform)
-    }
     it("equality works for image domains ") {
       val domain1 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 1.0), (42, 49, 74))
       val domain2 = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 1.0), (42, 49, 74))
@@ -169,7 +135,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
       val img = Fixture.img
 
       val trans = img.domain.pointSet.indexToPhysicalCoordinateTransform
-      val inverseTrans = trans.inverse
+      val inverseTrans = img.domain.pointSet.physicalCoordinateToContinuousIndex
 
       assert((trans(Point(0, 0, 0)) - img.domain.origin).norm < 0.1)
       assert(inverseTrans(img.domain.origin).toVector.norm < 0.1)

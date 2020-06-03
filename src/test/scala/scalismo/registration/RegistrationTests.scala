@@ -23,7 +23,7 @@ import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInte
 import scalismo.{numerics, ScalismoTestSuite}
 import scalismo.common.{Field, NearestNeighborInterpolator, PointId, RealSpace}
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D, StructuredPoints}
 import scalismo.io.{ImageIO, MeshIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
@@ -197,7 +197,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
 
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain2D(domain.boundingBox, IntVector(20, 20)))
       val regIt = Registration(
         MeanSquaresMetric(fixedImage, transformedLena, transformationSpace, metricSampler),
         L2Regularizer[_2D](transformationSpace),
@@ -221,7 +221,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val transform = transformationSpace.transformForParameters(rotationParams)
       val transformedLena = fixedImage compose transform
 
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain2D(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIter = Registration(
@@ -253,7 +253,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val transformedLena = fixedImage compose groundTruthTransform
 
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain2D(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIt =
@@ -286,7 +286,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val groundTruthTransform = transformationSpace.transformForParameters(gpParams)
       val transformedLena = fixedImage compose groundTruthTransform
 
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain2D(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIt = Registration(
@@ -321,7 +321,7 @@ class RegistrationTests extends ScalismoTestSuite {
                                          DenseVector.ones[Double](gpTransformationSpace.parametersDimensionality) * 1.0)
       val groundTruthTransform = transformationSpace.transformForParameters(gtParams)
       val transformedLena = fixedImage compose groundTruthTransform
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain2D(domain.boundingBox, IntVector(20, 20)))
       val metric = MeanSquaresMetric(transformedLena, fixedImage, transformationSpace, metricSampler)
 
       val regIt = Registration(
@@ -358,7 +358,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val translationTransform = TranslationSpace[_3D].transformForParameters(translationParams)
       val transformed = fixedImage compose translationTransform
 
-      val metricSampler = GridSampler(DiscreteImageDomain(domain.boundingBox, IntVector(20, 20, 20)))
+      val metricSampler = GridSampler(DiscreteImageDomain3D(domain.boundingBox, IntVector(20, 20, 20)))
       val metric = MeanSquaresMetric(fixedImage, transformed, transformationSpace, metricSampler)
 
       val regIt = Registration(
