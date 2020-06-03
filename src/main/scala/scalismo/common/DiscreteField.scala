@@ -18,9 +18,8 @@ package scalismo.common
 import breeze.linalg.DenseVector
 import scalismo.common.DiscreteField.ScalarMeshField
 import scalismo.common.interpolation.{DifferentiableFieldInterpolator, FieldInterpolator}
-import scalismo.geometry.{_3D, EuclideanVector, IntVector, NDSpace, Point}
+import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, IntVector, NDSpace, Point}
 import scalismo.image.DiscreteImageDomain
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
 import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
 import scalismo.registration.Transformation
 
@@ -157,17 +156,43 @@ object DiscreteField {
     M
   }
 
-  implicit class DiscreteImage[D: NDSpace, A](discreteField: DiscreteField[D, DiscreteImageDomain, A]) {
+}
 
-    //private val pointSet = discreteField.pointSet
-    //val dimensionality = ndSpace.dimensionality
+object DiscreteField1D {
+  def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_1D],
+                                                data: IndexedSeq[A]): DiscreteField[_1D, DDomain, A] =
+    new DiscreteField[_1D, DDomain, A](domain, data)
 
-    def apply(idx: IntVector[D]): A = discreteField(discreteField.domain.pointSet.pointId(idx))
+  def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_1D],
+                                                values: Point[_1D] => A): DiscreteField[_1D, DDomain, A] = {
+    val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
+    new DiscreteField[_1D, DDomain, A](domain, valueSeq)
+  }
 
-    def isDefinedAt(idx: IntVector[D]): Boolean = {
-      discreteField.domain.pointSet.isDefinedAt(idx)
-    }
+}
 
+object DiscreteField2D {
+  def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_2D],
+                                                data: IndexedSeq[A]): DiscreteField[_2D, DDomain, A] =
+    new DiscreteField[_2D, DDomain, A](domain, data)
+
+  def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_2D],
+                                                values: Point[_2D] => A): DiscreteField[_2D, DDomain, A] = {
+    val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
+    new DiscreteField[_2D, DDomain, A](domain, valueSeq)
+  }
+
+}
+
+object DiscreteField3D {
+  def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_3D],
+                                                data: IndexedSeq[A]): DiscreteField[_3D, DDomain, A] =
+    new DiscreteField[_3D, DDomain, A](domain, data)
+
+  def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_3D],
+                                                values: Point[_3D] => A): DiscreteField[_3D, DDomain, A] = {
+    val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
+    new DiscreteField[_3D, DDomain, A](domain, valueSeq)
   }
 
 }

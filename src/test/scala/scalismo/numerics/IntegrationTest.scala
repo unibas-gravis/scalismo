@@ -16,10 +16,10 @@
 package scalismo.numerics
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{BoxDomain, DifferentiableField, Field}
+import scalismo.common.{BoxDomain, BoxDomain1D, DifferentiableField, Field}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, StructuredPoints}
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
@@ -33,11 +33,11 @@ class IntegrationTest extends ScalismoTestSuite {
   describe("An integration in 1D") {
     it("Correctly integrates x squared on interval [-1,1]") {
 
-      val domain = BoxDomain(0f, 1.0f)
+      val domain = BoxDomain1D(Point1D(0.0), Point1D(1.0))
       val img =
         DifferentiableField(domain, (x: Point[_1D]) => x * x, (x: Point[_1D]) => EuclideanVector(2f) * x(0))
 
-      val grid = DiscreteImageDomain(domain.origin, domain.extent * (1.0 / 255.0), IntVector(255))
+      val grid = DiscreteImageDomain1D(domain.origin, domain.extent * (1.0 / 255.0), IntVector(255))
       val integrator = Integrator[_1D](GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
@@ -47,15 +47,15 @@ class IntegrationTest extends ScalismoTestSuite {
     it("Correctly integrates sin(x) on interval [-Pi, Pi]") {
 
       val img = DifferentiableField(
-        BoxDomain[_1D](-math.Pi.toFloat, math.Pi.toFloat),
+        BoxDomain(Point1D(-math.Pi.toFloat), Point1D(math.Pi.toFloat)),
         (x: Point[_1D]) => math.sin(x.toDouble).toFloat,
         (x: Point[_1D]) => EuclideanVector(-math.cos(x.toDouble).toFloat)
       )
 
       val numPoints = 1000
-      val grid = DiscreteImageDomain(Point(-math.Pi.toFloat),
-                                     EuclideanVector(2 * math.Pi.toFloat / numPoints),
-                                     IntVector(numPoints))
+      val grid = DiscreteImageDomain1D(Point(-math.Pi.toFloat),
+                                       EuclideanVector(2 * math.Pi.toFloat / numPoints),
+                                       IntVector(numPoints))
       val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
@@ -65,11 +65,11 @@ class IntegrationTest extends ScalismoTestSuite {
 
     it("Correctly integrates a compact function") {
 
-      val img = Field(BoxDomain(-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
+      val img = Field(BoxDomain1D(-1.0f, 1.0f), (x: Point[_1D]) => 1.0)
 
       val numPoints = 200
-      val grid1 = DiscreteImageDomain(Point(-1.0), EuclideanVector(2.0 / numPoints), IntVector(numPoints))
-      val grid2 = DiscreteImageDomain(Point(-8.0), EuclideanVector(16.0 / numPoints), IntVector(numPoints))
+      val grid1 = DiscreteImageDomain1D(Point(-1.0), EuclideanVector(2.0 / numPoints), IntVector(numPoints))
+      val grid2 = DiscreteImageDomain1D(Point(-8.0), EuclideanVector(16.0 / numPoints), IntVector(numPoints))
       val integrator1 = Integrator(GridSampler(grid1))
       val integrator2 = Integrator(GridSampler(grid2))
       val res1 = integrator1.integrateScalar(img)

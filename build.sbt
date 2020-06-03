@@ -63,3 +63,8 @@ lazy val root = (project in file("."))
     git.remoteRepo := "git@github.com:unibas-gravis/scalismo.git"
   )
   .enablePlugins(SiteScaladocPlugin)
+
+lazy val docs = project // new documentation project
+  .in(file("myproject-docs")) // important: it must not be docs/
+  .dependsOn(root)
+  .enablePlugins(MdocPlugin)

@@ -19,7 +19,7 @@ import breeze.linalg.{convert, DenseVector}
 import scalismo.common.UnstructuredPointsDomain.Create.CreateUnstructuredPointsDomain3D
 import scalismo.common.{PointId, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, Point}
-import scalismo.image.DiscreteScalarImage.DiscreteScalarImage
+import scalismo.image.DiscreteImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
 import scalismo.registration.{LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation}
@@ -31,7 +31,7 @@ import scala.collection.parallel.immutable.ParVector
 import scala.util.{Failure, Try}
 
 object ActiveShapeModel {
-  type TrainingData = Iterator[(DiscreteScalarImage[_3D, Float], Transformation[_3D])]
+  type TrainingData = Iterator[(DiscreteImage[_3D, Float], Transformation[_3D])]
 
   /**
    * Train an active shape model using an existing PCA model
@@ -155,7 +155,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
    * @param startingTransformations initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the fitting starts from the mean shape, with no rigid transformation)
    * @return fitting result after the given number of iterations
    */
-  def fit(targetImage: DiscreteScalarImage[_3D, Float],
+  def fit(targetImage: DiscreteImage[_3D, Float],
           searchPointSampler: SearchPointSampler,
           iterations: Int,
           config: FittingConfiguration = FittingConfiguration.Default,
@@ -179,7 +179,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
    * @see [[fit()]] for a description of the parameters.
    *
    */
-  def fitIterator(targetImage: DiscreteScalarImage[_3D, Float],
+  def fitIterator(targetImage: DiscreteImage[_3D, Float],
                   searchPointSampler: SearchPointSampler,
                   iterations: Int,
                   config: FittingConfiguration = FittingConfiguration.Default,
