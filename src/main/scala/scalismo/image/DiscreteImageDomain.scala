@@ -46,6 +46,8 @@ case class DiscreteImageDomain[D: NDSpace](structuredPoints: StructuredPoints[D]
 
     // The image bounding box is 1*spacing larger than the bounding box of the point of the domain, as
     // every point of the domain represents one voxel.
+    // (The voxel that is defined by each grid point extends by the length spacing(i) into the
+    // i-th space direction).
     val bb = structuredPoints.boundingBox
     BoxDomain(bb.origin, bb.oppositeCorner + spacing)
   }
@@ -135,62 +137,3 @@ object DiscreteImageDomain3D {
     DiscreteImageDomain(StructuredPoints3D(boundingBox.origin, spacing, size))
   }
 }
-//
-//object DiscreteImageDomain {
-//  def apply[D: NDSpace: CreateStructuredPoints](origin: Point[D],
-//                                                spacing: EuclideanVector[D],
-//                                                size: IntVector[D]): DiscreteImageDomain[D] = {
-//    new DiscreteImageDomain[D](StructuredPoints(origin, spacing, size))
-//  }
-//
-//  /** Create structuredPoints with given bounding box */
-//  def apply[D](imageBox: BoxDomain[D],
-//               size: IntVector[D])(implicit evCreate: CreateStructuredPoints[D]): StructuredPoints[D] = {
-//    val spacing = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / (size(i)) })
-//    evCreate.create(imageBox.origin, spacing, size)
-//  }
-//
-//  /** Create a new discreteImageDomain with given image box (i.e. a box that determines the area where the image is defined) and size */
-//  def apply[D: NDSpace](imageBox: BoxDomain[D], spacing: EuclideanVector[D])(
-//    implicit
-//    evCreate: CreateStructuredPoints[D]
-//  ): StructuredPoints[D] = {
-//    val sizeFractional = imageBox.extent.mapWithIndex({ case (ithExtent, i) => ithExtent / spacing(i) })
-//    val size = IntVector.apply[D](sizeFractional.toArray.map(s => Math.ceil(s).toInt))
-//    evCreate.create(imageBox.origin, spacing, size)
-//  }
-//
-//}
-
-//
-///** Typeclass for creating domains of arbitrary dimensionality */
-//sealed trait CreateDiscreteImageDomain[D] {
-//  def create(origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D]): DiscreteImageDomain[D]
-//}
-//
-//object CreateDiscreteImageDomain {
-//  implicit object CreateImageDomain1D extends CreateDiscreteImageDomain[_1D] {
-//    override def create(origin: Point[_1D],
-//                        spacing: EuclideanVector[_1D],
-//                        size: IntVector[_1D]): StructuredPoints[_1D] = {
-//      StructuredPoints1D(origin, spacing, size)
-//    }
-//
-//  }
-//
-//  implicit object CreateStructuredPoints2D extends CreateStructuredPoints[_2D] {
-//    override def create(origin: Point[_2D],
-//                        spacing: EuclideanVector[_2D],
-//                        size: IntVector[_2D]): StructuredPoints[_2D] = {
-//      new StructuredPoints2D(origin, spacing, size, 0.0)
-//    }
-//
-//  }
-//
-//  implicit object CreateStructuredPoints3D extends CreateStructuredPoints[_3D] {
-//    override def create(origin: Point[_3D],
-//                        spacing: EuclideanVector[_3D],
-//                        size: IntVector[_3D]): StructuredPoints[_3D] = {
-//      new StructuredPoints3D(origin, spacing, size, 0.0, 0.0, 0.0)
-//    }
-//  }
