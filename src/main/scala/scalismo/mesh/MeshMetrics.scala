@@ -112,13 +112,10 @@ object MeshMetrics {
     val sampler = UniformSampler[_3D](evaluationRegion, 10000)
     val samplePts = sampler.sample().map(_._1)
 
-    val numSamplesInA = samplePts.map(imgA).sum
-    val numSamplesInB = samplePts.map(imgB).sum
-    val AIntersectB = (p: Point[_3D]) => {
-      if (imgA(p) + imgB(p) > 1) 1f else 0f
-    }
-    val numSamplesInAIB = samplePts.map(AIntersectB).sum
-    2 * numSamplesInAIB / (numSamplesInA + numSamplesInB)
+    val samplesInA = samplePts.map(imgA)
+    val samplesInB = samplePts.map(imgB)
+    val numSamplesInAIB = samplesInA.zip(samplesInB).count { case (inA, inB) => inA > 0 && inB > 0 }
+    2.0 * numSamplesInAIB / (samplesInA.sum + samplesInB.sum)
   }
 
 }
