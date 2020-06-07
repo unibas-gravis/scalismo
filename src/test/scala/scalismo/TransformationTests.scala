@@ -47,7 +47,7 @@ class TransformationTests extends ScalismoTestSuite {
   }
 
   describe("A scaling in 2D") {
-    val ss = ScalingSpace2D()
+    val ss = ScalingSpace2D
     val params = DenseVector[Double](3.0)
     val scale = ss.transformationForParameters(params)
     val pt = Point(2.0, 1.0)

@@ -56,7 +56,7 @@ object Scaling3D {
   }
 }
 
-case class ScalingSpace[D: NDSpace]() extends TransformationSpace[D] {
+case class ScalingSpace[D: NDSpace]() extends TransformationSpaceWithDifferentiableTransforms[D] {
 
   override type T[D] = Scaling[D]
   override val domain = EuclideanSpace[D]
@@ -70,14 +70,8 @@ case class ScalingSpace[D: NDSpace]() extends TransformationSpace[D] {
   override def transformationForParameters(p: ParameterVector): Scaling[D] = Scaling[D](p(0))
 }
 
-object ScalingSpace1D {
-  def apply(): ScalingSpace[_1D] = ScalingSpace[_1D]()
-}
+object ScalingSpace1D extends ScalingSpace[_1D]
 
-object ScalingSpace2D {
-  def apply(): ScalingSpace[_2D] = ScalingSpace[_2D]()
-}
+object ScalingSpace2D extends ScalingSpace[_2D]
 
-object ScalingSpace3D {
-  def apply(): ScalingSpace[_3D] = ScalingSpace[_3D]()
-}
+object ScalingSpace3D extends ScalingSpace[_3D]
