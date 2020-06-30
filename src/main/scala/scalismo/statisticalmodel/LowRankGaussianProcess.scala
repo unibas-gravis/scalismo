@@ -417,7 +417,7 @@ object LowRankGaussianProcess {
   }
 
   /**
-   * perform a rigid transformations of the gaussian process, i.e. it is later defined on the transformed domain and its
+   * perform a rigid transformation of the gaussian process, i.e. it is later defined on the transformed domain and its
    * vectors are transformed along the domain.
    */
   def transform[D: NDSpace](gp: LowRankGaussianProcess[D, EuclideanVector[D]], rigidTransform: RigidTransformation[D])(

@@ -52,7 +52,7 @@ object Translation3D {
 }
 
 /**
- * Parametric transformations space producing translation transforms
+ * Parametric transformation space producing translation transforms
  */
 class TranslationSpace[D: NDSpace]() extends TransformationSpaceWithDifferentiableTransforms[D] {
 

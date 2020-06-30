@@ -24,7 +24,7 @@ case class Landmark[D: NDSpace](id: String,
                                 uncertainty: Option[MultivariateNormalDistribution] = None) {
 
   /**
-   * Transforms a landmark point with the given transformations.
+   * Transforms a landmark point with the given transformation.
    * The method transforms both the point and the uncertainty. The new uncertainty is
    * estimated stochastically and is only an approximation to the real uncertainty
    * (for non-rigid transformations, the uncertainty would not even be gaussian)

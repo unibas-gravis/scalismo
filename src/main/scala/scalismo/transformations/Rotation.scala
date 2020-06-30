@@ -145,7 +145,7 @@ object Rotation3D {
 }
 
 /**
- * Parametric transformations space producing rotation transforms around a rotation centre.
+ * Parametric transformation space producing rotation transforms around a rotation centre.
  *
  */
 abstract class RotationSpace[D: NDSpace] extends TransformationSpaceWithDifferentiableTransforms[D] {
@@ -249,7 +249,7 @@ object RotationSpace3D {
 object RotationSpace {
 
   /**
-   * Factory method to create a D dimensional parametric transformations space generating rotations around the indicated centre
+   * Factory method to create a D dimensional parametric transformation space generating rotations around the indicated centre
    *  Only _2D and _3D dimensions are supported
    */
   def apply(center: Point[_3D]) = {

@@ -25,7 +25,7 @@ import scalismo.transformations.TransformationSpace
 /**
  * The basic interface for defining a metric for the scalismo registration framework.
  * It is independent of the object representation that is used. The main assumption is
- * that the objects are subject to a parametric transformations, and we can obtain for each
+ * that the objects are subject to a parametric transformation, and we can obtain for each
  * fixed value of the parameters compute the value of the metric and a derivative.
  *
  */

@@ -39,7 +39,7 @@ import scala.collection.parallel.immutable.ParVector
  * @param fixedImageDomain The domain of the fixed image. All grid points of the domain are used to compute image characteristics
  *                         such as e.g. the minimum/maximum value, etc.
  * @param movingImage The moving image
- * @param transformationSpace The transformations space that is used
+ * @param transformationSpace The transformation space that is used
  * @param sampler The sampler, which samples the points on which the mutual information is computed. For this metric the
  *                recommended choice is a random sampler (which combined with a gradient descent algorithm leads to a stochastic gradient descent.
  * @param numberOfBins The number of bins used for the intensity histograms (which approximates the joint distribution)

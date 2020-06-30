@@ -473,7 +473,7 @@ object ImageIO {
   }
 
   /**
-   * returns transformations from voxel to World coordinates and its inverse
+   * returns transformation from voxel to World coordinates and its inverse
    */
   private[this] def computeNiftiWorldToVoxelTransforms(
     volume: FastReadOnlyNiftiVolume,

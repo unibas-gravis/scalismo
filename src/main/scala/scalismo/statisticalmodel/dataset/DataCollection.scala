@@ -152,7 +152,7 @@ object DataCollection {
 object TriangleMeshDataCollection {
 
   /**
-   * Returns the mean transformations from all the transformations in the datacollection
+   * Returns the mean transformation from all the transformations in the datacollection
    */
   private def meanTransformation(dc: TriangleMeshDataCollection): Transformation[_3D] = {
     val fields = dc.fields(NearestNeighborInterpolator())

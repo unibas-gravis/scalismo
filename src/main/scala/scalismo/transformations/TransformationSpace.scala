@@ -30,14 +30,14 @@ import scalismo.utils.Memoize
 import scala.annotation._
 
 /**
- * Trait for a parametric transformations space.
+ * Trait for a parametric transformation space.
  *
- *  Many pre-implemented transformations spaces implement this trait : [[TranslationSpace]], [[ScalingSpace]], [[RotationSpace]] ..
+ *  Many pre-implemented transformation spaces implement this trait : [[TranslationSpace]], [[ScalingSpace]], [[RotationSpace]] ..
  *
  *  Most of the basic transforms in our library (scaling, translation, rotation ..) can be created directly and do not necessarily require
  *  the prior creation of a TransformationSpace.
  *  Defining a TransformationSpace is mainly useful during a registration process where one optimizes over a set of parameters to retrieve
- *  a desired transformations.
+ *  a desired transformation.
  *
  */
 trait TransformationSpace[D] {
@@ -73,6 +73,6 @@ trait TransformationSpaceWithDifferentiableTransforms[D] extends TransformationS
 
 object TransformationSpace {
 
-  /** Type alias for parameters used with parametric transformations spaces. Currently, these are [[breeze.linalg.DenseVector]]*/
+  /** Type alias for parameters used with parametric transformation spaces. Currently, these are [[breeze.linalg.DenseVector]]*/
   type ParameterVector = DenseVector[Double]
 }

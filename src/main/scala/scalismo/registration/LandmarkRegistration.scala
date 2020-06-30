@@ -71,7 +71,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformations mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
    * @param center center of rotation to be used for the rigid transformations
@@ -113,7 +113,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformations mapping the original landmarks (first elements of the tuples)
+   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
    * into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
@@ -132,7 +132,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformations mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
    * @param center - center of the rotation
@@ -147,7 +147,7 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformations mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
    *
    * @param landmarks sequence of corresponding landmarks
    * @param center - center of the rotation

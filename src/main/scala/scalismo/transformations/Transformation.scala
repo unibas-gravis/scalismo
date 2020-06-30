@@ -7,8 +7,8 @@ import scalismo.transformations.ParametricTransformation.JacobianField
 import scalismo.utils.Memoize
 
 /**
- * Trait for D-dimensional transformations that maps a D-dimensional Point to another.
- *  A transformations in our library is seen as a particular type of Field (or image)  mapping points
+ * Trait for D-dimensional transformation that maps a D-dimensional Point to another.
+ *  A transformation in our library is seen as a particular type of Field (or image)  mapping points
  *  to values that are also of type [[scalismo.geometry.Point]]
  */
 trait Transformation[D] extends Field[D, Point[D]] {}
@@ -17,7 +17,7 @@ trait Transformation[D] extends Field[D, Point[D]] {}
 object Transformation {
 
   /**
-   * Create a transformations defined on the whole real space with the given function
+   * Create a transformation defined on the whole real space with the given function
    */
   def apply[D](t: Point[D] => Point[D]): Transformation[D] = {
     new Transformation[D] {
@@ -35,7 +35,7 @@ object Transformation {
   }
 
   /**
-   * Returns a new transformations that memoizes (caches) the values that have already been
+   * Returns a new transformation that memoizes (caches) the values that have already been
    * computed. The size of the cache used is given by the argument cacheSizeHint.
    */
   def memoize[D](t: Transformation[D], cacheSizeHint: Int) = {
