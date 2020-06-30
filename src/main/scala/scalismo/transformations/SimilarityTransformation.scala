@@ -2,7 +2,7 @@ package scalismo.transformations
 
 import breeze.linalg.DenseVector
 import scalismo.common.{Domain, EuclideanSpace, EuclideanSpace2D, EuclideanSpace3D}
-import scalismo.geometry.{EuclideanVector, EuclideanVector3D, NDSpace, Point, SquareMatrix, _1D, _2D, _3D}
+import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, EuclideanVector3D, NDSpace, Point, SquareMatrix}
 import scalismo.transformations
 import scalismo.transformations.ParametricTransformation.JacobianField
 import scalismo.transformations.TransformationSpace.ParameterVector
@@ -151,9 +151,8 @@ object TranslationThenScalingThenRotation3D {
   }
 }
 
-
-
-case class RotationThenScalingThenTranslationSpace2D(rotationCenter : Point[_2D]) extends TransformationSpaceWithDifferentiableTransforms[_2D] {
+case class RotationThenScalingThenTranslationSpace2D(rotationCenter: Point[_2D])
+    extends TransformationSpaceWithDifferentiableTransforms[_2D] {
 
   override type T[D] = RotationThenScalingThenTranslation[D]
   private val rotationSpace = RotationSpace2D(rotationCenter)
@@ -162,7 +161,8 @@ case class RotationThenScalingThenTranslationSpace2D(rotationCenter : Point[_2D]
 
   override def domain: Domain[_2D] = EuclideanSpace2D
 
-  override def numberOfParameters: Int = rotationSpace.numberOfParameters + translationSpace.numberOfParameters + scalingSpace.numberOfParameters
+  override def numberOfParameters: Int =
+    rotationSpace.numberOfParameters + translationSpace.numberOfParameters + scalingSpace.numberOfParameters
 
   override def transformationForParameters(p: ParameterVector): RotationThenScalingThenTranslation[_2D] = {
 
@@ -174,11 +174,14 @@ case class RotationThenScalingThenTranslationSpace2D(rotationCenter : Point[_2D]
 
   /** returns identity transformation) */
   override def identityTransformation: RotationThenScalingThenTranslation[_2D] = RotationThenScalingThenTranslation(
-    rotationSpace.identityTransformation, scalingSpace.identityTransformation, translationSpace.identityTransformation
+    rotationSpace.identityTransformation,
+    scalingSpace.identityTransformation,
+    translationSpace.identityTransformation
   )
 }
 
-case class RotationThenScalingThenTranslationSpace3D(rotationCenter : Point[_3D]) extends TransformationSpaceWithDifferentiableTransforms[_3D] {
+case class RotationThenScalingThenTranslationSpace3D(rotationCenter: Point[_3D])
+    extends TransformationSpaceWithDifferentiableTransforms[_3D] {
 
   override type T[D] = RotationThenScalingThenTranslation[D]
   private val rotationSpace = RotationSpace3D(rotationCenter)
@@ -187,7 +190,8 @@ case class RotationThenScalingThenTranslationSpace3D(rotationCenter : Point[_3D]
 
   override def domain: Domain[_3D] = EuclideanSpace3D
 
-  override def numberOfParameters: Int = rotationSpace.numberOfParameters + translationSpace.numberOfParameters + scalingSpace.numberOfParameters
+  override def numberOfParameters: Int =
+    rotationSpace.numberOfParameters + translationSpace.numberOfParameters + scalingSpace.numberOfParameters
 
   override def transformationForParameters(p: ParameterVector): RotationThenScalingThenTranslation[_3D] = {
 
@@ -199,6 +203,8 @@ case class RotationThenScalingThenTranslationSpace3D(rotationCenter : Point[_3D]
 
   /** returns identity transformation) */
   override def identityTransformation: RotationThenScalingThenTranslation[_3D] = RotationThenScalingThenTranslation(
-    rotationSpace.identityTransformation, scalingSpace.identityTransformation, translationSpace.identityTransformation
+    rotationSpace.identityTransformation,
+    scalingSpace.identityTransformation,
+    translationSpace.identityTransformation
   )
 }

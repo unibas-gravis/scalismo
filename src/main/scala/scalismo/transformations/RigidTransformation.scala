@@ -2,7 +2,17 @@ package scalismo.transformations
 
 import breeze.linalg.DenseVector
 import scalismo.common.{Domain, EuclideanSpace, EuclideanSpace2D, EuclideanSpace3D}
-import scalismo.geometry.{EuclideanVector1D, EuclideanVector2D, EuclideanVector3D, NDSpace, Point, SquareMatrix, _1D, _2D, _3D}
+import scalismo.geometry.{
+  _1D,
+  _2D,
+  _3D,
+  EuclideanVector1D,
+  EuclideanVector2D,
+  EuclideanVector3D,
+  NDSpace,
+  Point,
+  SquareMatrix
+}
 import scalismo.transformations.ParametricTransformation.JacobianField
 import scalismo.transformations.TransformationSpace.ParameterVector
 
@@ -79,7 +89,8 @@ object TranslationThenRotation3D {
   }
 }
 
-case class RotationThenTranslationSpace2D(rotationCenter : Point[_2D]) extends TransformationSpaceWithDifferentiableTransforms[_2D] {
+case class RotationThenTranslationSpace2D(rotationCenter: Point[_2D])
+    extends TransformationSpaceWithDifferentiableTransforms[_2D] {
 
   private val productTS = ProductTransformationSpace(TranslationSpace2D, RotationSpace2D(rotationCenter))
 
@@ -91,8 +102,8 @@ case class RotationThenTranslationSpace2D(rotationCenter : Point[_2D]) extends T
 
   override def transformationForParameters(p: ParameterVector): RotationThenTranslation[_2D] = {
     val productTs = productTS.transformationForParameters(p)
-    val translation : Translation[_2D] = productTs.outerTransformation
-    val rotation : Rotation[_2D] = productTs.innerTransformation
+    val translation: Translation[_2D] = productTs.outerTransformation
+    val rotation: Rotation[_2D] = productTs.innerTransformation
     RotationThenTranslation(rotation, translation)
   }
 
@@ -103,8 +114,8 @@ case class RotationThenTranslationSpace2D(rotationCenter : Point[_2D]) extends T
   )
 }
 
-
-case class RotationThenTranslationSpace3D(rotationCenter : Point[_3D]) extends TransformationSpaceWithDifferentiableTransforms[_3D] {
+case class RotationThenTranslationSpace3D(rotationCenter: Point[_3D])
+    extends TransformationSpaceWithDifferentiableTransforms[_3D] {
 
   private val productTS = ProductTransformationSpace(TranslationSpace3D, RotationSpace3D(rotationCenter))
 
@@ -116,8 +127,8 @@ case class RotationThenTranslationSpace3D(rotationCenter : Point[_3D]) extends T
 
   override def transformationForParameters(p: ParameterVector): RotationThenTranslation[_3D] = {
     val productTs = productTS.transformationForParameters(p)
-    val translation : Translation[_3D] = productTs.outerTransformation
-    val rotation : Rotation[_3D] = productTs.innerTransformation
+    val translation: Translation[_3D] = productTs.outerTransformation
+    val rotation: Rotation[_3D] = productTs.innerTransformation
     RotationThenTranslation(rotation, translation)
   }
 
