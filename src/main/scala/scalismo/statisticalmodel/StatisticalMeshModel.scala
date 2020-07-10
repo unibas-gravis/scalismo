@@ -22,7 +22,7 @@ import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
 import scalismo.numerics.PivotedCholesky
-import scalismo.registration.RigidTransformation
+import scalismo.transformations.RigidTransformation
 import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
 

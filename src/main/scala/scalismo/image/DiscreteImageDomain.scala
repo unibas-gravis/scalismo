@@ -114,10 +114,10 @@ object DiscreteImageDomain3D {
   def apply(origin: Point[_3D],
             spacing: EuclideanVector[_3D],
             size: IntVector[_3D],
-            yaw: Double,
-            pitch: Double,
-            roll: Double): DiscreteImageDomain[_3D] = {
-    DiscreteImageDomain(StructuredPoints3D(origin, spacing, size, yaw, pitch, roll))
+            phi: Double,
+            theta: Double,
+            psi: Double): DiscreteImageDomain[_3D] = {
+    DiscreteImageDomain(StructuredPoints3D(origin, spacing, size, phi, theta, psi))
   }
 
   def apply(boundingBox: BoxDomain[_3D], size: IntVector[_3D]): DiscreteImageDomain[_3D] = {

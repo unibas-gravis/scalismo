@@ -15,7 +15,7 @@
  */
 package scalismo.geometry
 
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 case class Landmark[D: NDSpace](id: String,

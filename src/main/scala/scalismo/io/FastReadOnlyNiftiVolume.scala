@@ -65,7 +65,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
   }
 
   private val hasTransform = {
-    // scl_slope == 0 -> no transformation
+    // scl_slope == 0 -> no transformations
     // performance optimization: special case of slope=1, inter=0 is also detected and ignored (because a * 1 + 0 == a)
     val notransform = header.scl_slope == 0 || (header.scl_slope == 1.0f && header.scl_inter == 0.0f)
 

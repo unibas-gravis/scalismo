@@ -19,7 +19,7 @@ package scalismo.mesh
 import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
 import scalismo.common.{BoxDomain, Cell, DiscreteDomain, DiscreteField, DomainWarp, PointId, UnstructuredPoints}
 import scalismo.geometry._
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 
 import scala.language.implicitConversions
 
@@ -57,7 +57,7 @@ trait LineMesh[D] extends DiscreteDomain[D] { //(val pointSet: UnstructuredPoint
    *
    *  This method maps all mesh points to their images by the given transform while maintaining the same line cell relations.
    *
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
+   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.transformation.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
   def transform(transform: Point[D] => Point[D])(implicit creator: LineMesh.Create[D]): LineMesh[D] = {
     creator.createLineMesh(pointSet.transform(transform), topology)

@@ -19,7 +19,7 @@ import scalismo.common.UnstructuredPoints.Create.CreateUnstructuredPoints2D
 import scalismo.common._
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.utils.Random
 
 import scala.language.implicitConversions

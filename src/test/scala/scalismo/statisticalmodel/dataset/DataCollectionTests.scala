@@ -25,7 +25,8 @@ import scalismo.io.MeshIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.UniformMeshSampler3D
-import scalismo.registration.{LandmarkRegistration, TranslationTransform}
+import scalismo.registration.LandmarkRegistration
+import scalismo.transformations.Translation
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
 
@@ -38,7 +39,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     val meshPath = getClass.getResource("/facemesh.stl").getPath
     val referenceMesh = MeshIO.readMesh(new File(URLDecoder.decode(meshPath, "UTF-8"))).get
 
-    val transformations = for (i <- 0 until 10) yield TranslationTransform(EuclideanVector(i.toDouble, 0.0, 0.0))
+    val transformations = for (i <- 0 until 10) yield Translation(EuclideanVector(i.toDouble, 0.0, 0.0))
     val translatedMeshes = for ((t, i) <- transformations.zipWithIndex) yield referenceMesh.transform(t)
 
     val dataCollection = DataCollection.fromTriangleMeshSequence(referenceMesh, translatedMeshes)

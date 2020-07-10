@@ -18,12 +18,21 @@ package scalismo.statisticalmodel.asm
 import breeze.linalg.{convert, DenseVector}
 import scalismo.common.UnstructuredPointsDomain.Create.CreateUnstructuredPointsDomain3D
 import scalismo.common.{PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{_3D, Point}
+import scalismo.geometry.{_3D, Point, Point3D}
 import scalismo.image.DiscreteImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
-import scalismo.registration.{LandmarkRegistration, RigidTransformation, RigidTransformationSpace, Transformation}
+import scalismo.registration.LandmarkRegistration
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, StatisticalMeshModel}
+import scalismo.transformations.{
+  RigidTransformation,
+  RotationSpace3D,
+  RotationThenTranslation,
+  RotationThenTranslation3D,
+  Transformation,
+  TranslationSpace,
+  TranslationSpace3D
+}
 import scalismo.utils.Random
 
 import scala.collection.immutable
@@ -140,8 +149,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
   private def noTransformations =
     ModelTransformations(
       statisticalModel.coefficients(statisticalModel.mean),
-      RigidTransformationSpace[_3D]()
-        .transformForParameters(RigidTransformationSpace[_3D]().identityTransformParameters)
+      RotationThenTranslation3D(RotationSpace3D(Point3D(0, 0, 0)).identityTransformation,
+                                TranslationSpace3D.identityTransformation)
     )
 
   /**
@@ -224,7 +233,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
                       sampler: SearchPointSampler,
                       config: FittingConfiguration,
                       mesh: TriangleMesh[_3D],
-                      poseTransform: RigidTransformation[_3D]): Try[FittingResult] = {
+                      poseTransform: RotationThenTranslation[_3D]): Try[FittingResult] = {
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, poseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
@@ -351,7 +360,7 @@ object FittingConfiguration {
  * @param coefficients model coefficients to apply. These determine the shape transformation.
  * @param rigidTransform rigid transformation to apply. These determine translation and rotation.
  */
-case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: RigidTransformation[_3D])
+case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: RotationThenTranslation[_3D])
 
 /**
  * Fitting results.

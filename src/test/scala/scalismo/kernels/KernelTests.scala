@@ -19,10 +19,10 @@ import scalismo.common.{BoxDomain, Field, RealSpace}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{_1D, _3D, EuclideanVector, Point}
 import scalismo.numerics.UniformSampler
-import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
 import scalismo.ScalismoTestSuite
+import scalismo.transformations.Transformation
 
 import scala.collection.parallel.immutable.ParVector
 

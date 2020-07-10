@@ -18,7 +18,7 @@ package scalismo.mesh
 import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.utils.Random
 import vtk.vtkTetra
 

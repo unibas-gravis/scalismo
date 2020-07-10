@@ -18,7 +18,7 @@ package scalismo.registration
 
 import breeze.linalg.DenseVector
 import scalismo.numerics._
-import scalismo.registration.TransformationSpace.ParameterVector
+import scalismo.transformations.TransformationSpace.ParameterVector
 
 /**
  * Implementation of a gradient-based registration algorithm, whose cost function is defined by the sum

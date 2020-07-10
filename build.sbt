@@ -7,8 +7,8 @@ lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
-    scalaVersion := "2.13.2",
-    crossScalaVersions := Seq("2.12.11", "2.13.2"),
+    scalaVersion := "2.13.1",
+    crossScalaVersions := Seq("2.12.11", "2.13.1"),
     resolvers ++= Seq(
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("releases"),

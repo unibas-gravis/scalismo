@@ -19,10 +19,10 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.numerics.sqrt
 import scalismo.common._
-import scalismo.common.interpolation.{FieldInterpolator}
+import scalismo.common.interpolation.FieldInterpolator
 import scalismo.geometry._
 import scalismo.numerics.PivotedCholesky
-import scalismo.registration.{RigidTransformation, Transformation}
+import scalismo.transformations.{RigidTransformation, Transformation}
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random

@@ -24,7 +24,7 @@ import scalismo.geometry.{EuclideanVector, NDSpace, Point}
 import scalismo.kernels.{Kernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{PivotedCholesky, Sampler}
-import scalismo.registration.RigidTransformation
+import scalismo.transformations.RigidTransformation
 import scalismo.statisticalmodel.LowRankGaussianProcess.{Eigenpair, KLBasis}
 import scalismo.utils.{Memoize, Random}
 

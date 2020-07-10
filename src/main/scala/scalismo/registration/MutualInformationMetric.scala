@@ -23,6 +23,8 @@ import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, StructuredPoints}
 import scalismo.numerics._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
+import scalismo.transformations.ParametricTransformation.JacobianField
+import scalismo.transformations.TransformationSpace
 import scalismo.utils.{Memoize, Random}
 
 import scala.collection.parallel.immutable.ParVector
@@ -81,11 +83,12 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
   private val binDeltaMovingImage = maxValueMovingImage + 1 - minValueMovingImage
   private val binSizeMovingImage = binDeltaMovingImage / numberOfBins
 
-  private val numberOfParameters: Int = transformationSpace.parametersDimensionality
+  private val numberOfParameters: Int = transformationSpace.numberOfParameters
 
   def _computeJointHistogram(parameters: DenseVector[Double], points: Seq[Point[D]]): JointHistogram = {
 
-    val transform = Memoize(transformationSpace.transformForParameters(parameters), cacheSizeHint = points.size + 100)
+    val transform =
+      Memoize(transformationSpace.transformationForParameters(parameters), cacheSizeHint = points.size + 100)
 
     val jointHistogramValues =
       for (l <- ParVector.range(0, numberOfBins);
@@ -164,14 +167,16 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
   private def _computeJointHistogramDerivative(params: DenseVector[Double],
                                                points: Seq[Point[D]]): JointHistogramDerivative = {
 
-    val transform = Memoize(transformationSpace.transformForParameters(params), points.size + 100)
+    val transform = transformationSpace.transformationForParameters(params)
+    val transformMemoized = Memoize(transform, points.size + 100)
+
     val zeroVec = DenseVector.zeros[Double](numberOfParameters)
 
     val derivs = for (l <- ParVector.range(0, numberOfBins); k <- (0 until numberOfBins)) yield {
 
       val derivsForPoints = for (point <- points) yield {
 
-        val transformedPoint = transform(point)
+        val transformedPoint = transformMemoized(point)
 
         if (movingImage.isDefinedAt(transformedPoint)) {
           val termRefSpline: Double = zeroOrderSpline(
@@ -187,8 +192,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
 
             if (Math.abs(termTestSpline) > 1e-10) {
               val termTestDerivative: DenseVector[Double] = -movingImage.differentiate(transformedPoint).toBreezeVector
-              val termTransSpace: transformationSpace.JacobianImage =
-                transformationSpace.takeDerivativeWRTParameters(params)
+              val termTransSpace: JacobianField[D] = transform.derivativeWRTParameters
               termTransSpace(point).t * termTestDerivative * termRefSpline * termTestSpline
             } else {
               zeroVec
