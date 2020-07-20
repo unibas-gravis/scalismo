@@ -233,7 +233,7 @@ object LowRankGaussianProcess {
   def approximateGPNystrom[D: NDSpace, Value](
     gp: GaussianProcess[D, Value],
     sampler: Sampler[D]
-  )(implicit vectorizer: Vectorizer[Value], rand: Random) = {
+  )(implicit vectorizer: Vectorizer[Value]) = {
     val kltBasis: KLBasis[D, Value] = Kernel.computeNystromApproximation[D, Value](gp.cov, sampler)
     new LowRankGaussianProcess[D, Value](gp.mean, kltBasis)
   }
@@ -278,7 +278,7 @@ object LowRankGaussianProcess {
     gp: GaussianProcess[D, Value],
     relativeTolerance: Double,
     interpolator: FieldInterpolator[D, DDomain, Value]
-  )(implicit vectorizer: Vectorizer[Value], rand: Random): LowRankGaussianProcess[D, Value] = {
+  )(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
 
     val (basis, scale) = PivotedCholesky.computeApproximateEig(kernel = gp.cov,
                                                                xs = domain.pointSet.points.toIndexedSeq,
