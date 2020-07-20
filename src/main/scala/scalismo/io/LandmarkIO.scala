@@ -86,6 +86,19 @@ object LandmarkIO {
     readLandmarksJsonFromSource(Source.fromFile(file))
   }
 
+  def readLandmarksJson1D(file: File): Try[Seq[Landmark[_1D]]] = {
+    readLandmarksJsonFromSource[_1D](Source.fromFile(file))
+  }
+
+  def readLandmarksJson2D(file: File): Try[Seq[Landmark[_2D]]] = {
+    readLandmarksJsonFromSource[_2D](Source.fromFile(file))
+  }
+
+  def readLandmarksJson3D(file: File): Try[Seq[Landmark[_3D]]] = {
+    readLandmarksJsonFromSource[_3D](Source.fromFile(file))
+  }
+
+
   def readLandmarksJsonFromSource[D: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
     implicit val e = LandmarkJsonFormat[D]()
     for {
