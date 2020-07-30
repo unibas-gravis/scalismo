@@ -19,9 +19,14 @@ import java.io.File
 import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
-import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator2D, BSplineImageInterpolator3D}
+import scalismo.common.interpolation.{
+  BSplineImageInterpolator,
+  BSplineImageInterpolator2D,
+  BSplineImageInterpolator3D,
+  NearestNeighborInterpolator
+}
 import scalismo.{numerics, ScalismoTestSuite}
-import scalismo.common.{EuclideanSpace2D, Field, NearestNeighborInterpolator, PointId, RealSpace}
+import scalismo.common.{EuclideanSpace2D, Field, PointId, RealSpace}
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.io.{ImageIO, MeshIO}

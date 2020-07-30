@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import scalismo.common.{DiscreteDomain, DomainWarp, NearestNeighborInterpolator, Vectorizer}
+import scalismo.common.{DiscreteDomain, DomainWarp, Vectorizer}
 import scalismo.geometry.{_3D, EuclideanVector, NDSpace}
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.UniformMeshSampler3D

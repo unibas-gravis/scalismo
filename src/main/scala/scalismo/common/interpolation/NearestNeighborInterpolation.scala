@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.common
+package scalismo.common.interpolation
 
-import scalismo.common.interpolation.FieldInterpolator
+import scalismo.common.{DiscreteDomain, DiscreteField, EuclideanSpace, Field, RealSpace}
 import scalismo.geometry.{_1D, _2D, _3D, Point}
-
-import scala.language.higherKinds
 
 /**
  * Nearest neighbor interpolation of a discrete field. This implementation is generic and
@@ -36,7 +34,7 @@ case class NearestNeighborInterpolator[D, DDomain[DD] <: DiscreteDomain[DD], A](
       df(closestPointId)
     }
 
-    Field(RealSpace[D], valueAtClosestPoint)
+    Field(EuclideanSpace[D], valueAtClosestPoint)
   }
 
 }

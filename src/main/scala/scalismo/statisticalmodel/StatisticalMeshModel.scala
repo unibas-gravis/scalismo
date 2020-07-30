@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.common.interpolation.TriangleMeshInterpolator
+import scalismo.common.interpolation.{NearestNeighborInterpolator3D, TriangleMeshInterpolator}
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
