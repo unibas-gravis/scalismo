@@ -31,7 +31,7 @@ object LandmarkIO {
 
   private case class Uncertainty(stddevs: List[Double], pcvectors: List[List[Double]])
 
-  implicit private val uncertaintyProtocol = jsonFormat2(Uncertainty.apply)
+  implicit private val uncertaintyProtocol =   jsonFormat2(Uncertainty.apply)
 
   implicit private def u2m(u: Uncertainty): MultivariateNormalDistribution = {
     val dim = u.stddevs.size

@@ -55,7 +55,6 @@ object Landmark1D {
             point: Point[_1D],
             description: Option[String] = None,
             uncertainty: Option[MultivariateNormalDistribution] = None): Landmark[_1D] = {
-
     Landmark(id, point, description, uncertainty)
   }
 }
@@ -65,7 +64,6 @@ object Landmark2D {
             point: Point[_2D],
             description: Option[String] = None,
             uncertainty: Option[MultivariateNormalDistribution] = None): Landmark[_2D] = {
-
     Landmark(id, point, description, uncertainty)
   }
 }
