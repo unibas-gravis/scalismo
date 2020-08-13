@@ -174,12 +174,12 @@ object DiagonalKernel {
 }
 
 object DiagonalKernel1D {
-  def apply[D: NDSpace](kernel: PDKernel[_1D], outputDim: Int): DiagonalKernel[_1D] =
+  def apply(kernel: PDKernel[_1D], outputDim: Int): DiagonalKernel[_1D] =
     IsotropicDiagonalKernel(kernel, outputDim)
 }
 
 object DiagonalKernel2D {
-  def apply[D: NDSpace](kernel: PDKernel[_2D], outputDim: Int): DiagonalKernel[_2D] =
+  def apply(kernel: PDKernel[_2D], outputDim: Int): DiagonalKernel[_2D] =
     IsotropicDiagonalKernel(kernel, outputDim)
 
   def apply(kernels: PDKernel[_2D]*): DiagonalKernel[_2D] =
@@ -187,7 +187,7 @@ object DiagonalKernel2D {
 }
 
 object DiagonalKernel3D {
-  def apply[D: NDSpace](kernel: PDKernel[_3D], outputDim: Int): DiagonalKernel[_3D] =
+  def apply(kernel: PDKernel[_3D], outputDim: Int): DiagonalKernel[_3D] =
     IsotropicDiagonalKernel(kernel, outputDim)
 
   def apply(kernels: PDKernel[_3D]*): DiagonalKernel[_3D] =
