@@ -22,9 +22,9 @@ import scalismo.transformations.{
   RigidTransformation,
   RotationSpace,
   RotationSpace2D,
-  RotationThenTranslation2D,
   Transformation,
-  Translation
+  Translation,
+  TranslationAfterRotation2D
 }
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 import scalismo.utils.Random
@@ -487,8 +487,8 @@ class GeometryTests extends ScalismoTestSuite {
     it("is correctly transformed using a rigid transform") {
 
       val rigidTransform =
-        RotationThenTranslation2D(RotationSpace2D(Point2D(0, 0)).transformationForParameters(DenseVector(Math.PI / 2)),
-                                  Translation(EuclideanVector2D(2, 3)))
+        TranslationAfterRotation2D(Translation(EuclideanVector2D(2, 3)),
+                                   RotationSpace2D(Point2D(0, 0)).transformationForParameters(DenseVector(Math.PI / 2)))
 
       val transformedLm = lm.transform(rigidTransform)
 

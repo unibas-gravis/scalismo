@@ -54,7 +54,7 @@ object Landmark1D {
   def apply(id: String,
             point: Point[_1D],
             description: Option[String] = None,
-            uncertainty: Option[MultivariateNormalDistribution] = None) : Landmark[_1D] = {
+            uncertainty: Option[MultivariateNormalDistribution] = None): Landmark[_1D] = {
 
     Landmark(id, point, description, uncertainty)
   }
@@ -64,7 +64,7 @@ object Landmark2D {
   def apply(id: String,
             point: Point[_2D],
             description: Option[String] = None,
-            uncertainty: Option[MultivariateNormalDistribution] = None) : Landmark[_2D] = {
+            uncertainty: Option[MultivariateNormalDistribution] = None): Landmark[_2D] = {
 
     Landmark(id, point, description, uncertainty)
   }
@@ -74,7 +74,7 @@ object Landmark3D {
   def apply(id: String,
             point: Point[_3D],
             description: Option[String] = None,
-            uncertainty: Option[MultivariateNormalDistribution] = None) : Landmark[_3D] = {
+            uncertainty: Option[MultivariateNormalDistribution] = None): Landmark[_3D] = {
 
     Landmark(id, point, description, uncertainty)
   }

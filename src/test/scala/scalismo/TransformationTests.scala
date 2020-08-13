@@ -191,7 +191,7 @@ class TransformationTests extends ScalismoTestSuite {
   describe("A 2D rigid transform") {
 
     val rigidTransformation =
-      RotationThenTranslation2D(Rotation(Math.PI / 2.0, Point2D(0, 0)), Translation(EuclideanVector2D(2.0, 5.0)))
+      TranslationAfterRotation2D(Translation(EuclideanVector2D(2.0, 5.0)), Rotation(Math.PI / 2.0, Point2D(0, 0)))
 
     it("correctly transforms a 2D point") {
       val point = Point(1.0, 1.0)
@@ -203,9 +203,9 @@ class TransformationTests extends ScalismoTestSuite {
   describe("A 2D similarity transform") {
 
     val similarityTransformation =
-      RotationThenScalingThenTranslation2D(Rotation(Math.PI / 2.0, Point2D(0, 0)),
-                                           Scaling(2.0),
-                                           Translation(EuclideanVector2D(2.0, 5.0)))
+      TranslationAfterScalingAfterRotation2D(Translation(EuclideanVector2D(2.0, 5.0)),
+                                             Scaling(2.0),
+                                             Rotation(Math.PI / 2.0, Point2D(0, 0)))
 
     it("correctly transforms a 2D point") {
       val point = Point(1.0, 1.0)
