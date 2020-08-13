@@ -29,7 +29,7 @@ import scalismo.utils.Random
  * @param cov  The covariance function. Needs to be positive definite
  * @tparam D The dimensionality of the input space
  */
-class GaussianProcess[D: NDSpace, Value] protected (val mean: Field[D, Value], val cov: MatrixValuedPDKernel[D])(
+class GaussianProcess[D: NDSpace, Value] (val mean: Field[D, Value], val cov: MatrixValuedPDKernel[D])(
   implicit
   val vectorizer: Vectorizer[Value]
 ) {
@@ -211,6 +211,67 @@ object GaussianProcess {
     val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
     val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * math.log(det(Ky))) - const
     margLikehood
+  }
+
+}
+
+object GaussianProcess1D {
+
+  def apply[Value](mean: Field[_1D, Value], cov: MatrixValuedPDKernel[_1D])(
+    implicit
+    vectorizer: Vectorizer[Value]
+  ): GaussianProcess[_1D, Value] = {
+    new GaussianProcess[_1D, Value](mean, cov)
+  }
+
+  /**
+   * Creates a new zero-mean Gaussian process with the given covariance function.
+   */
+  def apply[Value](cov: MatrixValuedPDKernel[_1D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[_1D, Value] = {
+    val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
+    val zeroField = Field1D[Value](EuclideanSpace1D, (p: Point[_1D]) => zeroVec)
+    GaussianProcess[_1D, Value](zeroField, cov)
+  }
+
+}
+
+object GaussianProcess2D {
+
+  def apply[Value](mean: Field[_2D, Value], cov: MatrixValuedPDKernel[_2D])(
+    implicit
+    vectorizer: Vectorizer[Value]
+  ): GaussianProcess[_2D, Value] = {
+    new GaussianProcess[_2D, Value](mean, cov)
+  }
+
+  /**
+   * Creates a new zero-mean Gaussian process with the given covariance function.
+   */
+  def apply[Value](cov: MatrixValuedPDKernel[_2D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[_2D, Value] = {
+    val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
+    val zeroField = Field2D[Value](EuclideanSpace2D, (p: Point[_2D]) => zeroVec)
+    GaussianProcess[_2D, Value](zeroField, cov)
+  }
+
+}
+
+
+object GaussianProcess3D {
+
+  def apply[Value](mean: Field[_3D, Value], cov: MatrixValuedPDKernel[_3D])(
+    implicit
+    vectorizer: Vectorizer[Value]
+  ): GaussianProcess[_3D, Value] = {
+    new GaussianProcess[_3D, Value](mean, cov)
+  }
+
+  /**
+   * Creates a new zero-mean Gaussian process with the given covariance function.
+   */
+  def apply[Value](cov: MatrixValuedPDKernel[_3D])(implicit vectorizer: Vectorizer[Value]): GaussianProcess[_3D, Value] = {
+    val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
+    val zeroField = Field3D[Value](EuclideanSpace3D, (p: Point[_3D]) => zeroVec)
+    GaussianProcess[_3D, Value](zeroField, cov)
   }
 
 }

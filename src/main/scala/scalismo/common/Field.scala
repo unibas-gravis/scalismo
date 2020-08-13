@@ -44,6 +44,19 @@ object Field {
 
 }
 
+object Field1D {
+  def apply[A](dom: Domain[_1D], fun: Point[_1D] => A) : Field[_1D, A] = Field(dom, fun)
+}
+
+object Field2D {
+  def apply[A](dom: Domain[_2D], fun: Point[_2D] => A) : Field[_2D, A] = Field(dom, fun)
+}
+
+object Field3D {
+  def apply[A](dom: Domain[_3D], fun: Point[_3D] => A) : Field[_3D, A] = Field(dom, fun)
+}
+
+
 /**
  * An image is simply a function from points to values, together with a domain on which the
  * function is defined.
@@ -165,4 +178,22 @@ object DifferentiableField {
       override val df = outerdf
     }
   }
+}
+
+object DifferentiableField1D {
+  def apply[A](domain: Domain[_1D], f: Point[_1D] => A, df: Point[_1D] => EuclideanVector[_1D])(
+    implicit scalar: Scalar[A]
+  ): DifferentiableField[_1D, A] = DifferentiableField(domain, f, df)
+}
+
+object DifferentiableField2D {
+  def apply[A](domain: Domain[_2D], f: Point[_2D] => A, df: Point[_2D] => EuclideanVector[_2D])(
+    implicit scalar: Scalar[A]
+  ): DifferentiableField[_2D, A] = DifferentiableField(domain, f, df)
+}
+
+object DifferentiableField3D {
+  def apply[A](domain: Domain[_3D], f: Point[_3D] => A, df: Point[_3D] => EuclideanVector[_3D])(
+    implicit scalar: Scalar[A]
+  ): DifferentiableField[_3D, A] = DifferentiableField(domain, f, df)
 }
