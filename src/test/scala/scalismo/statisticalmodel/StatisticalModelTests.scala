@@ -64,7 +64,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       val data = (1 to 3).map(f => model.sample())
 
-      val dc = DataCollection.fromTriangleMeshSequence(ref, data)
+      val dc = DataCollection.fromTriangleMesh3DSequence(ref, data)
       val dcGpa = DataCollection.gpa(dc)
 
       val pca1 = StatisticalMeshModel.createUsingPCA(dcGpa, NumberOfEigenfunctions.apply(data.length - 1))

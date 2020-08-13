@@ -42,7 +42,7 @@ class DataCollectionTests extends ScalismoTestSuite {
     val transformations = for (i <- 0 until 10) yield Translation(EuclideanVector(i.toDouble, 0.0, 0.0))
     val translatedMeshes = for ((t, i) <- transformations.zipWithIndex) yield referenceMesh.transform(t)
 
-    val dataCollection = DataCollection.fromTriangleMeshSequence(referenceMesh, translatedMeshes)
+    val dataCollection = DataCollection.fromTriangleMesh3DSequence(referenceMesh, translatedMeshes)
 
     it("yields the right number of cross-validation folds") {
       def createFolds(nFolds: Int) = {

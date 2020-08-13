@@ -205,8 +205,8 @@ object StatisticalMeshModel {
    * compute only the leading principal components. See PivotedCholesky.StoppingCriterion for more details.
    */
   def createUsingPCA(
-    dc: TriangleMeshDataCollection,
-    stoppingCriterion: PivotedCholesky.StoppingCriterion = PivotedCholesky.RelativeTolerance(0)
+                      dc: TriangleMeshDataCollection[_3D],
+                      stoppingCriterion: PivotedCholesky.StoppingCriterion = PivotedCholesky.RelativeTolerance(0)
   ): Try[StatisticalMeshModel] = {
     Try {
       val pdm = PointDistributionModel.createUsingPCA(dc, stoppingCriterion)
