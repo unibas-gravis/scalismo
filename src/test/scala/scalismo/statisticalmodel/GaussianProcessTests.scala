@@ -21,6 +21,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.common._
+import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
 import scalismo.image.{

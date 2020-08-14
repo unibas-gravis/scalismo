@@ -20,7 +20,7 @@ import breeze.linalg.{*, diag, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.common.DiscreteField.vectorize
 import scalismo.common._
-import scalismo.common.interpolation.FieldInterpolator
+import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
 import scalismo.geometry._
 import scalismo.image.StructuredPoints
 import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}

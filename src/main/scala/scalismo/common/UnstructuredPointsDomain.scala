@@ -9,42 +9,6 @@ case class UnstructuredPointsDomain[D](pointSet: UnstructuredPoints[D]) extends 
   }
 }
 
-object UnstructuredPointsDomain1D {
-
-  def apply(pointSet : UnstructuredPoints[_1D]) : UnstructuredPointsDomain[_1D] = {
-    new UnstructuredPointsDomain(pointSet)
-  }
-
-  def apply(points : IndexedSeq[Point[_1D]]) : UnstructuredPointsDomain[_1D] = {
-    new UnstructuredPointsDomain(UnstructuredPoints1D(points))
-  }
-
-}
-
-object UnstructuredPointsDomain2D {
-
-  def apply(pointSet : UnstructuredPoints[_2D]) : UnstructuredPointsDomain[_2D] = {
-    new UnstructuredPointsDomain(pointSet)
-  }
-
-  def apply(points : IndexedSeq[Point[_2D]]) : UnstructuredPointsDomain[_2D] = {
-    new UnstructuredPointsDomain(UnstructuredPoints2D(points))
-  }
-
-}
-
-object UnstructuredPointsDomain3D {
-
-  def apply(pointSet : UnstructuredPoints[_3D]) : UnstructuredPointsDomain[_3D] = {
-    new UnstructuredPointsDomain(pointSet)
-  }
-
-  def apply(points : IndexedSeq[Point[_3D]]) : UnstructuredPointsDomain[_3D] = {
-    new UnstructuredPointsDomain(UnstructuredPoints3D(points))
-  }
-
-}
-
 
 object UnstructuredPointsDomain {
   def apply[D: NDSpace: Create](
@@ -93,4 +57,41 @@ object UnstructuredPointsDomain {
       }
     }
   }
+}
+
+
+object UnstructuredPointsDomain1D {
+
+  def apply(pointSet : UnstructuredPoints[_1D]) : UnstructuredPointsDomain[_1D] = {
+    new UnstructuredPointsDomain(pointSet)
+  }
+
+  def apply(points : IndexedSeq[Point[_1D]]) : UnstructuredPointsDomain[_1D] = {
+    new UnstructuredPointsDomain(UnstructuredPoints1D(points))
+  }
+
+}
+
+object UnstructuredPointsDomain2D {
+
+  def apply(pointSet : UnstructuredPoints[_2D]) : UnstructuredPointsDomain[_2D] = {
+    new UnstructuredPointsDomain(pointSet)
+  }
+
+  def apply(points : IndexedSeq[Point[_2D]]) : UnstructuredPointsDomain[_2D] = {
+    new UnstructuredPointsDomain(UnstructuredPoints2D(points))
+  }
+
+}
+
+object UnstructuredPointsDomain3D {
+
+  def apply(pointSet : UnstructuredPoints[_3D]) : UnstructuredPointsDomain[_3D] = {
+    new UnstructuredPointsDomain(pointSet)
+  }
+
+  def apply(points : IndexedSeq[Point[_3D]]) : UnstructuredPointsDomain[_3D] = {
+    new UnstructuredPointsDomain(UnstructuredPoints3D(points))
+  }
+
 }

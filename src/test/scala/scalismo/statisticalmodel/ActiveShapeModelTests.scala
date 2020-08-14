@@ -5,7 +5,8 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{DiscreteField, NearestNeighborInterpolator}
+import scalismo.common.DiscreteField
+import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.{ImageIO, MeshIO, StatismoIO, StatisticalModelIO}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}

@@ -19,7 +19,7 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.numerics.sqrt
 import scalismo.common._
-import scalismo.common.interpolation.FieldInterpolator
+import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
 import scalismo.geometry._
 import scalismo.numerics.PivotedCholesky
 import scalismo.transformations.{RigidTransformation, Transformation}

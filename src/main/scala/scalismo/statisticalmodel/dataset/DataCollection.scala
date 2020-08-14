@@ -1,8 +1,11 @@
 package scalismo.statisticalmodel.dataset
 
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.common.{DiscreteDomain, DiscreteField, Field, NearestNeighborInterpolator, Scalar, UnstructuredPointsDomain}
+import scalismo.common.{DiscreteDomain, DiscreteField, Field, Scalar, UnstructuredPointsDomain}
 import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, Point3D, _3D}
+import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
+import scalismo.common.{DiscreteDomain, DiscreteField, Field, Scalar, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
 import scalismo.mesh.{LineMesh, MeshMetrics, TetrahedralMesh, TriangleMesh}
 import scalismo.registration.LandmarkRegistration
 import scalismo.transformations.Transformation
