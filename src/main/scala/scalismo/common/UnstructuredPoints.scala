@@ -24,7 +24,7 @@ import scala.collection.parallel.immutable.ParVector
 import scala.language.implicitConversions
 
 sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
-) extends PointSet[D] {
+  ) extends PointSet[D] {
 
   def pointSequence: IndexedSeq[Point[D]]
 

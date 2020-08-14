@@ -45,17 +45,16 @@ object Field {
 }
 
 object Field1D {
-  def apply[A](dom: Domain[_1D], fun: Point[_1D] => A) : Field[_1D, A] = Field(dom, fun)
+  def apply[A](dom: Domain[_1D], fun: Point[_1D] => A): Field[_1D, A] = Field(dom, fun)
 }
 
 object Field2D {
-  def apply[A](dom: Domain[_2D], fun: Point[_2D] => A) : Field[_2D, A] = Field(dom, fun)
+  def apply[A](dom: Domain[_2D], fun: Point[_2D] => A): Field[_2D, A] = Field(dom, fun)
 }
 
 object Field3D {
-  def apply[A](dom: Domain[_3D], fun: Point[_3D] => A) : Field[_3D, A] = Field(dom, fun)
+  def apply[A](dom: Domain[_3D], fun: Point[_3D] => A): Field[_3D, A] = Field(dom, fun)
 }
-
 
 /**
  * An image is simply a function from points to values, together with a domain on which the

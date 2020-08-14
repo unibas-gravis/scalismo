@@ -116,7 +116,7 @@ case class EuclideanVector1D(x: Double) extends EuclideanVector[_1D] {
 
 object EuclideanVector1D {
 
-  def apply(x: Double) : EuclideanVector[_1D] = new EuclideanVector1D(x)
+  def apply(x: Double): EuclideanVector[_1D] = new EuclideanVector1D(x)
 
   val unit = EuclideanVector1D(1.0)
   val zero = EuclideanVector1D(0.0)
@@ -153,7 +153,7 @@ case class EuclideanVector2D(x: Double, y: Double) extends EuclideanVector[_2D] 
 
 object EuclideanVector2D {
 
-  def apply(x: Double, y: Double, z: Double) : EuclideanVector[_2D] = new EuclideanVector2D(x, y)
+  def apply(x: Double, y: Double, z: Double): EuclideanVector[_2D] = new EuclideanVector2D(x, y)
 
   val unitX = EuclideanVector2D(1.0, 0.0)
   val unitY = EuclideanVector2D(0.0, 1.0)
@@ -198,7 +198,7 @@ case class EuclideanVector3D(x: Double, y: Double, z: Double) extends EuclideanV
 
 object EuclideanVector3D {
 
-  def apply(x: Double, y: Double, z: Double) : EuclideanVector[_3D] = new EuclideanVector3D(x, y, z)
+  def apply(x: Double, y: Double, z: Double): EuclideanVector[_3D] = new EuclideanVector3D(x, y, z)
 
   val unitX = EuclideanVector3D(1.0, 0.0, 0.0)
   val unitY = EuclideanVector3D(0.0, 1.0, 0.0)
@@ -316,6 +316,5 @@ object EuclideanVector {
   implicit val Vector_1DVectorizer = new VectorVectorizer[_1D]
   implicit val Vector_2DVectorizer = new VectorVectorizer[_2D]
   implicit val Vector_3DVectorizer = new VectorVectorizer[_3D]
-
 
 }

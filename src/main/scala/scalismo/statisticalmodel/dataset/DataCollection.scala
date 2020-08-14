@@ -2,7 +2,7 @@ package scalismo.statisticalmodel.dataset
 
 import scalismo.common.interpolation.FieldInterpolator
 import scalismo.common.{DiscreteDomain, DiscreteField, Field, Scalar, UnstructuredPointsDomain}
-import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, Point3D, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
 import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
 import scalismo.common.{DiscreteDomain, DiscreteField, Field, Scalar, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
@@ -112,7 +112,7 @@ object DataCollection {
   }
 
   def fromTetrahedralMesh3DSequence(reference: TetrahedralMesh[_3D],
-                                  meshes: Seq[TetrahedralMesh[_3D]]): TetrahedralMeshDataCollection[_3D] = {
+                                    meshes: Seq[TetrahedralMesh[_3D]]): TetrahedralMeshDataCollection[_3D] = {
 
     val dfs = for (mesh <- meshes) yield {
       differenceFieldToReference[_3D, TetrahedralMesh](reference, mesh)

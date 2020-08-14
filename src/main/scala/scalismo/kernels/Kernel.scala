@@ -156,8 +156,7 @@ private[kernels] case class IsotropicDiagonalKernel[D: NDSpace](kernel: PDKernel
   override def domain = kernel.domain
 }
 
-private[kernels] case class AnisotropicDiagonalKernel[D: NDSpace](kernels: Seq[PDKernel[D]])
-    extends DiagonalKernel[D] {
+private[kernels] case class AnisotropicDiagonalKernel[D: NDSpace](kernels: Seq[PDKernel[D]]) extends DiagonalKernel[D] {
   def k(x: Point[D], y: Point[D]) = diag(DenseVector[Double](kernels.map(k => k(x, y)).toArray))
 
   override def domain = kernels.map(_.domain).reduce(Domain.intersection(_, _))
@@ -169,7 +168,7 @@ object DiagonalKernel {
   def apply[D: NDSpace](kernel: PDKernel[D], outputDim: Int): DiagonalKernel[D] =
     IsotropicDiagonalKernel(kernel, outputDim)
 
-  def apply[D : NDSpace](kernels: PDKernel[D]*): DiagonalKernel[D] =
+  def apply[D: NDSpace](kernels: PDKernel[D]*): DiagonalKernel[D] =
     AnisotropicDiagonalKernel[D](kernels)
 }
 

@@ -335,11 +335,11 @@ object PointDistributionModel {
 object PointDistributionModel1D {
 
   def apply[PointRepr[D] <: DiscreteDomain[D]](
-                                                reference: PointRepr[_1D],
-                                                gp: LowRankGaussianProcess[_1D, EuclideanVector[_1D]]
-                                              )(implicit
-                                                canWarp: DomainWarp[_1D, PointRepr],
-                                                vectorizer: Vectorizer[EuclideanVector[_1D]]): PointDistributionModel[_1D, PointRepr] = {
+    reference: PointRepr[_1D],
+    gp: LowRankGaussianProcess[_1D, EuclideanVector[_1D]]
+  )(implicit
+    canWarp: DomainWarp[_1D, PointRepr],
+    vectorizer: Vectorizer[EuclideanVector[_1D]]): PointDistributionModel[_1D, PointRepr] = {
     val discreteGp = DiscreteLowRankGaussianProcess(reference, gp)
     new PointDistributionModel(discreteGp)
   }
@@ -348,11 +348,11 @@ object PointDistributionModel1D {
 object PointDistributionModel2D {
 
   def apply[PointRepr[D] <: DiscreteDomain[D]](
-                                                reference: PointRepr[_2D],
-                                                gp: LowRankGaussianProcess[_2D, EuclideanVector[_2D]]
-                                              )(implicit
-                                                canWarp: DomainWarp[_2D, PointRepr],
-                                                vectorizer: Vectorizer[EuclideanVector[_2D]]): PointDistributionModel[_2D, PointRepr] = {
+    reference: PointRepr[_2D],
+    gp: LowRankGaussianProcess[_2D, EuclideanVector[_2D]]
+  )(implicit
+    canWarp: DomainWarp[_2D, PointRepr],
+    vectorizer: Vectorizer[EuclideanVector[_2D]]): PointDistributionModel[_2D, PointRepr] = {
     val discreteGp = DiscreteLowRankGaussianProcess(reference, gp)
     new PointDistributionModel(discreteGp)
   }
@@ -361,11 +361,11 @@ object PointDistributionModel2D {
 object PointDistributionModel3D {
 
   def apply[PointRepr[D] <: DiscreteDomain[D]](
-                                                reference: PointRepr[_3D],
-                                                gp: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]
-                                              )(implicit
-                                                canWarp: DomainWarp[_3D, PointRepr],
-                                                vectorizer: Vectorizer[EuclideanVector[_3D]]): PointDistributionModel[_3D, PointRepr] = {
+    reference: PointRepr[_3D],
+    gp: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]
+  )(implicit
+    canWarp: DomainWarp[_3D, PointRepr],
+    vectorizer: Vectorizer[EuclideanVector[_3D]]): PointDistributionModel[_3D, PointRepr] = {
     val discreteGp = DiscreteLowRankGaussianProcess(reference, gp)
     new PointDistributionModel(discreteGp)
   }
