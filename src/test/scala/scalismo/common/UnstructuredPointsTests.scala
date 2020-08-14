@@ -50,5 +50,12 @@ class UnstructuredPointsTests extends ScalismoTestSuite {
       }
     }
 
+    it ("correctly chunks points into n chunks") {
+      for (numChunks <- 2 until points.length) {
+        val chunks = dom.pointsInChunks(numChunks)
+        chunks.size should equal(numChunks)
+      }
+    }
+
   }
 }

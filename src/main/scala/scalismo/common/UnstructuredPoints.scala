@@ -66,8 +66,8 @@ sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
   }
 
   override def pointsInChunks(nChunks: Int): Seq[Iterator[Point[D]]] = {
-    val chunkSize = pointSequence.size / nChunks
-    val chunks = for (i <- 0 until (nChunks + 1)) yield {
+    val chunkSize = Math.ceil(pointSequence.size / nChunks.toDouble).toInt
+    val chunks = for (i <- 0 until nChunks) yield {
       pointSequence.slice(i * chunkSize, Math.min((i + 1) * chunkSize, pointSequence.size)).iterator
     }
     chunks.toSeq
