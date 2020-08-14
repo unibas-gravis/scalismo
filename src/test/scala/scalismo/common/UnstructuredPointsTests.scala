@@ -38,5 +38,24 @@ class UnstructuredPointsTests extends ScalismoTestSuite {
     it("has the same hash value as the underlying point sequence") {
       dom.hashCode() shouldBe points.hashCode()
     }
+
+    it("returns the correct points when retrieved in chunks ") {
+      for (chunkSize <- 2 until points.length) {
+        val pointsFromChunked = dom.pointsInChunks(3).flatten
+
+        pointsFromChunked.size should equal(points.size)
+        for (pt <- points) {
+          pointsFromChunked.contains(pt) should be(true)
+        }
+      }
+    }
+
+    it ("correctly chunks points into n chunks") {
+      for (numChunks <- 2 until points.length) {
+        val chunks = dom.pointsInChunks(numChunks)
+        chunks.size should equal(numChunks)
+      }
+    }
+
   }
 }

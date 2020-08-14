@@ -133,16 +133,7 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
   private[scalismo] def indexToPhysicalCoordinateTransform: Transformation[D]
   private[scalismo] def physicalCoordinateToContinuousIndex: Transformation[D]
 
-  /**
-   * *
-   * Returns a sequence of iterators on the domain points, the size of the sequence being indicated by the user.
-   *
-   * The main idea behind this method is to be able to easily parallelize on the domain points, as parallel operations
-   * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would parallelize on the
-   * IndexedSeq of iterators instead.
-   *
-   */
-  private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[D]]]
+  def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[D]]]
 
   // define the canEqual method
   override def canEqual(a: Any) = a.isInstanceOf[StructuredPoints[D]]
@@ -211,7 +202,7 @@ case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D],
 
   override def boundingBox: BoxDomain[_1D] = BoxDomain1D(origin, origin + EuclideanVector(size(0) * spacing(0)))
 
-  override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point1D]] = {
+  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point1D]] = {
     require(nbChunks > 1)
     val chunkSize = size(0) / nbChunks
     val ranges = (0 until nbChunks).map { chunkId =>
@@ -287,7 +278,7 @@ case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D],
     BoxDomain2D(origin, oppositeCorner)
   }
 
-  override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point2D]] = {
+  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point2D]] = {
     require(nbChunks > 1)
     val chunkSize = size(1) / nbChunks
     val ranges = (0 until nbChunks).map { chunkId =>
@@ -392,7 +383,7 @@ case class StructuredPoints3D(origin: Point[_3D],
   }
   override def points = generateIterator(0, size(2), 0, size(1), 0, size(0))
 
-  override private[scalismo] def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point3D]] = {
+  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point3D]] = {
     require(nbChunks > 1)
     val chunkSize = size(2) / nbChunks
     val ranges = (0 until nbChunks).map { chunkId =>

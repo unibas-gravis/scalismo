@@ -65,6 +65,14 @@ sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
 
   }
 
+  override def pointsInChunks(nChunks: Int): Seq[Iterator[Point[D]]] = {
+    val chunkSize = Math.ceil(pointSequence.size / nChunks.toDouble).toInt
+    val chunks = for (i <- 0 until nChunks) yield {
+      pointSequence.slice(i * chunkSize, Math.min((i + 1) * chunkSize, pointSequence.size)).iterator
+    }
+    chunks.toSeq
+  }
+
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = {
     kdTreeMap.findNearest(pt, n).map { case (p, id) => PointWithId(p, PointId(id)) }
   }
