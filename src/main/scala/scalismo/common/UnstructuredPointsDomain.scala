@@ -3,7 +3,11 @@ package scalismo.common
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, NDSpace, Point}
 import scalismo.transformations.Transformation
 
-case class UnstructuredPointsDomain[D](pointSet: UnstructuredPoints[D]) extends DiscreteDomain[D] {}
+case class UnstructuredPointsDomain[D](pointSet: UnstructuredPoints[D]) extends DiscreteDomain[D] {
+  def transform(transformation : Transformation[D]) : UnstructuredPointsDomain[D] = {
+    UnstructuredPointsDomain(pointSet.transform(transformation))
+  }
+}
 
 object UnstructuredPointsDomain1D {
 
