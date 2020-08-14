@@ -18,6 +18,7 @@ package scalismo.common
 import scalismo.geometry._
 import scalismo.transformations.{CanDifferentiateWRTPosition, Transformation}
 
+import scala.collection.parallel.immutable.ParVector
 import scala.reflect.ClassTag
 
 /**
@@ -114,14 +115,18 @@ trait Field[D, A] extends Function1[Point[D], A] {
   def discretize[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D],
                                                     outsideValue: A): DiscreteField[D, DDomain, A] = {
 
-    //!FIXME - This could/should be parallelized
-    val values = domain.pointSet.points
-      .map(pt => {
-        if (isDefinedAt(pt)) f(pt)
+    val nbChunks = Runtime.getRuntime().availableProcessors() * 2
+    val pointChunks = ParVector.fromSpecific(domain.pointSet.pointsInChunks(nbChunks))
+
+    val values =
+      for {
+        points <- pointChunks
+        point <- points
+      } yield {
+        if (isDefinedAt(point)) f(point)
         else outsideValue
-      })
-      .toIndexedSeq
-    DiscreteField(domain, values)
+      }
+    DiscreteField(domain, values.toIndexedSeq)
   }
 
 }
