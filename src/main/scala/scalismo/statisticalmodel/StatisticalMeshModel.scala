@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.common.interpolation.TriangleMeshInterpolator
+import scalismo.common.interpolation.{NearestNeighborInterpolator3D, TriangleMeshInterpolator}
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
@@ -205,7 +205,7 @@ object StatisticalMeshModel {
    * compute only the leading principal components. See PivotedCholesky.StoppingCriterion for more details.
    */
   def createUsingPCA(
-    dc: TriangleMeshDataCollection,
+    dc: TriangleMeshDataCollection[_3D],
     stoppingCriterion: PivotedCholesky.StoppingCriterion = PivotedCholesky.RelativeTolerance(0)
   ): Try[StatisticalMeshModel] = {
     Try {

@@ -27,9 +27,9 @@ import scalismo.statisticalmodel.{MultivariateNormalDistribution, StatisticalMes
 import scalismo.transformations.{
   RigidTransformation,
   RotationSpace3D,
-  RotationThenTranslation,
-  RotationThenTranslation3D,
   Transformation,
+  TranslationAfterRotation,
+  TranslationAfterRotation3D,
   TranslationSpace,
   TranslationSpace3D
 }
@@ -149,8 +149,8 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
   private def noTransformations =
     ModelTransformations(
       statisticalModel.coefficients(statisticalModel.mean),
-      RotationThenTranslation3D(RotationSpace3D(Point3D(0, 0, 0)).identityTransformation,
-                                TranslationSpace3D.identityTransformation)
+      TranslationAfterRotation3D(TranslationSpace3D.identityTransformation,
+                                 RotationSpace3D(Point3D(0, 0, 0)).identityTransformation)
     )
 
   /**
@@ -233,7 +233,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
                       sampler: SearchPointSampler,
                       config: FittingConfiguration,
                       mesh: TriangleMesh[_3D],
-                      poseTransform: RotationThenTranslation[_3D]): Try[FittingResult] = {
+                      poseTransform: TranslationAfterRotation[_3D]): Try[FittingResult] = {
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, poseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
@@ -360,7 +360,7 @@ object FittingConfiguration {
  * @param coefficients model coefficients to apply. These determine the shape transformation.
  * @param rigidTransform rigid transformation to apply. These determine translation and rotation.
  */
-case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: RotationThenTranslation[_3D])
+case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: TranslationAfterRotation[_3D])
 
 /**
  * Fitting results.

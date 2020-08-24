@@ -156,8 +156,7 @@ private[kernels] case class IsotropicDiagonalKernel[D: NDSpace](kernel: PDKernel
   override def domain = kernel.domain
 }
 
-private[kernels] case class AnisotropicDiagonalKernel[D: NDSpace](kernels: IndexedSeq[PDKernel[D]])
-    extends DiagonalKernel[D] {
+private[kernels] case class AnisotropicDiagonalKernel[D: NDSpace](kernels: Seq[PDKernel[D]]) extends DiagonalKernel[D] {
   def k(x: Point[D], y: Point[D]) = diag(DenseVector[Double](kernels.map(k => k(x, y)).toArray))
 
   override def domain = kernels.map(_.domain).reduce(Domain.intersection(_, _))
@@ -169,11 +168,29 @@ object DiagonalKernel {
   def apply[D: NDSpace](kernel: PDKernel[D], outputDim: Int): DiagonalKernel[D] =
     IsotropicDiagonalKernel(kernel, outputDim)
 
-  def apply(xKernel: PDKernel[_2D], yKernel: PDKernel[_2D]): DiagonalKernel[_2D] =
-    AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel))
+  def apply[D: NDSpace](kernels: PDKernel[D]*): DiagonalKernel[D] =
+    AnisotropicDiagonalKernel[D](kernels)
+}
 
-  def apply(xKernel: PDKernel[_3D], yKernel: PDKernel[_3D], zKernel: PDKernel[_3D]): DiagonalKernel[_3D] =
-    AnisotropicDiagonalKernel(IndexedSeq(xKernel, yKernel, zKernel))
+object DiagonalKernel1D {
+  def apply(kernel: PDKernel[_1D], outputDim: Int): DiagonalKernel[_1D] =
+    IsotropicDiagonalKernel(kernel, outputDim)
+}
+
+object DiagonalKernel2D {
+  def apply(kernel: PDKernel[_2D], outputDim: Int): DiagonalKernel[_2D] =
+    IsotropicDiagonalKernel(kernel, outputDim)
+
+  def apply(kernels: PDKernel[_2D]*): DiagonalKernel[_2D] =
+    AnisotropicDiagonalKernel(kernels)
+}
+
+object DiagonalKernel3D {
+  def apply(kernel: PDKernel[_3D], outputDim: Int): DiagonalKernel[_3D] =
+    IsotropicDiagonalKernel(kernel, outputDim)
+
+  def apply(kernels: PDKernel[_3D]*): DiagonalKernel[_3D] =
+    AnisotropicDiagonalKernel(kernels)
 }
 
 case class MultiScaleKernel[D: NDSpace](kernel: MatrixValuedPDKernel[D],

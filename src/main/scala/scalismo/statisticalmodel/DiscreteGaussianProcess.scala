@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.common.interpolation.FieldInterpolator
+import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
 import scalismo.geometry._
 import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky

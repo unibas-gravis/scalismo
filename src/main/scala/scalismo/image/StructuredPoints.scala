@@ -22,13 +22,12 @@ import scalismo.transformations.{
   Rotation,
   Rotation2D,
   Rotation3D,
-  RotationThenTranslation,
-  RotationThenTranslation2D,
-  RotationThenTranslation3D,
   Transformation,
-  Translation,
   Translation2D,
-  Translation3D
+  Translation3D,
+  TranslationAfterRotation,
+  TranslationAfterRotation2D,
+  TranslationAfterRotation3D
 }
 
 import scala.language.implicitConversions
@@ -219,7 +218,7 @@ case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D],
     extends StructuredPoints[_2D] {
 
   private val rigidTransform =
-    RotationThenTranslation2D(Rotation2D(phi, Point2D(0, 0)), Translation2D(origin - Point2D(0.0, 0.0)))
+    TranslationAfterRotation2D(Translation2D(origin - Point2D(0.0, 0.0)), Rotation2D(phi, Point2D(0, 0)))
   private val invRigidTransform = rigidTransform.inverse
 
   override val indexToPhysicalCoordinateTransform: Transformation[_2D] = new Transformation[_2D] {
@@ -307,8 +306,8 @@ case class StructuredPoints3D(origin: Point[_3D],
                               psi: Double)
     extends StructuredPoints[_3D] {
 
-  val rigidTransform = RotationThenTranslation3D(Rotation3D(phi, theta, psi, Point3D(0, 0, 0)),
-                                                 Translation3D(origin - Point3D(0.0, 0.0, 0.0)))
+  val rigidTransform = TranslationAfterRotation3D(Translation3D(origin - Point3D(0.0, 0.0, 0.0)),
+                                                  Rotation3D(phi, theta, psi, Point3D(0, 0, 0)))
   private val invRigidTransform = rigidTransform.inverse
 
   override private[scalismo] val indexToPhysicalCoordinateTransform: Transformation[_3D] = new Transformation[_3D] {

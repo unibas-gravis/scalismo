@@ -25,7 +25,7 @@ import scalismo.geometry._
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.transformations.{RigidTransformation, Rotation3D, RotationThenTranslation3D, Translation3D}
+import scalismo.transformations.{RigidTransformation, Rotation3D, Translation3D, TranslationAfterRotation3D}
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 
@@ -64,7 +64,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       val data = (1 to 3).map(f => model.sample())
 
-      val dc = DataCollection.fromTriangleMeshSequence(ref, data)
+      val dc = DataCollection.fromTriangleMesh3DSequence(ref, data)
       val dcGpa = DataCollection.gpa(dc)
 
       val pca1 = StatisticalMeshModel.createUsingPCA(dcGpa, NumberOfEigenfunctions.apply(data.length - 1))
@@ -80,7 +80,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       val translation = Translation3D(EuclideanVector3D(1.5, 1.0, 3.5))
       val rotation = Rotation3D(Math.PI, -Math.PI / 2.0, -Math.PI, Point3D(0, 0, 0))
-      val rigidTransform = RotationThenTranslation3D(rotation, translation)
+      val rigidTransform = TranslationAfterRotation3D(translation, rotation)
       val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
       val transformedModel = model.transform(rigidTransform)
       val newModel = transformedModel.transform(inverseTransform)

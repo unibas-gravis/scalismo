@@ -17,7 +17,7 @@ package scalismo.io
 
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.common.{NearestNeighborInterpolator, PointId}
+import scalismo.common.{PointId}
 import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
 import scalismo.mesh.{
   LineCell,

@@ -19,9 +19,14 @@ import java.io.File
 import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
-import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator2D, BSplineImageInterpolator3D}
+import scalismo.common.interpolation.{
+  BSplineImageInterpolator,
+  BSplineImageInterpolator2D,
+  BSplineImageInterpolator3D,
+  NearestNeighborInterpolator
+}
 import scalismo.{numerics, ScalismoTestSuite}
-import scalismo.common.{EuclideanSpace2D, Field, NearestNeighborInterpolator, PointId, RealSpace}
+import scalismo.common.{EuclideanSpace2D, Field, PointId, RealSpace}
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.io.{ImageIO, MeshIO}
@@ -33,14 +38,14 @@ import scalismo.transformations.{
   Rotation2D,
   Rotation3D,
   RotationSpace2D,
-  RotationThenScalingThenTranslation2D,
-  RotationThenScalingThenTranslation3D,
-  RotationThenTranslation2D,
-  RotationThenTranslation3D,
   Scaling2D,
   Scaling3D,
   Translation2D,
   Translation3D,
+  TranslationAfterRotation2D,
+  TranslationAfterRotation3D,
+  TranslationAfterScalingAfterRotation2D,
+  TranslationAfterScalingAfterRotation3D,
   TranslationSpace2D,
   TranslationSpace3D
 }
@@ -63,7 +68,7 @@ class RegistrationTests extends ScalismoTestSuite {
       for (angle <- (1 until 16).map(i => math.Pi / i)) {
         val rotation = Rotation2D(-angle, Point2D(0, 0))
         val translation = Translation2D(EuclideanVector2D(1.0, 1.5))
-        val compositeTransformation = RotationThenTranslation2D(rotation, translation)
+        val compositeTransformation = TranslationAfterRotation2D(translation, rotation)
 
         val transformedPoints =
           points.map((pt: Point[_2D]) => compositeTransformation(pt))
@@ -90,7 +95,7 @@ class RegistrationTests extends ScalismoTestSuite {
 
     val translation = Translation3D(EuclideanVector3D(1.5, 1.0, 3.5))
     val rotation = Rotation3D(Math.PI, -Math.PI / 2.0, -Math.PI, center = Point3D(0, 0, 0))
-    val trans = RotationThenTranslation3D(rotation, translation)
+    val trans = TranslationAfterRotation3D(translation, rotation)
 
     val rigidTransformed = mesh transform trans
 
@@ -154,7 +159,7 @@ class RegistrationTests extends ScalismoTestSuite {
         val scalingFactor = 2.0 //scala.util.Random.nextDouble()
 
         val similarityTransformation =
-          RotationThenScalingThenTranslation2D(rotation, Scaling2D(scalingFactor), translation)
+          TranslationAfterScalingAfterRotation2D(translation, Scaling2D(scalingFactor), rotation)
 
         val transformedPoints =
           points.map((pt: Point[_2D]) => similarityTransformation(pt))
@@ -182,7 +187,7 @@ class RegistrationTests extends ScalismoTestSuite {
       val translation = Translation3D(EuclideanVector3D(1.5, 1.0, 3.5))
       val rotation = Rotation3D(Math.PI, -Math.PI / 2.0, -Math.PI, Point3D(0, 0, 0))
       val scaling = Scaling3D(2.0)
-      val trans = RotationThenScalingThenTranslation3D(translation, scaling, rotation)
+      val trans = TranslationAfterScalingAfterRotation3D(translation, scaling, rotation)
 
       val translatedRotatedScaled = mesh transform trans
 

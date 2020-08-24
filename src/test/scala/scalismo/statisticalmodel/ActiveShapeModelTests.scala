@@ -5,7 +5,8 @@ import java.net.URLDecoder
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{DiscreteField, NearestNeighborInterpolator}
+import scalismo.common.DiscreteField
+import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.{ImageIO, MeshIO, StatismoIO, StatisticalModelIO}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
@@ -50,7 +51,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val trainMeshes = meshes
       val trainImages = images
 
-      val dc = DataCollection.fromTriangleMeshSequence(shapeModel.referenceMesh, trainMeshes.toIndexedSeq)
+      val dc = DataCollection.fromTriangleMesh3DSequence(shapeModel.referenceMesh, trainMeshes.toIndexedSeq)
       def itemsToTransform(item: DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]]): Transformation[_3D] = {
         val field = item.interpolate(NearestNeighborInterpolator())
         Transformation((p: Point[_3D]) => p + field(p))

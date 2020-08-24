@@ -19,7 +19,7 @@ import java.io.File
 
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.common.{DiscreteDomain, NearestNeighborInterpolator, PointId, UnstructuredPointsDomain}
+import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.common.UnstructuredPoints.Create.{
   CreateUnstructuredPoints1D,
   CreateUnstructuredPoints2D,
@@ -30,6 +30,7 @@ import scalismo.common.UnstructuredPointsDomain.Create.{
   CreateUnstructuredPointsDomain2D,
   CreateUnstructuredPointsDomain3D
 }
+import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.mesh.{
   LineCell,
