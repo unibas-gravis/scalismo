@@ -19,7 +19,6 @@ import scalismo.geometry._
 import scalismo.transformations.{CanDifferentiateWRTPosition, Transformation}
 
 import scala.collection.parallel.immutable.ParVector
-import scala.reflect.ClassTag
 
 /**
  * Utility functions to create and manipulate images
