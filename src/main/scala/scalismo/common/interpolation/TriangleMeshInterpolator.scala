@@ -13,7 +13,7 @@ import scala.language.higherKinds
  * of a triangle mesh (i.e. a MeshField) by means of a surface interpolation
  * on the surface defined by the mesh.
  */
-case class TriangleMeshInterpolator[A: ValueInterpolator]() extends FieldInterpolator[_3D, TriangleMesh, A] {
+case class TriangleMeshInterpolator3D[A: ValueInterpolator]() extends FieldInterpolator[_3D, TriangleMesh, A] {
 
   override def interpolate(field: DiscreteField[_3D, TriangleMesh, A]): Field[_3D, A] = {
     val mesh = field.domain
