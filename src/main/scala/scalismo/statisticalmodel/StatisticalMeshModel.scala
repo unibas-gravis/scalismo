@@ -17,7 +17,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.common.interpolation.{NearestNeighborInterpolator3D, TriangleMeshInterpolator}
+import scalismo.common.interpolation.{NearestNeighborInterpolator3D, TriangleMeshInterpolator3D}
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
@@ -155,7 +155,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    */
   def decimate(targetNumberOfVertices: Int): StatisticalMeshModel = {
     val newReference = referenceMesh.operations.decimate(targetNumberOfVertices)
-    val interpolator = TriangleMeshInterpolator[EuclideanVector[_3D]]()
+    val interpolator = TriangleMeshInterpolator3D[EuclideanVector[_3D]]()
     val newGp = gp.interpolate(interpolator)
 
     StatisticalMeshModel(newReference, newGp)
