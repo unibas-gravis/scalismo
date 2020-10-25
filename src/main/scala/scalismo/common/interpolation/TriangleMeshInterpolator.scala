@@ -1,19 +1,17 @@
 package scalismo.common.interpolation
 
-import scalismo.common.{DiscreteField, Field, RealSpace}
+import scalismo.common.{DiscreteField, EuclideanSpace, Field, RealSpace}
 import scalismo.geometry.{_3D, Point}
 import scalismo.mesh.{SurfacePointProperty, TriangleMesh}
 import scalismo.mesh.boundingSpheres.{ClosestPointInTriangle, ClosestPointIsVertex, ClosestPointOnLine}
 import scalismo.numerics.ValueInterpolator
-
-import scala.language.higherKinds
 
 /**
  * Interpolates a given discrete field defined on the vertices
  * of a triangle mesh (i.e. a MeshField) by means of a surface interpolation
  * on the surface defined by the mesh.
  */
-case class TriangleMeshInterpolator[A: ValueInterpolator]() extends FieldInterpolator[_3D, TriangleMesh, A] {
+case class TriangleMeshInterpolator3D[A: ValueInterpolator]() extends FieldInterpolator[_3D, TriangleMesh, A] {
 
   override def interpolate(field: DiscreteField[_3D, TriangleMesh, A]): Field[_3D, A] = {
     val mesh = field.domain
@@ -35,6 +33,6 @@ case class TriangleMeshInterpolator[A: ValueInterpolator]() extends FieldInterpo
         case ClosestPointOnLine(pt, _, (id0, id1), d) =>
           ValueInterpolator[A].blend(fieldOnSurface(id0), fieldOnSurface(id1), d)
       }
-    Field(RealSpace[_3D], f)
+    Field(EuclideanSpace[_3D], f)
   }
 }
