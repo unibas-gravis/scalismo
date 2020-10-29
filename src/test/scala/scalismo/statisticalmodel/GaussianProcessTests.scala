@@ -102,7 +102,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val gp = GaussianProcess(m, DiagonalKernel(GaussianKernel[_2D](1.0), 2))
 
       val testPts = IndexedSeq(Point(-1.0f, 1.5f), Point(0.0f, 1.7f))
-      val discreteGP = gp.marginal(UnstructuredPointsDomain(testPts))
+      val discreteGP = gp.marginal(testPts)
 
       for ((testPt, testPtId) <- testPts.zipWithIndex) {
         discreteGP.mean(testPtId) should equal(gp.mean(testPt))
@@ -524,8 +524,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
     it("yields the same result for the marginal as the discrete gp") {
       val f = Fixture
 
-      val domain = UnstructuredPointsDomain(f.discretizationPoints)
-      val dgp1 = f.lowRankGp.marginal(domain).marginal(Seq(0, 1, 2))
+      val dgp1 = f.lowRankGp.marginal(f.discretizationPoints).marginal(Seq(0, 1, 2))
       val dgp2 = f.discreteLowRankGp.marginal(Seq(0, 1, 2))
       DiscreteField.vectorize[_3D, UnstructuredPointsDomain, EuclideanVector[_3D]](dgp1.mean) should equal(
         DiscreteField.vectorize[_3D, UnstructuredPointsDomain, EuclideanVector[_3D]](dgp2.mean)

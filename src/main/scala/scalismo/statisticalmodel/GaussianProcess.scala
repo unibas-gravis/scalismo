@@ -45,14 +45,32 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   def sampleAtPoints[DDomain[DD] <: DiscreteDomain[DD]](
     domain: DDomain[D]
   )(implicit rand: Random): DiscreteField[D, DDomain, Value] = {
-    this.marginal(domain).sample()
+    this.discretize(domain).sample()
   }
 
   /**
    * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
-   * is defined by the given points.
+   * is an unstructured points domain
    */
-  def marginal[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D]): DiscreteGaussianProcess[D, DDomain, Value] = {
+  def marginal(points: IndexedSeq[Point[D]])(
+    implicit domainCreator: UnstructuredPointsDomain.Create[D]
+  ): DiscreteGaussianProcess[D, UnstructuredPointsDomain, Value] = {
+    val domain = domainCreator.create(points)
+    discretize(domain)
+  }
+
+  /**
+   * Compute the marginal distribution at a single point.
+   */
+  def marginal(pt: Point[D]) = MultivariateNormalDistribution(vectorizer.vectorize(mean(pt)), cov(pt, pt))
+
+  /**
+   * Discretizes the Gaussian Process at the given domain points. The
+   * @param domain
+   * @tparam DDomain
+   * @return
+   */
+  def discretize[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D]): DiscreteGaussianProcess[D, DDomain, Value] = {
     val meanField = DiscreteField[D, DDomain, Value](domain, domain.pointSet.points.toIndexedSeq.map(pt => mean(pt)))
     val pts = domain.pointSet.points.toIndexedSeq
     def newCov(i: PointId, j: PointId): DenseMatrix[Double] = {
@@ -62,11 +80,6 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
     val discreteCov = DiscreteMatrixValuedPDKernel[D](domain, newCov, outputDim)
     new DiscreteGaussianProcess(meanField, discreteCov)
   }
-
-  /**
-   * Compute the marginal distribution at a single point.
-   */
-  def marginal(pt: Point[D]) = MultivariateNormalDistribution(vectorizer.vectorize(mean(pt)), cov(pt, pt))
 
   /**
    * The posterior distribution of the gaussian process, with respect to the given trainingData.

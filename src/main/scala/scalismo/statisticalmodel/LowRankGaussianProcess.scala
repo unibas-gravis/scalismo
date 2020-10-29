@@ -180,10 +180,17 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
     LowRankGaussianProcess.regression(this, trainingData)
   }
 
+  override def marginal(points: IndexedSeq[Point[D]])(
+    implicit domainCreator: UnstructuredPointsDomain.Create[D]
+  ): DiscreteLowRankGaussianProcess[D, UnstructuredPointsDomain, Value] = {
+    val domain = domainCreator.create(points)
+    discretize(domain)
+  }
+
   /**
    * Discretize the gaussian process on the given points.
    */
-  def discretize[DDomain[DD] <: DiscreteDomain[DD]](
+  override def discretize[DDomain[DD] <: DiscreteDomain[DD]](
     domain: DDomain[D]
   ): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
     DiscreteLowRankGaussianProcess[D, DDomain, Value](domain, this)
