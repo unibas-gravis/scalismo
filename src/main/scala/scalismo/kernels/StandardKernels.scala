@@ -34,15 +34,15 @@ case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
 }
 
 object GaussianKernel1D {
-  def apply(sigma: Double): GaussianKernel[_1D] = GaussianKernel1D(sigma)
+  def apply(sigma: Double): GaussianKernel[_1D] = GaussianKernel[_1D](sigma)
 }
 
 object GaussianKernel2D {
-  def apply(sigma: Double): GaussianKernel[_2D] = GaussianKernel2D(sigma)
+  def apply(sigma: Double): GaussianKernel[_2D] = GaussianKernel[_2D](sigma)
 }
 
 object GaussianKernel3D {
-  def apply(sigma: Double): GaussianKernel[_3D] = GaussianKernel3D(sigma)
+  def apply(sigma: Double): GaussianKernel[_3D] = GaussianKernel[_3D](sigma)
 }
 
 case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000)
