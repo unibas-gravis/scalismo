@@ -24,11 +24,11 @@ import scalismo.utils.MeshConversion
 import scala.collection.parallel.immutable.ParVector
 
 object MeshOperations {
-  def apply(mesh: TriangleMesh3D) = new TriangleMesh3DOperations(mesh)
+  def apply(mesh: TriangleMesh[_3D]) = new TriangleMesh3DOperations(mesh)
   def apply(mesh: TetrahedralMesh[_3D]) = new TetrahedralMesh3DOperations(mesh)
 }
 
-class TriangleMesh3DOperations(private val mesh: TriangleMesh3D) {
+class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
   /**
    * Calculated data from mesh
