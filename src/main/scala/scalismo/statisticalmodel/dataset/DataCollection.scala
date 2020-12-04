@@ -200,7 +200,7 @@ object TriangleMeshDataCollection {
       val transform =
         LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints),
                                                          referenceCenterOfMass)
-      val newVecs = dc.reference.pointSet.points.toIndexedSeq.map(p => transform(p) - p)
+      val newVecs = dc.reference.pointSet.points.toIndexedSeq.map(p => transform(p + field(p)) - p)
       new DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]](dc.reference, newVecs)
     }
 
