@@ -15,7 +15,8 @@
  */
 package scalismo.sampling.evaluators
 
-import scalismo.sampling.DistributionEvaluator
+import cats.kernel.Semigroup
+import scalismo.sampling.{DistributionEvaluator, GradientEvaluator}
 
 import scala.language.implicitConversions
 
@@ -30,10 +31,40 @@ class ProductEvaluator[A](evaluators: Seq[DistributionEvaluator[A]]) extends Dis
   }
 }
 
+/**
+ * Evaluate a product of distribution, which have also an associated gradient
+ * @param evaluators Sequence of distributions to evaluate
+ */
+class ProductEvaluatorWithGradient[A](evaluators: Seq[DistributionEvaluator[A] with GradientEvaluator[A]])(
+  implicit semigroup: Semigroup[A]
+) extends ProductEvaluator[A](evaluators)
+    with GradientEvaluator[A] {
+
+  /** gradient at sample */
+  override def gradient(sample: A): A = {
+    val gradients = evaluators.map(_.gradient(sample))
+
+    // we combine (sum up) all the gradients
+    gradients.reduce((g1, g2) => semigroup.combine(g1, g2))
+  }
+}
+
 object ProductEvaluator {
   def apply[A](evaluators: DistributionEvaluator[A]*) = new ProductEvaluator[A](evaluators.toSeq)
 
   def apply[A](builder: implicits.ProductBuilder[A]) = builder.toProductEvaluator
+
+  /**
+   * Create a product of evaluators, for which it is possible to evaluate the gradient.
+   * The sample (which are of type A) need to implement the semigroup typeclass, such that we
+   * can combine the gradients (which are of the same type A as the sample). In the simplest and most
+   * common case, the combine operation is just the sum of the parameter vectors
+   */
+  def withGradient[A](
+    evaluators: (DistributionEvaluator[A] with GradientEvaluator[A])*
+  )(implicit semigroup: Semigroup[A]): DistributionEvaluator[A] with GradientEvaluator[A] = {
+    new ProductEvaluatorWithGradient[A](evaluators)
+  }
 
   /** implicit builder for ProductEvaluator */
   object implicits {

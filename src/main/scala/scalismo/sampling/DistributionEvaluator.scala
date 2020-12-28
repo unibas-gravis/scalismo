@@ -25,6 +25,6 @@ trait DistributionEvaluator[A] {
 /** gradient evaluator, used together with DistributionEvaluator */
 trait GradientEvaluator[A] {
 
-  /** gradient at sample */
+  /** gradient (of log density) at sample */
   def gradient(sample: A): A
 }
