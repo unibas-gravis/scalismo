@@ -198,6 +198,40 @@ class GaussianProcessTests extends ScalismoTestSuite {
       }
 
     }
+
+    it("nan-values are ignored in the posterior computation") {
+      val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val gp = GaussianProcess[_3D, EuclideanVector[_3D]](DiagonalKernel(GaussianKernel[_3D](5), 3))
+      val gpLowRank = LowRankGaussianProcess
+        .approximateGPNystrom[_3D, EuclideanVector[_3D]](gp, UniformSampler(domain, 6 * 6 * 6), 50)
+
+      val trainingDataRegular =
+        IndexedSeq(
+          (Point(-3.0, -3.0, -1.0), EuclideanVector(1.0, 1.0, 2.0)),
+          (Point(-1.0, 3.0, 0.0), EuclideanVector(0.0, -1.0, 0.0))
+        )
+      val trainingDataWithNan =
+        IndexedSeq( // this should be the same inforamtion as the trainingDataRegular
+          (Point(-3.0, -3.0, -1.0), EuclideanVector(1.0, 1.0, Double.NaN)),
+          (Point(-1.0, 3.0, 0.0), EuclideanVector(0.0, Double.NaN, 0.0)),
+          (Point(-1.0, 3.0, 0.0), EuclideanVector(Double.NaN, -1.0, Double.NaN)),
+          (Point(-3.0, -3.0, -1.0), EuclideanVector(Double.NaN, Double.NaN, 2.0))
+        )
+
+      val posteriorGPLowRankRegular = gpLowRank.posterior(trainingDataRegular, 1e-5)
+      val posteriorGPLowRankWithNaN = gpLowRank.posterior(trainingDataWithNan, 1e-5)
+
+      posteriorGPLowRankRegular.rank should equal(posteriorGPLowRankWithNaN.rank)
+      for (point <- trainingDataRegular.unzip._1) yield {
+        (posteriorGPLowRankRegular.mean(point) - posteriorGPLowRankWithNaN.mean(point)).norm should be < 1e-5
+        for ((klBasisRegular, klBasisWithNan) <- posteriorGPLowRankRegular.klBasis
+               .zip(posteriorGPLowRankWithNaN.klBasis)) {
+          //(klBasisRegular.eigenfunction(point) - klBasisWithNan.eigenfunction(point)).norm should be < 1e-5
+          Math.abs(klBasisRegular.eigenvalue - klBasisWithNan.eigenvalue) should be < 1e-5
+        }
+      }
+    }
+
   }
 
   describe("a Gaussian process marginal likelihood") {

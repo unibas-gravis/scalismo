@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{diag, DenseMatrix, DenseVector}
+import breeze.linalg.{diag, Axis, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
@@ -128,7 +128,8 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
    * are subject to 0 mean Gaussian noise
    */
   def coefficients(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): DenseVector[Double] = {
-    val (minv, qtL, yVec, mVec) = LowRankGaussianProcess.genericRegressionComputations(this, trainingData)
+    val LowRankRegressionComputation(minv, yVec, mVec, qtL) =
+      LowRankRegressionComputation.fromLowrankGP(this, trainingData)
     val mean_coeffs = (minv * qtL) * (yVec - mVec)
     mean_coeffs
   }
@@ -346,7 +347,8 @@ object LowRankGaussianProcess {
   )(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
     val outputDim = gp.outputDim
 
-    val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
+    val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
+      LowRankRegressionComputation.fromLowrankGP(gp, trainingData)
     val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
 
     val mean_p = gp.instance(mean_coeffs)
@@ -381,46 +383,6 @@ object LowRankGaussianProcess {
       Eigenpair(newEv, newEf)
     }
     new LowRankGaussianProcess[D, Value](mean_p, klBasis_p)
-  }
-
-  /*
-   * Internal computations of the regression.
-   */
-  private def genericRegressionComputations[D: NDSpace, Value](
-    gp: LowRankGaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
-  )(implicit vectorizer: Vectorizer[Value]) = {
-
-    val outputDim = gp.outputDim
-
-    val (xs, ys, errorDistributions) = trainingData.unzip3
-
-    val yVec = DiscreteField.vectorize[D, Value](ys)
-    val meanValues = xs.map(gp.mean)
-    val mVec = DiscreteField.vectorize[D, Value](meanValues)
-
-    val Q = DenseMatrix.zeros[Double](trainingData.size * outputDim, gp.klBasis.size)
-    for ((x_i, i) <- xs.zipWithIndex; (Eigenpair(lambda_j, phi_j), j) <- gp.klBasis.zipWithIndex) {
-      // TODO: check if not too slow
-      Q(i * outputDim until i * outputDim + outputDim, j) := vectorizer.vectorize(phi_j(x_i)) * math.sqrt(lambda_j)
-    }
-
-    // What we are actually computing here is the following:
-    // L would be a block diagonal matrix, which contains on the diagonal the blocks that describes the uncertainty
-    // for each point (a d x d) block. We then would compute Q.t * L. For efficiency reasons (L could be large but is sparse)
-    // we avoid ever constructing the matrix L and do the multiplication by hand.
-    val QtL = Q.t.copy
-    assert(QtL.cols == errorDistributions.size * outputDim)
-    assert(QtL.rows == gp.rank)
-    for ((errDist, i) <- errorDistributions.zipWithIndex) {
-      QtL(::, i * outputDim until (i + 1) * outputDim) := QtL(::, i * outputDim until (i + 1) * outputDim) * breeze.linalg
-        .inv(errDist.cov)
-    }
-
-    val M = QtL * Q + DenseMatrix.eye[Double](gp.klBasis.size)
-    val Minv = breeze.linalg.pinv(M)
-
-    (Minv, QtL, yVec, mVec)
   }
 
   /**

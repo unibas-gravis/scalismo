@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{*, diag, DenseMatrix, DenseVector}
+import breeze.linalg.{*, diag, Axis, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.common.DiscreteField.vectorize
 import scalismo.common._
@@ -157,7 +157,9 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
     val noiseDist =
       MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val td = s.valuesWithIds.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
-    val (minv, qtL, yVec, mVec) = DiscreteLowRankGaussianProcess.genericRegressionComputations(this, td)
+
+    val LowRankRegressionComputation(minv, yVec, mVec, qtL) =
+      LowRankRegressionComputation.fromDiscreteLowRankGP(this, td)
     val mean_coeffs = (minv * qtL) * (yVec - mVec)
     mean_coeffs
   }
@@ -426,7 +428,8 @@ object DiscreteLowRankGaussianProcess {
     trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
   )(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
 
-    val (_Minv, _QtL, yVec, mVec) = genericRegressionComputations(gp, trainingData)
+    val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
+      LowRankRegressionComputation.fromDiscreteLowRankGP(gp, trainingData)
     val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
 
     //val mean_p = gp.instance(mean_coeffs)
@@ -519,43 +522,6 @@ object DiscreteLowRankGaussianProcess {
     }
 
     new DiscreteLowRankGaussianProcess(domain, m, varianceVector, basisMat)
-  }
-
-  private def genericRegressionComputations[D: NDSpace, Dom[D] <: DiscreteDomain[D], Value](
-    gp: DiscreteLowRankGaussianProcess[D, Dom, Value],
-    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
-  )(implicit vectorizer: Vectorizer[Value]) = {
-    val outputDim = gp.outputDim
-    val (ptIds, ys, errorDistributions) = trainingData.unzip3
-
-    val yVec = DiscreteField.vectorize[D, Value](ys)
-
-    val meanValues = DenseVector(ptIds.toArray.flatMap { ptId =>
-      gp.meanVector(ptId.id * outputDim until (ptId.id + 1) * outputDim).toArray
-    })
-
-    val Q = DenseMatrix.zeros[Double](trainingData.size * outputDim, gp.rank)
-    for ((ptId, i) <- ptIds.zipWithIndex; j <- 0 until gp.rank) {
-      val eigenVecAtPoint = gp.basisMatrix((ptId.id * outputDim) until ((ptId.id + 1) * outputDim), j).map(_.toDouble)
-      Q(i * outputDim until i * outputDim + outputDim, j) := eigenVecAtPoint * math.sqrt(gp.variance(j))
-    }
-
-    // What we are actually computing here is the following:
-    // L would be a block diagonal matrix, which contains on the diagonal the blocks that describes the uncertainty
-    // for each point (a d x d) block. We then would compute Q.t * L. For efficiency reasons (L could be large but is sparse)
-    // we avoid ever constructing the matrix L and do the multiplication by hand.
-    val QtL = Q.t.copy
-    assert(QtL.cols == errorDistributions.size * outputDim)
-    assert(QtL.rows == gp.rank)
-    for ((errDist, i) <- errorDistributions.zipWithIndex) {
-      QtL(::, i * outputDim until (i + 1) * outputDim) := QtL(::, i * outputDim until (i + 1) * outputDim) * breeze.linalg
-        .inv(errDist.cov)
-    }
-
-    val M = QtL * Q + DenseMatrix.eye[Double](gp.rank)
-    val Minv = breeze.linalg.pinv(M)
-
-    (Minv, QtL, yVec, meanValues)
   }
 
   private def basisMatrixToCov[D: NDSpace, Value](domain: DiscreteDomain[D],
