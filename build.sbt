@@ -8,6 +8,17 @@ lazy val root = (project in file("."))
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
     scalaVersion := "2.13.1",
+    homepage := Some(url("https://scalismo.org")),
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+    scmInfo := Some(ScmInfo(url("https://github.com/unibas-gravis/scalismo"), "git@github.com:unibas-gravis/scalismo.git")),
+    developers := List(Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))),
+    publishMavenStyle := true,
+    publishTo := Some(
+      if (isSnapshot.value)
+        Opts.resolver.sonatypeSnapshots
+      else
+        Opts.resolver.sonatypeStaging
+    ),
     crossScalaVersions := Seq("2.12.11", "2.13.1"),
     resolvers ++= Seq(
       Resolver.jcenterRepo,
