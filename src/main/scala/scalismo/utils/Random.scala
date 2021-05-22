@@ -69,7 +69,7 @@ object Random {
   def apply(seed: Long) = new Random()(RandomNumberGenerator(seed))
 
   object implicits {
-    implicit val randomGenerator = new Random()(RandomNumberGenerator(System.nanoTime()))
+    implicit val randomGenerator: Random = new Random()(RandomNumberGenerator(System.nanoTime()))
   }
 
 }

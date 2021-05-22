@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{*, diag, DenseMatrix, DenseVector}
+import breeze.linalg.{diag, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.common.DiscreteField.vectorize
 import scalismo.common._

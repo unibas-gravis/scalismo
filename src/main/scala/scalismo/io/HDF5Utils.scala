@@ -29,7 +29,7 @@ case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
 
 class HDF5File(h5file: FileFormat) extends Closeable {
 
-  override def close() { h5file.close() }
+  override def close() : Unit = { h5file.close() }
 
   def exists(path: String): Boolean = h5file.get(path) != null
 
@@ -197,6 +197,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     groupOrFailure.map { group =>
       val dtype = h5file.createDatatype(Datatype.CLASS_STRING, value.length, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value))
+      ()
     }
   }
 
@@ -217,6 +218,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val fileFormat: FileFormat = group.getFileFormat
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
+      ()
     }
   }
 
@@ -238,6 +240,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val fileFormat: FileFormat = group.getFileFormat
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
+      ()
     }
   }
 

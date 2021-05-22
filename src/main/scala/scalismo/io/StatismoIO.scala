@@ -3,7 +3,7 @@ package scalismo.io
 import java.io._
 import java.util.Calendar
 
-import breeze.linalg.{*, DenseMatrix, DenseVector}
+import breeze.linalg.{DenseMatrix, DenseVector}
 import ncsa.hdf.`object`.Group
 import scalismo.common.{DiscreteDomain, DomainWarp, Vectorizer}
 import scalismo.geometry._

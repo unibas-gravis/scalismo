@@ -32,6 +32,8 @@ import scala.reflect.ClassTag
  * @tparam S the type of the actual scalar data.
  */
 trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
+
+
   def fromByte(n: Byte): S
   def fromShort(n: Short): S
   def fromInt(n: Int): S

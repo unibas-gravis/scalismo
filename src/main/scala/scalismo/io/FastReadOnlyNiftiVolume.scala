@@ -19,13 +19,13 @@ import java.io.{File, RandomAccessFile}
 import java.lang.{Double => JDouble, Float => JFloat, Long => JLong, Short => JShort}
 import java.nio.channels.FileChannel
 import java.nio.{ByteBuffer, MappedByteBuffer}
-
 import scalismo.common.{Scalar, ScalarArray}
 import scalismo.io.FastReadOnlyNiftiVolume.NiftiHeader
 import spire.math.{UByte, UInt, UShort}
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{typeOf, TypeTag}
+import scala.reflect.runtime.universe
+import scala.reflect.runtime.universe.{TypeTag, typeOf}
 import scala.util.Try
 
 /**
@@ -129,27 +129,27 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     import Scalar._
 
-    val loadShort = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadShort = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JShort.reverseBytes(m.getShort)
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getShort
     }
-    val loadChar = { m: MappedByteBuffer =>
+    val loadChar = { (m: MappedByteBuffer) =>
       loadShort(m).toChar
     }
-    val loadInt = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadInt = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       Integer.reverseBytes(m.getInt)
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getInt
     }
-    val loadFloat = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadFloat = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JFloat.intBitsToFloat(Integer.reverseBytes(m.getInt))
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getFloat
     }
-    val loadDouble = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadDouble = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JDouble.longBitsToDouble(JLong.reverseBytes(m.getLong))
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getDouble
     }
 
@@ -160,7 +160,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }, Scalar.ByteIsScalar.createArray)
 
       case NIFTI_TYPE_UINT8 =>
-        val toDouble = { x: Byte =>
+        val toDouble = { (x: Byte) =>
           if (x >= 0) x.toDouble else x.toDouble + 256.0
         }
         loadArray[Byte, UByte](1, _.get, toDouble, UByteIsScalar.fromDouble, _.toByte, UByteIsScalar.createArray)
@@ -171,7 +171,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }, ShortIsScalar.createArray)
 
       case NIFTI_TYPE_UINT16 =>
-        val toDouble = { x: Short =>
+        val toDouble = { (x: Short) =>
           if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 15)
         }
         loadArray[Char, UShort](2, loadChar, { x =>
@@ -184,7 +184,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }, IntIsScalar.createArray)
 
       case NIFTI_TYPE_UINT32 =>
-        val toDouble = { x: Int =>
+        val toDouble = { (x: Int) =>
           if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 31)
         }
         loadArray[Int, UInt](4, loadInt, toDouble, UIntIsScalar.fromDouble, _.toInt, UIntIsScalar.createArray)
@@ -233,6 +233,9 @@ object FastReadOnlyNiftiVolume {
    */
   class NiftiHeader(private val buf: ByteBuffer) {
 
+    private implicit val ttShort: universe.TypeTag[Short] = TypeTag.Short
+    private implicit val ttfloat: universe.TypeTag[Float] = TypeTag.Float
+
     // check header size @ offset 0 (must be 348, whether in little- or big endian format is not specified)
     // and header magic @ offset 344 (the only supported value is "n+1")
     if ((buf.getInt(0) != 0x5c010000 && buf.getInt(0) != 348) || buf.getInt(344) != 0x6e2b3100) {
@@ -262,6 +265,7 @@ object FastReadOnlyNiftiVolume {
      * as dim(0) .. dim(7).
      */
     class DirectArray[T: TypeTag](offset: Int, size: Int) {
+
       def apply(index: Int): T = {
         if (index < 0 || index >= size) throw new ArrayIndexOutOfBoundsException
         typeOf[T] match {
