@@ -16,6 +16,7 @@
 package scalismo.common
 
 import breeze.linalg.DenseVector
+import scalismo.common.Scalar.ScalarType
 import scalismo.utils.ArrayUtils
 import spire.math._
 
@@ -32,6 +33,9 @@ import scala.reflect.ClassTag
  * @tparam S the type of the actual scalar data.
  */
 trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
+
+  def scalarType: ScalarType
+
   def fromByte(n: Byte): S
   def fromShort(n: Short): S
   def fromInt(n: Int): S
@@ -88,17 +92,30 @@ object Scalar {
   // for performance reasons. So we just do it as well.
   @inline final def apply[A](implicit ev: Scalar[A]): Scalar[A] = ev
 
-  implicit final lazy val ByteIsScalar: PrimitiveScalar[Byte] = Numeric.ByteIsNumeric
-  implicit final lazy val ShortIsScalar: PrimitiveScalar[Short] = Numeric.ShortIsNumeric
-  implicit final lazy val IntIsScalar: PrimitiveScalar[Int] = Numeric.IntIsNumeric
-  implicit final lazy val FloatIsScalar: PrimitiveScalar[Float] = Numeric.FloatIsNumeric
-  implicit final lazy val DoubleIsScalar: PrimitiveScalar[Double] = Numeric.DoubleIsNumeric
+  // An enumeration of differnet scalar types. These can be used for
+  // pattern matching on the type
+  sealed trait ScalarType
+  final case object ByteScalar extends ScalarType
+  final case object ShortScalar extends ScalarType
+  final case object IntScalar extends ScalarType
+  final case object LongScalar extends ScalarType
+  final case object FloatScalar extends ScalarType
+  final case object DoubleScalar extends ScalarType
+  final case object UByteScalar extends ScalarType
+  final case object UIntScalar extends ScalarType
+  final case object UShortScalar extends ScalarType
+
+  implicit final lazy val ByteIsScalar: PrimitiveScalar[Byte] = new ByteIsScalar
+  implicit final lazy val ShortIsScalar: PrimitiveScalar[Short] = new ShortIsScalar
+  implicit final lazy val IntIsScalar: PrimitiveScalar[Int] = new IntIsScalar
+  implicit final lazy val FloatIsScalar: PrimitiveScalar[Float] = new FloatIsScalar
+  implicit final lazy val DoubleIsScalar: PrimitiveScalar[Double] = new DoubleIsScalar
 
   implicit final lazy val UByteIsScalar: ValueClassScalar[UByte, Byte] = new UByteIsScalar
   implicit final lazy val UShortIsScalar: ValueClassScalar[UShort, Char] = new UShortIsScalar
   implicit final lazy val UIntIsScalar: ValueClassScalar[UInt, Int] = new UIntIsScalar
 
-  implicit class PrimitiveScalarFromSpireNumeric[A <: AnyVal: ClassTag](num: Numeric[A]) extends PrimitiveScalar[A] {
+  abstract class PrimitiveScalarFromSpireNumeric[A <: AnyVal: ClassTag](num: Numeric[A]) extends PrimitiveScalar[A] {
     override def toByte(a: A): Byte = num.toByte(a)
     override def toShort(a: A): Short = num.toShort(a)
     override def toInt(a: A): Int = num.toInt(a)
@@ -119,6 +136,26 @@ object Scalar {
     override def timesDouble(s1: A, d: Double): Double = num.toDouble(s1) * d
     override def zero: A = num.zero
     override def one: A = num.one
+  }
+
+  class ByteIsScalar extends PrimitiveScalarFromSpireNumeric(Numeric[Byte]) {
+    override def scalarType: ScalarType = ByteScalar
+  }
+
+  class ShortIsScalar extends PrimitiveScalarFromSpireNumeric(Numeric[Short]) {
+    override def scalarType: ScalarType = ShortScalar
+  }
+
+  class IntIsScalar extends PrimitiveScalarFromSpireNumeric(Numeric[Int]) {
+    override def scalarType: ScalarType = IntScalar
+  }
+
+  class FloatIsScalar extends PrimitiveScalarFromSpireNumeric(Numeric[Float]) {
+    override def scalarType: ScalarType = FloatScalar
+  }
+
+  class DoubleIsScalar extends PrimitiveScalarFromSpireNumeric(Numeric[Double]) {
+    override def scalarType: ScalarType = DoubleScalar
   }
 
   class UByteIsScalar extends ValueClassScalar[UByte, Byte] {
@@ -147,6 +184,8 @@ object Scalar {
 
     override def zero: UByte = UByte(0)
     override def one: UByte = UByte(1)
+
+    override def scalarType: ScalarType = UByteScalar
   }
 
   class UShortIsScalar extends ValueClassScalar[UShort, Char] {
@@ -191,6 +230,8 @@ object Scalar {
     override def zero: UShort = UShort(0)
 
     override def one: UShort = UShort(1)
+
+    override def scalarType: ScalarType = UShortScalar
   }
 
   class UIntIsScalar extends ValueClassScalar[UInt, Int] {
@@ -223,6 +264,8 @@ object Scalar {
     override def zero: UInt = UInt(0)
 
     override def one: UInt = UInt(1)
+
+    override def scalarType: ScalarType = UIntScalar
   }
 
 }
