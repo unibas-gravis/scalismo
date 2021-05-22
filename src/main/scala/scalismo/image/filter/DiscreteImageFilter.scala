@@ -23,7 +23,6 @@ import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import vtk.{vtkImageCast, vtkImageEuclideanDistance, vtkImageGaussianSmooth, vtkObjectBase}
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.TypeTag
 
 object DiscreteImageFilter {
 
@@ -31,7 +30,7 @@ object DiscreteImageFilter {
    * Computes a (signed) distance transform of the image.
    * @note The value that is returned is not the euclidean distance unless the image has unit spacing. Even worse, the distance might depend on the spacing of the image.
    */
-  def distanceTransform[D: NDSpace: CanConvertToVtk: BSplineImageInterpolator.Create, A: Scalar: ClassTag: TypeTag](
+  def distanceTransform[D: NDSpace: CanConvertToVtk: BSplineImageInterpolator.Create, A: Scalar: ClassTag](
     img: DiscreteImage[D, A]
   ): DiscreteImage[D, Float] = {
 
@@ -88,7 +87,7 @@ object DiscreteImageFilter {
   /**
    * Smoothing of an image using a Gaussian filter kernel with the given stddev
    */
-  def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag: TypeTag](img: DiscreteImage[D, A], stddev: Double)(
+  def gaussianSmoothing[D: NDSpace, A: Scalar: ClassTag](img: DiscreteImage[D, A], stddev: Double)(
     implicit
     vtkConversion: CanConvertToVtk[D]
   ): DiscreteImage[D, A] = {

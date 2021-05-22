@@ -28,8 +28,6 @@ import spire.math.{NumberTag, UByte, UInt, UShort}
 import vtk._
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe
-import scala.reflect.runtime.universe.{TypeTag, typeOf}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -116,18 +114,17 @@ object ImageIO {
      * @return the corresponding ScalarType value
      * @throws IllegalArgumentException if no corresponding value was found.
      */
-    def fromType[T: Scalar: TypeTag]: Value = {
-      
-      typeOf[T] match {
-        case t if t =:= typeOf[Byte]   => Byte
-        case t if t =:= typeOf[Short]  => Short
-        case t if t =:= typeOf[Int]    => Int
-        case t if t =:= typeOf[Float]  => Float
-        case t if t =:= typeOf[Double] => Double
-        case t if t =:= typeOf[UByte]  => UByte
-        case t if t =:= typeOf[UShort] => UShort
-        case t if t =:= typeOf[UInt]   => UInt
-        case _                         => throw new IllegalArgumentException(s"Unsupported datatype ${typeOf[T]}")
+    def fromType[T: Scalar]: Value = {
+      Scalar[T].scalarType match {
+        case Scalar.ByteScalar   => Byte
+        case Scalar.ShortScalar  => Short
+        case Scalar.IntScalar    => Int
+        case Scalar.FloatScalar  => Float
+        case Scalar.DoubleScalar => Double
+        case Scalar.UByteScalar  => UByte
+        case Scalar.UShortScalar => UShort
+        case Scalar.UIntScalar   => UInt
+        case _                   => throw new IllegalArgumentException(s"Unsupported datatype ${Scalar[T].scalarType}")
       }
     }
 
@@ -188,11 +185,11 @@ object ImageIO {
   }
 
   trait WriteNifti[D] {
-    def write[A: Scalar: TypeTag: ClassTag](img: DiscreteImage[D, A], f: File): Try[Unit]
+    def write[A: Scalar: ClassTag](img: DiscreteImage[D, A], f: File): Try[Unit]
   }
 
   implicit object DiscreteScalarImage3DNifti extends WriteNifti[_3D] {
-    def write[A: Scalar: TypeTag: ClassTag](img: DiscreteImage[_3D, A], f: File): Try[Unit] = {
+    def write[A: Scalar: ClassTag](img: DiscreteImage[_3D, A], f: File): Try[Unit] = {
       writeNifti[A](img, f)
     }
   }
@@ -205,7 +202,7 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](
+  def read3DScalarImage[S: Scalar: ClassTag](
     file: File,
     resampleOblique: Boolean = false,
     favourQform: Boolean = false
@@ -250,12 +247,12 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read3DScalarImageAsType[S: Scalar: TypeTag: ClassTag](
+  def read3DScalarImageAsType[S: Scalar: ClassTag](
     file: File,
     resampleOblique: Boolean = false,
     favourQform: Boolean = false
   ): Try[DiscreteImage[_3D, S]] = {
-    def loadAs[T: Scalar: TypeTag: ClassTag]: Try[DiscreteImage[_3D, T]] = {
+    def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
       read3DScalarImage[T](file, resampleOblique, favourQform)
     }
 
@@ -290,7 +287,7 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read2DScalarImage[S: Scalar: ClassTag: TypeTag](file: File): Try[DiscreteImage[_2D, S]] = {
+  def read2DScalarImage[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".vtk") =>
@@ -328,8 +325,8 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read2DScalarImageAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
-    def loadAs[T: Scalar: TypeTag: ClassTag]: Try[DiscreteImage[_2D, T]] = {
+  def read2DScalarImageAsType[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
+    def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_2D, T]] = {
       read2DScalarImage[T](file)
     }
 
@@ -358,9 +355,9 @@ object ImageIO {
     result
   }
 
-  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File,
-                                                      resampleOblique: Boolean,
-                                                      favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
+  private def readNifti[S: Scalar: ClassTag](file: File,
+                                             resampleOblique: Boolean,
+                                             favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
     for {
 
@@ -523,7 +520,7 @@ object ImageIO {
     }
   }
 
-  def writeNifti[S: Scalar: TypeTag: ClassTag](img: DiscreteImage[_3D, S], file: File): Try[Unit] = {
+  def writeNifti[S: Scalar: ClassTag](img: DiscreteImage[_3D, S], file: File): Try[Unit] = {
 
     val scalarConv = implicitly[Scalar[S]]
 
@@ -585,8 +582,7 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: TypeTag: ClassTag](img: DiscreteImage[D, S],
-                                                                          file: File): Try[Unit] = {
+  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S], file: File): Try[Unit] = {
 
     val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
 
