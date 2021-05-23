@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
       else
         Opts.resolver.sonatypeStaging
     ),
-    crossScalaVersions := Seq("2.13.6", "3.0.0"),
+    crossScalaVersions := Seq("2.13.6", "3.0.0-RC3"),
     resolvers ++= Seq(
       Resolver.bintrayRepo("unibas-gravis", "maven"),
       Resolver.jcenterRepo,
@@ -42,7 +42,6 @@ lazy val root = (project in file("."))
           )
           case _ => Seq(
             "-deprecation",
-            "-Xfatal-warnings",
             "-Wunused:imports,privates,locals",
             "-Wvalue-discard"
           )
@@ -62,13 +61,23 @@ lazy val root = (project in file("."))
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {
-      case "3" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3")
-      case "3.0.0-RC3" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.2")
-      case "2.13" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0")
+      case "3" => Seq(
+        "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3",
+      )
+      case "3.0.0-RC3" => Seq(
+        "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.2",
+        "org.scalanlp" %% "breeze" % "2.0-SNAPSHOT",
+        "org.scalanlp" %% "breeze-natives" % "2.0-SNAPSHOT",
+      )
+      case "2.13" => Seq(
+        "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
+        "org.scalanlp" %% "breeze" % "1.2",
+        "org.scalanlp" %% "breeze-natives" % "1.2"
+      )
       case _      => {println(scalaBinaryVersion.value); Seq()}
     }),
-    unmanagedSourceDirectories in Compile += {
-      val sourceDir = (sourceDirectory in Compile).value
+    Compile / unmanagedSourceDirectories  += {
+      val sourceDir = (Compile / sourceDirectory).value
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _))  => sourceDir / "scala-2.13+"
         case Some((2, n)) if n >= 13 => sourceDir / "scala-2.13+"
