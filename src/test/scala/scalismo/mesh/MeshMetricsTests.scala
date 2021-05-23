@@ -26,7 +26,7 @@ import scalismo.utils.Random
 
 class MeshMetricsTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   val path = getClass.getResource("/facemesh.stl").getPath
   val mesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
@@ -103,7 +103,7 @@ class MeshMetricsTests extends ScalismoTestSuite {
 
 class tetrahedralMeshMetricsTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
   final val epsilon = 1e-8
 
   val path = getClass.getResource("/tetraMesh.vtk").getPath

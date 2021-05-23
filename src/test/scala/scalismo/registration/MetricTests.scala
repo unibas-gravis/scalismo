@@ -32,7 +32,7 @@ import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   describe("A mean squares metric (1D)") {
     it("returns 0 if provided twice the same image") {

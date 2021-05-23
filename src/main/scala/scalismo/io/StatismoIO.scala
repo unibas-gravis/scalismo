@@ -166,7 +166,7 @@ object StatismoIO {
 
   private def writeCells(h5file: HDF5File, modelPath: String, cells: NDArray[Int]): Try[Unit] = {
     if (cells.data.length > 0) {
-      Try(h5file.writeNDArray[Int](s"$modelPath/representer/cells", cells))
+      h5file.writeNDArray[Int](s"$modelPath/representer/cells", cells)
     } else Success(())
   }
 
@@ -195,7 +195,7 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", typeHelper.datasetType)
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", points)
       _ <- writeCells(h5file, modelPath, cells)
-    } yield Success(())
+    } yield ()
   }
 
   private def ndFloatArrayToDoubleMatrix(array: NDArray[Float])(implicit
@@ -258,7 +258,11 @@ object StatismoIO {
     val dim: Int = vectorizer.dim
     for {
       pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
-      points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+
+      points <- Try(
+        for (i <- 0 until pointsMatrix.cols) yield
+          vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
+      )
       domain <- typeHelper.createDomainWithCells(points, None)
     } yield domain
   }
@@ -270,7 +274,10 @@ object StatismoIO {
     val dim: Int = vectorizer.dim
     for {
       pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
-      points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+      points <- Try(
+        for (i <- 0 until pointsMatrix.cols) yield
+          vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
+      )
       cells <- readStandardConnectiveityRepresenterGroup(h5file, modelPath)
       domain <- typeHelper.createDomainWithCells(points, Option(cells))
     } yield domain
@@ -318,14 +325,17 @@ object StatismoIO {
     // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
     // We recover U from it.
 
-    val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l))
-    val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) 1.0f / l else 0f)
+    val lambdaSqrt: DenseVector[Double] = pcaVarianceVector.map(l => math.sqrt(l))
+    val lambdaSqrtInv: DenseVector[Double] = lambdaSqrt.map(l => if (l > 1e-8) 1.0 / l else 0.0)
 
     // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
     // (diag returns densematrix, so the direct computation would be very slow)
     val U = DenseMatrix.zeros[Double](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
     for (i <- 0 until pcaBasisMatrix.cols) {
-      U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+      // The compiler (scala 3) needs some help here with implicits. We therefore
+      // compute it in 2 steps and have explicit type annotations.
+      val ULi : DenseVector[Double] = pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+      U(::, i) := ULi
     }
     U
   }
@@ -426,7 +436,7 @@ object StatismoIO {
       _ <- h5file.writeInt(s"$modelPath/representer/pointData/pixelDimension", pointSet.dimensionality)
       _ <- h5file.writeIntAttribute(s"$modelPath/representer/pointData/pixelValues", "datatype", 10)
 
-    } yield Success(())
+    } yield ()
   }
 
   /**

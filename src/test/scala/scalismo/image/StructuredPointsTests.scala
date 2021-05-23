@@ -30,7 +30,7 @@ import scalismo.utils.Random
 
 class StructuredPointsTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42)
+  implicit val rng: Random = Random(42)
 
   describe("a structured points pointset") {
     it("correctly reports the number of points") {

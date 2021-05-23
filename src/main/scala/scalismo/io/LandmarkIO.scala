@@ -99,7 +99,7 @@ object LandmarkIO {
   }
 
   def readLandmarksJsonFromSource[D: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
-    implicit val e = LandmarkJsonFormat[D]()
+    implicit val e: LandmarkJsonFormat[D] = LandmarkJsonFormat[D]()
     for {
       result <- Try {
         val stringData = source.getLines().mkString("\n")
@@ -130,7 +130,7 @@ object LandmarkIO {
 
   def writeLandmarksJsonToStream[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] =
     Try {
-      implicit val e = LandmarkJsonFormat[D]()
+      implicit val e: LandmarkJsonFormat[D] = LandmarkJsonFormat[D]()
       writeLandmarksJsonToStreamP(landmarks, stream)
     }.flatten
 

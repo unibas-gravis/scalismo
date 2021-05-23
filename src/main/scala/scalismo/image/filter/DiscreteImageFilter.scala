@@ -37,7 +37,7 @@ object DiscreteImageFilter {
     val scalar = implicitly[Scalar[A]]
 
     def doDistanceTransformVTK(img: DiscreteImage[D, A]) = {
-      implicit val ttFloat = TypeTag.Float
+
       val imgvtk = ImageConversion.imageToVtkStructuredPoints(img)
 
       val vtkdistTransform = new vtkImageEuclideanDistance()

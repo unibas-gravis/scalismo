@@ -17,17 +17,17 @@ package scalismo.io
 
 import java.io.File
 import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.utils.Random
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
-  implicit val rng = scalismo.utils.Random(42L)
+  implicit val rng: Random = scalismo.utils.Random(42L)
 
   describe("a Statismo Mesh Model") {
 

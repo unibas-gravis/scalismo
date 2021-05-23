@@ -88,13 +88,6 @@ object ImageIO {
 
     import scala.language.implicitConversions
 
-    implicit private val ttByte: universe.TypeTag[Byte] = TypeTag.Byte
-    implicit private val ttShort: universe.TypeTag[Short] = TypeTag.Short
-    implicit private val ttInt : universe.TypeTag[Int] = TypeTag.Int
-    implicit private val ttFloat: universe.TypeTag[Float] = TypeTag.Float
-    implicit private val ttDouble: universe.TypeTag[Double] = TypeTag.Double
-    implicit private val ttUByte: universe.TypeTag[UByte] = new TypeTag()
-
     protected case class TheValue[O: Scalar: ClassTag](vtkId: Int, niftiId: Short) extends super.Val
 
     implicit def valueToVal[T](x: Value): TheValue[T] = x.asInstanceOf[TheValue[T]]

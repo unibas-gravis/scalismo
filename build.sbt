@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
-    scalaVersion := "3.0.0",
+    scalaVersion := "3.0.0-RC3",
     homepage := Some(url("https://scalismo.org")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(ScmInfo(url("https://github.com/unibas-gravis/scalismo"), "git@github.com:unibas-gravis/scalismo.git")),
@@ -51,9 +51,11 @@ lazy val root = (project in file("."))
     javacOptions ++=  Seq("-source", "1.8", "-target", "1.8"),
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.2.9" % "test",
-      ("org.scalanlp" %% "breeze" % "1.0").cross(CrossVersion.for3Use2_13),
-      ("org.scalanlp" %% "breeze-natives" % "1.0").cross(CrossVersion.for3Use2_13),
+      "org.scalactic" %% "scalactic" % "3.2.8",
+      "org.scalatest" %% "scalatest" % "3.2.8" % "test",
+      ("org.scalanlp" %% "breeze" % "2.0-SNAPSHOT"),
+      ("org.scalanlp" %% "breeze-natives" % "2.0-SNAPSHOT"),
+
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
       "ch.unibas.cs.gravis" % "scalismo-native-all" % "4.0.1" % "test",
@@ -61,8 +63,9 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {
       case "3" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3")
+      case "3.0.0-RC3" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.2")
       case "2.13" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0")
-      case _      => Seq()
+      case _      => {println(scalaBinaryVersion.value); Seq()}
     }),
     unmanagedSourceDirectories in Compile += {
       val sourceDir = (sourceDirectory in Compile).value

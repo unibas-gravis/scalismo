@@ -20,10 +20,9 @@ import scalismo.sampling.loggers.{AcceptRejectLogger, SilentLogger}
 import scalismo.utils.Random
 
 import scala.collection.mutable
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
 import scala.math.exp
-
 import scala.language.postfixOps
 
 /**
@@ -140,7 +139,7 @@ class MetropolisHastingsWithPrefetching[A] protected (
 )(implicit val random: Random)
     extends MarkovChain[A] {
 
-  implicit val executionContext = ExecutionContext.global
+  implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
 
   private lazy val silentLogger = new SilentLogger[A]()
   private val prefetchQueue = mutable.Queue[A]()

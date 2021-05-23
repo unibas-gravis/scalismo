@@ -490,7 +490,7 @@ object DiscreteLowRankGaussianProcess {
     }
 
     // demean the data matrix
-    val m: DenseVector[Double] = breeze.stats.mean(X(::, *)).inner
+    val m: DenseVector[Double] = breeze.stats.mean(X(::, breeze.linalg.*)).inner
     for (i <- 0 until X.rows) {
       X(i, ::) := X(i, ::) - m.t
     }

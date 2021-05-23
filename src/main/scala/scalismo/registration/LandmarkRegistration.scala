@@ -199,7 +199,10 @@ object LandmarkRegistration {
     }
 
     val mu_x = mean(X.t, Axis._1)
-    val sigma2_x = (0 until n).map(i => (X(i, ::).t - mu_x) dot (X(i, ::).t - mu_x)).reduce(_ + _) / n
+    val sigma2_x = (0 until n).map(i => {
+      val xit : DenseVector[Double] = (X(i, ::).t - mu_x)
+      xit dot xit
+    }).reduce(_ + _) / n
 
     val mu_y = mean(Y.t, Axis._1)
     val Sigma_xy = (Y.t - (mu_y * DenseVector.ones[Double](n).t)) * (X.t - mu_x * DenseVector.ones[Double](n).t).t
