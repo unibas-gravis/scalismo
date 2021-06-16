@@ -6,8 +6,6 @@ import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.SbtGhPages._
 import com.typesafe.sbt.SbtGit.git
 
-import com.banno.license.Plugin.LicenseKeys._
-import com.banno.license.Licenses._
 import sbtbuildinfo.Plugin._
 import com.typesafe.sbt.SbtGit.useJGit
 
@@ -48,8 +46,8 @@ object Dependencies {
   val breezeMath = "org.scalanlp" %% "breeze" % "0.13"
   val breezeNative = "org.scalanlp" %% "breeze-natives" % "0.13"
   val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
-  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.0"
-  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.0" % "test"
+  val scalismoNativeStub = "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1"
+  val scalismoNativeImpl = "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.1" % "test"
 
   val slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
 }
@@ -60,12 +58,25 @@ object STKBuild extends Build {
   import Dependencies._
   import BuildSettings._
 
-  lazy val lic = com.banno.license.Plugin.licenseSettings ++ Seq(license := apache2("Copyright 2015 University of Basel, Graphics and Vision Research Group"), removeExistingHeaderBlock := false)
-
   lazy val scalismo = Project(
     "scalismo",
     file("."),
     settings = buildSettings ++ Seq(
+      homepage := Some(url("https://scalismo.org")),
+      licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+      scmInfo := Some(
+        ScmInfo(url("https://github.com/unibas-gravis/scalismo"), "git@github.com:unibas-gravis/scalismo.git")
+      ),
+      developers := List(
+        Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))
+      ),
+      publishMavenStyle := true,
+      publishTo := Some(
+        if (isSnapshot.value)
+          Opts.resolver.sonatypeSnapshots
+        else
+          Opts.resolver.sonatypeStaging
+      ),
       libraryDependencies ++= commonDeps,
       resolvers ++= stkResolvers,
       parallelExecution in Test := false,
