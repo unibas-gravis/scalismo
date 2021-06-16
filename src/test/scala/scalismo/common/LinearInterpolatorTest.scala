@@ -19,7 +19,8 @@ package scalismo.common
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
 import scalismo.image.{ DiscreteImageDomain, DiscreteScalarImage }
-import scalismo.common.interpolation.LinearImageInterpolator
+import scalismo.common.interpolation.{ LinearImageInterpolator, LinearImageInterpolator3D }
+import scalismo.io.ImageIO
 
 class LinearInterpolatorTest extends ScalismoTestSuite {
 
@@ -68,6 +69,23 @@ class LinearInterpolatorTest extends ScalismoTestSuite {
 
       img_interpolated(point) shouldBe 0.5
 
+    }
+
+    it("can be evaluated everywhere where the original image is defined") {
+      val originalDomain = DiscreteImageDomain(Point(0, 0, 0), EuclideanVector(0.1, 0.1, 0.1), IntVector(10, 10, 10))
+      val img = DiscreteScalarImage(originalDomain, (p: Point[_3D]) => p.x)
+      val fineDomain = DiscreteImageDomain(originalDomain.imageBoundingBox, IntVector(100, 100, 100))
+
+      val interpolatedImg = img.interpolate(LinearImageInterpolator3D[Double]())
+      for (pt <- fineDomain.points) {
+        interpolatedImg.isDefinedAt(pt) shouldBe (true)
+      }
+
+      try {
+        interpolatedImg.sample[Double](fineDomain, 0)
+      } catch {
+        case ex: Exception => fail("Should not throw Exception", ex)
+      }
     }
 
   }
