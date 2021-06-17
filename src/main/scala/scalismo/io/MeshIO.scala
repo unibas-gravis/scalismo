@@ -27,7 +27,6 @@ import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
 import vtk._
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.TypeTag
 import scala.util.{Failure, Success, Try}
 
 object MeshIO {
@@ -50,13 +49,13 @@ object MeshIO {
    * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
    *
    */
-  def readScalarMeshField[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
-    val requiredScalarType = ImageIO.ScalarType.fromType[S]
+  def readScalarMeshField[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
+    val requiredScalarType = ScalarDataType.fromType[S]
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") =>
         readVTKPolydata(file).flatMap { pd =>
-          val spScalarType = ImageIO.ScalarType.fromVtkId(pd.GetPointData().GetScalars().GetDataType())
+          val spScalarType = ScalarDataType.fromVtkId(pd.GetPointData().GetScalars().GetDataType())
           MeshConversion.vtkPolyDataToScalarMeshField(pd)
           if (requiredScalarType != spScalarType) {
             Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
@@ -73,7 +72,7 @@ object MeshIO {
    * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
    *
    */
-  def readScalarMeshFieldAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarMeshField[S]] = {
+  def readScalarMeshFieldAsType[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") =>
@@ -170,13 +169,13 @@ object MeshIO {
     }
   }
 
-  def readScalarVolumeMeshField[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
-    val requiredScalarType = ImageIO.ScalarType.fromType[S]
+  def readScalarVolumeMeshField[S: Scalar: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
+    val requiredScalarType = ScalarDataType.fromType[S]
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") =>
         readVTKUnstructuredGrid(file).flatMap { ug =>
-          val spScalarType = ImageIO.ScalarType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
+          val spScalarType = ScalarDataType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
           TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
           if (requiredScalarType != spScalarType) {
             Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
@@ -186,7 +185,7 @@ object MeshIO {
         }
       case f if f.endsWith(".vtu") =>
         readVTKXMLUnstructuredGrid(file).flatMap { ug =>
-          val spScalarType = ImageIO.ScalarType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
+          val spScalarType = ScalarDataType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
           TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
           if (requiredScalarType != spScalarType) {
             Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
@@ -198,7 +197,7 @@ object MeshIO {
         Failure(new IOException("Unknown file type received" + filename))
     }
   }
-  def readScalarVolumeMeshFieldAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
+  def readScalarVolumeMeshFieldAsType[S: Scalar: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") =>
@@ -225,7 +224,7 @@ object MeshIO {
     }
   }
 
-  private[io] def readFromVTKFileThenDelete[S: Scalar: TypeTag: ClassTag](
+  private[io] def readFromVTKFileThenDelete[S: Scalar: ClassTag](
     readUSFromFile: File => Try[vtkUnstructuredGrid],
     file: File
   ): Try[ScalarVolumeMeshField[S]] = {
@@ -346,8 +345,7 @@ object MeshIO {
     succOrFailure
   }
 
-  def writeScalarVolumeMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarVolumeMeshField[S],
-                                                               file: File): Try[Unit] = {
+  def writeScalarVolumeMeshField[S: Scalar: ClassTag](meshData: ScalarVolumeMeshField[S], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     val conversionFunction = (smf: ScalarVolumeMeshField[S]) =>
       TetrahedralMeshConversion.scalarVolumeMeshFieldToVtkUnstructuredGrid[S](smf, None)
@@ -385,7 +383,7 @@ object MeshIO {
     }
   }
 
-  def writeScalarMeshField[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
+  def writeScalarMeshField[S: Scalar: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => writeVTK(meshData, file)
@@ -413,7 +411,7 @@ object MeshIO {
     maybeError
   }
 
-  def writeVTK[S: Scalar: TypeTag: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
+  def writeVTK[S: Scalar: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.scalarMeshFieldToVtkPolyData(meshData)
     val err = writeVTKPdasVTK(vtkPd, file)
     vtkPd.Delete()

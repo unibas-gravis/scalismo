@@ -35,7 +35,6 @@ import scalismo.utils.CanConvertToVtk
 import spire.math.{UByte, UInt, UShort}
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{typeOf, TypeTag}
 import scala.util.{Failure, Success, Try}
 
 class ImageIOTests extends ScalismoTestSuite {
@@ -54,26 +53,26 @@ class ImageIOTests extends ScalismoTestSuite {
 
     val dim = implicitly[NDSpace[D]].dimensionality
 
-    def typeAsString[T: TypeTag](): String = {
-      typeOf[T] match {
-        case t if t =:= typeOf[Byte]   => "char"
-        case t if t =:= typeOf[Short]  => "short"
-        case t if t =:= typeOf[Int]    => "int"
-        case t if t =:= typeOf[Float]  => "float"
-        case t if t =:= typeOf[Double] => "double"
-        case t if t =:= typeOf[UByte]  => "uchar"
-        case t if t =:= typeOf[UShort] => "ushort"
-        case t if t =:= typeOf[UInt]   => "uint"
-        case _                         => throw new NotImplementedError("" + typeOf[T])
+    def typeAsString[T: Scalar](): String = {
+      Scalar[T].scalarType match {
+        case Scalar.ByteScalar   => "char"
+        case Scalar.ShortScalar  => "short"
+        case Scalar.IntScalar    => "int"
+        case Scalar.FloatScalar  => "float"
+        case Scalar.DoubleScalar => "double"
+        case Scalar.UByteScalar  => "uchar"
+        case Scalar.UShortScalar => "ushort"
+        case Scalar.UIntScalar   => "uint"
+        case _                   => throw new NotImplementedError("" + Scalar[T].scalarType)
       }
     }
 
-    def readImage[T: Scalar: TypeTag: ClassTag](f: File): Try[DiscreteImage[D, T]] = {
+    def readImage[T: Scalar: ClassTag](f: File): Try[DiscreteImage[D, T]] = {
       val r = if (dim == 2) ImageIO.read2DScalarImage[T](f) else ImageIO.read3DScalarImage[T](f)
       r.asInstanceOf[Try[DiscreteImage[D, T]]]
     }
 
-    def testReadWrite[T: Scalar: TypeTag: ClassTag]() = {
+    def testReadWrite[T: Scalar: ClassTag]() = {
       val path = getClass.getResource("/images/vtk").getPath
       val source = new File(s"${URLDecoder.decode(path, "UTF-8")}/${dim}d_${typeAsString[T]()}.vtk")
 
@@ -254,7 +253,7 @@ class ImageIOTests extends ScalismoTestSuite {
   describe("ImageIO") {
     it("is type safe") {
 
-      case class ImageWithType[D: NDSpace: CanConvertToVtk, T: Scalar: TypeTag: ClassTag](
+      case class ImageWithType[D: NDSpace: CanConvertToVtk, T: Scalar: ClassTag](
         img: DiscreteImage[D, T],
         typeName: String
       ) {
@@ -266,11 +265,11 @@ class ImageIOTests extends ScalismoTestSuite {
         }
       }
 
-      def convertTo[D: NDSpace: CanConvertToVtk, OUT: Scalar: TypeTag: ClassTag](
+      def convertTo[D: NDSpace: CanConvertToVtk, OUT: Scalar: ClassTag](
         in: DiscreteImage[D, Int]
       ): ImageWithType[D, OUT] = {
         val img = in.map(implicitly[Scalar[OUT]].fromInt)
-        ImageWithType(img, ImageIO.ScalarType.fromType[OUT].toString)
+        ImageWithType(img, ScalarDataType.fromType[OUT].toString)
       }
 
       val data = (1 to 8).toArray
@@ -291,7 +290,7 @@ class ImageIOTests extends ScalismoTestSuite {
           convertTo[D, UInt](img)
         )
 
-      def read[D: NDSpace, T: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteImage[D, T]] = {
+      def read[D: NDSpace, T: Scalar: ClassTag](file: File): Try[DiscreteImage[D, T]] = {
         implicitly[NDSpace[D]].dimensionality match {
           case 3 => ImageIO.read3DScalarImage[T](file).asInstanceOf[Try[DiscreteImage[D, T]]]
           case 2 => ImageIO.read2DScalarImage[T](file).asInstanceOf[Try[DiscreteImage[D, T]]]
@@ -299,9 +298,8 @@ class ImageIOTests extends ScalismoTestSuite {
         }
       }
 
-      def check[D: NDSpace, T: Scalar: TypeTag: ClassTag](result: Try[DiscreteImage[D, T]],
-                                                          actualType: String): Unit = {
-        val tryType = ImageIO.ScalarType.fromType[T].toString
+      def check[D: NDSpace, T: Scalar: ClassTag](result: Try[DiscreteImage[D, T]], actualType: String): Unit = {
+        val tryType = ScalarDataType.fromType[T].toString
         if (tryType == actualType) {
           result should be a 'Success
         } else {
@@ -328,7 +326,7 @@ class ImageIOTests extends ScalismoTestSuite {
           }
 
           c.writeVtk(vtk) should be a 'Success
-          ImageIO.ScalarType.ofFile(vtk).get.toString should equal(c.typeName)
+          ScalarDataType.ofFile(vtk).get.toString should equal(c.typeName)
 
           checkAll(vtk)
           vtk.delete()
@@ -338,7 +336,7 @@ class ImageIOTests extends ScalismoTestSuite {
             nii.deleteOnExit()
 
             c.writeNii(nii) should be a 'Success
-            ImageIO.ScalarType.ofFile(nii).get.toString should equal(c.typeName)
+            ScalarDataType.ofFile(nii).get.toString should equal(c.typeName)
             checkAll(nii)
             nii.delete()
           }
