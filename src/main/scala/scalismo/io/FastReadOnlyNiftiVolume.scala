@@ -25,7 +25,6 @@ import scalismo.io.FastReadOnlyNiftiVolume.NiftiHeader
 import spire.math.{UByte, UInt, UShort}
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{typeOf, TypeTag}
 import scala.util.Try
 
 /**
@@ -84,7 +83,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
    * 2. (more or less) directly copying the flat data array(as present in the file), instead
    *    of performing back-and-forth transformations to/from a 4-dimensional array.
    */
-  def dataAsScalarArray[S: Scalar: TypeTag: ClassTag]: ScalarArray[S] = this.synchronized {
+  def dataAsScalarArray[S: Scalar: ClassTag]: ScalarArray[S] = this.synchronized {
     import NiftiHeader._
 
     val nx: Int = header.dim(1)
@@ -261,13 +260,13 @@ object FastReadOnlyNiftiVolume {
      * means: at offset 40, there are 8 consecutive Short values, which can be retrieved
      * as dim(0) .. dim(7).
      */
-    class DirectArray[T: TypeTag](offset: Int, size: Int) {
+    class DirectArray[T: Scalar](offset: Int, size: Int) {
       def apply(index: Int): T = {
         if (index < 0 || index >= size) throw new ArrayIndexOutOfBoundsException
-        typeOf[T] match {
-          case t if t <:< typeOf[Short] => shortAt(offset + 2 * index).asInstanceOf[T]
-          case t if t <:< typeOf[Float] => floatAt(offset + 4 * index).asInstanceOf[T]
-          case _                        => throw new Throwable(s"Unsupported datatype ${typeOf[T]}")
+        Scalar[T].scalarType match {
+          case Scalar.ShortScalar => shortAt(offset + 2 * index).asInstanceOf[T]
+          case Scalar.FloatScalar => floatAt(offset + 4 * index).asInstanceOf[T]
+          case _                  => throw new Throwable(s"Unsupported datatype ${Scalar[T].scalarType}")
         }
       }
     }

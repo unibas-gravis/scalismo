@@ -9,7 +9,6 @@ import scalismo.utils.Random
 import scalismo.common.DiscreteField.ScalarVolumeMeshField
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.TypeTag
 
 trait StatisticalVolumeIntensityModel[S] {
 
@@ -30,7 +29,7 @@ trait StatisticalVolumeIntensityModel[S] {
 
 object StatisticalVolumeIntensityModel {
 
-  def apply[S: Scalar: TypeTag: ClassTag](
+  def apply[S: Scalar: ClassTag](
     referenceMeshField: ScalarVolumeMeshField[S],
     shape: PointDistributionModel[_3D, TetrahedralMesh],
     intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain, S]
@@ -40,7 +39,7 @@ object StatisticalVolumeIntensityModel {
 
 }
 
-case class SVIM[S: Scalar: TypeTag: ClassTag](
+case class SVIM[S: Scalar: ClassTag](
   referenceMeshField: ScalarVolumeMeshField[S],
   shape: PointDistributionModel[_3D, TetrahedralMesh],
   intensity: DiscreteLowRankGaussianProcess[_3D, UnstructuredPointsDomain, S]
