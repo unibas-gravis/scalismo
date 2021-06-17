@@ -129,7 +129,7 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
    */
   def coefficients(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): DenseVector[Double] = {
     val LowRankRegressionComputation(minv, yVec, mVec, qtL) =
-      LowRankRegressionComputation.fromLowrankGP(this, trainingData)
+      LowRankRegressionComputation.fromLowrankGP(this, trainingData, NaNStrategy.NanIsNumericValue)
     val mean_coeffs = (minv * qtL) * (yVec - mVec)
     mean_coeffs
   }
@@ -343,12 +343,13 @@ object LowRankGaussianProcess {
    */
   def regression[D: NDSpace, Value](
     gp: LowRankGaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy = NaNStrategy.NanIsNumericValue
   )(implicit vectorizer: Vectorizer[Value]): LowRankGaussianProcess[D, Value] = {
     val outputDim = gp.outputDim
 
     val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
-      LowRankRegressionComputation.fromLowrankGP(gp, trainingData)
+      LowRankRegressionComputation.fromLowrankGP(gp, trainingData, naNStrategy)
     val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
 
     val mean_p = gp.instance(mean_coeffs)

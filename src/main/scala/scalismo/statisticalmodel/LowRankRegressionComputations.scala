@@ -38,7 +38,8 @@ private[scalismo] object LowRankRegressionComputation {
    */
   def fromLowrankGP[D: NDSpace, Dom[D] <: DiscreteDomain[D], Value](
     gp: LowRankGaussianProcess[D, Value],
-    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy
   )(implicit vectorizer: Vectorizer[Value]): LowRankRegressionComputation = {
 
     val outputDim = gp.outputDim
@@ -55,7 +56,7 @@ private[scalismo] object LowRankRegressionComputation {
       Q(i * outputDim until i * outputDim + outputDim, j) := vectorizer.vectorize(phi_j(x_i)) * math.sqrt(lambda_j)
     }
 
-    doComputation(yVec, mVec, Q, outputDim, errorDistributions)
+    doComputation(yVec, mVec, Q, outputDim, errorDistributions, naNStrategy)
   }
 
   /**
@@ -63,7 +64,8 @@ private[scalismo] object LowRankRegressionComputation {
    */
   def fromDiscreteLowRankGP[D: NDSpace, Dom[D] <: DiscreteDomain[D], Value](
     gp: DiscreteLowRankGaussianProcess[D, Dom, Value],
-    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy
   )(implicit vectorizer: Vectorizer[Value]): LowRankRegressionComputation = {
     val outputDim = gp.outputDim
     val (ptIds, ys, errorDistributions) = trainingData.unzip3
@@ -80,7 +82,7 @@ private[scalismo] object LowRankRegressionComputation {
       Q(i * outputDim until i * outputDim + outputDim, j) := eigenVecAtPoint * math.sqrt(gp.variance(j))
     }
 
-    doComputation(yVec, meanValues, Q, outputDim, errorDistributions)
+    doComputation(yVec, meanValues, Q, outputDim, errorDistributions, naNStrategy)
   }
 
   /**
@@ -92,7 +94,8 @@ private[scalismo] object LowRankRegressionComputation {
                             meanVec: DenseVector[Double],
                             Q: DenseMatrix[Double],
                             outputDim: Int,
-                            errorDistributions: Seq[MultivariateNormalDistribution]): LowRankRegressionComputation = {
+                            errorDistributions: Seq[MultivariateNormalDistribution],
+                            naNStrategy: NaNStrategy): LowRankRegressionComputation = {
     // What we are actually computing here is the following:
     // L would be a block diagonal matrix, which contains on the diagonal the blocks that describes the uncertainty
     // for each point (a d x d) block. We then would compute Q.t * L. For efficiency reasons (L could be large but is sparse)
@@ -104,24 +107,27 @@ private[scalismo] object LowRankRegressionComputation {
         .inv(errDist.cov)
     }
 
-    // We allow the ys to have NaN Values. Nan values mean, we have not observed the corresponding
-    // part of the observation. We filter out the entries corresponding to these missing
+    // If NanStrategy is set to allow for missing values, we treat the NaNs in the vector yVec as missing observations.
+    // We filter out the entries corresponding to these missing
     // observations in all the relevant vectors and then do the computations with the
     // reduced vectors. If all elements of an observation are NaN, this would then be the same
     // as if the observation would not have been included in the training data.
-    val (nanEntries, nonNanEntries) = (0 until yVec.length).partition(i => yVec(i).isNaN)
+    val (missingEntries, entriesWithObservation) = naNStrategy match {
+      case NaNStrategy.NaNAsMissingValue => (0 until yVec.length).partition(i => yVec(i).isNaN)
+      case NaNStrategy.NanIsNumericValue =>
+        (Seq[Int](), (0 until yVec.length)) // all values are treated as normal values
+    }
+    val yVecObserved = yVec(entriesWithObservation).toDenseVector
+    val mVecObserved = meanVec(entriesWithObservation).toDenseVector
 
-    val yVecNoNan = yVec(nonNanEntries).toDenseVector
-    val mVecNoNan = meanVec(nonNanEntries).toDenseVector
+    val QtLObserved = QtL.delete(missingEntries, Axis._1)
 
-    val QtLnoNan = QtL.delete(nanEntries, Axis._1)
+    val QObserved = Q.delete(missingEntries, Axis._0)
 
-    val QnoNan = Q.delete(nanEntries, Axis._0)
-
-    val M = QtLnoNan * QnoNan + DenseMatrix.eye[Double](Q.cols)
+    val M = QtLObserved * QObserved + DenseMatrix.eye[Double](Q.cols)
 
     val Minv = breeze.linalg.pinv(M)
-    LowRankRegressionComputation(Minv, yVecNoNan, mVecNoNan, QtLnoNan)
+    LowRankRegressionComputation(Minv, yVecObserved, mVecObserved, QtLObserved)
   }
 
 }

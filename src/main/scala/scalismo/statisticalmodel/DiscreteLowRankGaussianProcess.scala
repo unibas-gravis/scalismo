@@ -27,6 +27,7 @@ import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{PivotedCholesky, Sampler}
 import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{Eigenpair => DiscreteEigenpair, _}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
+import scalismo.statisticalmodel.NaNStrategy.NanIsNumericValue
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.{Memoize, Random}
 
@@ -159,7 +160,7 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
     val td = s.valuesWithIds.map { case (v, id) => (id, v, noiseDist) }.toIndexedSeq
 
     val LowRankRegressionComputation(minv, yVec, mVec, qtL) =
-      LowRankRegressionComputation.fromDiscreteLowRankGP(this, td)
+      LowRankRegressionComputation.fromDiscreteLowRankGP(this, td, NaNStrategy.NanIsNumericValue)
     val mean_coeffs = (minv * qtL) * (yVec - mVec)
     mean_coeffs
   }
@@ -425,11 +426,12 @@ object DiscreteLowRankGaussianProcess {
    */
   def regression[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value](
     gp: DiscreteLowRankGaussianProcess[D, DDomain, Value],
-    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy = NanIsNumericValue
   )(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
 
     val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
-      LowRankRegressionComputation.fromDiscreteLowRankGP(gp, trainingData)
+      LowRankRegressionComputation.fromDiscreteLowRankGP(gp, trainingData, naNStrategy)
     val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
 
     //val mean_p = gp.instance(mean_coeffs)
