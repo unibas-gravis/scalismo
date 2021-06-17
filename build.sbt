@@ -10,8 +10,12 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.1",
     homepage := Some(url("https://scalismo.org")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
-    scmInfo := Some(ScmInfo(url("https://github.com/unibas-gravis/scalismo"), "git@github.com:unibas-gravis/scalismo.git")),
-    developers := List(Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))),
+    scmInfo := Some(
+      ScmInfo(url("https://github.com/unibas-gravis/scalismo"), "git@github.com:unibas-gravis/scalismo.git")
+    ),
+    developers := List(
+      Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))
+    ),
     publishMavenStyle := true,
     publishTo := Some(
       if (isSnapshot.value)
@@ -24,7 +28,7 @@ lazy val root = (project in file("."))
       Resolver.bintrayRepo("unibas-gravis", "maven"),
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots"),
+      Resolver.sonatypeRepo("snapshots")
     ),
     scalacOptions += "-deprecation",
     javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
