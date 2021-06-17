@@ -19,7 +19,7 @@ import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common._
 import scalismo.geometry._
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints}
-import scalismo.io.ImageIO
+import scalismo.io.{ImageIO, ScalarDataType}
 import scalismo.mesh._
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
 import spire.math.{UByte, UInt, ULong, UShort}
@@ -501,8 +501,8 @@ object CanConvertToVtk {
         return Failure(new Exception(s"The image is a 3D image - require a 2D image"))
       }
 
-      val requiredScalarType = ImageIO.ScalarType.fromType[Pixel]
-      val spScalarType = ImageIO.ScalarType.fromVtkId(sp.GetScalarType())
+      val requiredScalarType = ScalarDataType.fromType[Pixel]
+      val spScalarType = ScalarDataType.fromVtkId(sp.GetScalarType())
 
       if (requiredScalarType != spScalarType) {
         return Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
@@ -593,8 +593,8 @@ object CanConvertToVtk {
         return Failure(new Exception(s"The image is a 2D image - require a 3D image"))
       }
 
-      val requiredScalarType = ImageIO.ScalarType.fromType[Pixel]
-      val spScalarType = ImageIO.ScalarType.fromVtkId(sp.GetScalarType())
+      val requiredScalarType = ScalarDataType.fromType[Pixel]
+      val spScalarType = ScalarDataType.fromVtkId(sp.GetScalarType())
 
       if (requiredScalarType != spScalarType) {
         return Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))

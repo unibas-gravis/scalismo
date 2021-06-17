@@ -50,12 +50,12 @@ object MeshIO {
    *
    */
   def readScalarMeshField[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
-    val requiredScalarType = ImageIO.ScalarType.fromType[S]
+    val requiredScalarType = ScalarDataType.fromType[S]
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") =>
         readVTKPolydata(file).flatMap { pd =>
-          val spScalarType = ImageIO.ScalarType.fromVtkId(pd.GetPointData().GetScalars().GetDataType())
+          val spScalarType = ScalarDataType.fromVtkId(pd.GetPointData().GetScalars().GetDataType())
           MeshConversion.vtkPolyDataToScalarMeshField(pd)
           if (requiredScalarType != spScalarType) {
             Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
@@ -170,12 +170,12 @@ object MeshIO {
   }
 
   def readScalarVolumeMeshField[S: Scalar: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
-    val requiredScalarType = ImageIO.ScalarType.fromType[S]
+    val requiredScalarType = ScalarDataType.fromType[S]
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") =>
         readVTKUnstructuredGrid(file).flatMap { ug =>
-          val spScalarType = ImageIO.ScalarType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
+          val spScalarType = ScalarDataType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
           TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
           if (requiredScalarType != spScalarType) {
             Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
@@ -185,7 +185,7 @@ object MeshIO {
         }
       case f if f.endsWith(".vtu") =>
         readVTKXMLUnstructuredGrid(file).flatMap { ug =>
-          val spScalarType = ImageIO.ScalarType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
+          val spScalarType = ScalarDataType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
           TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
           if (requiredScalarType != spScalarType) {
             Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
