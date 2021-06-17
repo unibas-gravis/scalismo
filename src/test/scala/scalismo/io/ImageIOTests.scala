@@ -269,7 +269,7 @@ class ImageIOTests extends ScalismoTestSuite {
         in: DiscreteImage[D, Int]
       ): ImageWithType[D, OUT] = {
         val img = in.map(implicitly[Scalar[OUT]].fromInt)
-        ImageWithType(img, ImageIO.ScalarType.fromType[OUT].toString)
+        ImageWithType(img, ScalarDataType.fromType[OUT].toString)
       }
 
       val data = (1 to 8).toArray
@@ -299,7 +299,7 @@ class ImageIOTests extends ScalismoTestSuite {
       }
 
       def check[D: NDSpace, T: Scalar: ClassTag](result: Try[DiscreteImage[D, T]], actualType: String): Unit = {
-        val tryType = ImageIO.ScalarType.fromType[T].toString
+        val tryType = ScalarDataType.fromType[T].toString
         if (tryType == actualType) {
           result should be a 'Success
         } else {
@@ -326,7 +326,7 @@ class ImageIOTests extends ScalismoTestSuite {
           }
 
           c.writeVtk(vtk) should be a 'Success
-          ImageIO.ScalarType.ofFile(vtk).get.toString should equal(c.typeName)
+          ScalarDataType.ofFile(vtk).get.toString should equal(c.typeName)
 
           checkAll(vtk)
           vtk.delete()
@@ -336,7 +336,7 @@ class ImageIOTests extends ScalismoTestSuite {
             nii.deleteOnExit()
 
             c.writeNii(nii) should be a 'Success
-            ImageIO.ScalarType.ofFile(nii).get.toString should equal(c.typeName)
+            ScalarDataType.ofFile(nii).get.toString should equal(c.typeName)
             checkAll(nii)
             nii.delete()
           }
