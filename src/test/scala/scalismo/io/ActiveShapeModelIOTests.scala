@@ -38,11 +38,11 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
 
   private def createAsm(): ActiveShapeModel = {
     val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-    val shapeModel = StatisticalModelIO.readStatisticalMeshModel(statismoFile).get
+    val shapeModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(statismoFile).get
 
-    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.referenceMesh, 100).sample.unzip
+    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.reference, 100).sample.unzip
     val pointIds = sprofilePoints.map { point =>
-      shapeModel.referenceMesh.pointSet.findClosestPoint(point).id
+      shapeModel.reference.pointSet.findClosestPoint(point).id
     }
     val dists =
       for (i <- pointIds.indices)
