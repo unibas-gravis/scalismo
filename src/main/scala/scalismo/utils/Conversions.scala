@@ -531,16 +531,16 @@ object CanConvertToVtk {
       sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
 
       val corners = List(
-        Point(0, 0, 0),
-        Point(domain.size(0) - 1, 0, 0),
-        Point(0, domain.size(1) - 1, 0),
-        Point(0, 0, domain.size(2) - 1),
-        Point(domain.size(0) - 1, domain.size(1) - 1, 0),
-        Point(domain.size(0) - 1, 0, domain.size(2) - 1),
-        Point(0, domain.size(1) - 1, domain.size(2) - 1),
-        Point(domain.size(0) - 1, domain.size(1) - 1, domain.size(2) - 1)
+        IntVector3D(0, 0, 0),
+        IntVector3D(domain.size(0) - 1, 0, 0),
+        IntVector3D(0, domain.size(1) - 1, 0),
+        IntVector3D(0, 0, domain.size(2) - 1),
+        IntVector3D(domain.size(0) - 1, domain.size(1) - 1, 0),
+        IntVector3D(domain.size(0) - 1, 0, domain.size(2) - 1),
+        IntVector3D(0, domain.size(1) - 1, domain.size(2) - 1),
+        IntVector3D(domain.size(0) - 1, domain.size(1) - 1, domain.size(2) - 1)
       )
-      val cornerImages = corners.map(domain.indexToPhysicalCoordinateTransform)
+      val cornerImages = corners.map(domain.indexToPoint)
       val newOriginX = cornerImages.map(p => p(0)).min
       val newOriginY = cornerImages.map(p => p(1)).min
       val newOriginZ = cornerImages.map(p => p(2)).min

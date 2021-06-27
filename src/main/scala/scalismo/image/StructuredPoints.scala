@@ -109,7 +109,7 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
    */
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = throw new UnsupportedOperationException
 
-  private def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
+   def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
     var d = 0
     val indexData = new Array[Int](dimensionality)
     while (d < dimensionality) {
@@ -119,18 +119,12 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     IntVector[D](indexData)
   }
 
-  private def pointToContinuousIndex(pt: Point[D]): EuclideanVector[D] = {
-    physicalCoordinateToContinuousIndex(pt).toVector
-  }
-
-  def indexToPoint(i: IntVector[D]) = indexToPhysicalCoordinateTransform(Point[D](i.toArray.map(_.toDouble)))
-
   private def isIndex(continuousIndex: EuclideanVector[D]): Boolean =
     (0 until dimensionality).forall(i => continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8)
 
-  /** the anisotropic similarity transform that maps between the index and physical coordinates*/
-  private[scalismo] def indexToPhysicalCoordinateTransform: Transformation[D]
-  private[scalismo] def physicalCoordinateToContinuousIndex: Transformation[D]
+  def pointToContinuousIndex(pt: Point[D]): EuclideanVector[D]
+  def pointToIndex(pt : Point[D]) : IntVector[D] = continuousIndextoIndex(pointToContinuousIndex(pt))
+  def indexToPoint(idx: IntVector[D]): Point[D]
 
   def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[D]]]
 
@@ -157,31 +151,26 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
 //
 // The actual implementations for each dimension
 //
-case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D], size: IntVector[_1D])
+case class StructuredPoints1D(origin: Point[_1D],
+                              spacing: EuclideanVector[_1D],
+                              size: IntVector[_1D],
+                              iVec: EuclideanVector[_1D] = EuclideanVector1D(1.0))
     extends StructuredPoints[_1D] {
 
-  override val indexToPhysicalCoordinateTransform: Transformation[_1D] = new Transformation[_1D] {
-    override def domain: Domain[_1D] = RealSpace[_1D]
-    override def f: Point[_1D] => Point[_1D] = pt => {
-      val scaledPoint = Point1D(pt(0) * spacing(0))
-      scaledPoint + origin.toVector
-    }
+  require(Math.abs(iVec.norm - 1.0) < 1e-10)
+
+  override def indexToPoint(idx: IntVector[_1D]): Point[_1D] = {
+    val pointOnIVec = iVec * idx(0) * spacing(0)
+    origin + pointOnIVec
   }
 
-  override private[scalismo] val physicalCoordinateToContinuousIndex: Transformation[_1D] =
-    new Transformation[_1D] {
-      override def domain: Domain[_1D] = RealSpace[_1D]
-      override def f: Point[_1D] => Point[_1D] = pt => {
-        val pointInStandardPosition = pt - origin
-        Point1D(pointInStandardPosition(0) / spacing(0))
-      }
-    }
-
-  private val iVecImage
-    : EuclideanVector1D = indexToPhysicalCoordinateTransform(Point(1)) - indexToPhysicalCoordinateTransform(Point(0))
+  override def pointToContinuousIndex(pt: Point[_1D]): EuclideanVector[_1D] = {
+    val p0 = pt - origin
+    EuclideanVector1D(p0.dot(iVec) * (1.0 / spacing(0)))
+  }
 
   private def generateIterator(minX: Int, maxX: Int) = {
-    for (i <- Iterator.range(minX, maxX)) yield { Point1D(origin.x + iVecImage.x * i) }
+    for (i <- Iterator.range(minX, maxX)) yield { Point1D(origin.x + iVec.x * i * spacing.x) }
   }
   override def points: Iterator[Point1D] = generateIterator(0, size(0))
 
@@ -190,7 +179,7 @@ case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D],
   override def index(linearIdx: PointId) = IntVector(linearIdx.id)
   override def pointId(idx: IntVector[_1D]) = PointId(idx(0))
 
-  override val directions = SquareMatrix(1.0)
+  override val directions = SquareMatrix(iVec.toArray)
 
   //  private val transform = SimilarityTransformationSpace1D().transformForParameters(DenseVector(origin.data ++ spacing.data))
   //  private val inverseTransform = transform.inverse
@@ -214,46 +203,37 @@ case class StructuredPoints1D(origin: Point[_1D], spacing: EuclideanVector[_1D],
 
 }
 
-case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D], phi: Double)
+case class StructuredPoints2D(origin: Point[_2D],
+                              spacing: EuclideanVector[_2D],
+                              size: IntVector[_2D],
+                              iVec: EuclideanVector[_2D] = EuclideanVector2D(1.0, 0.0),
+                              jVec: EuclideanVector[_2D] = EuclideanVector2D(0.0, 1.0))
     extends StructuredPoints[_2D] {
 
-  private val rigidTransform =
-    TranslationAfterRotation2D(Translation2D(origin - Point2D(0.0, 0.0)), Rotation2D(phi, Point2D(0, 0)))
-  private val invRigidTransform = rigidTransform.inverse
+  require(Math.abs(iVec.norm - 1.0) < 1e-10)
+  require(Math.abs(jVec.norm - 1.0) < 1e-10)
 
-  override val indexToPhysicalCoordinateTransform: Transformation[_2D] = new Transformation[_2D] {
-    override def domain: Domain[_2D] = EuclideanSpace[_2D]
-    override def f: Point[_2D] => Point[_2D] = pt => {
-      val scaledPoint = Point2D(pt(0) * spacing(0), pt(1) * spacing(1))
-      rigidTransform(scaledPoint)
-    }
+  override def indexToPoint(idx: IntVector[_2D]): Point[_2D] = {
+    val pointOnIVec = iVec * idx(0) * spacing(0)
+    val pointOnJVec = jVec * idx(1) * spacing(1)
+    origin + pointOnIVec + pointOnJVec
   }
 
-  override private[scalismo] val physicalCoordinateToContinuousIndex: Transformation[_2D] =
-    new Transformation[_2D] {
-      override def domain: Domain[_2D] = EuclideanSpace[_2D]
-      override def f: Point[_2D] => Point[_2D] = pt => {
-        val pointInStandardPosition = invRigidTransform(pt)
-        Point2D(pointInStandardPosition(0) / spacing(0), pointInStandardPosition(1) / spacing(1))
-      }
-    }
+  override def pointToContinuousIndex(pt: Point[_2D]): EuclideanVector[_2D] = {
+    val p0 = (pt - origin)
+    val p0_1 = p0.dot(iVec) / spacing(0)
+    val p0_2 = p0.dot(jVec) / spacing(1)
 
-  private val iVecImage
-    : EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(1, 0)) - indexToPhysicalCoordinateTransform(
-    Point(0, 0)
-  )
-  private val jVecImage
-    : EuclideanVector2D = indexToPhysicalCoordinateTransform(Point(0, 1)) - indexToPhysicalCoordinateTransform(
-    Point(0, 0)
-  )
+    EuclideanVector2D(p0_1, p0_2)
+  }
 
   override val directions =
-    SquareMatrix[_2D]((iVecImage * (1.0 / iVecImage.norm)).toArray ++ (jVecImage * (1.0 / jVecImage.norm)).toArray)
+    SquareMatrix[_2D](iVec.toArray ++ jVec.toArray)
 
   private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) =
-    for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield { ijToPoint(i, j) }
+    for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield { indexToPoint(IntVector(i, j)) }
 
-  override def points: Iterator[Point2D] = generateIterator(0, size(1), 0, size(0))
+  override def points: Iterator[Point[_2D]] = generateIterator(0, size(1), 0, size(0))
 
   override def index(ptId: PointId) = (IntVector(ptId.id % size(0), ptId.id / size(0)))
   override def pointId(idx: IntVector[_2D]) = PointId(idx(0) + idx(1) * size(0))
@@ -262,22 +242,22 @@ case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D],
     new UnstructuredPoints2D(points.map(t).toIndexedSeq)
   }
 
-  @inline private def ijToPoint(i: Int, j: Int) =
-    Point2D(origin.x + iVecImage.x * i + jVecImage.x * j, origin.y + iVecImage.y * i + jVecImage.y * j)
-
-  override def indexToPoint(i: IntVector[_2D]) = {
-    val idx: IntVector2D = i
-    ijToPoint(idx.i, idx.j)
-  }
-
   override def boundingBox: BoxDomain[_2D] = {
-    val extendData = (0 until 2).map(i => size(i) * spacing(i))
-    val extent = EuclideanVector[_2D](extendData.toArray)
-    val oppositeCorner = origin + extent
-    BoxDomain2D(origin, oppositeCorner)
+    val corners = Seq(
+      IntVector(0, 0),
+      IntVector(0, size(1) - 1),
+      IntVector(size(0) - 1, 0),
+      IntVector(size(0) - 1, size(1) - 1)
+    ).map(indexToPoint)
+
+    val minX = corners.map(_.x).min
+    val minY = corners.map(_.y).min
+    val maxX = corners.map(_.x).max
+    val maxY = corners.map(_.y).max
+    BoxDomain(Point2D(minX, minY), Point2D(maxX, maxY))
   }
 
-  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point2D]] = {
+  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[_2D]]] = {
     require(nbChunks > 1)
     val chunkSize = size(1) / nbChunks
     val ranges = (0 until nbChunks).map { chunkId =>
@@ -293,7 +273,7 @@ case class StructuredPoints2D(origin: Point[_2D], spacing: EuclideanVector[_2D],
 object StructuredPoints2D {
 
   def apply(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D]): StructuredPoints[_2D] = {
-    StructuredPoints2D(origin, spacing, size, phi = 0.0)
+    new StructuredPoints2D(origin, spacing, size)
   }
 
 }
@@ -301,33 +281,32 @@ object StructuredPoints2D {
 case class StructuredPoints3D(origin: Point[_3D],
                               spacing: EuclideanVector[_3D],
                               size: IntVector[_3D],
-                              phi: Double,
-                              theta: Double,
-                              psi: Double)
+                              iVec: EuclideanVector[_3D] = EuclideanVector3D(1, 0, 0),
+                              jVec: EuclideanVector[_3D] = EuclideanVector3D(0, 1, 0),
+                              kVec: EuclideanVector[_3D] = EuclideanVector3D(0, 0, 1))
     extends StructuredPoints[_3D] {
 
-  val rigidTransform = TranslationAfterRotation3D(Translation3D(origin - Point3D(0.0, 0.0, 0.0)),
-                                                  Rotation3D(phi, theta, psi, Point3D(0, 0, 0)))
-  private val invRigidTransform = rigidTransform.inverse
+  require(Math.abs(iVec.norm - 1.0) < 1e-10)
+  require(Math.abs(jVec.norm - 1.0) < 1e-10)
 
-  override private[scalismo] val indexToPhysicalCoordinateTransform: Transformation[_3D] = new Transformation[_3D] {
-    override def domain: Domain[_3D] = EuclideanSpace3D
-    override def f: Point[_3D] => Point[_3D] = pt => {
-      val scaledPoint = Point3D(pt(0) * spacing(0), pt(1) * spacing(1), pt(2) * spacing(2))
-      rigidTransform(scaledPoint)
-    }
+  override def indexToPoint(idx: IntVector[_3D]): Point[_3D] = {
+    val pointOnIVec = iVec * idx(0) * spacing(0)
+    val pointOnJVec = jVec * idx(1) * spacing(1)
+    val pointOnKVec = kVec * idx(2) * spacing(2)
+    origin + pointOnIVec + pointOnJVec + pointOnKVec
   }
 
-  override private[scalismo] val physicalCoordinateToContinuousIndex: Transformation[_3D] =
-    new Transformation[_3D] {
-      override def domain: Domain[_3D] = EuclideanSpace3D
-      override def f: Point[_3D] => Point[_3D] = pt => {
-        val pointInStandardPosition = invRigidTransform(pt)
-        Point3D(pointInStandardPosition(0) / spacing(0),
-                pointInStandardPosition(1) / spacing(1),
-                pointInStandardPosition(2) / spacing(2))
-      }
-    }
+  override def pointToContinuousIndex(pt: Point[_3D]): EuclideanVector[_3D] = {
+    val p0 = pt - origin
+    val p0_1 = p0.dot(iVec) / spacing(0)
+    val p0_2 = p0.dot(jVec) / spacing(1)
+    val p0_3 = p0.dot(kVec) / spacing(2)
+
+    EuclideanVector3D(p0_1, p0_2, p0_3)
+  }
+
+  override val directions =
+    SquareMatrix[_3D](iVec.toArray ++ jVec.toArray ++ kVec.toArray)
 
   private val positiveScalingParameters = spacing.map(math.abs)
 
@@ -355,53 +334,20 @@ case class StructuredPoints3D(origin: Point[_3D],
 
     BoxDomain3D(Point(originX, originY, originZ), Point(oppositeX, oppositeY, oppositeZ))
   }
-
-  private val iVecImage
-    : EuclideanVector3D = indexToPhysicalCoordinateTransform(Point(1, 0, 0)) - indexToPhysicalCoordinateTransform(
-    Point(0, 0, 0)
-  )
-  private val jVecImage
-    : EuclideanVector3D = indexToPhysicalCoordinateTransform(Point(0, 1, 0)) - indexToPhysicalCoordinateTransform(
-    Point(0, 0, 0)
-  )
-  private val kVecImage
-    : EuclideanVector3D = indexToPhysicalCoordinateTransform(Point(0, 0, 1)) - indexToPhysicalCoordinateTransform(
-    Point(0, 0, 0)
-  )
-
-  val directions = SquareMatrix[_3D](
-    ((iVecImage * (1.0 / iVecImage.norm)).toArray
-      ++ (jVecImage * (1.0 / jVecImage.norm)).toArray
-      ++ (kVecImage * (1.0 / kVecImage.norm)).toArray)
-  )
-
   private def generateIterator(minK: Int, maxK: Int, minY: Int, maxY: Int, minX: Int, maxX: Int) = {
     for (k <- Iterator.range(minK, maxK); j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield {
-      ijkToPoint(i, j, k)
+      indexToPoint(IntVector(i, j, k))
     }
   }
   override def points = generateIterator(0, size(2), 0, size(1), 0, size(0))
 
-  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point3D]] = {
+  override def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[_3D]]] = {
     require(nbChunks > 1)
     val chunkSize = size(2) / nbChunks
     val ranges = (0 until nbChunks).map { chunkId =>
       chunkId * chunkSize
     } :+ size(2)
     ranges.sliding(2).toIndexedSeq.map(minMaxK => generateIterator(minMaxK(0), minMaxK(1), 0, size(1), 0, size(0)))
-  }
-
-  @inline private def ijkToPoint(i: Int, j: Int, k: Int) = {
-    Point3D(
-      origin.x + iVecImage.x * i + jVecImage.x * j + kVecImage.x * k,
-      origin.y + iVecImage.y * i + jVecImage.y * j + kVecImage.y * k,
-      origin.z + iVecImage.z * i + jVecImage.z * j + kVecImage.z * k
-    )
-  }
-
-  override def indexToPoint(indx: IntVector[_3D]) = {
-    val idx: IntVector3D = indx
-    ijkToPoint(idx.i, idx.j, idx.k)
   }
 
   override def index(pointId: PointId) =
@@ -424,7 +370,7 @@ case class StructuredPoints3D(origin: Point[_3D],
 object StructuredPoints3D {
 
   def apply(origin: Point[_3D], spacing: EuclideanVector[_3D], size: IntVector[_3D]): StructuredPoints[_3D] = {
-    StructuredPoints3D(origin, spacing, size, 0, 0, 0)
+    new StructuredPoints3D(origin, spacing, size)
   }
 }
 
@@ -474,7 +420,7 @@ object CreateStructuredPoints {
     override def create(origin: Point[_2D],
                         spacing: EuclideanVector[_2D],
                         size: IntVector[_2D]): StructuredPoints[_2D] = {
-      new StructuredPoints2D(origin, spacing, size, 0.0)
+      new StructuredPoints2D(origin, spacing, size)
     }
 
   }
@@ -483,7 +429,7 @@ object CreateStructuredPoints {
     override def create(origin: Point[_3D],
                         spacing: EuclideanVector[_3D],
                         size: IntVector[_3D]): StructuredPoints[_3D] = {
-      new StructuredPoints3D(origin, spacing, size, 0.0, 0.0, 0.0)
+      new StructuredPoints3D(origin, spacing, size)
     }
   }
 }

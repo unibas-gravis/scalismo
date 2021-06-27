@@ -9,6 +9,7 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
   describe("A DiscreteImageDomain") {
     it("keeps the same bounding box when it is created with a new size") {
       val domain = DiscreteImageDomain2D(Point2D(1.0, 3.5), EuclideanVector2D(1.0, 2.1), IntVector2D(42, 49))
+
       val newDomain = DiscreteImageDomain2D(domain.boundingBox, size = domain.size.map(i => (i * 1.5).toInt))
 
       newDomain.boundingBox.origin should equal(domain.boundingBox.origin)
