@@ -222,7 +222,8 @@ object GaussianProcess {
 
     val KyInv = inv(Ky)
     val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
-    val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * math.log(det(Ky))) - const
+    //det(KyInv) > 0, because Ky is PSD, therefore we can ignore the sign of logdet
+    val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * logdet(Ky)._2) - const
     margLikehood
   }
 

@@ -34,7 +34,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
         FittingConfiguration(featureDistanceThreshold = 2.0, pointDistanceThreshold = 3.0, modelCoefficientBounds = 3.0)
 
       val path: String = URLDecoder.decode(getClass.getResource(s"/asmData/model.h5").getPath, "UTF-8")
-      val shapeModel = StatisticalModelIO.readStatisticalMeshModel(new File(path)).get
+      val shapeModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new File(path)).get
       val nbFiles = 7
       // use iterators so files are only loaded when required (and memory can be reclaimed after use)
       val meshes = (0 until nbFiles).toIterator map { i =>
@@ -51,7 +51,7 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val trainMeshes = meshes
       val trainImages = images
 
-      val dc = DataCollection.fromTriangleMesh3DSequence(shapeModel.referenceMesh, trainMeshes.toIndexedSeq)
+      val dc = DataCollection.fromTriangleMesh3DSequence(shapeModel.reference, trainMeshes.toIndexedSeq)
       def itemsToTransform(item: DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]]): Transformation[_3D] = {
         val field = item.interpolate(NearestNeighborInterpolator())
         Transformation((p: Point[_3D]) => p + field(p))

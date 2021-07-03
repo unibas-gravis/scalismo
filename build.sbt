@@ -8,12 +8,27 @@ lazy val root = (project in file("."))
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
     scalaVersion := "2.13.1",
+    homepage := Some(url("https://scalismo.org")),
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+    scmInfo := Some(
+      ScmInfo(url("https://github.com/unibas-gravis/scalismo"), "git@github.com:unibas-gravis/scalismo.git")
+    ),
+    developers := List(
+      Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))
+    ),
+    publishMavenStyle := true,
+    publishTo := Some(
+      if (isSnapshot.value)
+        Opts.resolver.sonatypeSnapshots
+      else
+        Opts.resolver.sonatypeStaging
+    ),
     crossScalaVersions := Seq("2.12.11", "2.13.1"),
     resolvers ++= Seq(
+      Resolver.bintrayRepo("unibas-gravis", "maven"),
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots"),
-      Resolver.bintrayRepo("unibas-gravis", "maven")
+      Resolver.sonatypeRepo("snapshots")
     ),
     scalacOptions += "-deprecation",
     javacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
@@ -31,7 +46,7 @@ lazy val root = (project in file("."))
       "org.scalanlp" %% "breeze-natives" % "1.0",
       "io.spray" %% "spray-json" % "1.3.5",
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
-      "ch.unibas.cs.gravis" % s"scalismo-native-$scalismoPlatform" % "4.0.1" % "test",
+      "ch.unibas.cs.gravis" % "scalismo-native-all" % "4.0.1" % "test",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {

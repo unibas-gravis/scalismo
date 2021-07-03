@@ -120,7 +120,7 @@ object ActiveShapeModelIO {
       featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
       profiles <- readProfiles(h5file, profilesGroup, pdm.reference)
     } yield {
-      val shapeModel = StatisticalMeshModel(pdm.reference, pdm.gp)
+      val shapeModel = PointDistributionModel(pdm.gp)
       ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
     }
 
