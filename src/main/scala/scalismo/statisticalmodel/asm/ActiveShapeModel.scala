@@ -23,7 +23,7 @@ import scalismo.image.DiscreteImage
 import scalismo.mesh.TriangleMesh
 import scalismo.numerics.Sampler
 import scalismo.registration.LandmarkRegistration
-import scalismo.statisticalmodel.{MultivariateNormalDistribution, StatisticalMeshModel}
+import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel, StatisticalMeshModel}
 import scalismo.transformations.{
   RigidTransformation,
   RotationSpace3D,
@@ -45,19 +45,19 @@ object ActiveShapeModel {
   /**
    * Train an active shape model using an existing PCA model
    */
-  def trainModel(statisticalModel: StatisticalMeshModel,
+  def trainModel(statisticalModel: PointDistributionModel[_3D, TriangleMesh],
                  trainingData: TrainingData,
                  preprocessor: ImagePreprocessor,
                  featureExtractor: FeatureExtractor,
                  sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
-    val sampled = sampler(statisticalModel.referenceMesh).sample.map(_._1).toIndexedSeq
-    val pointIds = sampled.map(statisticalModel.referenceMesh.pointSet.findClosestPoint(_).id)
+    val sampled = sampler(statisticalModel.reference).sample.map(_._1).toIndexedSeq
+    val pointIds = sampled.map(statisticalModel.reference.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
     val imageFeatures = trainingData.flatMap {
       case (image, transform) =>
-        val (pimg, mesh) = (preprocessor(image), statisticalModel.referenceMesh.transform(transform))
+        val (pimg, mesh) = (preprocessor(image), statisticalModel.reference.transform(transform))
         pointIds.map { pointId =>
           featureExtractor(pimg, mesh.pointSet.point(pointId), mesh, pointId)
         }
@@ -88,7 +88,7 @@ case class ASMSample(mesh: TriangleMesh[_3D],
                      featureField: DiscreteFeatureField[_3D, UnstructuredPointsDomain],
                      featureExtractor: FeatureExtractor)
 
-case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
+case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, TriangleMesh],
                             profiles: Profiles,
                             preprocessor: ImagePreprocessor,
                             featureExtractor: FeatureExtractor) {
@@ -244,7 +244,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
       Try {
 
         val refPtsWithTargetPts = refPtIdsWithTargetPt.map {
-          case (refPtId, tgtPt) => (statisticalModel.referenceMesh.pointSet.point(refPtId), tgtPt)
+          case (refPtId, tgtPt) => (statisticalModel.reference.pointSet.point(refPtId), tgtPt)
         }
         val bestRigidTransform =
           LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts, poseTransform.rotation.center)
@@ -265,7 +265,7 @@ case class ActiveShapeModel(statisticalModel: StatisticalMeshModel,
   }
 
   private def refPoint(profileId: ProfileId): Point[_3D] =
-    statisticalModel.referenceMesh.pointSet.point(profiles(profileId).pointId)
+    statisticalModel.reference.pointSet.point(profiles(profileId).pointId)
 
   private def findBestCorrespondingPoints(
     img: PreprocessedImage,

@@ -41,9 +41,11 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
   }
   override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
-  def valuesWithIds = values zip pointSet.pointIds
-  def pointsWithValues = pointSet.points zip values
-  def pointsWithIds = pointSet.points.zipWithIndex
+  def valuesWithIds: Iterator[(A, PointId)] = values zip pointSet.pointIds
+  def pointsWithValues: Iterator[(Point[D], A)] = pointSet.points zip values
+  def pointsWithIds: Iterator[(Point[D], PointId)] = pointSet.points.zipWithIndex.map {
+    case (pt, id) => (pt, PointId(id))
+  }
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
 
