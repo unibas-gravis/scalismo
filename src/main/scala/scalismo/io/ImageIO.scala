@@ -271,7 +271,12 @@ object ImageIO {
   ): Try[DiscreteImage[_3D, S]] = {
 
     val expectedScalarType = ScalarDataType.fromType[S]
-    val foundScalarType = ScalarDataType.fromNiftiId(volume.header.datatype)
+    // If a volume has a transform, we always treat it as a float image and convert accordingly.
+    // Otherwise we take the type that is found in the nifty header
+    val foundScalarType =
+      if (volume.hasTransform) ScalarDataType.fromType[Float]
+      else ScalarDataType.fromNiftiId(volume.header.datatype)
+
     if (expectedScalarType != foundScalarType) {
       Failure(new IllegalArgumentException(
         s"Invalid scalar type (expected $expectedScalarType, found $foundScalarType)"
@@ -311,7 +316,7 @@ object ImageIO {
       val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
 
       // Finally, there is a special case.  if the domain is rotated, we resample the image to RAI voxel ordering
-      val isOblique = Math.abs(Math.abs(iVec.dot(EuclideanVector3D(1, 0, 0)) - 1.0)) > 1e-5
+      val isOblique = Math.abs(Math.abs(iVec.dot(EuclideanVector3D(1, 0, 0))) - 1.0) > 1e-5
       if (isOblique && !resampleOblique) {
         Failure(
           new Exception(
