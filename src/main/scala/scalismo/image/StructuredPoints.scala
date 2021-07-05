@@ -109,7 +109,7 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
    */
   override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = throw new UnsupportedOperationException
 
-   def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
+  def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
     var d = 0
     val indexData = new Array[Int](dimensionality)
     while (d < dimensionality) {
@@ -123,7 +123,7 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     (0 until dimensionality).forall(i => continuousIndex(i) - Math.round(continuousIndex(i)) < 1e-8)
 
   def pointToContinuousIndex(pt: Point[D]): EuclideanVector[D]
-  def pointToIndex(pt : Point[D]) : IntVector[D] = continuousIndextoIndex(pointToContinuousIndex(pt))
+  def pointToIndex(pt: Point[D]): IntVector[D] = continuousIndextoIndex(pointToContinuousIndex(pt))
   def indexToPoint(idx: IntVector[D]): Point[D]
 
   def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[D]]]

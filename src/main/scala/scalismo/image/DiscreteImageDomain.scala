@@ -49,7 +49,7 @@ case class DiscreteImageDomain[D: NDSpace](structuredPoints: StructuredPoints[D]
     // (The voxel that is defined by each grid point extends by the length spacing(i) into the
     // i-th space direction).
     val bb = structuredPoints.boundingBox
-    BoxDomain(bb.origin, bb.oppositeCorner +  structuredPoints.directions * spacing)
+    BoxDomain(bb.origin, bb.oppositeCorner + structuredPoints.directions * spacing)
   }
 
 }
@@ -90,13 +90,13 @@ object DiscreteImageDomain2D {
   }
 
   def apply(boundingBox: BoxDomain[_2D], size: IntVector[_2D]): DiscreteImageDomain[_2D] = {
-    val spacing = EuclideanVector2D(boundingBox.extent(0) / size(0), boundingBox.extent(1) / size(1) )
+    val spacing = EuclideanVector2D(boundingBox.extent(0) / size(0), boundingBox.extent(1) / size(1))
     DiscreteImageDomain(StructuredPoints2D(boundingBox.origin, spacing, size))
   }
 
   def apply(boundingBox: BoxDomain[_2D], spacing: EuclideanVector[_2D]): DiscreteImageDomain[_2D] = {
-    val size = IntVector2D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt ,
-                           Math.ceil(boundingBox.extent(1) / spacing(1)).toInt )
+    val size = IntVector2D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
+                           Math.ceil(boundingBox.extent(1) / spacing(1)).toInt)
 
     DiscreteImageDomain(StructuredPoints2D(boundingBox.origin, spacing, size))
   }
@@ -122,16 +122,16 @@ object DiscreteImageDomain3D {
   }
 
   def apply(boundingBox: BoxDomain[_3D], size: IntVector[_3D]): DiscreteImageDomain[_3D] = {
-    val spacing = EuclideanVector3D(boundingBox.extent(0) / size(0) ,
-                                    boundingBox.extent(1) / size(1) ,
+    val spacing = EuclideanVector3D(boundingBox.extent(0) / size(0),
+                                    boundingBox.extent(1) / size(1),
                                     boundingBox.extent(2) / size(2))
     DiscreteImageDomain(StructuredPoints3D(boundingBox.origin, spacing, size))
   }
 
   def apply(boundingBox: BoxDomain[_3D], spacing: EuclideanVector[_3D]): DiscreteImageDomain[_3D] = {
     val size = IntVector3D(
-      Math.ceil(boundingBox.extent(0) / spacing(0)).toInt ,
-      Math.ceil(boundingBox.extent(1) / spacing(1)).toInt ,
+      Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
+      Math.ceil(boundingBox.extent(1) / spacing(1)).toInt,
       Math.ceil(boundingBox.extent(2) / spacing(2)).toInt
     )
 

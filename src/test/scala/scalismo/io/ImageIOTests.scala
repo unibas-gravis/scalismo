@@ -17,13 +17,11 @@ package scalismo.io
 
 import java.io.File
 import java.net.URLDecoder
-
 import breeze.linalg.{DenseMatrix, DenseVector}
 import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
 import scalismo.geometry._
-
 import scalismo.image.{
   DiscreteImage,
   DiscreteImageDomain,
@@ -31,6 +29,7 @@ import scalismo.image.{
   DiscreteImageDomain3D,
   StructuredPoints
 }
+import scalismo.transformations.Rotation3D
 import scalismo.utils.CanConvertToVtk
 import spire.math.{UByte, UInt, UShort}
 

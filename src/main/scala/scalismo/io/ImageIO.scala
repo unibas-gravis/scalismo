@@ -278,9 +278,11 @@ object ImageIO {
       else ScalarDataType.fromNiftiId(volume.header.datatype)
 
     if (expectedScalarType != foundScalarType) {
-      Failure(new IllegalArgumentException(
-        s"Invalid scalar type (expected $expectedScalarType, found $foundScalarType)"
-      ))
+      Failure(
+        new IllegalArgumentException(
+          s"Invalid scalar type (expected $expectedScalarType, found $foundScalarType)"
+        )
+      )
     } else {
 
       // First we compute origin, spacing and size
@@ -415,10 +417,7 @@ object ImageIO {
       def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
         val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
         val scalingMatrix = diag(scalingParams)
-        val innerAffineMatrix = RotationSpace3D
-          .eulerAnglesToRotMatrix(0, 0, 0) // TODO fix me
-          .toBreezeMatrix * scalingMatrix
-        innerAffineMatrix
+        domain.directions.toBreezeMatrix * scalingMatrix
       }
 
       val innerAffineMatrix = computeInnerAffineMatrix(img.domain.pointSet)

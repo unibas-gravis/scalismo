@@ -137,7 +137,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
 
       assert((trans(IntVector3D(0, 0, 0)) - img.domain.origin).norm < 0.1)
 
-      val upperRightMostPoint = IntVector3D(img.domain.size(0) - 1 , img.domain.size(1) - 1, img.domain.size(2) - 1)
+      val upperRightMostPoint = IntVector3D(img.domain.size(0) - 1, img.domain.size(1) - 1, img.domain.size(2) - 1)
       (trans(upperRightMostPoint) - img.domain.pointSet.boundingBox.oppositeCorner).norm should be < 0.1
 
       val index = IntVector3D(3, 7, 1)

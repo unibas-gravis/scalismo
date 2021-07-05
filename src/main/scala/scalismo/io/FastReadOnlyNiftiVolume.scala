@@ -132,7 +132,6 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
       toScalarArray(data)
     }
 
-
     /**
      * Loads the the data from the nifti volume, but transforms it first using the transform.
      * The result type is guaranteed to be of type float. The reason for converting to float is,
@@ -142,8 +141,8 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
      * to be what ITK (and hence 3D Slicer and itkSnap) is doing.
      */
     def loadArrayWithTransform[U: ClassTag](sizeof: Int,
-                                  load: MappedByteBuffer => U,
-                                   toFloat: U => Float): ScalarArray[Float] = {
+                                            load: MappedByteBuffer => U,
+                                            toFloat: U => Float): ScalarArray[Float] = {
       val file = new RandomAccessFile(filename, "r")
       val channel = file.getChannel
       val mapped = channel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, arrayLength * sizeof)
@@ -168,7 +167,6 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
       FloatIsScalar.createArray(data)
     }
-
 
     import Scalar._
 
@@ -225,7 +223,9 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
           if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 15)
         }
         if (hasTransform) {
-          loadArrayWithTransform[Char](2, loadChar, { x => toFloat(x.toShort) })
+          loadArrayWithTransform[Char](2, loadChar, { x =>
+            toFloat(x.toShort)
+          })
         } else {
           loadArray[Char, UShort](2, loadChar, UShortIsScalar.createArray)
         }
@@ -255,7 +255,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
           loadArrayWithTransform[Double](8, loadDouble, _.toFloat)
         } else {
           loadArray[Double, Double](8, loadDouble, DoubleIsScalar.createArray)
-    }
+        }
       case _ => throw new UnsupportedOperationException(f"Unsupported Nifti data type ${header.datatype}")
     }
 
