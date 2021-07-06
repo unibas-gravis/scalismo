@@ -22,7 +22,12 @@ import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints}
 import scalismo.io.{ImageIO, ScalarDataType}
 import scalismo.mesh._
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
-import scalismo.utils.ImageConversion.{VtkCubicInterpolation, VtkInterpolationMode, VtkLinearInterpolation, VtkNearestNeighborInterpolation}
+import scalismo.utils.ImageConversion.{
+  VtkCubicInterpolation,
+  VtkInterpolationMode,
+  VtkLinearInterpolation,
+  VtkNearestNeighborInterpolation
+}
 import spire.math.{UByte, UInt, ULong, UShort}
 import vtk._
 
@@ -441,7 +446,8 @@ object CommonConversions {
 }
 
 trait CanConvertToVtk[D] {
-  def toVtk[Pixel: Scalar: ClassTag](img: DiscreteImage[D, Pixel], interpolationMode : VtkInterpolationMode): vtkStructuredPoints = {
+  def toVtk[Pixel: Scalar: ClassTag](img: DiscreteImage[D, Pixel],
+                                     interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
     val dataArray = img.data match {
@@ -460,7 +466,9 @@ trait CanConvertToVtk[D] {
     orientedSP
   }
 
-  def setDomainInfo(domain: StructuredPoints[D], sp: vtkStructuredPoints, interpolationMode : VtkInterpolationMode): vtkStructuredPoints
+  def setDomainInfo(domain: StructuredPoints[D],
+                    sp: vtkStructuredPoints,
+                    interpolationMode: VtkInterpolationMode): vtkStructuredPoints
 
   def fromVtk[Pixel: Scalar: ClassTag](sp: vtkImageData): Try[DiscreteImage[D, Pixel]]
 
@@ -484,7 +492,9 @@ object CanConvertToVtk {
 
   implicit object _2DCanConvertToVtk$ extends CanConvertToVtk[_2D] {
 
-    override def setDomainInfo(domain: StructuredPoints[_2D], sp: vtkStructuredPoints, interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
+    override def setDomainInfo(domain: StructuredPoints[_2D],
+                               sp: vtkStructuredPoints,
+                               interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
       sp.SetDimensions(domain.size(0), domain.size(1), 1)
       sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
       sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
@@ -523,7 +533,9 @@ object CanConvertToVtk {
   }
 
   implicit object _3DCanConvertToVtk$ extends CanConvertToVtk[_3D] {
-    override def setDomainInfo(domain: StructuredPoints[_3D], sp: vtkStructuredPoints, interpolationMode : VtkInterpolationMode): vtkStructuredPoints = {
+    override def setDomainInfo(domain: StructuredPoints[_3D],
+                               sp: vtkStructuredPoints,
+                               interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
 
       // Here depending on the image directions (if read from Nifti, can be anything RAS, ASL, LAS, ..),
       // we need to reslice the image in vtk's voxel ordering that is RAI (which in our LPS world coordinates system
@@ -564,8 +576,8 @@ object CanConvertToVtk {
       reslice.SetInputData(sp)
       reslice.SetResliceTransform(landmarkTransform)
       interpolationMode match {
-        case VtkCubicInterpolation =>  reslice.SetInterpolationModeToCubic()
-        case VtkLinearInterpolation => reslice.SetInterpolationModeToLinear()
+        case VtkCubicInterpolation           => reslice.SetInterpolationModeToCubic()
+        case VtkLinearInterpolation          => reslice.SetInterpolationModeToLinear()
         case VtkNearestNeighborInterpolation => reslice.SetInterpolationModeToNearestNeighbor()
       }
       reslice.SetInterpolationModeToNearestNeighbor()
@@ -622,14 +634,14 @@ object CanConvertToVtk {
 
 object ImageConversion {
 
-
   sealed trait VtkInterpolationMode
   case object VtkCubicInterpolation extends VtkInterpolationMode
   case object VtkNearestNeighborInterpolation extends VtkInterpolationMode
   case object VtkLinearInterpolation extends VtkInterpolationMode
 
   def imageToVtkStructuredPoints[D: CanConvertToVtk, Pixel: Scalar: ClassTag](
-    img: DiscreteImage[D, Pixel], interpolationMode : VtkInterpolationMode
+    img: DiscreteImage[D, Pixel],
+    interpolationMode: VtkInterpolationMode
   ): vtkStructuredPoints = {
     implicitly[CanConvertToVtk[D]].toVtk(img, interpolationMode)
   }
