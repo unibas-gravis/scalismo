@@ -299,7 +299,8 @@ object ImageIO {
       // Then we need to figure out the image orientation. To fix the orientation, we compute
       // three unit vectors i, j, k, which determine the coordinate system
       val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
-      val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
+      val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+      val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2) * RAStoLPSMatrix
 
       def toUnitVec(v: EuclideanVector[_3D]): EuclideanVector[_3D] = {
         v * (1.0 / v.norm)
@@ -307,9 +308,9 @@ object ImageIO {
 
       // The i and j vector point in the opposite direction from what is given in the nifti system, as
       // nifti uses RAS and we use the LPS coordinate system
-      val iVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix * DenseVector(-1.0, 0.0, 0.0)))
-      val jVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix * DenseVector(0.0, -1.0, 0.0)))
-      val kVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix * DenseVector(0.0, 0.0, 1.0)))
+      val iVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix(::, 0).toDenseVector))
+      val jVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix(::, 1).toDenseVector))
+      val kVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix(::, 2).toDenseVector))
 
       // now we assemble everything
       val newDomain = DiscreteImageDomain(
@@ -319,18 +320,16 @@ object ImageIO {
 
       // Finally, there is a special case.  if the domain is rotated, we resample the image to RAI voxel ordering
       val isOblique = Math.abs(Math.abs(iVec.dot(EuclideanVector3D(1, 0, 0))) - 1.0) > 1e-5
-      if (isOblique && !resampleOblique) {
-        Failure(
-          new Exception(
-            "The image orientation seems to be oblique, which is not supported by default in scalismo. " +
-              "To read the image anyway, activate the resampleOblique flag. " +
-              "This will resample the image to an RAI oriented one."
-          )
-        )
-      } else if (isOblique && resampleOblique) {
+      if (isOblique && resampleOblique) {
         // using our vtk conversion, we get  resampled structured point data that fully contains the original image
-        // and is RAI ordered
-        val sp = ImageConversion.imageToVtkStructuredPoints[_3D, S](im)
+        // and is RAI ordered. We apply a crude heurstic here to find out how we need to interpolate.
+        // If the number of differnt values in the image is less than 255, it is likely a labelmap and we can do
+        // nearestneighborinterpolation. If the number of values is larger, we do a cubic interpolation
+        val sp =
+          if (im.values.toSet.size <= 255)
+            ImageConversion.imageToVtkStructuredPoints[_3D, S](im, ImageConversion.VtkNearestNeighborInterpolation)
+          else
+            ImageConversion.imageToVtkStructuredPoints[_3D, S](im, ImageConversion.VtkCubicInterpolation)
         ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp)
       } else {
         Success(im)
@@ -417,19 +416,20 @@ object ImageIO {
       def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
         val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
         val scalingMatrix = diag(scalingParams)
-        domain.directions.toBreezeMatrix * scalingMatrix
+        val LPSToRASMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+        domain.directions.toBreezeMatrix * LPSToRASMatrix * scalingMatrix
       }
 
       val innerAffineMatrix = computeInnerAffineMatrix(img.domain.pointSet)
       val M = DenseMatrix.zeros[Double](4, 4)
 
-      M(0, 0) = innerAffineMatrix(0, 0) * -1f
-      M(0, 1) = innerAffineMatrix(0, 1) * -1f
-      M(0, 2) = innerAffineMatrix(0, 2) * -1f
+      M(0, 0) = innerAffineMatrix(0, 0)
+      M(0, 1) = innerAffineMatrix(0, 1)
+      M(0, 2) = innerAffineMatrix(0, 2)
       M(0, 3) = -domain.pointSet.origin(0)
-      M(1, 0) = innerAffineMatrix(1, 0) * -1f
-      M(1, 1) = innerAffineMatrix(1, 1) * -1f
-      M(1, 2) = innerAffineMatrix(1, 2) * -1f
+      M(1, 0) = innerAffineMatrix(1, 0)
+      M(1, 1) = innerAffineMatrix(1, 1)
+      M(1, 2) = innerAffineMatrix(1, 2)
       M(1, 3) = -domain.pointSet.origin(1)
       M(2, 0) = innerAffineMatrix(2, 0)
       M(2, 1) = innerAffineMatrix(2, 1)
@@ -457,7 +457,14 @@ object ImageIO {
 
   def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S], file: File): Try[Unit] = {
 
-    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
+    // We apply a crude heuristic to understand how we need to interpolate. If the number of values is small
+    // we are likely dealing with a labelmap and should interpolate using Nearest Neighbor.
+    // If the number of values is large, we are dealing with a normal image
+    // and should use higher order interpolation schemes.
+    val imgVtk =
+      if (img.values.toSet.size <= 255)
+        ImageConversion.imageToVtkStructuredPoints(img, ImageConversion.VtkNearestNeighborInterpolation)
+      else ImageConversion.imageToVtkStructuredPoints(img, ImageConversion.VtkCubicInterpolation)
 
     val writer = new vtkStructuredPointsWriter()
     writer.SetInputData(imgVtk)
