@@ -37,7 +37,7 @@ object DiscreteImageFilter {
     val scalar = implicitly[Scalar[A]]
 
     def doDistanceTransformVTK(img: DiscreteImage[D, A]) = {
-      val imgvtk = ImageConversion.imageToVtkStructuredPoints(img)
+      val imgvtk = ImageConversion.imageToVtkStructuredPoints(img, ImageConversion.VtkNearestNeighborInterpolation)
 
       val vtkdistTransform = new vtkImageEuclideanDistance()
 
@@ -91,7 +91,7 @@ object DiscreteImageFilter {
     vtkConversion: CanConvertToVtk[D]
   ): DiscreteImage[D, A] = {
 
-    val vtkImg = vtkConversion.toVtk[A](img)
+    val vtkImg = vtkConversion.toVtk[A](img, ImageConversion.VtkCubicInterpolation)
     val dim = NDSpace[D].dimensionality
     val gaussianFilter = new vtkImageGaussianSmooth()
     gaussianFilter.SetInputData(vtkImg)
