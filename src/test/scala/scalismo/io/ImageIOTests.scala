@@ -249,6 +249,30 @@ class ImageIOTests extends ScalismoTestSuite {
     }
   }
 
+  describe("An 3D image in non-standard orientation 3D scalar image") {
+    it("can be written and reread again") {
+      val pathH5 = getClass.getResource("/3Dimage-in-nonstandard-orientation.nii").getPath
+      val origImg = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(pathH5, "UTF-8"))).get
+      val tmpfile = File.createTempFile("dummy", ".nii")
+      tmpfile.deleteOnExit()
+
+      ImageIO.writeNifti(origImg, tmpfile).get
+
+      val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
+
+      (origImg.domain.origin - rereadImg.domain.origin).norm should be(0.0 +- 1e-2)
+
+      (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 +- 1e-2)
+      origImg.domain.size should equal(rereadImg.domain.size)
+      origImg.domain.pointSet.directions should equal(rereadImg.domain.pointSet.directions)
+
+      origImg.domain.pointSet.points.toIndexedSeq should equal(rereadImg.domain.pointSet.points.toIndexedSeq)
+      for (id <- origImg.domain.pointSet.pointIds) {
+        origImg(id) should equal(rereadImg(id))
+      }
+    }
+  }
+
   describe("ImageIO") {
     it("is type safe") {
 
