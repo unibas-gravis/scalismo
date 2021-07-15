@@ -113,7 +113,7 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
     var d = 0
     val indexData = new Array[Int](dimensionality)
     while (d < dimensionality) {
-      indexData(d) = Math.min(Math.round(cidx(d)), size(d) - 1).toInt
+      indexData(d) = Math.max(0, Math.min(Math.round(cidx(d)), size(d) - 1).toInt)
       d += 1
     }
     IntVector[D](indexData)
@@ -213,22 +213,23 @@ case class StructuredPoints2D(origin: Point[_2D],
   require(Math.abs(iVec.norm - 1.0) < 1e-10)
   require(Math.abs(jVec.norm - 1.0) < 1e-10)
 
-  override def indexToPoint(idx: IntVector[_2D]): Point[_2D] = {
-    val pointOnIVec = iVec * idx(0) * spacing(0)
-    val pointOnJVec = jVec * idx(1) * spacing(1)
-    origin + pointOnIVec + pointOnJVec
-  }
-
-  override def pointToContinuousIndex(pt: Point[_2D]): EuclideanVector[_2D] = {
-    val p0 = (pt - origin)
-    val p0_1 = p0.dot(iVec) / spacing(0)
-    val p0_2 = p0.dot(jVec) / spacing(1)
-
-    EuclideanVector2D(p0_1, p0_2)
-  }
+  private lazy val scaledDirectionMatrix: SquareMatrix[_2D] = directions * SquareMatrix.diag(
+    EuclideanVector2D(spacing(0), spacing(1))
+  )
+  private lazy val inverseScaledDirectionMatrix: SquareMatrix[_2D] = SquareMatrix.inv(scaledDirectionMatrix)
 
   override val directions =
     SquareMatrix[_2D](iVec.toArray ++ jVec.toArray)
+
+  override def indexToPoint(idx: IntVector[_2D]): Point[_2D] = {
+    val indexVec = EuclideanVector2D(idx(0).toDouble, idx(1).toDouble)
+    origin + scaledDirectionMatrix * indexVec
+  }
+
+  override def pointToContinuousIndex(pt: Point[_2D]): EuclideanVector[_2D] = {
+    val p0 = pt - origin
+    inverseScaledDirectionMatrix * p0
+  }
 
   private def generateIterator(minY: Int, maxY: Int, minX: Int, maxX: Int) =
     for (j <- Iterator.range(minY, maxY); i <- Iterator.range(minX, maxX)) yield { indexToPoint(IntVector(i, j)) }
@@ -288,26 +289,26 @@ case class StructuredPoints3D(origin: Point[_3D],
 
   require(Math.abs(iVec.norm - 1.0) < 1e-10)
   require(Math.abs(jVec.norm - 1.0) < 1e-10)
+  require(Math.abs(kVec.norm - 1.0) < 1e-10)
+
+  override lazy val directions =
+    SquareMatrix[_3D](iVec.toArray ++ jVec.toArray ++ kVec.toArray)
+
+  private lazy val scaledDirectionMatrix: SquareMatrix[_3D] = directions * SquareMatrix.diag(
+    EuclideanVector3D(spacing(0), spacing(1), spacing(2))
+  )
+  private lazy val inverseScaledDirectionMatrix: SquareMatrix[_3D] = SquareMatrix.inv(scaledDirectionMatrix)
 
   override def indexToPoint(idx: IntVector[_3D]): Point[_3D] = {
     val indexVec = EuclideanVector3D(idx(0).toDouble, idx(1).toDouble, idx(2).toDouble)
-    origin + directions * SquareMatrix.diag(EuclideanVector3D(spacing(0), spacing(1), spacing(2))) * indexVec
-
+    origin + scaledDirectionMatrix * indexVec
   }
 
   override def pointToContinuousIndex(pt: Point[_3D]): EuclideanVector[_3D] = {
     val p0 = pt - origin
-    val p0_1 = p0.dot(iVec) / spacing(0)
-    val p0_2 = p0.dot(jVec) / spacing(1)
-    val p0_3 = p0.dot(kVec) / spacing(2)
-
-    EuclideanVector3D(p0_1, p0_2, p0_3)
+    val cidx = inverseScaledDirectionMatrix * p0
+    cidx
   }
-
-  override val directions =
-    SquareMatrix[_3D](iVec.toArray ++ jVec.toArray ++ kVec.toArray)
-
-  private val positiveScalingParameters = spacing.map(math.abs)
 
   override def boundingBox: BoxDomain[_3D] = {
 

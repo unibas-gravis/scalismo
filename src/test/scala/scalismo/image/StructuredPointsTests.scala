@@ -112,7 +112,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
 
       // this test implicitly tests also the method pointToContinuousIndex
 
-      val domain = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 0.0), (42, 49, 74))
+      val domain = StructuredPoints[_3D]((1.0, 2.0, 3.0), (2.0, 1.0, 1.0), (42, 49, 74))
 
       val distx = rng.breezeRandBasis.uniform.map(u => domain.spacing(0) * 0.4)
       val disty = rng.breezeRandBasis.uniform.map(u => domain.spacing(1) * 0.4)
