@@ -15,19 +15,17 @@
  */
 package scalismo.io
 
-import java.io.{File, IOException}
-
+import breeze.linalg
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
-import niftijio.{NiftiHeader, NiftiVolume}
-import scalismo.common.{RealSpace, Scalar}
+import niftijio.NiftiVolume
+import scalismo.common.Scalar
 import scalismo.geometry._
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints, StructuredPoints3D}
-import scalismo.registration._
-import scalismo.transformations.{RotationSpace3D, Transformation}
-import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
+import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import spire.math.{UByte, UInt, UShort}
 import vtk._
 
+import java.io.{File, IOException}
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
@@ -88,6 +86,9 @@ object ImageIO {
       writeNifti[A](img, f)
     }
   }
+
+  private val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+  private val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
 
   /**
    * Read a 3D Scalar Image
@@ -256,8 +257,8 @@ object ImageIO {
 
     for {
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
-      transVoxelToWorld <- computeNiftiWorldToVoxelTransforms(volume, favourQform)
-      image <- createImageWithRightOrientation(resampleOblique, favourQform, volume, transVoxelToWorld)
+      voxelToLPSCoordinateTransform <- computeVoxelToLPSCoordinateTransform(volume, favourQform)
+      image <- createImageWithRightOrientation(resampleOblique, favourQform, volume, voxelToLPSCoordinateTransform)
     } yield {
       image
     }
@@ -267,7 +268,7 @@ object ImageIO {
     resampleOblique: Boolean,
     favourQform: Boolean,
     volume: FastReadOnlyNiftiVolume,
-    transVoxelToWorld: Transformation[_3D]
+    voxelToLPSCoordinateTransform: IntVector[_3D] => Point[_3D]
   ): Try[DiscreteImage[_3D, S]] = {
 
     val expectedScalarType = ScalarDataType.fromType[S]
@@ -286,8 +287,7 @@ object ImageIO {
     } else {
 
       // First we compute origin, spacing and size
-      val origin = transVoxelToWorld(Point3D(0, 0, 0))
-
+      val origin = voxelToLPSCoordinateTransform(IntVector3D(0, 0, 0))
       val nx = volume.header.dim(1)
       val ny = volume.header.dim(2)
       val nz = volume.header.dim(3)
@@ -296,21 +296,15 @@ object ImageIO {
       val spacing = EuclideanVector3D(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
       val size = IntVector(nx, ny, nz)
 
-      // Then we need to figure out the image orientation. To fix the orientation, we compute
-      // three unit vectors i, j, k, which determine the coordinate system
-      val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
-      val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
-      val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2) * RAStoLPSMatrix
-
       def toUnitVec(v: EuclideanVector[_3D]): EuclideanVector[_3D] = {
         v * (1.0 / v.norm)
       }
 
-      // The i and j vector point in the opposite direction from what is given in the nifti system, as
-      // nifti uses RAS and we use the LPS coordinate system
-      val iVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix(::, 0).toDenseVector))
-      val jVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix(::, 1).toDenseVector))
-      val kVec = toUnitVec(EuclideanVector.fromBreezeVector[_3D](linearTransMatrix(::, 2).toDenseVector))
+      // By transforming the standard coordinate vectors to LPS space we can figure
+      // out what the direction matrix should be
+      val iVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(1, 0, 0)) - origin)
+      val jVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(0, 1, 0)) - origin)
+      val kVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(0, 0, 1)) - origin)
 
       // now we assemble everything
       val newDomain = DiscreteImageDomain(
@@ -366,12 +360,12 @@ object ImageIO {
   }
 
   /**
-   * returns transformation from voxel to World coordinates and its inverse
+   * constructs a transformation that takes an index and transforms it to LPS coordinates
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(
+  private[this] def computeVoxelToLPSCoordinateTransform(
     volume: FastReadOnlyNiftiVolume,
     favourQform: Boolean
-  ): Try[Transformation[_3D]] = {
+  ): Try[IntVector[_3D] => Point[_3D]] = {
     var dim = volume.header.dim(4)
 
     if (dim == 0)
@@ -382,15 +376,16 @@ object ImageIO {
 
     transformMatrixFromNifti(volume, favourQform).map { affineTransMatrix =>
       {
-        val domain = RealSpace[_3D]
-        val f = (x: Point[_3D]) => {
-          val xh = DenseVector(x(0), x(1), x(2), 1.0)
-          val t: DenseVector[Double] = affineTransMatrix * xh
+        // the affine matrix is in homogeneous coordinates. We extract the individual components
+        // and apply them individually
+        val rotationAndScalingMatrix: DenseMatrix[Double] = affineTransMatrix(0 to 2, 0 to 2)
+        val translationVector = DenseVector(affineTransMatrix(0, 3), affineTransMatrix(1, 3), affineTransMatrix(2, 3))
+        (x: IntVector[_3D]) => {
 
-          // We flip after applying the transform as Nifti uses RAS coordinates
-          Point(t(0).toFloat * -1f, t(1).toFloat * -1f, t(2).toFloat)
+          val pointInRas = (rotationAndScalingMatrix * DenseVector(x(0).toDouble, x(1).toDouble, x(2).toDouble) + translationVector)
+          val pointInLPS = RAStoLPSMatrix * pointInRas
+          Point(pointInLPS(0), pointInLPS(1), pointInLPS(2))
         }
-        Transformation(domain, f)
       }
     }
   }
@@ -416,25 +411,25 @@ object ImageIO {
       def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
         val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
         val scalingMatrix = diag(scalingParams)
-        val LPSToRASMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
-        domain.directions.toBreezeMatrix * LPSToRASMatrix * scalingMatrix
+        LPStoRASMatrix * domain.directions.toBreezeMatrix * scalingMatrix
       }
 
+      val originInRAS = LPStoRASMatrix * domain.pointSet.origin.toBreezeVector
       val innerAffineMatrix = computeInnerAffineMatrix(img.domain.pointSet)
       val M = DenseMatrix.zeros[Double](4, 4)
 
       M(0, 0) = innerAffineMatrix(0, 0)
       M(0, 1) = innerAffineMatrix(0, 1)
       M(0, 2) = innerAffineMatrix(0, 2)
-      M(0, 3) = -domain.pointSet.origin(0)
+      M(0, 3) = originInRAS(0)
       M(1, 0) = innerAffineMatrix(1, 0)
       M(1, 1) = innerAffineMatrix(1, 1)
       M(1, 2) = innerAffineMatrix(1, 2)
-      M(1, 3) = -domain.pointSet.origin(1)
+      M(1, 3) = originInRAS(1)
       M(2, 0) = innerAffineMatrix(2, 0)
       M(2, 1) = innerAffineMatrix(2, 1)
       M(2, 2) = innerAffineMatrix(2, 2)
-      M(2, 3) = domain.pointSet.origin(2)
+      M(2, 3) = originInRAS(2)
       M(3, 3) = 1
 
       // the header

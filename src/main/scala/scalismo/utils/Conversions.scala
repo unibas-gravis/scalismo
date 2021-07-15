@@ -17,8 +17,9 @@ package scalismo.utils
 
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common._
+import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.geometry._
-import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImage, DiscreteImageDomain, DiscreteImageDomain3D, StructuredPoints}
 import scalismo.io.{ImageIO, ScalarDataType}
 import scalismo.mesh._
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
@@ -446,8 +447,10 @@ object CommonConversions {
 }
 
 trait CanConvertToVtk[D] {
+
   def toVtk[Pixel: Scalar: ClassTag](img: DiscreteImage[D, Pixel],
                                      interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
+
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
     val dataArray = img.data match {
@@ -530,6 +533,7 @@ object CanConvertToVtk {
       pixelArrayOrFailure.map(pixelArray => DiscreteImage(domain, pixelArray))
 
     }
+
   }
 
   implicit object _3DCanConvertToVtk$ extends CanConvertToVtk[_3D] {
@@ -554,9 +558,9 @@ object CanConvertToVtk {
         IntVector3D(domain.size(0) - 1, domain.size(1) - 1, domain.size(2) - 1)
       )
       val cornerImages = corners.map(domain.indexToPoint)
-      val newOriginX = cornerImages.map(p => p(0)).min
-      val newOriginY = cornerImages.map(p => p(1)).min
-      val newOriginZ = cornerImages.map(p => p(2)).min
+      val newOriginX = cornerImages.map(p => p.x).min
+      val newOriginY = cornerImages.map(p => p.y).min
+      val newOriginZ = cornerImages.map(p => p.z).min
 
       val vtkSourceCorners = new vtkPoints()
       corners.foreach(c => vtkSourceCorners.InsertNextPoint(c.toArray.map(_.toDouble)))
@@ -575,25 +579,26 @@ object CanConvertToVtk {
 
       reslice.SetInputData(sp)
       reslice.SetResliceTransform(landmarkTransform)
+
       interpolationMode match {
         case VtkCubicInterpolation           => reslice.SetInterpolationModeToCubic()
         case VtkLinearInterpolation          => reslice.SetInterpolationModeToLinear()
         case VtkNearestNeighborInterpolation => reslice.SetInterpolationModeToNearestNeighbor()
       }
-      reslice.SetInterpolationModeToNearestNeighbor()
 
       reslice.SetOutputSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
       reslice.SetOutputOrigin(newOriginX, newOriginY, newOriginZ)
 
-      val newXSpatialSize = cornerImages.map(p => p(0)).max - newOriginX
-      val newYSpatialSize = cornerImages.map(p => p(1)).max - newOriginY
-      val newZSpatialSize = cornerImages.map(p => p(2)).max - newOriginZ
+      val newXSpatialSize = cornerImages.map(p => p.x).max - newOriginX
+      val newYSpatialSize = cornerImages.map(p => p.y).max - newOriginY
+      val newZSpatialSize = cornerImages.map(p => p.z).max - newOriginZ
 
       val newXExtent = math.round(newXSpatialSize / domain.spacing(0)).toInt
       val newYExtent = math.round(newYSpatialSize / domain.spacing(1)).toInt
       val newZExtent = math.round(newZSpatialSize / domain.spacing(2)).toInt
 
       reslice.SetOutputExtent(0, newXExtent, 0, newYExtent, 0, newZExtent)
+
       val conv = new vtkImageToStructuredPoints()
       conv.SetInputConnection(reslice.GetOutputPort())
       conv.Update()
@@ -627,7 +632,6 @@ object CanConvertToVtk {
       val pixelArrayOrFailure = VtkHelpers.vtkDataArrayToScalarArray[Pixel](sp.GetScalarType(), scalars)
       pixelArrayOrFailure.map(pixelArray => DiscreteImage(domain, pixelArray))
     }
-
   }
 
 }

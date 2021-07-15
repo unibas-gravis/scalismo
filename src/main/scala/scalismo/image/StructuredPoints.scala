@@ -290,10 +290,9 @@ case class StructuredPoints3D(origin: Point[_3D],
   require(Math.abs(jVec.norm - 1.0) < 1e-10)
 
   override def indexToPoint(idx: IntVector[_3D]): Point[_3D] = {
-    val pointOnIVec = iVec * idx(0) * spacing(0)
-    val pointOnJVec = jVec * idx(1) * spacing(1)
-    val pointOnKVec = kVec * idx(2) * spacing(2)
-    origin + pointOnIVec + pointOnJVec + pointOnKVec
+    val indexVec = EuclideanVector3D(idx(0).toDouble, idx(1).toDouble, idx(2).toDouble)
+    origin + directions * SquareMatrix.diag(EuclideanVector3D(spacing(0), spacing(1), spacing(2))) * indexVec
+
   }
 
   override def pointToContinuousIndex(pt: Point[_3D]): EuclideanVector[_3D] = {
