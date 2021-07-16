@@ -21,6 +21,7 @@ import niftijio.NiftiVolume
 import scalismo.common.Scalar
 import scalismo.geometry._
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints, StructuredPoints3D}
+import scalismo.utils.ImageConversion.{VtkAutomaticInterpolatorSelection, VtkInterpolationMode}
 import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import spire.math.{UByte, UInt, UShort}
 import vtk._
@@ -49,13 +50,6 @@ import scala.util.{Failure, Success, Try}
  * This is done by mirroring the first two dimensions of each point after applying the affine transform
  *
  * The same mirroring is done again when writing an image to the Nifti format.
- *
- *
- * '''Important for oblique images :'''
- * The Nifti standard supports oblique images, that is images with a bounding box rotated compared to the world dimensions.
- * Scalismo does not support such images. For such images, we offer the user a possibility to resample the image to
- * a domain aligned with the world dimensions and with an RAI orientation. The integrity of the oblique image will be contained
- * in the resampled one. This functionality can be activated by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
  *
  *
  * '''Note on Nifti's qform and sform :'''
@@ -93,15 +87,11 @@ object ImageIO {
   /**
    * Read a 3D Scalar Image
    * @param file  image file to be read
-   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
-   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
    * @tparam S Voxel type of the image
    *
    */
   def read3DScalarImage[S: Scalar: ClassTag](
-    file: File,
-    resampleOblique: Boolean = false,
-    favourQform: Boolean = false
+    file: File
   ): Try[DiscreteImage[_3D, S]] = {
 
     file match {
@@ -126,7 +116,7 @@ object ImageIO {
         vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[S](f, resampleOblique, favourQform)
+        readNifti[S](f, favourQform = false)
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
@@ -138,18 +128,14 @@ object ImageIO {
    * the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that case.
    *
    * @param file  image file to be read
-   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
-   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
    * @tparam S Voxel type of the image
    *
    */
   def read3DScalarImageAsType[S: Scalar: ClassTag](
-    file: File,
-    resampleOblique: Boolean = false,
-    favourQform: Boolean = false
+    file: File
   ): Try[DiscreteImage[_3D, S]] = {
     def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
-      read3DScalarImage[T](file, resampleOblique, favourQform)
+      read3DScalarImage[T](file)
     }
 
     val result = (for {
@@ -251,22 +237,18 @@ object ImageIO {
     result
   }
 
-  private def readNifti[S: Scalar: ClassTag](file: File,
-                                             resampleOblique: Boolean,
-                                             favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
+  def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
     for {
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
       voxelToLPSCoordinateTransform <- computeVoxelToLPSCoordinateTransform(volume, favourQform)
-      image <- createImageWithRightOrientation(resampleOblique, favourQform, volume, voxelToLPSCoordinateTransform)
+      image <- createImageWithRightOrientation(volume, voxelToLPSCoordinateTransform)
     } yield {
       image
     }
   }
 
   private def createImageWithRightOrientation[S: Scalar: ClassTag](
-    resampleOblique: Boolean,
-    favourQform: Boolean,
     volume: FastReadOnlyNiftiVolume,
     voxelToLPSCoordinateTransform: IntVector[_3D] => Point[_3D]
   ): Try[DiscreteImage[_3D, S]] = {
@@ -312,22 +294,7 @@ object ImageIO {
       )
       val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
 
-      // Finally, there is a special case.  if the domain is rotated, we resample the image to RAI voxel ordering
-      val isOblique = Math.abs(Math.abs(iVec.dot(EuclideanVector3D(1, 0, 0))) - 1.0) > 1e-5
-      if (isOblique && resampleOblique) {
-        // using our vtk conversion, we get  resampled structured point data that fully contains the original image
-        // and is RAI ordered. We apply a crude heurstic here to find out how we need to interpolate.
-        // If the number of differnt values in the image is less than 255, it is likely a labelmap and we can do
-        // nearestneighborinterpolation. If the number of values is larger, we do a cubic interpolation
-        val sp =
-          if (im.values.toSet.size <= 255)
-            ImageConversion.imageToVtkStructuredPoints[_3D, S](im, ImageConversion.VtkNearestNeighborInterpolation)
-          else
-            ImageConversion.imageToVtkStructuredPoints[_3D, S](im, ImageConversion.VtkCubicInterpolation)
-        ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp)
-      } else {
-        Success(im)
-      }
+      Success(im)
     }
   }
 
@@ -450,16 +417,12 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S], file: File): Try[Unit] = {
+  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
+                                                                 file: File,
+                                                                 interpolationMode: VtkInterpolationMode =
+                                                                   VtkAutomaticInterpolatorSelection): Try[Unit] = {
 
-    // We apply a crude heuristic to understand how we need to interpolate. If the number of values is small
-    // we are likely dealing with a labelmap and should interpolate using Nearest Neighbor.
-    // If the number of values is large, we are dealing with a normal image
-    // and should use higher order interpolation schemes.
-    val imgVtk =
-      if (img.values.toSet.size <= 255)
-        ImageConversion.imageToVtkStructuredPoints(img, ImageConversion.VtkNearestNeighborInterpolation)
-      else ImageConversion.imageToVtkStructuredPoints(img, ImageConversion.VtkCubicInterpolation)
+    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img, interpolationMode)
 
     val writer = new vtkStructuredPointsWriter()
     writer.SetInputData(imgVtk)

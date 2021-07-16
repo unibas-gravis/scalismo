@@ -642,12 +642,29 @@ object ImageConversion {
   case object VtkCubicInterpolation extends VtkInterpolationMode
   case object VtkNearestNeighborInterpolation extends VtkInterpolationMode
   case object VtkLinearInterpolation extends VtkInterpolationMode
+  case object VtkAutomaticInterpolatorSelection extends VtkInterpolationMode
 
   def imageToVtkStructuredPoints[D: CanConvertToVtk, Pixel: Scalar: ClassTag](
     img: DiscreteImage[D, Pixel],
-    interpolationMode: VtkInterpolationMode
+    interpolationMode: VtkInterpolationMode = VtkAutomaticInterpolatorSelection
   ): vtkStructuredPoints = {
-    implicitly[CanConvertToVtk[D]].toVtk(img, interpolationMode)
+
+    // If the interpolation model is set to automatic, we apply
+    //  a crude heuristic to understand how we need to interpolate. If the number of values is small
+    // we are likely dealing with a labelmap and should interpolate using Nearest Neighbor.
+    // If the number of values is large, we are dealing with a normal image
+    // and should use higher order interpolation schemes.
+    val selectedInterpolationMode = interpolationMode match {
+      case VtkAutomaticInterpolatorSelection =>
+        if (img.values.toSet.size <= 255) {
+          ImageConversion.VtkNearestNeighborInterpolation
+        } else {
+          ImageConversion.VtkCubicInterpolation
+        }
+      case _ => interpolationMode
+    }
+    implicitly[CanConvertToVtk[D]].toVtk(img, selectedInterpolationMode)
+
   }
 
   def vtkStructuredPointsToScalarImage[D: CanConvertToVtk, Pixel: Scalar: ClassTag](
