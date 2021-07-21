@@ -16,8 +16,7 @@
 package scalismo.io
 
 import java.io._
-
-import scalismo.common.UnstructuredPointsDomain
+import scalismo.common.{Scalar, UnstructuredPointsDomain, Vectorizer}
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector}
 import scalismo.image.DiscreteImageDomain
 import scalismo.mesh.{LineMesh, TetrahedralMesh, TriangleMesh}
@@ -318,4 +317,54 @@ object StatisticalModelIO {
                               file: File): Try[Unit] = {
     StatismoIO.writeStatismoImageModel[_3D, EuclideanVector[_3D]](gp, file, "/")
   }
+
+  /**
+   * Reads an intensity model defined on a tetrahedral mesh
+   *
+   * @param file the file to which the model is written
+   * @return A try, where the success case holds the model, and the failure case the corresponding exception
+   */
+  def readVolumeMeshIntensityModel3D(
+    file: File
+  ): Try[DiscreteLowRankGaussianProcess[_3D, TetrahedralMesh, Float]] = {
+    StatismoIO.readIntensityModel[_3D, TetrahedralMesh, Float](file, "/")
+  }
+
+  /**
+   * Writes a model of 3D deformation fields defined on a 3D tetrahedral mesh
+   *
+   * @param gp the deformation model
+   * @param file the file to which the model is written
+   * @return Success if model could be read, Failure otherwise
+   */
+  def writeVolumeMeshIntensityModel3D(gp: DiscreteLowRankGaussianProcess[_3D, TetrahedralMesh, Float],
+                                                 file: File): Try[Unit] = {
+    StatismoIO.writeIntensityModel[_3D, TetrahedralMesh, Float](gp, file, "/")
+  }
+
+  /**
+   * Reads an intensity model defined on an image domain
+   *
+   * @param file the file to which the model is written
+   * @return A try, where the success case holds the model, and the failure case the corresponding exception
+   */
+  def readImageIntensityModel3D(
+    file: File
+  ): Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, Float]] = {
+    StatismoIO.readStatismoImageModel[_3D, Float](file, "/")
+  }
+
+  /** Writes a model of 3D deformation fields defined on a 3D image domain
+   *
+   * @param gp the deformation model
+   * @param file the file to which the model is written
+   * @return Success if model could be read, Failure otherwise
+   */
+  def writeImageIntensityModel3D[Domain[D] <: DiscreteImageDomain[D]](
+    gp: DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, Float],
+    file: File
+  ): Try[Unit] = {
+    StatismoIO.writeStatismoImageModel[_3D, Float](gp, file, "/")
+  }
+
 }
