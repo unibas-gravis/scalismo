@@ -20,7 +20,7 @@ import java.net.URLDecoder
 import scalismo.ScalismoTestSuite
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{DiscreteField, PointId, Scalar, ScalarArray, ScalarMeshField, UnstructuredPoints}
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.io.MeshIOTests.{createRandomScalarVolumeMeshField, createRandomTetrahedralMesh}
 import scalismo.mesh._
 import scalismo.utils.Random
@@ -272,8 +272,8 @@ object MeshIOTests {
     val N = 200
     val points = IndexedSeq.fill(N)(
       Point(rng.scalaRandom.nextGaussian() * 2,
-        rng.scalaRandom.nextGaussian() * 100,
-        rng.scalaRandom.nextGaussian() * 1000)
+            rng.scalaRandom.nextGaussian() * 100,
+            rng.scalaRandom.nextGaussian() * 1000)
     )
     val domain = UnstructuredPoints(points)
 
@@ -282,9 +282,9 @@ object MeshIOTests {
     val T = 200
     val cells = IndexedSeq.fill(T)(
       TetrahedralCell(rng.scalaRandom.nextInt(N),
-        rng.scalaRandom.nextInt(N),
-        rng.scalaRandom.nextInt(N),
-        rng.scalaRandom.nextInt(N))
+                      rng.scalaRandom.nextInt(N),
+                      rng.scalaRandom.nextInt(N),
+                      rng.scalaRandom.nextInt(N))
     )
     val list = TetrahedralList(cells)
 
@@ -300,6 +300,5 @@ object MeshIOTests {
     }.toIndexedSeq
     DiscreteField(tetraMesh, scalars)
   }
-
 
 }

@@ -338,7 +338,7 @@ object StatisticalModelIO {
    * @return Success if model could be read, Failure otherwise
    */
   def writeVolumeMeshIntensityModel3D(gp: DiscreteLowRankGaussianProcess[_3D, TetrahedralMesh, Float],
-                                                 file: File): Try[Unit] = {
+                                      file: File): Try[Unit] = {
     StatismoIO.writeIntensityModel[_3D, TetrahedralMesh, Float](gp, file, "/")
   }
 

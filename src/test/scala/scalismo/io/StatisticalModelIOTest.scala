@@ -167,10 +167,13 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val discreteGPReread = StatisticalModelIO.readVolumeMeshIntensityModel3D(tmpFile).get
 
       discreteGPReread.domain.pointSet.numberOfPoints should equal(discreteGP.domain.pointSet.numberOfPoints)
-      discreteGPReread.domain.pointSet.points.zip(discreteGP.domain.pointSet.points)
-        .foreach {case (p1, p2) =>
-          if ((p1 - p2).norm > 0.1) println(p1 + " : " + p2)
-        (p1 - p2).norm should be < 0.1}
+      discreteGPReread.domain.pointSet.points
+        .zip(discreteGP.domain.pointSet.points)
+        .foreach {
+          case (p1, p2) =>
+            if ((p1 - p2).norm > 0.1) println(p1 + " : " + p2)
+            (p1 - p2).norm should be < 0.1
+        }
       discreteGPReread.domain.cells.toSeq should equal(discreteGP.domain.cells.toSeq)
 
       // also here, due to conversion in float, smaller errors are expected

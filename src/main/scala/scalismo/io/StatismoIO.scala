@@ -556,7 +556,7 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
   }
 
-  def readIntensityModel[D : NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar : Vectorizer](
+  def readIntensityModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar: Vectorizer](
     file: File,
     modelPath: String = "/"
   )(implicit domainIO: StatismoDomainIO[D, DDomain]): Try[DiscreteLowRankGaussianProcess[D, DDomain, S]] = {
@@ -588,15 +588,14 @@ object StatismoIO {
     modelOrFailure
   }
 
-  def writeIntensityModel[D : NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar](
+  def writeIntensityModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar](
     gp: DiscreteLowRankGaussianProcess[D, DDomain, S],
     file: File,
     modelPath: String = "/"
-  )(implicit domainIO : StatismoDomainIO[D, DDomain]): Try[Unit] = {
+  )(implicit domainIO: StatismoDomainIO[D, DDomain]): Try[Unit] = {
     val meanVector = gp.meanVector.toArray
     val variance = gp.variance
     val pcaBasis = gp.basisMatrix.copy
-
 
     val maybeError = for {
       h5file <- HDF5Utils.createFile(file = file)
@@ -605,8 +604,8 @@ object StatismoIO {
       _ <- h5file.writeArray[Float](s"$modelPath/model/mean", meanVector.map(_.toFloat))
       _ <- h5file.writeArray[Float](s"$modelPath/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis",
-        NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq,
-          pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
+                                      NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq,
+                                              pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
       _ <- h5file.writeArray[Float](s"$modelPath/model/pcaVariance", variance.toArray.map(_.toFloat))
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       _ <- h5file.writeInt("/version/majorVersion", 0)
