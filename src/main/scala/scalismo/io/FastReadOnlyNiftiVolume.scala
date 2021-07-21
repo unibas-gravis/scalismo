@@ -15,11 +15,12 @@
  */
 package scalismo.io
 
+import scalismo.common.Scalar.{FloatIsScalar, IntIsScalar}
+
 import java.io.{File, RandomAccessFile}
 import java.lang.{Double => JDouble, Float => JFloat, Long => JLong, Short => JShort}
 import java.nio.channels.FileChannel
 import java.nio.{ByteBuffer, MappedByteBuffer}
-
 import scalismo.common.{Scalar, ScalarArray}
 import scalismo.io.FastReadOnlyNiftiVolume.NiftiHeader
 import spire.math.{UByte, UInt, UShort}
@@ -63,7 +64,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
     new NiftiHeader(buf)
   }
 
-  private val hasTransform = {
+  val hasTransform = {
     // scl_slope == 0 -> no transformations
     // performance optimization: special case of slope=1, inter=0 is also detected and ignored (because a * 1 + 0 == a)
     val notransform = header.scl_slope == 0 || (header.scl_slope == 1.0f && header.scl_inter == 0.0f)
@@ -74,7 +75,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
   private val doTransform = {
     val slope = header.scl_slope
     val inter = header.scl_inter
-    def adjust(value: Double): Double = value * slope + inter
+    def adjust(value: Float): Float = value * slope + inter
     adjust _
   }
 
@@ -95,12 +96,18 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     val arrayLength = nx * ny * nz * dim
 
+    /**
+     * This method loads the nifty data into a scalismo ScalarArray of the right type.
+     * The output type O can be different from the input type U, due to the issue
+     * with unsigned and signed types in Scala, which needs to be handled correctly.
+     *
+     * This method must only be called if the nifty file does not specify a transform
+     * of the intensities. Otherwise loadArrayWithTransform,
+     */
     def loadArray[U: ClassTag, O](sizeof: Int,
                                   load: MappedByteBuffer => U,
-                                  toDouble: U => Double,
-                                  fromDouble: Double => O,
-                                  downcast: O => U,
                                   toScalarArray: Array[U] => ScalarArray[O]): ScalarArray[O] = {
+      assert(!hasTransform)
       val file = new RandomAccessFile(filename, "r")
       val channel = file.getChannel
       val mapped = channel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, arrayLength * sizeof)
@@ -110,8 +117,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
       var i = 0
       while (i < arrayLength) {
-        val d = load(mapped)
-        data(i) = if (hasTransform) downcast(fromDouble(doTransform(toDouble(d)))) else d
+        data(i) = load(mapped)
         i += 1
       }
 
@@ -124,6 +130,42 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
       }
 
       toScalarArray(data)
+    }
+
+    /**
+     * Loads the the data from the nifti volume, but transforms it first using the transform.
+     * The result type is guaranteed to be of type float. The reason for converting to float is,
+     * that if we kept the original type (e.g. unsigned short) but the intensities are shifted to
+     * the negative, it would result in data loss. Converting everything to float might be a bit
+     * wasteful in terms of memory, but avoids to many different type variants and also seems
+     * to be what ITK (and hence 3D Slicer and itkSnap) is doing.
+     */
+    def loadArrayWithTransform[U: ClassTag](sizeof: Int,
+                                            load: MappedByteBuffer => U,
+                                            toFloat: U => Float): ScalarArray[Float] = {
+      val file = new RandomAccessFile(filename, "r")
+      val channel = file.getChannel
+      val mapped = channel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, arrayLength * sizeof)
+      val data = Array.ofDim[Float](arrayLength)
+
+      mapped.load()
+
+      var i = 0
+      while (i < arrayLength) {
+        val d = load(mapped)
+        data(i) = doTransform(toFloat(d))
+        i += 1
+      }
+
+      channel.close()
+      file.close()
+
+      // ByteBuffer is only freed on garbage collection, so try to force that
+      for (i <- 1 to 3) {
+        System.gc()
+      }
+
+      FloatIsScalar.createArray(data)
     }
 
     import Scalar._
@@ -154,54 +196,66 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     val out = header.datatype match {
       case NIFTI_TYPE_INT8 =>
-        loadArray[Byte, Byte](1, _.get, _.toDouble, _.toByte, { x =>
-          x
-        }, Scalar.ByteIsScalar.createArray)
+        if (hasTransform) {
+          loadArrayWithTransform[Byte](1, _.get, _.toFloat)
+        } else {
+          loadArray[Byte, Byte](1, _.get, Scalar.ByteIsScalar.createArray)
+        }
 
       case NIFTI_TYPE_UINT8 =>
-        val toDouble = { x: Byte =>
-          if (x >= 0) x.toDouble else x.toDouble + 256.0
+        val toFloat = { x: Byte =>
+          if (x >= 0) x.toFloat else x.toFloat + 256.0f
         }
-        loadArray[Byte, UByte](1, _.get, toDouble, UByteIsScalar.fromDouble, _.toByte, UByteIsScalar.createArray)
-
+        if (hasTransform) {
+          loadArrayWithTransform[Byte](1, _.get, toFloat)
+        } else {
+          loadArray[Byte, UByte](1, _.get, UByteIsScalar.createArray)
+        }
       case NIFTI_TYPE_INT16 =>
-        loadArray[Short, Short](2, loadShort, _.toDouble, _.toShort, { x =>
-          x
-        }, ShortIsScalar.createArray)
+        if (hasTransform) {
+          loadArrayWithTransform[Byte](1, _.get, _.toFloat)
+        } else {
+          loadArray[Short, Short](2, loadShort, ShortIsScalar.createArray)
+        }
 
       case NIFTI_TYPE_UINT16 =>
-        val toDouble = { x: Short =>
-          if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 15)
+        val toFloat = { x: Short =>
+          if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 15)
         }
-        loadArray[Char, UShort](2, loadChar, { x =>
-          toDouble(x.toShort)
-        }, UShortIsScalar.fromDouble, _.toChar, UShortIsScalar.createArray)
-
+        if (hasTransform) {
+          loadArrayWithTransform[Char](2, loadChar, { x =>
+            toFloat(x.toShort)
+          })
+        } else {
+          loadArray[Char, UShort](2, loadChar, UShortIsScalar.createArray)
+        }
       case NIFTI_TYPE_INT32 =>
-        loadArray[Int, Int](4, loadInt, _.toDouble, _.toInt, { x =>
-          x
-        }, IntIsScalar.createArray)
-
-      case NIFTI_TYPE_UINT32 =>
-        val toDouble = { x: Int =>
-          if (x >= 0) x.toDouble else Math.abs(x.toDouble) + (1 << 31)
+        if (hasTransform) {
+          loadArrayWithTransform[Int](4, _.get, _.toFloat)
+        } else {
+          loadArray[Int, Int](4, loadInt, IntIsScalar.createArray)
         }
-        loadArray[Int, UInt](4, loadInt, toDouble, UIntIsScalar.fromDouble, _.toInt, UIntIsScalar.createArray)
+      case NIFTI_TYPE_UINT32 =>
+        val toFloat = { x: Int =>
+          if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 31)
+        }
+        if (hasTransform) {
+          loadArrayWithTransform[Int](4, loadInt, toFloat)
+        }
+        loadArray[Int, UInt](4, loadInt, UIntIsScalar.createArray)
 
       case NIFTI_TYPE_FLOAT32 =>
-        loadArray[Float, Float](4, loadFloat, _.toDouble, _.toFloat, { x =>
-          x
-        }, FloatIsScalar.createArray)
-
+        if (hasTransform) {
+          loadArrayWithTransform[Float](4, loadFloat, _.toFloat)
+        } else {
+          loadArray[Float, Float](4, loadFloat, FloatIsScalar.createArray)
+        }
       case NIFTI_TYPE_FLOAT64 =>
-        loadArray[Double, Double](8, loadDouble, { x =>
-          x
-        }, { x =>
-          x
-        }, { x =>
-          x
-        }, DoubleIsScalar.createArray)
-
+        if (hasTransform) {
+          loadArrayWithTransform[Double](8, loadDouble, _.toFloat)
+        } else {
+          loadArray[Double, Double](8, loadDouble, DoubleIsScalar.createArray)
+        }
       case _ => throw new UnsupportedOperationException(f"Unsupported Nifti data type ${header.datatype}")
     }
 

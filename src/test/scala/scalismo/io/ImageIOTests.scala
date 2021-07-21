@@ -17,13 +17,11 @@ package scalismo.io
 
 import java.io.File
 import java.net.URLDecoder
-
 import breeze.linalg.{DenseMatrix, DenseVector}
 import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
 import scalismo.geometry._
-
 import scalismo.image.{
   DiscreteImage,
   DiscreteImageDomain,
@@ -31,6 +29,7 @@ import scalismo.image.{
   DiscreteImageDomain3D,
   StructuredPoints
 }
+import scalismo.transformations.Rotation3D
 import scalismo.utils.CanConvertToVtk
 import spire.math.{UByte, UInt, UShort}
 
@@ -246,6 +245,30 @@ class ImageIOTests extends ScalismoTestSuite {
         for (i <- 0 until origImg.values.size by origImg.values.size / 1000) {
           origImg(PointId(i)) should equal(rereadImg(PointId(i)))
         }
+      }
+    }
+  }
+
+  describe("An 3D image in non-standard orientation 3D scalar image") {
+    it("can be written and reread again") {
+      val pathH5 = getClass.getResource("/3Dimage-in-nonstandard-orientation.nii").getPath
+      val origImg = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(pathH5, "UTF-8"))).get
+      val tmpfile = File.createTempFile("dummy", ".nii")
+      tmpfile.deleteOnExit()
+
+      ImageIO.writeNifti(origImg, tmpfile).get
+
+      val rereadImg = ImageIO.read3DScalarImage[Short](tmpfile).get
+
+      (origImg.domain.origin - rereadImg.domain.origin).norm should be(0.0 +- 1e-2)
+
+      (origImg.domain.spacing - rereadImg.domain.spacing).norm should be(0.0 +- 1e-2)
+      origImg.domain.size should equal(rereadImg.domain.size)
+      origImg.domain.pointSet.directions should equal(rereadImg.domain.pointSet.directions)
+
+      origImg.domain.pointSet.points.toIndexedSeq should equal(rereadImg.domain.pointSet.points.toIndexedSeq)
+      for (id <- origImg.domain.pointSet.pointIds) {
+        origImg(id) should equal(rereadImg(id))
       }
     }
   }

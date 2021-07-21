@@ -17,11 +17,18 @@ package scalismo.utils
 
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common._
+import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.geometry._
-import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints}
+import scalismo.image.{DiscreteImage, DiscreteImageDomain, DiscreteImageDomain3D, StructuredPoints}
 import scalismo.io.{ImageIO, ScalarDataType}
 import scalismo.mesh._
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.utils.ImageConversion.{
+  VtkCubicInterpolation,
+  VtkInterpolationMode,
+  VtkLinearInterpolation,
+  VtkNearestNeighborInterpolation
+}
 import spire.math.{UByte, UInt, ULong, UShort}
 import vtk._
 
@@ -440,7 +447,10 @@ object CommonConversions {
 }
 
 trait CanConvertToVtk[D] {
-  def toVtk[Pixel: Scalar: ClassTag](img: DiscreteImage[D, Pixel]): vtkStructuredPoints = {
+
+  def toVtk[Pixel: Scalar: ClassTag](img: DiscreteImage[D, Pixel],
+                                     interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
+
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
     val dataArray = img.data match {
@@ -450,7 +460,7 @@ trait CanConvertToVtk[D] {
     sp.GetPointData().SetScalars(dataArray)
 
     // In the case of 3D, this might create a new vtkStructuredPoints data due to image orientation
-    val orientedSP = setDomainInfo(img.domain.pointSet, sp)
+    val orientedSP = setDomainInfo(img.domain.pointSet, sp, interpolationMode)
 
     if (Scalar[Pixel].scalarType == Scalar.ByteScalar) {
       recastDataToSignedChar(orientedSP)
@@ -459,7 +469,9 @@ trait CanConvertToVtk[D] {
     orientedSP
   }
 
-  def setDomainInfo(domain: StructuredPoints[D], sp: vtkStructuredPoints): vtkStructuredPoints
+  def setDomainInfo(domain: StructuredPoints[D],
+                    sp: vtkStructuredPoints,
+                    interpolationMode: VtkInterpolationMode): vtkStructuredPoints
 
   def fromVtk[Pixel: Scalar: ClassTag](sp: vtkImageData): Try[DiscreteImage[D, Pixel]]
 
@@ -483,7 +495,9 @@ object CanConvertToVtk {
 
   implicit object _2DCanConvertToVtk$ extends CanConvertToVtk[_2D] {
 
-    override def setDomainInfo(domain: StructuredPoints[_2D], sp: vtkStructuredPoints): vtkStructuredPoints = {
+    override def setDomainInfo(domain: StructuredPoints[_2D],
+                               sp: vtkStructuredPoints,
+                               interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
       sp.SetDimensions(domain.size(0), domain.size(1), 1)
       sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
       sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
@@ -519,10 +533,13 @@ object CanConvertToVtk {
       pixelArrayOrFailure.map(pixelArray => DiscreteImage(domain, pixelArray))
 
     }
+
   }
 
   implicit object _3DCanConvertToVtk$ extends CanConvertToVtk[_3D] {
-    override def setDomainInfo(domain: StructuredPoints[_3D], sp: vtkStructuredPoints): vtkStructuredPoints = {
+    override def setDomainInfo(domain: StructuredPoints[_3D],
+                               sp: vtkStructuredPoints,
+                               interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
 
       // Here depending on the image directions (if read from Nifti, can be anything RAS, ASL, LAS, ..),
       // we need to reslice the image in vtk's voxel ordering that is RAI (which in our LPS world coordinates system
@@ -531,19 +548,19 @@ object CanConvertToVtk {
       sp.SetDimensions(domain.size(0), domain.size(1), domain.size(2))
 
       val corners = List(
-        Point(0, 0, 0),
-        Point(domain.size(0) - 1, 0, 0),
-        Point(0, domain.size(1) - 1, 0),
-        Point(0, 0, domain.size(2) - 1),
-        Point(domain.size(0) - 1, domain.size(1) - 1, 0),
-        Point(domain.size(0) - 1, 0, domain.size(2) - 1),
-        Point(0, domain.size(1) - 1, domain.size(2) - 1),
-        Point(domain.size(0) - 1, domain.size(1) - 1, domain.size(2) - 1)
+        IntVector3D(0, 0, 0),
+        IntVector3D(domain.size(0) - 1, 0, 0),
+        IntVector3D(0, domain.size(1) - 1, 0),
+        IntVector3D(0, 0, domain.size(2) - 1),
+        IntVector3D(domain.size(0) - 1, domain.size(1) - 1, 0),
+        IntVector3D(domain.size(0) - 1, 0, domain.size(2) - 1),
+        IntVector3D(0, domain.size(1) - 1, domain.size(2) - 1),
+        IntVector3D(domain.size(0) - 1, domain.size(1) - 1, domain.size(2) - 1)
       )
-      val cornerImages = corners.map(domain.indexToPhysicalCoordinateTransform)
-      val newOriginX = cornerImages.map(p => p(0)).min
-      val newOriginY = cornerImages.map(p => p(1)).min
-      val newOriginZ = cornerImages.map(p => p(2)).min
+      val cornerImages = corners.map(domain.indexToPoint)
+      val newOriginX = cornerImages.map(p => p.x).min
+      val newOriginY = cornerImages.map(p => p.y).min
+      val newOriginZ = cornerImages.map(p => p.z).min
 
       val vtkSourceCorners = new vtkPoints()
       corners.foreach(c => vtkSourceCorners.InsertNextPoint(c.toArray.map(_.toDouble)))
@@ -562,20 +579,26 @@ object CanConvertToVtk {
 
       reslice.SetInputData(sp)
       reslice.SetResliceTransform(landmarkTransform)
-      reslice.SetInterpolationModeToCubic()
+
+      interpolationMode match {
+        case VtkCubicInterpolation           => reslice.SetInterpolationModeToCubic()
+        case VtkLinearInterpolation          => reslice.SetInterpolationModeToLinear()
+        case VtkNearestNeighborInterpolation => reslice.SetInterpolationModeToNearestNeighbor()
+      }
 
       reslice.SetOutputSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
       reslice.SetOutputOrigin(newOriginX, newOriginY, newOriginZ)
 
-      val newXSpatialSize = cornerImages.map(p => p(0)).max - newOriginX
-      val newYSpatialSize = cornerImages.map(p => p(1)).max - newOriginY
-      val newZSpatialSize = cornerImages.map(p => p(2)).max - newOriginZ
+      val newXSpatialSize = cornerImages.map(p => p.x).max - newOriginX
+      val newYSpatialSize = cornerImages.map(p => p.y).max - newOriginY
+      val newZSpatialSize = cornerImages.map(p => p.z).max - newOriginZ
 
       val newXExtent = math.round(newXSpatialSize / domain.spacing(0)).toInt
       val newYExtent = math.round(newYSpatialSize / domain.spacing(1)).toInt
       val newZExtent = math.round(newZSpatialSize / domain.spacing(2)).toInt
 
       reslice.SetOutputExtent(0, newXExtent, 0, newYExtent, 0, newZExtent)
+
       val conv = new vtkImageToStructuredPoints()
       conv.SetInputConnection(reslice.GetOutputPort())
       conv.Update()
@@ -609,17 +632,39 @@ object CanConvertToVtk {
       val pixelArrayOrFailure = VtkHelpers.vtkDataArrayToScalarArray[Pixel](sp.GetScalarType(), scalars)
       pixelArrayOrFailure.map(pixelArray => DiscreteImage(domain, pixelArray))
     }
-
   }
 
 }
 
 object ImageConversion {
 
+  sealed trait VtkInterpolationMode
+  case object VtkCubicInterpolation extends VtkInterpolationMode
+  case object VtkNearestNeighborInterpolation extends VtkInterpolationMode
+  case object VtkLinearInterpolation extends VtkInterpolationMode
+  case object VtkAutomaticInterpolatorSelection extends VtkInterpolationMode
+
   def imageToVtkStructuredPoints[D: CanConvertToVtk, Pixel: Scalar: ClassTag](
-    img: DiscreteImage[D, Pixel]
+    img: DiscreteImage[D, Pixel],
+    interpolationMode: VtkInterpolationMode = VtkAutomaticInterpolatorSelection
   ): vtkStructuredPoints = {
-    implicitly[CanConvertToVtk[D]].toVtk(img)
+
+    // If the interpolation model is set to automatic, we apply
+    //  a crude heuristic to understand how we need to interpolate. If the number of values is small
+    // we are likely dealing with a labelmap and should interpolate using Nearest Neighbor.
+    // If the number of values is large, we are dealing with a normal image
+    // and should use higher order interpolation schemes.
+    val selectedInterpolationMode = interpolationMode match {
+      case VtkAutomaticInterpolatorSelection =>
+        if (img.values.toSet.size <= 255) {
+          ImageConversion.VtkNearestNeighborInterpolation
+        } else {
+          ImageConversion.VtkCubicInterpolation
+        }
+      case _ => interpolationMode
+    }
+    implicitly[CanConvertToVtk[D]].toVtk(img, selectedInterpolationMode)
+
   }
 
   def vtkStructuredPointsToScalarImage[D: CanConvertToVtk, Pixel: Scalar: ClassTag](

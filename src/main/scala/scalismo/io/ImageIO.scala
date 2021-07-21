@@ -15,19 +15,18 @@
  */
 package scalismo.io
 
-import java.io.{File, IOException}
-
+import breeze.linalg
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
-import niftijio.{NiftiHeader, NiftiVolume}
-import scalismo.common.{RealSpace, Scalar}
+import niftijio.NiftiVolume
+import scalismo.common.Scalar
 import scalismo.geometry._
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints, StructuredPoints3D}
-import scalismo.registration._
-import scalismo.transformations.{RotationSpace3D, Transformation}
-import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
+import scalismo.utils.ImageConversion.{VtkAutomaticInterpolatorSelection, VtkInterpolationMode}
+import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import spire.math.{UByte, UInt, UShort}
 import vtk._
 
+import java.io.{File, IOException}
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
@@ -51,13 +50,6 @@ import scala.util.{Failure, Success, Try}
  * This is done by mirroring the first two dimensions of each point after applying the affine transform
  *
  * The same mirroring is done again when writing an image to the Nifti format.
- *
- *
- * '''Important for oblique images :'''
- * The Nifti standard supports oblique images, that is images with a bounding box rotated compared to the world dimensions.
- * Scalismo does not support such images. For such images, we offer the user a possibility to resample the image to
- * a domain aligned with the world dimensions and with an RAI orientation. The integrity of the oblique image will be contained
- * in the resampled one. This functionality can be activated by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
  *
  *
  * '''Note on Nifti's qform and sform :'''
@@ -89,18 +81,17 @@ object ImageIO {
     }
   }
 
+  private val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+  private val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
+
   /**
    * Read a 3D Scalar Image
    * @param file  image file to be read
-   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
-   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
    * @tparam S Voxel type of the image
    *
    */
   def read3DScalarImage[S: Scalar: ClassTag](
-    file: File,
-    resampleOblique: Boolean = false,
-    favourQform: Boolean = false
+    file: File
   ): Try[DiscreteImage[_3D, S]] = {
 
     file match {
@@ -125,7 +116,7 @@ object ImageIO {
         vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[S](f, resampleOblique, favourQform)
+        readNifti[S](f, favourQform = false)
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
@@ -137,18 +128,14 @@ object ImageIO {
    * the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that case.
    *
    * @param file  image file to be read
-   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
-   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
    * @tparam S Voxel type of the image
    *
    */
   def read3DScalarImageAsType[S: Scalar: ClassTag](
-    file: File,
-    resampleOblique: Boolean = false,
-    favourQform: Boolean = false
+    file: File
   ): Try[DiscreteImage[_3D, S]] = {
     def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
-      read3DScalarImage[T](file, resampleOblique, favourQform)
+      read3DScalarImage[T](file)
     }
 
     val result = (for {
@@ -250,97 +237,64 @@ object ImageIO {
     result
   }
 
-  private def readNifti[S: Scalar: ClassTag](file: File,
-                                             resampleOblique: Boolean,
-                                             favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
+  def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
     for {
-
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
-      pair <- computeNiftiWorldToVoxelTransforms(volume, favourQform)
+      voxelToLPSCoordinateTransform <- computeVoxelToLPSCoordinateTransform(volume, favourQform)
+      image <- createImageWithRightOrientation(volume, voxelToLPSCoordinateTransform)
     } yield {
-      val expectedScalarType = ScalarDataType.fromType[S]
-      val foundScalarType = ScalarDataType.fromNiftiId(volume.header.datatype)
-      if (expectedScalarType != foundScalarType) {
-        throw new IllegalArgumentException(
+      image
+    }
+  }
+
+  private def createImageWithRightOrientation[S: Scalar: ClassTag](
+    volume: FastReadOnlyNiftiVolume,
+    voxelToLPSCoordinateTransform: IntVector[_3D] => Point[_3D]
+  ): Try[DiscreteImage[_3D, S]] = {
+
+    val expectedScalarType = ScalarDataType.fromType[S]
+    // If a volume has a transform, we always treat it as a float image and convert accordingly.
+    // Otherwise we take the type that is found in the nifty header
+    val foundScalarType =
+      if (volume.hasTransform) ScalarDataType.fromType[Float]
+      else ScalarDataType.fromNiftiId(volume.header.datatype)
+
+    if (expectedScalarType != foundScalarType) {
+      Failure(
+        new IllegalArgumentException(
           s"Invalid scalar type (expected $expectedScalarType, found $foundScalarType)"
         )
-      }
+      )
+    } else {
 
-      val (transVoxelToWorld, _) = pair
-
+      // First we compute origin, spacing and size
+      val origin = voxelToLPSCoordinateTransform(IntVector3D(0, 0, 0))
       val nx = volume.header.dim(1)
       val ny = volume.header.dim(2)
       val nz = volume.header.dim(3)
-      var dim = volume.header.dim(4)
+      val dim = if (volume.header.dim(4) == 0) 1 else volume.header.dim(4)
 
-      if (dim == 0)
-        dim = 1
+      val spacing = EuclideanVector3D(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
+      val size = IntVector(nx, ny, nz)
 
-      /* figure out the anisotropic scaling factor */
-      val s = volume.header.pixdim
-
-      // figure out if the ijk to xyz_RAS transform does mirror: determinant of the linear transform
-
-      val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
-      val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
-
-      val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toDouble
-
-      val spacing = EuclideanVector3D(s(1), s(2), s(3) * mirrorScale)
-
-      /* get a rigid registration by mapping a few points */
-      val origPs = List(Point(0, 0, nz),
-                        Point(0, ny, 0),
-                        Point(0, ny, nz),
-                        Point(nx, 0, 0),
-                        Point(nx, 0, nz),
-                        Point(nx, ny, 0),
-                        Point(nx, ny, nz))
-
-      val scaledPS = origPs.map(p => Point(p(0) * spacing(0), p(1) * spacing(1), p(2) * spacing(2)))
-      val imgPs = origPs.map(transVoxelToWorld)
-
-      val rigidReg =
-        LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point3D(0, 0, 0))
-      val origin = rigidReg(Point3D(0, 0, 0))
-
-      val testDomain = StructuredPoints3D(origin, spacing, IntVector(nx, ny, nz))
-
-      val transform = testDomain.indexToPhysicalCoordinateTransform
-
-      val rotationResiduals = rigidReg.rotation.parameters.map { a =>
-        val rest = math.abs(a) % (math.Pi * 0.5)
-        math.min(rest, (math.Pi * 0.5) - rest)
+      def toUnitVec(v: EuclideanVector[_3D]): EuclideanVector[_3D] = {
+        v * (1.0 / v.norm)
       }
 
-      // if the image is oblique and the resampling flag unset, throw an exception
-      if (!resampleOblique && rotationResiduals.exists(_ >= 0.001)) {
-        throw new Exception(
-          "The image orientation seems to be oblique, which is not supported by default in scalismo. To read the image anyway, activate the resampleOblique flag. This will resample the image to an RAI oriented one."
-        )
-      }
+      // By transforming the standard coordinate vectors to LPS space we can figure
+      // out what the direction matrix should be
+      val iVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(1, 0, 0)) - origin)
+      val jVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(0, 1, 0)) - origin)
+      val kVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(0, 0, 1)) - origin)
 
-      /* Test that were able to reconstruct the transform */
-      val approxErrors = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
-      if (approxErrors.max > 0.01f)
-        throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
-      else {
-        val (phi, theta, psi) =
-          (rigidReg.rotation.parameters(0), rigidReg.rotation.parameters(1), rigidReg.rotation.parameters(2))
-        val size = IntVector(nx, ny, nz)
-        val newDomain = DiscreteImageDomain(
-          StructuredPoints3D(origin, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, phi, theta, psi)
-        )
-        val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
+      // now we assemble everything
+      val newDomain = DiscreteImageDomain(
+        StructuredPoints3D(origin, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, iVec, jVec, kVec)
+      )
+      val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
 
-        // if the domain is rotated, we resample the image to RAI voxel ordering
-        if (rotationResiduals.exists(_ >= 0.001)) {
-          // using our vtk conversion, we get  resampled structured point data that fully contains the original image and is RAI ordered
-          val sp = ImageConversion.imageToVtkStructuredPoints[_3D, S](im)
-          ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp).get
-        } else im
-      }
+      Success(im)
     }
   }
 
@@ -373,12 +327,12 @@ object ImageIO {
   }
 
   /**
-   * returns transformation from voxel to World coordinates and its inverse
+   * constructs a transformation that takes an index and transforms it to LPS coordinates
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(
+  private[this] def computeVoxelToLPSCoordinateTransform(
     volume: FastReadOnlyNiftiVolume,
     favourQform: Boolean
-  ): Try[(Transformation[_3D], Transformation[_3D])] = {
+  ): Try[IntVector[_3D] => Point[_3D]] = {
     var dim = volume.header.dim(4)
 
     if (dim == 0)
@@ -389,28 +343,16 @@ object ImageIO {
 
     transformMatrixFromNifti(volume, favourQform).map { affineTransMatrix =>
       {
-        val domain = RealSpace[_3D]
-        val f = (x: Point[_3D]) => {
-          val xh = DenseVector(x(0), x(1), x(2), 1.0)
-          val t: DenseVector[Double] = affineTransMatrix * xh
+        // the affine matrix is in homogeneous coordinates. We extract the individual components
+        // and apply them individually
+        val rotationAndScalingMatrix: DenseMatrix[Double] = affineTransMatrix(0 to 2, 0 to 2)
+        val translationVector = DenseVector(affineTransMatrix(0, 3), affineTransMatrix(1, 3), affineTransMatrix(2, 3))
+        (x: IntVector[_3D]) => {
 
-          // We flip after applying the transform as Nifti uses RAS coordinates
-          Point(t(0).toFloat * -1f, t(1).toFloat * -1f, t(2).toFloat)
+          val pointInRas = (rotationAndScalingMatrix * DenseVector(x(0).toDouble, x(1).toDouble, x(2).toDouble) + translationVector)
+          val pointInLPS = RAStoLPSMatrix * pointInRas
+          Point(pointInLPS(0), pointInLPS(1), pointInLPS(2))
         }
-        val t = Transformation(domain, f)
-
-        val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
-        val tinv = {
-          val f = (x: Point[_3D]) => {
-            // Here as it is the inverse, we flip before applying the affine matrix
-            val xh: DenseVector[Double] = DenseVector(x(0) * -1.0, x(1) * -1, x(2), 1.0)
-            val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
-            Point(t(0), t(1), t(2))
-          }
-          val domain = RealSpace[_3D]
-          Transformation[_3D](domain, f)
-        }
-        (t, tinv)
       }
     }
   }
@@ -436,27 +378,25 @@ object ImageIO {
       def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
         val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
         val scalingMatrix = diag(scalingParams)
-        val innerAffineMatrix = RotationSpace3D
-          .eulerAnglesToRotMatrix(domain.phi, domain.theta, domain.psi)
-          .toBreezeMatrix * scalingMatrix
-        innerAffineMatrix
+        LPStoRASMatrix * domain.directions.toBreezeMatrix * scalingMatrix
       }
 
+      val originInRAS = LPStoRASMatrix * domain.pointSet.origin.toBreezeVector
       val innerAffineMatrix = computeInnerAffineMatrix(img.domain.pointSet)
       val M = DenseMatrix.zeros[Double](4, 4)
 
-      M(0, 0) = innerAffineMatrix(0, 0) * -1f
-      M(0, 1) = innerAffineMatrix(0, 1) * -1f
-      M(0, 2) = innerAffineMatrix(0, 2) * -1f
-      M(0, 3) = -domain.pointSet.origin(0)
-      M(1, 0) = innerAffineMatrix(1, 0) * -1f
-      M(1, 1) = innerAffineMatrix(1, 1) * -1f
-      M(1, 2) = innerAffineMatrix(1, 2) * -1f
-      M(1, 3) = -domain.pointSet.origin(1)
+      M(0, 0) = innerAffineMatrix(0, 0)
+      M(0, 1) = innerAffineMatrix(0, 1)
+      M(0, 2) = innerAffineMatrix(0, 2)
+      M(0, 3) = originInRAS(0)
+      M(1, 0) = innerAffineMatrix(1, 0)
+      M(1, 1) = innerAffineMatrix(1, 1)
+      M(1, 2) = innerAffineMatrix(1, 2)
+      M(1, 3) = originInRAS(1)
       M(2, 0) = innerAffineMatrix(2, 0)
       M(2, 1) = innerAffineMatrix(2, 1)
       M(2, 2) = innerAffineMatrix(2, 2)
-      M(2, 3) = domain.pointSet.origin(2)
+      M(2, 3) = originInRAS(2)
       M(3, 3) = 1
 
       // the header
@@ -477,9 +417,12 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S], file: File): Try[Unit] = {
+  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
+                                                                 file: File,
+                                                                 interpolationMode: VtkInterpolationMode =
+                                                                   VtkAutomaticInterpolatorSelection): Try[Unit] = {
 
-    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
+    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img, interpolationMode)
 
     val writer = new vtkStructuredPointsWriter()
     writer.SetInputData(imgVtk)
