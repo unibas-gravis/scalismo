@@ -50,7 +50,7 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
   override val dim = mean.size
 
   private lazy val covInv = breeze.linalg.pinv(cov.map(_.toDouble))
-  private lazy val logCovDet = 2 * (0 until root.rows).map(i => math.log(root(i,i))).sum
+  private lazy val logCovDet = 2 * (0 until root.rows).map(i => math.log(root(i, i))).sum
   private lazy val covDet = math.exp(logCovDet)
 
   // The root of the covariance matrix is precomputed for efficient sampling.
