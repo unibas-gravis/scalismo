@@ -102,7 +102,7 @@ private[scalismo] object ScalarDataType extends Enumeration {
   def ofFile(file: File): Try[ScalarDataType.Value] = {
     val fn = file.getName
     if (fn.endsWith(".nii") || fn.endsWith(".nia")) {
-      FastReadOnlyNiftiVolume.getScalarType(file).map(ScalarDataType.fromNiftiId)
+      FastReadOnlyNiftiVolume.getScalarType(file)
     } else if (fn.endsWith(".vtk")) Try {
       val reader = new vtkStructuredPointsReader
       reader.SetFileName(file.getAbsolutePath)
