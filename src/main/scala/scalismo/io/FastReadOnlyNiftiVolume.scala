@@ -213,7 +213,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }
       case NIFTI_TYPE_INT16 =>
         if (hasTransform) {
-          loadArrayWithTransform[Byte](1, _.get, _.toFloat)
+          loadArrayWithTransform[Char](2, loadChar, _.toFloat)
         } else {
           loadArray[Short, Short](2, loadShort, ShortIsScalar.createArray)
         }
