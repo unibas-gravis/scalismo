@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       else
         Opts.resolver.sonatypeStaging
     ),
-    crossScalaVersions := Seq("2.13.6", "3.0.0-RC3"),
+    crossScalaVersions := Seq("2.13.6", "3.0.0"),
     resolvers ++= Seq(
       Resolver.bintrayRepo("unibas-gravis", "maven"),
       Resolver.jcenterRepo,
