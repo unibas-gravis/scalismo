@@ -254,6 +254,7 @@ object ImageIO {
   ): Try[DiscreteImage[_3D, S]] = {
 
     val expectedScalarType = ScalarDataType.fromType[S]
+
     // If a volume has a transform, we always treat it as a float image and convert accordingly.
     // Otherwise we take the type that is found in the nifty header
     val foundScalarType =

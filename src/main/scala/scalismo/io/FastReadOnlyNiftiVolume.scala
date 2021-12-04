@@ -213,7 +213,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }
       case NIFTI_TYPE_INT16 =>
         if (hasTransform) {
-          loadArrayWithTransform[Byte](1, _.get, _.toFloat)
+          loadArrayWithTransform[Char](2, loadChar, _.toFloat)
         } else {
           loadArray[Short, Short](2, loadShort, ShortIsScalar.createArray)
         }
@@ -403,11 +403,20 @@ object FastReadOnlyNiftiVolume {
     new FastReadOnlyNiftiVolume(filename)
   }
 
-  def getScalarType(file: File): Try[Short] = Try {
+  def getScalarType(file: File): Try[ScalarDataType.Value] = Try {
     val raf = new RandomAccessFile(file, "r")
     val buf = ByteBuffer.allocate(348)
     raf.readFully(buf.array())
     raf.close()
-    new FastReadOnlyNiftiVolume.NiftiHeader(buf).datatype
+    val header = new FastReadOnlyNiftiVolume.NiftiHeader(buf)
+    val dtype = header.datatype
+    val hasTransform = !(header.scl_slope == 0 || (header.scl_slope == 1.0f && header.scl_inter == 0.0f))
+
+    // Whenever an image has a transform, we let the scalar type be
+    // float, in order to make sure that no data is lost by the transform
+    // as it would be the case for the unsigned type.
+    if (hasTransform) ScalarDataType.Float
+    else ScalarDataType.fromNiftiId(dtype)
+
   }
 }
