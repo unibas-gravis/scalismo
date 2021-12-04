@@ -172,7 +172,6 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
         .zip(discreteGP.domain.pointSet.points)
         .foreach {
           case (p1, p2) =>
-            if ((p1 - p2).norm > 0.1) println(p1 + " : " + p2)
             (p1 - p2).norm should be < 0.1
         }
       discreteGPReread.domain.cells.toSeq should equal(discreteGP.domain.cells.toSeq)

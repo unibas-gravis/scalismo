@@ -49,7 +49,7 @@ class MetropolisHastingsTests extends ScalismoTestSuite {
       val evaluator = GaussianEvaluator(mean, sdev)
 
       val mh = MetropolisHastingsWithPrefetching(gaussianProposal, evaluator)
-      val samples = mh.iterator(0.0).drop(100000).take(100000).toIndexedSeq
+      val samples = mh.iterator(0.0).drop(100000).take(1000000).toIndexedSeq
       val approximatedMean = samples.sum / samples.size
       val approximatedVariance =
         samples.map(sample => (sample - mean) * (sample - mean)).sum / samples.size

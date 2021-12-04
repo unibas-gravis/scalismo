@@ -21,20 +21,18 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
-import scalismo.geometry._
-import scalismo.image.{
-  DiscreteImage,
-  DiscreteImageDomain,
-  DiscreteImageDomain2D,
-  DiscreteImageDomain3D,
-  StructuredPoints
-}
+import scalismo.geometry.*
+import scalismo.image.{DiscreteImage, DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D, StructuredPoints}
+import scalismo.io.ImageIOTests.ImageWithType
 import scalismo.transformations.Rotation3D
 import scalismo.utils.CanConvertToVtk
 import spire.math.{UByte, UInt, UShort}
 
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
+
+
+
 
 class ImageIOTests extends ScalismoTestSuite {
 
@@ -273,20 +271,11 @@ class ImageIOTests extends ScalismoTestSuite {
     }
   }
 
+
+
   describe("ImageIO") {
     it("is type safe") {
 
-      case class ImageWithType[D: NDSpace: CanConvertToVtk, T: Scalar: ClassTag](
-        img: DiscreteImage[D, T],
-        typeName: String
-      ) {
-        def writeVtk(file: File) = ImageIO.writeVTK(img, file)
-        def writeNii(file: File) = {
-          if (implicitly[NDSpace[D]].dimensionality == 3)
-            ImageIO.writeNifti(img.asInstanceOf[DiscreteImage[_3D, T]], file)
-          else Failure(new NotImplementedError)
-        }
-      }
 
       def convertTo[D: NDSpace: CanConvertToVtk, OUT: Scalar: ClassTag](
         in: DiscreteImage[D, Int]
@@ -371,4 +360,18 @@ class ImageIOTests extends ScalismoTestSuite {
     }
   }
 
+}
+
+object ImageIOTests {
+  case class ImageWithType[D: NDSpace: CanConvertToVtk, T: Scalar: ClassTag](
+                                                                              img: DiscreteImage[D, T],
+                                                                              typeName: String
+                                                                            ) {
+    def writeVtk(file: File) = ImageIO.writeVTK(img, file)
+    def writeNii(file: File) = {
+      if (implicitly[NDSpace[D]].dimensionality == 3)
+        ImageIO.writeNifti(img.asInstanceOf[DiscreteImage[_3D, T]], file)
+      else Failure(new NotImplementedError)
+    }
+  }
 }

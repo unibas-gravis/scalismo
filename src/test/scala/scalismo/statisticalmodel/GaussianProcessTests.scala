@@ -16,21 +16,14 @@
 package scalismo.statisticalmodel
 
 import java.net.URLDecoder
-
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
-import scalismo.common._
+import scalismo.common.*
 import scalismo.common.interpolation.NearestNeighborInterpolator
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry._
-import scalismo.image.{
-  DiscreteImageDomain,
-  DiscreteImageDomain1D,
-  DiscreteImageDomain2D,
-  DiscreteImageDomain3D,
-  StructuredPoints
-}
+import scalismo.geometry.Point.implicits.*
+import scalismo.geometry.*
+import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D, StructuredPoints}
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{GridSampler, UniformSampler}
@@ -454,7 +447,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val rank = gpToApproximate.rank
       for (i <- 0 until 10) yield {
-        val trueCoeffs = DenseVector.rand(rank, breeze.stats.distributions.Gaussian(0, 1))
+        val trueCoeffs = DenseVector.rand(rank, breeze.stats.distributions.Gaussian(0.0, 1.0)(random.breezeRandBasis))
         val sample = ssm.gp.instance(trueCoeffs)
         val dataPoints = sample.domain.pointSet.points.toIndexedSeq.zip(sample.values.toIndexedSeq)
         val coeffsApproximatedGp = approximatedGP.coefficients(dataPoints, 1e-5)

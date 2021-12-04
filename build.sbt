@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
-    scalaVersion := "3.0.0-RC3",
+    scalaVersion := "3.0.0",
     homepage := Some(url("https://scalismo.org")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
@@ -17,7 +17,7 @@ lazy val root = (project in file("."))
       Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))
     ),
     publishMavenStyle := true,
-    publishTo := Some(
+      publishTo := Some(
       if (isSnapshot.value)
         Opts.resolver.sonatypeSnapshots
       else
@@ -54,10 +54,10 @@ lazy val root = (project in file("."))
     javacOptions ++=  Seq("-source", "1.8", "-target", "1.8"),
 
     libraryDependencies ++= Seq(
-      "org.scalactic" %% "scalactic" % "3.2.8",
-      "org.scalatest" %% "scalatest" % "3.2.8" % "test",
-      ("org.scalanlp" %% "breeze" % "2.0-SNAPSHOT"),
-      ("org.scalanlp" %% "breeze-natives" % "2.0-SNAPSHOT"),
+      "org.scalactic" %% "scalactic" % "3.2.10",
+      "org.scalatest" %% "scalatest" % "3.2.10" % "test",
+      ("org.scalanlp" %% "breeze" % "2.0"),
+      ("org.scalanlp" %% "breeze-natives" % "2.0"),
 
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
@@ -67,11 +67,6 @@ lazy val root = (project in file("."))
     libraryDependencies ++= (scalaBinaryVersion.value match {
       case "3" => Seq(
         "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3",
-      )
-      case "3.0.0-RC3" => Seq(
-        "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.2",
-        "org.scalanlp" %% "breeze" % "2.0-SNAPSHOT",
-        "org.scalanlp" %% "breeze-natives" % "2.0-SNAPSHOT",
       )
       case "2.13" => Seq(
         "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
@@ -87,7 +82,8 @@ lazy val root = (project in file("."))
         case Some((2, n)) if n >= 13 => sourceDir / "scala-2.13+"
         case _                       => sourceDir / "scala-2.13-"
       }
-    }
+    },
+    parallelExecution / test := false
   )
   .enablePlugins(GitVersioning)
   .settings(
