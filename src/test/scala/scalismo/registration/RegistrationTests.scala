@@ -56,7 +56,7 @@ import scala.language.implicitConversions
 
 class RegistrationTests extends ScalismoTestSuite {
 
-  implicit val random = Random(42)
+  implicit val random: Random = Random(42)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 

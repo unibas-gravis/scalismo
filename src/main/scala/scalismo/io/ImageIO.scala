@@ -91,6 +91,7 @@ object ImageIO {
    *
    */
   def read3DScalarImage[S: Scalar: ClassTag](
+
     file: File
   ): Try[DiscreteImage[_3D, S]] = {
 
@@ -132,6 +133,7 @@ object ImageIO {
    *
    */
   def read3DScalarImageAsType[S: Scalar: ClassTag](
+
     file: File
   ): Try[DiscreteImage[_3D, S]] = {
     def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
@@ -237,6 +239,7 @@ object ImageIO {
     result
   }
 
+
   def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
     for {
@@ -244,6 +247,7 @@ object ImageIO {
       voxelToLPSCoordinateTransform <- computeVoxelToLPSCoordinateTransform(volume, favourQform)
       image <- createImageWithRightOrientation(volume, voxelToLPSCoordinateTransform)
     } yield {
+
       image
     }
   }
@@ -416,6 +420,7 @@ object ImageIO {
       volume.write(file.getAbsolutePath)
     }
   }
+
 
   def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
                                                                  file: File,

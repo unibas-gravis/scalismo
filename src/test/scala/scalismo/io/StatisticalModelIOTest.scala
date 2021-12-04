@@ -23,10 +23,11 @@ import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.utils.Random
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
-  implicit val rng = scalismo.utils.Random(42L)
+  implicit val rng: Random = scalismo.utils.Random(42L)
 
   describe("a Statismo Mesh Model") {
 

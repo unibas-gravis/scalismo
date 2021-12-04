@@ -16,6 +16,8 @@
 
 package scalismo.mesh.kdtree
 
+import spire.scalacompat.IterableLike
+
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.{ArrayBuffer, Builder}

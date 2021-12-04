@@ -31,7 +31,7 @@ import scalismo.utils.Random
 
 class GeometryTests extends ScalismoTestSuite {
 
-  implicit val random = Random(42L)
+  implicit val random: Random = Random(42L)
 
   val p = Point(0.1, 3.0, 1.1)
   val pGeneric: Point[_3D] = p

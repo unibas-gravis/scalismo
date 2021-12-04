@@ -23,7 +23,7 @@ import scala.collection.immutable.IndexedSeq
 class VantagePointTreeTests extends ScalismoTestSuite {
 
   // seeded random generator
-  implicit val rnd = Random(42)
+  implicit val rnd: Random = Random(42)
 
   def randomPoint()(implicit rnd: Random): Point[_3D] =
     Point(rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble())

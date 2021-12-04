@@ -55,7 +55,7 @@ class Random()(implicit val rng: RandomNumberGenerator) {
 
   def scalaRandom = rng.scalaRandom
 
-  implicit def breezeRandBasis = rng.breezeRandBasis
+  implicit def breezeRandBasis: RandBasis = rng.breezeRandBasis
 
   @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Gaussian", "since v0.15")
   def breezeRandomGaussian(mu: Double, sigma2: Double) = rng.breezeRandomGaussian(mu, sigma2)
@@ -69,7 +69,7 @@ object Random {
   def apply(seed: Long) = new Random()(RandomNumberGenerator(seed))
 
   object implicits {
-    implicit val randomGenerator = new Random()(RandomNumberGenerator(System.nanoTime()))
+    implicit val randomGenerator: Random = new Random()(RandomNumberGenerator(System.nanoTime()))
   }
 
 }

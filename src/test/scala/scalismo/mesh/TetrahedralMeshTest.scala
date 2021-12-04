@@ -23,7 +23,7 @@ import scalismo.utils.Random
 
 class TetrahedralMeshTest extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   def createTetrahedronsInUnitCube(): TetrahedralMesh3D = {
     // points around unit cube

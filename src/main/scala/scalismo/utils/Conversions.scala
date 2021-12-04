@@ -19,6 +19,7 @@ import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common._
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.geometry._
+
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, DiscreteImageDomain3D, StructuredPoints}
 import scalismo.io.{ImageIO, ScalarDataType}
 import scalismo.mesh._
@@ -637,6 +638,7 @@ object CanConvertToVtk {
 }
 
 object ImageConversion {
+
 
   sealed trait VtkInterpolationMode
   case object VtkCubicInterpolation extends VtkInterpolationMode

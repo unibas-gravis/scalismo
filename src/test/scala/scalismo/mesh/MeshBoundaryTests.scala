@@ -30,7 +30,7 @@ class MeshBoundaryTests extends ScalismoTestSuite {
   describe("a mesh boundary") {
 
     object Fixture {
-      implicit def toPointId(i: Int) = PointId(i)
+      implicit def toPointId(i: Int): PointId = PointId(i)
 
       val singleTriangleMesh = TriangleMesh3D(IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0)),
                                               TriangleList(IndexedSeq(TriangleCell(0, 1, 2))))

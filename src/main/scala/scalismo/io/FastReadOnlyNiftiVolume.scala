@@ -170,27 +170,27 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     import Scalar._
 
-    val loadShort = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadShort = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JShort.reverseBytes(m.getShort)
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getShort
     }
-    val loadChar = { m: MappedByteBuffer =>
+    val loadChar = { (m: MappedByteBuffer) =>
       loadShort(m).toChar
     }
-    val loadInt = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadInt = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       Integer.reverseBytes(m.getInt)
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getInt
     }
-    val loadFloat = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadFloat = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JFloat.intBitsToFloat(Integer.reverseBytes(m.getInt))
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getFloat
     }
-    val loadDouble = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadDouble = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JDouble.longBitsToDouble(JLong.reverseBytes(m.getLong))
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getDouble
     }
 

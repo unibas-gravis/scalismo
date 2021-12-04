@@ -18,7 +18,6 @@ package scalismo.common
 import scalismo.geometry._
 import scalismo.transformations.{CanDifferentiateWRTPosition, Transformation}
 
-import scala.collection.parallel.immutable.ParVector
 
 /**
  * Utility functions to create and manipulate images
@@ -34,7 +33,7 @@ object Field {
    * Lifts a function between pixel values such that it acts on image intensities.
    * This is useful to write functions that manipulate the image intensities.
    */
-  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = { field: Field[D, A] =>
+  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = { (field: Field[D, A]) =>
     new Field[D, A] {
       override val domain = field.domain
       override val f = field.f

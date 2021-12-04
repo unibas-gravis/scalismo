@@ -28,7 +28,7 @@ import scala.collection.parallel.immutable.ParVector
 
 class KernelTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {

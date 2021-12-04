@@ -113,9 +113,12 @@ case class LineList(lines: IndexedSeq[LineCell]) {
   }
 
   private[this] def extractRange(lines: IndexedSeq[LineCell]): IndexedSeq[PointId] = {
-    val min = lines.flatMap(t => t.pointIds).minBy(_.id)
-    val max = lines.flatMap(t => t.pointIds).maxBy(_.id)
-    (min.id to max.id).map(id => PointId(id))
+    if (lines.isEmpty) IndexedSeq[PointId]()
+    else {
+      val min = lines.flatMap(t => t.pointIds).minBy(_.id)
+      val max = lines.flatMap(t => t.pointIds).maxBy(_.id)
+      (min.id to max.id).map(id => PointId(id))
+    }
   }
 
 }

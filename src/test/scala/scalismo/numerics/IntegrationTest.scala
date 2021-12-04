@@ -26,7 +26,7 @@ import scala.language.implicitConversions
 
 class IntegrationTest extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 

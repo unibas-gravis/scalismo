@@ -25,7 +25,7 @@ import scalismo.utils.Random
 
 class PivotedCholeskyTest extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   describe("The Pivoted Cholesky ") {
 
