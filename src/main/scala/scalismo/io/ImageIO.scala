@@ -81,8 +81,8 @@ object ImageIO {
     }
   }
 
-  private val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
-  private val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
+  private lazy val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+  private lazy val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
 
   /**
    * Read a 3D Scalar Image
@@ -91,7 +91,6 @@ object ImageIO {
    *
    */
   def read3DScalarImage[S: Scalar: ClassTag](
-
     file: File
   ): Try[DiscreteImage[_3D, S]] = {
 
@@ -133,7 +132,6 @@ object ImageIO {
    *
    */
   def read3DScalarImageAsType[S: Scalar: ClassTag](
-
     file: File
   ): Try[DiscreteImage[_3D, S]] = {
     def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
@@ -238,7 +236,6 @@ object ImageIO {
     }).flatten
     result
   }
-
 
   def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
@@ -420,7 +417,6 @@ object ImageIO {
       volume.write(file.getAbsolutePath)
     }
   }
-
 
   def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
                                                                  file: File,
