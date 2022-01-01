@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
     organization := "ch.unibas.cs.gravis",
-    scalaVersion := "3.0.0",
+    scalaVersion := "3.1.0",
     homepage := Some(url("https://scalismo.org")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       else
         Opts.resolver.sonatypeStaging
     ),
-    crossScalaVersions := Seq("2.13.6", "3.0.0"),
+    crossScalaVersions := Seq("2.13.6", "3.1.0"),
     resolvers ++= Seq(
       Resolver.bintrayRepo("unibas-gravis", "maven"),
       Resolver.jcenterRepo,
@@ -56,8 +56,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.scalactic" %% "scalactic" % "3.2.10",
       "org.scalatest" %% "scalatest" % "3.2.10" % "test",
-      ("org.scalanlp" %% "breeze" % "2.0"),
-      ("org.scalanlp" %% "breeze-natives" % "2.0"),
+      ("org.scalanlp" %% "breeze" % "2.0.1-RC1"),
+      ("org.scalanlp" %% "breeze-natives" % "2.0.1-RC1"),
 
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
@@ -70,8 +70,6 @@ lazy val root = (project in file("."))
       )
       case "2.13" => Seq(
         "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
-        "org.scalanlp" %% "breeze" % "1.2",
-        "org.scalanlp" %% "breeze-natives" % "1.2"
       )
       case _      => {println(scalaBinaryVersion.value); Seq()}
     }),
