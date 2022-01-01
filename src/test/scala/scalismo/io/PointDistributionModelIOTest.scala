@@ -19,20 +19,34 @@ import java.io.File
 import scalismo.ScalismoTestSuite
 import scalismo.geometry.*
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
-import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints1D, CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
-import scalismo.common.UnstructuredPointsDomain.Create.{CreateUnstructuredPointsDomain1D, CreateUnstructuredPointsDomain2D, CreateUnstructuredPointsDomain3D}
+import scalismo.common.UnstructuredPoints.Create.{
+  CreateUnstructuredPoints1D,
+  CreateUnstructuredPoints2D,
+  CreateUnstructuredPoints3D
+}
+import scalismo.common.UnstructuredPointsDomain.Create.{
+  CreateUnstructuredPointsDomain1D,
+  CreateUnstructuredPointsDomain2D,
+  CreateUnstructuredPointsDomain3D
+}
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.io.PointDistributionModelIOTest.DummySampler
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.mesh.{LineCell, LineList, LineMesh, LineMesh2D, TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
+import scalismo.mesh.{
+  LineCell,
+  LineList,
+  LineMesh,
+  LineMesh2D,
+  TriangleCell,
+  TriangleList,
+  TriangleMesh,
+  TriangleMesh3D
+}
 import scalismo.numerics.Sampler
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
 import scalismo.utils.Random
 
 import scala.language.higherKinds
-
-
-
 
 class PointDistributionModelIOTest extends ScalismoTestSuite {
 
@@ -48,7 +62,6 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
       assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
       assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
     }
-
 
     def create3Dmodel(): PointDistributionModel[_3D, TriangleMesh] = {
       val gk = DiagonalKernel(GaussianKernel[_3D](10.0), 3)

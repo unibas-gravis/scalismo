@@ -275,14 +275,15 @@ object EuclideanVector {
     EuclideanVector((r * math.cos(phi) * math.sin(theta)), (r * math.sin(phi) * math.sin(theta)), r * math.cos(theta))
 
   /** spire VectorSpace implementation for Vector */
-  implicit def spireVectorSpace[D: NDSpace]: VectorSpace[EuclideanVector[D], Double] = new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
-    implicit override def scalar: Field[Double] = Field[Double]
-    override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
-    override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
-    override def zero: EuclideanVector[D] = zeros[D]
-    override def plus(x: EuclideanVector[D], y: EuclideanVector[D]): EuclideanVector[D] =
-      x.mapWithIndex((f, i) => f + y(i))
-  }
+  implicit def spireVectorSpace[D: NDSpace]: VectorSpace[EuclideanVector[D], Double] =
+    new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
+      implicit override def scalar: Field[Double] = Field[Double]
+      override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
+      override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
+      override def zero: EuclideanVector[D] = zeros[D]
+      override def plus(x: EuclideanVector[D], y: EuclideanVector[D]): EuclideanVector[D] =
+        x.mapWithIndex((f, i) => f + y(i))
+    }
 
   object implicits {
     implicit def Vector1DToDouble(v: EuclideanVector[_1D]): Double = v.x

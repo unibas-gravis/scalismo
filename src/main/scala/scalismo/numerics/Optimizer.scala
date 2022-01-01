@@ -47,11 +47,10 @@ case class LBFGSOptimizer(maxNumberOfIterations: Int, m: Int = 10, tolerance: Do
     it.toSeq.last.parameters
   }
 
-  private def optimize(x0: ParameterVector, c: CostFunction): Iterator[State] = {
+  def optimize(x0: ParameterVector, c: CostFunction): Iterator[State] = {
     val f = new DiffFunction[DenseVector[Double]] {
-      def calculate(x: DenseVector[Double]) = {
-        val (v, g) = c(x)
-        (v.toDouble, g.map(_.toDouble))
+      def calculate(x: DenseVector[Double]): (Double, DenseVector[Double]) = {
+        c(x)
       }
     }
     val lbfgs = new LBFGS[DenseVector[Double]](maxIter = maxNumberOfIterations, m = m, tolerance = tolerance)

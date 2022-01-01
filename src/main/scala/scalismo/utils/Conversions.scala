@@ -639,7 +639,6 @@ object CanConvertToVtk {
 
 object ImageConversion {
 
-
   sealed trait VtkInterpolationMode
   case object VtkCubicInterpolation extends VtkInterpolationMode
   case object VtkNearestNeighborInterpolation extends VtkInterpolationMode

@@ -260,8 +260,7 @@ object StatismoIO {
       pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
 
       points <- Try(
-        for (i <- 0 until pointsMatrix.cols) yield
-          vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
+        for (i <- 0 until pointsMatrix.cols) yield vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
       )
       domain <- typeHelper.createDomainWithCells(points, None)
     } yield domain
@@ -275,8 +274,7 @@ object StatismoIO {
     for {
       pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
       points <- Try(
-        for (i <- 0 until pointsMatrix.cols) yield
-          vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
+        for (i <- 0 until pointsMatrix.cols) yield vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
       )
       cells <- readStandardConnectiveityRepresenterGroup(h5file, modelPath)
       domain <- typeHelper.createDomainWithCells(points, Option(cells))
@@ -334,7 +332,7 @@ object StatismoIO {
     for (i <- 0 until pcaBasisMatrix.cols) {
       // The compiler (scala 3) needs some help here with implicits. We therefore
       // compute it in 2 steps and have explicit type annotations.
-      val ULi : DenseVector[Double] = pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+      val ULi: DenseVector[Double] = pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
       U(::, i) := ULi
     }
     U
@@ -570,7 +568,9 @@ object StatismoIO {
   def readIntensityModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar](
     file: File,
     modelPath: String = "/"
-  )(implicit domainIO: StatismoDomainIO[D, DDomain], euclidVecVectorizer : Vectorizer[EuclideanVector[D]], scalarVectorizer : Vectorizer[S]): Try[DiscreteLowRankGaussianProcess[D, DDomain, S]] = {
+  )(implicit domainIO: StatismoDomainIO[D, DDomain],
+    euclidVecVectorizer: Vectorizer[EuclideanVector[D]],
+    scalarVectorizer: Vectorizer[S]): Try[DiscreteLowRankGaussianProcess[D, DDomain, S]] = {
 
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)

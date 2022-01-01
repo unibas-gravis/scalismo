@@ -23,7 +23,13 @@ import scalismo.common.*
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.Point.implicits.*
 import scalismo.geometry.*
-import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D, StructuredPoints}
+import scalismo.image.{
+  DiscreteImageDomain,
+  DiscreteImageDomain1D,
+  DiscreteImageDomain2D,
+  DiscreteImageDomain3D,
+  StructuredPoints
+}
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{GridSampler, UniformSampler}

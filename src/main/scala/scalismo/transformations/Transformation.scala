@@ -11,7 +11,15 @@ import scalismo.utils.Memoize
  *  A transformation in our library is seen as a particular type of Field (or image)  mapping points
  *  to values that are also of type [[scalismo.geometry.Point]]
  */
-trait Transformation[D] extends Field[D, Point[D]] {}
+trait Transformation[D] extends Field[D, Point[D]] { self =>
+  def andThen(t: Point[D] => Point[D]): Transformation[D] = {
+    Transformation(p => t(self.apply(p)))
+  }
+
+  override def compose(t: Point[D] => Point[D]): Transformation[D] = {
+    Transformation(p => self.apply(t(p)))
+  }
+}
 
 /** Trait for parametric D-dimensional transformations */
 object Transformation {

@@ -23,7 +23,7 @@ import scalismo.utils.Random
 class MultivariateNormalDistributionTests extends ScalismoTestSuite {
 
   implicit val random: Random = Random(42)
-  implicit val breezeRandBasis : RandBasis = random.breezeRandBasis
+  implicit val breezeRandBasis: RandBasis = random.breezeRandBasis
 
   describe("A 1D Multivariate normal") {
     it("should give the same pdf values as breeze Gaussian with the same parameters") {

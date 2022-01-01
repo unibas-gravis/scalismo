@@ -17,7 +17,7 @@ lazy val root = (project in file("."))
       Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))
     ),
     publishMavenStyle := true,
-      publishTo := Some(
+    publishTo := Some(
       if (isSnapshot.value)
         Opts.resolver.sonatypeSnapshots
       else
@@ -35,48 +35,50 @@ lazy val root = (project in file("."))
         "-encoding",
         "UTF-8",
         "-feature",
-        "-language:implicitConversions",
+        "-language:implicitConversions"
         // disabled during the migration
         // "-Xfatal-warnings"
       ) ++
         (CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((3, _)) => Seq(
-            "-unchecked",
-            "-source:3.0-migration"
-          )
-          case _ => Seq(
-            "-deprecation",
-            "-Wunused:imports,privates,locals",
-            "-Wvalue-discard"
-          )
+          case Some((3, _)) =>
+            Seq(
+              "-unchecked",
+              "-source:3.0-migration"
+            )
+          case _ =>
+            Seq(
+              "-deprecation",
+              "-Wunused:imports,privates,locals",
+              "-Wvalue-discard"
+            )
         })
     },
-    javacOptions ++=  Seq("-source", "1.8", "-target", "1.8"),
-
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
       "org.scalactic" %% "scalactic" % "3.2.10",
       "org.scalatest" %% "scalatest" % "3.2.10" % "test",
       ("org.scalanlp" %% "breeze" % "2.0.1-RC1"),
       ("org.scalanlp" %% "breeze-natives" % "2.0.1-RC1"),
-
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
       "ch.unibas.cs.gravis" % "scalismo-native-all" % "4.0.1" % "test",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {
-      case "3" => Seq(
-        "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3",
-      )
-      case "2.13" => Seq(
-        "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
-      )
-      case _      => {println(scalaBinaryVersion.value); Seq()}
+      case "3" =>
+        Seq(
+          "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
+        )
+      case "2.13" =>
+        Seq(
+          "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+        )
+      case _ => { println(scalaBinaryVersion.value); Seq() }
     }),
-    Compile / unmanagedSourceDirectories  += {
+    Compile / unmanagedSourceDirectories += {
       val sourceDir = (Compile / sourceDirectory).value
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _))  => sourceDir / "scala-2.13+"
+        case Some((3, _))            => sourceDir / "scala-2.13+"
         case Some((2, n)) if n >= 13 => sourceDir / "scala-2.13+"
         case _                       => sourceDir / "scala-2.13-"
       }
