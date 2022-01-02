@@ -18,7 +18,22 @@ package scalismo.mesh
 import scalismo.common.{DifferentiableField, EuclideanSpace, Field, PointId}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
-import scalismo.mesh.boundingSpheres.{BoundingSphereHelpers, BoundingSpheres, ClosestPoint, ClosestPointInTriangle, ClosestPointOnLine, ClosestPointWithType, LineTetrahedralMesh3DIntersectionIndex, LineTriangleMesh3DIntersectionIndex, SurfaceSpatialIndex, TetrahedralizedVolumeIntersectionIndex, TetrahedralMesh3DSpatialIndex, TriangleMesh3DSpatialIndex, TriangulatedSurfaceIntersectionIndex, VolumeSpatialIndex}
+import scalismo.mesh.boundingSpheres.{
+  BoundingSphereHelpers,
+  BoundingSpheres,
+  ClosestPoint,
+  ClosestPointInTriangle,
+  ClosestPointOnLine,
+  ClosestPointWithType,
+  LineTetrahedralMesh3DIntersectionIndex,
+  LineTriangleMesh3DIntersectionIndex,
+  SurfaceSpatialIndex,
+  TetrahedralMesh3DSpatialIndex,
+  TetrahedralizedVolumeIntersectionIndex,
+  TriangleMesh3DSpatialIndex,
+  TriangulatedSurfaceIntersectionIndex,
+  VolumeSpatialIndex
+}
 import scalismo.utils.MeshConversion
 
 import scala.collection.parallel.immutable.ParVector

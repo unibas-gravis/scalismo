@@ -309,7 +309,7 @@ object EuclideanVector {
     override def equals(that: Any): Boolean = {
       that match {
         case t: VectorVectorizer[D @unchecked] => true
-        case _                      => false
+        case _                                 => false
       }
     }
   }

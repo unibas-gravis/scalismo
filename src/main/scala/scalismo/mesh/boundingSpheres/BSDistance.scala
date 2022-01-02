@@ -70,7 +70,9 @@ case class Tetrahedron(a: EuclideanVector[_3D],
     2
   } else if (n4.norm == 0.0) {
     3
-  } else { -1 }
+  } else {
+    -1
+  }
   // 0: abc, 1: abd, 2: adc, 3:bcd
 
   val triangles = List(Triangle(a, b, c), Triangle(a, b, d), Triangle(a, c, d), Triangle(b, c, d))

@@ -75,7 +75,7 @@ trait PointSet[D] extends Equals {
   override def equals(that: Any) = {
     that match {
       case d: PointSet[D @unchecked] => d.canEqual(this) && points.toSeq == d.points.toSeq
-      case _              => false
+      case _                         => false
     }
   }
 

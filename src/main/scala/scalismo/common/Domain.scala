@@ -78,8 +78,8 @@ trait BoxDomain[D] extends Domain[D] {
   }
 
   def extent: EuclideanVector[D] = oppositeCorner - origin
-  def volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i))
-  )
+  def volume: Double =
+    (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
 
 }
 

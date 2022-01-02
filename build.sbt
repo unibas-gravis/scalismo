@@ -43,7 +43,7 @@ lazy val root = (project in file("."))
           case Some((3, _)) =>
             Seq(
               "-unchecked",
-              "-source:3.0-migration",
+              "-source:3.0-migration"
             )
           case _ =>
             Seq(
