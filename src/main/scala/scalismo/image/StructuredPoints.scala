@@ -129,12 +129,12 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
   def pointsInChunks(nbChunks: Int): IndexedSeq[Iterator[Point[D]]]
 
   // define the canEqual method
-  override def canEqual(a: Any) = a.isInstanceOf[StructuredPoints[D]]
+  override def canEqual(a: Any) = a.isInstanceOf[StructuredPoints[D @unchecked]]
 
   override def equals(a: Any) = {
     a match {
       // make sure we can compare the 2 objects
-      case c: StructuredPoints[D] => {
+      case c: StructuredPoints[D @unchecked] => {
         c.canEqual(this) &&
         origin == c.origin &&
         spacing == c.spacing &&

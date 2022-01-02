@@ -34,7 +34,7 @@ abstract class Coordinate[D: NDSpace, @specialized(Int, Float, Double) S] {
   override def hashCode = data.toSeq.hashCode()
 
   override def equals(other: Any): Boolean = other match {
-    case that: Coordinate[D, S] => that.canEqual(this) && this.data.sameElements(that.data)
+    case that: Coordinate[D @unchecked, S @unchecked] => that.canEqual(this) && this.data.sameElements(that.data)
     case _                      => false
   }
 

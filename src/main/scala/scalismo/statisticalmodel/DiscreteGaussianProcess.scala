@@ -53,7 +53,7 @@ class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value
 
     val mvNormal = MultivariateNormalDistribution(mu, K)
 
-    val sampleVec = mvNormal.sample
+    val sampleVec = mvNormal.sample()
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     DiscreteField.createFromDenseVector[D, DDomain, Value](domain, sampleVec)

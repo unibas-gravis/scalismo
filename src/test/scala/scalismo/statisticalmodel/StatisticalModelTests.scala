@@ -38,7 +38,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
   describe("A statistical model") {
 
-    def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel) {
+    def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel): Unit = {
 
       for (i <- 0 until 10) {
         val standardNormal = Gaussian(0, 1)(random.breezeRandBasis)
@@ -92,7 +92,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val path = getClass.getResource("/facemodel.h5").getPath
       val model = StatisticalModelIO.readStatisticalMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
-      val newMesh = model.sample
+      val newMesh = model.sample()
 
       def t(pt: Point[_3D]): Point[_3D] = {
         val ptId = model.referenceMesh.pointSet.findClosestPoint(pt).id

@@ -104,7 +104,7 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
     }
 
     // we compute the mean using a monte carlo integration
-    val samples = sampler.sample
+    val samples = sampler.sample()
     val zeroVector = DenseVector.zeros[Double](transformationSpace.numberOfParameters)
     val gradientValues = new ParVector(samples.toVector).map {
       case (pt, _) => fullMetricGradient(pt).getOrElse(zeroVector)

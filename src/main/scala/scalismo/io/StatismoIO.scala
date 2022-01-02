@@ -369,7 +369,7 @@ object StatismoIO {
       _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray(
         s"$modelPath/model/pcaBasis",
-        NDArray(Array(pcaBasis.rows.toLong, pcaBasis.cols.toLong), pcaBasis.t.flatten(false).toArray)
+        NDArray(IndexedSeq(pcaBasis.rows.toLong, pcaBasis.cols.toLong), pcaBasis.t.flatten(false).toArray)
       )
       _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", variance.toArray)
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)

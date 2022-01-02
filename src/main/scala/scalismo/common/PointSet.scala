@@ -74,12 +74,12 @@ trait PointSet[D] extends Equals {
 
   override def equals(that: Any) = {
     that match {
-      case d: PointSet[D] => d.canEqual(this) && points.toSeq == d.points.toSeq
+      case d: PointSet[D @unchecked] => d.canEqual(this) && points.toSeq == d.points.toSeq
       case _              => false
     }
   }
 
-  override def canEqual(that: Any) = that.isInstanceOf[PointSet[D]]
+  override def canEqual(that: Any) = that.isInstanceOf[PointSet[D @unchecked]]
 
   override def hashCode() = points.toSeq.hashCode()
 

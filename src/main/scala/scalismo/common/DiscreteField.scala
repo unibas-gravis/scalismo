@@ -83,7 +83,7 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
   override def equals(other: Any): Boolean =
     other match {
 
-      case that: DiscreteField[D, DDomain, A] =>
+      case that: DiscreteField[D @unchecked, DDomain @unchecked, A @unchecked] =>
         (that canEqual this) &&
           domain == that.domain &&
           data == that.data
@@ -92,7 +92,7 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
     }
 
   def canEqual(other: Any): Boolean =
-    other.isInstanceOf[DiscreteField[D, DDomain, A]]
+    other.isInstanceOf[DiscreteField[D @unchecked, DDomain @unchecked, A @unchecked]]
 
 }
 

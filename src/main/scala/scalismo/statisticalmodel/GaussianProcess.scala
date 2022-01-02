@@ -126,7 +126,7 @@ object GaussianProcess {
     cov: MatrixValuedPDKernel[D]
   )(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
     val zeroVec = vectorizer.unvectorize(DenseVector.zeros(vectorizer.dim))
-    val zeroField = Field[D, Value](RealSpace[D], (p: Point[D]) => zeroVec)
+    val zeroField = Field[D, Value](EuclideanSpace[D], (p: Point[D]) => zeroVec)
     GaussianProcess[D, Value](zeroField, cov)
   }
 

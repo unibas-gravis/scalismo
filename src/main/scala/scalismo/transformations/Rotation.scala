@@ -92,7 +92,7 @@ case class Rotation3D(val rotationMatrix: SquareMatrix[_3D], val center: Point[_
     center + EuclideanVector(rotCentered(0), rotCentered(1), rotCentered(2))
   }
 
-  override val domain = RealSpace[_3D]
+  override val domain = EuclideanSpace[_3D]
 
   override def derivativeWRTPosition: Point[_3D] => SquareMatrix[_3D] = { x =>
     rotationMatrix

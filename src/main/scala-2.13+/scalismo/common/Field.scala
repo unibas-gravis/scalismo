@@ -33,7 +33,7 @@ object Field {
    * Lifts a function between pixel values such that it acts on image intensities.
    * This is useful to write functions that manipulate the image intensities.
    */
-  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = { field: Field[D, A] =>
+  def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = { (field: Field[D, A]) =>
     new Field[D, A] {
       override val domain = field.domain
       override val f = field.f
@@ -119,7 +119,7 @@ trait Field[D, A] extends Function1[Point[D], A] {
       if (self.isDefinedAt(x)) Some(self.f(x))
       else None
     }
-    Field[D, Option[A]](RealSpace[D], fun)
+    Field[D, Option[A]](EuclideanSpace[D], fun)
   }
 
   def discretize[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D],

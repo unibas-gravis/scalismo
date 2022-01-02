@@ -107,7 +107,7 @@ class tetrahedralMeshMetricsTests extends ScalismoTestSuite {
   final val epsilon = 1e-8
 
   val path = getClass.getResource("/tetraMesh.vtk").getPath
-  val mesh = MeshIO.readTetrahedralMesh(new File(URLDecoder.decode(path))).get
+  val mesh = MeshIO.readTetrahedralMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
   val translationLength = 1.0
   val translatedMesh = mesh.transform((pt: Point[_3D]) => pt + EuclideanVector(translationLength, 0.0, 0.0))
 

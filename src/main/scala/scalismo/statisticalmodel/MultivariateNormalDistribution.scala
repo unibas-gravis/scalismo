@@ -236,7 +236,7 @@ case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], 
 
   override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def sample()(implicit rand: Random): EuclideanVector[D] = EuclideanVector.fromBreezeVector(impl.sample)
+  override def sample()(implicit rand: Random): EuclideanVector[D] = EuclideanVector.fromBreezeVector(impl.sample())
 
   override def principalComponents: Seq[(EuclideanVector[D], Double)] = impl.principalComponents.map {
     case (v, d) => (EuclideanVector.fromBreezeVector(v), d)

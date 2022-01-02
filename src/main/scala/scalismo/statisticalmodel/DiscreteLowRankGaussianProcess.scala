@@ -223,7 +223,7 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
     }
     val newMean = this.mean.interpolate(interpolator)
 
-    new InterpolatedLowRankGaussianProcess(Field(RealSpace[D], newMean), newKLBasis, this, interpolator)
+    new InterpolatedLowRankGaussianProcess(Field(EuclideanSpace[D], newMean), newKLBasis, this, interpolator)
   }
 
   /**
@@ -260,7 +260,7 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
     }
 
     val covFun: MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
-      override val domain = RealSpace[D]
+      override val domain = EuclideanSpace[D]
 
       override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
         val xId = pointSet.findClosestPoint(x).id
@@ -270,7 +270,7 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
 
       override val outputDim = self.outputDim
     }
-    val gp = GaussianProcess(Field(RealSpace[D], meanFun _), covFun)
+    val gp = GaussianProcess(Field(EuclideanSpace[D], meanFun _), covFun)
     LowRankGaussianProcess.approximateGPNystrom[D, Value](gp, sampler, rank)
   }
 
@@ -301,9 +301,9 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
 
     val interpolatedKLBasis = {
 
-      (0 until rank) map (i => Eigenpair(variance(i), Field(RealSpace[D], phi(i, findClosestPointMemo))))
+      (0 until rank) map (i => Eigenpair(variance(i), Field(EuclideanSpace[D], phi(i, findClosestPointMemo))))
     }
-    new InterpolatedLowRankGaussianProcess(Field(RealSpace[D], meanFun(findClosestPointMemo)),
+    new InterpolatedLowRankGaussianProcess(Field(EuclideanSpace[D], meanFun(findClosestPointMemo)),
                                            interpolatedKLBasis,
                                            this,
                                            NearestNeighborInterpolator())

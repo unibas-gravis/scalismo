@@ -86,12 +86,12 @@ class ImageIOTests extends ScalismoTestSuite {
         //println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
 
       }
-      read should be a 'Success
+      read should be a Symbol("Success")
 
       // write out, and read again
       val vtk = File.createTempFile("imageio", ".vtk")
       vtk.deleteOnExit()
-      ImageIO.writeVTK[D, T](read.get, vtk) should be a 'Success
+      ImageIO.writeVTK[D, T](read.get, vtk) should be a Symbol("Success")
 
       val reread = readImage[T](vtk)
       reread match {
@@ -101,14 +101,14 @@ class ImageIOTests extends ScalismoTestSuite {
           (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
         //println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
       }
-      reread should be a 'Success
+      reread should be a Symbol("Success")
       vtk.delete()
 
       // if in 3D, write out as nifti and read again
       if (dim == 3) {
         val nii = File.createTempFile("imageio", ".nii")
         nii.deleteOnExit()
-        ImageIO.writeNifti(read.get.asInstanceOf[DiscreteImage[_3D, T]], nii) should be a 'Success
+        ImageIO.writeNifti(read.get.asInstanceOf[DiscreteImage[_3D, T]], nii) should be a Symbol("Success")
         val reread = ImageIO.read3DScalarImage[T](nii)
         reread match {
           case Failure(e) => e.printStackTrace()
@@ -313,9 +313,9 @@ class ImageIOTests extends ScalismoTestSuite {
       def check[D: NDSpace, T: Scalar: ClassTag](result: Try[DiscreteImage[D, T]], actualType: String): Unit = {
         val tryType = ScalarDataType.fromType[T].toString
         if (tryType == actualType) {
-          result should be a 'Success
+          result should be a Symbol("Success")
         } else {
-          result should be a 'Failure
+          result should be a Symbol("Failure")
           result.failed.get.getMessage.contains(s"expected $tryType") should be(true)
           result.failed.get.getMessage.contains(s"found $actualType") should be(true)
         }
@@ -337,7 +337,7 @@ class ImageIOTests extends ScalismoTestSuite {
             check(read[D, UInt](file), c.typeName)
           }
 
-          c.writeVtk(vtk) should be a 'Success
+          c.writeVtk(vtk) should be a Symbol("Success")
           ScalarDataType.ofFile(vtk).get.toString should equal(c.typeName)
 
           checkAll(vtk)
@@ -347,7 +347,7 @@ class ImageIOTests extends ScalismoTestSuite {
             val nii = File.createTempFile(c.typeName, ".nii")
             nii.deleteOnExit()
 
-            c.writeNii(nii) should be a 'Success
+            c.writeNii(nii) should be a Symbol("Success")
             ScalarDataType.ofFile(nii).get.toString should equal(c.typeName)
             checkAll(nii)
             nii.delete()

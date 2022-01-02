@@ -15,9 +15,9 @@
  */
 package scalismo.kernels
 
-import scalismo.common.{BoxDomain, Field, RealSpace}
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.{_1D, _3D, EuclideanVector, Point}
+import scalismo.common.{BoxDomain, EuclideanSpace, Field, RealSpace}
+import scalismo.geometry.Point.implicits.*
+import scalismo.geometry.{EuclideanVector, Point, _1D, _3D}
 import scalismo.numerics.UniformSampler
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
@@ -77,13 +77,13 @@ class KernelTests extends ScalismoTestSuite {
         // TODO: gp.sample() should (arguably) accept seed.
         val theSample: (Point[_3D] => EuclideanVector[_3D]) = gp.sample()
         new Transformation[_3D] {
-          override val domain = RealSpace[_3D]
+          override val domain = EuclideanSpace[_3D]
           override val f = (x: Point[_3D]) => x + theSample(x)
         }
       }
 
       val testPtSampler = UniformSampler(domain, 1)
-      val pts = testPtSampler.sample.map(_._1)
+      val pts = testPtSampler.sample().map(_._1)
 
       val sampleCovKernel = SampleCovarianceKernel[_3D](sampleTransformations.toIndexedSeq, pts.size)
 

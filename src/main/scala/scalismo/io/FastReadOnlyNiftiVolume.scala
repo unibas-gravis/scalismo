@@ -203,7 +203,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }
 
       case NIFTI_TYPE_UINT8 =>
-        val toFloat = { x: Byte =>
+        val toFloat = { (x: Byte) =>
           if (x >= 0) x.toFloat else x.toFloat + 256.0f
         }
         if (hasTransform) {
@@ -219,7 +219,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }
 
       case NIFTI_TYPE_UINT16 =>
-        val toFloat = { x: Short =>
+        val toFloat = { (x: Short) =>
           if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 15)
         }
         if (hasTransform) {
@@ -236,7 +236,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
           loadArray[Int, Int](4, loadInt, IntIsScalar.createArray)
         }
       case NIFTI_TYPE_UINT32 =>
-        val toFloat = { x: Int =>
+        val toFloat = { (x: Int) =>
           if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 31)
         }
         if (hasTransform) {

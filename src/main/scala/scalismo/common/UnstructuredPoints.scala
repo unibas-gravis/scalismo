@@ -28,7 +28,7 @@ sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
 
   def pointSequence: IndexedSeq[Point[D]]
 
-  override def points: Iterator[Point[D]] = pointSequence.toIterator
+  override def points: Iterator[Point[D]] = pointSequence.iterator
   override def numberOfPoints = pointSequence.size
 
   override def point(id: PointId) = pointSequence(id.id)
