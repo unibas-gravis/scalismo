@@ -89,7 +89,7 @@ case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, Euclid
     extends Sampler[_3D] {
 
   //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
-  val meanPts = refmesh.pointSet.points.map { x: Point[_3D] =>
+  val meanPts = refmesh.pointSet.points.map { (x: Point[_3D]) =>
     x + gp.mean(x)
   }
   val ptsWithDist = new ParVector(refmesh.pointSet.points.toVector.zipWithIndex)

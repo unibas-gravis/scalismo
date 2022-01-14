@@ -204,7 +204,10 @@ case class MultiScaleKernel[D: NDSpace](kernel: MatrixValuedPDKernel[D],
   def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
     val sum = DenseMatrix.zeros[Double](outputDim, outputDim)
     for (i <- min until max) {
-      sum += kernel((x.toVector * Math.pow(2, i)).toPoint, (y.toVector * Math.pow(2, i)).toPoint) * scale(i)
+      val kxy: DenseMatrix[Double] =
+        kernel((x.toVector * Math.pow(2, i)).toPoint, (y.toVector * Math.pow(2, i)).toPoint)
+      val kxys: DenseMatrix[Double] = kxy * scale(i) // to help the scala 3 compiler, we introduce here explicit type annotations
+      sum += kxys
     }
     sum
   }
@@ -306,9 +309,11 @@ object Kernel {
     val lambda = lambdaMat.map(lmbda => (lmbda / effectiveNumberOfPointsSampled.toDouble))
     val numParams = (for (i <- (0 until lambda.size) if lambda(i) >= 1e-8) yield 1).size
 
-    val W = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled) * pinv(
-      diag(lambdaMat(0 until numParams))
-    )
+    val W: DenseMatrix[Double] = {
+      // z is an intermediate variable to help the scala 3 compiler figure out the types.
+      val z: DenseMatrix[Double] = uMat(::, 0 until numParams) * math.sqrt(effectiveNumberOfPointsSampled)
+      z * pinv(diag(lambdaMat(0 until numParams)))
+    }
 
     def computePhis(x: Point[D]): DenseMatrix[Double] = computeKernelVectorFor(x, ptsForNystrom, k) * W
     val computePhisMemoized = Memoize(computePhis, 1000)

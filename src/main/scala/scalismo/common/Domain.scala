@@ -69,17 +69,17 @@ object RealSpace {
 
 trait BoxDomain[D] extends Domain[D] {
 
-  val origin: Point[D]
-  val oppositeCorner: Point[D]
+  def origin: Point[D]
+  def oppositeCorner: Point[D]
 
   def isDefinedAt(pt: Point[D]): Boolean = {
     def isInsideAxis(i: Int) = pt(i) >= origin(i) && pt(i) <= oppositeCorner(i)
     (0 until pt.dimensionality).forall(i => isInsideAxis(i))
   }
 
-  val extent: EuclideanVector[D] = oppositeCorner - origin
-  val volume: Double = (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i))
-  )
+  def extent: EuclideanVector[D] = oppositeCorner - origin
+  def volume: Double =
+    (0 until origin.dimensionality).foldLeft(1.0)((prod, i) => prod * (oppositeCorner(i) - origin(i)))
 
 }
 
@@ -94,8 +94,8 @@ object BoxDomain {
    * specific dimensionality
    */
   def apply[D: NDSpace](orig: Point[D], oppCorner: Point[D]) = new BoxDomain[D] {
-    override lazy val oppositeCorner = oppCorner
-    override lazy val origin = orig
+    override val oppositeCorner = oppCorner
+    override val origin = orig
   }
 }
 

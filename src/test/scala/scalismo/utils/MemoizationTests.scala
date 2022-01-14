@@ -34,7 +34,7 @@ class MemoizationTests extends ScalismoTestSuite {
       def time[A](a: () => A): Double = {
         val now = System.nanoTime
         a()
-        System.nanoTime() - now
+        (System.nanoTime() - now).toDouble
       }
 
       def slowTestFun(x: Double) = {

@@ -37,11 +37,11 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
       val shapeModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new File(path)).get
       val nbFiles = 7
       // use iterators so files are only loaded when required (and memory can be reclaimed after use)
-      val meshes = (0 until nbFiles).toIterator map { i =>
+      val meshes = (0 until nbFiles).iterator map { i =>
         val meshPath: String = getClass.getResource(s"/asmData/$i.stl").getPath
         MeshIO.readMesh(new File(URLDecoder.decode(meshPath, "UTF-8"))).get
       }
-      val images = (0 until nbFiles).toIterator map { i =>
+      val images = (0 until nbFiles).iterator map { i =>
         val imgPath: String = getClass.getResource(s"/asmData/$i.vtk").getPath
         ImageIO.read3DScalarImage[Float](new File(URLDecoder.decode(imgPath, "UTF-8"))).get
       }

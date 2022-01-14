@@ -95,15 +95,15 @@ object Scalar {
   // An enumeration of differnet scalar types. These can be used for
   // pattern matching on the type
   sealed trait ScalarType
-  final case object ByteScalar extends ScalarType
-  final case object ShortScalar extends ScalarType
-  final case object IntScalar extends ScalarType
-  final case object LongScalar extends ScalarType
-  final case object FloatScalar extends ScalarType
-  final case object DoubleScalar extends ScalarType
-  final case object UByteScalar extends ScalarType
-  final case object UIntScalar extends ScalarType
-  final case object UShortScalar extends ScalarType
+  case object ByteScalar extends ScalarType
+  case object ShortScalar extends ScalarType
+  case object IntScalar extends ScalarType
+  case object LongScalar extends ScalarType
+  case object FloatScalar extends ScalarType
+  case object DoubleScalar extends ScalarType
+  case object UByteScalar extends ScalarType
+  case object UIntScalar extends ScalarType
+  case object UShortScalar extends ScalarType
 
   implicit final lazy val ByteIsScalar: PrimitiveScalar[Byte] = new ByteIsScalar
   implicit final lazy val ShortIsScalar: PrimitiveScalar[Short] = new ShortIsScalar
@@ -342,11 +342,11 @@ abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: A
   override def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T] = {
     val toScalar = implicitly[Scalar[T]]
     toScalar match {
-      case s: PrimitiveScalar[T] =>
+      case s: PrimitiveScalar[T @unchecked] =>
         s.createArray(rawData.map { u =>
           f(fromUnderlying(u))
         })
-      case s: ValueClassScalar[T, _] =>
+      case s: ValueClassScalar[T @unchecked, _] =>
         s.convertArray[U](rawData, { u =>
           f(fromUnderlying(u))
         })
@@ -454,8 +454,8 @@ object ScalarArray {
   def apply[T: Scalar: ClassTag](array: Array[T]): ScalarArray[T] = {
     val scalar = implicitly[Scalar[T]]
     scalar match {
-      case p: PrimitiveScalar[T] => p.createArray(array)
-      case v: ValueClassScalar[T, _] =>
+      case p: PrimitiveScalar[T @unchecked] => p.createArray(array)
+      case v: ValueClassScalar[T @unchecked, _] =>
         v.convertArray[T](array, { t =>
           t
         })

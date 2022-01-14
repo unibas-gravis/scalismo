@@ -1,7 +1,7 @@
 package scalismo
 
-import org.scalatest.{FunSpec, Matchers}
-
-class ScalismoTestSuite extends FunSpec with Matchers {
+import org.scalatest.funspec.{AnyFunSpec}
+import org.scalatest.matchers.should.Matchers
+class ScalismoTestSuite extends AnyFunSpec with Matchers {
   scalismo.initialize()
 }

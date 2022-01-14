@@ -140,7 +140,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: Tria
       val cell = triangulation.triangle(tId)
       triangleNormals(tId.id) = computeCellNormal(cell)
     }
-    TriangleProperty(triangulation, triangleNormals)
+    TriangleProperty(triangulation, triangleNormals.toIndexedSeq)
   }
 
   /** Get all vertex normals as a surface property, averages over cell normals */
@@ -161,7 +161,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: Tria
       val n = tr.size
       pointNormals(ptId.id) = EuclideanVector3D(x / n, y / n, z / n).normalize
     }
-    SurfacePointProperty(triangulation, pointNormals)
+    SurfacePointProperty(triangulation, pointNormals.toIndexedSeq)
   }
 
   /**

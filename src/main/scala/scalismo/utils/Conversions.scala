@@ -15,22 +15,72 @@
  */
 package scalismo.utils
 
+import scalismo.common.{
+  DiscreteField,
+  PointId,
+  PrimitiveScalarArray,
+  Scalar,
+  ScalarArray,
+  UnstructuredPoints,
+  ValueClassScalarArray
+}
+import scalismo.common
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
-import scalismo.common._
 import scalismo.common.interpolation.BSplineImageInterpolator3D
-import scalismo.geometry._
+import scalismo.geometry.{_2D, _3D, EuclideanVector, IntVector2D, IntVector3D, NDSpace, Point}
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, DiscreteImageDomain3D, StructuredPoints}
 import scalismo.io.{ImageIO, ScalarDataType}
-import scalismo.mesh._
-import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
+import scalismo.mesh.{
+  LineCell,
+  LineList,
+  LineMesh,
+  TetrahedralCell,
+  TetrahedralList,
+  TetrahedralMesh,
+  TetrahedralMesh3D,
+  TriangleCell,
+  TriangleList,
+  TriangleMesh,
+  TriangleMesh3D
+}
 import scalismo.utils.ImageConversion.{
+  VtkAutomaticInterpolatorSelection,
   VtkCubicInterpolation,
   VtkInterpolationMode,
   VtkLinearInterpolation,
   VtkNearestNeighborInterpolation
 }
 import spire.math.{UByte, UInt, ULong, UShort}
-import vtk._
+import vtk.{
+  vtkCellArray,
+  vtkCharArray,
+  vtkDataArray,
+  vtkDoubleArray,
+  vtkFloatArray,
+  vtkIdList,
+  vtkImageCast,
+  vtkImageData,
+  vtkImageReslice,
+  vtkImageToStructuredPoints,
+  vtkInformation,
+  vtkIntArray,
+  vtkLandmarkTransform,
+  vtkLine,
+  vtkLongArray,
+  vtkPointSet,
+  vtkPoints,
+  vtkPolyData,
+  vtkShortArray,
+  vtkSignedCharArray,
+  vtkStructuredPoints,
+  vtkTetra,
+  vtkTriangle,
+  vtkTriangleFilter,
+  vtkUnsignedCharArray,
+  vtkUnsignedIntArray,
+  vtkUnsignedShortArray,
+  vtkUnstructuredGrid
+}
 
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
@@ -104,7 +154,6 @@ object VtkHelpers {
         val a = init(new vtkUnsignedIntArray())
         a.SetJavaArray(data.asInstanceOf[ValueClassScalarArray[UInt, Int]].rawData)
         a
-      case _ => throw new NotImplementedError("Invalid scalar Pixel Type " + Scalar[A].scalarType)
     }
   }
 
@@ -357,7 +406,7 @@ object MeshConversion {
       scalarData <- VtkHelpers
         .vtkDataArrayToScalarArray[S](pd.GetPointData().GetScalars().GetDataType(), pd.GetPointData().GetScalars())
     } yield {
-      ScalarMeshField(mesh, scalarData)
+      common.ScalarMeshField(mesh, scalarData)
     }
   }
 
@@ -454,8 +503,8 @@ trait CanConvertToVtk[D] {
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
     val dataArray = img.data match {
-      case data: ScalarArray[Pixel] => VtkHelpers.scalarArrayToVtkDataArray(data, 1)
-      case data: IndexedSeq[Pixel]  => VtkHelpers.scalarArrayToVtkDataArray(ScalarArray(data.toArray), 1)
+      case data: ScalarArray[Pixel @unchecked] => VtkHelpers.scalarArrayToVtkDataArray(data, 1)
+      case data: IndexedSeq[Pixel @unchecked]  => VtkHelpers.scalarArrayToVtkDataArray(ScalarArray(data.toArray), 1)
     }
     sp.GetPointData().SetScalars(dataArray)
 
@@ -524,7 +573,7 @@ object CanConvertToVtk {
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat)
       val spacing = EuclideanVector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat)
-      val size = IntVector(sp.GetDimensions()(0), sp.GetDimensions()(1))
+      val size = IntVector2D(sp.GetDimensions()(0), sp.GetDimensions()(1))
 
       val domain = DiscreteImageDomain(StructuredPoints[_2D](origin, spacing, size))
       val scalars = sp.GetPointData().GetScalars()
@@ -581,9 +630,10 @@ object CanConvertToVtk {
       reslice.SetResliceTransform(landmarkTransform)
 
       interpolationMode match {
-        case VtkCubicInterpolation           => reslice.SetInterpolationModeToCubic()
-        case VtkLinearInterpolation          => reslice.SetInterpolationModeToLinear()
-        case VtkNearestNeighborInterpolation => reslice.SetInterpolationModeToNearestNeighbor()
+        case VtkCubicInterpolation             => reslice.SetInterpolationModeToCubic()
+        case VtkLinearInterpolation            => reslice.SetInterpolationModeToLinear()
+        case VtkNearestNeighborInterpolation   => reslice.SetInterpolationModeToNearestNeighbor()
+        case VtkAutomaticInterpolatorSelection => {}
       }
 
       reslice.SetOutputSpacing(domain.spacing(0), domain.spacing(1), domain.spacing(2))
@@ -625,7 +675,7 @@ object CanConvertToVtk {
 
       val origin = Point(sp.GetOrigin()(0).toFloat, sp.GetOrigin()(1).toFloat, sp.GetOrigin()(2).toFloat)
       val spacing = EuclideanVector(sp.GetSpacing()(0).toFloat, sp.GetSpacing()(1).toFloat, sp.GetSpacing()(2).toFloat)
-      val size = IntVector(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
+      val size = IntVector3D(sp.GetDimensions()(0), sp.GetDimensions()(1), sp.GetDimensions()(2))
 
       val domain = DiscreteImageDomain(StructuredPoints[_3D](origin, spacing, size))
       val scalars = sp.GetPointData().GetScalars()

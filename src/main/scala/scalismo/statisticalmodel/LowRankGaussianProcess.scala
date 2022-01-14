@@ -317,7 +317,7 @@ object LowRankGaussianProcess {
     val cov: MatrixValuedPDKernel[D] = new MatrixValuedPDKernel[D] {
       override val domain = klBasis.headOption
         .map { case (Eigenpair(lambda, phi)) => phi.domain }
-        .getOrElse(RealSpace[D])
+        .getOrElse(EuclideanSpace[D])
 
       override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
         var outer = DenseMatrix.zeros[Double](dimOps, dimOps)

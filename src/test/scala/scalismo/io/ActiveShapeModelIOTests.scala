@@ -28,7 +28,7 @@ import scalismo.utils.Random
 import scala.collection.immutable
 
 class ActiveShapeModelIOTests extends ScalismoTestSuite {
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   private def createTmpH5File(): File = {
     val f = File.createTempFile("hdf5file", ".h5")
@@ -40,7 +40,7 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
     val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
     val shapeModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(statismoFile).get
 
-    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.reference, 100).sample.unzip
+    val (sprofilePoints, _) = new FixedPointsUniformMeshSampler3D(shapeModel.reference, 100).sample().unzip
     val pointIds = sprofilePoints.map { point =>
       shapeModel.reference.pointSet.findClosestPoint(point).id
     }

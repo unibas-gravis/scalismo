@@ -81,8 +81,8 @@ object ImageIO {
     }
   }
 
-  private val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
-  private val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
+  private lazy val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+  private lazy val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
 
   /**
    * Read a 3D Scalar Image
@@ -244,6 +244,7 @@ object ImageIO {
       voxelToLPSCoordinateTransform <- computeVoxelToLPSCoordinateTransform(volume, favourQform)
       image <- createImageWithRightOrientation(volume, voxelToLPSCoordinateTransform)
     } yield {
+
       image
     }
   }

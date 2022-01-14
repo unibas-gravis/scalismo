@@ -60,7 +60,7 @@ case class ProductTransformationSpace[D, OuterTS[D] <: TransformationSpaceWithDi
   innerTS: InnerTS[D]
 ) extends TransformationSpace[D] {
 
-  override type T[D] = CompositeTransformation[D, OuterTS[D]#T, InnerTS[D]#T]
+  override type T[D] = CompositeTransformation[D, outerTS.T, innerTS.T]
 
   override def domain: Domain[D] = innerTS.domain
 
@@ -69,8 +69,8 @@ case class ProductTransformationSpace[D, OuterTS[D] <: TransformationSpaceWithDi
   override def transformationForParameters(p: ParameterVector): T[D] = {
     val outerParams = p(0 until outerTS.numberOfParameters).copy
     val innerParams = p(outerTS.numberOfParameters until outerTS.numberOfParameters + innerTS.numberOfParameters).copy
-    val outerTransform: OuterTS[D]#T[D] = outerTS.transformationForParameters(outerParams)
-    val innerTransform: InnerTS[D]#T[D] = innerTS.transformationForParameters(innerParams)
+    val outerTransform: outerTS.T[D] = outerTS.transformationForParameters(outerParams)
+    val innerTransform: innerTS.T[D] = innerTS.transformationForParameters(innerParams)
     CompositeTransformation(outerTransform, innerTransform)
   }
 
@@ -112,7 +112,7 @@ case class ProductTransformationSpaceWithDifferentiableTransforms[D, OuterTS[D] 
   innerTS: InnerTS[D]
 ) extends TransformationSpaceWithDifferentiableTransforms[D] {
 
-  override type T[D] = CompositeDifferentiableTransformation[D, OuterTS[D]#T, InnerTS[D]#T]
+  override type T[D] = CompositeDifferentiableTransformation[D, outerTS.T, innerTS.T]
 
   override def domain: Domain[D] = innerTS.domain
 

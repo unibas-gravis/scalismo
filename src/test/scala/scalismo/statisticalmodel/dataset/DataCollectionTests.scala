@@ -32,7 +32,7 @@ import scalismo.utils.Random
 
 class DataCollectionTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   describe("A datacollection") {
 

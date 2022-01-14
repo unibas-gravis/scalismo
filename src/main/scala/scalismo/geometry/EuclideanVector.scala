@@ -17,7 +17,7 @@ package scalismo.geometry
 
 import breeze.linalg.DenseVector
 import scalismo.common.Vectorizer
-import spire.algebra.Field
+import spire.algebra.{Field, VectorSpace}
 
 import scala.language.implicitConversions
 
@@ -275,14 +275,15 @@ object EuclideanVector {
     EuclideanVector((r * math.cos(phi) * math.sin(theta)), (r * math.sin(phi) * math.sin(theta)), r * math.cos(theta))
 
   /** spire VectorSpace implementation for Vector */
-  implicit def spireVectorSpace[D: NDSpace] = new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
-    implicit override def scalar: Field[Double] = Field[Double]
-    override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
-    override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
-    override def zero: EuclideanVector[D] = zeros[D]
-    override def plus(x: EuclideanVector[D], y: EuclideanVector[D]): EuclideanVector[D] =
-      x.mapWithIndex((f, i) => f + y(i))
-  }
+  implicit def spireVectorSpace[D: NDSpace]: VectorSpace[EuclideanVector[D], Double] =
+    new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
+      implicit override def scalar: Field[Double] = Field[Double]
+      override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
+      override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
+      override def zero: EuclideanVector[D] = zeros[D]
+      override def plus(x: EuclideanVector[D], y: EuclideanVector[D]): EuclideanVector[D] =
+        x.mapWithIndex((f, i) => f + y(i))
+    }
 
   object implicits {
     implicit def Vector1DToDouble(v: EuclideanVector[_1D]): Double = v.x
@@ -307,14 +308,14 @@ object EuclideanVector {
 
     override def equals(that: Any): Boolean = {
       that match {
-        case t: VectorVectorizer[D] => true
-        case _                      => false
+        case t: VectorVectorizer[D @unchecked] => true
+        case _                                 => false
       }
     }
   }
 
-  implicit val Vector_1DVectorizer = new VectorVectorizer[_1D]
-  implicit val Vector_2DVectorizer = new VectorVectorizer[_2D]
-  implicit val Vector_3DVectorizer = new VectorVectorizer[_3D]
+  implicit val Vector_1DVectorizer: VectorVectorizer[_1D] = new VectorVectorizer[_1D]
+  implicit val Vector_2DVectorizer: VectorVectorizer[_2D] = new VectorVectorizer[_2D]
+  implicit val Vector_3DVectorizer: VectorVectorizer[_3D] = new VectorVectorizer[_3D]
 
 }

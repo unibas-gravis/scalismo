@@ -29,7 +29,7 @@ case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
 
 class HDF5File(h5file: FileFormat) extends Closeable {
 
-  override def close() { h5file.close() }
+  override def close(): Unit = { h5file.close() }
 
   def exists(path: String): Boolean = h5file.get(path) != null
 
@@ -107,7 +107,12 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     }
   }
 
-  def readNDArray[T](path: String): Try[NDArray[T]] = {
+  /**
+   * Reads an ndArray from the path. The dataCast is a caster (usually done with asInstance[T])
+   * which casts a type Object into an Array[T]. The reason this has to be provided is that
+   * it is not possible to cast to a generic type, due to type erasure.
+   */
+  def readNDArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[NDArray[T]] = {
 
     h5file.get(path) match {
       case null => Failure(new Exception(s"Path $path does not exist"))
@@ -115,12 +120,12 @@ class HDF5File(h5file: FileFormat) extends Closeable {
         // we need to explicitly set the selectedDims to dims, in order to avoid that
         // in the three D case only the first slice is read (bug in hdf5?)
         s.read()
+
         val dims = s.getDims
         val selectedDims = s.getSelectedDims
         for (i <- 0 until dims.length) { selectedDims(i) = dims(i) }
         val data = s.getData
-
-        Try(NDArray(dims.toIndexedSeq, data.asInstanceOf[Array[T]]))
+        Try(NDArray(dims.toIndexedSeq, dataCast.cast(data)))
 
       }
       case _ => {
@@ -129,7 +134,13 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     }
   }
 
-  def readArray[T](path: String): Try[Array[T]] = {
+  /*
+   * Reads an Array from the path.
+   * The dataCast is a caster (usually done with asInstance[T])
+   * which casts a type Object into an Array[T]. The reason this has to be provided is that
+   * it is not possible to cast to a generic type, due to type erasure.
+   */
+  def readArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[Array[T]] = {
 
     readNDArray[T](path).map { ndArray =>
       assume(ndArray.dims.length == 1)
@@ -197,6 +208,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     groupOrFailure.map { group =>
       val dtype = h5file.createDatatype(Datatype.CLASS_STRING, value.length, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](1), null, null, 0, Array[String](value))
+      ()
     }
   }
 
@@ -217,6 +229,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val fileFormat: FileFormat = group.getFileFormat
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
+      ()
     }
   }
 
@@ -238,6 +251,7 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val fileFormat: FileFormat = group.getFileFormat
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_FLOAT, 4, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
+      ()
     }
   }
 
@@ -352,4 +366,28 @@ trait HDF5Read[A] {
 
 trait HDF5Write[A] {
   def write(value: A, h5file: HDF5File, group: Group): Try[Unit]
+}
+
+trait ObjectToArrayCast[A] {
+  def cast(arr: Object): Array[A]
+}
+
+object ObjectToArrayCast {
+  implicit object ObjectToStringArrayCast extends ObjectToArrayCast[String] {
+    override def cast(arr: Object): Array[String] = arr.asInstanceOf[Array[String]]
+  }
+  implicit object ObjectToFloatArrayCast extends ObjectToArrayCast[Float] {
+    override def cast(arr: Object): Array[Float] = arr.asInstanceOf[Array[Float]]
+  }
+
+  implicit object ObjectToByteArrayCast extends ObjectToArrayCast[Byte] {
+    override def cast(arr: Object): Array[Byte] = arr.asInstanceOf[Array[Byte]]
+  }
+
+  implicit object ObjectToIntArrayCast extends ObjectToArrayCast[Int] {
+    override def cast(arr: Object): Array[Int] = arr.asInstanceOf[Array[Int]]
+  }
+  implicit object ObjectToDoubleArrayCast extends ObjectToArrayCast[Double] {
+    override def cast(arr: Object): Array[Double] = arr.asInstanceOf[Array[Double]]
+  }
 }

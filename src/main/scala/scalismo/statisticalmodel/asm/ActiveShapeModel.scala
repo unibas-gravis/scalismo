@@ -51,7 +51,7 @@ object ActiveShapeModel {
                  featureExtractor: FeatureExtractor,
                  sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
 
-    val sampled = sampler(statisticalModel.reference).sample.map(_._1).toIndexedSeq
+    val sampled = sampler(statisticalModel.reference).sample().map(_._1).toIndexedSeq
     val pointIds = sampled.map(statisticalModel.reference.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
@@ -113,7 +113,7 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
   def sample()(implicit rand: Random): ASMSample = {
     val sampleMesh = statisticalModel.sample()
     val randomProfilePoints = profiles.data.map(p => sampleMesh.pointSet.point(p.pointId))
-    val randomFeatures = profiles.data.map(_.distribution.sample)
+    val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField[_3D, UnstructuredPointsDomain](
       CreateUnstructuredPointsDomain3D.create(randomProfilePoints),
       randomFeatures
@@ -128,7 +128,7 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
   def sampleFeaturesOnly()(implicit rand: Random): ASMSample = {
     val smean = statisticalModel.mean
     val meanProfilePoints = profiles.data.map(p => smean.pointSet.point(p.pointId))
-    val randomFeatures = profiles.data.map(_.distribution.sample)
+    val randomFeatures = profiles.data.map(_.distribution.sample())
     val featureField = DiscreteFeatureField[_3D, UnstructuredPointsDomain](
       CreateUnstructuredPointsDomain3D.create(meanProfilePoints),
       randomFeatures

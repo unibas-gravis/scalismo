@@ -23,10 +23,11 @@ import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.utils.Random
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
-  implicit val rng = scalismo.utils.Random(42L)
+  implicit val rng: Random = scalismo.utils.Random(42L)
 
   describe("a Statismo Mesh Model") {
 
@@ -171,7 +172,6 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
         .zip(discreteGP.domain.pointSet.points)
         .foreach {
           case (p1, p2) =>
-            if ((p1 - p2).norm > 0.1) println(p1 + " : " + p2)
             (p1 - p2).norm should be < 0.1
         }
       discreteGPReread.domain.cells.toSeq should equal(discreteGP.domain.cells.toSeq)

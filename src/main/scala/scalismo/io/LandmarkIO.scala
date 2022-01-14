@@ -31,7 +31,7 @@ object LandmarkIO {
 
   private case class Uncertainty(stddevs: List[Double], pcvectors: List[List[Double]])
 
-  implicit private val uncertaintyProtocol = jsonFormat2(Uncertainty.apply)
+  implicit private val uncertaintyProtocol: RootJsonFormat[Uncertainty] = jsonFormat2(Uncertainty.apply)
 
   implicit private def u2m(u: Uncertainty): MultivariateNormalDistribution = {
     val dim = u.stddevs.size
@@ -99,7 +99,7 @@ object LandmarkIO {
   }
 
   def readLandmarksJsonFromSource[D: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
-    implicit val e = LandmarkJsonFormat[D]()
+    implicit val e: LandmarkJsonFormat[D] = LandmarkJsonFormat[D]()
     for {
       result <- Try {
         val stringData = source.getLines().mkString("\n")
@@ -130,7 +130,7 @@ object LandmarkIO {
 
   def writeLandmarksJsonToStream[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] =
     Try {
-      implicit val e = LandmarkJsonFormat[D]()
+      implicit val e: LandmarkJsonFormat[D] = LandmarkJsonFormat[D]()
       writeLandmarksJsonToStreamP(landmarks, stream)
     }.flatten
 

@@ -15,10 +15,25 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{DifferentiableField, Field, PointId, RealSpace}
-import scalismo.geometry._
+import scalismo.common.{DifferentiableField, EuclideanSpace, Field, PointId}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
-import scalismo.mesh.boundingSpheres._
+import scalismo.mesh.boundingSpheres.{
+  BoundingSphereHelpers,
+  BoundingSpheres,
+  ClosestPoint,
+  ClosestPointInTriangle,
+  ClosestPointOnLine,
+  ClosestPointWithType,
+  LineTetrahedralMesh3DIntersectionIndex,
+  LineTriangleMesh3DIntersectionIndex,
+  SurfaceSpatialIndex,
+  TetrahedralMesh3DSpatialIndex,
+  TetrahedralizedVolumeIntersectionIndex,
+  TriangleMesh3DSpatialIndex,
+  TriangulatedSurfaceIntersectionIndex,
+  VolumeSpatialIndex
+}
 import scalismo.utils.MeshConversion
 
 import scala.collection.parallel.immutable.ParVector
@@ -105,11 +120,11 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
       grad * (1.0 / grad.norm)
     }
 
-    DifferentiableField(RealSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
+    DifferentiableField(EuclideanSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
   }
 
   /**
-   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[RealSpace]] , where the mesh surface is used to split the image domain.
+   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[EuclideanSpace]] , where the mesh surface is used to split the image domain.
    * Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
    * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
    *
@@ -137,7 +152,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
       val dotprod = normalAtClosestPoint dot (closestPoint - pt)
       if (dotprod > 0.0) 1 else 0
     }
-    Field(RealSpace[_3D], (pt: Point[_3D]) => inside(pt))
+    Field(EuclideanSpace[_3D], (pt: Point[_3D]) => inside(pt))
   }
 
   /**

@@ -32,6 +32,12 @@ case class TriangleMeshInterpolator3D[A: ValueInterpolator]() extends FieldInter
           fieldOnSurface(id, bc)
         case ClosestPointOnLine(pt, _, (id0, id1), d) =>
           ValueInterpolator[A].blend(fieldOnSurface(id0), fieldOnSurface(id1), d)
+        case _ => {
+          throw new IllegalStateException(
+            "invalid closest point type encountered while interpolating. This should never happend"
+          )
+        }
+
       }
     Field(EuclideanSpace[_3D], f)
   }

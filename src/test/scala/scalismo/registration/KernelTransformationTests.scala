@@ -31,7 +31,7 @@ import scala.language.implicitConversions
 
 class KernelTransformationTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 
@@ -53,7 +53,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
         })
       }
 
-      for ((x, _) <- sampler.sample; (y, _) <- sampler.sample) {
+      for ((x, _) <- sampler.sample(); (y, _) <- sampler.sample()) {
         val v1 = kernel(x, y)(0, 0)
         val v2 = approxKernel(x, y)
         v2 should be(v1 +- 0.01)
@@ -66,7 +66,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val domain = BoxDomain(0.0, 10.0)
       val numPoints = 500
       val sampler = UniformSampler(domain, numPoints)
-      val (points, _) = sampler.sample.unzip
+      val (points, _) = sampler.sample().unzip
       val eigPairsApprox = Kernel.computeNystromApproximation[_1D, EuclideanVector[_1D]](scalarKernel, sampler)
       val approxLambdas = eigPairsApprox.map(_.eigenvalue)
 
@@ -91,7 +91,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
       val ndKernel = DiagonalKernel(scalarKernel, kernelDim)
       val domain = BoxDomain((0.0, 0.0), (5.0, 5.0))
       val sampler = UniformSampler(domain, 400)
-      val (pts, _) = sampler.sample.unzip
+      val (pts, _) = sampler.sample().unzip
 
       val eigPairsApprox = Kernel.computeNystromApproximation[_2D, EuclideanVector[_2D]](ndKernel, sampler)
       val approxLambdas = eigPairsApprox.map(_.eigenvalue)

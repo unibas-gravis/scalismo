@@ -170,27 +170,27 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
 
     import Scalar._
 
-    val loadShort = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadShort = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JShort.reverseBytes(m.getShort)
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getShort
     }
-    val loadChar = { m: MappedByteBuffer =>
+    val loadChar = { (m: MappedByteBuffer) =>
       loadShort(m).toChar
     }
-    val loadInt = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadInt = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       Integer.reverseBytes(m.getInt)
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getInt
     }
-    val loadFloat = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadFloat = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JFloat.intBitsToFloat(Integer.reverseBytes(m.getInt))
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getFloat
     }
-    val loadDouble = if (header.isLittleEndian) { m: MappedByteBuffer =>
+    val loadDouble = if (header.isLittleEndian) { (m: MappedByteBuffer) =>
       JDouble.longBitsToDouble(JLong.reverseBytes(m.getLong))
-    } else { m: MappedByteBuffer =>
+    } else { (m: MappedByteBuffer) =>
       m.getDouble
     }
 
@@ -203,7 +203,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }
 
       case NIFTI_TYPE_UINT8 =>
-        val toFloat = { x: Byte =>
+        val toFloat = { (x: Byte) =>
           if (x >= 0) x.toFloat else x.toFloat + 256.0f
         }
         if (hasTransform) {
@@ -219,7 +219,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
         }
 
       case NIFTI_TYPE_UINT16 =>
-        val toFloat = { x: Short =>
+        val toFloat = { (x: Short) =>
           if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 15)
         }
         if (hasTransform) {
@@ -236,7 +236,7 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
           loadArray[Int, Int](4, loadInt, IntIsScalar.createArray)
         }
       case NIFTI_TYPE_UINT32 =>
-        val toFloat = { x: Int =>
+        val toFloat = { (x: Int) =>
           if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 31)
         }
         if (hasTransform) {

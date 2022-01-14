@@ -36,18 +36,18 @@ private[scalismo] object ScalarDataType extends Enumeration {
 
   import scala.language.implicitConversions
 
-  protected case class Val[O: Scalar: ClassTag](vtkId: Int, niftiId: Short) extends super.Val
+  protected case class TheValue[O: Scalar: ClassTag](vtkId: Int, niftiId: Short) extends super.Val
 
-  implicit def valueToVal[T](x: Value): Val[T] = x.asInstanceOf[Val[T]]
+  implicit def valueToVal[T](x: Value): TheValue[T] = x.asInstanceOf[TheValue[T]]
 
-  val Byte = Val[Byte](VTK_CHAR, NIFTI_TYPE_INT8)
-  val Short = Val[Short](VTK_SHORT, NIFTI_TYPE_INT16)
-  val Int = Val[Int](VTK_INT, NIFTI_TYPE_INT32)
-  val Float = Val[Float](VTK_FLOAT, NIFTI_TYPE_FLOAT32)
-  val Double = Val[Double](VTK_DOUBLE, NIFTI_TYPE_FLOAT64)
-  val UByte = Val[UByte](VTK_UNSIGNED_CHAR, NIFTI_TYPE_UINT8)
-  val UShort = Val[UShort](VTK_UNSIGNED_SHORT, NIFTI_TYPE_UINT16)
-  val UInt = Val[UInt](VTK_UNSIGNED_INT, NIFTI_TYPE_UINT32)
+  val Byte = TheValue[Byte](VTK_CHAR, NIFTI_TYPE_INT8)
+  val Short = TheValue[Short](VTK_SHORT, NIFTI_TYPE_INT16)
+  val Int = TheValue[Int](VTK_INT, NIFTI_TYPE_INT32)
+  val Float = TheValue[Float](VTK_FLOAT, NIFTI_TYPE_FLOAT32)
+  val Double = TheValue[Double](VTK_DOUBLE, NIFTI_TYPE_FLOAT64)
+  val UByte = TheValue[UByte](VTK_UNSIGNED_CHAR, NIFTI_TYPE_UINT8)
+  val UShort = TheValue[UShort](VTK_UNSIGNED_SHORT, NIFTI_TYPE_UINT16)
+  val UInt = TheValue[UInt](VTK_UNSIGNED_INT, NIFTI_TYPE_UINT32)
 
   /**
    * Return the ScalarType value corresponding to a given type
