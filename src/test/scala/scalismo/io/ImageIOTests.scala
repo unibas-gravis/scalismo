@@ -21,7 +21,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import niftijio.NiftiVolume
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, Scalar, ScalarArray}
-import scalismo.geometry.*
+import scalismo.geometry._
 import scalismo.image.{
   DiscreteImage,
   DiscreteImageDomain,

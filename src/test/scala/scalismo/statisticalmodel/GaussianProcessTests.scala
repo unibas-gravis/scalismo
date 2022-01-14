@@ -19,10 +19,10 @@ import java.net.URLDecoder
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
-import scalismo.common.*
+import scalismo.common._
 import scalismo.common.interpolation.NearestNeighborInterpolator
-import scalismo.geometry.Point.implicits.*
-import scalismo.geometry.*
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
 import scalismo.image.{
   DiscreteImageDomain,
   DiscreteImageDomain1D,

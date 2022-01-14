@@ -17,7 +17,7 @@ package scalismo.io
 
 import java.io.File
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.*
+import scalismo.geometry._
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.common.UnstructuredPoints.Create.{
   CreateUnstructuredPoints1D,
