@@ -15,11 +15,16 @@
  */
 package scalismo.sampling
 
+import breeze.linalg.DenseVector
+import scalismo.sampling.proposals.{GaussianRandomWalkProposal, MixtureProposal}
+
 /** proposal distribution sampler for Metropolis-Hastings MCMC */
 trait ProposalGenerator[A] {
 
   /** draw a sample from this proposal distribution, may depend on current state */
   def propose(current: A): A
+
+
 }
 
 /** ratio of forward and backwards proposal probability/density */
@@ -52,5 +57,53 @@ trait TransitionProbability[A] extends TransitionRatio[A] {
       fw - bw
     else
       0.0
+  }
+}
+
+case class MHSample[A](parameters : A, generatedBy : String)
+
+abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] with TransitionProbability[MHSample[A]] { self =>
+
+
+  def forType[T](implicit conversion: ParameterConversion[A, T]): MHProposalGenerator[T]  = {
+    new MHProposalGenerator[T] {
+
+
+      /** rate of transition from to (log value) */
+      override def logTransitionProbability(from: MHSample[T], to: MHSample[T]): Double = {
+        self.logTransitionProbability(
+          from.copy(parameters = conversion.from(from.parameters)),
+          to.copy(parameters = conversion.from(to.parameters)))
+      }
+
+      /** draw a sample from this proposal distribution, may depend on current state */
+      override def propose(current: MHSample[T]): MHSample[T] = {
+        val origProposal = self.propose(current.copy(parameters = conversion.from(current.parameters)))
+        current.copy(parameters = conversion.to(origProposal.parameters), generatedBy = origProposal.generatedBy)
+      }
+    }
+  }
+}
+
+
+trait ParameterConversion[A, B] extends Function1[A, B] {
+  def to(a: A): B
+
+  def from(b: B): A
+
+  override def apply(a: A): B = to(a)
+}
+
+object ParameterConversion {
+  implicit def doubleDenseVectorConversion: ParameterConversion[DenseVector[Double], Double] = new ParameterConversion[DenseVector[Double], Double] {
+    override def from(a: Double): DenseVector[Double] = DenseVector(a)
+
+    override def to(v: DenseVector[Double]): Double = v(0)
+  }
+
+  implicit def denseVectorDenseVectorConversion: ParameterConversion[DenseVector[Double], DenseVector[Double]] = new ParameterConversion[DenseVector[Double], DenseVector[Double]] {
+    override def to(a: DenseVector[Double]): DenseVector[Double] = a
+
+    override def from(v: DenseVector[Double]): DenseVector[Double] = v
   }
 }

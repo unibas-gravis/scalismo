@@ -15,7 +15,7 @@
  */
 package scalismo.sampling.proposals
 
-import scalismo.sampling._
+import scalismo.sampling.{MHProposalGenerator, MHSample, ProposalGenerator, SymmetricTransitionRatio, TransitionProbability, TransitionRatio}
 import scalismo.utils.Random
 
 /** mixture of proposals: mixture distribution of multiple proposal distributions */
@@ -69,6 +69,45 @@ private class MixtureProposalWithTransition[A](
   }
 }
 
+class MHMixtureProposal[A](proposals : IndexedSeq[(Double, MHProposalGenerator[A])])(implicit rnd : Random) extends MHProposalGenerator[A]  {
+
+
+  val generators: IndexedSeq[MHProposalGenerator[A]] = proposals.map(_._2)
+
+
+  val mixtureFactors: IndexedSeq[Double] = {
+    val f = proposals.map(_._1)
+    val totalP = f.sum
+    f.map(c => c / totalP)
+  }
+
+  // cumsum
+  protected val p: IndexedSeq[Double] = mixtureFactors.scanLeft(0.0)((t, p) => t + p).tail
+  // keep state: last active proposal, useful for printing only
+  private var lastActive = 0
+
+  override def propose(current: MHSample[A]): MHSample[A] = {
+    val r = rnd.scalaRandom.nextDouble()
+    val i = p.indexWhere(p => p >= r) // find first element larger than random, use l
+    lastActive = i
+    generators(i).propose(current)
+  }
+
+  override def logTransitionProbability(from: MHSample[A], to: MHSample[A]): Double = {
+    val transitions = generators.map(g => g.logTransitionProbability(from, to))
+    if (transitions.exists(_.isNaN))
+      throw new Exception("NaN transition probability encountered!")
+    if (transitions.exists(!_.isInfinite)) {
+      val maxExpo = transitions.max
+      val sum = mixtureFactors.zip(transitions).map { case (f, t) => f * math.exp(t - maxExpo) }.sum
+      val fwd = math.log(sum) + maxExpo
+      fwd
+    } else
+      Double.NegativeInfinity
+  }
+
+}
+
 object MixtureProposal {
 
   /** generate a mixture proposal */
@@ -80,6 +119,11 @@ object MixtureProposal {
     implicit
     rnd: Random
   ): MixtureProposal[A] with TransitionProbability[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq)
+
+  def fromMHProposals[A](proposals: (Double, MHProposalGenerator[A])*)(
+  implicit
+  rnd: Random
+  ): MHMixtureProposal[A] = new MHMixtureProposal[A](proposals.toIndexedSeq)
 
   /** mixture of symmetric proposals (mixture distribution) */
   def fromSymmetricProposals[A](
@@ -147,7 +191,19 @@ object MixtureProposal {
           MixtureProposal.fromSymmetricProposalsWithTransition(normalizeCoefficients(components): _*)
         }
       }
+
+      implicit def mhProposalBuilder[A] : CreateMixture[MHProposalGenerator[A]] = {
+      new CreateMixture[MHProposalGenerator[A]] {
+        override def create(
+                             components: Seq[(Double, MHProposalGenerator[A])]
+                           )(implicit rnd: Random): MHProposalGenerator[A] = {
+          val normalizedCoeffs = normalizeCoefficients[MHProposalGenerator[A]](components)
+          MixtureProposal.fromMHProposals(normalizedCoeffs: _*)
+        }
+      }
+    }
   }
+
 
   /** implicit conversions for simple building: MixtureProposal(0.5 *: prop1 + 0.25 *: prop2 + 0.25 *: prop3) - handles all symmetry and transition traits */
   object implicits {
