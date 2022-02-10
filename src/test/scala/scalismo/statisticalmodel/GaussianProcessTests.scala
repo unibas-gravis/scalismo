@@ -23,7 +23,13 @@ import scalismo.common._
 import scalismo.common.interpolation.{NearestNeighborInterpolator, NearestNeighborInterpolator3D}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry._
-import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D, StructuredPoints}
+import scalismo.image.{
+  DiscreteImageDomain,
+  DiscreteImageDomain1D,
+  DiscreteImageDomain2D,
+  DiscreteImageDomain3D,
+  StructuredPoints
+}
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.{GridSampler, UniformSampler}
@@ -232,27 +238,32 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     it("incorporates non-zero mean correctly during posterior computation") {
       val domain = BoxDomain((-2.0, -2.0, -2.0), (2.0, 2.0, 2.0))
-      val meanField = Field(domain, (p: Point[_3D]) => EuclideanVector3D(1.0,1.0,1.0))
-      val points: IndexedSeq[Point[_3D]] = (-2 to 2).flatMap(x => (-2 to 2).flatMap(y => (-2 to 2).map(z => Point3D(x,y,z))))
+      val meanField = Field(domain, (p: Point[_3D]) => EuclideanVector3D(1.0, 1.0, 1.0))
+      val points: IndexedSeq[Point[_3D]] =
+        (-2 to 2).flatMap(x => (-2 to 2).flatMap(y => (-2 to 2).map(z => Point3D(x, y, z))))
       val ddomain = UnstructuredPointsDomain3D(points)
-      val trainingData = ddomain.pointSet.points.map(p => (p,EuclideanVector3D(1.0,1.0,1.0))).toIndexedSeq
+      val trainingData = ddomain.pointSet.points.map(p => (p, EuclideanVector3D(1.0, 1.0, 1.0))).toIndexedSeq
 
       //define the various gps
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](meanField, DiagonalKernel(GaussianKernel[_3D](5), 3))
       val lowRankGp = LowRankGaussianProcess
-        .approximateGPCholesky[_3D, UnstructuredPointsDomain, EuclideanVector[_3D]](ddomain, gp, 0.01, NearestNeighborInterpolator3D())
+        .approximateGPCholesky[_3D, UnstructuredPointsDomain, EuclideanVector[_3D]](ddomain,
+                                                                                    gp,
+                                                                                    0.01,
+                                                                                    NearestNeighborInterpolator3D())
       val discreteLowRankGp = lowRankGp.discretize(ddomain)
 
       //calculate the posteriors
       val gpPosterior = gp.posterior(trainingData, 0.1)
       val lowRankPosterior = lowRankGp.posterior(trainingData, 0.1)
-      val discreteLrPosterior = discreteLowRankGp.posterior(trainingData.map(t => (ddomain.pointSet.findClosestPoint(t._1).id, t._2)), 0.1)
+      val discreteLrPosterior =
+        discreteLowRankGp.posterior(trainingData.map(t => (ddomain.pointSet.findClosestPoint(t._1).id, t._2)), 0.1)
 
       //check all the means
       val vectorCheck = (v: EuclideanVector[_3D]) => {
-        v.x should be (1.0 +- 1e-5)
-        v.y should be (1.0 +- 1e-5)
-        v.z should be (1.0 +- 1e-5)
+        v.x should be(1.0 +- 1e-5)
+        v.y should be(1.0 +- 1e-5)
+        v.z should be(1.0 +- 1e-5)
       }
       ddomain.pointSet.points.map(gpPosterior.mean).foreach(vectorCheck) //full gp check
       ddomain.pointSet.points.map(lowRankPosterior.mean).foreach(vectorCheck) //low rank gp check
