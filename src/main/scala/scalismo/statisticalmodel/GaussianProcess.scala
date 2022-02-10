@@ -161,7 +161,7 @@ object GaussianProcess {
     }
 
     def posteriorMean(x: Point[D]): Value = {
-      vectorizer.unvectorize((xstar(x) * K_inv) * fVec)
+      vectorizer.unvectorize((xstar(x) * K_inv) * fVec + vectorizer.vectorize(gp.mean(x)))
     }
 
     val posteriorKernel = new MatrixValuedPDKernel[D] {
