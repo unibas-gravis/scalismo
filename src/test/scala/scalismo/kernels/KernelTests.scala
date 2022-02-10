@@ -15,20 +15,20 @@
  */
 package scalismo.kernels
 
-import scalismo.common.{BoxDomain, Field, RealSpace}
+import scalismo.common.{BoxDomain, EuclideanSpace, Field, RealSpace}
 import scalismo.geometry.Point.implicits._
 import scalismo.geometry.{_1D, _3D, EuclideanVector, Point}
 import scalismo.numerics.UniformSampler
-import scalismo.registration.Transformation
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.utils.Random
 import scalismo.ScalismoTestSuite
+import scalismo.transformations.Transformation
 
 import scala.collection.parallel.immutable.ParVector
 
 class KernelTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   describe("a Kernel") {
     it("yields correct multiple when  multiplied by a scalar") {
@@ -77,13 +77,13 @@ class KernelTests extends ScalismoTestSuite {
         // TODO: gp.sample() should (arguably) accept seed.
         val theSample: (Point[_3D] => EuclideanVector[_3D]) = gp.sample()
         new Transformation[_3D] {
-          override val domain = RealSpace[_3D]
+          override val domain = EuclideanSpace[_3D]
           override val f = (x: Point[_3D]) => x + theSample(x)
         }
       }
 
       val testPtSampler = UniformSampler(domain, 1)
-      val pts = testPtSampler.sample.map(_._1)
+      val pts = testPtSampler.sample().map(_._1)
 
       val sampleCovKernel = SampleCovarianceKernel[_3D](sampleTransformations.toIndexedSeq, pts.size)
 

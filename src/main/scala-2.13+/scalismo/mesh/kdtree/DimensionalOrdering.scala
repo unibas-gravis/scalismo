@@ -75,24 +75,25 @@ private[scalismo] object DimensionalOrdering {
         ord.compare(x.productElement(d).asInstanceOf[A], y.productElement(d).asInstanceOf[A])
     }
 
-  implicit def dimensionalOrderingForPoint[D: NDSpace] = new DimensionalOrdering[Point[D]] {
-    val dimensions = implicitly[NDSpace[D]].dimensionality
-    def compareProjection(d: Int)(x: Point[D], y: Point[D]) =
-      Ordering[Double].compare(x(d), y(d))
-  }
+  implicit def dimensionalOrderingForPoint[D: NDSpace]: DimensionalOrdering[Point[D]] =
+    new DimensionalOrdering[Point[D]] {
+      val dimensions = implicitly[NDSpace[D]].dimensionality
+      def compareProjection(d: Int)(x: Point[D], y: Point[D]) =
+        Ordering[Double].compare(x(d), y(d))
+    }
 
   //}
 
-  implicit def dimensionalOrderingForTuple2[A](implicit ord: Ordering[A]) =
+  implicit def dimensionalOrderingForTuple2[A](implicit ord: Ordering[A]): DimensionalOrdering[(A, A)] =
     dimensionalOrderingForTuple[(A, A), A](2)
 
-  implicit def dimensionalOrderingForTuple3[A](implicit ord: Ordering[A]) =
+  implicit def dimensionalOrderingForTuple3[A](implicit ord: Ordering[A]): DimensionalOrdering[(A, A, A)] =
     dimensionalOrderingForTuple[(A, A, A), A](3)
 
-  implicit def dimensionalOrderingForTuple4[A](implicit ord: Ordering[A]) =
+  implicit def dimensionalOrderingForTuple4[A](implicit ord: Ordering[A]): DimensionalOrdering[(A, A, A, A)] =
     dimensionalOrderingForTuple[(A, A, A, A), A](4)
 
-  implicit def dimensionalOrderingForTuple5[A](implicit ord: Ordering[A]) =
+  implicit def dimensionalOrderingForTuple5[A](implicit ord: Ordering[A]): DimensionalOrdering[(A, A, A, A, A)] =
     dimensionalOrderingForTuple[(A, A, A, A, A), A](5)
 
 }

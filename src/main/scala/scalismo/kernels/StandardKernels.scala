@@ -16,16 +16,16 @@
 package scalismo.kernels
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import scalismo.common.RealSpace
+import scalismo.common.EuclideanSpace
 import scalismo.geometry._
 import scalismo.numerics.BSpline
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 import scalismo.utils.Memoize
 
 case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
   val sigma2 = sigma * sigma
 
-  override def domain = RealSpace[D]
+  override def domain = EuclideanSpace[D]
 
   override def k(x: Point[D], y: Point[D]): Double = {
     val r = x - y
@@ -33,12 +33,24 @@ case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
   }
 }
 
+object GaussianKernel1D {
+  def apply(sigma: Double): GaussianKernel[_1D] = GaussianKernel[_1D](sigma)
+}
+
+object GaussianKernel2D {
+  def apply(sigma: Double): GaussianKernel[_2D] = GaussianKernel[_2D](sigma)
+}
+
+object GaussianKernel3D {
+  def apply(sigma: Double): GaussianKernel[_3D] = GaussianKernel[_3D](sigma)
+}
+
 case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000)
     extends MatrixValuedPDKernel[D] {
 
   override val outputDim = NDSpace[D].dimensionality
 
-  override val domain = ts.headOption.map(ts => ts.domain).getOrElse(RealSpace[D])
+  override val domain = ts.headOption.map(ts => ts.domain).getOrElse(EuclideanSpace[D])
 
   private val ts_memoized = for (t <- ts) yield Memoize(t, cacheSizeHint)
   private val normFactorMu = (1.0 / (ts.size))
@@ -99,7 +111,7 @@ case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]],
 }
 
 abstract case class BSplineKernel[D](order: Int, scale: Int) extends PDKernel[D] {
-  override def domain = RealSpace[D]
+  override def domain = EuclideanSpace[D]
 
 }
 

@@ -16,12 +16,14 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.stats.distributions.RandBasis
 import scalismo.ScalismoTestSuite
 import scalismo.utils.Random
 
 class MultivariateNormalDistributionTests extends ScalismoTestSuite {
 
-  implicit val random = Random(42)
+  implicit val random: Random = Random(42)
+  implicit val breezeRandBasis: RandBasis = random.breezeRandBasis
 
   describe("A 1D Multivariate normal") {
     it("should give the same pdf values as breeze Gaussian with the same parameters") {
@@ -32,6 +34,40 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
       }
     }
 
+  }
+
+  describe("A nD diagonal Multivariate normal") {
+    it("should give the same logpdf values as breeze Gaussian with the same parameters to test numerical stability") {
+      val n = 100
+      val variance = 0.01
+      val mean = DenseVector.zeros[Double](n)
+      val cov = variance * DenseMatrix.eye[Double](n)
+      val mvn = new MultivariateNormalDistribution(mean, cov)
+      val breezeMvn = breeze.stats.distributions.MultivariateGaussian.apply(mean, cov)
+      for (v <- (1 to 4).map(_ =>
+             DenseVector.tabulate(n)(i => random.scalaRandom.nextGaussian() * math.sqrt(cov(i, i)) + mean(i))
+           )) {
+        breezeMvn.logPdf(v) should be(mvn.logpdf(v) +- 1e-5)
+      }
+    }
+  }
+
+  describe("A nD Multivariate normal") {
+    it("should give the same logpdf values as breeze Gaussian with the same parameters to test numerical stability") {
+      val n = 100
+      val variance = 0.01
+      val mean = DenseVector.zeros[Double](n)
+      val cov = variance * DenseMatrix.eye[Double](n)
+      for (x <- 1 until cov.rows) {
+        cov(x, x - 1) = 0.002
+        cov(x - 1, x) = 0.002
+      }
+      cov(-1, 0) = 0.002
+      cov(0, -1) = 0.002
+      val mvn = new MultivariateNormalDistribution(mean, cov)
+      val breezeMvn = breeze.stats.distributions.MultivariateGaussian.apply(mean, cov)
+      breezeMvn.logPdf(DenseVector.zeros[Double](n)) should be(mvn.logpdf(DenseVector.zeros[Double](n)) +- 1e-5)
+    }
   }
 
   describe("A 3D Multivariate normal") {

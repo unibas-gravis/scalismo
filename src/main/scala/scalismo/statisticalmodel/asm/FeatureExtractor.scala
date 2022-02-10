@@ -100,10 +100,6 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int,
           case Gradient =>
             val gradient = EuclideanVector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
             gradient dot unitNormal
-          case _ =>
-            throw new IllegalStateException(
-              s"The feature extractor cannot handle preprocessed images of type ${image.valueType}"
-            )
         }
       } else {
         // fail-fast: immediately return, since the entire feature is "useless"

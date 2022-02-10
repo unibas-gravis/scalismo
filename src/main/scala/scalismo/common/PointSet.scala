@@ -33,6 +33,17 @@ trait PointSet[D] extends Equals {
 
   def points: Iterator[Point[D]]
 
+  /**
+   * *
+   * Returns the domain points in n chunks. Each chunk of the points is given as an iterator
+   *
+   * The main idea behind this method is to be able to easily parallelize on the domain points, as parallel operations
+   * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would parallelize on the
+   * Seq of iterators instead.
+   *
+   */
+  def pointsInChunks(nChunks: Int): Seq[Iterator[Point[D]]]
+
   def pointIds: Iterator[PointId] = Iterator.range(0, numberOfPoints).map(id => PointId(id))
 
   def isDefinedAt(pt: Point[D]): Boolean
@@ -63,12 +74,12 @@ trait PointSet[D] extends Equals {
 
   override def equals(that: Any) = {
     that match {
-      case d: PointSet[D] => d.canEqual(this) && points.toSeq == d.points.toSeq
-      case _              => false
+      case d: PointSet[D @unchecked] => d.canEqual(this) && points.toSeq == d.points.toSeq
+      case _                         => false
     }
   }
 
-  override def canEqual(that: Any) = that.isInstanceOf[PointSet[D]]
+  override def canEqual(that: Any) = that.isInstanceOf[PointSet[D @unchecked]]
 
   override def hashCode() = points.toSeq.hashCode()
 

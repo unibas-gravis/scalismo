@@ -2,14 +2,14 @@ package scalismo.io
 
 import java.io._
 import java.util.Calendar
+import breeze.linalg.{DenseMatrix, DenseVector}
 
-import breeze.linalg.{*, DenseMatrix, DenseVector}
 import ncsa.hdf.`object`.Group
-import scalismo.common.{DiscreteDomain, DomainWarp, Vectorizer}
+import scalismo.common.{DiscreteDomain, DomainWarp, Scalar, Vectorizer}
 import scalismo.geometry._
 import scalismo.image.{CreateStructuredPoints, DiscreteImageDomain, StructuredPoints}
 import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
-import scalismo.mesh.TriangleMesh
+import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel}
 
 import scala.util.{Failure, Success, Try}
@@ -147,7 +147,7 @@ object StatismoIO {
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
       group <- h5file.createGroup(s"$modelPath/representer")
       _ <- for {
-        _ <- writeRepresenterStatismov090(h5file, group, model, modelPath)
+        _ <- writeRepresenterStatismov090(h5file, group, model.reference, modelPath)
         _ <- h5file.writeInt("/version/majorVersion", 0)
         _ <- h5file.writeInt("/version/minorVersion", 9)
       } yield Success(())
@@ -166,25 +166,25 @@ object StatismoIO {
 
   private def writeCells(h5file: HDF5File, modelPath: String, cells: NDArray[Int]): Try[Unit] = {
     if (cells.data.length > 0) {
-      Try(h5file.writeNDArray[Int](s"$modelPath/representer/cells", cells))
+      h5file.writeNDArray[Int](s"$modelPath/representer/cells", cells)
     } else Success(())
   }
 
   private def writeRepresenterStatismov090[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
     h5file: HDF5File,
     group: Group,
-    model: PointDistributionModel[D, DDomain],
+    domain: DDomain[D],
     modelPath: String
   )(implicit typeHelper: StatismoDomainIO[D, DDomain]): Try[Unit] = {
 
-    val cells = typeHelper.cellsToArray(model.reference)
+    val cells = typeHelper.cellsToArray(domain)
     val dim: Int = NDSpace[D].dimensionality
 
     val dv: Array[Float] =
-      (0 until dim).flatMap(i => model.reference.pointSet.points.toIndexedSeq.map(p => p(i))).toArray.map(_.toFloat)
+      (0 until dim).flatMap(i => domain.pointSet.points.toIndexedSeq.map(p => p(i))).toArray.map(_.toFloat)
 
     val points: NDArray[Float] = NDArray(
-      IndexedSeq(dim, model.reference.pointSet.numberOfPoints),
+      IndexedSeq(dim, domain.pointSet.numberOfPoints),
       dv
     )
 
@@ -195,7 +195,7 @@ object StatismoIO {
       _ <- h5file.writeStringAttribute(group.getFullName, "datasetType", typeHelper.datasetType)
       _ <- h5file.writeNDArray[Float](s"$modelPath/representer/points", points)
       _ <- writeCells(h5file, modelPath, cells)
-    } yield Success(())
+    } yield ()
   }
 
   private def ndFloatArrayToDoubleMatrix(array: NDArray[Float])(implicit
@@ -258,7 +258,10 @@ object StatismoIO {
     val dim: Int = vectorizer.dim
     for {
       pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
-      points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+
+      points <- Try(
+        for (i <- 0 until pointsMatrix.cols) yield vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
+      )
       domain <- typeHelper.createDomainWithCells(points, None)
     } yield domain
   }
@@ -267,10 +270,12 @@ object StatismoIO {
     h5file: HDF5File,
     modelPath: String
   )(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
-    val dim: Int = vectorizer.dim
+    val dim: Int = NDSpace[D].dimensionality
     for {
       pointsMatrix <- readStandardPointsFromRepresenterGroup(h5file, modelPath, dim)
-      points <- Try(pointsMatrix(::, *).map(dv => vectorizer.unvectorize(dv.copy).toPoint).t.data.toIndexedSeq)
+      points <- Try(
+        for (i <- 0 until pointsMatrix.cols) yield vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
+      )
       cells <- readStandardConnectiveityRepresenterGroup(h5file, modelPath)
       domain <- typeHelper.createDomainWithCells(points, Option(cells))
     } yield domain
@@ -318,14 +323,17 @@ object StatismoIO {
     // i.e. pcaBasis = U * sqrt(lambda), where U is a matrix of eigenvectors and lambda the corresponding eigenvalues.
     // We recover U from it.
 
-    val lambdaSqrt = pcaVarianceVector.map(l => math.sqrt(l))
-    val lambdaSqrtInv = lambdaSqrt.map(l => if (l > 1e-8) 1.0f / l else 0f)
+    val lambdaSqrt: DenseVector[Double] = pcaVarianceVector.map(l => math.sqrt(l))
+    val lambdaSqrtInv: DenseVector[Double] = lambdaSqrt.map(l => if (l > 1e-8) 1.0 / l else 0.0)
 
     // The following code is an efficient way to compute: pcaBasisMatrix * breeze.linalg.diag(lambdaSqrtInv)
     // (diag returns densematrix, so the direct computation would be very slow)
     val U = DenseMatrix.zeros[Double](pcaBasisMatrix.rows, pcaBasisMatrix.cols)
     for (i <- 0 until pcaBasisMatrix.cols) {
-      U(::, i) := pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+      // The compiler (scala 3) needs some help here with implicits. We therefore
+      // compute it in 2 steps and have explicit type annotations.
+      val ULi: DenseVector[Double] = pcaBasisMatrix(::, i) * lambdaSqrtInv(i)
+      U(::, i) := ULi
     }
     U
   }
@@ -361,7 +369,7 @@ object StatismoIO {
       _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray(
         s"$modelPath/model/pcaBasis",
-        NDArray(Array(pcaBasis.rows.toLong, pcaBasis.cols.toLong), pcaBasis.t.flatten(false).toArray)
+        NDArray(IndexedSeq(pcaBasis.rows.toLong, pcaBasis.cols.toLong), pcaBasis.t.flatten(false).toArray)
       )
       _ <- h5file.writeArray(s"$modelPath/model/pcaVariance", variance.toArray)
       _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
@@ -426,7 +434,7 @@ object StatismoIO {
       _ <- h5file.writeInt(s"$modelPath/representer/pointData/pixelDimension", pointSet.dimensionality)
       _ <- h5file.writeIntAttribute(s"$modelPath/representer/pointData/pixelValues", "datatype", 10)
 
-    } yield Success(())
+    } yield ()
   }
 
   /**
@@ -555,6 +563,74 @@ object StatismoIO {
     // the data in ndarray is stored row-major, but DenseMatrix stores it column major. We therefore
     // do switch dimensions and transpose
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data).t
+  }
+
+  def readIntensityModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar](
+    file: File,
+    modelPath: String = "/"
+  )(implicit domainIO: StatismoDomainIO[D, DDomain],
+    euclidVecVectorizer: Vectorizer[EuclideanVector[D]],
+    scalarVectorizer: Vectorizer[S]): Try[DiscreteLowRankGaussianProcess[D, DDomain, S]] = {
+
+    val modelOrFailure = for {
+      h5file <- HDF5Utils.openFileForReading(file)
+      domain <- readStandardMeshRepresentation(h5file, modelPath)
+      meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
+      meanVector = DenseVector(meanArray.data.map(_.toDouble))
+      pcaBasisArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaBasis")
+      pcaVarianceArray <- h5file.readNDArray[Float](s"$modelPath/model/pcaVariance")
+      pcaVarianceVector = DenseVector(pcaVarianceArray.data.map(_.toDouble))
+      pcaBasisMatrix = ndFloatArrayToDoubleMatrix(pcaBasisArray)
+      _ <- Try {
+        h5file.close()
+      }
+    } yield {
+
+      val dgp = new DiscreteLowRankGaussianProcess[D, DDomain, S](
+        domain,
+        meanVector,
+        pcaVarianceVector,
+        pcaBasisMatrix
+      )
+
+      dgp
+    }
+
+    modelOrFailure
+  }
+
+  def writeIntensityModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D], S: Scalar](
+    gp: DiscreteLowRankGaussianProcess[D, DDomain, S],
+    file: File,
+    modelPath: String = "/"
+  )(implicit domainIO: StatismoDomainIO[D, DDomain]): Try[Unit] = {
+    val meanVector = gp.meanVector.toArray
+    val variance = gp.variance
+    val pcaBasis = gp.basisMatrix.copy
+
+    val maybeError = for {
+      h5file <- HDF5Utils.createFile(file = file)
+      group <- h5file.createGroup(s"$modelPath/representer")
+      _ <- writeRepresenterStatismov090(h5file, group, gp.domain, modelPath)
+      _ <- h5file.writeArray[Float](s"$modelPath/model/mean", meanVector.map(_.toFloat))
+      _ <- h5file.writeArray[Float](s"$modelPath/model/noiseVariance", Array(0f))
+      _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis",
+                                      NDArray(Array(pcaBasis.rows, pcaBasis.cols).map(_.toLong).toIndexedSeq,
+                                              pcaBasis.t.flatten(false).toArray.map(_.toFloat)))
+      _ <- h5file.writeArray[Float](s"$modelPath/model/pcaVariance", variance.toArray.map(_.toFloat))
+      _ <- h5file.writeString(s"$modelPath/modelinfo/build-time", Calendar.getInstance.getTime.toString)
+      _ <- h5file.writeInt("/version/majorVersion", 0)
+      _ <- h5file.writeInt("/version/minorVersion", 9)
+      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/buildTime", Calendar.getInstance.getTime.toString)
+      _ <- h5file.writeString(s"$modelPath/modelinfo/modelBuilder-0/builderName", "scalismo")
+      _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/parameters")
+      _ <- h5file.createGroup(s"$modelPath/modelinfo/modelBuilder-0/dataInfo")
+      _ <- Try {
+        h5file.close()
+      }
+    } yield ()
+
+    maybeError
   }
 
 }

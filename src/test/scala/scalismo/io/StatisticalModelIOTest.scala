@@ -17,17 +17,17 @@ package scalismo.io
 
 import java.io.File
 import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
-import scalismo.common.NearestNeighborInterpolator
+import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
-import scalismo.kernels.{DiagonalKernel, GaussianKernel}
+import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.utils.Random
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 
-  implicit val rng = scalismo.utils.Random(42L)
+  implicit val rng: Random = scalismo.utils.Random(42L)
 
   describe("a Statismo Mesh Model") {
 
@@ -143,6 +143,38 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       (discreteGP.domain.origin - discreteGPReread.domain.origin).norm should be < 1e-5
       (discreteGP.domain.spacing - discreteGPReread.domain.spacing).norm should be < 1e-5
       discreteGP.domain.size should equal(discreteGPReread.domain.size)
+
+      // also here, due to conversion in float, smaller errors are expected
+      breeze.linalg.norm(discreteGP.meanVector - discreteGPReread.meanVector) should be < 1e-2
+      breeze.linalg.sum(discreteGP.basisMatrix - discreteGPReread.basisMatrix) should be < 1e-2
+      breeze.linalg.norm(discreteGP.variance - discreteGPReread.variance) should be < 1e-2
+
+    }
+
+  }
+
+  describe("a volume intensity model") {
+    it("can be created, saved and reread in 3D") {
+      val gp = GaussianProcess[_3D, Float](DiagonalKernel(GaussianKernel3D(10.0), 1))
+      val domain = MeshIOTests.createRandomTetrahedralMesh()
+
+      val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
+
+      val tmpFile = java.io.File.createTempFile("volumeIntensityModel", ".h5")
+      tmpFile.deleteOnExit()
+      val discreteGP = lowrankGp.discretize(domain)
+      StatisticalModelIO.writeVolumeMeshIntensityModel3D(discreteGP, tmpFile).get
+
+      val discreteGPReread = StatisticalModelIO.readVolumeMeshIntensityModel3D(tmpFile).get
+
+      discreteGPReread.domain.pointSet.numberOfPoints should equal(discreteGP.domain.pointSet.numberOfPoints)
+      discreteGPReread.domain.pointSet.points
+        .zip(discreteGP.domain.pointSet.points)
+        .foreach {
+          case (p1, p2) =>
+            (p1 - p2).norm should be < 0.1
+        }
+      discreteGPReread.domain.cells.toSeq should equal(discreteGP.domain.cells.toSeq)
 
       // also here, due to conversion in float, smaller errors are expected
       breeze.linalg.norm(discreteGP.meanVector - discreteGPReread.meanVector) should be < 1e-2

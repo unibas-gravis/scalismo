@@ -21,7 +21,7 @@ import scalismo.common.interpolation.{DifferentiableFieldInterpolator, FieldInte
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, IntVector, NDSpace, Point}
 import scalismo.image.DiscreteImageDomain
 import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 
 import scala.language.higherKinds
 import scala.reflect.ClassTag
@@ -41,9 +41,11 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
   }
   override def isDefinedAt(ptId: PointId) = data.isDefinedAt(ptId.id)
 
-  def valuesWithIds = values zip pointSet.pointIds
-  def pointsWithValues = pointSet.points zip values
-  def pointsWithIds = pointSet.points.zipWithIndex
+  def valuesWithIds: Iterator[(A, PointId)] = values zip pointSet.pointIds
+  def pointsWithValues: Iterator[(Point[D], A)] = pointSet.points zip values
+  def pointsWithIds: Iterator[(Point[D], PointId)] = pointSet.points.zipWithIndex.map {
+    case (pt, id) => (pt, PointId(id))
+  }
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
 
@@ -81,7 +83,7 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
   override def equals(other: Any): Boolean =
     other match {
 
-      case that: DiscreteField[D, DDomain, A] =>
+      case that: DiscreteField[D @unchecked, DDomain @unchecked, A @unchecked] =>
         (that canEqual this) &&
           domain == that.domain &&
           data == that.data
@@ -90,7 +92,7 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
     }
 
   def canEqual(other: Any): Boolean =
-    other.isInstanceOf[DiscreteField[D, DDomain, A]]
+    other.isInstanceOf[DiscreteField[D @unchecked, DDomain @unchecked, A @unchecked]]
 
 }
 

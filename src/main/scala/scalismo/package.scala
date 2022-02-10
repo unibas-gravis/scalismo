@@ -46,13 +46,13 @@ package object scalismo {
   private def setupVTKGCThread(gcInterval: Long): Unit = {
 
     val runGC = new Runnable() {
-      override def run() {
+      override def run(): Unit = {
         vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
       }
     }
 
     val gcThread = new Thread {
-      override def run() {
+      override def run(): Unit = {
         while (true) {
           Thread.sleep(gcInterval)
 

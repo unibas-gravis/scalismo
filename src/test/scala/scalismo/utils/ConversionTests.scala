@@ -44,7 +44,7 @@ class ConversionTests extends ScalismoTestSuite {
     it("can be converted to and from vtk") {
       val path = getClass.getResource("/lena.vtk").getPath
       val origimg = ImageIO.read2DScalarImage[Short](new java.io.File(URLDecoder.decode(path, "UTF-8"))).get
-      val vtksp = ImageConversion.imageToVtkStructuredPoints(origimg)
+      val vtksp = ImageConversion.imageToVtkStructuredPoints(origimg, ImageConversion.VtkCubicInterpolation)
       val restoredImg = ImageConversion.vtkStructuredPointsToScalarImage[_2D, Short](vtksp).get
 
       origimg should equal(restoredImg)

@@ -44,7 +44,7 @@ object ModelMetrics {
     ParVector
       .range(0, nbSamples)
       .map { _ =>
-        val sample = pcaModel.sample
+        val sample = pcaModel.sample()
         data.map { m =>
           MeshMetrics.avgDistance(m, sample)
         }.min

@@ -1,18 +1,15 @@
 package scalismo.statisticalmodel.dataset
 
 import scalismo.common.interpolation.FieldInterpolator
-import scalismo.common.{
-  DiscreteDomain,
-  DiscreteField,
-  Field,
-  NearestNeighborInterpolator,
-  Scalar,
-  UnstructuredPointsDomain
-}
+import scalismo.common.{DiscreteDomain, DiscreteField, Field, Scalar, UnstructuredPointsDomain}
+import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
+import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
+import scalismo.common.{DiscreteDomain, DiscreteField, Field, Scalar, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3D}
 import scalismo.mesh.{LineMesh, MeshMetrics, TetrahedralMesh, TriangleMesh}
-import scalismo.registration.{LandmarkRegistration, Transformation}
-import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
+import scalismo.registration.LandmarkRegistration
+import scalismo.transformations.Transformation
+import scalismo.statisticalmodel.dataset.DataCollection.{TriangleMeshDataCollection}
 import scalismo.utils.Random
 
 import scala.annotation.tailrec
@@ -72,9 +69,9 @@ case class DataCollection[D, DDomain[D] <: DiscreteDomain[D], Value](dataItems: 
 
 object DataCollection {
 
-  type TriangleMeshDataCollection = DataCollection[_3D, TriangleMesh, EuclideanVector[_3D]]
-  type TetrahedralMeshDataCollection = DataCollection[_3D, TetrahedralMesh, EuclideanVector[_3D]]
-  type ScalarVolumeMeshFieldDataCollection[A] = DataCollection[_3D, TetrahedralMesh, A]
+  type TriangleMeshDataCollection[D] = DataCollection[D, TriangleMesh, EuclideanVector[D]]
+  type TetrahedralMeshDataCollection[D] = DataCollection[D, TetrahedralMesh, EuclideanVector[_3D]]
+  type ScalarVolumeMeshField3DDataCollection[D, A] = DataCollection[D, TetrahedralMesh, A]
   type LineMeshDataCollection[D] = DataCollection[D, LineMesh, EuclideanVector[D]]
   type UnstructuredPointsDomainCollection[D] = DataCollection[D, UnstructuredPointsDomain, EuclideanVector[D]]
 
@@ -85,10 +82,10 @@ object DataCollection {
    *
    * The reference mesh is unchanged, only the transformations in the collection are adapted
    */
-  def gpa(dc: TriangleMeshDataCollection, maxIteration: Int = 3, haltDistance: Double = 1e-5)(
+  def gpa(dc: TriangleMeshDataCollection[_3D], maxIteration: Int = 3, haltDistance: Double = 1e-5)(
     implicit
     rng: Random
-  ): TriangleMeshDataCollection = {
+  ): TriangleMeshDataCollection[_3D] = {
 
     TriangleMeshDataCollection.gpa(dc, maxIteration, haltDistance)
   }
@@ -105,8 +102,8 @@ object DataCollection {
     DiscreteField(reference, vecs.toIndexedSeq)
   }
 
-  def fromTriangleMeshSequence(reference: TriangleMesh[_3D],
-                               meshes: Seq[TriangleMesh[_3D]]): TriangleMeshDataCollection = {
+  def fromTriangleMesh3DSequence(reference: TriangleMesh[_3D],
+                                 meshes: Seq[TriangleMesh[_3D]]): TriangleMeshDataCollection[_3D] = {
 
     val dfs = for (mesh <- meshes) yield {
       differenceFieldToReference[_3D, TriangleMesh](reference, mesh)
@@ -114,8 +111,8 @@ object DataCollection {
     new DataCollection(dfs)
   }
 
-  def fromTetrahedralMeshSequence(reference: TetrahedralMesh[_3D],
-                                  meshes: Seq[TetrahedralMesh[_3D]]): TetrahedralMeshDataCollection = {
+  def fromTetrahedralMesh3DSequence(reference: TetrahedralMesh[_3D],
+                                    meshes: Seq[TetrahedralMesh[_3D]]): TetrahedralMeshDataCollection[_3D] = {
 
     val dfs = for (mesh <- meshes) yield {
       differenceFieldToReference[_3D, TetrahedralMesh](reference, mesh)
@@ -123,9 +120,9 @@ object DataCollection {
     new DataCollection(dfs)
   }
 
-  def fromScalarVolumeMeshSequence[A: Scalar](
+  def fromScalarVolumeMesh3DSequence[A: Scalar](
     scalarVolumeMeshFields: Seq[DiscreteField[_3D, TetrahedralMesh, A]]
-  ): ScalarVolumeMeshFieldDataCollection[A] = {
+  ): ScalarVolumeMeshField3DDataCollection[_3D, A] = {
     new DataCollection[_3D, TetrahedralMesh, A](scalarVolumeMeshFields)
   }
 
@@ -151,9 +148,9 @@ object DataCollection {
 object TriangleMeshDataCollection {
 
   /**
-   * Returns the mean transformation from all the transformation in the datacollection
+   * Returns the mean transformation from all the transformations in the datacollection
    */
-  private def meanTransformation(dc: TriangleMeshDataCollection): Transformation[_3D] = {
+  private def meanTransformation(dc: TriangleMeshDataCollection[_3D]): Transformation[_3D] = {
     val fields = dc.fields(NearestNeighborInterpolator())
 
     Transformation { (pt: Point[_3D]) =>
@@ -169,22 +166,22 @@ object TriangleMeshDataCollection {
     }
   }
 
-  private def meanSurfaceFromDataCollection(dc: TriangleMeshDataCollection): TriangleMesh[_3D] = {
+  private def meanSurfaceFromDataCollection(dc: TriangleMeshDataCollection[_3D]): TriangleMesh[_3D] = {
     dc.reference.transform(meanTransformation(dc))
   }
 
-  def gpa(dc: TriangleMeshDataCollection, maxIteration: Int = 5, haltDistance: Double = 1e-5)(
+  def gpa(dc: TriangleMeshDataCollection[_3D], maxIteration: Int = 5, haltDistance: Double = 1e-5)(
     implicit
     rng: Random
-  ): TriangleMeshDataCollection = {
+  ): TriangleMeshDataCollection[_3D] = {
     gpaComputation(dc, meanSurfaceFromDataCollection(dc), maxIteration, haltDistance)
   }
 
   @tailrec
-  private def gpaComputation(dc: TriangleMeshDataCollection,
+  private def gpaComputation(dc: TriangleMeshDataCollection[_3D],
                              meanShape: TriangleMesh[_3D],
                              maxIteration: Int,
-                             haltDistance: Double)(implicit rng: Random): TriangleMeshDataCollection = {
+                             haltDistance: Double)(implicit rng: Random): TriangleMeshDataCollection[_3D] = {
 
     if (maxIteration == 0) return dc
 
@@ -197,13 +194,13 @@ object TriangleMeshDataCollection {
 
     val fields = dc.fields(NearestNeighborInterpolator())
 
-    // align all shape to it and create a transformation from the mean to the aligned shape
+    // align all shape to it and create a transformations from the mean to the aligned shape
     val newDiscreteFields = new ParVector(fields.toVector).map { field =>
       val surface = dc.reference.transform(p => p + field(p))
       val transform =
         LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints),
                                                          referenceCenterOfMass)
-      val newVecs = dc.reference.pointSet.points.toIndexedSeq.map(p => transform(p) - p)
+      val newVecs = dc.reference.pointSet.points.toIndexedSeq.map(p => transform(p + field(p)) - p)
       new DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]](dc.reference, newVecs)
     }
 

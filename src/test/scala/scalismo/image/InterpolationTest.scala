@@ -161,7 +161,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
       it("Interpolates the values for origin (2,3,0) and spacing (1.5, 1.3, 2)") {
         val domain = DiscreteImageDomain3D((2.0, 3.0, 0.0), (1.5, 1.3, 2.0), (2, 3, 2))
         val discreteImage =
-          DiscreteImage[_3D, Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
+          DiscreteImage[_3D, Float](domain, IndexedSeq(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
         val continuousImg = discreteImage.interpolate(BSplineImageInterpolator3D[Float](0))
 
@@ -175,7 +175,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
       it("Interpolates the values for origin (2,3,0) and spacing (1.5, 1.3, 2)") {
         val domain = DiscreteImageDomain3D((2.0, 3.0, 0.0), (1.5, 1.3, 2.0), (2, 3, 2))
         val discreteImage =
-          DiscreteImage[_3D, Float](domain, Array(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
+          DiscreteImage[_3D, Float](domain, IndexedSeq(1.4f, 2.1f, 7.5f, 9f, 8f, 0f, 1.4f, 2.1f, 7.5f, 9f, 8f, 0f))
 
         val continuousImg = discreteImage.interpolate(BSplineImageInterpolator3D[Float](1))
 
@@ -189,7 +189,7 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
       it("Interpolates the values for origin (2,3,0) and spacing (1.5, 1.3, 2)") {
         val domain = DiscreteImageDomain3D((2.0, 3.0, 0.0), (1.5, 1.3, 2.0), (10, 10, 10))
         val discreteImage =
-          DiscreteImage[_3D, Float](domain, domain.pointSet.points.map(x => x(0).toFloat).toArray)
+          DiscreteImage[_3D, Float](domain, domain.pointSet.points.map(x => x(0).toFloat).toIndexedSeq)
 
         val continuousImg = discreteImage.interpolate(BSplineImageInterpolator3D[Float](3))
 

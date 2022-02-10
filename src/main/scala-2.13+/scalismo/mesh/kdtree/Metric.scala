@@ -39,7 +39,7 @@ private[scalismo] trait Metric[A, R] {
 }
 
 private[scalismo] object Metric {
-  implicit def metricFromTuple2[A](implicit n: Numeric[A]) = new Metric[(A, A), A] {
+  implicit def metricFromTuple2[A](implicit n: Numeric[A]): Metric[(A, A), A] = new Metric[(A, A), A] {
     def distance(x: (A, A), y: (A, A)): A = {
       val dx = (x._1 - y._1)
       val dy = (x._2 - y._2)
@@ -52,7 +52,7 @@ private[scalismo] object Metric {
     }
   }
 
-  implicit def metricFromTuple3[A](implicit n: Numeric[A]) = new Metric[(A, A, A), A] {
+  implicit def metricFromTuple3[A](implicit n: Numeric[A]): Metric[(A, A, A), A] = new Metric[(A, A, A), A] {
     def distance(x: (A, A, A), y: (A, A, A)): A = {
       val dx = (x._1 - y._1)
       val dy = (x._2 - y._2)
@@ -66,7 +66,7 @@ private[scalismo] object Metric {
     }
   }
 
-  implicit def metricFromCoordVectorD[D: NDSpace] = new Metric[Point[D], Double] {
+  implicit def metricFromCoordVectorD[D: NDSpace]: Metric[Point[D], Double] = new Metric[Point[D], Double] {
     val dim = implicitly[NDSpace[D]].dimensionality
     def distance(x: Point[D], y: Point[D]): Double = {
       var i = 0

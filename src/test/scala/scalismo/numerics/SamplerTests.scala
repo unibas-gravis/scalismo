@@ -97,7 +97,7 @@ class SamplerTests extends ScalismoTestSuite {
         }
 
         val sampler = UniformMeshSampler3D(facemesh, numSamplingPoints)
-        val (samplePoints, _) = sampler.sample.unzip
+        val (samplePoints, _) = sampler.sample().unzip
         //        println(s"total number of points: ${facemesh.numberOfPoints}")
 
         def randomArea(mesh: TriangleMesh[_3D], targetRatio: Double): (IndexedSeq[Int], Double) = {
@@ -148,8 +148,8 @@ class SamplerTests extends ScalismoTestSuite {
     }
     it("yields different points when called multiple times") {
       val sampler = UniformMeshSampler3D(facemesh, 200)
-      val pts1 = sampler.sample.map(_._1)
-      val pts2 = sampler.sample.map(_._1)
+      val pts1 = sampler.sample().map(_._1)
+      val pts2 = sampler.sample().map(_._1)
       assert((pts1 diff pts2).nonEmpty)
     }
   }
@@ -157,8 +157,8 @@ class SamplerTests extends ScalismoTestSuite {
   describe("A fixed point uniform mesh sampler") {
     it("yields the same points when called multiple times") {
       val sampler = FixedPointsUniformMeshSampler3D(facemesh, 200)
-      val pts1 = sampler.sample.map(_._1)
-      val pts2 = sampler.sample.map(_._1)
+      val pts1 = sampler.sample().map(_._1)
+      val pts2 = sampler.sample().map(_._1)
       assert((pts1 diff pts2).isEmpty)
     }
   }

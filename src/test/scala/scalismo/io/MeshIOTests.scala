@@ -17,16 +17,15 @@ package scalismo.io
 
 import java.io.File
 import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{DiscreteField, PointId, Scalar, ScalarArray, ScalarMeshField, UnstructuredPoints}
 import scalismo.geometry.{_3D, Point}
+import scalismo.io.MeshIOTests.{createRandomScalarVolumeMeshField, createRandomTetrahedralMesh}
 import scalismo.mesh._
 import scalismo.utils.Random
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.TypeTag
 import scala.util.{Failure, Success, Try}
 import scala.language.implicitConversions
 
@@ -167,7 +166,7 @@ class MeshIOTests extends ScalismoTestSuite {
       val meshData: ScalarMeshField[Int] = ScalarMeshField(mesh, ScalarArray(mesh.pointSet.pointIds.map(_.id).toArray))
     }
 
-    def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarMeshField[S]] = {
+    def sameWriteRead[S: Scalar: ClassTag](): Try[ScalarMeshField[S]] = {
       val f = Fixture
       val tmpFile = File.createTempFile("scalarMesh", ".vtk")
 
@@ -219,7 +218,7 @@ class MeshIOTests extends ScalismoTestSuite {
       val mesh = meshData.domain
     }
 
-    def sameWriteRead[S: Scalar: TypeTag: ClassTag](): Try[ScalarVolumeMeshField[S]] = {
+    def sameWriteRead[S: Scalar: ClassTag](): Try[ScalarVolumeMeshField[S]] = {
       val f = Fixture
       val tmpFile = File.createTempFile("scalarVolumeMeshField", ".vtk")
 
@@ -263,6 +262,9 @@ class MeshIOTests extends ScalismoTestSuite {
 
   }
 
+}
+
+object MeshIOTests {
   def createRandomTetrahedralMesh(): TetrahedralMesh3D = {
     // points around unit cube
 
@@ -270,8 +272,8 @@ class MeshIOTests extends ScalismoTestSuite {
     val N = 200
     val points = IndexedSeq.fill(N)(
       Point(rng.scalaRandom.nextGaussian() * 2,
-            rng.scalaRandom.nextGaussian() * 1000,
-            rng.scalaRandom.nextGaussian() * 1000000)
+            rng.scalaRandom.nextGaussian() * 100,
+            rng.scalaRandom.nextGaussian() * 1000)
     )
     val domain = UnstructuredPoints(points)
 

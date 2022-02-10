@@ -50,7 +50,8 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
   override val dim = mean.size
 
   private lazy val covInv = breeze.linalg.pinv(cov.map(_.toDouble))
-  private lazy val covDet = det(cov.map(_.toDouble))
+  private lazy val logCovDet = 2 * (0 until root.rows).map(i => math.log(root(i, i))).sum
+  private lazy val covDet = math.exp(logCovDet)
 
   // The root of the covariance matrix is precomputed for efficient sampling.
   // The cholesky sometimes fails for ill conditioned matrices. We increase
@@ -87,11 +88,11 @@ case class MultivariateNormalDistribution(mean: DenseVector[Double], cov: DenseM
 
   override def logpdf(x: DenseVector[Double]) = {
     if (x.size != dim) throw new Exception(s"invalid vector dimensionality (provided ${x.size} should be $dim)")
-    val normFactor = math.pow(2.0 * math.Pi, -dim / 2.0) * 1.0 / math.sqrt(covDet + 1e-10)
+    val logNormFactor = -0.5 * (dim * math.log(2.0 * math.Pi) + logCovDet)
 
     val x0 = (x - mean).map(_.toDouble)
     val exponent = -0.5f * x0.dot(covInv * x0)
-    math.log(normFactor) + exponent
+    logNormFactor + exponent
 
   }
 
@@ -235,7 +236,7 @@ case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], 
 
   override def dim: Int = implicitly[NDSpace[D]].dimensionality
 
-  override def sample()(implicit rand: Random): EuclideanVector[D] = EuclideanVector.fromBreezeVector(impl.sample)
+  override def sample()(implicit rand: Random): EuclideanVector[D] = EuclideanVector.fromBreezeVector(impl.sample())
 
   override def principalComponents: Seq[(EuclideanVector[D], Double)] = impl.principalComponents.map {
     case (v, d) => (EuclideanVector.fromBreezeVector(v), d)

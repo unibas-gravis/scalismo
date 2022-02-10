@@ -21,7 +21,7 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
 
   def generatePositiveOrientedSingleTetrahedronMesh(): TetrahedralMesh3D = {
     val points = {
-      val points = IndexedSeq.fill(4)(genPoint)
+      val points = IndexedSeq.fill(4)(genPoint())
       if (BoundingSphereHelpers.calculateSignedVolume(points(0).toVector,
                                                       points(1).toVector,
                                                       points(2).toVector,
@@ -115,14 +115,14 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
 
     it("should return the same coordinates in 2d as in 3d for flat triangles") {
       for (j <- 0 until 10) {
-        val a = genPoint.copy(z = 0.0)
-        val b = genPoint.copy(z = 0.0)
-        val c = genPoint.copy(z = 0.0)
+        val a = genPoint().copy(z = 0.0)
+        val b = genPoint().copy(z = 0.0)
+        val c = genPoint().copy(z = 0.0)
 
         def to2d(pt: Point[_3D]) = Point(pt.x, pt.y)
 
         for (i <- 0 until 20) {
-          val randomPoint = genPoint.copy(z = 0.0)
+          val randomPoint = genPoint().copy(z = 0.0)
           val bc3D = BarycentricCoordinates.pointInTriangle3D(randomPoint, a, b, c)
           val bc2D = BarycentricCoordinates.pointInTriangle(to2d(randomPoint), to2d(a), to2d(b), to2d(c))
 

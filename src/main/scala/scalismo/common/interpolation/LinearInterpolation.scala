@@ -48,11 +48,14 @@ object LinearImageInterpolator {
     interpolator: LinearImageInterpolator[D, A]
   ): LinearImageInterpolator[D, A] = interpolator
 
-  implicit def linearImageInterpolator1D[A: ValueInterpolator] = LinearImageInterpolator1D[A]()
+  implicit def linearImageInterpolator1D[A: ValueInterpolator]: LinearImageInterpolator1D[A] =
+    LinearImageInterpolator1D[A]()
 
-  implicit def linearImageInterpolator2D[A: ValueInterpolator] = LinearImageInterpolator2D[A]()
+  implicit def linearImageInterpolator2D[A: ValueInterpolator]: LinearImageInterpolator2D[A] =
+    LinearImageInterpolator2D[A]()
 
-  implicit def linearImageInterpolator3D[A: ValueInterpolator] = LinearImageInterpolator3D[A]()
+  implicit def linearImageInterpolator3D[A: ValueInterpolator]: LinearImageInterpolator3D[A] =
+    LinearImageInterpolator3D[A]()
 }
 
 case class LinearImageInterpolator1D[A: ValueInterpolator]() extends LinearImageInterpolator[_1D, A] {

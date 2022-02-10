@@ -23,7 +23,7 @@ import scala.collection.immutable.IndexedSeq
 class VantagePointTreeTests extends ScalismoTestSuite {
 
   // seeded random generator
-  implicit val rnd = Random(42)
+  implicit val rnd: Random = Random(42)
 
   def randomPoint()(implicit rnd: Random): Point[_3D] =
     Point(rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble(), rnd.scalaRandom.nextDouble())
@@ -32,8 +32,8 @@ class VantagePointTreeTests extends ScalismoTestSuite {
   val n = 50
   val nQuery = 10
   val points = {
-    var s = IndexedSeq.fill(n)(randomPoint)
-    while (s.distinct.length < s.length) s = IndexedSeq.fill(n)(randomPoint)
+    var s = IndexedSeq.fill(n)(randomPoint())
+    while (s.distinct.length < s.length) s = IndexedSeq.fill(n)(randomPoint())
     s
   }
   val metric = Metric[Point[_3D]]((p, q) => (p - q).norm)
@@ -75,7 +75,7 @@ class VantagePointTreeTests extends ScalismoTestSuite {
     }
 
     it("finds the correct closest points using a few random points as query") {
-      val rpoints = IndexedSeq.fill(nQuery)(randomPoint)
+      val rpoints = IndexedSeq.fill(nQuery)(randomPoint())
       val vpClosest = rpoints.map(p => t.findClosestPoint(p))
       // find closest points in list, linear, known result, as reference
       val listClosest = rpoints.map(p => points.minBy(metric(_, p)))
@@ -84,7 +84,7 @@ class VantagePointTreeTests extends ScalismoTestSuite {
 
     it("finds the k nearest neighbours to random points") {
       val k = 6
-      val rpoints = IndexedSeq.fill(nQuery)(randomPoint)
+      val rpoints = IndexedSeq.fill(nQuery)(randomPoint())
       val vpClosest = rpoints.map(p => t.findKNearestNeighbours(p, k))
       val listClosest = rpoints.map(p => points.sortBy(metric(_, p)).take(k))
       // for each query point we should find the same k neighbors
@@ -93,7 +93,7 @@ class VantagePointTreeTests extends ScalismoTestSuite {
 
     it("finds all neighbours within an epsilon region around random points") {
       val eps = 0.2
-      val rpoints = IndexedSeq.fill(nQuery)(randomPoint)
+      val rpoints = IndexedSeq.fill(nQuery)(randomPoint())
       val vpClosest = rpoints.map(p => t.findEpsilonNeighbours(p, eps))
       val listClosest =
         rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
@@ -123,7 +123,7 @@ class VantagePointTreeTests extends ScalismoTestSuite {
 
     it("finding 1 nearest neighbour is equivalent to findClosestPoint") {
       val k = 1
-      val rpoints = IndexedSeq.fill(nQuery)(randomPoint)
+      val rpoints = IndexedSeq.fill(nQuery)(randomPoint())
       val kClosest = rpoints.map(p => t.findKNearestNeighbours(p, k)).map(_.head)
       val closest = rpoints.map(p => t.findClosestPoint(p))
       kClosest should contain theSameElementsAs closest

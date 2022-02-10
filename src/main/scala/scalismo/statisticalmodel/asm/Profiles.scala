@@ -53,7 +53,7 @@ class DiscreteFeatureField[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](domain: 
 
   override def isDefinedAt(id: PointId) = id.id < domain.pointSet.numberOfPoints
 
-  override def values = _values.toIterator
+  override def values = _values.iterator
 
 }
 

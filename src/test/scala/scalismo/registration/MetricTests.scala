@@ -27,11 +27,12 @@ import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, StructuredPoints}
 import scalismo.io.ImageIO
 import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
+import scalismo.transformations.{TranslationSpace, TranslationSpace1D, TranslationSpace2D}
 import scalismo.utils.Random
 
 class MetricTests extends ScalismoTestSuite {
 
-  implicit val rng = Random(42L)
+  implicit val rng: Random = Random(42L)
 
   describe("A mean squares metric (1D)") {
     it("returns 0 if provided twice the same image") {
@@ -40,9 +41,9 @@ class MetricTests extends ScalismoTestSuite {
       val img = DifferentiableField(BoxDomain(0.0, 1.0),
                                     (x: Point[_1D]) => (x * x).toFloat,
                                     (x: Point[_1D]) => EuclideanVector(2.0) * x(0))
-      val transSpace = TranslationSpace[_1D]
+      val transSpace = TranslationSpace1D
       val sampler = UniformSampler(domain, 1000)
-      MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformParameters) should be(
+      MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformation.parameters) should be(
         0.0 +- 0.001
       )
     }
@@ -53,16 +54,16 @@ class MetricTests extends ScalismoTestSuite {
 
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
-    val translationSpace = TranslationSpace[_2D]
+    val translationSpace = TranslationSpace2D
     val sampler = GridSampler(DiscreteImageDomain2D(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
     it("has the global minimum where the images are similar") {
 
       val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
-      val zeroVec = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+      val zeroVec = DenseVector.zeros[Double](translationSpace.numberOfParameters)
 
       for (_ <- 0 until 10) {
-        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+        val params = DenseVector.rand(translationSpace.numberOfParameters, rng.breezeRandBasis.gaussian)
         metric.value(params) should be >= metric.value(zeroVec)
       }
     }
@@ -71,7 +72,7 @@ class MetricTests extends ScalismoTestSuite {
 
       val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, fixedImageCont, translationSpace, sampler)
       for (_ <- 0 until 10) {
-        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+        val params = DenseVector.rand(translationSpace.numberOfParameters, rng.breezeRandBasis.gaussian)
 
         val origValue = metric.value(params)
         val grad = metric.derivative(params)
@@ -82,12 +83,12 @@ class MetricTests extends ScalismoTestSuite {
 
     it("recovers the parameters in a registration") {
 
-      val trueParams = DenseVector.ones[Double](translationSpace.parametersDimensionality)
-      val movingImage = fixedImageCont.compose(translationSpace.transformForParameters(-trueParams))
+      val trueParams = DenseVector.ones[Double](translationSpace.numberOfParameters)
+      val movingImage = fixedImageCont.compose(translationSpace.transformationForParameters(-trueParams))
 
       val metric = MutualInformationMetric(fixedImageCont, fixedImage.domain, movingImage, translationSpace, sampler)
 
-      val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+      val initialParameters = DenseVector.zeros[Double](translationSpace.numberOfParameters)
       val regIt =
         Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
       val finalParams = regIt.toIndexedSeq.last.parameters
@@ -101,16 +102,16 @@ class MetricTests extends ScalismoTestSuite {
 
     val fixedImage = ImageIO.read2DScalarImage[Float](new File(URLDecoder.decode(testImgURL, "UTF-8"))).get
     val fixedImageCont = fixedImage.interpolateDifferentiable(BSplineImageInterpolator2D[Float](3))
-    val translationSpace = TranslationSpace[_2D]
+    val translationSpace = TranslationSpace2D
     val sampler = GridSampler(DiscreteImageDomain2D(fixedImage.domain.boundingBox, size = IntVector(50, 50)))
 
     it("has the global minimum where the images are similar") {
 
       val metric = MeanHuberLossMetric(fixedImageCont, fixedImageCont, translationSpace, sampler)
-      val zeroVec = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+      val zeroVec = DenseVector.zeros[Double](translationSpace.numberOfParameters)
 
       for (_ <- 0 until 10) {
-        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+        val params = DenseVector.rand(translationSpace.numberOfParameters, rng.breezeRandBasis.gaussian)
         metric.value(params) should be >= metric.value(zeroVec)
       }
     }
@@ -119,7 +120,7 @@ class MetricTests extends ScalismoTestSuite {
 
       val metric = MeanHuberLossMetric(fixedImageCont, fixedImageCont, translationSpace, sampler)
       for (_ <- 0 until 10) {
-        val params = DenseVector.rand(translationSpace.parametersDimensionality, rng.breezeRandBasis.gaussian)
+        val params = DenseVector.rand(translationSpace.numberOfParameters, rng.breezeRandBasis.gaussian)
 
         val origValue = metric.value(params)
         val grad = metric.derivative(params)
@@ -130,12 +131,12 @@ class MetricTests extends ScalismoTestSuite {
 
     it("recovers the parameters in a registration") {
 
-      val trueParams = DenseVector.ones[Double](translationSpace.parametersDimensionality) * 5.0
-      val movingImage = fixedImageCont.compose(translationSpace.transformForParameters(-trueParams))
+      val trueParams = DenseVector.ones[Double](translationSpace.numberOfParameters) * 5.0
+      val movingImage = fixedImageCont.compose(translationSpace.transformationForParameters(-trueParams))
 
       val metric = MeanHuberLossMetric(fixedImageCont, movingImage, translationSpace, sampler)
 
-      val initialParameters = DenseVector.zeros[Double](translationSpace.parametersDimensionality)
+      val initialParameters = DenseVector.zeros[Double](translationSpace.numberOfParameters)
       val regIt =
         Registration(metric, L2Regularizer(translationSpace), 0.0, LBFGSOptimizer(20)).iterator(initialParameters)
       val regSteps = regIt.toIndexedSeq

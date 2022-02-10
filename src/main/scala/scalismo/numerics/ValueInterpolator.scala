@@ -87,64 +87,64 @@ object ValueInterpolator {
 
   def apply[A](implicit ev: ValueInterpolator[A]): ValueInterpolator[A] = ev
 
-  implicit val floatInterpolator = new ValueInterpolator[Float] {
+  implicit val floatInterpolator: ValueInterpolator[Float] = new ValueInterpolator[Float] {
     override def blend(obj1: Float, obj2: Float, l: Double): Float = (obj1 * l + obj2 * (1.0 - l)).toFloat
   }
 
-  implicit val doubleInterpolator = new ValueInterpolator[Double] {
+  implicit val doubleInterpolator: ValueInterpolator[Double] = new ValueInterpolator[Double] {
     override def blend(obj1: Double, obj2: Double, l: Double): Double = obj1 * l + obj2 * (1.0 - l)
   }
 
-  implicit val byteInterpolator = new ValueInterpolator[Byte] {
+  implicit val byteInterpolator: ValueInterpolator[Byte] = new ValueInterpolator[Byte] {
     override def blend(obj1: Byte, obj2: Byte, l: Double): Byte = Math.round(obj1 * l + obj2 * (1.0 - l)).toByte
   }
 
-  implicit val uByteInterpolator = new ValueInterpolator[UByte] {
+  implicit val uByteInterpolator: ValueInterpolator[UByte] = new ValueInterpolator[UByte] {
     override def blend(obj1: UByte, obj2: UByte, l: Double): UByte =
       Scalar[UByte].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
   }
 
-  implicit val shortInterpolator = new ValueInterpolator[Short] {
+  implicit val shortInterpolator: ValueInterpolator[Short] = new ValueInterpolator[Short] {
     override def blend(obj1: Short, obj2: Short, l: Double): Short = Math.round(obj1 * l + obj2 * (1.0 - l)).toShort
   }
 
-  implicit val uShortInterpolator = new ValueInterpolator[UShort] {
+  implicit val uShortInterpolator: ValueInterpolator[UShort] = new ValueInterpolator[UShort] {
     override def blend(obj1: UShort, obj2: UShort, l: Double): UShort =
       Scalar[UShort].fromLong(Math.round(obj1.toInt * l + obj2.toInt * (1.0 - l)))
   }
 
-  implicit val intInterpolator = new ValueInterpolator[Int] {
+  implicit val intInterpolator: ValueInterpolator[Int] = new ValueInterpolator[Int] {
     override def blend(obj1: Int, obj2: Int, l: Double): Int = Math.round(obj1 * l + obj2 * (1.0 - l)).toInt
   }
 
-  implicit val uIntInterpolator = new ValueInterpolator[UInt] {
+  implicit val uIntInterpolator: ValueInterpolator[UInt] = new ValueInterpolator[UInt] {
     override def blend(obj1: UInt, obj2: UInt, l: Double): UInt =
       Scalar[UInt].fromLong(Math.round(obj1.toLong * l + obj2.toLong * (1.0 - l)))
   }
 
-  implicit val longInterpolator = new ValueInterpolator[Long] {
+  implicit val longInterpolator: ValueInterpolator[Long] = new ValueInterpolator[Long] {
     override def blend(obj1: Long, obj2: Long, l: Double): Long = Math.round(obj1 * l + obj2 * (1.0 - l))
   }
 
-  implicit def pointBlender[D] = new ValueInterpolator[Point[D]] {
+  implicit def pointBlender[D]: ValueInterpolator[Point[D]] = new ValueInterpolator[Point[D]] {
     override def blend(obj1: Point[D], obj2: Point[D], l: Double): Point[D] = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
-  implicit val pointBlender1D = new ValueInterpolator[Point1D] {
+  implicit val pointBlender1D: ValueInterpolator[Point1D] = new ValueInterpolator[Point1D] {
     override def blend(obj1: Point1D, obj2: Point1D, l: Double): Point1D = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
-  implicit val pointBlender2D = new ValueInterpolator[Point2D] {
+  implicit val pointBlender2D: ValueInterpolator[Point2D] = new ValueInterpolator[Point2D] {
     override def blend(obj1: Point2D, obj2: Point2D, l: Double): Point2D = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
-  implicit val pointBlender3D = new ValueInterpolator[Point3D] {
+  implicit val pointBlender3D: ValueInterpolator[Point3D] = new ValueInterpolator[Point3D] {
     override def blend(obj1: Point3D, obj2: Point3D, l: Double): Point3D = obj1 + (1.0 - l) *: (obj2 - obj1)
   }
 
   // ** VectorXD **
 
-  implicit val vectorBlender1D = new ValueInterpolator[EuclideanVector1D] {
+  implicit val vectorBlender1D: ValueInterpolator[EuclideanVector1D] = new ValueInterpolator[EuclideanVector1D] {
     override def blend(obj1: EuclideanVector1D, obj2: EuclideanVector1D, l: Double): EuclideanVector1D =
       EuclideanVector1D(obj1.x * l + obj2.x * (1.0 - l))
 
@@ -167,7 +167,7 @@ object ValueInterpolator {
     }
   }
 
-  implicit val vectorBlender2D = new ValueInterpolator[EuclideanVector2D] {
+  implicit val vectorBlender2D: ValueInterpolator[EuclideanVector2D] = new ValueInterpolator[EuclideanVector2D] {
     override def blend(obj1: EuclideanVector2D, obj2: EuclideanVector2D, l: Double): EuclideanVector2D =
       EuclideanVector2D(obj1.x * l + obj2.x * (1.0 - l), obj1.y * l + obj2.y * (1.0 - l))
 
@@ -192,7 +192,7 @@ object ValueInterpolator {
     }
   }
 
-  implicit val vectorBlender3D = new ValueInterpolator[EuclideanVector3D] {
+  implicit val vectorBlender3D: ValueInterpolator[EuclideanVector3D] = new ValueInterpolator[EuclideanVector3D] {
     override def blend(obj1: EuclideanVector3D, obj2: EuclideanVector3D, l: Double): EuclideanVector3D =
       EuclideanVector3D(obj1.x * l + obj2.x * (1.0 - l),
                         obj1.y * l + obj2.y * (1.0 - l),
@@ -225,7 +225,7 @@ object ValueInterpolator {
 
   // ** Vector[D] **
 
-  implicit val vectorBlender_1D = new ValueInterpolator[EuclideanVector[_1D]] {
+  implicit val vectorBlender_1D: ValueInterpolator[EuclideanVector[_1D]] = new ValueInterpolator[EuclideanVector[_1D]] {
     override def blend(obj1: EuclideanVector[_1D], obj2: EuclideanVector[_1D], l: Double): EuclideanVector[_1D] =
       vectorBlender1D.blend(obj1, obj2, l)
 
@@ -247,7 +247,7 @@ object ValueInterpolator {
     }
   }
 
-  implicit val vectorBlender_2D = new ValueInterpolator[EuclideanVector[_2D]] {
+  implicit val vectorBlender_2D: ValueInterpolator[EuclideanVector[_2D]] = new ValueInterpolator[EuclideanVector[_2D]] {
     override def blend(obj1: EuclideanVector[_2D], obj2: EuclideanVector[_2D], l: Double): EuclideanVector[_2D] =
       vectorBlender2D.blend(obj1, obj2, l)
 
@@ -271,7 +271,7 @@ object ValueInterpolator {
     }
   }
 
-  implicit val vectorBlender_3D = new ValueInterpolator[EuclideanVector[_3D]] {
+  implicit val vectorBlender_3D: ValueInterpolator[EuclideanVector[_3D]] = new ValueInterpolator[EuclideanVector[_3D]] {
     override def blend(obj1: EuclideanVector[_3D], obj2: EuclideanVector[_3D], l: Double): EuclideanVector[_3D] =
       vectorBlender3D.blend(obj1, obj2, l)
 

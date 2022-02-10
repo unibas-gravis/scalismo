@@ -20,6 +20,7 @@ import breeze.linalg.DenseVector
 import scalismo.common.{DifferentiableField, Field, Scalar}
 import scalismo.geometry._
 import scalismo.registration.RegistrationMetric.ValueAndDerivative
+import scalismo.transformations.TransformationSpace
 
 /**
  * The basic interface for defining a metric for the scalismo registration framework.

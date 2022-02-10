@@ -39,7 +39,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
       tetrahedronMap(tetrahedralCell.ptId4) += t
     }
 
-    val data = tetrahedronMap.mapValues(s => s.toSet) // make immutable
+    val data = tetrahedronMap.view.mapValues(s => s.toSet) // make immutable
 
     val dataSeq = IndexedSeq.tabulate(pointIds.size) { i =>
       data(pointIds(i)).toIndexedSeq
@@ -63,7 +63,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
     for (p <- pointIds) {
       pointMap(p) -= p
     }
-    val mapData = pointMap.mapValues(s => s.toSet) // make immutable
+    val mapData = pointMap.view.mapValues(s => s.toSet) // make immutable
     val seqData = IndexedSeq.tabulate(pointIds.size) { i =>
       mapData(pointIds(i)).toIndexedSeq
     }
@@ -80,7 +80,7 @@ case class TetrahedralList(tetrahedrons: IndexedSeq[TetrahedralCell]) {
       tetrahedronmap(t) ++= tetrahedrons(t.id).pointIds.flatMap(p => adjacentTetrahedronsForPoint(p))
       tetrahedronmap(t) -= t
     }
-    val mapData = tetrahedronmap.mapValues(s => s.toSet)
+    val mapData = tetrahedronmap.view.mapValues(s => s.toSet)
     val seqData = IndexedSeq.tabulate(tetrahedronIds.size) { i =>
       mapData(tetrahedronIds(i)).toIndexedSeq
     }

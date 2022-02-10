@@ -16,6 +16,7 @@
 package scalismo.registration
 
 import breeze.linalg.DenseVector
+import scalismo.transformations.TransformationSpace
 
 /**
  * This trait defines the interface for regularizers in the scalismo registration framework.

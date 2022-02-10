@@ -217,7 +217,7 @@ private[mesh] object BoundingSpheres {
         val chosen: Array[Boolean] =
           choosePointPairsAndUpdateMatchedIndex(closestPointPairs, sortedPoints, matchedPoints)
         val stillActive = chosen.zipWithIndex.filter(s => !s._1).map(t => sortedPoints(t._2))
-        matchPoints(stillActive, matchedPoints)
+        matchPoints(stillActive.toIndexedSeq, matchedPoints)
     }
   }
 

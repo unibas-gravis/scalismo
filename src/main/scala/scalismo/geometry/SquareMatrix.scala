@@ -123,12 +123,12 @@ class SquareMatrix[D: NDSpace] private (private[scalismo] val data: Array[Double
   override def hashCode = data.toSeq.hashCode()
 
   override def equals(other: Any): Boolean = other match {
-    case that: SquareMatrix[D] =>
+    case that: SquareMatrix[D @unchecked] =>
       that.canEqual(this) && this.data.sameElements(that.data)
     case _ => false
   }
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[SquareMatrix[D]]
+  def canEqual(other: Any): Boolean = other.isInstanceOf[SquareMatrix[D @unchecked]]
 
   override def toString = {
     val s = new StringBuilder("[")

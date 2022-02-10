@@ -196,7 +196,7 @@ object KDTreeNode {
       (sp(medIndex), sp.take(medIndex), sp.drop(medIndex + 1))
     }
 
-    if (points.isEmpty) KDTreeEmpty[A, B]
+    if (points.isEmpty) KDTreeEmpty[A, B]()
     else {
       val i = depth % ord.dimensions
       val ((key, value), below, above) = findSplit(points, i)

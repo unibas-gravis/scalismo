@@ -18,7 +18,7 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.common.interpolation.FieldInterpolator
+import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
 import scalismo.geometry._
 import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky
@@ -53,7 +53,7 @@ class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value
 
     val mvNormal = MultivariateNormalDistribution(mu, K)
 
-    val sampleVec = mvNormal.sample
+    val sampleVec = mvNormal.sample()
 
     // The sample is a vector. We convert it back to a discreteVectorField.
     DiscreteField.createFromDenseVector[D, DDomain, Value](domain, sampleVec)

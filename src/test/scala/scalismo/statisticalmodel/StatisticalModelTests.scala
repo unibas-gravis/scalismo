@@ -25,20 +25,20 @@ import scalismo.geometry._
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.registration.{RigidTransformation, RigidTransformationSpace}
+import scalismo.transformations.{RigidTransformation, Rotation3D, Translation3D, TranslationAfterRotation3D}
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.Random
 
 import scala.language.implicitConversions
 class StatisticalModelTests extends ScalismoTestSuite {
 
-  implicit val random = Random(42)
+  implicit val random: Random = Random(42)
 
   implicit def doubleToFloat(d: Double): Float = d.toFloat
 
   describe("A statistical model") {
 
-    def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel) {
+    def compareModels(oldModel: StatisticalMeshModel, newModel: StatisticalMeshModel): Unit = {
 
       for (i <- 0 until 10) {
         val standardNormal = Gaussian(0, 1)(random.breezeRandBasis)
@@ -64,7 +64,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
 
       val data = (1 to 3).map(f => model.sample())
 
-      val dc = DataCollection.fromTriangleMeshSequence(ref, data)
+      val dc = DataCollection.fromTriangleMesh3DSequence(ref, data)
       val dcGpa = DataCollection.gpa(dc)
 
       val pca1 = StatisticalMeshModel.createUsingPCA(dcGpa, NumberOfEigenfunctions.apply(data.length - 1))
@@ -78,8 +78,9 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val path = getClass.getResource("/facemodel.h5").getPath
       val model = StatisticalModelIO.readStatisticalMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
-      val parameterVector = DenseVector[Double](1.5, 1.0, 3.5, Math.PI, -Math.PI / 2.0, -Math.PI)
-      val rigidTransform = RigidTransformationSpace[_3D]().transformForParameters(parameterVector)
+      val translation = Translation3D(EuclideanVector3D(1.5, 1.0, 3.5))
+      val rotation = Rotation3D(Math.PI, -Math.PI / 2.0, -Math.PI, Point3D(0, 0, 0))
+      val rigidTransform = TranslationAfterRotation3D(translation, rotation)
       val inverseTransform = rigidTransform.inverse.asInstanceOf[RigidTransformation[_3D]]
       val transformedModel = model.transform(rigidTransform)
       val newModel = transformedModel.transform(inverseTransform)
@@ -91,7 +92,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val path = getClass.getResource("/facemodel.h5").getPath
       val model = StatisticalModelIO.readStatisticalMeshModel(new File(URLDecoder.decode(path, "UTF-8"))).get
 
-      val newMesh = model.sample
+      val newMesh = model.sample()
 
       def t(pt: Point[_3D]): Point[_3D] = {
         val ptId = model.referenceMesh.pointSet.findClosestPoint(pt).id

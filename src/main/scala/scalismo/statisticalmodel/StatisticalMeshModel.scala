@@ -17,12 +17,12 @@ package scalismo.statisticalmodel
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common._
-import scalismo.common.interpolation.TriangleMeshInterpolator
+import scalismo.common.interpolation.{NearestNeighborInterpolator3D, TriangleMeshInterpolator3D}
 import scalismo.geometry.EuclideanVector._
 import scalismo.geometry._
 import scalismo.mesh._
 import scalismo.numerics.PivotedCholesky
-import scalismo.registration.RigidTransformation
+import scalismo.transformations.RigidTransformation
 import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
 
@@ -155,7 +155,7 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
    */
   def decimate(targetNumberOfVertices: Int): StatisticalMeshModel = {
     val newReference = referenceMesh.operations.decimate(targetNumberOfVertices)
-    val interpolator = TriangleMeshInterpolator[EuclideanVector[_3D]]()
+    val interpolator = TriangleMeshInterpolator3D[EuclideanVector[_3D]]()
     val newGp = gp.interpolate(interpolator)
 
     StatisticalMeshModel(newReference, newGp)
@@ -205,7 +205,7 @@ object StatisticalMeshModel {
    * compute only the leading principal components. See PivotedCholesky.StoppingCriterion for more details.
    */
   def createUsingPCA(
-    dc: TriangleMeshDataCollection,
+    dc: TriangleMeshDataCollection[_3D],
     stoppingCriterion: PivotedCholesky.StoppingCriterion = PivotedCholesky.RelativeTolerance(0)
   ): Try[StatisticalMeshModel] = {
     Try {

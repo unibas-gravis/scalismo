@@ -16,10 +16,9 @@
 package scalismo.io
 
 import java.io.File
-
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.common.{DiscreteDomain, NearestNeighborInterpolator, PointId, UnstructuredPointsDomain}
+import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.common.UnstructuredPoints.Create.{
   CreateUnstructuredPoints1D,
   CreateUnstructuredPoints2D,
@@ -30,6 +29,8 @@ import scalismo.common.UnstructuredPointsDomain.Create.{
   CreateUnstructuredPointsDomain2D,
   CreateUnstructuredPointsDomain3D
 }
+import scalismo.common.interpolation.NearestNeighborInterpolator
+import scalismo.io.PointDistributionModelIOTest.DummySampler
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.mesh.{
   LineCell,
@@ -43,12 +44,13 @@ import scalismo.mesh.{
 }
 import scalismo.numerics.Sampler
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
+import scalismo.utils.Random
 
 import scala.language.higherKinds
 
 class PointDistributionModelIOTest extends ScalismoTestSuite {
 
-  implicit val rng = scalismo.utils.Random(42L)
+  implicit val rng: Random = scalismo.utils.Random(42L)
 
   describe("a Point Distribution Model") {
 
@@ -59,18 +61,6 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
       assert(model1.mean == model2.mean)
       assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
       assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
-    }
-
-    case class DummySampler[D: NDSpace](domain: DiscreteDomain[D]) extends Sampler[D] {
-      override def volumeOfSampleRegion: Double = domain.pointSet.boundingBox.volume
-
-      override val numberOfPoints: Int = domain.pointSet.numberOfPoints
-
-      private val p = 1.0 / volumeOfSampleRegion
-
-      override def sample(): IndexedSeq[(Point[D], Double)] = {
-        domain.pointSet.points.toIndexedSeq.map(pt => (pt, p))
-      }
     }
 
     def create3Dmodel(): PointDistributionModel[_3D, TriangleMesh] = {
@@ -241,4 +231,19 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
   }
+}
+
+object PointDistributionModelIOTest {
+  case class DummySampler[D: NDSpace](domain: DiscreteDomain[D]) extends Sampler[D] {
+    override def volumeOfSampleRegion: Double = domain.pointSet.boundingBox.volume
+
+    override val numberOfPoints: Int = domain.pointSet.numberOfPoints
+
+    private val p = 1.0 / volumeOfSampleRegion
+
+    override def sample(): IndexedSeq[(Point[D], Double)] = {
+      domain.pointSet.points.toIndexedSeq.map(pt => (pt, p))
+    }
+  }
+
 }

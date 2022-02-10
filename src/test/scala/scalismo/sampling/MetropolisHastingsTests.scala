@@ -5,10 +5,11 @@ import scalismo.ScalismoTestSuite
 import scalismo.sampling.algorithms.{MetropolisHastings, MetropolisHastingsWithPrefetching}
 import scalismo.sampling.evaluators.GaussianEvaluator
 import scalismo.statisticalmodel.MultivariateNormalDistribution
+import scalismo.utils.Random
 
 class MetropolisHastingsTests extends ScalismoTestSuite {
 
-  implicit val rng = scalismo.utils.Random(42)
+  implicit val rng: Random = scalismo.utils.Random(42)
 
   val gaussianProposal =
     new ProposalGenerator[Double] with TransitionProbability[Double] with SymmetricTransitionRatio[Double] {
@@ -48,7 +49,7 @@ class MetropolisHastingsTests extends ScalismoTestSuite {
       val evaluator = GaussianEvaluator(mean, sdev)
 
       val mh = MetropolisHastingsWithPrefetching(gaussianProposal, evaluator)
-      val samples = mh.iterator(0.0).drop(100000).take(100000).toIndexedSeq
+      val samples = mh.iterator(0.0).drop(100000).take(1000000).toIndexedSeq
       val approximatedMean = samples.sum / samples.size
       val approximatedVariance =
         samples.map(sample => (sample - mean) * (sample - mean)).sum / samples.size

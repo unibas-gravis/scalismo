@@ -718,6 +718,9 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
                 tmesh.pointSet.point(tet.ptId4).toVector * cpit.bc.d
             ).toPoint
             (cp.point - reconstructed).norm < 1.0e-8
+          case _ => {
+            throw new IllegalStateException("invalid closest point type encountered. This should never happend")
+          }
         }
       }
     }

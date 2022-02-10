@@ -1,7 +1,7 @@
 package scalismo.common
 
 import scalismo.geometry.EuclideanVector
-import scalismo.registration.Transformation
+import scalismo.transformations.Transformation
 
 import scala.language.higherKinds
 

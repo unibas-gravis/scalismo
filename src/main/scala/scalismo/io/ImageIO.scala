@@ -15,20 +15,19 @@
  */
 package scalismo.io
 
-import java.io.{File, IOException}
-
+import breeze.linalg
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
-import niftijio.{NiftiHeader, NiftiVolume}
-import scalismo.common.{RealSpace, Scalar}
+import niftijio.NiftiVolume
+import scalismo.common.Scalar
 import scalismo.geometry._
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints, StructuredPoints3D}
-import scalismo.registration._
-import scalismo.utils.{CanConvertToVtk, ImageConversion, VtkHelpers}
+import scalismo.utils.ImageConversion.{VtkAutomaticInterpolatorSelection, VtkInterpolationMode}
+import scalismo.utils.{CanConvertToVtk, ImageConversion}
 import spire.math.{UByte, UInt, UShort}
 import vtk._
 
+import java.io.{File, IOException}
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{typeOf, TypeTag}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -53,13 +52,6 @@ import scala.util.{Failure, Success, Try}
  * The same mirroring is done again when writing an image to the Nifti format.
  *
  *
- * '''Important for oblique images :'''
- * The Nifti standard supports oblique images, that is images with a bounding box rotated compared to the world dimensions.
- * Scalismo does not support such images. For such images, we offer the user a possibility to resample the image to
- * a domain aligned with the world dimensions and with an RAI orientation. The integrity of the oblique image will be contained
- * in the resampled one. This functionality can be activated by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
- *
- *
  * '''Note on Nifti's qform and sform :'''
  *
  * As mentioned above, the Nifti header contains a transform from the unit ijk grid to the RAS world coordinates of the grid.
@@ -79,127 +71,27 @@ import scala.util.{Failure, Success, Try}
  */
 object ImageIO {
 
-  /**
-   * An enumeration comprising all the data types that we can read and write, in VTK and Nifti formats.
-   */
-  object ScalarType extends Enumeration {
-
-    import NiftiHeader._
-    import VtkHelpers._
-
-    import scala.language.implicitConversions
-
-    protected case class Val[O: Scalar: ClassTag](vtkId: Int, niftiId: Short) extends super.Val
-
-    implicit def valueToVal[T](x: Value): Val[T] = x.asInstanceOf[Val[T]]
-
-    val Byte = Val[Byte](VTK_CHAR, NIFTI_TYPE_INT8)
-    val Short = Val[Short](VTK_SHORT, NIFTI_TYPE_INT16)
-    val Int = Val[Int](VTK_INT, NIFTI_TYPE_INT32)
-    val Float = Val[Float](VTK_FLOAT, NIFTI_TYPE_FLOAT32)
-    val Double = Val[Double](VTK_DOUBLE, NIFTI_TYPE_FLOAT64)
-    val UByte = Val[UByte](VTK_UNSIGNED_CHAR, NIFTI_TYPE_UINT8)
-    val UShort = Val[UShort](VTK_UNSIGNED_SHORT, NIFTI_TYPE_UINT16)
-    val UInt = Val[UInt](VTK_UNSIGNED_INT, NIFTI_TYPE_UINT32)
-
-    /**
-     * Return the ScalarType value corresponding to a given type
-     * @tparam T a scalar type
-     * @return the corresponding ScalarType value
-     * @throws IllegalArgumentException if no corresponding value was found.
-     */
-    def fromType[T: Scalar: TypeTag]: Value = {
-      typeOf[T] match {
-        case t if t =:= typeOf[Byte]   => Byte
-        case t if t =:= typeOf[Short]  => Short
-        case t if t =:= typeOf[Int]    => Int
-        case t if t =:= typeOf[Float]  => Float
-        case t if t =:= typeOf[Double] => Double
-        case t if t =:= typeOf[UByte]  => UByte
-        case t if t =:= typeOf[UShort] => UShort
-        case t if t =:= typeOf[UInt]   => UInt
-        case _                         => throw new IllegalArgumentException(s"Unsupported datatype ${typeOf[T]}")
-      }
-    }
-
-    /**
-     * Return the ScalarType value corresponding to a given VTK type constant
-     * @param vtkId a VTK type constant
-     * @return the corresponding ScalarType value
-     * @throws IllegalArgumentException if no corresponding value was found.
-     */
-    def fromVtkId(vtkId: Int): Value = {
-      // there are two ways in VTK to represent a (signed) byte.
-      if (vtkId == VTK_SIGNED_CHAR) Byte
-      else
-        values.find(v => v.vtkId == vtkId).getOrElse(throw new IllegalArgumentException(s"Unsupported VTK ID $vtkId"))
-    }
-
-    /**
-     * Return the ScalarType value corresponding to a given Nifti type constant
-     * @param niftiId a Nifti type constant
-     * @return the corresponding ScalarType value
-     * @throws IllegalArgumentException if no corresponding value was found.
-     */
-    def fromNiftiId(niftiId: Short): ScalarType.Value = {
-      values
-        .find(v => v.niftiId == niftiId)
-        .getOrElse(throw new IllegalArgumentException(s"Unsupported Nifti ID $niftiId"))
-    }
-
-    /**
-     * Return the ScalarType value corresponding to the data present in a given file. Only .vtk, .nii and .nia files are supported.
-     * @param file the file to check
-     * @return the scalar type present in the given file, wrapped in a [[scala.util.Success]], or a [[scala.util.Failure]] explaining the error.
-     */
-    def ofFile(file: File): Try[ScalarType.Value] = {
-      val fn = file.getName
-      if (fn.endsWith(".nii") || fn.endsWith(".nia")) {
-        FastReadOnlyNiftiVolume.getScalarType(file).map(ScalarType.fromNiftiId)
-      } else if (fn.endsWith(".vtk")) Try {
-        val reader = new vtkStructuredPointsReader
-        reader.SetFileName(file.getAbsolutePath)
-        reader.Update()
-        val errCode = reader.GetErrorCode()
-        if (errCode != 0) {
-          reader.Delete()
-          throw new IOException(
-            s"Failed to read vtk file ${file.getAbsolutePath}. (error code from vtkReader = $errCode)"
-          )
-        }
-        val st = reader.GetOutput().GetScalarType()
-        reader.Delete()
-        // prevent memory leaks
-        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
-        ScalarType.fromVtkId(st)
-      } else {
-        Failure(new Exception(s"File $file: unsupported file extension"))
-      }
-    }
-  }
-
   trait WriteNifti[D] {
-    def write[A: Scalar: TypeTag: ClassTag](img: DiscreteImage[D, A], f: File): Try[Unit]
+    def write[A: Scalar: ClassTag](img: DiscreteImage[D, A], f: File): Try[Unit]
   }
 
   implicit object DiscreteScalarImage3DNifti extends WriteNifti[_3D] {
-    def write[A: Scalar: TypeTag: ClassTag](img: DiscreteImage[_3D, A], f: File): Try[Unit] = {
+    def write[A: Scalar: ClassTag](img: DiscreteImage[_3D, A], f: File): Try[Unit] = {
       writeNifti[A](img, f)
     }
   }
 
+  private lazy val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+  private lazy val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
+
   /**
    * Read a 3D Scalar Image
    * @param file  image file to be read
-   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
-   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
    * @tparam S Voxel type of the image
    *
    */
-  def read3DScalarImage[S: Scalar: TypeTag: ClassTag](
-    file: File,
-    resampleOblique: Boolean = false,
-    favourQform: Boolean = false
+  def read3DScalarImage[S: Scalar: ClassTag](
+    file: File
   ): Try[DiscreteImage[_3D, S]] = {
 
     file match {
@@ -224,7 +116,7 @@ object ImageIO {
         vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
         img
       case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[S](f, resampleOblique, favourQform)
+        readNifti[S](f, favourQform = false)
       case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
     }
   }
@@ -236,37 +128,33 @@ object ImageIO {
    * the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that case.
    *
    * @param file  image file to be read
-   * @param resampleOblique  flag to resample oblique images. This is only required when reading Nifti files containing an oblique image. See documentation above [[ImageIO]].
-   * @param favourQform  flag to favour the qform Nifti header entry over the sform one (which is by default favoured). See documentation above [[ImageIO]].
    * @tparam S Voxel type of the image
    *
    */
-  def read3DScalarImageAsType[S: Scalar: TypeTag: ClassTag](
-    file: File,
-    resampleOblique: Boolean = false,
-    favourQform: Boolean = false
+  def read3DScalarImageAsType[S: Scalar: ClassTag](
+    file: File
   ): Try[DiscreteImage[_3D, S]] = {
-    def loadAs[T: Scalar: TypeTag: ClassTag]: Try[DiscreteImage[_3D, T]] = {
-      read3DScalarImage[T](file, resampleOblique, favourQform)
+    def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
+      read3DScalarImage[T](file)
     }
 
     val result = (for {
-      fileScalarType <- ScalarType.ofFile(file)
+      fileScalarType <- ScalarDataType.ofFile(file)
     } yield {
-      val expectedScalarType = ScalarType.fromType[S]
+      val expectedScalarType = ScalarDataType.fromType[S]
       if (expectedScalarType == fileScalarType) {
         loadAs[S]
       } else {
         val s = implicitly[Scalar[S]]
         fileScalarType match {
-          case ScalarType.Byte   => loadAs[Byte].map(_.map(s.fromByte))
-          case ScalarType.Short  => loadAs[Short].map(_.map(s.fromShort))
-          case ScalarType.Int    => loadAs[Int].map(_.map(s.fromInt))
-          case ScalarType.Float  => loadAs[Float].map(_.map(s.fromFloat))
-          case ScalarType.Double => loadAs[Double].map(_.map(s.fromDouble))
-          case ScalarType.UByte  => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
-          case ScalarType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
-          case ScalarType.UInt   => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
+          case ScalarDataType.Byte   => loadAs[Byte].map(_.map(s.fromByte))
+          case ScalarDataType.Short  => loadAs[Short].map(_.map(s.fromShort))
+          case ScalarDataType.Int    => loadAs[Int].map(_.map(s.fromInt))
+          case ScalarDataType.Float  => loadAs[Float].map(_.map(s.fromFloat))
+          case ScalarDataType.Double => loadAs[Double].map(_.map(s.fromDouble))
+          case ScalarDataType.UByte  => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
+          case ScalarDataType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
+          case ScalarDataType.UInt   => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
 
           case _ => Failure(new IllegalArgumentException(s"unknown scalar type $fileScalarType"))
         }
@@ -281,7 +169,7 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read2DScalarImage[S: Scalar: ClassTag: TypeTag](file: File): Try[DiscreteImage[_2D, S]] = {
+  def read2DScalarImage[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
 
     file match {
       case f if f.getAbsolutePath.endsWith(".vtk") =>
@@ -319,28 +207,28 @@ object ImageIO {
    * @tparam S Voxel type of the image
    *
    */
-  def read2DScalarImageAsType[S: Scalar: TypeTag: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
-    def loadAs[T: Scalar: TypeTag: ClassTag]: Try[DiscreteImage[_2D, T]] = {
+  def read2DScalarImageAsType[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
+    def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_2D, T]] = {
       read2DScalarImage[T](file)
     }
 
     val result = (for {
-      fileScalarType <- ScalarType.ofFile(file)
+      fileScalarType <- ScalarDataType.ofFile(file)
     } yield {
-      val expectedScalarType = ScalarType.fromType[S]
+      val expectedScalarType = ScalarDataType.fromType[S]
       if (expectedScalarType == fileScalarType) {
         loadAs[S]
       } else {
         val s = implicitly[Scalar[S]]
         fileScalarType match {
-          case ScalarType.Byte   => loadAs[Byte].map(_.map(s.fromByte))
-          case ScalarType.Short  => loadAs[Short].map(_.map(s.fromShort))
-          case ScalarType.Int    => loadAs[Int].map(_.map(s.fromInt))
-          case ScalarType.Float  => loadAs[Float].map(_.map(s.fromFloat))
-          case ScalarType.Double => loadAs[Double].map(_.map(s.fromDouble))
-          case ScalarType.UByte  => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
-          case ScalarType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
-          case ScalarType.UInt   => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
+          case ScalarDataType.Byte   => loadAs[Byte].map(_.map(s.fromByte))
+          case ScalarDataType.Short  => loadAs[Short].map(_.map(s.fromShort))
+          case ScalarDataType.Int    => loadAs[Int].map(_.map(s.fromInt))
+          case ScalarDataType.Float  => loadAs[Float].map(_.map(s.fromFloat))
+          case ScalarDataType.Double => loadAs[Double].map(_.map(s.fromDouble))
+          case ScalarDataType.UByte  => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
+          case ScalarDataType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
+          case ScalarDataType.UInt   => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
 
           case _ => Failure(new IllegalArgumentException(s"unknown scalar type $fileScalarType"))
         }
@@ -349,96 +237,66 @@ object ImageIO {
     result
   }
 
-  private def readNifti[S: Scalar: TypeTag: ClassTag](file: File,
-                                                      resampleOblique: Boolean,
-                                                      favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
+  def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
     for {
-
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)
-      pair <- computeNiftiWorldToVoxelTransforms(volume, favourQform)
+      voxelToLPSCoordinateTransform <- computeVoxelToLPSCoordinateTransform(volume, favourQform)
+      image <- createImageWithRightOrientation(volume, voxelToLPSCoordinateTransform)
     } yield {
-      val expectedScalarType = ScalarType.fromType[S]
-      val foundScalarType = ScalarType.fromNiftiId(volume.header.datatype)
-      if (expectedScalarType != foundScalarType) {
-        throw new IllegalArgumentException(
+
+      image
+    }
+  }
+
+  private def createImageWithRightOrientation[S: Scalar: ClassTag](
+    volume: FastReadOnlyNiftiVolume,
+    voxelToLPSCoordinateTransform: IntVector[_3D] => Point[_3D]
+  ): Try[DiscreteImage[_3D, S]] = {
+
+    val expectedScalarType = ScalarDataType.fromType[S]
+
+    // If a volume has a transform, we always treat it as a float image and convert accordingly.
+    // Otherwise we take the type that is found in the nifty header
+    val foundScalarType =
+      if (volume.hasTransform) ScalarDataType.fromType[Float]
+      else ScalarDataType.fromNiftiId(volume.header.datatype)
+
+    if (expectedScalarType != foundScalarType) {
+      Failure(
+        new IllegalArgumentException(
           s"Invalid scalar type (expected $expectedScalarType, found $foundScalarType)"
         )
-      }
+      )
+    } else {
 
-      val (transVoxelToWorld, _) = pair
-
+      // First we compute origin, spacing and size
+      val origin = voxelToLPSCoordinateTransform(IntVector3D(0, 0, 0))
       val nx = volume.header.dim(1)
       val ny = volume.header.dim(2)
       val nz = volume.header.dim(3)
-      var dim = volume.header.dim(4)
+      val dim = if (volume.header.dim(4) == 0) 1 else volume.header.dim(4)
 
-      if (dim == 0)
-        dim = 1
+      val spacing = EuclideanVector3D(volume.header.pixdim(1), volume.header.pixdim(2), volume.header.pixdim(3))
+      val size = IntVector(nx, ny, nz)
 
-      /* figure out the anisotropic scaling factor */
-      val s = volume.header.pixdim
-
-      // figure out if the ijk to xyz_RAS transform does mirror: determinant of the linear transform
-
-      val augmentedMatrix = transformMatrixFromNifti(volume, favourQform).get // get is safe in here
-      val linearTransMatrix = augmentedMatrix(0 to 2, 0 to 2)
-
-      val mirrorScale = breeze.linalg.det(linearTransMatrix).signum.toDouble
-
-      val spacing = DenseVector(s(1), s(2), s(3) * mirrorScale)
-
-      val anisotropicScaling = new AnisotropicScalingSpace[_3D].transformForParameters(spacing)
-
-      /* get a rigid registration by mapping a few points */
-      val origPs = List(Point(0, 0, nz),
-                        Point(0, ny, 0),
-                        Point(0, ny, nz),
-                        Point(nx, 0, 0),
-                        Point(nx, 0, nz),
-                        Point(nx, ny, 0),
-                        Point(nx, ny, nz))
-      val scaledPS = origPs.map(anisotropicScaling)
-      val imgPs = origPs.map(transVoxelToWorld)
-
-      val rigidReg = LandmarkRegistration.rigid3DLandmarkRegistration((scaledPS zip imgPs).toIndexedSeq, Point(0, 0, 0))
-      val orig = rigidReg(Point3D(0, 0, 0))
-
-      val transform = AnisotropicSimilarityTransformationSpace[_3D](Point(0, 0, 0))
-        .transformForParameters(DenseVector(rigidReg.parameters.data ++ spacing.data))
-
-      val rotationResiduals = rigidReg.parameters(3 to 5).toArray.map { a =>
-        val rest = math.abs(a) % (math.Pi * 0.5)
-        math.min(rest, (math.Pi * 0.5) - rest)
+      def toUnitVec(v: EuclideanVector[_3D]): EuclideanVector[_3D] = {
+        v * (1.0 / v.norm)
       }
 
-      // if the image is oblique and the resampling flag unset, throw an exception
-      if (!resampleOblique && rotationResiduals.exists(_ >= 0.001)) {
-        throw new Exception(
-          "The image orientation seems to be oblique, which is not supported by default in scalismo. To read the image anyway, activate the resampleOblique flag. This will resample the image to an RAI oriented one."
-        )
-      }
+      // By transforming the standard coordinate vectors to LPS space we can figure
+      // out what the direction matrix should be
+      val iVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(1, 0, 0)) - origin)
+      val jVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(0, 1, 0)) - origin)
+      val kVec = toUnitVec(voxelToLPSCoordinateTransform(IntVector3D(0, 0, 1)) - origin)
 
-      /* Test that were able to reconstruct the transform */
-      val approxErrors = (origPs.map(transform) zip imgPs).map { case (o, i) => (o - i).norm }
-      if (approxErrors.max > 0.01f)
-        throw new Exception("Unable to approximate Nifti affine transform with anisotropic similarity transform")
-      else {
-        val (roll, pitch, yaw) =
-          (rigidReg.rotation.parameters(0), rigidReg.rotation.parameters(1), rigidReg.rotation.parameters(2))
-        val size = IntVector(nx, ny, nz)
-        val newDomain = DiscreteImageDomain(
-          StructuredPoints3D(orig, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, roll, pitch, yaw)
-        )
-        val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
+      // now we assemble everything
+      val newDomain = DiscreteImageDomain(
+        StructuredPoints3D(origin, EuclideanVector(spacing(0), spacing(1), spacing(2)), size, iVec, jVec, kVec)
+      )
+      val im = DiscreteImage(newDomain, volume.dataAsScalarArray)
 
-        // if the domain is rotated, we resample the image to RAI voxel ordering
-        if (rotationResiduals.exists(_ >= 0.001)) {
-          // using our vtk conversion, we get  resampled structured point data that fully contains the original image and is RAI ordered
-          val sp = ImageConversion.imageToVtkStructuredPoints[_3D, S](im)
-          ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp).get
-        } else im
-      }
+      Success(im)
     }
   }
 
@@ -471,12 +329,12 @@ object ImageIO {
   }
 
   /**
-   * returns transformations from voxel to World coordinates and its inverse
+   * constructs a transformation that takes an index and transforms it to LPS coordinates
    */
-  private[this] def computeNiftiWorldToVoxelTransforms(
+  private[this] def computeVoxelToLPSCoordinateTransform(
     volume: FastReadOnlyNiftiVolume,
     favourQform: Boolean
-  ): Try[(Transformation[_3D], Transformation[_3D])] = {
+  ): Try[IntVector[_3D] => Point[_3D]] = {
     var dim = volume.header.dim(4)
 
     if (dim == 0)
@@ -487,33 +345,21 @@ object ImageIO {
 
     transformMatrixFromNifti(volume, favourQform).map { affineTransMatrix =>
       {
-        val domain = RealSpace[_3D]
-        val f = (x: Point[_3D]) => {
-          val xh = DenseVector(x(0), x(1), x(2), 1.0)
-          val t: DenseVector[Double] = affineTransMatrix * xh
+        // the affine matrix is in homogeneous coordinates. We extract the individual components
+        // and apply them individually
+        val rotationAndScalingMatrix: DenseMatrix[Double] = affineTransMatrix(0 to 2, 0 to 2)
+        val translationVector = DenseVector(affineTransMatrix(0, 3), affineTransMatrix(1, 3), affineTransMatrix(2, 3))
+        (x: IntVector[_3D]) => {
 
-          // We flip after applying the transform as Nifti uses RAS coordinates
-          Point(t(0).toFloat * -1f, t(1).toFloat * -1f, t(2).toFloat)
+          val pointInRas = (rotationAndScalingMatrix * DenseVector(x(0).toDouble, x(1).toDouble, x(2).toDouble) + translationVector)
+          val pointInLPS = RAStoLPSMatrix * pointInRas
+          Point(pointInLPS(0), pointInLPS(1), pointInLPS(2))
         }
-        val t = Transformation(domain, f)
-
-        val affineTransMatrixInv: DenseMatrix[Double] = breeze.linalg.inv(affineTransMatrix)
-        val tinv = {
-          val f = (x: Point[_3D]) => {
-            // Here as it is the inverse, we flip before applying the affine matrix
-            val xh: DenseVector[Double] = DenseVector(x(0) * -1.0, x(1) * -1, x(2), 1.0)
-            val t: DenseVector[Float] = (affineTransMatrixInv * xh).map(_.toFloat)
-            Point(t(0), t(1), t(2))
-          }
-          val domain = RealSpace[_3D]
-          Transformation[_3D](domain, f)
-        }
-        (t, tinv)
       }
     }
   }
 
-  def writeNifti[S: Scalar: TypeTag: ClassTag](img: DiscreteImage[_3D, S], file: File): Try[Unit] = {
+  def writeNifti[S: Scalar: ClassTag](img: DiscreteImage[_3D, S], file: File): Try[Unit] = {
 
     val scalarConv = implicitly[Scalar[S]]
 
@@ -532,32 +378,31 @@ object ImageIO {
       }
 
       def computeInnerAffineMatrix(domain: StructuredPoints[_3D]): DenseMatrix[Double] = {
-        val rotParams = DenseVector[Double](domain.yaw, domain.pitch, domain.roll)
         val scalingParams = DenseVector[Double](domain.spacing(0), domain.spacing(1), domain.spacing(2))
         val scalingMatrix = diag(scalingParams)
-        val innerAffineMatrix = RotationSpace.eulerAnglesToRotMatrix3D(rotParams).toBreezeMatrix * scalingMatrix
-        innerAffineMatrix
+        LPStoRASMatrix * domain.directions.toBreezeMatrix * scalingMatrix
       }
 
+      val originInRAS = LPStoRASMatrix * domain.pointSet.origin.toBreezeVector
       val innerAffineMatrix = computeInnerAffineMatrix(img.domain.pointSet)
       val M = DenseMatrix.zeros[Double](4, 4)
 
-      M(0, 0) = innerAffineMatrix(0, 0) * -1f
-      M(0, 1) = innerAffineMatrix(0, 1) * -1f
-      M(0, 2) = innerAffineMatrix(0, 2) * -1f
-      M(0, 3) = -domain.pointSet.origin(0)
-      M(1, 0) = innerAffineMatrix(1, 0) * -1f
-      M(1, 1) = innerAffineMatrix(1, 1) * -1f
-      M(1, 2) = innerAffineMatrix(1, 2) * -1f
-      M(1, 3) = -domain.pointSet.origin(1)
+      M(0, 0) = innerAffineMatrix(0, 0)
+      M(0, 1) = innerAffineMatrix(0, 1)
+      M(0, 2) = innerAffineMatrix(0, 2)
+      M(0, 3) = originInRAS(0)
+      M(1, 0) = innerAffineMatrix(1, 0)
+      M(1, 1) = innerAffineMatrix(1, 1)
+      M(1, 2) = innerAffineMatrix(1, 2)
+      M(1, 3) = originInRAS(1)
       M(2, 0) = innerAffineMatrix(2, 0)
       M(2, 1) = innerAffineMatrix(2, 1)
       M(2, 2) = innerAffineMatrix(2, 2)
-      M(2, 3) = domain.pointSet.origin(2)
+      M(2, 3) = originInRAS(2)
       M(3, 3) = 1
 
       // the header
-      volume.header.setDatatype(ScalarType.fromType[S].niftiId)
+      volume.header.setDatatype(ScalarDataType.fromType[S].niftiId)
       volume.header.qform_code = 0
       volume.header.sform_code = 2 // TODO check me that this is right
 
@@ -574,10 +419,12 @@ object ImageIO {
     }
   }
 
-  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: TypeTag: ClassTag](img: DiscreteImage[D, S],
-                                                                          file: File): Try[Unit] = {
+  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
+                                                                 file: File,
+                                                                 interpolationMode: VtkInterpolationMode =
+                                                                   VtkAutomaticInterpolatorSelection): Try[Unit] = {
 
-    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img)
+    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img, interpolationMode)
 
     val writer = new vtkStructuredPointsWriter()
     writer.SetInputData(imgVtk)

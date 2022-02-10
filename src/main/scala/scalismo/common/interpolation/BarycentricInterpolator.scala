@@ -50,8 +50,13 @@ case class BarycentricInterpolator3D[A: ValueInterpolator]() extends Barycentric
                                  df(tetrahedron.ptId2),
                                  df(tetrahedron.ptId3),
                                  df(tetrahedron.ptId4))
+        case _ => {
+          throw new IllegalStateException(
+            "invalid closest point type encountered while interpolating. This should never happend"
+          )
+        }
       }
     }
-    Field(RealSpace[_3D], interpolateBarycentric)
+    Field(EuclideanSpace3D, interpolateBarycentric)
   }
 }

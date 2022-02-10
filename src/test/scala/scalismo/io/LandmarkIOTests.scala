@@ -48,7 +48,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
     it("can read 3D landmarks in CSV format from a file") {
       val csvPath = getClass.getResource(csvName).getPath
       val landmarksTry = LandmarkIO.readLandmarksCsv[_3D](new File(URLDecoder.decode(csvPath, "UTF-8")))
-      landmarksTry should be a 'Success
+      landmarksTry should be a Symbol("Success")
 
       val landmarks = landmarksTry.get
       landmarks.size should be(4)
@@ -57,7 +57,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
 
     it("can read 3D landmarks in CSV format from a stream") {
       val landmarksTry = LandmarkIO.readLandmarksCsvFromSource[_3D](csvStream())
-      landmarksTry should be a 'Success
+      landmarksTry should be a Symbol("Success")
 
       val landmarks = landmarksTry.get
       landmarks.size should be(4)
@@ -67,7 +67,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
     it("can read 2D landmarks in CSV format from a file") {
       val csvPath = getClass.getResource(csvName).getPath
       val landmarksTry = LandmarkIO.readLandmarksCsv[_2D](new File(URLDecoder.decode(csvPath, "UTF-8")))
-      landmarksTry should be a 'Success
+      landmarksTry should be a Symbol("Success")
 
       val landmarks = landmarksTry.get
       landmarks.size should be(4)
@@ -80,10 +80,10 @@ class LandmarkIOTests extends ScalismoTestSuite {
 
       val landmarks =
         Seq(("first", Point(1.0, 2.0, 3.0)), ("second", Point(2.0, 1.0, 3.0))).map(t => Landmark(t._1, t._2))
-      LandmarkIO.writeLandmarksCsv(landmarks, tmpFile) should be a 'Success
+      LandmarkIO.writeLandmarksCsv(landmarks, tmpFile) should be a Symbol("Success")
 
       val restoredLandmarksTry = LandmarkIO.readLandmarksCsv[_3D](tmpFile)
-      restoredLandmarksTry should be a 'Success
+      restoredLandmarksTry should be a Symbol("Success")
       val restoredLandmarks = restoredLandmarksTry.get
       restoredLandmarks.size should be(landmarks.size)
 

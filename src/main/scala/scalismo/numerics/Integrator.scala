@@ -30,7 +30,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
   def integrateScalar[A: Scalar](f: Function1[Point[D], Option[A]]): A = {
     val scalar = Scalar[A]
     val zero = scalar.fromInt(0)
-    val samples = sampler.sample
+    val samples = sampler.sample()
     val sum = new ParVector(samples.toVector).map {
       case (pt, p) =>
         scalar.toDouble(f(pt).getOrElse(zero)) * (1.0 / p.toFloat)
@@ -43,7 +43,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
   }
 
   def integrateVector[DO: NDSpace](f: Function1[Point[D], Option[EuclideanVector[DO]]]): EuclideanVector[DO] = {
-    val samples = sampler.sample
+    val samples = sampler.sample()
 
     val zeroVector = EuclideanVector.zeros[DO]
     val sum = new ParVector(samples.toVector)
@@ -53,7 +53,7 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
   }
 
   def integrateVector(f: Function1[Point[D], Option[DenseVector[Double]]], dimensionality: Int): DenseVector[Double] = {
-    val samples = sampler.sample
+    val samples = sampler.sample()
 
     val zeroVector = DenseVector.zeros[Double](dimensionality)
     val sum = new ParVector(samples.toVector)
