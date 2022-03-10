@@ -203,6 +203,18 @@ case class StructuredPoints1D(origin: Point[_1D],
 
 }
 
+object StructuredPoints1D {
+  def apply(boundingBox: BoxDomain[_1D], size: IntVector[_1D]): StructuredPoints[_1D] = {
+    val spacing = EuclideanVector1D(boundingBox.extent(0) / (size(0) + 1))
+    StructuredPoints1D(boundingBox.origin, spacing, size)
+  }
+
+  def apply(boundingBox: BoxDomain[_1D], spacing: EuclideanVector[_1D]): StructuredPoints[_1D] = {
+    val size = IntVector1D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt - 1)
+    StructuredPoints1D(boundingBox.origin, spacing, size)
+  }
+}
+
 case class StructuredPoints2D(origin: Point[_2D],
                               spacing: EuclideanVector[_2D],
                               size: IntVector[_2D],
@@ -275,6 +287,18 @@ object StructuredPoints2D {
 
   def apply(origin: Point[_2D], spacing: EuclideanVector[_2D], size: IntVector[_2D]): StructuredPoints[_2D] = {
     new StructuredPoints2D(origin, spacing, size)
+  }
+
+  def apply(boundingBox: BoxDomain[_2D], size: IntVector[_2D]): StructuredPoints[_2D] = {
+    val spacing = EuclideanVector2D(boundingBox.extent(0) / size(0), boundingBox.extent(1) / size(1))
+    StructuredPoints2D(boundingBox.origin, spacing, size)
+  }
+
+  def apply(boundingBox: BoxDomain[_2D], spacing: EuclideanVector[_2D]): StructuredPoints[_2D] = {
+    val size = IntVector2D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
+                           Math.ceil(boundingBox.extent(1) / spacing(1)).toInt)
+
+    StructuredPoints2D(boundingBox.origin, spacing, size)
   }
 
 }
@@ -372,6 +396,24 @@ object StructuredPoints3D {
   def apply(origin: Point[_3D], spacing: EuclideanVector[_3D], size: IntVector[_3D]): StructuredPoints[_3D] = {
     new StructuredPoints3D(origin, spacing, size)
   }
+
+  def apply(boundingBox: BoxDomain[_3D], size: IntVector[_3D]): StructuredPoints[_3D] = {
+    val spacing = EuclideanVector3D(boundingBox.extent(0) / size(0),
+                                    boundingBox.extent(1) / size(1),
+                                    boundingBox.extent(2) / size(2))
+    StructuredPoints3D(boundingBox.origin, spacing, size)
+  }
+
+  def apply(boundingBox: BoxDomain[_3D], spacing: EuclideanVector[_3D]): StructuredPoints[_3D] = {
+    val size = IntVector3D(
+      Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
+      Math.ceil(boundingBox.extent(1) / spacing(1)).toInt,
+      Math.ceil(boundingBox.extent(2) / spacing(2)).toInt
+    )
+
+    StructuredPoints3D(boundingBox.origin, spacing, size)
+  }
+
 }
 
 /**
