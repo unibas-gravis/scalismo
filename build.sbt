@@ -75,14 +75,6 @@ lazy val root = (project in file("."))
         )
       case _ => { println(scalaBinaryVersion.value); Seq() }
     }),
-    Compile / unmanagedSourceDirectories += {
-      val sourceDir = (Compile / sourceDirectory).value
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _))            => sourceDir / "scala-2.13+"
-        case Some((2, n)) if n >= 13 => sourceDir / "scala-2.13+"
-        case _                       => sourceDir / "scala-2.13-"
-      }
-    },
     parallelExecution / test := false
   )
   .enablePlugins(GitVersioning)
