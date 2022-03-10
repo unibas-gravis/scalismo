@@ -71,6 +71,9 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
    * @return
    */
   def discretize[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D]): DiscreteGaussianProcess[D, DDomain, Value] = {
+
+    require(domain.pointSet.numberOfPoints > 0)
+
     val meanField = DiscreteField[D, DDomain, Value](domain, domain.pointSet.points.toIndexedSeq.map(pt => mean(pt)))
     val pts = domain.pointSet.points.toIndexedSeq
     def newCov(i: PointId, j: PointId): DenseMatrix[Double] = {
@@ -161,7 +164,7 @@ object GaussianProcess {
     }
 
     def posteriorMean(x: Point[D]): Value = {
-      vectorizer.unvectorize((xstar(x) * K_inv) * fVec)
+      vectorizer.unvectorize((xstar(x) * K_inv) * fVec + vectorizer.vectorize(gp.mean(x)))
     }
 
     val posteriorKernel = new MatrixValuedPDKernel[D] {

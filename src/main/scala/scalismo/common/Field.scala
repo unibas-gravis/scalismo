@@ -17,6 +17,7 @@ package scalismo.common
 
 import scalismo.geometry._
 import scalismo.transformations.{CanDifferentiateWRTPosition, Transformation}
+
 import scala.collection.parallel.immutable.ParVector
 
 /**

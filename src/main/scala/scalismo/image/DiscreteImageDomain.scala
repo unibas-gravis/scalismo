@@ -65,13 +65,11 @@ object DiscreteImageDomain1D {
   }
 
   def apply(boundingBox: BoxDomain[_1D], size: IntVector[_1D]): DiscreteImageDomain[_1D] = {
-    val spacing = EuclideanVector1D(boundingBox.extent(0) / (size(0) + 1))
-    DiscreteImageDomain(StructuredPoints1D(boundingBox.origin, spacing, size))
+    DiscreteImageDomain(StructuredPoints1D(boundingBox, size))
   }
 
   def apply(boundingBox: BoxDomain[_1D], spacing: EuclideanVector[_1D]): DiscreteImageDomain[_1D] = {
-    val size = IntVector1D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt - 1)
-    DiscreteImageDomain(StructuredPoints1D(boundingBox.origin, spacing, size))
+    DiscreteImageDomain(StructuredPoints1D(boundingBox, spacing))
   }
 }
 
@@ -90,15 +88,11 @@ object DiscreteImageDomain2D {
   }
 
   def apply(boundingBox: BoxDomain[_2D], size: IntVector[_2D]): DiscreteImageDomain[_2D] = {
-    val spacing = EuclideanVector2D(boundingBox.extent(0) / size(0), boundingBox.extent(1) / size(1))
-    DiscreteImageDomain(StructuredPoints2D(boundingBox.origin, spacing, size))
+    DiscreteImageDomain(StructuredPoints2D(boundingBox, size))
   }
 
   def apply(boundingBox: BoxDomain[_2D], spacing: EuclideanVector[_2D]): DiscreteImageDomain[_2D] = {
-    val size = IntVector2D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
-                           Math.ceil(boundingBox.extent(1) / spacing(1)).toInt)
-
-    DiscreteImageDomain(StructuredPoints2D(boundingBox.origin, spacing, size))
+    DiscreteImageDomain(StructuredPoints2D(boundingBox, spacing))
   }
 }
 
@@ -122,19 +116,10 @@ object DiscreteImageDomain3D {
   }
 
   def apply(boundingBox: BoxDomain[_3D], size: IntVector[_3D]): DiscreteImageDomain[_3D] = {
-    val spacing = EuclideanVector3D(boundingBox.extent(0) / size(0),
-                                    boundingBox.extent(1) / size(1),
-                                    boundingBox.extent(2) / size(2))
-    DiscreteImageDomain(StructuredPoints3D(boundingBox.origin, spacing, size))
+    DiscreteImageDomain(StructuredPoints3D(boundingBox, size))
   }
 
   def apply(boundingBox: BoxDomain[_3D], spacing: EuclideanVector[_3D]): DiscreteImageDomain[_3D] = {
-    val size = IntVector3D(
-      Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
-      Math.ceil(boundingBox.extent(1) / spacing(1)).toInt,
-      Math.ceil(boundingBox.extent(2) / spacing(2)).toInt
-    )
-
-    DiscreteImageDomain(StructuredPoints3D(boundingBox.origin, spacing, size))
+    DiscreteImageDomain(StructuredPoints3D(boundingBox, spacing))
   }
 }
