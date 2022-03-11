@@ -68,7 +68,7 @@ object GaussianRandomWalkProposal {
     new GaussianRandomWalkProposal(stddev, tag)
 }
 
-class MHIdentProposal[A]() extends MHProposalGenerator[A] {
+class MHIdentityProposal[A]() extends MHProposalGenerator[A] {
 
   /** rate of transition from to (log value) */
   override def logTransitionProbability(from: MHSample[A], to: MHSample[A]): Double = 0
@@ -77,6 +77,6 @@ class MHIdentProposal[A]() extends MHProposalGenerator[A] {
   override def propose(current: MHSample[A]): MHSample[A] = current.copy(generatedBy = "ident")
 }
 
-object MHIdentProposal {
-  def forType[A] = new MHIdentProposal[A]()
+object MHIdentityProposal {
+  def forType[A] = new MHIdentityProposal[A]()
 }

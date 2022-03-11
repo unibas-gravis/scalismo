@@ -32,14 +32,14 @@ class MHSampleLogger[A] extends AcceptRejectLogger[MHSample[A]] {
                       sample: MHSample[A],
                       generator: ProposalGenerator[MHSample[A]],
                       evaluator: DistributionEvaluator[MHSample[A]]): Unit = {
-    sampleBuf :+ MHSampleWithDecision(sample, Accepted)
+    sampleBuf.append(MHSampleWithDecision(sample, Accepted))
   }
 
   override def reject(current: MHSample[A],
                       sample: MHSample[A],
                       generator: ProposalGenerator[MHSample[A]],
                       evaluator: DistributionEvaluator[MHSample[A]]): Unit = {
-    sampleBuf :+ MHSampleWithDecision(sample, Rejected)
+    sampleBuf.append(MHSampleWithDecision(sample, Rejected))
   }
 
   def samples: LoggedMHSamples[A] = new LoggedMHSamples(sampleBuf.toSeq)
@@ -57,7 +57,7 @@ object MHSampleLogger {
   class LoggedMHSamples[A](samples: Seq[MHSampleWithDecision[A]]) {
 
     def takeLast(n: Int): LoggedMHSamples[A] = new LoggedMHSamples[A](samples.takeRight(n))
-
+    def dropFirst(n : Int): LoggedMHSamples[A] = new LoggedMHSamples[A](samples.drop(n))
     def accepted: Seq[MHSample[A]] = samples.collect { case MHSampleWithDecision(sample, Accepted) => sample }
     def rejected: Seq[MHSample[A]] = samples.collect { case MHSampleWithDecision(sample, Rejected) => sample }
 
