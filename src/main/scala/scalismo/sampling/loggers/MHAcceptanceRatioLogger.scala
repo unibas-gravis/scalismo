@@ -16,40 +16,63 @@
 
 package scalismo.sampling.loggers
 
+import scalismo.sampling.loggers.MHSampleLogger.{Accepted, LoggedMHSamples, MHSampleWithDecision, Rejected}
 import scalismo.sampling.{DistributionEvaluator, MHSample, ProposalGenerator}
 
+import scala.collection.mutable.ListBuffer
 
-class MHAcceptanceRatioLogger[A] extends AcceptRejectLogger[MHSample[A]] {
-  private val numAccepted = collection.mutable.Map[String, Int]()
-  private val numRejected = collection.mutable.Map[String, Int]()
+/**
+ * Generic logger to log accepted and rejected samples in a Metropolis Hastings chain.
+ */
+class MHSampleLogger[A] extends AcceptRejectLogger[MHSample[A]] {
+
+  private val sampleBuf: ListBuffer[MHSampleWithDecision[A]] = new ListBuffer[MHSampleWithDecision[A]]()
 
   override def accept(current: MHSample[A],
                       sample: MHSample[A],
                       generator: ProposalGenerator[MHSample[A]],
-                      evaluator: DistributionEvaluator[MHSample[A]]
-                     ): Unit = {
-    val numAcceptedSoFar = numAccepted.getOrElseUpdate(sample.generatedBy, 0)
-    numAccepted.update(sample.generatedBy, numAcceptedSoFar + 1)
+                      evaluator: DistributionEvaluator[MHSample[A]]): Unit = {
+    sampleBuf :+ MHSampleWithDecision(sample, Accepted)
   }
 
   override def reject(current: MHSample[A],
                       sample: MHSample[A],
                       generator: ProposalGenerator[MHSample[A]],
-                      evaluator: DistributionEvaluator[MHSample[A]]
-                     ): Unit = {
-    val numRejectedSoFar = numRejected.getOrElseUpdate(sample.generatedBy, 0)
-    numRejected.update(sample.generatedBy, numRejectedSoFar + 1)
+                      evaluator: DistributionEvaluator[MHSample[A]]): Unit = {
+    sampleBuf :+ MHSampleWithDecision(sample, Rejected)
   }
 
+  def samples: LoggedMHSamples[A] = new LoggedMHSamples(sampleBuf.toSeq)
+}
 
+object MHSampleLogger {
+  trait AcceptanceState
+  case object Rejected extends AcceptanceState
+  case object Accepted extends AcceptanceState
 
-  def acceptanceRatios() : Map[String, Double] = {
-    val generatorNames = numRejected.keys.toSet.union(numAccepted.keys.toSet)
-    val acceptanceRatios = for (generatorName <- generatorNames ) yield {
-      val total = (numAccepted.getOrElse(generatorName, 0)
-        + numRejected.getOrElse(generatorName, 0)).toDouble
-      (generatorName, numAccepted.getOrElse(generatorName, 0) / total)
+  case class MHSampleWithDecision[A](sample: MHSample[A], acceptanceState: AcceptanceState)
+
+  def apply[A](): MHSampleLogger[A] = new MHSampleLogger[A]()
+
+  class LoggedMHSamples[A](samples: Seq[MHSampleWithDecision[A]]) {
+
+    def takeLast(n: Int): LoggedMHSamples[A] = new LoggedMHSamples[A](samples.takeRight(n))
+
+    def accepted: Seq[MHSample[A]] = samples.collect { case MHSampleWithDecision(sample, Accepted) => sample }
+    def rejected: Seq[MHSample[A]] = samples.collect { case MHSampleWithDecision(sample, Rejected) => sample }
+
+    def acceptanceRatios: Map[String, Double] = {
+
+      val generatorNames = samples.map(_.sample.generatedBy).toSet
+
+      val acceptanceRatios = for (generatorName <- generatorNames) yield {
+        val numAccepted = samples.count(s => s.sample.generatedBy == generatorName && s.acceptanceState == Accepted)
+        val numRejected = samples.count(s => s.sample.generatedBy == generatorName && s.acceptanceState == Rejected)
+        generatorName -> numAccepted / (numAccepted + numRejected).toDouble
+      }
+
+      acceptanceRatios.toMap
     }
-    acceptanceRatios.toMap
   }
+
 }
