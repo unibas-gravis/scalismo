@@ -35,7 +35,7 @@ class MHProductProposal2[A, B](proposal1: MHProposalGenerator[A], proposal2: MHP
     val sample2 = proposal2.propose(current.copy(parameters = current.parameters._2))
     MHSample(
       (sample1.parameters, sample2.parameters),
-      generatedBy = s"(${sample1.generatedBy}, ${sample2.generatedBy}"
+      generatedBy = s"(${sample1.generatedBy}, ${sample2.generatedBy})"
     )
   }
 }
