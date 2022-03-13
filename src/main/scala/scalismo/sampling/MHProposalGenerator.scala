@@ -51,6 +51,25 @@ abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] wit
       }
     }
   }
+
+  /**
+   * returns a new ProposalGenerator, with a new label. This is useful to
+   * summarize complicated labels in composed proposal generators
+   */
+  def relabel(generatedBy : String) : MHProposalGenerator[A] = {
+    new MHProposalGenerator[A] {
+      /** draw a sample from this proposal distribution, may depend on current state */
+      override def propose(current: MHSample[A]): MHSample[A] = {
+        val origProposal = self.propose(current)
+        current.copy(generatedBy = generatedBy)
+      }
+
+      override def logTransitionProbability(from: MHSample[A], to: MHSample[A]): Double = {
+        self.logTransitionProbability(from, to)
+      }
+    }
+
+  }
 }
 
 /**
