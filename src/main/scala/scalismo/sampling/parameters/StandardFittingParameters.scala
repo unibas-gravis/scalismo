@@ -17,20 +17,11 @@
 package scalismo.sampling.parameters
 
 import breeze.linalg.DenseVector
-import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point}
+import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, _3D}
 import scalismo.registration.GaussianProcessTransformation3D
 import scalismo.sampling.ParameterConversion
 import scalismo.statisticalmodel.LowRankGaussianProcess
-import scalismo.transformations.{
-  RigidTransformation,
-  Rotation3D,
-  Scaling3D,
-  SimilarityTransformation,
-  Transformation,
-  Translation3D,
-  TranslationAfterRotation3D,
-  TranslationAfterScalingAfterRotation3D
-}
+import scalismo.transformations.{RigidTransformation, Rotation3D, Scaling3D, SimilarityTransformation, Transformation, Translation3D, TranslationAfterRotation, TranslationAfterRotation3D, TranslationAfterScalingAfterRotation, TranslationAfterScalingAfterRotation3D}
 
 /**
  * Represents shape parameters. Intended to be used in a Metropolis Hastings sampling chain
@@ -105,53 +96,3 @@ object PoseAndShapeParameters {
 
 }
 
-/**
- * Standard transformations that describe the given parameters. These are useful to implement evaluators for model fitting
- */
-object StandardFittingParameters {
-  def poseTransformationForParameters(translationParameters: TranslationParameters,
-                                      rotationParameters: RotationParameters,
-                                      centerOfRotation: Point[_3D]): RigidTransformation[_3D] = {
-    TranslationAfterRotation3D(Translation3D(translationParameters.translationVector),
-                               Rotation3D(rotationParameters.angles, centerOfRotation))
-  }
-
-  def poseAndSizeTransformationForParameters(translationParameters: TranslationParameters,
-                                             scaleParameter: ScaleParameter,
-                                             rotationParameters: RotationParameters,
-                                             centerOfRotation: Point[_3D]): SimilarityTransformation[_3D] = {
-    TranslationAfterScalingAfterRotation3D(Translation3D(translationParameters.translationVector),
-                                           Scaling3D(scaleParameter.scale),
-                                           Rotation3D(rotationParameters.angles, centerOfRotation))
-  }
-
-  def poseAndShapeTransformationForParameters(
-    translationParameters: TranslationParameters,
-    rotationParameters: RotationParameters,
-    centerOfRotation: Point[_3D],
-    shapeParameters: ShapeParameters,
-    gp: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]
-  ): Transformation[_3D] = {
-    val poseTransformation =
-      poseTransformationForParameters(translationParameters, rotationParameters, centerOfRotation)
-    val gpTransformation = GaussianProcessTransformation3D(gp, shapeParameters.coefficients)
-    poseTransformation.compose(gpTransformation)
-  }
-
-  def sizePoseAndShapeTransformationForParameters(
-    translationParameters: TranslationParameters,
-    scaleParameter: ScaleParameter,
-    rotationParameters: RotationParameters,
-    centerOfRotation: Point[_3D],
-    shapeParameters: ShapeParameters,
-    gp: LowRankGaussianProcess[_3D, EuclideanVector[_3D]]
-  ): Transformation[_3D] = {
-    val poseAndSizeTransformation = poseAndSizeTransformationForParameters(translationParameters,
-                                                                           scaleParameter,
-                                                                           rotationParameters,
-                                                                           centerOfRotation)
-    val gpTransformation = GaussianProcessTransformation3D(gp, shapeParameters.coefficients)
-    poseAndSizeTransformation.compose(gpTransformation)
-  }
-
-}
