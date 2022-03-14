@@ -18,7 +18,8 @@ package scalismo.common
 
 import scalismo.common.UnstructuredPoints.Create
 import scalismo.geometry._
-import scalismo.mesh.kdtree.{KDTreeMap, RegionBuilder}
+import scalismo.mesh.kdtree.KDTreeMap
+import scalismo.mesh.kdtree.RegionBuilder
 
 import scala.collection.parallel.immutable.ParVector
 import scala.language.implicitConversions
