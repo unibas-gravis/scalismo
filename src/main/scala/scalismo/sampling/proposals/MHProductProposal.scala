@@ -23,10 +23,15 @@ class MHProductProposal2[A, B](proposal1: MHProposalGenerator[A], proposal2: MHP
   /** rate of transition from to (log value) */
   override def logTransitionProbability(from: MHSample[(A, B)], to: MHSample[(A, B)]): Double = {
 
-    proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
-                                       MHSample(to.parameters._1, to.generatedBy)) *
-      proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
-                                         MHSample(to.parameters._2, to.generatedBy))
+    val transitionProbability1 = proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
+                                                                    MHSample(to.parameters._1, to.generatedBy))
+    val transitionProbability2 = proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
+                                                                    MHSample(to.parameters._2, to.generatedBy))
+    if (transitionProbability1.isInfinite || transitionProbability2.isInfinite) {
+      Double.NegativeInfinity
+    } else {
+      transitionProbability1 * transitionProbability2
+    }
   }
 
   /** draw a sample from this proposal distribution, may depend on current state */
@@ -49,12 +54,17 @@ class MHProductProposal3[A, B, C](proposal1: MHProposalGenerator[A],
   /** rate of transition from to (log value) */
   override def logTransitionProbability(from: MHSample[(A, B, C)], to: MHSample[(A, B, C)]): Double = {
 
-    proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
-                                       MHSample(to.parameters._1, to.generatedBy)) *
-      proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
-                                         MHSample(to.parameters._2, to.generatedBy)) *
-      proposal3.logTransitionProbability(MHSample(from.parameters._3, from.generatedBy),
-                                         MHSample(to.parameters._3, to.generatedBy))
+    val transitionProbability1 = proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
+                                                                    MHSample(to.parameters._1, to.generatedBy))
+    val transitionProbability2 = proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
+                                                                    MHSample(to.parameters._2, to.generatedBy))
+    val transitionProbability3 = proposal3.logTransitionProbability(MHSample(from.parameters._3, from.generatedBy),
+                                                                    MHSample(to.parameters._3, to.generatedBy))
+    if (transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite) {
+      Double.NegativeInfinity
+    } else {
+      transitionProbability1 * transitionProbability2 * transitionProbability3
+    }
   }
 
   /** draw a sample from this proposal distribution, may depend on current state */
@@ -80,14 +90,20 @@ class MHProductProposal4[A, B, C, D](proposal1: MHProposalGenerator[A],
   /** rate of transition from to (log value) */
   override def logTransitionProbability(from: MHSample[(A, B, C, D)], to: MHSample[(A, B, C, D)]): Double = {
 
-    proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
-                                       MHSample(to.parameters._1, to.generatedBy)) *
-      proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
-                                         MHSample(to.parameters._2, to.generatedBy)) *
-      proposal3.logTransitionProbability(MHSample(from.parameters._3, from.generatedBy),
-                                         MHSample(to.parameters._3, to.generatedBy)) *
-      proposal4.logTransitionProbability(MHSample(from.parameters._4, from.generatedBy),
-                                         MHSample(to.parameters._4, to.generatedBy))
+    val transitionProbability1 = proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
+                                                                    MHSample(to.parameters._1, to.generatedBy))
+    val transitionProbability2 = proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
+                                                                    MHSample(to.parameters._2, to.generatedBy))
+    val transitionProbability3 = proposal3.logTransitionProbability(MHSample(from.parameters._3, from.generatedBy),
+                                                                    MHSample(to.parameters._3, to.generatedBy))
+    val transitionProbability4 = proposal4.logTransitionProbability(MHSample(from.parameters._4, from.generatedBy),
+                                                                    MHSample(to.parameters._4, to.generatedBy))
+
+    if (transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite || transitionProbability4.isInfinite) {
+      Double.NegativeInfinity
+    } else {
+      transitionProbability1 * transitionProbability2 * transitionProbability3 * transitionProbability3
+    }
   }
 
   /** draw a sample from this proposal distribution, may depend on current state */

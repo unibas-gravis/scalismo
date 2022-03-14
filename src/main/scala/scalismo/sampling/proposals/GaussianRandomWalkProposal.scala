@@ -26,7 +26,8 @@ import scalismo.sampling.{MHProposalGenerator, MHSample, ProposalGenerator, Samp
  */
 class GaussianRandomWalkProposal(stddev: Double, val tag: String)(implicit
                                                                   rng: scalismo.utils.Random)
-    extends MHProposalGenerator[DenseVector[Double]] { self =>
+    extends MHProposalGenerator[DenseVector[Double]] {
+  self =>
 
   override def propose(sample: MHSample[DenseVector[Double]]): MHSample[DenseVector[Double]] = {
     val partAsVec: DenseVector[Double] = sample.parameters
@@ -37,8 +38,12 @@ class GaussianRandomWalkProposal(stddev: Double, val tag: String)(implicit
   override def logTransitionProbability(from: MHSample[DenseVector[Double]],
                                         to: MHSample[DenseVector[Double]]): Double = {
 
-    val dim = from.parameters.length
-    math.pow(2.0 * math.Pi, -dim / 2.0) - 0.5
+    if (from.parameters.length != to.parameters.length) {
+      Double.NegativeInfinity
+    } else {
+      val dim = from.parameters.length
+      math.pow(2.0 * math.Pi, -dim / 2.0) - 0.5
+    }
   }
 
   /**
@@ -47,7 +52,8 @@ class GaussianRandomWalkProposal(stddev: Double, val tag: String)(implicit
   def partial(range: Range): GaussianRandomWalkProposal = {
     new GaussianRandomWalkProposal(stddev, tag) {
       override def propose(sample: MHSample[DenseVector[Double]]): MHSample[DenseVector[Double]] = {
-        val partialNew = self.propose(sample.copy(parameters = sample.parameters(range))).parameters
+        val partialSample = sample.copy(parameters = sample.parameters(range).copy)
+        val partialNew = self.propose(partialSample).parameters
         val newFull = sample.parameters.copy
         newFull(range) := partialNew
         sample.copy(parameters = newFull, generatedBy = tag)
@@ -55,12 +61,25 @@ class GaussianRandomWalkProposal(stddev: Double, val tag: String)(implicit
 
       override def logTransitionProbability(from: MHSample[DenseVector[Double]],
                                             to: MHSample[DenseVector[Double]]): Double = {
-        self.logTransitionProbability(from.copy(parameters = from.parameters(range)),
-                                      to.copy(parameters = to.parameters(range)))
+
+        // This proposal generator can only change proposal for the given parameter range
+        // If anything else should be changed, there is 0 probability to reach that state
+        // To check that, we patch the parameters in the to vector with those from the from vector.
+        // If they are the same after that copy things are fine. If they should be different, there
+        // is zero probability of transitioning there
+        val patchedToParameters = to.parameters.copy
+        patchedToParameters(range) := from.parameters(range)
+        if (patchedToParameters != from.parameters) {
+          Double.NegativeInfinity
+        } else {
+          val fromPartial = from.copy(parameters = from.parameters(range).copy)
+          val toPartial = to.copy(parameters = to.parameters(range).copy)
+          self.logTransitionProbability(fromPartial, toPartial)
+        }
       }
     }
-  }
 
+  }
 }
 
 object GaussianRandomWalkProposal {

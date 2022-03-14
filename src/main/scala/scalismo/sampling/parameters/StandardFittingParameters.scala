@@ -17,11 +17,22 @@
 package scalismo.sampling.parameters
 
 import breeze.linalg.DenseVector
-import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point}
 import scalismo.registration.GaussianProcessTransformation3D
 import scalismo.sampling.ParameterConversion
 import scalismo.statisticalmodel.LowRankGaussianProcess
-import scalismo.transformations.{RigidTransformation, Rotation3D, Scaling3D, SimilarityTransformation, Transformation, Translation3D, TranslationAfterRotation, TranslationAfterRotation3D, TranslationAfterScalingAfterRotation, TranslationAfterScalingAfterRotation3D}
+import scalismo.transformations.{
+  RigidTransformation,
+  Rotation3D,
+  Scaling3D,
+  SimilarityTransformation,
+  Transformation,
+  Translation3D,
+  TranslationAfterRotation,
+  TranslationAfterRotation3D,
+  TranslationAfterScalingAfterRotation,
+  TranslationAfterScalingAfterRotation3D
+}
 
 /**
  * Represents shape parameters. Intended to be used in a Metropolis Hastings sampling chain
@@ -95,4 +106,3 @@ object PoseAndShapeParameters {
   }
 
 }
-
