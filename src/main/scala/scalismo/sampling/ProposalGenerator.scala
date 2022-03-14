@@ -15,11 +15,15 @@
  */
 package scalismo.sampling
 
+import breeze.linalg.DenseVector
+import scalismo.sampling.proposals.{GaussianRandomWalkProposal, MixtureProposal}
+
 /** proposal distribution sampler for Metropolis-Hastings MCMC */
 trait ProposalGenerator[A] {
 
   /** draw a sample from this proposal distribution, may depend on current state */
   def propose(current: A): A
+
 }
 
 /** ratio of forward and backwards proposal probability/density */

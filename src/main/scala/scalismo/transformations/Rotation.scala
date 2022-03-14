@@ -142,6 +142,9 @@ object Rotation3D {
   def apply(phi: Double, theta: Double, psi: Double, center: Point[_3D]): Rotation[_3D] = {
     Rotation3D(RotationSpace3D.eulerAnglesToRotMatrix(phi, theta, psi), center)
   }
+  def apply(angles: Tuple3[Double, Double, Double], center: Point[_3D]): Rotation[_3D] = {
+    Rotation3D(angles._1, angles._2, angles._3, center)
+  }
 }
 
 /**

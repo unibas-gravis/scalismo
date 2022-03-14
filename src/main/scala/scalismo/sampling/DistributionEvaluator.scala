@@ -15,6 +15,8 @@
  */
 package scalismo.sampling
 
+import scalismo.utils.Memoize
+
 /** a probability or density */
 trait DistributionEvaluator[A] {
 
@@ -27,4 +29,22 @@ trait GradientEvaluator[A] {
 
   /** gradient at sample */
   def gradient(sample: A): A
+}
+
+trait MHDistributionEvaluator[A] extends DistributionEvaluator[MHSample[A]] {
+
+  /** log probability/density of sample */
+  def logValue(sample: MHSample[A]): Double
+
+  def cached: MHDistributionEvaluator[A] = {
+    new CachedMHEvaluator[A](this)
+  }
+}
+
+case class CachedMHEvaluator[A](evaluator: MHDistributionEvaluator[A]) extends MHDistributionEvaluator[A] {
+  val memoizedLogValue = Memoize(evaluator.logValue, 10)
+
+  override def logValue(sample: MHSample[A]): Double = {
+    memoizedLogValue(sample)
+  }
 }
