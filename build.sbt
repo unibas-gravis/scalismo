@@ -3,6 +3,8 @@ val scalismoPlatform = {
   if (env != null) env else "all"
 }
 
+Test / parallelExecution := false
+
 lazy val root = (project in file("."))
   .settings(
     name := "scalismo",
@@ -57,8 +59,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.scalactic" %% "scalactic" % "3.2.10",
       "org.scalatest" %% "scalatest" % "3.2.10" % "test",
-      ("org.scalanlp" %% "breeze" % "2.0.1-RC1"),
-      ("org.scalanlp" %% "breeze-natives" % "2.0.1-RC1"),
+      ("org.scalanlp" %% "breeze" % "2.0.1-RC2"),
+      ("org.scalanlp" %% "breeze-natives" % "2.0.1-RC2"),
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
       "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
       "ch.unibas.cs.gravis" % "scalismo-native-all" % "4.0.1" % "test",
@@ -74,8 +76,7 @@ lazy val root = (project in file("."))
           "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
         )
       case _ => { println(scalaBinaryVersion.value); Seq() }
-    }),
-    parallelExecution / test := false
+    })
   )
   .enablePlugins(GitVersioning)
   .settings(
