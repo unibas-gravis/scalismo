@@ -158,6 +158,19 @@ object DiscreteField {
     M
   }
 
+  implicit class DiscreteImageOps[D: NDSpace, A](discreteField: DiscreteField[D, DiscreteImageDomain, A]) {
+
+    //private val pointSet = discreteField.pointSet
+    //val dimensionality = ndSpace.dimensionality
+
+    def apply(idx: IntVector[D]): A = discreteField(discreteField.domain.pointSet.pointId(idx))
+
+    def isDefinedAt(idx: IntVector[D]): Boolean = {
+      discreteField.domain.pointSet.isDefinedAt(idx)
+    }
+
+  }
+
 }
 
 object DiscreteField1D {
