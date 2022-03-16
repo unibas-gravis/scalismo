@@ -36,7 +36,7 @@ import scala.language.higherKinds
  *
  * @see [[DiscreteLowRankGaussianProcess]]
  */
-case class PointDistributionModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]] private[scalismo] (
+case class PointDistributionModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
   gp: DiscreteLowRankGaussianProcess[D, DDomain, EuclideanVector[D]]
 )(implicit warper: DomainWarp[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]) {
 
