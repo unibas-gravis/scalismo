@@ -30,7 +30,7 @@ class MHProductProposal2[A, B](proposal1: MHProposalGenerator[A], proposal2: MHP
     if (transitionProbability1.isInfinite || transitionProbability2.isInfinite) {
       Double.NegativeInfinity
     } else {
-      transitionProbability1 * transitionProbability2
+      transitionProbability1 + transitionProbability2
     }
   }
 
@@ -63,7 +63,7 @@ class MHProductProposal3[A, B, C](proposal1: MHProposalGenerator[A],
     if (transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite) {
       Double.NegativeInfinity
     } else {
-      transitionProbability1 * transitionProbability2 * transitionProbability3
+      transitionProbability1 + transitionProbability2 + transitionProbability3
     }
   }
 
@@ -102,7 +102,7 @@ class MHProductProposal4[A, B, C, D](proposal1: MHProposalGenerator[A],
     if (transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite || transitionProbability4.isInfinite) {
       Double.NegativeInfinity
     } else {
-      transitionProbability1 * transitionProbability2 * transitionProbability3 * transitionProbability3
+      transitionProbability1 + transitionProbability2 + transitionProbability3 + transitionProbability4
     }
   }
 
