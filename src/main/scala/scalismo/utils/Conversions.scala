@@ -159,33 +159,41 @@ object VtkHelpers {
 
   def vtkDataArrayToScalarArray[A: ClassTag: Scalar](vtkType: Int, arrayVTK: vtkDataArray): Try[ScalarArray[A]] = Try {
     val scalar = Scalar[A]
+
+    // There seems to be a bug in VTK, thathe array 1 element to big. To work
+    // around this, we compute the number of elements manually and take only this number of elements.
+    val numElementsInArray = arrayVTK.GetNumberOfTuples().toInt * arrayVTK.GetNumberOfComponents()
+
     vtkType match {
       // simple cases, no magic needed
       case VTK_SHORT =>
-        val p = arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray()
+        val p = arrayVTK.asInstanceOf[vtkShortArray].GetJavaArray().take(numElementsInArray)
         Scalar.ShortIsScalar.createArray(p).map((s: Short) => scalar.fromShort(s))
       case VTK_INT =>
-        val p = arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray()
+        val p = arrayVTK.asInstanceOf[vtkIntArray].GetJavaArray().take(numElementsInArray)
         Scalar.IntIsScalar.createArray(p).map((i: Int) => scalar.fromInt(i))
       case VTK_FLOAT =>
-        val p = arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray()
+        val p = arrayVTK.asInstanceOf[vtkFloatArray].GetJavaArray().take(numElementsInArray)
         Scalar.FloatIsScalar.createArray(p).map((f: Float) => scalar.fromFloat(f))
       case VTK_DOUBLE =>
-        val p = arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray()
+        val p = arrayVTK.asInstanceOf[vtkDoubleArray].GetJavaArray().take(numElementsInArray)
         Scalar.DoubleIsScalar.createArray(p).map((d: Double) => scalar.fromDouble(d))
       // complicated cases, so we're more explicit about what we're doing
       case VTK_CHAR =>
-        val in = arrayVTK.asInstanceOf[vtkCharArray].GetJavaArray()
-        val out: Array[Byte] = ArrayUtils.fastMap[Char, Byte](in, { c =>
-          c.toByte
-        })
+        val in = arrayVTK.asInstanceOf[vtkCharArray] //.GetJavaArray()
+        val out: Array[Byte] = new Array[Byte](numElementsInArray)
+        var i = 0
+        while (i < out.length) {
+          out(i) = in.GetValue(i).toByte
+          i += 1
+        }
         Scalar.ByteIsScalar.createArray(out).map((b: Byte) => scalar.fromByte(b))
       case VTK_SIGNED_CHAR =>
         val in = arrayVTK.asInstanceOf[vtkSignedCharArray]
 
         // vtkSignedCharArray does not seem to have a GetJavaArray method.
         // We therefore need to copy it manually
-        val out: Array[Byte] = new Array[Byte](in.GetNumberOfTuples() * in.GetNumberOfComponents())
+        val out: Array[Byte] = new Array[Byte](numElementsInArray)
         var i = 0
         while (i < out.length) {
           out(i) = in.GetValue(i).toByte
@@ -193,14 +201,14 @@ object VtkHelpers {
         }
         Scalar.ByteIsScalar.createArray(out).map((b: Byte) => scalar.fromByte(b))
       case VTK_UNSIGNED_CHAR =>
-        val in = arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray()
+        val in = arrayVTK.asInstanceOf[vtkUnsignedCharArray].GetJavaArray().take(numElementsInArray)
         Scalar.UByteIsScalar.createArray(in).map((s: UByte) => scalar.fromShort(s.toShort))
       case VTK_UNSIGNED_SHORT =>
-        val in = arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray()
+        val in = arrayVTK.asInstanceOf[vtkUnsignedShortArray].GetJavaArray().take(numElementsInArray)
         val chars = ArrayUtils.fastMap[Short, Char](in, _.toChar)
         Scalar.UShortIsScalar.createArray(chars).map((s: UShort) => scalar.fromInt(s.toInt))
       case VTK_UNSIGNED_INT =>
-        val in = arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray()
+        val in = arrayVTK.asInstanceOf[vtkUnsignedIntArray].GetJavaArray().take(numElementsInArray)
         Scalar.UIntIsScalar.createArray(in).asInstanceOf[ScalarArray[A]]
       case _ => throw new NotImplementedError("Unsupported Scalar Pixel Type " + Scalar[A].scalarType)
     }
@@ -212,7 +220,7 @@ object TetrahedralMeshConversion {
 
   private def extractPointsAndCells(ug: vtkUnstructuredGrid) = Try {
     val grids = ug.GetCells()
-    val numGrids = grids.GetNumberOfCells()
+    val numGrids = grids.GetNumberOfCells().toInt
 
     val points = CommonConversions.vtkConvertPoints[_3D](ug)
 
@@ -224,10 +232,10 @@ object TetrahedralMeshConversion {
         throw new Exception("Not a tetrahedral mesh")
       }
 
-      TetrahedralCell(PointId(idList.GetId(0)),
-                      PointId(idList.GetId(1)),
-                      PointId(idList.GetId(2)),
-                      PointId(idList.GetId(3)))
+      TetrahedralCell(PointId(idList.GetId(0).toInt),
+                      PointId(idList.GetId(1).toInt),
+                      PointId(idList.GetId(2).toInt),
+                      PointId(idList.GetId(3).toInt))
     }
     idList.Delete()
     (points, cells)
@@ -318,7 +326,7 @@ object MeshConversion {
     } else pd
 
     val polys = newPd.GetPolys()
-    val numPolys = polys.GetNumberOfCells()
+    val numPolys = polys.GetNumberOfCells().toInt
 
     val points = CommonConversions.vtkConvertPoints[_3D](newPd)
 
@@ -329,7 +337,7 @@ object MeshConversion {
         throw new Exception("Not a triangle mesh")
       }
 
-      TriangleCell(PointId(idList.GetId(0)), PointId(idList.GetId(1)), PointId(idList.GetId(2)))
+      TriangleCell(PointId(idList.GetId(0).toInt), PointId(idList.GetId(1).toInt), PointId(idList.GetId(2).toInt))
     }
     idList.Delete()
     (points, cells)
@@ -414,7 +422,7 @@ object MeshConversion {
     pd: vtkPolyData
   ): Try[LineMesh[D]] = {
     val lines = pd.GetLines()
-    val numPolys = lines.GetNumberOfCells()
+    val numPolys = lines.GetNumberOfCells().toInt
     val points = CommonConversions.vtkConvertPoints[D](pd)
     val idList = new vtkIdList()
     val cellsOrFailure = Try {
@@ -423,7 +431,7 @@ object MeshConversion {
         if (idList.GetNumberOfIds() != 2) {
           throw new scala.Exception("Not a poly line")
         } else {
-          LineCell(PointId(idList.GetId(0)), PointId(idList.GetId(1)))
+          LineCell(PointId(idList.GetId(0).toInt), PointId(idList.GetId(1).toInt))
         }
       }
     }
