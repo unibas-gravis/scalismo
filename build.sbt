@@ -1,3 +1,5 @@
+import sbt.Resolver
+
 val scalismoPlatform = {
   val env = System.getenv("SCALISMO_PLATFORM")
   if (env != null) env else "all"
@@ -27,10 +29,13 @@ lazy val root = (project in file("."))
     ),
     crossScalaVersions := Seq("2.13.6", "3.1.0"),
     resolvers ++= Seq(
-      Resolver.bintrayRepo("unibas-gravis", "maven"),
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots")
+      Resolver.sonatypeRepo("snapshots"),
+      "jz3d-release" at "https://maven.jzy3d.org/releases",
+      "jz3d-snapshot" at "https://maven.jzy3d.org/shapshots",
+      Resolver.sonatypeRepo("chunibascsgravis-1045"), // staging repo only needed until release of natives
+      Resolver.sonatypeRepo("chunibascsgravis-1049") //  staging repo only needed until release of natives
     ),
     scalacOptions ++= {
       Seq(
@@ -62,8 +67,9 @@ lazy val root = (project in file("."))
       ("org.scalanlp" %% "breeze" % "2.0.1-RC2"),
       ("org.scalanlp" %% "breeze-natives" % "2.0.1-RC2"),
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
-      "ch.unibas.cs.gravis" % "scalismo-native-stub" % "4.0.1",
-      "ch.unibas.cs.gravis" % "scalismo-native-all" % "4.0.1" % "test",
+      "ch.unibas.cs.gravis" % "scalismo-niftijiojar" % "0.1.0",
+      "ch.unibas.cs.gravis" % "hdf5javanatives" % "0.1.0",
+      "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.1.0",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {

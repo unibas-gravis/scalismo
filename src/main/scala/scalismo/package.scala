@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import ch.unibas.cs.gravis.hdf5nativelibs.Hdf5NativeLibs
+import ch.unibas.cs.gravis.vtkjavanativelibs.VtkNativeLibraries
+
 import javax.swing.SwingUtilities
-import scalismo.support.nativelibs._
 import vtk.vtkObjectBase
 
 package object scalismo {
@@ -31,9 +33,12 @@ package object scalismo {
    *                   A value <= 0 means that garbage collection is not run automatically.
    */
   def initialize(ignoreErrors: Boolean = false, gcInterval: Long = 60 * 1000) = initialized.synchronized {
+    import java.io.File
+    val nativeDir = new File(System.getProperty("user.home") + File.separator + ".scalismo")
     if (!initialized(0)) {
-      val mode = if (ignoreErrors) InitializationMode.WARN_ON_FAIL else InitializationMode.TERMINATE_ON_FAIL
-      NativeLibraryBundles.initialize(mode)
+      Hdf5NativeLibs.initialize(nativeDir)
+
+      VtkNativeLibraries.initialize(nativeDir)
 
       if (gcInterval > 0) {
         setupVTKGCThread(gcInterval)

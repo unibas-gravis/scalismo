@@ -444,14 +444,17 @@ object MeshIO {
       case Right(colorMesh) => {
 
         val vtkColors = new vtkUnsignedCharArray()
-        vtkColors.SetNumberOfComponents(3)
+        vtkColors.SetNumberOfComponents(4)
 
         // Add the three colors we have created to the array
         for (id <- colorMesh.shape.pointSet.pointIds) {
           val color = colorMesh.color(id)
-          vtkColors.InsertNextTuple3((color.r * 255).toShort, (color.g * 255).toShort, (color.b * 255).toShort)
+          vtkColors.InsertNextTuple4((color.r * 255).toShort,
+                                     (color.g * 255).toShort,
+                                     (color.b * 255).toShort,
+                                     color.a * 255)
         }
-        vtkColors.SetName("RGB")
+        vtkColors.SetName("RGBA")
         vtkPd.GetPointData().SetScalars(vtkColors)
 
       }
@@ -459,8 +462,9 @@ object MeshIO {
     }
     val writer = new vtkPLYWriter()
     writer.SetFileName(file.getAbsolutePath)
-    writer.SetArrayName("RGB")
+    writer.SetArrayName("RGBA")
     writer.SetComponent(0)
+    writer.SetEnableAlpha(true)
     writer.SetInputData(vtkPd)
     writer.SetColorModeToDefault()
     writer.SetFileTypeToBinary()
@@ -621,14 +625,15 @@ object MeshIO {
     } yield {
       getColorArray(vtkPd) match {
         case Some(("RGBA", colorArray)) => {
-          val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
+
+          val colors = for (i <- 0 until colorArray.GetNumberOfTuples().toInt) yield {
             val rgba = colorArray.GetTuple4(i)
             RGBA(rgba(0) / 255.0, rgba(1) / 255.0, rgba(2) / 255.0, rgba(3) / 255.0)
           }
           Right(VertexColorMesh3D(meshGeometry, new SurfacePointProperty[RGBA](meshGeometry.triangulation, colors)))
         }
         case Some(("RGB", colorArray)) => {
-          val colors = for (i <- 0 until colorArray.GetNumberOfTuples()) yield {
+          val colors = for (i <- 0 until colorArray.GetNumberOfTuples().toInt) yield {
             val rgb = colorArray.GetTuple3(i)
             RGBA(RGB(rgb(0) / 255.0, rgb(1) / 255.0, rgb(2) / 255.0))
           }
