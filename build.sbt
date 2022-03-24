@@ -32,10 +32,7 @@ lazy val root = (project in file("."))
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("releases"),
       Resolver.sonatypeRepo("snapshots"),
-      "jz3d-release" at "https://maven.jzy3d.org/releases",
-      "jz3d-snapshot" at "https://maven.jzy3d.org/shapshots",
-      Resolver.sonatypeRepo("chunibascsgravis-1045"), // staging repo only needed until release of natives
-      Resolver.sonatypeRepo("chunibascsgravis-1049") //  staging repo only needed until release of natives
+      Resolver.sonatypeRepo("chunibascsgravis-1055")
     ),
     scalacOptions ++= {
       Seq(
@@ -69,7 +66,7 @@ lazy val root = (project in file("."))
       ("io.spray" %% "spray-json" % "1.3.6").cross(CrossVersion.for3Use2_13),
       "ch.unibas.cs.gravis" % "scalismo-niftijiojar" % "0.1.0",
       "ch.unibas.cs.gravis" % "hdf5javanatives" % "0.1.0",
-      "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.1.0",
+      "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.1.1",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {
