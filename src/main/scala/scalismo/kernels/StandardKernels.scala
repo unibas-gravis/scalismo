@@ -22,27 +22,34 @@ import scalismo.numerics.BSpline
 import scalismo.transformations.Transformation
 import scalismo.utils.Memoize
 
-case class GaussianKernel[D](sigma: Double) extends PDKernel[D] {
+/**
+ * Defines a Gaussian kernel with standard deviation sigma. The scale factor
+ * determines the variance (the value of k(x,x)). A scale factor of s leads to
+ * the variance k(x,x) = s*s. When modelling functions, the scale factor can be interpreted
+ * as the amplitude of the function
+ */
+case class GaussianKernel[D](sigma: Double, scaleFactor: Double = 1) extends PDKernel[D] {
   val sigma2 = sigma * sigma
+  val s2 = scaleFactor * scaleFactor
 
   override def domain = EuclideanSpace[D]
 
   override def k(x: Point[D], y: Point[D]): Double = {
     val r = x - y
-    scala.math.exp(-r.norm2 / sigma2)
+    scala.math.exp(-r.norm2 / sigma2) * s2
   }
 }
 
 object GaussianKernel1D {
-  def apply(sigma: Double): GaussianKernel[_1D] = GaussianKernel[_1D](sigma)
+  def apply(sigma: Double, scaleFactor: Double = 1): GaussianKernel[_1D] = GaussianKernel[_1D](sigma, scaleFactor)
 }
 
 object GaussianKernel2D {
-  def apply(sigma: Double): GaussianKernel[_2D] = GaussianKernel[_2D](sigma)
+  def apply(sigma: Double, scaleFactor: Double = 1): GaussianKernel[_2D] = GaussianKernel[_2D](sigma, scaleFactor)
 }
 
 object GaussianKernel3D {
-  def apply(sigma: Double): GaussianKernel[_3D] = GaussianKernel[_3D](sigma)
+  def apply(sigma: Double, scaleFactor: Double = 1): GaussianKernel[_3D] = GaussianKernel[_3D](sigma, scaleFactor)
 }
 
 case class SampleCovarianceKernel[D: NDSpace](ts: IndexedSeq[Transformation[D]], cacheSizeHint: Int = 100000)
