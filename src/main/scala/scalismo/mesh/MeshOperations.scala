@@ -116,8 +116,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
     def grad(pt: Point[_3D]) = {
       val closestPt = closestPoint(pt).point
-      val grad = EuclideanVector(pt(0) - closestPt(0), pt(1) - closestPt(1), pt(2) - closestPt(2))
-      grad * (1.0 / grad.norm)
+
+      val grad = closestPt - pt
+      val gradNorm = grad.norm
+      if (gradNorm < 1e-10) EuclideanVector.zeros[_3D] else grad * (1.0 / gradNorm)
     }
 
     DifferentiableField(EuclideanSpace[_3D], (pt: Point[_3D]) => dist(pt), (pt: Point[_3D]) => grad(pt))
