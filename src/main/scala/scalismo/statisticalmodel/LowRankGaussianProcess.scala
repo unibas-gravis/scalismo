@@ -436,13 +436,12 @@ object LowRankGaussianProcess {
     val term1b = y.t * (Ai * U * breeze.linalg.pinv(lrUpdate) * Ut * Ai) * y
 
     //logdet of Ky using the matrix determinant lemma
-    val term2 = breeze.linalg.logdet(lrUpdate)._2 + breeze.linalg.sum(S.map(math.log)) + td
-      .map(mvn => breeze.linalg.logdet(mvn.cov)._2)
-      .sum
+    val term2a = breeze.linalg.logdet(lrUpdate)._2 + breeze.linalg.sum(S.map(math.log))
+    val term2b = td.map(mvn => breeze.linalg.logdet(mvn.cov)._2).sum
     //n log 2pi
     val term3 = y.length * math.log(math.Pi * 2)
 
-    -0.5 * (term1a + term1b + term2 + term3)
+    -0.5 * (term1a + term1b + term2a + term2b + term3)
   }
 
   /**
