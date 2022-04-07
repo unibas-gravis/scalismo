@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{diag, Axis, DenseMatrix, DenseVector}
+import breeze.linalg.{diag, Axis, CSCMatrix, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.common._
 import scalismo.common.interpolation.FieldInterpolator
@@ -186,6 +186,28 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
   ): DiscreteLowRankGaussianProcess[D, UnstructuredPointsDomain, Value] = {
     val domain = domainCreator.create(points)
     discretize(domain)
+  }
+
+  /**
+   * calculates the log marginal likelihood given trainingData.
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  override def marginalLikelihood(td: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
+    require(td.nonEmpty, "provide observations to calculate the marginal likelihood")
+    val (eigenvalues, discretePhis) = (for (Eigenpair(lambda, phi) <- this.klBasis) yield {
+      val vectorsSeq = for ((p, _, _) <- td) yield phi.apply(p)
+      val data = vectorsSeq.flatMap(value => vectorizer.vectorize(value).toArray).toArray
+      val vector = new DenseMatrix(td.length * this.outputDim, 1, data)
+      (lambda, vector)
+    }).unzip
+
+    val U = DenseMatrix.horzcat(discretePhis: _*)
+    val S = DenseVector(eigenvalues: _*)
+    val y = DenseVector(
+      td.flatMap(t => (vectorizer.vectorize(t._2) - vectorizer.vectorize(this.mean(t._1))).toArray): _*
+    )
+    LowRankGaussianProcess.marginalLikelihoodComputation(U, S, y, td.map(_._3))
   }
 
   /**
@@ -384,6 +406,43 @@ object LowRankGaussianProcess {
       Eigenpair(newEv, newEf)
     }
     new LowRankGaussianProcess[D, Value](mean_p, klBasis_p)
+  }
+
+  /**
+   * computes the log marginal likelihood given the eigendecomposition USUt and arbitrary independent noise on observations
+   *
+   * @param U  contains the relevant parts of the eigenfunctions
+   * @param S  contains the eigenvalues/variance
+   * @param td non-empty seq that contains the noise defining the matrix A, where each entry is in order with the matrix U
+   */
+  private[scalismo] def marginalLikelihoodComputation(U: DenseMatrix[Double],
+                                                      S: DenseVector[Double],
+                                                      y: DenseVector[Double],
+                                                      td: IndexedSeq[MultivariateNormalDistribution]): Double = {
+    val Ut = U.t
+    val Si = S.map(d => if (d > 1e-10) 1.0 / d else 0.0)
+    val Ai = {
+      val bi = new CSCMatrix.Builder[Double](y.length, y.length)
+      for ((mvn, i) <- td.zipWithIndex) {
+        breeze.linalg.pinv(mvn.cov).foreachPair((c, d) => bi.add(i - 1 + c._1, i - 1 + c._2, d))
+      }
+      bi.result
+    }
+
+    //relying on 'Gaussian Processes for Machine Learning' eq 5.8
+    //calculating the first term with the woodbury formula
+    val lrUpdate = diag(Si) + Ut * Ai * U
+    val term1a = y.t * Ai * y
+    val term1b = y.t * (Ai * U * breeze.linalg.pinv(lrUpdate) * Ut * Ai) * y
+
+    //logdet of Ky using the matrix determinant lemma
+    val term2 = breeze.linalg.logdet(lrUpdate)._2 + breeze.linalg.sum(S.map(math.log)) + td
+      .map(mvn => breeze.linalg.logdet(mvn.cov)._2)
+      .sum
+    //n log 2pi
+    val term3 = y.length * math.log(math.Pi * 2)
+
+    -0.5 * (term1a + term1b + term2 + term3)
   }
 
   /**
