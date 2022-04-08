@@ -424,7 +424,7 @@ object LowRankGaussianProcess {
     val Ai = {
       val bi = new CSCMatrix.Builder[Double](y.length, y.length)
       for ((mvn, i) <- td.zipWithIndex) {
-        breeze.linalg.pinv(mvn.cov).foreachPair((c, d) => bi.add(i - 1 + c._1, i - 1 + c._2, d))
+        breeze.linalg.pinv(mvn.cov).foreachPair((c, d) => bi.add(i + c._1, i + c._2, d))
       }
       bi.result
     }
@@ -432,8 +432,8 @@ object LowRankGaussianProcess {
     //relying on 'Gaussian Processes for Machine Learning' eq 5.8
     //calculating the first term with the woodbury formula
     val lrUpdate = diag(Si) + Ut * Ai * U
-    val term1a = y.t * Ai * y
-    val term1b = y.t * (Ai * U * breeze.linalg.pinv(lrUpdate) * Ut * Ai) * y
+    val term1a = y.t * (Ai * y)
+    val term1b = - y.t * (Ai * U * breeze.linalg.pinv(lrUpdate) * Ut * Ai) * y
 
     //logdet of Ky using the matrix determinant lemma
     val term2a = breeze.linalg.logdet(lrUpdate)._2 + breeze.linalg.sum(S.map(math.log))
