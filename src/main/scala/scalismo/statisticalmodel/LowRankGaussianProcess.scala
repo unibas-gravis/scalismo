@@ -419,12 +419,13 @@ object LowRankGaussianProcess {
                                                       S: DenseVector[Double],
                                                       y: DenseVector[Double],
                                                       td: IndexedSeq[MultivariateNormalDistribution]): Double = {
+    val dim = y.length / td.length
     val Ut = U.t
     val Si = S.map(d => if (d > 1e-10) 1.0 / d else 0.0)
     val Ai = {
       val bi = new CSCMatrix.Builder[Double](y.length, y.length)
       for ((mvn, i) <- td.zipWithIndex) {
-        breeze.linalg.pinv(mvn.cov).foreachPair((c, d) => bi.add(i + c._1, i + c._2, d))
+        breeze.linalg.pinv(mvn.cov).foreachPair((c, d) => bi.add(dim * i + c._1, dim * i + c._2, d))
       }
       bi.result
     }
@@ -433,7 +434,7 @@ object LowRankGaussianProcess {
     //calculating the first term with the woodbury formula
     val lrUpdate = diag(Si) + Ut * Ai * U
     val term1a = y.t * (Ai * y)
-    val term1b = - y.t * (Ai * U * breeze.linalg.pinv(lrUpdate) * Ut * Ai) * y
+    val term1b = -y.t * (Ai * U * breeze.linalg.pinv(lrUpdate) * Ut * Ai) * y
 
     //logdet of Ky using the matrix determinant lemma
     val term2a = breeze.linalg.logdet(lrUpdate)._2 + breeze.linalg.sum(S.map(math.log))
