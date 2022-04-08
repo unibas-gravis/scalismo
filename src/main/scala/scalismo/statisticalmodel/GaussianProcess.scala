@@ -74,7 +74,7 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   def marginalLikelihood(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
     require(trainingData.nonEmpty, "provide observations to calculate the marginal likelihood")
     GaussianProcess
-      .marginalLikelihoodCalculation[Point[D], Value]((p1, p2) => cov(p1, p2), p => mean(p), trainingData, outputDim)
+      .marginalLikelihoodCalculation[Point[D], Value](cov.apply, mean.f, trainingData, outputDim)
   }
 
   /**
