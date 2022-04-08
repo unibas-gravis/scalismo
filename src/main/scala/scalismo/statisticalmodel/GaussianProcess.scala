@@ -200,8 +200,6 @@ object GaussianProcess {
    *
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-   * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
-   *       with a Cholesky decomposition would be more efficient.
    */
   def marginalLikelihood[D: NDSpace, Value](
     gp: GaussianProcess[D, Value],
@@ -211,10 +209,12 @@ object GaussianProcess {
   }
 
   /**
+   *
+   * @tparam A combines the interface for NDSpace for GaussianProcess as well as PointId in DiscreteGaussianProcess
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  def marginalLikelihoodCalculation[A, Value](cov: (A, A) => DenseMatrix[Double],
+  private[scalismo] def marginalLikelihoodCalculation[A, Value](cov: (A, A) => DenseMatrix[Double],
                                               mean: A => Value,
                                               trainingData: IndexedSeq[(A, Value, MultivariateNormalDistribution)],
                                               outputDim: Int)(implicit vectorizer: Vectorizer[Value]): Double = {
