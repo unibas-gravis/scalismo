@@ -214,10 +214,12 @@ object GaussianProcess {
    * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
    *       with a Cholesky decomposition would be more efficient.
    */
-  private[scalismo] def marginalLikelihoodCalculation[A, Value](cov: (A, A) => DenseMatrix[Double],
-                                              mean: A => Value,
-                                              trainingData: IndexedSeq[(A, Value, MultivariateNormalDistribution)],
-                                              outputDim: Int)(implicit vectorizer: Vectorizer[Value]): Double = {
+  private[scalismo] def marginalLikelihoodCalculation[A, Value](
+    cov: (A, A) => DenseMatrix[Double],
+    mean: A => Value,
+    trainingData: IndexedSeq[(A, Value, MultivariateNormalDistribution)],
+    outputDim: Int
+  )(implicit vectorizer: Vectorizer[Value]): Double = {
     // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
     val (xs, ys, errorDistributions) = trainingData.unzip3
     val meanValues = xs.map(mean)
