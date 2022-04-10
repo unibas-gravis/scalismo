@@ -72,6 +72,15 @@ trait PointSet[D] extends Equals {
    */
   def boundingBox: BoxDomain[D]
 
+  /**
+   * Computes the center of moss of the points in this pointSet
+   */
+  def centerOfMass(implicit ndSpace: NDSpace[D]): Point[D] = {
+    val normFactor = 1.0 / numberOfPoints
+    val origin = Point.origin[D]
+    points.foldLeft(origin)((sum, point) => sum + (point - origin) * normFactor)
+  }
+
   override def equals(that: Any) = {
     that match {
       case d: PointSet[D @unchecked] => d.canEqual(this) && points.toSeq == d.points.toSeq
