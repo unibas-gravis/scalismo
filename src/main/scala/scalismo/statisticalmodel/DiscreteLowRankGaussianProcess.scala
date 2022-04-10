@@ -211,6 +211,19 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
   }
 
   /**
+   * calculates the log marginal likelihood given trainingData.
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  override def marginalLikelihood(td: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): Double = {
+    require(td.nonEmpty, "provide observations to calculate the marginal likelihood")
+    val matIds = td.flatMap(t => t._1.id * outputDim until t._1.id * outputDim + outputDim)
+    val U = DenseMatrix.tabulate[Double](matIds.length, rank)((x, y) => basisMatrix(matIds(x), y))
+    val y = DenseVector(td.flatMap(t => (vectorizer.vectorize(t._2) - vectorizer.vectorize(mean(t._1))).toArray): _*)
+    LowRankGaussianProcess.marginalLikelihoodComputation(U, variance, y, td.map(_._3))
+  }
+
+  /**
    * Interpolates the gaussian process using the given interpolator. Interpolation is achieved
    * by interoplating the mean and eigenfunctions using the given interpolator.
    *

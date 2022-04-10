@@ -32,6 +32,7 @@ import scalismo.image.{
 }
 import scalismo.io.{StatismoIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
+import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{GridSampler, UniformSampler}
 import scalismo.utils.Random
 
@@ -670,6 +671,29 @@ class GaussianProcessTests extends ScalismoTestSuite {
       }
     }
 
+  }
+
+  describe("when comparing marginalLikelihoods") {
+    it("all gp implementations should return the same values") {
+      val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
+      val sampler = GridSampler(DiscreteImageDomain3D(domain.origin, domain.extent * (1.0 / 2), IntVector(2, 2, 2)))
+      val mean = Field[_3D, EuclideanVector[_3D]](domain, _ => EuclideanVector3D.ones)
+      val kernel = DiagonalKernel(GaussianKernel[_3D](10), 3)
+      val gp = GaussianProcess.apply(mean, kernel)
+      val dgp = gp.discretize(sampler.domain)
+      val lgp = LowRankGaussianProcess.approximateGPCholesky(sampler.domain, gp, 0.0, NearestNeighborInterpolator())
+      val dlgp = lgp.discretize(sampler.domain)
+      val mvn = MultivariateNormalDistribution.apply(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
+      val td = sampler.domain.pointSet.pointIds
+        .map(pid => (sampler.domain.pointSet.point(pid), EuclideanVector3D.unitX, mvn))
+        .toIndexedSeq
+      val dtd = sampler.domain.pointSet.pointIds.map(pid => (pid, EuclideanVector3D.unitX, mvn)).toIndexedSeq
+
+      val gpml = gp.marginalLikelihood(td)
+      gpml shouldBe lgp.marginalLikelihood(td) +- 1e-7
+      gpml shouldBe dgp.marginalLikelihood(dtd) +- 1e-7
+      gpml shouldBe dlgp.marginalLikelihood(dtd) +- 1e-7
+    }
   }
 
 }

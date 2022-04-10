@@ -65,6 +65,19 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   def marginal(pt: Point[D]) = MultivariateNormalDistribution(vectorizer.vectorize(mean(pt)), cov(pt, pt))
 
   /**
+   * Computes the marginal likelihood of the observed data.
+   *
+   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  def marginalLikelihood(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
+    require(trainingData.nonEmpty, "provide observations to calculate the marginal likelihood")
+    GaussianProcess
+      .marginalLikelihoodCalculation[Point[D], Value](cov.apply, mean.f, trainingData, outputDim)
+  }
+
+  /**
    * Discretizes the Gaussian Process at the given domain points. The
    * @param domain
    * @tparam DDomain
@@ -187,29 +200,38 @@ object GaussianProcess {
    *
    * @param gp           The gaussian process
    * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
-   * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
-   *       with a Cholesky decomposition would be more efficient.
    */
   def marginalLikelihood[D: NDSpace, Value](
     gp: GaussianProcess[D, Value],
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
   )(implicit vectorizer: Vectorizer[Value]): Double = {
+    gp.marginalLikelihood(trainingData)
+  }
 
-    val outputDim = gp.outputDim
-
+  /**
+   *
+   * @tparam A combines the interface for NDSpace for GaussianProcess as well as PointId in DiscreteGaussianProcess
+   * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
+   *       with a Cholesky decomposition would be more efficient.
+   */
+  private[scalismo] def marginalLikelihoodCalculation[A, Value](
+    cov: (A, A) => DenseMatrix[Double],
+    mean: A => Value,
+    trainingData: IndexedSeq[(A, Value, MultivariateNormalDistribution)],
+    outputDim: Int
+  )(implicit vectorizer: Vectorizer[Value]): Double = {
     // below is the implementation according to Rassmussen Gaussian Processes, Chapter 5, page 113
-
     val (xs, ys, errorDistributions) = trainingData.unzip3
-    val meanValues = xs.map(gp.mean)
-    val mVec = DiscreteField.vectorize[D, Value](meanValues)
-    val yVec = DiscreteField.vectorize[D, Value](ys)
+    val meanValues = xs.map(mean)
+    val mVec = DiscreteField.vectorize[A, Value](meanValues)
+    val yVec = DiscreteField.vectorize[A, Value](ys)
     val yVecZeroMean = yVec - mVec
 
     val Ky = DenseMatrix.zeros[Double](trainingData.size * outputDim, trainingData.size * outputDim)
 
     for ((xI, i) <- xs.zipWithIndex; (xJ, j) <- xs.zipWithIndex) {
 
-      val covBlock = gp.cov(xI, xJ)
+      val covBlock = cov(xI, xJ)
 
       val Kyyp = if (i == j) {
         // in this case add observation uncertainty
@@ -224,7 +246,7 @@ object GaussianProcess {
     }
 
     val KyInv = inv(Ky)
-    val const = trainingData.length * 0.5 * math.log(math.Pi * 2)
+    val const = outputDim * trainingData.length * 0.5 * math.log(math.Pi * 2)
     //det(KyInv) > 0, because Ky is PSD, therefore we can ignore the sign of logdet
     val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * logdet(Ky)._2) - const
     margLikehood

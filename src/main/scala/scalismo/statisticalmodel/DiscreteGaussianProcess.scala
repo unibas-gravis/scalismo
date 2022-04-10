@@ -90,6 +90,16 @@ class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value
   }
 
   /**
+   * calculates the log marginal likelihood given trainingData.
+   *
+   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   */
+  def marginalLikelihood(trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): Double = {
+    require(trainingData.nonEmpty, "provide observations to calculate the marginal likelihood")
+    GaussianProcess.marginalLikelihoodCalculation[PointId, Value](cov.k, mean, trainingData, outputDim)
+  }
+
+  /**
    * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
    * using nearest neighbor interpolation (for both mean and covariance function)
    */
