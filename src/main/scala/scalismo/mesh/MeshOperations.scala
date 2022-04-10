@@ -117,7 +117,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
     def grad(pt: Point[_3D]) = {
       val closestPt = closestPoint(pt).point
 
-      val grad = closestPt - pt
+      val grad = pt - closestPt
       val gradNorm = grad.norm
       if (gradNorm < 1e-10) EuclideanVector.zeros[_3D] else grad * (1.0 / gradNorm)
     }
