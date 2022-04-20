@@ -62,7 +62,7 @@ abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] wit
       /** draw a sample from this proposal distribution, may depend on current state */
       override def propose(current: MHSample[A]): MHSample[A] = {
         val origProposal = self.propose(current)
-        current.copy(generatedBy = generatedBy)
+        origProposal.copy(generatedBy = generatedBy)
       }
 
       override def logTransitionProbability(from: MHSample[A], to: MHSample[A]): Double = {
