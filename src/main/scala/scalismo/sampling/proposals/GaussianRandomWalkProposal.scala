@@ -29,9 +29,12 @@ class GaussianRandomWalkProposal(stddev: Double, val tag: String)(implicit
     extends MHProposalGenerator[DenseVector[Double]] {
   self =>
 
+  implicit val randBasis: breeze.stats.distributions.RandBasis = rng.breezeRandBasis
+  private val gaussianDist = breeze.stats.distributions.Gaussian(0, stddev)
+
   override def propose(sample: MHSample[DenseVector[Double]]): MHSample[DenseVector[Double]] = {
     val partAsVec: DenseVector[Double] = sample.parameters
-    val perturbation: DenseVector[Double] = DenseVector.rand(partAsVec.length, rng.breezeRandBasis.gaussian) * stddev
+    val perturbation: DenseVector[Double] = DenseVector.rand(partAsVec.length, gaussianDist)
     sample.copy(parameters = partAsVec + perturbation, generatedBy = tag)
   }
 
@@ -41,8 +44,13 @@ class GaussianRandomWalkProposal(stddev: Double, val tag: String)(implicit
     if (from.parameters.length != to.parameters.length) {
       Double.NegativeInfinity
     } else {
+
       val dim = from.parameters.length
-      math.pow(2.0 * math.Pi, -dim / 2.0) - 0.5
+      val logProbs = for (i <- 0 until dim) yield {
+        val residual = to.parameters(i) - from.parameters(i)
+        gaussianDist.logPdf(residual)
+      }
+      logProbs.sum
     }
   }
 
