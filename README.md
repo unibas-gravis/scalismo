@@ -1,6 +1,6 @@
 # Scalismo - Scalable Image Analysis and Shape Modelling 
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scalismo_3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scalismo_3) [![Gitter](https://badges.gitter.im/unibas-gravis/scalismo.svg)](https://gitter.im/unibas-gravis/scalismo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+![build](https://github.com/unibas-gravis/scalismo/actions/workflows/ci.yml/badge.svg) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scalismo_3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scalismo_3) [![Gitter](https://badges.gitter.im/unibas-gravis/scalismo.svg)](https://gitter.im/unibas-gravis/scalismo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 Scalismo is a library for statistical shape modeling and model-based image analysis in Scala, developed by the
 [Graphics and Vision Research Group](http://gravis.cs.unibas.ch) at the [University of Basel](http://www.unibas.ch). It is based on the  the concept of [Probabilistic Morphable Models](https://gravis.dmi.unibas.ch/PMM/). 
