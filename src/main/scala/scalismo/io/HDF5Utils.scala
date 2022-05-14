@@ -81,7 +81,8 @@ class HDF5Reader(h5file: HdfFile) extends Closeable {
         .asInstanceOf[io.jhdf.api.Group]
         .getChildren
         .asScala
-        .keys.toSeq
+        .keys
+        .toSeq
     }
   }
 
@@ -128,11 +129,11 @@ class HDF5Reader(h5file: HdfFile) extends Closeable {
     }
   }
 
-  def getGroup(path : String) : Try[io.jhdf.api.Group] = Try {
+  def getGroup(path: String): Try[io.jhdf.api.Group] = Try {
     h5file.getByPath(sanitizePath(path)).asInstanceOf[io.jhdf.api.Group]
   }
 
-  def getGroup(group : io.jhdf.api.Group, groupName : String) : Try[io.jhdf.api.Group] = Try {
+  def getGroup(group: io.jhdf.api.Group, groupName: String): Try[io.jhdf.api.Group] = Try {
     h5file.getByPath(sanitizePath(group.getPath + "/" + groupName)).asInstanceOf[io.jhdf.api.Group]
   }
 }
@@ -387,51 +388,52 @@ object ObjectToArrayCast {
       }
     }
   }
-}
-implicit object ObjectToFloatArrayCast extends ObjectToArrayCast[Float] {
-  override def cast(arr: Object): Array[Float] = {
-    if (arr.isInstanceOf[Array[Array[Float]]]) {
-      arr.asInstanceOf[Array[Array[Float]]].flatten
-    } else if (arr.isInstanceOf[Array[Array[Array[Float]]]]) {
-      arr.asInstanceOf[Array[Array[Array[Float]]]].flatten.flatten
-    } else {
-      arr.asInstanceOf[Array[Float]]
+
+  implicit object ObjectToFloatArrayCast extends ObjectToArrayCast[Float] {
+    override def cast(arr: Object): Array[Float] = {
+      if (arr.isInstanceOf[Array[Array[Float]]]) {
+        arr.asInstanceOf[Array[Array[Float]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Float]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Float]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Float]]
+      }
     }
   }
-}
 
-implicit object ObjectToByteArrayCast extends ObjectToArrayCast[Byte] {
-  override def cast(arr: Object): Array[Byte] = {
-    if (arr.isInstanceOf[Array[Array[Byte]]]) {
-      arr.asInstanceOf[Array[Array[Byte]]].flatten
-    } else if (arr.isInstanceOf[Array[Array[Array[Byte]]]]) {
-      arr.asInstanceOf[Array[Array[Array[Byte]]]].flatten.flatten
-    } else {
-      arr.asInstanceOf[Array[Byte]]
+  implicit object ObjectToByteArrayCast extends ObjectToArrayCast[Byte] {
+    override def cast(arr: Object): Array[Byte] = {
+      if (arr.isInstanceOf[Array[Array[Byte]]]) {
+        arr.asInstanceOf[Array[Array[Byte]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Byte]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Byte]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Byte]]
+      }
     }
   }
-}
 
-implicit object ObjectToIntArrayCast extends ObjectToArrayCast[Int] {
-  override def cast(arr: Object): Array[Int] = {
-    if (arr.isInstanceOf[Array[Array[Int]]]) {
-      arr.asInstanceOf[Array[Array[Int]]].flatten
-    } else if (arr.isInstanceOf[Array[Array[Array[Int]]]]) {
-      arr.asInstanceOf[Array[Array[Array[Int]]]].flatten.flatten
-    } else {
-      arr.asInstanceOf[Array[Int]]
+  implicit object ObjectToIntArrayCast extends ObjectToArrayCast[Int] {
+    override def cast(arr: Object): Array[Int] = {
+      if (arr.isInstanceOf[Array[Array[Int]]]) {
+        arr.asInstanceOf[Array[Array[Int]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Int]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Int]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Int]]
+      }
     }
   }
-}
 
-implicit object ObjectToDoubleArrayCast extends ObjectToArrayCast[Double] {
-  override def cast(arr: Object): Array[Double] = {
-    if (arr.isInstanceOf[Array[Array[Double]]]) {
-      arr.asInstanceOf[Array[Array[Double]]].flatten
-    } else if (arr.isInstanceOf[Array[Array[Array[Double]]]]) {
-      arr.asInstanceOf[Array[Array[Array[Double]]]].flatten.flatten
-    } else {
-      arr.asInstanceOf[Array[Double]]
+  implicit object ObjectToDoubleArrayCast extends ObjectToArrayCast[Double] {
+    override def cast(arr: Object): Array[Double] = {
+      if (arr.isInstanceOf[Array[Array[Double]]]) {
+        arr.asInstanceOf[Array[Array[Double]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Double]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Double]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Double]]
+      }
     }
   }
 }
