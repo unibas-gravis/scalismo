@@ -42,7 +42,7 @@ class HDF5UtilsTests extends ScalismoTestSuite {
 
     it("can write and read an NDArray[Int]") {
       val h5file = createTmpH5File()
-      val h5: HDF5File = HDF5Utils.createFile(h5file).get
+      val h5: HDF5Writer = HDF5Utils.createFile(h5file).get
       val arr = NDArray(IndexedSeq(2, 3), Array(1, 2, 3, 4, 5, 6))
       h5.writeNDArray("/aGroup/array", arr).get
       val h5new = HDF5Utils.openFileForReading(h5file).get
@@ -52,7 +52,7 @@ class HDF5UtilsTests extends ScalismoTestSuite {
 
     it("can write and read an NDArray[Float]") {
       val h5file = createTmpH5File()
-      val h5: HDF5File = HDF5Utils.createFile(h5file).get
+      val h5: HDF5Writer = HDF5Utils.createFile(h5file).get
       val arr = NDArray(IndexedSeq(2, 3), Array(1f, 2f, 3f, 4f, 5f, 6f))
       h5.writeNDArray("/aGroup/array", arr).get
       val h5new = HDF5Utils.openFileForReading(h5file).get
@@ -63,7 +63,7 @@ class HDF5UtilsTests extends ScalismoTestSuite {
     it("fails to write an unknown type") {
       // find problems with Try[Unit] where map/flatMap issues arise
       val h5file = createTmpH5File()
-      val h5: HDF5File = HDF5Utils.createFile(h5file).get
+      val h5: HDF5Writer = HDF5Utils.createFile(h5file).get
       // new type, certainly unknown
       case class NT(v: Double)
       val arr: NDArray[NT] = NDArray(IndexedSeq(2, 3), Array(NT(1.0), NT(1.0), NT(1.0), NT(1.0), NT(1.0), NT(1.0)))
