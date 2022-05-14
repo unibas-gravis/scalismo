@@ -44,21 +44,21 @@ object StatismoIO {
    * List all models that are stored in the given hdf5 file.
    */
   def readModelCatalog(file: File): Try[ModelCatalog] = {
-   
-    Try {
-       val h5file = HDF5Utils.openFileForReading(file).get
-        val modelEntries = for (childPath <- h5file.getPathOfChildren("/catalog").get) yield {       
-            readCatalogEntry(h5file, childPath).get
-        }
-        modelEntries      
-    
-  }
-}
 
-  private def readCatalogEntry(h5file: HDF5Reader, path : String): Try[CatalogEntry] = {
+    Try {
+      val h5file = HDF5Utils.openFileForReading(file).get
+      val modelEntries = for (childPath <- h5file.getPathOfChildren("/catalog").get) yield {
+        readCatalogEntry(h5file, childPath).get
+      }
+      modelEntries
+
+    }
+  }
+
+  private def readCatalogEntry(h5file: HDF5Reader, path: String): Try[CatalogEntry] = {
     for {
-      location <- h5file.readString("/catalog/" +path + "/modelPath")
-      modelType <- h5file.readString("/catalog/" +path + "/modelType")
+      location <- h5file.readString("/catalog/" + path + "/modelPath")
+      modelType <- h5file.readString("/catalog/" + path + "/modelType")
     } yield {
       CatalogEntry(path, StatismoModelType.fromString(modelType), location)
     }

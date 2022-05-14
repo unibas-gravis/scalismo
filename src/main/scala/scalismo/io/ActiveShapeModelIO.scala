@@ -126,7 +126,9 @@ object ActiveShapeModelIO {
 
   }
 
-  private[this] def readProfiles(h5file: HDF5Reader, group: io.jhdf.api.Group, referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
+  private[this] def readProfiles(h5file: HDF5Reader,
+                                 group: io.jhdf.api.Group,
+                                 referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
     val groupName = group.getPath
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)

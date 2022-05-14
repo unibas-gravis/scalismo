@@ -116,7 +116,7 @@ object Hdf5IOHandler {
    */
   def saveMetadata(meta: IOMetadata, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
     val groupName = h5Group.getFullName
-    println("saving metadata for group " +groupName)
+    println("saving metadata for group " + groupName)
     for {
       _ <- h5File.writeStringAttribute(groupName, IdentifierAttributeName, meta.identifier)
       _ <- h5File.writeIntAttribute(groupName, MajorVersionAttributeName, meta.majorVersion)

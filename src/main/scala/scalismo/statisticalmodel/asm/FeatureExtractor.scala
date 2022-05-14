@@ -135,7 +135,7 @@ object NormalDirectionFeatureExtractorIOHandler extends FeatureExtractorIOHandle
   private val Spacing = "spacing"
 
   override def load(meta: IOMetadata, h5File: HDF5Reader, h5Group: io.jhdf.api.Group): Try[FeatureExtractor] = {
-    val groupName = h5Group.getPath 
+    val groupName = h5Group.getPath
     for {
       numberOfPoints <- h5File.readInt(s"$groupName/$NumberOfPoints")
       spacing <- h5File.readFloat(s"$groupName/$Spacing")

@@ -100,7 +100,9 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
 object IdentityImagePreprocessorIOHandler extends ImagePreprocessorIOHandler {
   override def identifier: String = IdentityImagePreprocessor.IOIdentifier
 
-  override def load(meta: IOMetadata, h5File: HDF5Reader, h5Group: io.jhdf.api.Group): Try[IdentityImagePreprocessor] = {
+  override def load(meta: IOMetadata,
+                    h5File: HDF5Reader,
+                    h5Group: io.jhdf.api.Group): Try[IdentityImagePreprocessor] = {
     meta match {
       case IdentityImagePreprocessor.IOMetadata_1_0 => Success(IdentityImagePreprocessor(meta))
       case _                                        => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
@@ -157,7 +159,9 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
 
   private val Stddev = "stddev"
 
-  override def load(meta: IOMetadata, h5File: HDF5Reader, h5Group: io.jhdf.api.Group): Try[GaussianGradientImagePreprocessor] = {
+  override def load(meta: IOMetadata,
+                    h5File: HDF5Reader,
+                    h5Group: io.jhdf.api.Group): Try[GaussianGradientImagePreprocessor] = {
     val groupName = h5Group.getPath
     meta match {
       case GaussianGradientImagePreprocessor.IOMetadata_1_0 =>
