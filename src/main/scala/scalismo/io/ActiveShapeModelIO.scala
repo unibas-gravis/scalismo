@@ -74,7 +74,7 @@ object ActiveShapeModelIO {
     } yield ()
   }
 
-  private def writeProfiles(h5file: HDF5File, group: Group, profiles: Profiles): Try[Unit] =
+  private def writeProfiles(h5file: HDF5Writer, group: Group, profiles: Profiles): Try[Unit] =
     Try {
       val numberOfPoints = profiles.data.length
       val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
@@ -105,8 +105,8 @@ object ActiveShapeModelIO {
       pdm <- StatismoIO.readStatismoPDM[_3D, TriangleMesh](fn)
       h5file <- HDF5Utils.openFileForReading(fn)
       asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
-      asmVersionMajor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion)
-      asmVersionMinor <- h5file.readIntAttribute(asmGroup.getFullName, Names.Attribute.MinorVersion)
+      asmVersionMajor <- h5file.readIntAttribute(asmGroup.getPath, Names.Attribute.MajorVersion)
+      asmVersionMinor <- h5file.readIntAttribute(asmGroup.getPath, Names.Attribute.MinorVersion)
       _ <- {
         (asmVersionMajor, asmVersionMinor) match {
           case (1, 0) => Success(())
@@ -126,8 +126,10 @@ object ActiveShapeModelIO {
 
   }
 
-  private[this] def readProfiles(h5file: HDF5File, group: Group, referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
-    val groupName = group.getFullName
+  private[this] def readProfiles(h5file: HDF5Reader,
+                                 group: io.jhdf.api.Group,
+                                 referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
+    val groupName = group.getPath
     for {
       profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
       pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")

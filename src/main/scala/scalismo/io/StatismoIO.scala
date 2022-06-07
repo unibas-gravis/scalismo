@@ -44,31 +44,23 @@ object StatismoIO {
    * List all models that are stored in the given hdf5 file.
    */
   def readModelCatalog(file: File): Try[ModelCatalog] = {
-    import scala.collection.JavaConverters._
 
-    def flatten[A](xs: Seq[Try[A]]): Try[Seq[A]] = Try(xs.map(_.get))
-
-    for {
-      h5file <- HDF5Utils.openFileForReading(file)
-      catalogGroup <- if (h5file.exists("/catalog")) h5file.getGroup("/catalog") else Failure(NoCatalogPresentException)
-      modelEntries = for (entryGroupObj <- catalogGroup.getMemberList.asScala.toSeq
-                          if entryGroupObj.isInstanceOf[Group]) yield {
-        val entryGroup = entryGroupObj.asInstanceOf[Group]
-        readCatalogEntry(h5file, entryGroup)
+    Try {
+      val h5file = HDF5Utils.openFileForReading(file).get
+      val modelEntries = for (childPath <- h5file.getPathOfChildren("/catalog").get) yield {
+        readCatalogEntry(h5file, childPath).get
       }
-      modelCatalog <- flatten(modelEntries)
-    } yield {
-      modelCatalog
+      modelEntries
+
     }
   }
 
-  private def readCatalogEntry(h5file: HDF5File, entryGroup: Group): Try[CatalogEntry] = {
-    val name = entryGroup.getName
+  private def readCatalogEntry(h5file: HDF5Reader, path: String): Try[CatalogEntry] = {
     for {
-      location <- h5file.readString(entryGroup.getFullName + "/modelPath")
-      modelType <- h5file.readString(entryGroup.getFullName + "/modelType")
+      location <- h5file.readString("/catalog/" + path + "/modelPath")
+      modelType <- h5file.readString("/catalog/" + path + "/modelType")
     } yield {
-      CatalogEntry(name, StatismoModelType.fromString(modelType), location)
+      CatalogEntry(path, StatismoModelType.fromString(modelType), location)
     }
   }
 
@@ -88,7 +80,7 @@ object StatismoIO {
     val modelOrFailure = for {
       h5file <- HDF5Utils.openFileForReading(file)
 
-      representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
+      representerName <- h5file.readStringAttribute(s"$modelPath/representer", "name")
       mesh <- representerName match {
         case ("vtkPolyDataRepresenter") =>
           for {
@@ -164,14 +156,14 @@ object StatismoIO {
     maybeError
   }
 
-  private def writeCells(h5file: HDF5File, modelPath: String, cells: NDArray[Int]): Try[Unit] = {
+  private def writeCells(h5file: HDF5Writer, modelPath: String, cells: NDArray[Int]): Try[Unit] = {
     if (cells.data.length > 0) {
       h5file.writeNDArray[Int](s"$modelPath/representer/cells", cells)
     } else Success(())
   }
 
   private def writeRepresenterStatismov090[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    h5file: HDF5File,
+    h5file: HDF5Writer,
     group: Group,
     domain: DDomain[D],
     modelPath: String
@@ -206,7 +198,7 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
   }
 
-  private def readStandardPCAbasis(h5file: HDF5File,
+  private def readStandardPCAbasis(h5file: HDF5Reader,
                                    modelPath: String): Try[(DenseVector[Double], DenseMatrix[Double])] = {
     for {
       representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
@@ -234,7 +226,7 @@ object StatismoIO {
     } yield (pcaVarianceVector, pcaBasis)
   }
 
-  private def readStandardPointsFromRepresenterGroup(h5file: HDF5File,
+  private def readStandardPointsFromRepresenterGroup(h5file: HDF5Reader,
                                                      modelPath: String,
                                                      dim: Int): Try[DenseMatrix[Double]] = {
     for {
@@ -252,7 +244,7 @@ object StatismoIO {
   }
 
   private def readPointSetRepresentation[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    h5file: HDF5File,
+    h5file: HDF5Reader,
     modelPath: String
   )(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
     val dim: Int = vectorizer.dim
@@ -267,7 +259,7 @@ object StatismoIO {
   }
 
   private def readStandardMeshRepresentation[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    h5file: HDF5File,
+    h5file: HDF5Reader,
     modelPath: String
   )(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
     val dim: Int = NDSpace[D].dimensionality
@@ -281,13 +273,13 @@ object StatismoIO {
     } yield domain
   }
 
-  private def readStandardMeanVector(h5file: HDF5File, modelPath: String): Try[DenseVector[Double]] = {
+  private def readStandardMeanVector(h5file: HDF5Reader, modelPath: String): Try[DenseVector[Double]] = {
     for {
       meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
     } yield DenseVector(meanArray.data.map(_.toDouble))
   }
 
-  private def readStandardConnectiveityRepresenterGroup(h5file: HDF5File, modelPath: String): Try[NDArray[Int]] = {
+  private def readStandardConnectiveityRepresenterGroup(h5file: HDF5Reader, modelPath: String): Try[NDArray[Int]] = {
     val cells =
       if (h5file.exists(s"$modelPath/representer/cells")) h5file.readNDArray[Int](s"$modelPath/representer/cells")
       else Failure(new Throwable("No cells found in representer"))
@@ -298,7 +290,7 @@ object StatismoIO {
    * reads the reference (a vtk file, which is stored as a byte array in the hdf5 file)
    */
   //(implicit typeHelper: StatismoDomainIO[D, DDomain])
-  private def readVTKMeshFromRepresenterGroup(h5file: HDF5File, modelPath: String): Try[TriangleMesh[_3D]] = {
+  private def readVTKMeshFromRepresenterGroup(h5file: HDF5Reader, modelPath: String): Try[TriangleMesh[_3D]] = {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)
@@ -395,7 +387,7 @@ object StatismoIO {
   }
 
   private def writeImageRepresenter[D: NDSpace, A: Vectorizer](
-    h5file: HDF5File,
+    h5file: HDF5Writer,
     group: Group,
     gp: DiscreteLowRankGaussianProcess[D, DiscreteImageDomain, A],
     modelPath: String
@@ -508,7 +500,7 @@ object StatismoIO {
   }
 
   private def readImageRepresenter[D: NDSpace: CreateStructuredPoints](
-    h5file: HDF5File,
+    h5file: HDF5Reader,
     modelPath: String
   ): Try[DiscreteImageDomain[D]] = {
 

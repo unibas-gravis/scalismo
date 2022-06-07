@@ -23,10 +23,11 @@ import scalismo.common.{Domain, Field}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.image.DiscreteImage
 import scalismo.image.filter.DiscreteImageFilter
-import scalismo.io.HDF5File
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
 import scala.util.{Failure, Success, Try}
+import scalismo.io.HDF5Reader
+import scalismo.io.HDF5Writer
 
 /**
  * A preprocessed image, which can be fed to a [[FeatureExtractor]].
@@ -99,7 +100,9 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
 object IdentityImagePreprocessorIOHandler extends ImagePreprocessorIOHandler {
   override def identifier: String = IdentityImagePreprocessor.IOIdentifier
 
-  override def load(meta: IOMetadata, h5File: HDF5File, h5Group: Group): Try[IdentityImagePreprocessor] = {
+  override def load(meta: IOMetadata,
+                    h5File: HDF5Reader,
+                    h5Group: io.jhdf.api.Group): Try[IdentityImagePreprocessor] = {
     meta match {
       case IdentityImagePreprocessor.IOMetadata_1_0 => Success(IdentityImagePreprocessor(meta))
       case _                                        => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
@@ -156,8 +159,10 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
 
   private val Stddev = "stddev"
 
-  override def load(meta: IOMetadata, h5File: HDF5File, h5Group: Group): Try[GaussianGradientImagePreprocessor] = {
-    val groupName = h5Group.getFullName
+  override def load(meta: IOMetadata,
+                    h5File: HDF5Reader,
+                    h5Group: io.jhdf.api.Group): Try[GaussianGradientImagePreprocessor] = {
+    val groupName = h5Group.getPath
     meta match {
       case GaussianGradientImagePreprocessor.IOMetadata_1_0 =>
         for {
@@ -167,7 +172,7 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
     }
   }
 
-  override def save(t: ImagePreprocessor, h5File: HDF5File, h5Group: Group): Try[Unit] = {
+  override def save(t: ImagePreprocessor, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
     val groupName = h5Group.getFullName
     t match {
       case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev.toFloat)

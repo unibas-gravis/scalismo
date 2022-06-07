@@ -19,12 +19,13 @@ import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.io.HDF5File
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.asm.PreprocessedImage.{Gradient, Intensity}
 
 import scala.collection.immutable
 import scala.util.{Failure, Try}
+import scalismo.io.HDF5Reader
+import scalismo.io.HDF5Writer
 
 trait FeatureExtractor
     extends Function4[PreprocessedImage, Point[_3D], TriangleMesh[_3D], PointId, Option[DenseVector[Double]]]
@@ -133,15 +134,15 @@ object NormalDirectionFeatureExtractorIOHandler extends FeatureExtractorIOHandle
   private val NumberOfPoints = "numberOfPoints"
   private val Spacing = "spacing"
 
-  override def load(meta: IOMetadata, h5File: HDF5File, h5Group: Group): Try[FeatureExtractor] = {
-    val groupName = h5Group.getFullName
+  override def load(meta: IOMetadata, h5File: HDF5Reader, h5Group: io.jhdf.api.Group): Try[FeatureExtractor] = {
+    val groupName = h5Group.getPath
     for {
       numberOfPoints <- h5File.readInt(s"$groupName/$NumberOfPoints")
       spacing <- h5File.readFloat(s"$groupName/$Spacing")
     } yield NormalDirectionFeatureExtractor(numberOfPoints, spacing.toDouble, meta)
   }
 
-  override def save(t: FeatureExtractor, h5File: HDF5File, h5Group: Group): Try[Unit] = {
+  override def save(t: FeatureExtractor, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
     t match {
       case fe: NormalDirectionFeatureExtractor =>
         val groupName = h5Group.getFullName

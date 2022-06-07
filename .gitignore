@@ -14,3 +14,5 @@ lib/libvtk*
 /project/project
 /.idea/
 /*.iml
+null/
+.bloop

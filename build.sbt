@@ -67,6 +67,7 @@ lazy val root = (project in file("."))
       "ch.unibas.cs.gravis" % "scalismo-niftijiojar" % "0.1.0",
       "ch.unibas.cs.gravis" % "hdf5javanatives" % "0.1.0",
       "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.1.1",
+      "io.jhdf" % "jhdf" % "0.6.6",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {

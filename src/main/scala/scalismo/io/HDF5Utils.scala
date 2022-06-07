@@ -22,65 +22,127 @@ import ncsa.hdf.`object`.h5._
 
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
+import io.jhdf.HdfFile
 
 case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.product == data.length, s"${dims.product} != ${data.length}")
 }
 
-class HDF5File(h5file: FileFormat) extends Closeable {
+class HDF5Reader(h5file: HdfFile) extends Closeable {
 
   override def close(): Unit = { h5file.close() }
 
-  def exists(path: String): Boolean = h5file.get(path) != null
+  def exists(path: String): Boolean = Try { h5file.getByPath(path) }.isSuccess
 
   def readString(path: String): Try[String] = {
 
-    // a string seems to be represented as an array in hdf5
-    // we return just the first element
-    val stringArrayOrFailure = readNDArray[String](path)
-    stringArrayOrFailure.map { stringArray =>
-      assert(stringArray.dims.length == 1 && stringArray.dims(0) == 1 && stringArray.data.length == 1)
-      stringArray.data.head
+    Try {
+      h5file.getDatasetByPath(sanitizePath(path)).getData.asInstanceOf[String]
     }
   }
 
-  def readStringAttribute(path: String, attrName: String): Try[String] = {
-    h5file.get(path) match {
-      case s @ (_: H5Group | _: H5ScalarDS) => {
-        val metadata = s.getMetadata.asScala
-        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName.equals(attrName))
-        maybeAttr match {
-          case Some(a) => {
-            Success(a.asInstanceOf[Attribute].getValue.asInstanceOf[Array[String]](0))
-          }
-          case None => Failure(new Exception(s"Attribute $attrName not found"))
-        }
-      }
+  private def sanitizePath(path: String): String = {
+    val pathWithoutTrailingSlash = if (path.endsWith("/")) {
+      path.dropRight(1)
+    } else {
+      path
+    }
+    pathWithoutTrailingSlash.replaceAll("//", "/")
+  }
 
-      case _ => {
-        Failure(new Exception("Expected H5ScalarDS when reading attribute"))
-      }
+  def readStringAttribute(path: String, attrName: String): Try[String] = {
+    Try {
+      h5file
+        .getByPath(sanitizePath(path))
+        .getAttribute(attrName)
+        .getData()
+        .asInstanceOf[Array[String]]
+        .head
     }
   }
 
   def readIntAttribute(path: String, attrName: String): Try[Int] = {
-    h5file.get(path) match {
-      case s @ (_: H5Group | _: H5ScalarDS) => {
-        val metadata = s.getMetadata.asScala
-        val maybeAttr = metadata.find(d => d.asInstanceOf[Attribute].getName.equals(attrName))
-        maybeAttr match {
-          case Some(a) => {
-            Success(a.asInstanceOf[Attribute].getValue.asInstanceOf[Array[Int]](0))
-          }
-          case None => Failure(new Exception(s"Attribute $attrName not found"))
-        }
-      }
 
-      case _ => {
-        Failure(new Exception("Expected H5ScalarDS when reading attribute"))
-      }
+    Try {
+      h5file
+        .getByPath(sanitizePath(path))
+        .getAttribute(attrName)
+        .getData()
+        .asInstanceOf[Array[Int]]
+        .head
+    }
+
+  }
+
+  def getPathOfChildren(path: String): Try[Seq[String]] = {
+    Try {
+      h5file
+        .getByPath(sanitizePath(path))
+        .asInstanceOf[io.jhdf.api.Group]
+        .getChildren
+        .asScala
+        .keys
+        .toSeq
     }
   }
+
+  /**
+   * Reads an ndArray from the path. The dataCast is a caster (usually done with asInstance[T])
+   * which casts a type Object into an Array[T]. The reason this has to be provided is that
+   * it is not possible to cast to a generic type, due to type erasure.
+   */
+  def readNDArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[NDArray[T]] = {
+    Try {
+      val node = h5file.getDatasetByPath(sanitizePath(path))
+      val dims = node.getDimensions
+
+      val array = dataCast.cast(node.getData());
+      NDArray(dims.map(_.toLong).toIndexedSeq, array)
+    }
+  }
+
+  /*
+   * Reads an Array from the path.
+   * The dataCast is a caster (usually done with asInstance[T])
+   * which casts a type Object into an Array[T]. The reason this has to be provided is that
+   * it is not possible to cast to a generic type, due to type erasure.
+   */
+  def readArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[Array[T]] = {
+    Try {
+      val node = h5file.getDatasetByPath(sanitizePath(path))
+      val dims = node.getDimensions
+      dataCast.cast(node.getData());
+    }
+  }
+
+  def readInt(path: String): Try[Int] = {
+    Try {
+      val node = h5file.getDatasetByPath(sanitizePath(path))
+      node.getData().asInstanceOf[Int]
+    }
+  }
+
+  def readFloat(path: String): Try[Float] = {
+    Try {
+      val node = h5file.getDatasetByPath(sanitizePath(path))
+      node.getData().asInstanceOf[Float]
+    }
+  }
+
+  def getGroup(path: String): Try[io.jhdf.api.Group] = Try {
+    h5file.getByPath(sanitizePath(path)).asInstanceOf[io.jhdf.api.Group]
+  }
+
+  def getGroup(group: io.jhdf.api.Group, groupName: String): Try[io.jhdf.api.Group] = Try {
+    h5file.getByPath(sanitizePath(group.getPath + "/" + groupName)).asInstanceOf[io.jhdf.api.Group]
+  }
+}
+
+class HDF5Writer(h5file: FileFormat) extends Closeable {
+
+  override def close(): Unit = { h5file.close() }
+
+  def exists(path: String): Boolean = h5file.get(path) != null
 
   def writeIntAttribute(path: String, attrName: String, attrValue: Int): Try[Unit] = {
     Try {
@@ -100,51 +162,9 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val fileFormat: FileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
       val dtype: Datatype =
         fileFormat.createDatatype(Datatype.CLASS_STRING, attrValue.length + 1, Datatype.NATIVE, Datatype.NATIVE)
-
       val attr = new Attribute(attrName, dtype, Array(1))
       attr.setValue(Array(attrValue))
       s.writeMetadata(attr)
-    }
-  }
-
-  /**
-   * Reads an ndArray from the path. The dataCast is a caster (usually done with asInstance[T])
-   * which casts a type Object into an Array[T]. The reason this has to be provided is that
-   * it is not possible to cast to a generic type, due to type erasure.
-   */
-  def readNDArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[NDArray[T]] = {
-
-    h5file.get(path) match {
-      case null => Failure(new Exception(s"Path $path does not exist"))
-      case s: H5ScalarDS => {
-        // we need to explicitly set the selectedDims to dims, in order to avoid that
-        // in the three D case only the first slice is read (bug in hdf5?)
-        s.read()
-
-        val dims = s.getDims
-        val selectedDims = s.getSelectedDims
-        for (i <- 0 until dims.length) { selectedDims(i) = dims(i) }
-        val data = s.getData
-        Try(NDArray(dims.toIndexedSeq, dataCast.cast(data)))
-
-      }
-      case _ => {
-        Failure(new Exception("Expected H5ScalarDS when reading ND array for key " + path))
-      }
-    }
-  }
-
-  /*
-   * Reads an Array from the path.
-   * The dataCast is a caster (usually done with asInstance[T])
-   * which casts a type Object into an Array[T]. The reason this has to be provided is that
-   * it is not possible to cast to a generic type, due to type erasure.
-   */
-  def readArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[Array[T]] = {
-
-    readNDArray[T](path).map { ndArray =>
-      assume(ndArray.dims.length == 1)
-      ndArray.data
     }
   }
 
@@ -212,15 +232,6 @@ class HDF5File(h5file: FileFormat) extends Closeable {
     }
   }
 
-  def readInt(path: String): Try[Int] = Try {
-    h5file.get(path) match {
-      case s: H5ScalarDS =>
-        s.read().asInstanceOf[Array[Int]](0)
-      case _ =>
-        throw new Exception("Expected H5ScalarDS when reading Int " + path)
-    }
-  }
-
   def writeInt(path: String, value: Int): Try[Unit] = {
     val (groupname, datasetname) = splitpath(path)
     val groupOrFailure = createGroup(groupname)
@@ -230,16 +241,6 @@ class HDF5File(h5file: FileFormat) extends Closeable {
       val dtype: Datatype = fileFormat.createDatatype(Datatype.CLASS_INTEGER, 4, Datatype.NATIVE, Datatype.NATIVE)
       h5file.createScalarDS(datasetname, group, dtype, Array[Long](), null, null, 0, value, Array(value))
       ()
-    }
-  }
-
-  def readFloat(path: String): Try[Float] = Try {
-
-    h5file.get(path) match {
-      case s: H5ScalarDS =>
-        s.read().asInstanceOf[Array[Float]](0)
-      case _ =>
-        throw new Exception("Expected H5ScalarDS when reading Float " + path)
     }
   }
 
@@ -326,16 +327,15 @@ object HDF5Utils {
   // to typed values
   object FileAccessMode extends Enumeration {
     type FileAccessMode = Value
-    val READ, WRITE, CREATE = Value
+    val WRITE, CREATE = Value
   }
   import FileAccessMode._
 
   def hdf5Version = "to be defined"
 
-  def openFile(file: File, mode: FileAccessMode): Try[HDF5File] = Try {
+  private def openFileWriterOrCreateFile(file: File, mode: FileAccessMode): Try[HDF5Writer] = Try {
     val filename = file.getAbsolutePath
     val h5fileAccessMode = mode match {
-      case READ   => FileFormat.READ
       case WRITE  => FileFormat.WRITE
       case CREATE => FileFormat.CREATE
     }
@@ -346,26 +346,30 @@ object HDF5Utils {
     if (h5file.open() == -1) {
       throw new IOException("could not open file " + file.getAbsolutePath)
     }
-    new HDF5File(h5file)
+    new HDF5Writer(h5file)
   }
 
-  def openFileForReading(file: File): Try[HDF5File] = openFile(file, READ)
-  def openFileForWriting(file: File): Try[HDF5File] = openFile(file, WRITE)
-  def createFile(file: File): Try[HDF5File] = openFile(file, CREATE)
+  def openFileForReading(file: File): Try[HDF5Reader] = {
+    Try {
+      val hdfFile = new HdfFile(file)
+      new HDF5Reader(hdfFile)
+    }
+  }
+
+  def openFileForWriting(file: File): Try[HDF5Writer] = openFileWriterOrCreateFile(file, WRITE)
+  def createFile(file: File): Try[HDF5Writer] = openFileWriterOrCreateFile(file, CREATE)
 
 }
 
 /**
  * Typeclasses for reading, writing to hdf5 file
  */
-trait HDF5ReadWrite[A] extends HDF5Read[A] with HDF5Write[A]
-
 trait HDF5Read[A] {
-  def read(h5file: HDF5File, group: Group): Try[A]
+  def read(h5file: HDF5Reader, group: Group): Try[A]
 }
 
 trait HDF5Write[A] {
-  def write(value: A, h5file: HDF5File, group: Group): Try[Unit]
+  def write(value: A, h5file: HDF5Writer, group: Group): Try[Unit]
 }
 
 trait ObjectToArrayCast[A] {
@@ -374,20 +378,62 @@ trait ObjectToArrayCast[A] {
 
 object ObjectToArrayCast {
   implicit object ObjectToStringArrayCast extends ObjectToArrayCast[String] {
-    override def cast(arr: Object): Array[String] = arr.asInstanceOf[Array[String]]
+    override def cast(arr: Object): Array[String] = {
+      if (arr.isInstanceOf[Array[Array[String]]]) {
+        arr.asInstanceOf[Array[Array[String]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[String]]]]) {
+        arr.asInstanceOf[Array[Array[Array[String]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[String]]
+      }
+    }
   }
+
   implicit object ObjectToFloatArrayCast extends ObjectToArrayCast[Float] {
-    override def cast(arr: Object): Array[Float] = arr.asInstanceOf[Array[Float]]
+    override def cast(arr: Object): Array[Float] = {
+      if (arr.isInstanceOf[Array[Array[Float]]]) {
+        arr.asInstanceOf[Array[Array[Float]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Float]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Float]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Float]]
+      }
+    }
   }
 
   implicit object ObjectToByteArrayCast extends ObjectToArrayCast[Byte] {
-    override def cast(arr: Object): Array[Byte] = arr.asInstanceOf[Array[Byte]]
+    override def cast(arr: Object): Array[Byte] = {
+      if (arr.isInstanceOf[Array[Array[Byte]]]) {
+        arr.asInstanceOf[Array[Array[Byte]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Byte]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Byte]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Byte]]
+      }
+    }
   }
 
   implicit object ObjectToIntArrayCast extends ObjectToArrayCast[Int] {
-    override def cast(arr: Object): Array[Int] = arr.asInstanceOf[Array[Int]]
+    override def cast(arr: Object): Array[Int] = {
+      if (arr.isInstanceOf[Array[Array[Int]]]) {
+        arr.asInstanceOf[Array[Array[Int]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Int]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Int]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Int]]
+      }
+    }
   }
+
   implicit object ObjectToDoubleArrayCast extends ObjectToArrayCast[Double] {
-    override def cast(arr: Object): Array[Double] = arr.asInstanceOf[Array[Double]]
+    override def cast(arr: Object): Array[Double] = {
+      if (arr.isInstanceOf[Array[Array[Double]]]) {
+        arr.asInstanceOf[Array[Array[Double]]].flatten
+      } else if (arr.isInstanceOf[Array[Array[Array[Double]]]]) {
+        arr.asInstanceOf[Array[Array[Array[Double]]]].flatten.flatten
+      } else {
+        arr.asInstanceOf[Array[Double]]
+      }
+    }
   }
 }
