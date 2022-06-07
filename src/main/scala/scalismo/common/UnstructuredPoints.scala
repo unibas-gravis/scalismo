@@ -131,8 +131,7 @@ object UnstructuredPoints {
 
 }
 
-case class UnstructuredPoints1D private[scalismo] (pointSequence: IndexedSeq[Point[_1D]])
-    extends UnstructuredPoints[_1D] {
+case class UnstructuredPoints1D(pointSequence: IndexedSeq[Point[_1D]]) extends UnstructuredPoints[_1D] {
 
   override def boundingBox: BoxDomain[_1D] = {
     val minx = pointSequence.map(_(0)).min
@@ -146,8 +145,7 @@ case class UnstructuredPoints1D private[scalismo] (pointSequence: IndexedSeq[Poi
 
 }
 
-case class UnstructuredPoints2D private[scalismo] (pointSequence: IndexedSeq[Point[_2D]])
-    extends UnstructuredPoints[_2D] {
+case class UnstructuredPoints2D(pointSequence: IndexedSeq[Point[_2D]]) extends UnstructuredPoints[_2D] {
 
   override def boundingBox: BoxDomain[_2D] = {
     val minx = pointSequence.map(_(0)).min
@@ -163,8 +161,7 @@ case class UnstructuredPoints2D private[scalismo] (pointSequence: IndexedSeq[Poi
 
 }
 
-case class UnstructuredPoints3D private[scalismo] (pointSequence: IndexedSeq[Point[_3D]])
-    extends UnstructuredPoints[_3D] {
+case class UnstructuredPoints3D(pointSequence: IndexedSeq[Point[_3D]]) extends UnstructuredPoints[_3D] {
 
   override def boundingBox: BoxDomain[_3D] = {
     val minx = pointSequence.map(_(0)).min
