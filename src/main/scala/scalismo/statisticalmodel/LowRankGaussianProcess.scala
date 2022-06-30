@@ -200,7 +200,7 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
       val data = vectorsSeq.flatMap(value => vectorizer.vectorize(value).toArray).toArray
       val vector = new DenseMatrix(td.length * this.outputDim, 1, data)
       (lambda, vector)
-    }).unzip
+    }).filter(t => t._1 > 1e-7).unzip
 
     val U = DenseMatrix.horzcat(discretePhis: _*)
     val S = DenseVector(eigenvalues: _*)
