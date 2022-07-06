@@ -57,7 +57,7 @@ class HDF5Reader(h5file: HdfFile) extends Closeable {
         .getAttribute(attrName)
         .getData()
 
-      if(attribute.isInstanceOf[String])
+      if (attribute.isInstanceOf[String])
         attribute.asInstanceOf[String]
       else attribute.asInstanceOf[Array[String]].head
     }
@@ -71,7 +71,7 @@ class HDF5Reader(h5file: HdfFile) extends Closeable {
         .getAttribute(attrName)
         .getData()
 
-      if(attribute.isInstanceOf[Int])
+      if (attribute.isInstanceOf[Int])
         attribute.asInstanceOf[Int]
       else attribute.asInstanceOf[Array[Int]].head
     }
