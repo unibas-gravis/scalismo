@@ -424,7 +424,10 @@ object ObjectToArrayCast {
       } else if (arr.isInstanceOf[Array[Array[Array[Int]]]]) {
         arr.asInstanceOf[Array[Array[Array[Int]]]].flatten.flatten
       } else {
-        arr.asInstanceOf[Array[Int]]
+        if (arr.isInstanceOf[Array[Array[Long]]])
+          arr.asInstanceOf[Array[Array[Long]]].flatten.map(_.toInt)
+        else
+          arr.asInstanceOf[Array[Int]]
       }
     }
   }
