@@ -52,24 +52,28 @@ class HDF5Reader(h5file: HdfFile) extends Closeable {
 
   def readStringAttribute(path: String, attrName: String): Try[String] = {
     Try {
-      h5file
+      val attribute = h5file
         .getByPath(sanitizePath(path))
         .getAttribute(attrName)
         .getData()
-        .asInstanceOf[Array[String]]
-        .head
+
+      if (attribute.isInstanceOf[String])
+        attribute.asInstanceOf[String]
+      else attribute.asInstanceOf[Array[String]].head
     }
   }
 
   def readIntAttribute(path: String, attrName: String): Try[Int] = {
 
     Try {
-      h5file
+      val attribute = h5file
         .getByPath(sanitizePath(path))
         .getAttribute(attrName)
         .getData()
-        .asInstanceOf[Array[Int]]
-        .head
+
+      if (attribute.isInstanceOf[Int])
+        attribute.asInstanceOf[Int]
+      else attribute.asInstanceOf[Array[Int]].head
     }
 
   }
@@ -420,7 +424,10 @@ object ObjectToArrayCast {
       } else if (arr.isInstanceOf[Array[Array[Array[Int]]]]) {
         arr.asInstanceOf[Array[Array[Array[Int]]]].flatten.flatten
       } else {
-        arr.asInstanceOf[Array[Int]]
+        if (arr.isInstanceOf[Array[Array[Long]]])
+          arr.asInstanceOf[Array[Array[Long]]].flatten.map(_.toInt)
+        else
+          arr.asInstanceOf[Array[Int]]
       }
     }
   }
