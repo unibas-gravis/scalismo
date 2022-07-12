@@ -218,9 +218,9 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
   override def marginalLikelihood(td: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): Double = {
     require(td.nonEmpty, "provide observations to calculate the marginal likelihood")
     val matIds = td.flatMap(t => t._1.id * outputDim until t._1.id * outputDim + outputDim)
-    val r = variance.data.count(_ > 1e-7)
-    val S = if (r == rank) variance else DenseVector(variance.data.take(r))
-    val U = DenseMatrix.tabulate[Double](matIds.length, r)((x, y) => basisMatrix(matIds(x), y))
+    val effectiveRank = variance.data.count(_ > 1e-10)
+    val S = if (effectiveRank == rank) variance else variance(0 until effectiveRank)
+    val U = DenseMatrix.tabulate[Double](matIds.length, effectiveRank)((x, y) => basisMatrix(matIds(x), y))
     val y = DenseVector(td.flatMap(t => (vectorizer.vectorize(t._2) - vectorizer.vectorize(mean(t._1))).toArray): _*)
     LowRankGaussianProcess.marginalLikelihoodComputation(U, S, y, td.map(_._3))
   }

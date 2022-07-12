@@ -195,12 +195,13 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
    */
   override def marginalLikelihood(td: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
     require(td.nonEmpty, "provide observations to calculate the marginal likelihood")
-    val (eigenvalues, discretePhis) = (for (Eigenpair(lambda, phi) <- this.klBasis) yield {
+    val effectiveBasis = this.klBasis.filter(_.eigenvalue > 1e-10)
+    val (eigenvalues, discretePhis) = (for (Eigenpair(lambda, phi) <- effectiveBasis) yield {
       val vectorsSeq = for ((p, _, _) <- td) yield phi.apply(p)
       val data = vectorsSeq.flatMap(value => vectorizer.vectorize(value).toArray).toArray
       val vector = new DenseMatrix(td.length * this.outputDim, 1, data)
       (lambda, vector)
-    }).filter(t => t._1 > 1e-7).unzip
+    }).unzip
 
     val U = DenseMatrix.horzcat(discretePhis: _*)
     val S = DenseVector(eigenvalues: _*)
@@ -421,7 +422,9 @@ object LowRankGaussianProcess {
                                                       td: IndexedSeq[MultivariateNormalDistribution]): Double = {
     val dim = y.length / td.length
     val Ut = U.t
-    val Si = S.map(d => if (d > 1e-10) 1.0 / d else 0.0)
+
+    //calling functions remove small values for this inversion
+    val Si = 1.0 / S
     val Ai = {
       val bi = new CSCMatrix.Builder[Double](y.length, y.length)
       for ((mvn, i) <- td.zipWithIndex) {
