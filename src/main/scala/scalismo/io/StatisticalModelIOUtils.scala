@@ -28,7 +28,42 @@ case class NDArray[T](dims: IndexedSeq[Long], data: Array[T]) {
   require(dims.product == data.length, s"${dims.product} != ${data.length}")
 }
 
-class HDF5Reader(h5file: HdfFile) extends Closeable {
+trait StatisticalModelReader {
+
+  def close(): Unit
+
+  def exists(path: String): Boolean
+
+  def readString(path: String): Try[String]
+
+  def readStringAttribute(path: String, attrName: String): Try[String]
+
+  def readIntAttribute(path: String, attrName: String): Try[Int]
+
+  def getPathOfChildren(path: String): Try[Seq[String]]
+
+  /**
+   * Reads an ndArray from the path. The dataCast is a caster (usually done with asInstance[T])
+   * which casts a type Object into an Array[T]. The reason this has to be provided is that
+   * it is not possible to cast to a generic type, due to type erasure.
+   */
+  def readNDArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[NDArray[T]]
+
+  /*
+   * Reads an Array from the path.
+   * The dataCast is a caster (usually done with asInstance[T])
+   * which casts a type Object into an Array[T]. The reason this has to be provided is that
+   * it is not possible to cast to a generic type, due to type erasure.
+   */
+  def readArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[Array[T]]
+
+  def readInt(path: String): Try[Int]
+
+  def readFloat(path: String): Try[Float]
+
+}
+
+class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader  {
 
   override def close(): Unit = { h5file.close() }
 
@@ -325,7 +360,7 @@ class HDF5Writer(h5file: FileFormat) extends Closeable {
 }
 
 // make it a proper class and wrapper around the object
-object HDF5Utils {
+object StatisticalModelIOUtils {
 
   // map untyped FileAccessModel of HDF5 (which is just a string)
   // to typed values
@@ -353,7 +388,7 @@ object HDF5Utils {
     new HDF5Writer(h5file)
   }
 
-  def openFileForReading(file: File): Try[HDF5Reader] = {
+  def openFileForReading(file: File): Try[StatisticalModelReader] = {
     Try {
       val hdfFile = new HdfFile(file)
       new HDF5Reader(hdfFile)
@@ -365,16 +400,6 @@ object HDF5Utils {
 
 }
 
-/**
- * Typeclasses for reading, writing to hdf5 file
- */
-trait HDF5Read[A] {
-  def read(h5file: HDF5Reader, group: Group): Try[A]
-}
-
-trait HDF5Write[A] {
-  def write(value: A, h5file: HDF5Writer, group: Group): Try[Unit]
-}
 
 trait ObjectToArrayCast[A] {
   def cast(arr: Object): Array[A]

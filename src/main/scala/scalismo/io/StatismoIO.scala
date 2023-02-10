@@ -46,7 +46,7 @@ object StatismoIO {
   def readModelCatalog(file: File): Try[ModelCatalog] = {
 
     Try {
-      val h5file = HDF5Utils.openFileForReading(file).get
+      val h5file = StatisticalModelIOUtils.openFileForReading(file).get
       val modelEntries = for (childPath <- h5file.getPathOfChildren("/catalog").get) yield {
         readCatalogEntry(h5file, childPath).get
       }
@@ -55,7 +55,7 @@ object StatismoIO {
     }
   }
 
-  private def readCatalogEntry(h5file: HDF5Reader, path: String): Try[CatalogEntry] = {
+  private def readCatalogEntry(h5file: StatisticalModelReader, path: String): Try[CatalogEntry] = {
     for {
       location <- h5file.readString("/catalog/" + path + "/modelPath")
       modelType <- h5file.readString("/catalog/" + path + "/modelType")
@@ -78,7 +78,7 @@ object StatismoIO {
   ): Try[PointDistributionModel[D, DDomain]] = {
 
     val modelOrFailure = for {
-      h5file <- HDF5Utils.openFileForReading(file)
+      h5file <- StatisticalModelIOUtils.openFileForReading(file)
 
       representerName <- h5file.readStringAttribute(s"$modelPath/representer", "name")
       mesh <- representerName match {
@@ -129,7 +129,7 @@ object StatismoIO {
 
     val pcaBasis = model.gp.basisMatrix.copy
     val maybeError = for {
-      h5file <- HDF5Utils.createFile(file)
+      h5file <- StatisticalModelIOUtils.createFile(file)
       _ <- h5file.writeArray[Float](s"$modelPath/model/mean", discretizedMean.toArray.map(_.toFloat))
       _ <- h5file.writeArray[Float](s"$modelPath/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray[Float](s"$modelPath/model/pcaBasis",
@@ -198,7 +198,7 @@ object StatismoIO {
     DenseMatrix.create(array.dims(1).toInt, array.dims(0).toInt, array.data.map(_.toDouble)).t
   }
 
-  private def readStandardPCAbasis(h5file: HDF5Reader,
+  private def readStandardPCAbasis(h5file: StatisticalModelReader,
                                    modelPath: String): Try[(DenseVector[Double], DenseMatrix[Double])] = {
     for {
       representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
@@ -226,7 +226,7 @@ object StatismoIO {
     } yield (pcaVarianceVector, pcaBasis)
   }
 
-  private def readStandardPointsFromRepresenterGroup(h5file: HDF5Reader,
+  private def readStandardPointsFromRepresenterGroup(h5file: StatisticalModelReader,
                                                      modelPath: String,
                                                      dim: Int): Try[DenseMatrix[Double]] = {
     for {
@@ -244,7 +244,7 @@ object StatismoIO {
   }
 
   private def readPointSetRepresentation[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    h5file: HDF5Reader,
+    h5file: StatisticalModelReader,
     modelPath: String
   )(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
     val dim: Int = vectorizer.dim
@@ -259,7 +259,7 @@ object StatismoIO {
   }
 
   private def readStandardMeshRepresentation[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    h5file: HDF5Reader,
+    h5file: StatisticalModelReader,
     modelPath: String
   )(implicit typeHelper: StatismoDomainIO[D, DDomain], vectorizer: Vectorizer[EuclideanVector[D]]): Try[DDomain[D]] = {
     val dim: Int = NDSpace[D].dimensionality
@@ -273,13 +273,13 @@ object StatismoIO {
     } yield domain
   }
 
-  private def readStandardMeanVector(h5file: HDF5Reader, modelPath: String): Try[DenseVector[Double]] = {
+  private def readStandardMeanVector(h5file: StatisticalModelReader, modelPath: String): Try[DenseVector[Double]] = {
     for {
       meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
     } yield DenseVector(meanArray.data.map(_.toDouble))
   }
 
-  private def readStandardConnectiveityRepresenterGroup(h5file: HDF5Reader, modelPath: String): Try[NDArray[Int]] = {
+  private def readStandardConnectiveityRepresenterGroup(h5file: StatisticalModelReader, modelPath: String): Try[NDArray[Int]] = {
     val cells =
       if (h5file.exists(s"$modelPath/representer/cells")) h5file.readNDArray[Int](s"$modelPath/representer/cells")
       else Failure(new Throwable("No cells found in representer"))
@@ -290,7 +290,7 @@ object StatismoIO {
    * reads the reference (a vtk file, which is stored as a byte array in the hdf5 file)
    */
   //(implicit typeHelper: StatismoDomainIO[D, DDomain])
-  private def readVTKMeshFromRepresenterGroup(h5file: HDF5Reader, modelPath: String): Try[TriangleMesh[_3D]] = {
+  private def readVTKMeshFromRepresenterGroup(h5file: StatisticalModelReader, modelPath: String): Try[TriangleMesh[_3D]] = {
     for {
       rawdata <- h5file.readNDArray[Byte](s"$modelPath/representer/reference")
       vtkFile <- writeTmpFile(rawdata.data)
@@ -356,7 +356,7 @@ object StatismoIO {
     val pcaBasis = gp.basisMatrix.copy.map(_.toFloat)
 
     val maybeError = for {
-      h5file <- HDF5Utils.createFile(file)
+      h5file <- StatisticalModelIOUtils.createFile(file)
       _ <- h5file.writeArray(s"$modelPath/model/mean", discretizedMean.toArray)
       _ <- h5file.writeArray(s"$modelPath/model/noiseVariance", Array(0f))
       _ <- h5file.writeNDArray(
@@ -445,7 +445,7 @@ object StatismoIO {
   ): Try[DiscreteLowRankGaussianProcess[D, DiscreteImageDomain, A]] = {
 
     val modelOrFailure = for {
-      h5file <- HDF5Utils.openFileForReading(file)
+      h5file <- StatisticalModelIOUtils.openFileForReading(file)
 
       representerName <- h5file.readStringAttribute(s"$modelPath/representer/", "name")
       // read mesh according to type given in representer
@@ -500,14 +500,14 @@ object StatismoIO {
   }
 
   private def readImageRepresenter[D: NDSpace: CreateStructuredPoints](
-    h5file: HDF5Reader,
-    modelPath: String
+                                                                        modelReader: StatisticalModelReader,
+                                                                        modelPath: String
   ): Try[DiscreteImageDomain[D]] = {
 
     val dim = NDSpace[D].dimensionality
 
     for {
-      origin <- h5file
+      origin <- modelReader
         .readNDArray[Float](s"$modelPath/representer/origin")
         .flatMap(origin =>
           if (origin.dims(0) != dim)
@@ -517,7 +517,7 @@ object StatismoIO {
         )
       originScalismo = Point[D](ndArrayFloatToMatrix(origin).toDenseVector.toArray.map(_.toDouble))
 
-      spacing <- h5file
+      spacing <- modelReader
         .readNDArray[Float](s"$modelPath/representer/spacing")
         .flatMap(spacing =>
           if (spacing.dims(0) != dim)
@@ -527,7 +527,7 @@ object StatismoIO {
         )
       spacingScalismo = EuclideanVector[D](ndArrayFloatToMatrix(spacing).toDenseVector.toArray.map(_.toDouble))
 
-      size <- h5file
+      size <- modelReader
         .readNDArray[Int](s"$modelPath/representer/size")
         .flatMap(size =>
           if (size.dims(0) != dim)
@@ -565,7 +565,7 @@ object StatismoIO {
     scalarVectorizer: Vectorizer[S]): Try[DiscreteLowRankGaussianProcess[D, DDomain, S]] = {
 
     val modelOrFailure = for {
-      h5file <- HDF5Utils.openFileForReading(file)
+      h5file <- StatisticalModelIOUtils.openFileForReading(file)
       domain <- readStandardMeshRepresentation(h5file, modelPath)
       meanArray <- h5file.readNDArray[Float](s"$modelPath/model/mean")
       meanVector = DenseVector(meanArray.data.map(_.toDouble))
@@ -601,7 +601,7 @@ object StatismoIO {
     val pcaBasis = gp.basisMatrix.copy
 
     val maybeError = for {
-      h5file <- HDF5Utils.createFile(file = file)
+      h5file <- StatisticalModelIOUtils.createFile(file = file)
       group <- h5file.createGroup(s"$modelPath/representer")
       _ <- writeRepresenterStatismov090(h5file, group, gp.domain, modelPath)
       _ <- h5file.writeArray[Float](s"$modelPath/model/mean", meanVector.map(_.toFloat))

@@ -398,7 +398,7 @@ object MeshIO {
     val cells: IndexedSeq[TriangleCell] = surface.cells
 
     val maybeError: Try[Unit] = for {
-      h5file <- HDF5Utils.createFile(file)
+      h5file <- StatisticalModelIOUtils.createFile(file)
       _ <- h5file.writeNDArray("/Surface/0/Vertices", pointSeqToNDArray(domainPoints))
       _ <- h5file.writeNDArray("/Surface/0/Cells", cellSeqToNDArray(cells))
       _ <- Try {
@@ -651,7 +651,7 @@ object MeshIO {
   def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
 
     val maybeSurface = for {
-      h5file <- HDF5Utils.openFileForReading(file)
+      h5file <- StatisticalModelIOUtils.openFileForReading(file)
       vertArray <- h5file.readNDArray[Double]("/Surface/0/Vertices")
       cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")
       _ <- Try {

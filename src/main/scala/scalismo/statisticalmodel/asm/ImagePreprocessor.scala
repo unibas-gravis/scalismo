@@ -20,14 +20,13 @@ import breeze.linalg.DenseVector
 import ncsa.hdf.`object`.Group
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{Domain, Field}
-import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.image.DiscreteImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
 import scala.util.{Failure, Success, Try}
-import scalismo.io.HDF5Reader
-import scalismo.io.HDF5Writer
+import scalismo.io.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 
 /**
  * A preprocessed image, which can be fed to a [[FeatureExtractor]].
@@ -101,8 +100,8 @@ object IdentityImagePreprocessorIOHandler extends ImagePreprocessorIOHandler {
   override def identifier: String = IdentityImagePreprocessor.IOIdentifier
 
   override def load(meta: IOMetadata,
-                    h5File: HDF5Reader,
-                    h5Group: io.jhdf.api.Group): Try[IdentityImagePreprocessor] = {
+                    h5File: StatisticalModelReader,
+                    path : String): Try[IdentityImagePreprocessor] = {
     meta match {
       case IdentityImagePreprocessor.IOMetadata_1_0 => Success(IdentityImagePreprocessor(meta))
       case _                                        => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
@@ -160,9 +159,9 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
   private val Stddev = "stddev"
 
   override def load(meta: IOMetadata,
-                    h5File: HDF5Reader,
-                    h5Group: io.jhdf.api.Group): Try[GaussianGradientImagePreprocessor] = {
-    val groupName = h5Group.getPath
+                    h5File: StatisticalModelReader,
+                    path: String): Try[GaussianGradientImagePreprocessor] = {
+    val groupName = path
     meta match {
       case GaussianGradientImagePreprocessor.IOMetadata_1_0 =>
         for {

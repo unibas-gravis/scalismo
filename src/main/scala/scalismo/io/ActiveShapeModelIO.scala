@@ -60,7 +60,7 @@ object ActiveShapeModelIO {
     val pointModel = PointDistributionModel[_3D, TriangleMesh](asm.statisticalModel.gp)
     for {
       _ <- StatismoIO.writeStatismoPDM(pointModel, file)
-      h5 <- HDF5Utils.openFileForWriting(file)
+      h5 <- StatisticalModelIOUtils.openFileForWriting(file)
       asmGroup <- h5.createGroup(Names.Group.ActiveShapeModel)
       feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
       ppGroup <- h5.createGroup(asmGroup, Names.Group.ImagePreprocessor)
@@ -103,22 +103,22 @@ object ActiveShapeModelIO {
   def readActiveShapeModel(fn: File): Try[ActiveShapeModel] = {
     for {
       pdm <- StatismoIO.readStatismoPDM[_3D, TriangleMesh](fn)
-      h5file <- HDF5Utils.openFileForReading(fn)
-      asmGroup <- h5file.getGroup(Names.Group.ActiveShapeModel)
-      asmVersionMajor <- h5file.readIntAttribute(asmGroup.getPath, Names.Attribute.MajorVersion)
-      asmVersionMinor <- h5file.readIntAttribute(asmGroup.getPath, Names.Attribute.MinorVersion)
+      modelReader <- StatisticalModelIOUtils.openFileForReading(fn)
+      asmPath  = Names.Group.ActiveShapeModel
+      asmVersionMajor <- modelReader.readIntAttribute(asmPath, Names.Attribute.MajorVersion)
+      asmVersionMinor <- modelReader.readIntAttribute(asmPath, Names.Attribute.MinorVersion)
       _ <- {
         (asmVersionMajor, asmVersionMinor) match {
           case (1, 0) => Success(())
           case _      => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
         }
       }
-      feGroup <- h5file.getGroup(asmGroup, Names.Group.FeatureExtractor)
-      ppGroup <- h5file.getGroup(asmGroup, Names.Group.ImagePreprocessor)
-      preprocessor <- ImagePreprocessorIOHandlers.load(h5file, ppGroup)
-      profilesGroup <- h5file.getGroup(asmGroup, Names.Group.Profiles)
-      featureExtractor <- FeatureExtractorIOHandlers.load(h5file, feGroup)
-      profiles <- readProfiles(h5file, profilesGroup, pdm.reference)
+      fePath = asmPath + "/" + Names.Group.FeatureExtractor
+      ppPath = asmPath + "/" + Names.Group.ImagePreprocessor
+      preprocessor <- ImagePreprocessorIOHandlers.load(modelReader, ppPath)
+      profilesGroup = asmPath + "/" + Names.Group.Profiles
+      featureExtractor <- FeatureExtractorIOHandlers.load(modelReader, fePath)
+      profiles <- readProfiles(modelReader, profilesGroup, pdm.reference)
     } yield {
       val shapeModel = PointDistributionModel(pdm.gp)
       ActiveShapeModel(shapeModel, profiles, preprocessor, featureExtractor)
@@ -126,18 +126,18 @@ object ActiveShapeModelIO {
 
   }
 
-  private[this] def readProfiles(h5file: HDF5Reader,
-                                 group: io.jhdf.api.Group,
+  private[this] def readProfiles(modelReader: StatisticalModelReader,
+                                 path : String,
                                  referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
-    val groupName = group.getPath
+    val groupName = path
     for {
-      profileLength <- h5file.readIntAttribute(groupName, Names.Attribute.ProfileLength)
-      pointIds <- h5file.readArray[Int](s"$groupName/${Names.Item.PointIds}")
+      profileLength <- modelReader.readIntAttribute(groupName, Names.Attribute.ProfileLength)
+      pointIds <- modelReader.readArray[Int](s"$groupName/${Names.Item.PointIds}")
       pts = pointIds.map(id => referenceMesh.pointSet.point(PointId(id))).toIndexedSeq
-      covArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
+      covArray <- modelReader.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
       (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
-      meanArray <- h5file.readNDArray[Float](s"$groupName/${Names.Item.Means}")
+      meanArray <- modelReader.readNDArray[Float](s"$groupName/${Names.Item.Means}")
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs
