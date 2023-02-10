@@ -16,11 +16,11 @@
 package scalismo.io
 
 import java.io.{BufferedReader, File, FileReader, IOException}
-
 import scalismo.color.{RGB, RGBA}
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{PointId, Scalar, UnstructuredPoints}
 import scalismo.geometry._
+import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
 import scalismo.mesh.TriangleMesh._
 import scalismo.mesh._
 import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}

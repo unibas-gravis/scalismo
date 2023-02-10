@@ -22,7 +22,8 @@ import breeze.linalg.DenseVector
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.io.{StatismoIO, StatisticalModelIO}
+import scalismo.io.{StatisticalModelIO}
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
 import scalismo.transformations.{RigidTransformation, Rotation3D, Translation3D, TranslationAfterRotation3D}

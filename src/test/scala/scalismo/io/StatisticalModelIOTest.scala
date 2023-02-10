@@ -21,6 +21,7 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random

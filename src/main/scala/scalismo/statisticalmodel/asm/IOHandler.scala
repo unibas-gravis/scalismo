@@ -16,10 +16,10 @@
 package scalismo.statisticalmodel.asm
 
 import ncsa.hdf.`object`.Group
+import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 
 import scala.collection.immutable.TreeMap
 import scala.util.{Failure, Success, Try}
-import scalismo.io.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 
 // TODO: naming to be discussed (also within the entire project). Right now, I'm using a mix of both styles
 // ("Hdf5", but "IO"), according to the rule "Camel-case acronyms, but only if they're longer than 2 characters."

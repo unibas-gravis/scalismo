@@ -16,29 +16,11 @@
 package scalismo.io
 
 import breeze.linalg.DenseMatrix
-import scalismo.common.UnstructuredPointsDomain.Create.{
-  CreateUnstructuredPointsDomain1D,
-  CreateUnstructuredPointsDomain2D,
-  CreateUnstructuredPointsDomain3D
-}
+import scalismo.common.UnstructuredPointsDomain.Create.{CreateUnstructuredPointsDomain1D, CreateUnstructuredPointsDomain2D, CreateUnstructuredPointsDomain3D}
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPoints, UnstructuredPointsDomain}
-import scalismo.geometry.{_1D, _2D, _3D, Point}
-import scalismo.mesh.{
-  LineCell,
-  LineList,
-  LineMesh,
-  LineMesh2D,
-  LineMesh3D,
-  TetrahedralCell,
-  TetrahedralList,
-  TetrahedralMesh,
-  TetrahedralMesh3D,
-  TriangleCell,
-  TriangleList,
-  TriangleMesh,
-  TriangleMesh2D,
-  TriangleMesh3D
-}
+import scalismo.geometry.{Point, _1D, _2D, _3D}
+import scalismo.io.statisticalmodel.NDArray
+import scalismo.mesh.{LineCell, LineList, LineMesh, LineMesh2D, LineMesh3D, TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D, TriangleCell, TriangleList, TriangleMesh, TriangleMesh2D, TriangleMesh3D}
 
 import scala.language.higherKinds
 import scala.util.{Failure, Success, Try}

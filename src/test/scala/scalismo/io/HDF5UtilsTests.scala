@@ -16,8 +16,8 @@
 package scalismo.io
 
 import java.io.File
-
 import scalismo.ScalismoTestSuite
+import scalismo.io.statisticalmodel.{HDF5Writer, StatisticalModelIOUtils, NDArray}
 
 import scala.util.Try
 

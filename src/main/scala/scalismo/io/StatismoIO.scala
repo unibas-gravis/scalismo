@@ -1,14 +1,15 @@
-package scalismo.io
+package scalismo.io.statisticalmodel
 
 import java.io._
 import java.util.Calendar
 import breeze.linalg.{DenseMatrix, DenseVector}
-
 import ncsa.hdf.`object`.Group
 import scalismo.common.{DiscreteDomain, DomainWarp, Scalar, Vectorizer}
 import scalismo.geometry._
 import scalismo.image.{CreateStructuredPoints, DiscreteImageDomain, StructuredPoints}
-import scalismo.io.StatismoIO.StatismoModelType.StatismoModelType
+import scalismo.io.{MeshIO, StatismoDomainIO}
+import scalismo.io.statisticalmodel.StatismoIO.StatismoModelType.StatismoModelType
+import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils, StatisticalModelReader}
 import scalismo.mesh.{TetrahedralMesh, TriangleMesh}
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel}
 
@@ -55,10 +56,10 @@ object StatismoIO {
     }
   }
 
-  private def readCatalogEntry(h5file: StatisticalModelReader, path: String): Try[CatalogEntry] = {
+  private def readCatalogEntry(modelReader: StatisticalModelReader, path: String): Try[CatalogEntry] = {
     for {
-      location <- h5file.readString("/catalog/" + path + "/modelPath")
-      modelType <- h5file.readString("/catalog/" + path + "/modelType")
+      location <- modelReader.readString("/catalog/" + path + "/modelPath")
+      modelType <- modelReader.readString("/catalog/" + path + "/modelType")
     } yield {
       CatalogEntry(path, StatismoModelType.fromString(modelType), location)
     }

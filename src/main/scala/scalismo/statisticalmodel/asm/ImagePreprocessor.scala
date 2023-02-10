@@ -23,10 +23,11 @@ import scalismo.common.{Domain, Field}
 import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.image.DiscreteImage
 import scalismo.image.filter.DiscreteImageFilter
+import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
 import scala.util.{Failure, Success, Try}
-import scalismo.io.{HDF5Reader, HDF5Writer, StatisticalModelReader}
+
 
 /**
  * A preprocessed image, which can be fed to a [[FeatureExtractor]].

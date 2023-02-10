@@ -17,8 +17,9 @@ package scalismo.io
 
 import java.io._
 import scalismo.common.{Scalar, UnstructuredPointsDomain, Vectorizer}
-import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector}
+import scalismo.geometry.{EuclideanVector, _1D, _2D, _3D}
 import scalismo.image.DiscreteImageDomain
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.mesh.{LineMesh, TetrahedralMesh, TriangleMesh}
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel, StatisticalMeshModel}
 

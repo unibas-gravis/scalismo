@@ -16,11 +16,11 @@
 package scalismo.io
 
 import java.io.{File, IOException}
-
 import breeze.linalg.{DenseMatrix, DenseVector}
 import ncsa.hdf.`object`.Group
 import scalismo.common.PointId
 import scalismo.geometry._3D
+import scalismo.io.statisticalmodel.{HDF5Writer, NDArray, StatismoIO, StatisticalModelIOUtils, StatisticalModelReader}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel, StatisticalMeshModel}
 import scalismo.statisticalmodel.asm._
