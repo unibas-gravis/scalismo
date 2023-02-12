@@ -16,12 +16,9 @@
 package scalismo.io
 
 import java.io._
-
 import breeze.linalg.DenseVector
 import scalismo.geometry._
 import scalismo.statisticalmodel.MultivariateNormalDistribution
-import spray.json.DefaultJsonProtocol._
-import spray.json._
 
 import scala.io.Source
 import scala.language.implicitConversions
@@ -29,9 +26,23 @@ import scala.util.{Failure, Try}
 
 object LandmarkIO {
 
-  private case class Uncertainty(stddevs: List[Double], pcvectors: List[List[Double]])
+  private case class Uncertainty(stddevs: List[Double], pcvectors: List[List[Double]]) {
+    def asJson(): ujson.Obj = {
+      ujson.Obj(
+        "stddevs" -> ujson.Arr.from(stddevs),
+        "pcvectors" -> ujson.Arr.from(pcvectors)
+      )
+    }
 
-  implicit private val uncertaintyProtocol: RootJsonFormat[Uncertainty] = jsonFormat2(Uncertainty.apply)
+  }
+  private object Uncertainty {
+    def fromJson(value: ujson.Value): Try[Uncertainty] = Try {
+      val stddevs = value("stddevs").arr.toList.map(_.num)
+      val pcvectors = value("pcvectors").arr.toList.map(v => v.arr.toList.map(_.num))
+      Uncertainty(stddevs, pcvectors)
+    }
+
+  }
 
   implicit private def u2m(u: Uncertainty): MultivariateNormalDistribution = {
     val dim = u.stddevs.size
@@ -51,29 +62,38 @@ object LandmarkIO {
     Uncertainty(stdDevs, pcList)
   }
 
-  private case class LandmarkJsonFormat[D: NDSpace]() extends JsonFormat[Landmark[D]] {
-    def write(l: Landmark[D]) = {
-      val fixedMap = Map("id" -> JsString(l.id), "coordinates" -> arrayFormat[Double].write(l.point.toArray))
-      val descriptionMap = l.description
-        .map { d =>
-          Map("description" -> JsString(d))
-        }
-        .getOrElse(Map())
-      val uncertaintyMap = l.uncertainty
-        .map { u =>
-          Map("uncertainty" -> uncertaintyProtocol.write(u))
-        }
-        .getOrElse(Map())
-      JsObject(fixedMap ++ descriptionMap ++ uncertaintyMap)
+  private case class LandmarkJsonSerializer[D: NDSpace]() {
+
+    def toJson(l: Landmark[D]): ujson.Obj = {
+
+      val pointItems: List[(String, ujson.Value)] = List(
+        "id" -> ujson.Str(l.id),
+        "coordinates" -> ujson.Arr.from(l.point.toArray)
+      )
+
+      val descriptionItems: List[(String, ujson.Value)] = l.description match {
+        case Some(d) => List("description" -> ujson.Str(d))
+        case None    => Nil
+      }
+      val uncertaintyItems: List[(String, ujson.Value)] = l.uncertainty match {
+        case Some(u) => List("uncertainty" -> m2u(u).asJson())
+        case None    => Nil
+      }
+
+      ujson.Obj.from(pointItems ++ descriptionItems ++ uncertaintyItems)
     }
 
-    def read(value: JsValue) = {
-      val (id, coordinates) = value.asJsObject.getFields("id", "coordinates") match {
-        case Seq(i, c) => (i.convertTo[String], c.convertTo[Array[Double]])
-        case _         => throw new DeserializationException("No coordinates or landmark id Found")
+    def fromJson(jsonValue: ujson.Value): Try[Landmark[D]] = Try {
+      val id = jsonValue("id").str
+      val coordinates = {
+        jsonValue("coordinates").arr.map(_.num).toArray
       }
-      val description = value.asJsObject.getFields("description").headOption.map(_.convertTo[String])
-      val uncertainty = value.asJsObject.getFields("uncertainty").headOption.map(_.convertTo[Uncertainty])
+
+      val description = jsonValue.obj.get("description").map(_.str)
+      val uncertainty = jsonValue.obj.get("uncertainty") match {
+        case Some(uncertainty) => Uncertainty.fromJson(uncertainty).toOption
+        case None              => None
+      }
       Landmark[D](id, Point[D](coordinates), description, uncertainty.map(u => u2m(u)))
     }
   }
@@ -99,11 +119,11 @@ object LandmarkIO {
   }
 
   def readLandmarksJsonFromSource[D: NDSpace](source: Source): Try[Seq[Landmark[D]]] = {
-    implicit val e: LandmarkJsonFormat[D] = LandmarkJsonFormat[D]()
     for {
       result <- Try {
         val stringData = source.getLines().mkString("\n")
-        JsonParser(stringData).convertTo[List[Landmark[D]]]
+        val jsonData = ujson.read(stringData)
+        jsonData.arr.map(obj => LandmarkJsonSerializer[D]().fromJson(obj).get).toSeq
       }
       d <- Try {
         source.close()
@@ -114,13 +134,12 @@ object LandmarkIO {
   def writeLandmarksJson[D: NDSpace](landmarks: Seq[Landmark[D]], file: File): Try[Unit] =
     writeLandmarksJsonToStream[D](landmarks, new FileOutputStream(file))
 
-  private def writeLandmarksJsonToStreamP[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream)(
-    implicit
-    e: JsonFormat[Landmark[D]]
-  ): Try[Unit] = {
+  private def writeLandmarksJsonToStreamP[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] = {
     val writer = new PrintWriter(stream, true)
     val result = Try {
-      writer.println(landmarks.toJson.toString())
+      val jsonObjs = for (lm <- landmarks) yield LandmarkJsonSerializer[D]().toJson(lm)
+      val jsonValue = ujson.Arr.from(jsonObjs)
+      writer.println(jsonValue.toString())
     }
     Try {
       writer.close()
@@ -129,10 +148,9 @@ object LandmarkIO {
   }
 
   def writeLandmarksJsonToStream[D: NDSpace](landmarks: Seq[Landmark[D]], stream: OutputStream): Try[Unit] =
-    Try {
-      implicit val e: LandmarkJsonFormat[D] = LandmarkJsonFormat[D]()
-      writeLandmarksJsonToStreamP(landmarks, stream)
-    }.flatten
+    for {
+      _ <- writeLandmarksJsonToStreamP(landmarks, stream)
+    } yield ()
 
   /**
    * ******************************************************************************************************************
