@@ -18,6 +18,7 @@ package scalismo.geometry
 import breeze.linalg.DenseVector
 import scalismo.common.Vectorizer
 import spire.algebra.{Field, VectorSpace}
+import spire.std.any.DoubleAlgebra
 
 import scala.language.implicitConversions
 
