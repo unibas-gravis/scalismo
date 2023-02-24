@@ -17,17 +17,17 @@
 package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
-import ncsa.hdf.`object`.Group
+import io.jhdf.api.Group
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{Domain, Field}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.hdfjson.HDFPath
 import scalismo.image.DiscreteImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
 import scala.util.{Failure, Success, Try}
-
 
 /**
  * A preprocessed image, which can be fed to a [[FeatureExtractor]].
@@ -100,9 +100,7 @@ case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = Ident
 object IdentityImagePreprocessorIOHandler extends ImagePreprocessorIOHandler {
   override def identifier: String = IdentityImagePreprocessor.IOIdentifier
 
-  override def load(meta: IOMetadata,
-                    h5File: StatisticalModelReader,
-                    path : String): Try[IdentityImagePreprocessor] = {
+  override def load(meta: IOMetadata, h5File: StatisticalModelReader, path: HDFPath): Try[IdentityImagePreprocessor] = {
     meta match {
       case IdentityImagePreprocessor.IOMetadata_1_0 => Success(IdentityImagePreprocessor(meta))
       case _                                        => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
@@ -161,21 +159,20 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
 
   override def load(meta: IOMetadata,
                     h5File: StatisticalModelReader,
-                    path: String): Try[GaussianGradientImagePreprocessor] = {
-    val groupName = path
+                    path: HDFPath): Try[GaussianGradientImagePreprocessor] = {
+
     meta match {
       case GaussianGradientImagePreprocessor.IOMetadata_1_0 =>
         for {
-          stddev <- h5File.readFloat(s"$groupName/$Stddev")
+          stddev <- h5File.readFloat(HDFPath(path, Stddev))
         } yield GaussianGradientImagePreprocessor(stddev, meta)
       case _ => Failure(new IllegalArgumentException(s"Unable to handle $meta"))
     }
   }
 
-  override def save(t: ImagePreprocessor, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
-    val groupName = h5Group.getFullName
+  override def save(t: ImagePreprocessor, h5File: HDF5Writer, path: HDFPath): Try[Unit] = {
     t match {
-      case g: GaussianGradientImagePreprocessor => h5File.writeFloat(s"$groupName/$Stddev", g.stddev.toFloat)
+      case g: GaussianGradientImagePreprocessor => h5File.writeFloat(HDFPath(path, Stddev), g.stddev.toFloat)
       case _                                    => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
     }
   }

@@ -424,7 +424,7 @@ object LowRankGaussianProcess {
     val Ut = U.t
 
     //calling functions remove small values for this inversion
-    val Si = 1.0 / S
+    val Si = S.map(v => 1.0 / v)
     val Ai = {
       val bi = new CSCMatrix.Builder[Double](y.length, y.length)
       for ((mvn, i) <- td.zipWithIndex) {

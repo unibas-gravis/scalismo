@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import ch.unibas.cs.gravis.hdf5nativelibs.Hdf5NativeLibs
 import ch.unibas.cs.gravis.vtkjavanativelibs.VtkNativeLibraries
 
 import javax.swing.SwingUtilities
@@ -36,8 +35,6 @@ package object scalismo {
     import java.io.File
     val nativeDir = new File(System.getProperty("user.home") + File.separator + ".scalismo")
     if (!initialized(0)) {
-      Hdf5NativeLibs.initialize(nativeDir)
-
       VtkNativeLibraries.initialize(nativeDir)
 
       if (gcInterval > 0) {

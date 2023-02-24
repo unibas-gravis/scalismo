@@ -15,7 +15,8 @@
  */
 package scalismo.statisticalmodel.asm
 
-import ncsa.hdf.`object`.Group
+import io.jhdf.api.Group
+import scalismo.hdfjson.HDFPath
 import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 
 import scala.collection.immutable.TreeMap
@@ -76,7 +77,7 @@ trait Hdf5IOHandler[T <: HasIOMetadata] {
    * @return an object of type T corresponding to the provided IO metadata and initialized according to the information present in the file
    *         (wrapped in a [[Success]]]), or a [[Failure]] indicating the cause of the failure
    */
-  def load(meta: IOMetadata, h5File: StatisticalModelReader, path : String): Try[T]
+  def load(meta: IOMetadata, h5File: StatisticalModelReader, path: HDFPath): Try[T]
 
   /**
    * Save all required information about an object to an HDF5 file, so that the object can later be reconstructed using the [[Hdf5IOHandler.load]] method.
@@ -91,10 +92,10 @@ trait Hdf5IOHandler[T <: HasIOMetadata] {
    *
    * @param t the object about which information is to be stored.
    * @param h5File the HDF5 file to save the information to.
-   * @param h5Group the group under which to save the information in the HDF5 file.
+   * @param path the path under which to save the information in the HDF5 file.
    * @return [[Success]] or [[Failure]]
    */
-  def save(t: T, h5File: HDF5Writer, h5Group: Group): Try[Unit] = Success(())
+  def save(t: T, h5File: HDF5Writer, path: HDFPath): Try[Unit] = Success(())
 }
 
 /**
@@ -114,13 +115,11 @@ object Hdf5IOHandler {
    * @param h5Group the HDF5 Group within the file to save the metadata to.
    * @return [[Success]] or [[Failure]]
    */
-  def saveMetadata(meta: IOMetadata, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
-    val groupName = h5Group.getFullName
-    println("saving metadata for group " + groupName)
+  def saveMetadata(meta: IOMetadata, h5File: HDF5Writer, path: HDFPath): Try[Unit] = {
     for {
-      _ <- h5File.writeStringAttribute(groupName, IdentifierAttributeName, meta.identifier)
-      _ <- h5File.writeIntAttribute(groupName, MajorVersionAttributeName, meta.majorVersion)
-      _ <- h5File.writeIntAttribute(groupName, MinorVersionAttributeName, meta.minorVersion)
+      _ <- h5File.writeStringAttribute(path, IdentifierAttributeName, meta.identifier)
+      _ <- h5File.writeIntAttribute(path, MajorVersionAttributeName, meta.majorVersion)
+      _ <- h5File.writeIntAttribute(path, MinorVersionAttributeName, meta.minorVersion)
     } yield ()
   }
 
@@ -131,12 +130,11 @@ object Hdf5IOHandler {
    * @param h5Group the HDF5 Group within the file to read metadata from.
    * @return an IO metadata object, wrapped in a [[Success]], or a [[Failure]] object indicating the failure that occurred.
    */
-  def loadMetadata(h5File: StatisticalModelReader, path: String): Try[IOMetadata] = {
-    val groupName = path
+  def loadMetadata(h5File: StatisticalModelReader, path: HDFPath): Try[IOMetadata] = {
     for {
-      identifier <- h5File.readStringAttribute(groupName, IdentifierAttributeName)
-      majorVersion <- h5File.readIntAttribute(groupName, MajorVersionAttributeName)
-      minorVersion <- h5File.readIntAttribute(groupName, MinorVersionAttributeName)
+      identifier <- h5File.readStringAttribute(path, IdentifierAttributeName)
+      majorVersion <- h5File.readIntAttribute(path, MajorVersionAttributeName)
+      minorVersion <- h5File.readIntAttribute(path, MinorVersionAttributeName)
     } yield IOMetadata(identifier, majorVersion, minorVersion)
   }
 
@@ -201,7 +199,7 @@ class IOHandlers[T <: HasIOMetadata, IO <: IOHandler[T]] {
    * @param h5Group the HDF5 group within the file to load the object from.
    * @return the object corresponding to the information in the HDF5 group.
    */
-  def load(h5File: StatisticalModelReader, path : String): Try[T] = {
+  def load(h5File: StatisticalModelReader, path: HDFPath): Try[T] = {
     for {
       meta <- Hdf5IOHandler.loadMetadata(h5File, path)
       io <- find(meta.identifier)
@@ -217,12 +215,12 @@ class IOHandlers[T <: HasIOMetadata, IO <: IOHandler[T]] {
    * @param h5Group the HDF5 group to save the object to.
    * @return [[Success]] or [[Failure]]
    */
-  def save(t: T, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
+  def save(t: T, h5File: HDF5Writer, path: HDFPath): Try[Unit] = {
     val meta = t.ioMetadata
     for {
       io <- find(meta.identifier)
-      _ <- Hdf5IOHandler.saveMetadata(meta, h5File, h5Group)
-      _ <- io.save(t, h5File, h5Group)
+      _ <- Hdf5IOHandler.saveMetadata(meta, h5File, path)
+      _ <- io.save(t, h5File, path)
     } yield ()
   }
 }

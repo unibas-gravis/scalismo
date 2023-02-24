@@ -19,12 +19,13 @@ import java.io.{BufferedReader, File, FileReader, IOException}
 import scalismo.color.{RGB, RGBA}
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{PointId, Scalar, UnstructuredPoints}
-import scalismo.geometry._
+import scalismo.geometry.*
+import scalismo.hdfjson.HDFPath
 import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
-import scalismo.mesh.TriangleMesh._
-import scalismo.mesh._
+import scalismo.mesh.TriangleMesh.*
+import scalismo.mesh.*
 import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
-import vtk._
+import vtk.*
 
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
@@ -85,7 +86,6 @@ object MeshIO {
   def readMesh(file: File): Try[TriangleMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".h5")  => readHDF5(file)
       case f if f.endsWith(".vtk") => readVTK(file)
       case f if f.endsWith(".stl") => readSTL(file)
       case f if f.endsWith(".ply") => {
@@ -399,8 +399,8 @@ object MeshIO {
 
     val maybeError: Try[Unit] = for {
       h5file <- StatisticalModelIOUtils.createFile(file)
-      _ <- h5file.writeNDArray("/Surface/0/Vertices", pointSeqToNDArray(domainPoints))
-      _ <- h5file.writeNDArray("/Surface/0/Cells", cellSeqToNDArray(cells))
+      _ <- h5file.writeNDArray(HDFPath("/Surface/0/Vertices"), pointSeqToNDArray(domainPoints))
+      _ <- h5file.writeNDArray(HDFPath("/Surface/0/Cells"), cellSeqToNDArray(cells))
       _ <- Try {
         h5file.close()
       }
@@ -648,22 +648,22 @@ object MeshIO {
     mesh
   }
 
-  def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
-
-    val maybeSurface = for {
-      h5file <- StatisticalModelIOUtils.openFileForReading(file)
-      vertArray <- h5file.readNDArray[Double]("/Surface/0/Vertices")
-      cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")
-      _ <- Try {
-        h5file.close()
-      }
-    } yield {
-      TriangleMesh3D(UnstructuredPoints(NDArrayToPointSeq(vertArray).toIndexedSeq),
-                     TriangleList(NDArrayToCellSeq(cellArray)))
-    }
-
-    maybeSurface
-  }
+//  def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
+//
+//    val maybeSurface = for {
+//      h5file <- StatisticalModelIOUtils.openFileForReading(file)
+//      vertArray <- h5file.readNDArray[Double](HDFPath("/Surface/0/Vertices"))
+//      cellArray <- h5file.readNDArrayInt(HDFPath("/Surface/0/Cells"))
+//      _ <- Try {
+//        h5file.close()
+//      }
+//    } yield {
+//      TriangleMesh3D(UnstructuredPoints(NDArrayToPointSeq(vertArray).toIndexedSeq),
+//                     TriangleList(NDArrayToCellSeq(cellArray)))
+//    }
+//
+//    maybeSurface
+//  }
 
   private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq

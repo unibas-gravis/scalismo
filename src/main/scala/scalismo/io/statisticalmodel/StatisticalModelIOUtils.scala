@@ -1,7 +1,21 @@
+/*
+ * Copyright 2023 University of Basel, Graphics and Vision Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package scalismo.io.statisticalmodel
 
-import io.jhdf.HdfFile
-import ncsa.hdf.`object`.FileFormat
+import scalismo.hdfjson.HDFJson
 
 import java.io.{File, IOException}
 import scala.util.Try
@@ -20,25 +34,23 @@ object StatisticalModelIOUtils {
   def hdf5Version = "to be defined"
 
   private def openFileWriterOrCreateFile(file: File, mode: FileAccessMode): Try[HDF5Writer] = Try {
-    val filename = file.getAbsolutePath
-    val h5fileAccessMode = mode match {
-      case WRITE  => FileFormat.WRITE
-      case CREATE => FileFormat.CREATE
+    if (mode == WRITE && file.exists()) {
+      new HDF5Writer(file, Some(HDFJson.readFromFile(file).get))
+    } else {
+      new HDF5Writer(file)
     }
 
-    val fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5)
-    val h5file = fileFormat.createInstance(filename, h5fileAccessMode)
-
-    if (h5file.open() == -1) {
-      throw new IOException("could not open file " + file.getAbsolutePath)
-    }
-    new HDF5Writer(h5file)
   }
 
-  def openFileForReading(file: File): Try[StatisticalModelReader] = {
-    Try {
-      val hdfFile = new HdfFile(file)
+  def openFileForReading(file: File): Try[StatisticalModelReader] = Try {
+
+    if (file.getName.endsWith(".h5")) {
+      val hdfFile = new io.jhdf.HdfFile(file)
       new HDF5Reader(hdfFile)
+    } else if (file.getName.endsWith(".json")) {
+      HDFJson.readFromFile(file).map(hdfjson => HDF5JsonReader(hdfjson)).get
+    } else {
+      throw new IOException(s"File ${file.getName} is not a valid HDF5 or JSON file")
     }
   }
 

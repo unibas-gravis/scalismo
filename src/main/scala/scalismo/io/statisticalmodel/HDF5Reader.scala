@@ -1,6 +1,22 @@
+/*
+ * Copyright 2023 University of Basel, Graphics and Vision Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package scalismo.io.statisticalmodel
 
 import io.jhdf.HdfFile
+import scalismo.hdfjson.HDFPath
 
 import java.io.Closeable
 import scala.jdk.CollectionConverters.MapHasAsScala
@@ -10,28 +26,19 @@ class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader 
 
   override def close(): Unit = { h5file.close() }
 
-  def exists(path: String): Boolean = Try { h5file.getByPath(path) }.isSuccess
+  def exists(path: HDFPath): Boolean = Try { h5file.getByPath(path.toString) }.isSuccess
 
-  def readString(path: String): Try[String] = {
+  def readString(path: HDFPath): Try[String] = {
 
     Try {
-      h5file.getDatasetByPath(sanitizePath(path)).getData.asInstanceOf[String]
+      h5file.getDatasetByPath(path.toString).getData.asInstanceOf[String]
     }
   }
 
-  private def sanitizePath(path: String): String = {
-    val pathWithoutTrailingSlash = if (path.endsWith("/")) {
-      path.dropRight(1)
-    } else {
-      path
-    }
-    pathWithoutTrailingSlash.replaceAll("//", "/")
-  }
-
-  def readStringAttribute(path: String, attrName: String): Try[String] = {
+  def readStringAttribute(path: HDFPath, attrName: String): Try[String] = {
     Try {
       val attribute = h5file
-        .getByPath(sanitizePath(path))
+        .getByPath(path.toString)
         .getAttribute(attrName)
         .getData()
 
@@ -41,11 +48,11 @@ class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader 
     }
   }
 
-  def readIntAttribute(path: String, attrName: String): Try[Int] = {
+  def readIntAttribute(path: HDFPath, attrName: String): Try[Int] = {
 
     Try {
       val attribute = h5file
-        .getByPath(sanitizePath(path))
+        .getByPath(path.toString)
         .getAttribute(attrName)
         .getData()
 
@@ -56,15 +63,16 @@ class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader 
 
   }
 
-  def getPathOfChildren(path: String): Try[Seq[String]] = {
+  def getPathOfChildren(path: HDFPath): Try[Seq[HDFPath]] = {
     Try {
       h5file
-        .getByPath(sanitizePath(path))
+        .getByPath(path.toString)
         .asInstanceOf[io.jhdf.api.Group]
         .getChildren
         .asScala
         .keys
         .toSeq
+        .map(childPath => HDFPath(path, childPath))
     }
   }
 
@@ -73,13 +81,25 @@ class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader 
    * which casts a type Object into an Array[T]. The reason this has to be provided is that
    * it is not possible to cast to a generic type, due to type erasure.
    */
-  def readNDArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[NDArray[T]] = {
+  def readNDArrayFloat(path: HDFPath): Try[NDArray[Float]] = {
     Try {
-      val node = h5file.getDatasetByPath(sanitizePath(path))
+      val node = h5file.getDatasetByPath(path.toString)
       val dims = node.getDimensions
 
-      val array = dataCast.cast(node.getData());
-      NDArray(dims.map(_.toLong).toIndexedSeq, array)
+      val arrayND = node.getData()
+      val flattened = arrayND.asInstanceOf[Array[Array[Float]]].flatten
+      NDArray(dims.map(_.toLong).toIndexedSeq, flattened)
+    }
+  }
+
+  def readNDArrayInt(path: HDFPath): Try[NDArray[Int]] = {
+    Try {
+      val node = h5file.getDatasetByPath(path.toString)
+      val dims = node.getDimensions
+
+      val arrayND = node.getData()
+      val flattened = arrayND.asInstanceOf[Array[Array[Int]]].flatten
+      NDArray(dims.map(_.toLong).toIndexedSeq, flattened)
     }
   }
 
@@ -89,33 +109,33 @@ class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader 
    * which casts a type Object into an Array[T]. The reason this has to be provided is that
    * it is not possible to cast to a generic type, due to type erasure.
    */
-  def readArray[T](path: String)(implicit dataCast: ObjectToArrayCast[T]): Try[Array[T]] = {
+  def readArrayInt(path: HDFPath): Try[Array[Int]] = {
     Try {
-      val node = h5file.getDatasetByPath(sanitizePath(path))
+      val node = h5file.getDatasetByPath(path.toString)
       val dims = node.getDimensions
-      dataCast.cast(node.getData());
+      node.getData().asInstanceOf[Array[Int]];
     }
   }
 
-  def readInt(path: String): Try[Int] = {
+  def readArrayFloat(path: HDFPath): Try[Array[Float]] = {
     Try {
-      val node = h5file.getDatasetByPath(sanitizePath(path))
+      val node = h5file.getDatasetByPath(path.toString)
+      val dims = node.getDimensions
+      node.getData().asInstanceOf[Array[Float]];
+    }
+  }
+
+  def readInt(path: HDFPath): Try[Int] = {
+    Try {
+      val node = h5file.getDatasetByPath(path.toString)
       node.getData().asInstanceOf[Int]
     }
   }
 
-  def readFloat(path: String): Try[Float] = {
+  def readFloat(path: HDFPath): Try[Float] = {
     Try {
-      val node = h5file.getDatasetByPath(sanitizePath(path))
+      val node = h5file.getDatasetByPath(path.toString)
       node.getData().asInstanceOf[Float]
     }
-  }
-
-  def getGroup(path: String): Try[io.jhdf.api.Group] = Try {
-    h5file.getByPath(sanitizePath(path)).asInstanceOf[io.jhdf.api.Group]
-  }
-
-  def getGroup(group: io.jhdf.api.Group, groupName: String): Try[io.jhdf.api.Group] = Try {
-    h5file.getByPath(sanitizePath(group.getPath + "/" + groupName)).asInstanceOf[io.jhdf.api.Group]
   }
 }

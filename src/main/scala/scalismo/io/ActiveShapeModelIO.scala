@@ -17,13 +17,14 @@ package scalismo.io
 
 import java.io.{File, IOException}
 import breeze.linalg.{DenseMatrix, DenseVector}
-import ncsa.hdf.`object`.Group
+import io.jhdf.api.Group
 import scalismo.common.PointId
 import scalismo.geometry._3D
+import scalismo.hdfjson.{FloatArray1D, HDFPath, IntArray1D}
 import scalismo.io.statisticalmodel.{HDF5Writer, NDArray, StatismoIO, StatisticalModelIOUtils, StatisticalModelReader}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel, StatisticalMeshModel}
-import scalismo.statisticalmodel.asm._
+import scalismo.statisticalmodel.asm.*
 
 import scala.collection.immutable
 import scala.util.{Failure, Success, Try}
@@ -61,20 +62,21 @@ object ActiveShapeModelIO {
     for {
       _ <- StatismoIO.writeStatismoPDM(pointModel, file)
       h5 <- StatisticalModelIOUtils.openFileForWriting(file)
-      asmGroup <- h5.createGroup(Names.Group.ActiveShapeModel)
-      feGroup <- h5.createGroup(asmGroup, Names.Group.FeatureExtractor)
-      ppGroup <- h5.createGroup(asmGroup, Names.Group.ImagePreprocessor)
-      profilesGroup <- h5.createGroup(asmGroup, Names.Group.Profiles)
+      asmPath = HDFPath(Names.Group.ActiveShapeModel)
+      fePath = HDFPath(asmPath, Names.Group.FeatureExtractor)
+      ppPath = HDFPath(asmPath, Names.Group.ImagePreprocessor)
+      profilesPath = HDFPath(asmPath, Names.Group.Profiles)
       // for now, the version information is fixed to 1.0
-      _ <- h5.writeIntAttribute(asmGroup.getFullName, Names.Attribute.MajorVersion, 1)
-      _ <- h5.writeIntAttribute(asmGroup.getFullName, Names.Attribute.MinorVersion, 0)
-      _ <- ImagePreprocessorIOHandlers.save(asm.preprocessor, h5, ppGroup)
-      _ <- FeatureExtractorIOHandlers.save(asm.featureExtractor, h5, feGroup)
-      _ <- writeProfiles(h5, profilesGroup, asm.profiles)
+      _ <- h5.writeIntAttribute(asmPath, Names.Attribute.MajorVersion, 1)
+      _ <- h5.writeIntAttribute(asmPath, Names.Attribute.MinorVersion, 0)
+      _ <- ImagePreprocessorIOHandlers.save(asm.preprocessor, h5, ppPath)
+      _ <- FeatureExtractorIOHandlers.save(asm.featureExtractor, h5, fePath)
+      _ <- writeProfiles(h5, profilesPath, asm.profiles)
+      _ <- h5.write()
     } yield ()
   }
 
-  private def writeProfiles(h5file: HDF5Writer, group: Group, profiles: Profiles): Try[Unit] =
+  private def writeProfiles(h5file: HDF5Writer, path: HDFPath, profiles: Profiles): Try[Unit] =
     Try {
       val numberOfPoints = profiles.data.length
       val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
@@ -83,19 +85,18 @@ object ActiveShapeModelIO {
       val covariances: NDArray[Float] =
         new NDArray(IndexedSeq[Long](numberOfPoints * profileLength, profileLength),
                     profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat))
-      val groupName = group.getFullName
 
       val result = for {
-        _ <- h5file.writeIntAttribute(groupName, Names.Attribute.NumberOfPoints, numberOfPoints)
-        _ <- h5file.writeIntAttribute(groupName, Names.Attribute.ProfileLength, profileLength)
+        _ <- h5file.writeIntAttribute(path, Names.Attribute.NumberOfPoints, numberOfPoints)
+        _ <- h5file.writeIntAttribute(path, Names.Attribute.ProfileLength, profileLength)
         _ <- h5file.writeStringAttribute(
-          groupName,
+          path,
           Names.Attribute.Comment,
           s"${Names.Item.Covariances} consists of $numberOfPoints concatenated ${profileLength}x$profileLength matrices"
         )
-        _ <- h5file.writeArray(s"$groupName/${Names.Item.PointIds}", profiles.data.map(_.pointId.id).toArray)
-        _ <- h5file.writeNDArray[Float](s"$groupName/${Names.Item.Means}", means)
-        _ <- h5file.writeNDArray[Float](s"$groupName/${Names.Item.Covariances}", covariances)
+        _ <- h5file.writeArray(HDFPath(path, Names.Item.PointIds), profiles.data.map(_.pointId.id).toArray)
+        _ <- h5file.writeNDArray[Float](HDFPath(path, Names.Item.Means), means)
+        _ <- h5file.writeNDArray[Float](HDFPath(path, Names.Item.Covariances), covariances)
       } yield ()
       result // this is a Try[Unit], so the return value is a Try[Try[Unit]]
     }.flatten
@@ -104,7 +105,7 @@ object ActiveShapeModelIO {
     for {
       pdm <- StatismoIO.readStatismoPDM[_3D, TriangleMesh](fn)
       modelReader <- StatisticalModelIOUtils.openFileForReading(fn)
-      asmPath  = Names.Group.ActiveShapeModel
+      asmPath = HDFPath(Names.Group.ActiveShapeModel)
       asmVersionMajor <- modelReader.readIntAttribute(asmPath, Names.Attribute.MajorVersion)
       asmVersionMinor <- modelReader.readIntAttribute(asmPath, Names.Attribute.MinorVersion)
       _ <- {
@@ -113,10 +114,10 @@ object ActiveShapeModelIO {
           case _      => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
         }
       }
-      fePath = asmPath + "/" + Names.Group.FeatureExtractor
-      ppPath = asmPath + "/" + Names.Group.ImagePreprocessor
+      fePath = HDFPath(asmPath, Names.Group.FeatureExtractor)
+      ppPath = HDFPath(asmPath, Names.Group.ImagePreprocessor)
       preprocessor <- ImagePreprocessorIOHandlers.load(modelReader, ppPath)
-      profilesGroup = asmPath + "/" + Names.Group.Profiles
+      profilesGroup = HDFPath(asmPath, Names.Group.Profiles)
       featureExtractor <- FeatureExtractorIOHandlers.load(modelReader, fePath)
       profiles <- readProfiles(modelReader, profilesGroup, pdm.reference)
     } yield {
@@ -127,17 +128,17 @@ object ActiveShapeModelIO {
   }
 
   private[this] def readProfiles(modelReader: StatisticalModelReader,
-                                 path : String,
+                                 path: HDFPath,
                                  referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
-    val groupName = path
+
     for {
-      profileLength <- modelReader.readIntAttribute(groupName, Names.Attribute.ProfileLength)
-      pointIds <- modelReader.readArray[Int](s"$groupName/${Names.Item.PointIds}")
+      profileLength <- modelReader.readIntAttribute(path, Names.Attribute.ProfileLength)
+      pointIds <- modelReader.readArrayInt(HDFPath(path, Names.Item.PointIds))
       pts = pointIds.map(id => referenceMesh.pointSet.point(PointId(id))).toIndexedSeq
-      covArray <- modelReader.readNDArray[Float](s"$groupName/${Names.Item.Covariances}")
+      covArray <- modelReader.readNDArrayFloat(HDFPath(path, Names.Item.Covariances))
       (_, n) = (covArray.dims.head.toInt, covArray.dims(1).toInt)
       covMats = covArray.data.grouped(n * n).map(data => DenseMatrix.create(n, n, data))
-      meanArray <- modelReader.readNDArray[Float](s"$groupName/${Names.Item.Means}")
+      meanArray <- modelReader.readNDArrayFloat(HDFPath(path, Names.Item.Means))
       meanVecs = meanArray.data.grouped(n).map(data => DenseVector(data))
     } yield {
       val dists = meanVecs
