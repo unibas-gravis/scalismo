@@ -15,7 +15,9 @@
  */
 package scalismo.io
 
-import java.io._
+import scalismo.common.interpolation.NearestNeighborInterpolator3D
+
+import java.io.*
 import scalismo.common.{Scalar, UnstructuredPointsDomain, Vectorizer}
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector}
 import scalismo.image.DiscreteImageDomain
@@ -240,7 +242,7 @@ object StatisticalModelIO {
    * @return statisticalMeshModel
    */
   private def modelConverterToMeshModel(model: PointDistributionModel[_3D, TriangleMesh]): StatisticalMeshModel = {
-    StatisticalMeshModel(model.reference, model.gp)
+    StatisticalMeshModel(model.reference, model.gp.interpolate(NearestNeighborInterpolator3D()))
   }
 
   /**
