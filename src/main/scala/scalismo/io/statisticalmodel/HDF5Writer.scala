@@ -15,7 +15,7 @@
  */
 package scalismo.io.statisticalmodel
 
-import scalismo.hdf5json.{FloatArray1D, FloatArray2D, HDFAble, HDF5Json, HDFPath, IntArray1D, IntArray2D}
+import scalismo.hdf5json.{FloatArray1D, FloatArray2D, HDF5Json, HDFAble, HDFPath, IntArray1D, IntArray2D}
 
 import java.io.Closeable
 import scala.util.{Failure, Success, Try}
