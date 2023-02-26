@@ -21,7 +21,7 @@ import io.jhdf.api.Group
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{Domain, Field}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.image.DiscreteImage
 import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}

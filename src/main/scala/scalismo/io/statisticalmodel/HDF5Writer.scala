@@ -15,22 +15,22 @@
  */
 package scalismo.io.statisticalmodel
 
-import scalismo.hdfjson.{FloatArray1D, FloatArray2D, HDFAble, HDFJson, HDFPath, IntArray1D, IntArray2D}
+import scalismo.hdf5json.{FloatArray1D, FloatArray2D, HDFAble, HDF5Json, HDFPath, IntArray1D, IntArray2D}
 
 import java.io.Closeable
 import scala.util.{Failure, Success, Try}
 import scala.jdk.CollectionConverters.*
 
-class HDF5Writer(file: java.io.File, val initialHdfJson: Option[HDFJson] = None) extends Closeable {
+class HDF5Writer(file: java.io.File, val initialHdfJson: Option[HDF5Json] = None) extends Closeable {
 
   // hdfjson is immutable, but this interface requires mutable state
   // the var here is to reflect that
-  private var hdfjson: HDFJson = initialHdfJson.getOrElse(HDFJson.createEmpty)
+  private var hdfjson: HDF5Json = initialHdfJson.getOrElse(HDF5Json.createEmpty)
 
   override def close(): Unit = { write() }
 
   def write(): Try[Unit] = {
-    HDFJson.writeToFile(hdfjson, file)
+    HDF5Json.writeToFile(hdfjson, file)
   }
   def exists(path: HDFPath): Boolean = {
     hdfjson.exists(path)

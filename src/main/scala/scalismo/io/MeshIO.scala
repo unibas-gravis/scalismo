@@ -20,7 +20,7 @@ import scalismo.color.{RGB, RGBA}
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{PointId, Scalar, UnstructuredPoints}
 import scalismo.geometry.*
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
 import scalismo.mesh.TriangleMesh.*
 import scalismo.mesh.*

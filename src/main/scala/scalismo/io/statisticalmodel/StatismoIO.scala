@@ -6,7 +6,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import io.jhdf.api.Group
 import scalismo.common.{DiscreteDomain, DomainWarp, Scalar, Vectorizer}
 import scalismo.geometry.*
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.image.{CreateStructuredPoints, DiscreteImageDomain, StructuredPoints}
 import scalismo.io.{MeshIO, StatismoDomainIO}
 import scalismo.io.statisticalmodel.StatismoIO.StatismoModelType.StatismoModelType

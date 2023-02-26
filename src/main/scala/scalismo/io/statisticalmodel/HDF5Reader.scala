@@ -16,7 +16,7 @@
 package scalismo.io.statisticalmodel
 
 import io.jhdf.HdfFile
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 
 import java.io.Closeable
 import scala.jdk.CollectionConverters.MapHasAsScala

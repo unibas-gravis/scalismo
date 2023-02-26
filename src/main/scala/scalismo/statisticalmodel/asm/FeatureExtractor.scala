@@ -19,7 +19,7 @@ import breeze.linalg.DenseVector
 import io.jhdf.api.Group
 import scalismo.common.PointId
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.asm.PreprocessedImage.{Gradient, Intensity}

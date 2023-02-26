@@ -16,7 +16,7 @@
 package scalismo.statisticalmodel.asm
 
 import io.jhdf.api.Group
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 
 import scala.collection.immutable.TreeMap

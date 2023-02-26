@@ -20,7 +20,7 @@ import scalismo.common.interpolation.NearestNeighborInterpolator3D
 import java.io.*
 import scalismo.common.{Scalar, UnstructuredPointsDomain, Vectorizer}
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector}
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.image.DiscreteImageDomain
 import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.mesh.{LineMesh, TetrahedralMesh, TriangleMesh}

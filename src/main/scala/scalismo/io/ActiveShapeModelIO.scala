@@ -20,7 +20,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import io.jhdf.api.Group
 import scalismo.common.PointId
 import scalismo.geometry._3D
-import scalismo.hdfjson.{FloatArray1D, HDFPath, IntArray1D}
+import scalismo.hdf5json.{FloatArray1D, HDFPath, IntArray1D}
 import scalismo.io.statisticalmodel.{HDF5Writer, NDArray, StatismoIO, StatisticalModelIOUtils, StatisticalModelReader}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel, StatisticalMeshModel}

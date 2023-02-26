@@ -15,7 +15,7 @@
  */
 package scalismo.io.statisticalmodel
 
-import scalismo.hdfjson.HDFJson
+import scalismo.hdf5json.HDF5Json
 
 import java.io.{File, IOException}
 import scala.util.Try
@@ -35,7 +35,7 @@ object StatisticalModelIOUtils {
 
   private def openFileWriterOrCreateFile(file: File, mode: FileAccessMode): Try[HDF5Writer] = Try {
     if (mode == WRITE && file.exists()) {
-      new HDF5Writer(file, Some(HDFJson.readFromFile(file).get))
+      new HDF5Writer(file, Some(HDF5Json.readFromFile(file).get))
     } else {
       new HDF5Writer(file)
     }
@@ -48,7 +48,7 @@ object StatisticalModelIOUtils {
       val hdfFile = new io.jhdf.HdfFile(file)
       new HDF5Reader(hdfFile)
     } else if (file.getName.endsWith(".json")) {
-      HDFJson.readFromFile(file).map(hdfjson => HDF5JsonReader(hdfjson)).get
+      HDF5Json.readFromFile(file).map(hdfjson => HDF5JsonReader(hdfjson)).get
     } else {
       throw new IOException(s"File ${file.getName} is not a valid HDF5 or JSON file")
     }

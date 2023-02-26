@@ -20,7 +20,7 @@ import java.net.URLDecoder
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.*
-import scalismo.hdfjson.HDFPath
+import scalismo.hdf5json.HDFPath
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
