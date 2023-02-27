@@ -208,7 +208,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
       val derivsAtValidPoints = derivsForPoints.collect { case Some(v) => v }
       val deriv = derivsAtValidPoints.foldLeft(zeroVec)((acc, v) => acc + v)
 
-      val scaledDeriv = (1.0 / (derivsAtValidPoints.size * binSizeMovingImage)) * deriv
+      val scaledDeriv = deriv * (1.0 / (derivsAtValidPoints.size * binSizeMovingImage))
       ((l, k), scaledDeriv)
     }
 
@@ -283,7 +283,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
 
       if (marginalHistogramFixedImage(k) != 0 && marginalHistMoving(l) != 0) {
         (jointHistDeriv(l, k) * log(jointHist(l, k) / (marginalHistMoving(l) * marginalHistogramFixedImage(k)) + 1)
-          - (jointHist(l, k) / marginalHistMoving(l)) * marginalHistDerivMoving(l))
+          - marginalHistDerivMoving(l) * (jointHist(l, k) / marginalHistMoving(l)))
       } else {
         DenseVector.zeros[Double](numberOfParameters)
       }
@@ -326,7 +326,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
 
       if (marginalHistogramRef(k) != 0 && marginalHistMoving(l) != 0) {
         (joingHistDeriv(l, k) * log(jointHist(l, k) / (marginalHistMoving(l) * marginalHistogramRef(k)) + 1)
-          - (jointHist(l, k) / marginalHistMoving(l)) * marginalHistDerivMoving(l))
+          - marginalHistDerivMoving(l) * (jointHist(l, k) / marginalHistMoving(l)))
       } else {
         DenseVector.zeros[Double](numberOfParameters)
       }
