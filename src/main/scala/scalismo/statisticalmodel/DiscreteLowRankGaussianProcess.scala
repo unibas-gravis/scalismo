@@ -47,11 +47,11 @@ import scala.collection.parallel.immutable.ParVector
  * @see [[scalismo.common.DiscreteField]]
  * @see [[DiscreteLowRankGaussianProcess]]
  */
-case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDomain[DD], Value] private[scalismo] (
+class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDomain[DD], Value] private[scalismo] (
   _domain: DDomain[D],
-  meanVector: DenseVector[Double],
-  variance: DenseVector[Double],
-  basisMatrix: DenseMatrix[Double]
+  val meanVector: DenseVector[Double],
+  val variance: DenseVector[Double],
+  val basisMatrix: DenseMatrix[Double]
 )(implicit override val vectorizer: Vectorizer[Value])
     extends DiscreteGaussianProcess[D, DDomain, Value](
       DiscreteField.createFromDenseVector[D, DDomain, Value](_domain, meanVector),
@@ -342,6 +342,16 @@ case class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDom
 
   private[this] val stddev = variance.map(x => math.sqrt(x))
 
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case other: DiscreteLowRankGaussianProcess[_, _, _] =>
+        (this.domain == other.domain) &&
+          breeze.linalg.norm(this.meanVector - other.meanVector) < 1e-10 &&
+          breeze.linalg.norm(this.variance - other.variance) < 1e-10 &&
+          breeze.linalg.norm(this.basisMatrix.flatten() - other.basisMatrix.flatten()) < 1e-10
+      case _ => false
+    }
+  }
 }
 
 /**
@@ -577,4 +587,71 @@ object DiscreteLowRankGaussianProcess {
     DiscreteMatrixValuedPDKernel(domain, cov, outputDim)
   }
 
+}
+
+// Explicit variants for 1D, 2D and 3D
+object DiscreteLowRankGraussianProcess1D {
+
+  /**
+   * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
+   */
+  def apply[DDomain[D] <: DiscreteDomain[D], Value](domain: DDomain[_1D], gp: LowRankGaussianProcess[_1D, Value])(
+    implicit vectorizer: Vectorizer[Value]
+  ): DiscreteLowRankGaussianProcess[_1D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.apply[_1D, DDomain, Value](domain, gp)
+  }
+
+  /**
+   * Creates a new DiscreteLowRankGaussianProcess from the given mean field and klBasis
+   */
+  def apply[DDomain[D] <: DiscreteDomain[D], Value](
+    mean: DiscreteField[_1D, DDomain, Value],
+    klBasis: KLBasis[_1D, DDomain, Value]
+  )(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[_1D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.apply[_1D, DDomain, Value](mean, klBasis)
+  }
+}
+
+object DiscreteLowRankGraussianProcess2D {
+
+  /**
+   * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
+   */
+  def apply[DDomain[D] <: DiscreteDomain[D], Value](domain: DDomain[_2D], gp: LowRankGaussianProcess[_2D, Value])(
+    implicit vectorizer: Vectorizer[Value]
+  ): DiscreteLowRankGaussianProcess[_2D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.apply[_2D, DDomain, Value](domain, gp)
+  }
+
+  /**
+   * Creates a new DiscreteLowRankGaussianProcess from the given mean field and klBasis
+   */
+  def apply[DDomain[D] <: DiscreteDomain[D], Value](
+    mean: DiscreteField[_2D, DDomain, Value],
+    klBasis: KLBasis[_2D, DDomain, Value]
+  )(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[_2D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.apply[_2D, DDomain, Value](mean, klBasis)
+  }
+}
+
+object DiscreteLowRankGraussianProcess3D {
+
+  /**
+   * Creates a new DiscreteLowRankGaussianProcess by discretizing the given gaussian process at the domain points.
+   */
+  def apply[DDomain[D] <: DiscreteDomain[D], Value](domain: DDomain[_3D], gp: LowRankGaussianProcess[_3D, Value])(
+    implicit vectorizer: Vectorizer[Value]
+  ): DiscreteLowRankGaussianProcess[_3D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.apply[_3D, DDomain, Value](domain, gp)
+  }
+
+  /**
+   * Creates a new DiscreteLowRankGaussianProcess from the given mean field and klBasis
+   */
+  def apply[DDomain[D] <: DiscreteDomain[D], Value](
+    mean: DiscreteField[_3D, DDomain, Value],
+    klBasis: KLBasis[_3D, DDomain, Value]
+  )(implicit vectorizer: Vectorizer[Value]): DiscreteLowRankGaussianProcess[_3D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.apply[_3D, DDomain, Value](mean, klBasis)
+  }
 }
