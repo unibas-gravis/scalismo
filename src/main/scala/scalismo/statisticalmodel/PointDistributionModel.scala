@@ -279,7 +279,8 @@ object PointDistributionModel {
       U(::, i) := U(::, i) * (1.0 / d(i))
     }
 
-    val augmentedGP = model.gp.copy[D, DDomain, EuclideanVector[D]](
+    val augmentedGP = new DiscreteLowRankGaussianProcess[D, DDomain, EuclideanVector[D]](
+      model.gp.domain,
       meanVector = model.gp.meanVector + discretizedBiasModel.meanVector,
       variance = breeze.numerics.pow(d, 2),
       basisMatrix = U
