@@ -27,7 +27,6 @@ lazy val root = (project in file("."))
       else
         Opts.resolver.sonatypeStaging
     ),
-    crossScalaVersions := Seq("2.13.10", "3.2.2"),
     resolvers ++= Seq(
       Resolver.jcenterRepo,
       Resolver.sonatypeRepo("releases"),
@@ -38,23 +37,11 @@ lazy val root = (project in file("."))
         "-encoding",
         "UTF-8",
         "-feature",
-        "-language:implicitConversions"
+        "-language:implicitConversions",
+        "-unchecked"
         // disabled during the migration
         // "-Xfatal-warnings"
-      ) ++
-        (CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((3, _)) =>
-            Seq(
-              "-unchecked",
-              "-source:3.0-migration"
-            )
-          case _ =>
-            Seq(
-              "-deprecation",
-              "-Wunused:imports,privates,locals",
-              "-Wvalue-discard"
-            )
-        })
+      )
     },
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
@@ -67,19 +54,9 @@ lazy val root = (project in file("."))
       ("ch.unibas.cs.gravis" %% "scalismo-hdf5-json" % "0.1.0-SNAPSHOT").cross(CrossVersion.for2_13Use3),
       "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.1.1",
       "io.jhdf" % "jhdf" % "0.6.9",
+      "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3",
       "org.slf4j" % "slf4j-nop" % "1.6.0" // this silences slf4j complaints in registration classes
-    ),
-    libraryDependencies ++= (scalaBinaryVersion.value match {
-      case "3" =>
-        Seq(
-          "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
-        )
-      case "2.13" =>
-        Seq(
-          "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
-        )
-      case _ => { println(scalaBinaryVersion.value); Seq() }
-    })
+    )
   )
   .enablePlugins(GitVersioning)
   .settings(

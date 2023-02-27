@@ -661,7 +661,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val f = Fixture
       val gp = f.discreteLowRankGp
       val points = (0 until 1000) map { i =>
-        random.scalaRandom.nextInt(gp._domain.pointSet.numberOfPoints)
+        random.scalaRandom.nextInt(gp.domain.pointSet.numberOfPoints)
       }
       points.foreach { pid =>
         val k = gp.rank

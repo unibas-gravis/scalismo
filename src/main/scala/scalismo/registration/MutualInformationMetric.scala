@@ -326,7 +326,7 @@ case class MutualInformationMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A
 
       if (marginalHistogramRef(k) != 0 && marginalHistMoving(l) != 0) {
         (joingHistDeriv(l, k) * log(jointHist(l, k) / (marginalHistMoving(l) * marginalHistogramRef(k)) + 1)
-          - marginalHistDerivMoving(l)) * (jointHist(l, k) / marginalHistMoving(l))
+          - marginalHistDerivMoving(l) * (jointHist(l, k) / marginalHistMoving(l)))
       } else {
         DenseVector.zeros[Double](numberOfParameters)
       }
