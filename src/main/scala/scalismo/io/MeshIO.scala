@@ -648,23 +648,6 @@ object MeshIO {
     mesh
   }
 
-//  def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
-//
-//    val maybeSurface = for {
-//      h5file <- StatisticalModelIOUtils.openFileForReading(file)
-//      vertArray <- h5file.readNDArray[Double](HDFPath("/Surface/0/Vertices"))
-//      cellArray <- h5file.readNDArrayInt(HDFPath("/Surface/0/Cells"))
-//      _ <- Try {
-//        h5file.close()
-//      }
-//    } yield {
-//      TriangleMesh3D(UnstructuredPoints(NDArrayToPointSeq(vertArray).toIndexedSeq),
-//                     TriangleList(NDArrayToCellSeq(cellArray)))
-//    }
-//
-//    maybeSurface
-//  }
-
   private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
     // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
     ndarray.data.grouped(3).map(grp => Point(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
