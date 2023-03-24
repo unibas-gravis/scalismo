@@ -40,7 +40,8 @@ private object DataUtils {
   }
 
   /**
-   * Create a transformation from a mesh. The transformation maps from the reference mesh to the corresponding target point.
+   * Create a transformation from a mesh. The transformation maps from the reference mesh to the corresponding target
+   * point.
    */
   def meshToTransformation(refMesh: TriangleMesh[_3D], targetMesh: TriangleMesh[_3D]): Try[Transformation[_3D]] = {
     if (refMesh.pointSet.numberOfPoints != targetMesh.pointSet.numberOfPoints)

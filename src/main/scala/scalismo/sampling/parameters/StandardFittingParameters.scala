@@ -66,10 +66,11 @@ object TranslationParameters {
 /**
  * Represents rotation parameters, represented by the three euler angles.
  *
- * Note that to complete a rotation, a rotation center needs to be known. As this is usually not
- * changed in a sampling run, we do not consider it as a parameter
+ * Note that to complete a rotation, a rotation center needs to be known. As this is usually not changed in a sampling
+ * run, we do not consider it as a parameter
  *
- * @param angles - 3 Euler angles
+ * @param angles
+ *   \- 3 Euler angles
  */
 case class RotationParameters(angles: (Double, Double, Double))
 
@@ -93,11 +94,14 @@ case class ScaleParameter(scale: Double)
  */
 case class PoseAndShapeParameters(translationParameters: TranslationParameters,
                                   rotationParameters: RotationParameters,
-                                  shapeParameters: ShapeParameters)
+                                  shapeParameters: ShapeParameters
+)
 
 object PoseAndShapeParameters {
   implicit object PoseAndShapeParametersConversion
-      extends ParameterConversion[(TranslationParameters, RotationParameters, ShapeParameters), PoseAndShapeParameters] {
+      extends ParameterConversion[(TranslationParameters, RotationParameters, ShapeParameters),
+                                  PoseAndShapeParameters
+      ] {
     override def from(t: PoseAndShapeParameters): (TranslationParameters, RotationParameters, ShapeParameters) =
       (t.translationParameters, t.rotationParameters, t.shapeParameters)
 

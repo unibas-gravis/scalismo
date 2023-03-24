@@ -8,12 +8,14 @@ object MHProductProposal {
 
   def apply[A, B, C](a: MHProposalGenerator[A],
                      b: MHProposalGenerator[B],
-                     c: MHProposalGenerator[C]): MHProductProposal3[A, B, C] = new MHProductProposal3(a, b, c)
+                     c: MHProposalGenerator[C]
+  ): MHProductProposal3[A, B, C] = new MHProductProposal3(a, b, c)
 
   def apply[A, B, C, D](a: MHProposalGenerator[A],
                         b: MHProposalGenerator[B],
                         c: MHProposalGenerator[C],
-                        d: MHProposalGenerator[D]): MHProductProposal4[A, B, C, D] = new MHProductProposal4(a, b, c, d)
+                        d: MHProposalGenerator[D]
+  ): MHProductProposal4[A, B, C, D] = new MHProductProposal4(a, b, c, d)
 }
 
 class MHProductProposal2[A, B](proposal1: MHProposalGenerator[A], proposal2: MHProposalGenerator[B])
@@ -24,9 +26,11 @@ class MHProductProposal2[A, B](proposal1: MHProposalGenerator[A], proposal2: MHP
   override def logTransitionProbability(from: MHSample[(A, B)], to: MHSample[(A, B)]): Double = {
 
     val transitionProbability1 = proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
-                                                                    MHSample(to.parameters._1, to.generatedBy))
+                                                                    MHSample(to.parameters._1, to.generatedBy)
+    )
     val transitionProbability2 = proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
-                                                                    MHSample(to.parameters._2, to.generatedBy))
+                                                                    MHSample(to.parameters._2, to.generatedBy)
+    )
     if (transitionProbability1.isInfinite || transitionProbability2.isInfinite) {
       Double.NegativeInfinity
     } else {
@@ -47,19 +51,22 @@ class MHProductProposal2[A, B](proposal1: MHProposalGenerator[A], proposal2: MHP
 
 class MHProductProposal3[A, B, C](proposal1: MHProposalGenerator[A],
                                   proposal2: MHProposalGenerator[B],
-                                  proposal3: MHProposalGenerator[C])
-    extends MHProposalGenerator[(A, B, C)] {
+                                  proposal3: MHProposalGenerator[C]
+) extends MHProposalGenerator[(A, B, C)] {
   self =>
 
   /** rate of transition from to (log value) */
   override def logTransitionProbability(from: MHSample[(A, B, C)], to: MHSample[(A, B, C)]): Double = {
 
     val transitionProbability1 = proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
-                                                                    MHSample(to.parameters._1, to.generatedBy))
+                                                                    MHSample(to.parameters._1, to.generatedBy)
+    )
     val transitionProbability2 = proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
-                                                                    MHSample(to.parameters._2, to.generatedBy))
+                                                                    MHSample(to.parameters._2, to.generatedBy)
+    )
     val transitionProbability3 = proposal3.logTransitionProbability(MHSample(from.parameters._3, from.generatedBy),
-                                                                    MHSample(to.parameters._3, to.generatedBy))
+                                                                    MHSample(to.parameters._3, to.generatedBy)
+    )
     if (transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite) {
       Double.NegativeInfinity
     } else {
@@ -83,23 +90,29 @@ class MHProductProposal3[A, B, C](proposal1: MHProposalGenerator[A],
 class MHProductProposal4[A, B, C, D](proposal1: MHProposalGenerator[A],
                                      proposal2: MHProposalGenerator[B],
                                      proposal3: MHProposalGenerator[C],
-                                     proposal4: MHProposalGenerator[D])
-    extends MHProposalGenerator[(A, B, C, D)] {
+                                     proposal4: MHProposalGenerator[D]
+) extends MHProposalGenerator[(A, B, C, D)] {
   self =>
 
   /** rate of transition from to (log value) */
   override def logTransitionProbability(from: MHSample[(A, B, C, D)], to: MHSample[(A, B, C, D)]): Double = {
 
     val transitionProbability1 = proposal1.logTransitionProbability(MHSample(from.parameters._1, from.generatedBy),
-                                                                    MHSample(to.parameters._1, to.generatedBy))
+                                                                    MHSample(to.parameters._1, to.generatedBy)
+    )
     val transitionProbability2 = proposal2.logTransitionProbability(MHSample(from.parameters._2, from.generatedBy),
-                                                                    MHSample(to.parameters._2, to.generatedBy))
+                                                                    MHSample(to.parameters._2, to.generatedBy)
+    )
     val transitionProbability3 = proposal3.logTransitionProbability(MHSample(from.parameters._3, from.generatedBy),
-                                                                    MHSample(to.parameters._3, to.generatedBy))
+                                                                    MHSample(to.parameters._3, to.generatedBy)
+    )
     val transitionProbability4 = proposal4.logTransitionProbability(MHSample(from.parameters._4, from.generatedBy),
-                                                                    MHSample(to.parameters._4, to.generatedBy))
+                                                                    MHSample(to.parameters._4, to.generatedBy)
+    )
 
-    if (transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite || transitionProbability4.isInfinite) {
+    if (
+      transitionProbability1.isInfinite || transitionProbability2.isInfinite || transitionProbability3.isInfinite || transitionProbability4.isInfinite
+    ) {
       Double.NegativeInfinity
     } else {
       transitionProbability1 + transitionProbability2 + transitionProbability3 + transitionProbability4

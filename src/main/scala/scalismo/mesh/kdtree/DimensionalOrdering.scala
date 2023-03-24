@@ -21,8 +21,8 @@ import scalismo.geometry.{NDSpace, Point}
 import scala.annotation.tailrec
 
 /**
- * DimensionalOrdering is a trait whose instances each represent a strategy for ordering instances
- * of a multidimensional type by a projection on a given dimension.
+ * DimensionalOrdering is a trait whose instances each represent a strategy for ordering instances of a multidimensional
+ * type by a projection on a given dimension.
  */
 private[scalismo] trait DimensionalOrdering[A] {
 
@@ -30,22 +30,20 @@ private[scalismo] trait DimensionalOrdering[A] {
   def dimensions: Int
 
   /**
-   * Returns an integer whose sign communicates how x's projection on a given dimension compares
-   * to y's.
+   * Returns an integer whose sign communicates how x's projection on a given dimension compares to y's.
    *
-   * Denote the projection of x and y on `dimension` by x' and y' respectively. The result sign has
-   * the following meaning:
+   * Denote the projection of x and y on `dimension` by x' and y' respectively. The result sign has the following
+   * meaning:
    *
-   * - negative if x' < y'
-   * - positive if x' > y'
-   * - zero if x' == y'
+   *   - negative if x' < y'
+   *   - positive if x' > y'
+   *   - zero if x' == y'
    */
   def compareProjection(dimension: Int)(x: A, y: A): Int
 
   /**
-   * Returns an Ordering of A in which the given dimension is the primary ordering criteria.
-   * If x and y have the same projection on that dimension, then they are compared on the lowest
-   * dimension that is different.
+   * Returns an Ordering of A in which the given dimension is the primary ordering criteria. If x and y have the same
+   * projection on that dimension, then they are compared on the lowest dimension that is different.
    */
   def orderingBy(dimension: Int): Ordering[A] = new Ordering[A] {
     def compare(x: A, y: A): Int = {
@@ -82,7 +80,7 @@ private[scalismo] object DimensionalOrdering {
         Ordering[Double].compare(x(d), y(d))
     }
 
-  //}
+  // }
 
   implicit def dimensionalOrderingForTuple2[A](implicit ord: Ordering[A]): DimensionalOrdering[(A, A)] =
     dimensionalOrderingForTuple[(A, A), A](2)

@@ -27,16 +27,19 @@ trait MeshBoundaryPredicates {
   /**
    * Check if the point with given index is on the boundary of the underlying mesh.
    *
-   * @return True if point is part of the boundary.
+   * @return
+   *   True if point is part of the boundary.
    */
   def pointIsOnBoundary(id: PointId): Boolean
 
   /**
    * Check if the edge between the two points with given indices is on the boundary of the underlying mesh.
    *
-   * @note This method does not check weather there exists an edge between the two points. You will get false for all
-   *       edges not in the mesh.
-   * @return True if the edge is part of the boundary.
+   * @note
+   *   This method does not check weather there exists an edge between the two points. You will get false for all edges
+   *   not in the mesh.
+   * @return
+   *   True if the edge is part of the boundary.
    */
   def edgeIsOnBoundary(id1: PointId, id2: PointId): Boolean
 
@@ -50,7 +53,8 @@ trait TriangularMeshBoundaryPredicates extends MeshBoundaryPredicates {
   /**
    * Check if the triangle with given index is on the boundary of the underlying mesh.
    *
-   * @return True if the triangle has at least one border in common with the boundary.
+   * @return
+   *   True if the triangle has at least one border in common with the boundary.
    */
   def triangleIsOnBoundary(id: TriangleId): Boolean
 }
@@ -63,7 +67,8 @@ trait TetrahedralMeshBoundaryPredicates extends MeshBoundaryPredicates {
   /**
    * Check if the tetrahedron with given index is on the boundary of the underlying mesh.
    *
-   * @return True if the tetrahedron has at least one face in common with the boundary.
+   * @return
+   *   True if the tetrahedron has at least one face in common with the boundary.
    */
   def tetrahedronIsOnBoundary(id: TetrahedronId): Boolean
 
@@ -73,12 +78,13 @@ trait TetrahedralMeshBoundaryPredicates extends MeshBoundaryPredicates {
 /**
  * Implementation of a TriangularMeshBoundary
  *
- * @note the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh.
+ * @note
+ *   the implementation with a Map instead of a CSCMatrix was three times slower using our test mesh.
  */
 private class BoundaryOfATriangleMeshPredicates(private val vertexIsOnBorder: IndexedSeq[Boolean],
                                                 private val edgeIsOnBorder: CSCMatrix[Boolean],
-                                                private val triangleIsOnBorder: IndexedSeq[Boolean])
-    extends TriangularMeshBoundaryPredicates {
+                                                private val triangleIsOnBorder: IndexedSeq[Boolean]
+) extends TriangularMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
     vertexIsOnBorder(id.id)
@@ -99,8 +105,8 @@ private class BoundaryOfATriangleMeshPredicates(private val vertexIsOnBorder: In
 private class BoundaryOfATetrahedralMeshPredicates(private val vertexIsOnBorder: IndexedSeq[Boolean],
                                                    private val edgeIsOnBorder: CSCMatrix[Boolean],
                                                    private val triangleIsOnBorder: Map[TriangleCell, Boolean],
-                                                   private val tetrahedronIsOnBorder: IndexedSeq[Boolean])
-    extends TetrahedralMeshBoundaryPredicates {
+                                                   private val tetrahedronIsOnBorder: IndexedSeq[Boolean]
+) extends TetrahedralMeshBoundaryPredicates {
 
   override def pointIsOnBoundary(id: PointId): Boolean = {
     vertexIsOnBorder(id.id)
@@ -137,8 +143,10 @@ object MeshBoundaryPredicates {
   /**
    * Build boundary index for triangle mesh.
    *
-   * @param mesh Incoming triangle mesh.
-   * @return Boundary that can be queried for by index for points, edges, and triangles.
+   * @param mesh
+   *   Incoming triangle mesh.
+   * @return
+   *   Boundary that can be queried for by index for points, edges, and triangles.
    */
   def apply[D](mesh: TriangleMesh[D]): TriangularMeshBoundaryPredicates = {
 
@@ -199,8 +207,10 @@ object MeshBoundaryPredicates {
   /**
    * Build boundary index for triangle mesh.
    *
-   * @param mesh Incoming triangle mesh.
-   * @return Boundary that can be queried for by index for points, edges, and triangles.
+   * @param mesh
+   *   Incoming triangle mesh.
+   * @return
+   *   Boundary that can be queried for by index for points, edges, and triangles.
    */
   def apply[D](mesh: TetrahedralMesh[D]): TetrahedralMeshBoundaryPredicates = {
 
@@ -214,30 +224,30 @@ object MeshBoundaryPredicates {
     val edgeOnBoundaryBuilder =
       new linalg.CSCMatrix.Builder[Boolean](mesh.pointSet.numberOfPoints, mesh.pointSet.numberOfPoints)
     val trianglesOnBoundaryMap = scala.collection.mutable.Map[TriangleCell, Boolean]()
-    tetrahedrons.zipWithIndex.foreach {
-      case (tet, idx) =>
-        val trianglesOnBoundary =
-          tet.triangles.filter(tri => triangleOnBorder.contains(TriangleSortedPointIds(tri.pointIds)))
-        if (trianglesOnBoundary.nonEmpty) {
-          tetrahedronsOnBoundary(idx) = true
-          trianglesOnBoundary.foreach { tri =>
-            trianglesOnBoundaryMap(tri) = true
-            tri.pointIds.foreach(pid => pointsOnBoundary(pid.id) = true)
-            edgesOfATriangle.map { e =>
-              val v1 = tri.pointIds(e._1).id
-              val v2 = tri.pointIds(e._2).id
-              edgeOnBoundaryBuilder.add(v1, v2, true)
-              edgeOnBoundaryBuilder.add(v2, v1, true)
-            }
+    tetrahedrons.zipWithIndex.foreach { case (tet, idx) =>
+      val trianglesOnBoundary =
+        tet.triangles.filter(tri => triangleOnBorder.contains(TriangleSortedPointIds(tri.pointIds)))
+      if (trianglesOnBoundary.nonEmpty) {
+        tetrahedronsOnBoundary(idx) = true
+        trianglesOnBoundary.foreach { tri =>
+          trianglesOnBoundaryMap(tri) = true
+          tri.pointIds.foreach(pid => pointsOnBoundary(pid.id) = true)
+          edgesOfATriangle.map { e =>
+            val v1 = tri.pointIds(e._1).id
+            val v2 = tri.pointIds(e._2).id
+            edgeOnBoundaryBuilder.add(v1, v2, true)
+            edgeOnBoundaryBuilder.add(v2, v1, true)
           }
         }
+      }
     }
     val edgeOnBorder = reduceCSCMatrixBooleansToTrueEntries(edgeOnBoundaryBuilder.result)
 
     new BoundaryOfATetrahedralMeshPredicates(pointsOnBoundary.toIndexedSeq,
                                              edgeOnBorder,
                                              trianglesOnBoundaryMap.toMap,
-                                             tetrahedronsOnBoundary.toIndexedSeq)
+                                             tetrahedronsOnBoundary.toIndexedSeq
+    )
   }
 
   private[mesh] def fillTriangleOnBorderMap[D](

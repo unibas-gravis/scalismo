@@ -18,11 +18,8 @@ package scalismo.utils
 import java.io.PrintStream
 
 /**
- * Utilility class to quickly determine how long certain operations take.
- * Example:
- *   val i = calculate(something)
- *   becomes
- *   val i = benchmark(calculate(something))
+ * Utilility class to quickly determine how long certain operations take. Example: val i = calculate(something) becomes
+ * val i = benchmark(calculate(something))
  *
  * Available to call statically (Benchmark.benchmark) or as a mixin trait, for convenience.
  */

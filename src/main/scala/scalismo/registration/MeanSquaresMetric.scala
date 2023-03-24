@@ -22,14 +22,14 @@ import scalismo.numerics.Sampler
 import scalismo.transformations.TransformationSpace
 
 /**
- * The mean squares image to image metric.
- * It is implemented as the squared loss function in terms of the pointwise pixel differences.
+ * The mean squares image to image metric. It is implemented as the squared loss function in terms of the pointwise
+ * pixel differences.
  */
 case class MeanSquaresMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A],
                                                     movingImage: DifferentiableField[D, A],
                                                     transformationSpace: TransformationSpace[D],
-                                                    sampler: Sampler[D])
-    extends MeanPointwiseLossMetric[D, A](fixedImage, movingImage, transformationSpace, sampler) {
+                                                    sampler: Sampler[D]
+) extends MeanPointwiseLossMetric[D, A](fixedImage, movingImage, transformationSpace, sampler) {
 
   val scalar = Scalar[A]
 

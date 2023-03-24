@@ -31,14 +31,16 @@ class MHSampleLogger[A] extends AcceptRejectLogger[MHSample[A]] {
   override def accept(current: MHSample[A],
                       sample: MHSample[A],
                       generator: ProposalGenerator[MHSample[A]],
-                      evaluator: DistributionEvaluator[MHSample[A]]): Unit = {
+                      evaluator: DistributionEvaluator[MHSample[A]]
+  ): Unit = {
     sampleBuf.append(MHSampleWithDecision(sample, Accepted))
   }
 
   override def reject(current: MHSample[A],
                       sample: MHSample[A],
                       generator: ProposalGenerator[MHSample[A]],
-                      evaluator: DistributionEvaluator[MHSample[A]]): Unit = {
+                      evaluator: DistributionEvaluator[MHSample[A]]
+  ): Unit = {
     sampleBuf.append(MHSampleWithDecision(sample, Rejected))
   }
 

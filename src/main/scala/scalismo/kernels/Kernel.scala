@@ -196,8 +196,8 @@ object DiagonalKernel3D {
 case class MultiScaleKernel[D: NDSpace](kernel: MatrixValuedPDKernel[D],
                                         min: Int,
                                         max: Int,
-                                        scale: Int => Double = i => scala.math.pow(2.0, -2.0 * i))
-    extends MatrixValuedPDKernel[D] {
+                                        scale: Int => Double = i => scala.math.pow(2.0, -2.0 * i)
+) extends MatrixValuedPDKernel[D] {
 
   override def outputDim = kernel.outputDim
 
@@ -206,7 +206,8 @@ case class MultiScaleKernel[D: NDSpace](kernel: MatrixValuedPDKernel[D],
     for (i <- min until max) {
       val kxy: DenseMatrix[Double] =
         kernel((x.toVector * Math.pow(2, i)).toPoint, (y.toVector * Math.pow(2, i)).toPoint)
-      val kxys: DenseMatrix[Double] = kxy * scale(i) // to help the scala 3 compiler, we introduce here explicit type annotations
+      val kxys: DenseMatrix[Double] =
+        kxy * scale(i) // to help the scala 3 compiler, we introduce here explicit type annotations
       sum += kxys
     }
     sum
@@ -249,16 +250,16 @@ object Kernel {
   }
 
   /**
-   * for every domain point x in the list, we compute the kernel vector
-   * kx = (k(x, x1), ... k(x, xm))
-   * since the kernel is matrix valued, kx is actually a matrix
+   * for every domain point x in the list, we compute the kernel vector kx = (k(x, x1), ... k(x, xm)) since the kernel
+   * is matrix valued, kx is actually a matrix
    *
    * !! Hack - We currently return a double matrix, with the only reason that matrix multiplication (further down) is
    * faster (breeze implementation detail). This should be replaced at some point
    */
   def computeKernelVectorFor[D](x: Point[D],
                                 xs: IndexedSeq[Point[D]],
-                                k: MatrixValuedPDKernel[D]): DenseMatrix[Double] = {
+                                k: MatrixValuedPDKernel[D]
+  ): DenseMatrix[Double] = {
     val d = k.outputDim
 
     val kxs = DenseMatrix.zeros[Double](d, xs.size * d)
@@ -282,16 +283,18 @@ object Kernel {
   }
 
   /**
-   * Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding
-   * to kernel k. The number of leading eigenfunctions is at most n, where n is the number of points sampled.
-   * If the eigenvalues are decaying quickly, it can be much smaller than n.
+   * Computes the leading eigenvalues / eigenfunctions of the integral operator corresponding to kernel k. The number of
+   * leading eigenfunctions is at most n, where n is the number of points sampled. If the eigenvalues are decaying
+   * quickly, it can be much smaller than n.
    *
-   * @param k (matrix-valued) kernel
-   * @param sampler  A point sampler, which determines the points that are used to compute the approximation.
-   * @return The leading eigenvalue / eigenfunction pairs
+   * @param k
+   *   (matrix-valued) kernel
+   * @param sampler
+   *   A point sampler, which determines the points that are used to compute the approximation.
+   * @return
+   *   The leading eigenvalue / eigenfunction pairs
    */
-  def computeNystromApproximation[D: NDSpace, Value](k: MatrixValuedPDKernel[D], sampler: Sampler[D])(
-    implicit
+  def computeNystromApproximation[D: NDSpace, Value](k: MatrixValuedPDKernel[D], sampler: Sampler[D])(implicit
     vectorizer: Vectorizer[Value]
   ): KLBasis[D, Value] = {
 

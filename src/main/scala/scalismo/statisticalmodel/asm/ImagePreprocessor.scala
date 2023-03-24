@@ -44,12 +44,14 @@ trait PreprocessedImage extends Field[_3D, DenseVector[Float]] {
 }
 
 /**
- * An image preprocessor takes a discrete scalar image, performs any required preprocessing,
- * and returns a PreprocessedImage which will serve as input to a [[FeatureExtractor]].
+ * An image preprocessor takes a discrete scalar image, performs any required preprocessing, and returns a
+ * PreprocessedImage which will serve as input to a [[FeatureExtractor]].
  *
  * When implementing a custom preprocessor, make sure to define and register an accompanying IO Handler.
- * @see ImagePreprocessorIOHandler
- * @see ImagePreprocessorIOHandlers
+ * @see
+ *   ImagePreprocessorIOHandler
+ * @see
+ *   ImagePreprocessorIOHandlers
  */
 trait ImagePreprocessor extends Function1[DiscreteImage[_3D, Float], PreprocessedImage] with HasIOMetadata
 
@@ -75,9 +77,10 @@ object IdentityImagePreprocessor {
 }
 
 /**
- * The "identity" Preprocessor performs no preprocessing.
- * In other words, this class can be considered an adapter that turns a discrete image into a [[PreprocessedImage]], without modifying the image.
- * @param ioMetadata IO Metadata
+ * The "identity" Preprocessor performs no preprocessing. In other words, this class can be considered an adapter that
+ * turns a discrete image into a [[PreprocessedImage]], without modifying the image.
+ * @param ioMetadata
+ *   IO Metadata
  */
 case class IdentityImagePreprocessor(override val ioMetadata: IOMetadata = IdentityImagePreprocessor.IOMetadata_Default)
     extends ImagePreprocessor {
@@ -116,20 +119,22 @@ object GaussianGradientImagePreprocessor {
 }
 
 /**
- * Image preprocessor that calculates a gradient image from the input image.
- * The following steps are performed:
+ * Image preprocessor that calculates a gradient image from the input image. The following steps are performed:
  *
- * 1. The image is filtered using a Gaussian filter. The sigma parameter used for the filter is passed through from <code>stddev</code>. If <code>stddev</code> is <code>0</code>, then no blurring is performed.
- * 2. The resulting image is interpolated (using B-Spline interpolation of order 1).
- * 3. The resulting image is differentiated to produce a gradient image.
+ *   1. The image is filtered using a Gaussian filter. The sigma parameter used for the filter is passed through from
+ *      <code>stddev</code>. If <code>stddev</code> is <code>0</code>, then no blurring is performed. 2. The resulting
+ *      image is interpolated (using B-Spline interpolation of order 1). 3. The resulting image is differentiated to
+ *      produce a gradient image.
  *
- * @param stddev the standard deviation (in millimeters) to use for the gaussian blur filter. Set to 0 to disable blurring.
- * @param ioMetadata IO Metadata
+ * @param stddev
+ *   the standard deviation (in millimeters) to use for the gaussian blur filter. Set to 0 to disable blurring.
+ * @param ioMetadata
+ *   IO Metadata
  */
 case class GaussianGradientImagePreprocessor(stddev: Double,
                                              override val ioMetadata: IOMetadata =
-                                               GaussianGradientImagePreprocessor.IOMetadata_Default)
-    extends ImagePreprocessor {
+                                               GaussianGradientImagePreprocessor.IOMetadata_Default
+) extends ImagePreprocessor {
   override def apply(inputImage: DiscreteImage[_3D, Float]): PreprocessedImage = new PreprocessedImage {
     override val valueType = PreprocessedImage.Gradient
 
@@ -159,7 +164,8 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
 
   override def load(meta: IOMetadata,
                     h5File: StatisticalModelReader,
-                    path: HDFPath): Try[GaussianGradientImagePreprocessor] = {
+                    path: HDFPath
+  ): Try[GaussianGradientImagePreprocessor] = {
 
     meta match {
       case GaussianGradientImagePreprocessor.IOMetadata_1_0 =>
@@ -173,7 +179,7 @@ object GaussianGradientImagePreprocessorIOHandler extends ImagePreprocessorIOHan
   override def save(t: ImagePreprocessor, h5File: HDF5Writer, path: HDFPath): Try[Unit] = {
     t match {
       case g: GaussianGradientImagePreprocessor => h5File.writeFloat(HDFPath(path, Stddev), g.stddev.toFloat)
-      case _                                    => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
+      case _ => Failure(new IllegalArgumentException(s"Unable to handle ${t.getClass}"))
     }
   }
 }

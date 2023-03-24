@@ -25,7 +25,7 @@ import scala.collection.parallel.immutable.ParVector
 import scala.language.implicitConversions
 
 sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
-  ) extends PointSet[D] {
+) extends PointSet[D] {
 
   def pointSequence: IndexedSeq[Point[D]]
 
@@ -60,8 +60,8 @@ sealed abstract class UnstructuredPoints[D: NDSpace: Create] private[scalismo] (
     val regionBuilder = new RegionBuilder[Point[D]]
     val a = region.origin
     val b = region.origin + region.extent
-    val reg = (0 until dim.dimensionality).foldLeft[RegionBuilder[Point[D]]](regionBuilder) {
-      case (rg, dim) => rg.from(a, dim).to(b, dim)
+    val reg = (0 until dim.dimensionality).foldLeft[RegionBuilder[Point[D]]](regionBuilder) { case (rg, dim) =>
+      rg.from(a, dim).to(b, dim)
     }
     kdTreeMap.regionQuery(reg).map { case (p, id) => PointWithId(p, PointId(id)) }
 

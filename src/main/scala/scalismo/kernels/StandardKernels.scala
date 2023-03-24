@@ -23,10 +23,9 @@ import scalismo.transformations.Transformation
 import scalismo.utils.Memoize
 
 /**
- * Defines a Gaussian kernel with standard deviation sigma. The scale factor
- * determines the variance (the value of k(x,x)). A scale factor of s leads to
- * the variance k(x,x) = s*s. When modelling functions, the scale factor can be interpreted
- * as the amplitude of the function
+ * Defines a Gaussian kernel with standard deviation sigma. The scale factor determines the variance (the value of
+ * k(x,x)). A scale factor of s leads to the variance k(x,x) = s*s. When modelling functions, the scale factor can be
+ * interpreted as the amplitude of the function
  */
 case class GaussianKernel[D](sigma: Double, scaleFactor: Double = 1) extends PDKernel[D] {
   val sigma2 = sigma * sigma
@@ -192,7 +191,8 @@ class BSplineKernel3D(order: Int, scale: Int) extends BSplineKernel[_3D](order, 
 
           sum_j = sum_j + (bspline3D(xVec_j(0) - kx, xVec_j(1) - ky, xVec_j(2) - kz) * bspline3D(yVec_j(0) - kx,
                                                                                                  yVec_j(1) - ky,
-                                                                                                 yVec_j(2) - kz))
+                                                                                                 yVec_j(2) - kz
+          ))
 
           kz = kz + 1
         }

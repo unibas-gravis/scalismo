@@ -26,10 +26,12 @@ class SilentLogger[A] extends AcceptRejectLogger[A] {
   override def accept(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = {}
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = {}
 
   override def reject(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = {}
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = {}
 }

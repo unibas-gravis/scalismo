@@ -27,10 +27,10 @@ import scala.language.implicitConversions
 /** Triangle cell in a triangle mesh. The cell relates 3 points with the given identifiers */
 case class TriangleCell(ptId1: PointId, ptId2: PointId, ptId3: PointId) extends Cell {
 
-  /** Identifiers of the points belonging to the cell*/
+  /** Identifiers of the points belonging to the cell */
   val pointIds = IndexedSeq(ptId1, ptId2, ptId3)
 
-  /** Returns true if the given point identifier is part of the triangle cell*/
+  /** Returns true if the given point identifier is part of the triangle cell */
   def containsPoint(ptId: PointId) = ptId1 == ptId || ptId2 == ptId || ptId3 == ptId
 
   def toIntVector3D = IntVector(ptId1.id, ptId2.id, ptId3.id)
@@ -79,8 +79,7 @@ object TriangleMesh {
   implicit object domainWarp3D extends DomainWarp[_3D, TriangleMesh] {
 
     /**
-     * Warp the points of the domain of the discrete field and turn it into the
-     * warped domain
+     * Warp the points of the domain of the discrete field and turn it into the warped domain
      */
     override def transformWithField(
       domain: TriangleMesh[_3D],
@@ -101,8 +100,7 @@ object TriangleMesh {
   implicit object domainWarp2D extends DomainWarp[_2D, TriangleMesh] {
 
     /**
-     * Warp the points of the domain of the discrete field and turn it into the
-     * warped domain
+     * Warp the points of the domain of the discrete field and turn it into the warped domain
      */
     override def transformWithField(
       domain: TriangleMesh[_2D],
@@ -167,7 +165,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: Tria
   /**
    * Area of the mesh surface.
    *
-   *  The computed area is the sum of all the triangle cell areas.
+   * The computed area is the sum of all the triangle cell areas.
    */
   lazy val area: Double = {
     var sum = 0.0
@@ -175,7 +173,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: Tria
     sum
   }
 
-  /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points*/
+  /** Returns a 3D vector that is orthogonal to the triangle defined by the cell points */
   def computeCellNormal(cell: TriangleCell): EuclideanVector[_3D] = {
     val pt1 = pointSet.point(cell.ptId1)
     val pt2 = pointSet.point(cell.ptId2)
@@ -187,7 +185,7 @@ case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: Tria
   }
 
   /**
-   *  Returns the area of the indicated triangle cell.
+   * Returns the area of the indicated triangle cell.
    */
   def computeTriangleArea(t: TriangleCell): Double = {
     // compute are of the triangle using heron's formula
@@ -204,12 +202,14 @@ case class TriangleMesh3D(pointSet: UnstructuredPoints[_3D], triangulation: Tria
   }
 
   /**
-   *  Returns a random point lying within the triangle defined by the indicated cell.
+   * Returns a random point lying within the triangle defined by the indicated cell.
    *
-   *  A uniform distribution is used for sampling points.
+   * A uniform distribution is used for sampling points.
    *
-   *  @param t Triangle cell in which to draw a random point
-   *  @param rnd implicit Random object
+   * @param t
+   *   Triangle cell in which to draw a random point
+   * @param rnd
+   *   implicit Random object
    */
   def samplePointInTriangleCell(t: TriangleCell)(implicit rnd: Random): Point[_3D] = {
     val A = pointSet.point(t.ptId1).toVector

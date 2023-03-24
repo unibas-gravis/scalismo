@@ -47,8 +47,10 @@ class ImageTests extends ScalismoTestSuite {
       val domain = DiscreteImageDomain2D((0.0, 0.0), (1.0, 2.0), (3, 2))
       val discreteImage = DiscreteImage(domain, IndexedSeq(3.0, 2.0, 1.5, 1.0, 0.0, 4.0))
 
-      for (y <- 0 until domain.size(1);
-           x <- 0 until domain.size(0)) {
+      for (
+        y <- 0 until domain.size(1);
+        x <- 0 until domain.size(0)
+      ) {
         assert(discreteImage(PointId(y * domain.size(0) + x)) === discreteImage(IntVector(x, y)))
       }
     }
@@ -59,7 +61,8 @@ class ImageTests extends ScalismoTestSuite {
 
       val image = DifferentiableField(BoxDomain(-4.0, 6.0),
                                       (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
-                                      (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
+                                      (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat)
+      )
       val translationTransform = Translation1D(EuclideanVector1D(1.0))
       val composedImage = image.compose(translationTransform)
       assert(composedImage.isDefinedAt(-4.0) === true)
@@ -73,7 +76,8 @@ class ImageTests extends ScalismoTestSuite {
 
       val image = DifferentiableField(BoxDomain(-4.0, 6.0),
                                       (x: Point[_1D]) => Math.sin(x(0).toDouble).toFloat,
-                                      (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat))
+                                      (x: Point[_1D]) => EuclideanVector(Math.cos(x(0).toDouble).toFloat)
+      )
 
       val translationTransform = Translation1D(EuclideanVector1D(-1.0))
 

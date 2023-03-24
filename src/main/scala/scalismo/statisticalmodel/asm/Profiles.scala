@@ -43,11 +43,10 @@ case class Profiles(private[scalismo] val data: IndexedSeq[Profile]) extends Ite
  * Class of Discrete Fields where to each point, a DenseVector of arbitrary dimensionality is associated.
  *
  * An example instance of such a class is the set of profile points and associated features in an Active Shape Model.
- *
  */
 class DiscreteFeatureField[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](domain: DDomain[D],
-                                                                        _values: IndexedSeq[DenseVector[Double]])
-    extends DiscreteField[D, DDomain, DenseVector[Double]](domain, _values) {
+                                                                        _values: IndexedSeq[DenseVector[Double]]
+) extends DiscreteField[D, DDomain, DenseVector[Double]](domain, _values) {
 
   override def apply(id: PointId) = _values(id.id)
 

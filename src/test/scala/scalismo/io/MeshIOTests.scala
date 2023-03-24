@@ -267,7 +267,8 @@ object MeshIOTests {
     val points = IndexedSeq.fill(N)(
       Point(rng.scalaRandom.nextGaussian() * 2,
             rng.scalaRandom.nextGaussian() * 100,
-            rng.scalaRandom.nextGaussian() * 1000)
+            rng.scalaRandom.nextGaussian() * 1000
+      )
     )
     val domain = UnstructuredPoints(points)
 
@@ -278,7 +279,8 @@ object MeshIOTests {
       TetrahedralCell(rng.scalaRandom.nextInt(N),
                       rng.scalaRandom.nextInt(N),
                       rng.scalaRandom.nextInt(N),
-                      rng.scalaRandom.nextInt(N))
+                      rng.scalaRandom.nextInt(N)
+      )
     )
     val list = TetrahedralList(cells)
 

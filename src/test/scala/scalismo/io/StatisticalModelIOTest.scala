@@ -88,7 +88,8 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](gk)
       val domain = DiscreteImageDomain3D(origin = Point3D(1.0, 3.1, 7.5),
                                          spacing = EuclideanVector3D(0.8, 0.7, 0.6),
-                                         size = IntVector3D(10, 12, 9))
+                                         size = IntVector3D(10, 12, 9)
+      )
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
@@ -116,7 +117,8 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val gp = GaussianProcess[_2D, EuclideanVector[_2D]](gk)
       val domain = DiscreteImageDomain2D(origin = Point2D(1.0, 3.1),
                                          spacing = EuclideanVector2D(0.8, 0.7),
-                                         size = IntVector2D(10, 12))
+                                         size = IntVector2D(10, 12)
+      )
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
@@ -158,9 +160,8 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       discreteGPReread.domain.pointSet.numberOfPoints should equal(discreteGP.domain.pointSet.numberOfPoints)
       discreteGPReread.domain.pointSet.points
         .zip(discreteGP.domain.pointSet.points)
-        .foreach {
-          case (p1, p2) =>
-            (p1 - p2).norm should be < 0.1
+        .foreach { case (p1, p2) =>
+          (p1 - p2).norm should be < 0.1
         }
       discreteGPReread.domain.cells.toSeq should equal(discreteGP.domain.cells.toSeq)
 

@@ -19,9 +19,8 @@ import breeze.linalg.DenseVector
 import scalismo.transformations.TransformationSpace
 
 /**
- * This trait defines the interface for regularizers in the scalismo registration framework.
- * A regularizer is defined as a differentiable functions of the registration parameters.
- *
+ * This trait defines the interface for regularizers in the scalismo registration framework. A regularizer is defined as
+ * a differentiable functions of the registration parameters.
  */
 trait Regularizer[D] {
 

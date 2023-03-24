@@ -16,15 +16,19 @@
 package scalismo.mesh
 
 /**
- * express correspondence of a triangulated surface to another triangulation, maps points on this surface to target surface
+ * express correspondence of a triangulated surface to another triangulation, maps points on this surface to target
+ * surface
  */
 trait MeshSurfaceCorrespondence extends MeshSurfaceProperty[(TriangleId, BarycentricCoordinates)] {
 
   /**
    * get corresponding point on target surface
-   * @param triangleId triangle on this surface
-   * @param bcc barycentric coordinates on this surface
-   * @return corresponding triangle and barycentric coordinates on target surface
+   * @param triangleId
+   *   triangle on this surface
+   * @param bcc
+   *   barycentric coordinates on this surface
+   * @return
+   *   corresponding triangle and barycentric coordinates on target surface
    */
   def correspondingPoint(triangleId: TriangleId, bcc: BarycentricCoordinates): (TriangleId, BarycentricCoordinates)
 

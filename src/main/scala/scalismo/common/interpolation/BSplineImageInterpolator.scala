@@ -82,7 +82,7 @@ case class BSplineImageInterpolator1D[A: Scalar](degree: Int) extends BSplineIma
     }
     // the derivative
     def df(x: Point[_1D]) = {
-      //derivative
+      // derivative
       val splineBasisD1: (Double => Double) = { x =>
         (BSpline.nthOrderBSpline(degree - 1)(x + 0.5f) - BSpline.nthOrderBSpline(degree - 1)(x - 0.5f)) * (1 / domain
           .spacing(0))
@@ -262,7 +262,8 @@ case class BSplineImageInterpolator3D[A: Scalar](degree: Int) extends BSplineIma
   }
 
   private def determineCoefficients3D(degree: Int,
-                                      discreteField: DiscreteField[_3D, DiscreteImageDomain, A]): Array[Float] = {
+                                      discreteField: DiscreteField[_3D, DiscreteImageDomain, A]
+  ): Array[Float] = {
 
     val pointSet = discreteField.domain.pointSet
 

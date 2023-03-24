@@ -26,11 +26,12 @@ import scala.math.exp
 import scala.language.postfixOps
 
 /**
- * Metropolis algorithm (MCMC), provides samples from the evaluator distribution by drawing from generator and stochastic accept/reject decisions
- * generator needs to be symmetric
+ * Metropolis algorithm (MCMC), provides samples from the evaluator distribution by drawing from generator and
+ * stochastic accept/reject decisions generator needs to be symmetric
  */
 class Metropolis[A] protected (val generator: ProposalGenerator[A] with SymmetricTransitionRatio[A],
-                               val evaluator: DistributionEvaluator[A])(implicit val random: Random)
+                               val evaluator: DistributionEvaluator[A]
+)(implicit val random: Random)
     extends MarkovChain[A] {
 
   /** internal fallback logger which does nothing */
@@ -65,14 +66,17 @@ object Metropolis {
 
   /** create a Metropolis MCMC chain, needs a symmetric proposal distribution, with logger attached */
   def apply[A](generator: ProposalGenerator[A] with SymmetricTransitionRatio[A], evaluator: DistributionEvaluator[A])(
-    implicit
-    random: Random
+    implicit random: Random
   ) = new Metropolis[A](generator, evaluator)
 }
 
-/** Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a proposal distribution */
+/**
+ * Metropolis-Hastings algorithm - generates random samples from a target distribution using only samples from a
+ * proposal distribution
+ */
 class MetropolisHastings[A] protected (val generator: ProposalGenerator[A] with TransitionRatio[A],
-                                       val evaluator: DistributionEvaluator[A])(implicit val random: Random)
+                                       val evaluator: DistributionEvaluator[A]
+)(implicit val random: Random)
     extends MarkovChain[A] {
 
   private lazy val silentLogger = new SilentLogger[A]()
@@ -107,31 +111,30 @@ class MetropolisHastings[A] protected (val generator: ProposalGenerator[A] with 
 }
 
 object MetropolisHastings {
-  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
-    implicit
+  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(implicit
     random: Random
   ) = new MetropolisHastings[A](generator, evaluator)
 }
 
-/** Metropolis-Hastings algorithm with speculative executing -
- * generates random samples from a target distribution using only samples
- * from a proposal distribution
+/**
+ * Metropolis-Hastings algorithm with speculative executing - generates random samples from a target distribution using
+ * only samples from a proposal distribution
  *
- * The prefetching strategy precomputes (part of) the tree of possible future states and
- * evaluates the states in parallel. If proposals are cheap to compute but evaluation
- * expensive (and single threaded), this strategy might lead to a speed improvement,
- * especially when the number of acceptance is quite low.
+ * The prefetching strategy precomputes (part of) the tree of possible future states and evaluates the states in
+ * parallel. If proposals are cheap to compute but evaluation expensive (and single threaded), this strategy might lead
+ * to a speed improvement, especially when the number of acceptance is quite low.
  *
- * See for example
- * Accelerating Metropolis–Hastings algorithms: Delayed acceptance with prefetching
- * M. Banterle, C. Grazian, C .Robert
- * https://arxiv.org/pdf/1406.2660.pdf
- * for a good discussion of the idea and possibilities for further improvements.
+ * See for example Accelerating Metropolis–Hastings algorithms: Delayed acceptance with prefetching M. Banterle, C.
+ * Grazian, C .Robert https://arxiv.org/pdf/1406.2660.pdf for a good discussion of the idea and possibilities for
+ * further improvements.
  *
- * @param generator The proposal generator
- * @param evaluator The evaluator used to compute the (log) probability
- * @param numberOfParallelEvaluations The number of
- * */
+ * @param generator
+ *   The proposal generator
+ * @param evaluator
+ *   The evaluator used to compute the (log) probability
+ * @param numberOfParallelEvaluations
+ *   The number of
+ */
 class MetropolisHastingsWithPrefetching[A] protected (
   val generator: ProposalGenerator[A] with TransitionRatio[A],
   val evaluator: DistributionEvaluator[A],
@@ -210,7 +213,8 @@ class MetropolisHastingsWithPrefetching[A] protected (
 object MetropolisHastingsWithPrefetching {
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A],
                evaluator: DistributionEvaluator[A],
-               numberOfParallelEvaluations: Int = Runtime.getRuntime.availableProcessors())(
-    implicit random: Random
+               numberOfParallelEvaluations: Int = Runtime.getRuntime.availableProcessors()
+  )(implicit
+    random: Random
   ) = new MetropolisHastingsWithPrefetching[A](generator, evaluator, numberOfParallelEvaluations)
 }

@@ -10,7 +10,8 @@ import scalismo.transformations.TransformationSpace.ParameterVector
 /**
  * D-dimensional translation transform that is parametric, invertible and differentiable
  *
- *  @param t Translation vector
+ * @param t
+ *   Translation vector
  */
 case class Translation[D: NDSpace](t: EuclideanVector[D]) extends RigidTransformation[D] {
 
@@ -24,7 +25,7 @@ case class Translation[D: NDSpace](t: EuclideanVector[D]) extends RigidTransform
 
   override def inverse: Translation[D] = new Translation(t * (-1f))
 
-  /**parameters are the coordinates of the translation vector*/
+  /** parameters are the coordinates of the translation vector */
   val parameters = t.toBreezeVector
 
   override def derivativeWRTParameters: JacobianField[D] = {
@@ -64,7 +65,7 @@ class TranslationSpace[D: NDSpace]() extends TransformationSpaceWithDifferentiab
     transformationForParameters(DenseVector.zeros(numberOfParameters))
   }
 
-  /**Returns a translation transform, where the translation vectors' coordinates are the given parameters*/
+  /** Returns a translation transform, where the translation vectors' coordinates are the given parameters */
   override def transformationForParameters(p: ParameterVector): Translation[D] =
     Translation[D](EuclideanVector[D](p.data))
 

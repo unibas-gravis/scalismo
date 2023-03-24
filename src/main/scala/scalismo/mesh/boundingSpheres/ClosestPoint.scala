@@ -21,8 +21,10 @@ import scalismo.mesh.{BarycentricCoordinates, BarycentricCoordinates4, Tetrahedr
 
 /**
  * A class that contains the location and the distance to the closest point on a surface.
- * @param point The closest point location on the surface.
- * @param distanceSquared The squared distance to the closest point location.
+ * @param point
+ *   The closest point location on the surface.
+ * @param distanceSquared
+ *   The squared distance to the closest point location.
  */
 case class ClosestPoint(point: Point[_3D], distanceSquared: Double) {
 
@@ -39,8 +41,10 @@ case class ClosestPoint(point: Point[_3D], distanceSquared: Double) {
 
 /**
  * The base type for all closest point types with additional information about the location of the point.
- * @param point The closest point location on the surface.
- * @param distanceSquared The squared distance to the closest point location.
+ * @param point
+ *   The closest point location on the surface.
+ * @param distanceSquared
+ *   The squared distance to the closest point location.
  */
 sealed abstract class ClosestPointWithType(val point: Point[_3D], val distanceSquared: Double) {
 
@@ -52,52 +56,58 @@ sealed abstract class ClosestPointWithType(val point: Point[_3D], val distanceSq
 }
 
 /**
- * The closest point is a vertex.
- * The additional information stored is the PointId of the vertex found.
- * @param pid PointId of the closest vertex.
+ * The closest point is a vertex. The additional information stored is the PointId of the vertex found.
+ * @param pid
+ *   PointId of the closest vertex.
  */
 case class ClosestPointIsVertex(override val point: Point[_3D], override val distanceSquared: Double, pid: PointId)
     extends ClosestPointWithType(point, distanceSquared)
 
 /**
- * The closest point lies on a line.
- * The additional information stored are the PointIds of the two end points of the line and the barycentric coordinate.
- * @param pids Tuple of PointIds of the two end points of the line.
- * @param bc The barycentric coordinates of the closest point location.
+ * The closest point lies on a line. The additional information stored are the PointIds of the two end points of the
+ * line and the barycentric coordinate.
+ * @param pids
+ *   Tuple of PointIds of the two end points of the line.
+ * @param bc
+ *   The barycentric coordinates of the closest point location.
  */
 case class ClosestPointOnLine(override val point: Point[_3D],
                               override val distanceSquared: Double,
                               pids: (PointId, PointId),
-                              bc: Double)
-    extends ClosestPointWithType(point, distanceSquared)
+                              bc: Double
+) extends ClosestPointWithType(point, distanceSquared)
 
 /**
- * The closest point is a vertex.
- * The additional information stored is the TriangleId and the barycentric coordinates of the point.
- * @param tid TriangleId of the triangle containing the closest point.
- * @param bc The barycentric coordinates of the closest point location.
+ * The closest point is a vertex. The additional information stored is the TriangleId and the barycentric coordinates of
+ * the point.
+ * @param tid
+ *   TriangleId of the triangle containing the closest point.
+ * @param bc
+ *   The barycentric coordinates of the closest point location.
  */
 case class ClosestPointInTriangle(override val point: Point[_3D],
                                   override val distanceSquared: Double,
                                   tid: TriangleId,
-                                  bc: BarycentricCoordinates)
-    extends ClosestPointWithType(point, distanceSquared)
+                                  bc: BarycentricCoordinates
+) extends ClosestPointWithType(point, distanceSquared)
 
 case class ClosestPointInTriangleOfTetrahedron(override val point: Point[_3D],
                                                override val distanceSquared: Double,
                                                tetId: TetrahedronId,
                                                triId: TriangleId,
-                                               bc: BarycentricCoordinates)
-    extends ClosestPointWithType(point, distanceSquared)
+                                               bc: BarycentricCoordinates
+) extends ClosestPointWithType(point, distanceSquared)
 
 /**
- * The closest point is a vertex.
- * The additional information stored is the TriangleId and the barycentric coordinates of the point.
- * @param tid TriangleId of the tetrahedral containing the closest point.
- * @param bc The barycentric coordinates of the closest point location.
+ * The closest point is a vertex. The additional information stored is the TriangleId and the barycentric coordinates of
+ * the point.
+ * @param tid
+ *   TriangleId of the tetrahedral containing the closest point.
+ * @param bc
+ *   The barycentric coordinates of the closest point location.
  */
 case class ClosestPointInTetrahedron(override val point: Point[_3D],
                                      override val distanceSquared: Double,
                                      tid: TetrahedronId,
-                                     bc: BarycentricCoordinates4)
-    extends ClosestPointWithType(point, distanceSquared)
+                                     bc: BarycentricCoordinates4
+) extends ClosestPointWithType(point, distanceSquared)

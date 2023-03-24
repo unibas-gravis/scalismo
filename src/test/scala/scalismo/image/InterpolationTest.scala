@@ -146,9 +146,10 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val interpolatedFImage = discreteFImage.interpolateDifferentiable(BSplineImageInterpolator2D[Double](3))
         val derivativeImage = interpolatedFImage.differentiate
 
-        for ((pt, idx) <- domain.pointSet.points.zipWithIndex.filter(x =>
-               math.abs(x._1(0)) < 1.90 && math.abs(x._1(1)) < 1.90
-             )) {
+        for (
+          (pt, idx) <- domain.pointSet.points.zipWithIndex
+            .filter(x => math.abs(x._1(0)) < 1.90 && math.abs(x._1(1)) < 1.90)
+        ) {
           derivativeImage(pt)(0) should be((2 * pt(0)) +- 0.001f)
           derivativeImage(pt)(1) should be((2 * pt(1)) +- 0.001f)
         }
@@ -206,9 +207,10 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         val interpolatedFImage = discreteFImage.interpolateDifferentiable(BSplineImageInterpolator3D[Double](3))
         val derivativeImage = interpolatedFImage.differentiate
 
-        for ((pt, idx) <- domain.pointSet.points.zipWithIndex.filter(x =>
-               math.abs(x._1(0)) < 1.0 && math.abs(x._1(1)) < 1.0 && math.abs(x._1(2)) < 1.0
-             )) {
+        for (
+          (pt, idx) <- domain.pointSet.points.zipWithIndex
+            .filter(x => math.abs(x._1(0)) < 1.0 && math.abs(x._1(1)) < 1.0 && math.abs(x._1(2)) < 1.0)
+        ) {
           derivativeImage(pt)(0) should be((2 * pt(0)) +- 0.0001)
           derivativeImage(pt)(1) should be((2 * pt(1)) +- 0.0001)
           derivativeImage(pt)(2) should be((2 * pt(2)) +- 0.0001)

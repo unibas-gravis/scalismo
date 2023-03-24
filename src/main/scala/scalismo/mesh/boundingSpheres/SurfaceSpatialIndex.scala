@@ -33,14 +33,16 @@ trait SpatialIndex[D] {
   /**
    * Query the shortest distance for a point to a surface.
    *
-   * @return Squared distance.
+   * @return
+   *   Squared distance.
    */
   def getSquaredShortestDistance(pt: Point[D]): Double
 
   /**
    * Query the closest point on a surface.
    *
-   * @return The closest point and the squared distance.
+   * @return
+   *   The closest point and the squared distance.
    */
   def getClosestPoint(pt: Point[D]): ClosestPoint
 }
@@ -53,7 +55,8 @@ trait SurfaceSpatialIndex[D] extends SpatialIndex[D] {
   /**
    * Query the closest point on a surface.
    *
-   * @return A desciption of the closest point.
+   * @return
+   *   A desciption of the closest point.
    */
   def getClosestPointOnSurface(pt: Point[D]): ClosestPointWithType
 }
@@ -71,17 +74,24 @@ import scalismo.mesh.boundingSpheres.SurfaceClosestPointType._
 /**
  * Descritpion of a closest point
  *
- * @param distance2 the squared distance
- * @param pt        the coordinates
- * @param ptType    on which geometric entity of the surface the closest point lies
- * @param bc        the barycentric coordinates of the point. The interpretation depends on the ptType.
- * @param idx       the index in the original surface instance of the geometric entity where the closest point lies. The interpretation depends on the ptType.
+ * @param distance2
+ *   the squared distance
+ * @param pt
+ *   the coordinates
+ * @param ptType
+ *   on which geometric entity of the surface the closest point lies
+ * @param bc
+ *   the barycentric coordinates of the point. The interpretation depends on the ptType.
+ * @param idx
+ *   the index in the original surface instance of the geometric entity where the closest point lies. The interpretation
+ *   depends on the ptType.
  */
 private case class ClosestPointMeta(distance2: Double,
                                     pt: EuclideanVector[_3D],
                                     ptType: SurfaceClosestPointType,
                                     bc: (Double, Double),
-                                    idx: (Int, Int))
+                                    idx: (Int, Int)
+)
 
 /**
  * Companion object for the surface distance implementation for TriangleMesh3D.
@@ -115,8 +125,8 @@ object TriangleMesh3DSpatialIndex {
  */
 private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
                                                private val mesh: TriangleMesh3D,
-                                               private val triangles: Seq[Triangle])
-    extends SurfaceSpatialIndex[_3D] {
+                                               private val triangles: Seq[Triangle]
+) extends SurfaceSpatialIndex[_3D] {
 
   /**
    * Calculates the squared closest distance to the surface.
@@ -154,17 +164,20 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
                                (PointId(triangle.pointIds(0).id), PointId(triangle.pointIds(1).id)),
-                               res.get().bc.a)
+                               res.get().bc.a
+            )
           case (1, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
                                (PointId(triangle.pointIds(1).id), PointId(triangle.pointIds(2).id)),
-                               res.get().bc.a)
+                               res.get().bc.a
+            )
           case (2, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
                                (PointId(triangle.pointIds(2).id), PointId(triangle.pointIds(0).id)),
-                               res.get().bc.a)
+                               res.get().bc.a
+            )
           case _ => throw new RuntimeException("not a valid line index")
         }
 
@@ -195,7 +208,11 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
     distanceToPartition(p, bs, res.get(), lastIdx.get())
   }
 
-  /** @note both values contain a mutable state, this is needed to improve speed when having many queries with successive near points. */
+  /**
+   * @note
+   *   both values contain a mutable state, this is needed to improve speed when having many queries with successive
+   *   near points.
+   */
   private val lastIdx: ThreadLocal[Index] = new ThreadLocal[Index]() {
     override protected def initialValue(): Index = {
       new Index(0)
@@ -213,7 +230,8 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   private def distanceToPartition(point: EuclideanVector[_3D],
                                   partition: BoundingSphere,
                                   result: CP,
-                                  index: Index): Unit = {
+                                  index: Index
+  ): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toTriangle(point, triangles(partition.idx))
@@ -231,28 +249,38 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
 
         if (distanceToLeftCenter < distanceToRightCenter) {
           // nearer sphere first
-          if ((distanceToLeftCenter <= leftRadius) || // point in sphere?
-              (result.distance2 >= distanceToLeftCenter + leftRadius) || // are we close?
-              (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))) {
+          if (
+            (distanceToLeftCenter <= leftRadius) || // point in sphere?
+            (result.distance2 >= distanceToLeftCenter + leftRadius) || // are we close?
+            (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))
+          ) {
             // even better estimation
             distanceToPartition(point, partition.left, result, index) // test partition
           }
-          if ((distanceToRightCenter <= rightRadius) ||
-              (result.distance2 >= distanceToRightCenter + rightRadius) ||
-              (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
-                                                                2))) {
+          if (
+            (distanceToRightCenter <= rightRadius) ||
+            (result.distance2 >= distanceToRightCenter + rightRadius) ||
+            (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
+                                                              2
+            ))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
         } else {
-          if ((distanceToRightCenter <= rightRadius) ||
-              (result.distance2 >= distanceToRightCenter + rightRadius) ||
-              (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
-                                                                2))) {
+          if (
+            (distanceToRightCenter <= rightRadius) ||
+            (result.distance2 >= distanceToRightCenter + rightRadius) ||
+            (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
+                                                              2
+            ))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
-          if ((distanceToLeftCenter <= leftRadius) ||
-              (result.distance2 >= distanceToLeftCenter + leftRadius) ||
-              (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))) {
+          if (
+            (distanceToLeftCenter <= leftRadius) ||
+            (result.distance2 >= distanceToLeftCenter + leftRadius) ||
+            (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.left, result, index)
           }
         }
@@ -262,17 +290,21 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
           val lc2 = (point - partition.left.center).norm2
           val lr2 = partition.left.r2
 
-          if ((lc2 <= lr2) ||
-              (result.distance2 >= lc2 + lr2) ||
-              (4.0 * lc2 * lr2 >= pow(lc2 + lr2 - result.distance2, 2))) {
+          if (
+            (lc2 <= lr2) ||
+            (result.distance2 >= lc2 + lr2) ||
+            (4.0 * lc2 * lr2 >= pow(lc2 + lr2 - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.left, result, index)
           }
         } else if (partition.hasRight) {
           val rc2 = (point - partition.right.center).norm2
           val rr2 = partition.right.r2
-          if ((rc2 <= rr2) ||
-              (result.distance2 >= rc2 + rr2) ||
-              (4.0 * rc2 * rr2 >= pow(rc2 + rr2 - result.distance2, 2))) {
+          if (
+            (rc2 <= rr2) ||
+            (result.distance2 >= rc2 + rr2) ||
+            (4.0 * rc2 * rr2 >= pow(rc2 + rr2 - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
         }

@@ -89,9 +89,8 @@ object BoxDomain {
   def apply(origin: Point3D, oppositeCorner: Point3D) = BoxDomain3D(origin, oppositeCorner)
 
   /**
-   * Creates a BoxDomain of dimensionality D. Attention, due to the fact that it is a generic
-   * constructor, the isDefinedAt method of the resulting object will not be as optimized as when created for a
-   * specific dimensionality
+   * Creates a BoxDomain of dimensionality D. Attention, due to the fact that it is a generic constructor, the
+   * isDefinedAt method of the resulting object will not be as optimized as when created for a specific dimensionality
    */
   def apply[D: NDSpace](orig: Point[D], oppCorner: Point[D]) = new BoxDomain[D] {
     override val oppositeCorner = oppCorner

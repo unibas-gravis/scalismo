@@ -27,7 +27,8 @@ private[boundingSpheres] object BSIntersection {
                                 direction: EuclideanVector[_3D],
                                 a: EuclideanVector[_3D],
                                 b: EuclideanVector[_3D],
-                                c: EuclideanVector[_3D]): (Boolean, Point[_3D]) = {
+                                c: EuclideanVector[_3D]
+  ): (Boolean, Point[_3D]) = {
     val det = Determinantes.det3x3(a.x - b.x,
                                    a.x - c.x,
                                    direction.x,
@@ -36,7 +37,8 @@ private[boundingSpheres] object BSIntersection {
                                    direction.y,
                                    a.z - b.z,
                                    a.z - c.z,
-                                   direction.z)
+                                   direction.z
+    )
 
     val beta = Determinantes.det3x3(a.x - point.x,
                                     a.x - c.x,
@@ -46,7 +48,8 @@ private[boundingSpheres] object BSIntersection {
                                     direction.y,
                                     a.z - point.z,
                                     a.z - c.z,
-                                    direction.z) / det
+                                    direction.z
+    ) / det
 
     val gamma = Determinantes.det3x3(a.x - b.x,
                                      a.x - point.x,
@@ -56,7 +59,8 @@ private[boundingSpheres] object BSIntersection {
                                      direction.y,
                                      a.z - b.z,
                                      a.z - point.z,
-                                     direction.z) / det
+                                     direction.z
+    ) / det
 
     val t = Determinantes.det3x3(a.x - b.x,
                                  a.x - c.x,
@@ -66,7 +70,8 @@ private[boundingSpheres] object BSIntersection {
                                  a.y - point.y,
                                  a.z - b.z,
                                  a.z - c.z,
-                                 a.z - point.z) / det
+                                 a.z - point.z
+    ) / det
 
     if (beta >= 0.0 && gamma >= 0.0 && beta + gamma <= 1.0) {
       (true, Point(point.x + t * direction.x, point.y + t * direction.y, point.z + t * direction.z))
@@ -80,7 +85,8 @@ private[boundingSpheres] object BSIntersection {
                                            direction: EuclideanVector[_3D],
                                            a: EuclideanVector[_3D],
                                            b: EuclideanVector[_3D],
-                                           c: EuclideanVector[_3D]): (Boolean, BarycentricCoordinates) = {
+                                           c: EuclideanVector[_3D]
+  ): (Boolean, BarycentricCoordinates) = {
     val det = Determinantes.det3x3(a.x - b.x,
                                    a.x - c.x,
                                    direction.x,
@@ -89,7 +95,8 @@ private[boundingSpheres] object BSIntersection {
                                    direction.y,
                                    a.z - b.z,
                                    a.z - c.z,
-                                   direction.z)
+                                   direction.z
+    )
 
     val beta = Determinantes.det3x3(a.x - point.x,
                                     a.x - c.x,
@@ -99,7 +106,8 @@ private[boundingSpheres] object BSIntersection {
                                     direction.y,
                                     a.z - point.z,
                                     a.z - c.z,
-                                    direction.z) / det
+                                    direction.z
+    ) / det
 
     val gamma = Determinantes.det3x3(a.x - b.x,
                                      a.x - point.x,
@@ -109,7 +117,8 @@ private[boundingSpheres] object BSIntersection {
                                      direction.y,
                                      a.z - b.z,
                                      a.z - point.z,
-                                     direction.z) / det
+                                     direction.z
+    ) / det
 
     if (beta >= 0.0 && gamma >= 0.0 && beta + gamma <= 1.0) {
       (true, BarycentricCoordinates(1 - beta - gamma, beta, gamma))
@@ -123,7 +132,8 @@ private[boundingSpheres] object BSIntersection {
                                    a: EuclideanVector[_3D],
                                    b: EuclideanVector[_3D],
                                    c: EuclideanVector[_3D],
-                                   d: EuclideanVector[_3D]): (Boolean, Seq[Point[_3D]]) = {
+                                   d: EuclideanVector[_3D]
+  ): (Boolean, Seq[Point[_3D]]) = {
     val intersections = IndexedSeq(
       intersectLineWithTriangle(point, direction, a, b, c),
       intersectLineWithTriangle(point, direction, a, d, b),
@@ -191,7 +201,8 @@ private[boundingSpheres] object BSIntersection {
   def intersectLineSphereSquared(point: EuclideanVector[_3D],
                                  direction: EuclideanVector[_3D],
                                  center: EuclideanVector[_3D],
-                                 r2: Double): Boolean = {
+                                 r2: Double
+  ): Boolean = {
     BSDistance.squaredDistanceToLineDirection(center, point, direction) < r2
   }
 
@@ -229,7 +240,8 @@ private[boundingSpheres] object Determinantes {
              d1: Double,
              d2: Double,
              d3: Double,
-             d4: Double): Double = {
+             d4: Double
+  ): Double = {
     (+a1 * det3x3(b2, b3, b4, c2, c3, c4, d2, d3, d4)
       - b1 * det3x3(c2, c3, c4, d2, d3, d4, a2, a3, a4)
       + c1 * det3x3(d2, d3, d4, a2, a3, a4, b2, b3, b4)

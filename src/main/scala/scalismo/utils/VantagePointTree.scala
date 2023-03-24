@@ -34,13 +34,12 @@ object Metric {
 }
 
 /**
- * Recursive, immutable Vantage Point tree
- * Partitions metric spaces for efficient neighbour searches
- * Key concept: split a point set at a node into an inner and an outer set which satisfy:
- *  - inner: all points are closer to the pivot/center than the radius
- *  - outer: all points are further away from the the pivot than radius
+ * Recursive, immutable Vantage Point tree Partitions metric spaces for efficient neighbour searches Key concept: split
+ * a point set at a node into an inner and an outer set which satisfy:
+ *   - inner: all points are closer to the pivot/center than the radius
+ *   - outer: all points are further away from the the pivot than radius
  *
- *  WARNING: the tree only works with a metric (positive, symmetric, triangle inequality)
+ * WARNING: the tree only works with a metric (positive, symmetric, triangle inequality)
  */
 sealed trait VantagePointTree[A] extends Iterable[A] {
 
@@ -181,7 +180,8 @@ object VantagePointTree {
 
   private def recursiveTreeBuilder[A](data: Iterable[A],
                                       metric: Metric[A],
-                                      pivotSelector: Iterable[A] => A): VantagePointTree[A] = {
+                                      pivotSelector: Iterable[A] => A
+  ): VantagePointTree[A] = {
     // recursive tree builder
     def recursiveBuilder(points: Seq[A]): VantagePointTree[A] = points match {
       // small cases
@@ -260,13 +260,16 @@ private case class VPLink[A](metric: Metric[A], center: A, next: VantagePointTre
   }
 }
 
-/** regular VP tree node with inner and outer children, inner contains all points which are closer to center than radius (inclusive) */
+/**
+ * regular VP tree node with inner and outer children, inner contains all points which are closer to center than radius
+ * (inclusive)
+ */
 private case class VPNode[A](metric: Metric[A],
                              center: A,
                              radius: Double,
                              inner: VantagePointTree[A],
-                             outer: VantagePointTree[A])
-    extends VantagePointTree[A] {
+                             outer: VantagePointTree[A]
+) extends VantagePointTree[A] {
   // smart part of the VP tree, space partition according to distance to current pivot element
   override def findNN(point: A, candidates: CandidateSet[A]): Unit = {
     // distance to center point decides on first lookup

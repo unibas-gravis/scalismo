@@ -49,7 +49,8 @@ private[mesh] case class Triangle(a: EuclideanVector[_3D], b: EuclideanVector[_3
 case class Tetrahedron(a: EuclideanVector[_3D],
                        b: EuclideanVector[_3D],
                        c: EuclideanVector[_3D],
-                       d: EuclideanVector[_3D]) {
+                       d: EuclideanVector[_3D]
+) {
   val ab = b - a
   val ac = c - a
   val ad = d - a
@@ -91,7 +92,8 @@ case class Tetrahedron(a: EuclideanVector[_3D],
     val sq = IndexedSeq(computeTriangleArea(a, b, c),
                         computeTriangleArea(a, b, d),
                         computeTriangleArea(a, d, c),
-                        computeTriangleArea(b, c, d))
+                        computeTriangleArea(b, c, d)
+    )
 
     var larg = (0, 0.0)
 
@@ -112,7 +114,8 @@ case class Tetrahedron(a: EuclideanVector[_3D],
 private case class BC(var a: Double, var b: Double)
 
 /**
- * Barycentric coordinates for tetrahedrons. Triplet of doubles characterizing a point by the three vectors AB, AC, and AD of a tetrahedron.
+ * Barycentric coordinates for tetrahedrons. Triplet of doubles characterizing a point by the three vectors AB, AC, and
+ * AD of a tetrahedron.
  */
 private case class BC3(var a: Double, var b: Double, var c: Double)
 
@@ -163,7 +166,8 @@ private object BSDistance {
    */
   @inline
   def calculateBarycentricCoordinates(tetrahedron: Tetrahedron,
-                                      p: EuclideanVector[_3D]): (Double, Double, Double, Double) = {
+                                      p: EuclideanVector[_3D]
+  ): (Double, Double, Double, Double) = {
     val vap = p - tetrahedron.a
 //    val vbp = p - tetrahedron.b
 
@@ -196,12 +200,14 @@ private object BSDistance {
                                          var pt: EuclideanVector[_3D],
                                          var ptType: SurfaceClosestPointType,
                                          var bc: BC,
-                                         var idx: (Int, Int))
+                                         var idx: (Int, Int)
+  )
   private[boundingSpheres] case class CP3(var distance2: Double,
                                           var pt: EuclideanVector[_3D],
                                           var ptType: VolumeClosestPointType,
                                           var bc: BC3,
-                                          var idx: (Int, Int, Int))
+                                          var idx: (Int, Int, Int)
+  )
 
   // immutable classes
   private[boundingSpheres] case class DistanceSqr(val distance2: Double)
@@ -316,7 +322,8 @@ private object BSDistance {
                                    cpm.pt,
                                    VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
                                    (s, t, u),
-                                   (0, cpm.idx._1, cpm.idx._2))
+                                   (0, cpm.idx._1, cpm.idx._2)
+            )
           )
         } else None,
         if (sv(1)) {
@@ -327,7 +334,8 @@ private object BSDistance {
                                    cpm.pt,
                                    VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
                                    (s, t, u),
-                                   (1, cpm.idx._1, cpm.idx._2))
+                                   (1, cpm.idx._1, cpm.idx._2)
+            )
           )
         } else None,
         if (sv(2)) {
@@ -338,7 +346,8 @@ private object BSDistance {
                                    cpm.pt,
                                    VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
                                    (s, t, u),
-                                   (2, cpm.idx._1, cpm.idx._2))
+                                   (2, cpm.idx._1, cpm.idx._2)
+            )
           )
         } else None,
         if (sv(3)) {
@@ -349,7 +358,8 @@ private object BSDistance {
                                    cpm.pt,
                                    VolumeClosestPointType.fromSurfaceClosestPointType(cpm.ptType),
                                    (s, t, u),
-                                   (3, cpm.idx._1, cpm.idx._2))
+                                   (3, cpm.idx._1, cpm.idx._2)
+            )
           )
         } else None
       ).flatten.minBy(_.distance2)
@@ -410,7 +420,8 @@ private object BSDistance {
   @inline
   def squaredDistanceAndClosestPointOnLine(p: EuclideanVector[_3D],
                                            pt1: EuclideanVector[_3D],
-                                           pt2: EuclideanVector[_3D]): (Double, EuclideanVector[_3D]) = {
+                                           pt2: EuclideanVector[_3D]
+  ): (Double, EuclideanVector[_3D]) = {
     val dir = (pt2 - pt1).normalize // line direction
     val x = p - pt1 // vector from the point to one point on the line
     val s = dir.dot(x) // length of projection of x onto the line
@@ -431,7 +442,8 @@ private object BSDistance {
   @inline
   def squaredDistanceToLineDirection(p: EuclideanVector[_3D],
                                      pointOnLine: EuclideanVector[_3D],
-                                     direction: EuclideanVector[_3D]): Double = {
+                                     direction: EuclideanVector[_3D]
+  ): Double = {
     val v = pointOnLine - p
     (v - direction * (direction.dot(v) / direction.norm2)).norm2
   }

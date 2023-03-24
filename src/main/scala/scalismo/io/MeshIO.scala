@@ -37,18 +37,16 @@ object MeshIO {
    *
    * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
    *
-   * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates
-   * to lie in an LPS world and map them unchanged in our coordinate system.
+   * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates to lie in an LPS
+   * world and map them unchanged in our coordinate system.
    *
    * The same happens at writing, we directly dump our vertex coordinates into the file format(stl, or vtk) without any
    * mirroring magic.
-   *
    *
    * *
    */
   /**
    * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
-   *
    */
   def readScalarMeshField[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val requiredScalarType = ScalarDataType.fromType[S]
@@ -71,7 +69,6 @@ object MeshIO {
 
   /**
    * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
-   *
    */
   def readScalarMeshFieldAsType[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val filename = file.getAbsolutePath
@@ -155,8 +152,8 @@ object MeshIO {
   }
 
   /**
-   * Reads a [[TetrahedralMesh[_3D]]] from a file with one of the extensions ".vtk", ".vtu", or ".inp".
-   * The ".vtk" and ".vtu" files are standard VTK formats while ".inp" is the AVS UCD format.
+   * Reads a [[TetrahedralMesh[_3D]]] from a file with one of the extensions ".vtk", ".vtu", or ".inp". The ".vtk" and
+   * ".vtu" files are standard VTK formats while ".inp" is the AVS UCD format.
    */
   def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
     val filename = file.getAbsolutePath
@@ -214,7 +211,8 @@ object MeshIO {
   }
 
   private[io] def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid],
-                                            file: File): Try[TetrahedralMesh[_3D]] = {
+                                            file: File
+  ): Try[TetrahedralMesh[_3D]] = {
     for {
       vtkUg <- readUSFromFile(file)
       tetramesh <- TetrahedralMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
@@ -301,7 +299,8 @@ object MeshIO {
   private[io] def writeToVTKFileThenDelete[T](volume: T,
                                               writeToFile: (vtkUnstructuredGrid, File) => Try[Unit],
                                               convertToVTKUG: T => vtkUnstructuredGrid,
-                                              file: File): Try[Unit] = {
+                                              file: File
+  ): Try[Unit] = {
     val vtkUg = convertToVTKUG(volume)
     for {
       result <- writeToFile(vtkUg, file)
@@ -372,7 +371,8 @@ object MeshIO {
   /**
    * Writes a [[VertexColorMesh3D]] to a file.
    *
-   * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
+   * **Important**: For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha
+   * channel will be ignored while writing.
    */
   def writeVertexColorMesh3D(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
@@ -452,7 +452,8 @@ object MeshIO {
           vtkColors.InsertNextTuple4((color.r * 255).toShort,
                                      (color.g * 255).toShort,
                                      (color.b * 255).toShort,
-                                     color.a * 255)
+                                     color.a * 255
+          )
         }
         vtkColors.SetName("RGBA")
         vtkPd.GetPointData().SetScalars(vtkColors)

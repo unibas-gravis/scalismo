@@ -36,7 +36,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTriangleMesh2D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOTriangleMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                                Option(cellsAsArray))
+                                                                                Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }
@@ -51,7 +52,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTriangleMesh3D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOTriangleMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                                Option(cellsAsArray))
+                                                                                Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }
@@ -81,7 +83,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOLineMesh2D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOLineMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                            Option(cellsAsArray))
+                                                                            Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }
@@ -96,7 +99,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOLineMesh3D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOLineMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                            Option(cellsAsArray))
+                                                                            Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }

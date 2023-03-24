@@ -22,15 +22,17 @@ import scalismo.kernels._
 import scalismo.utils.Random
 
 /**
- * A gaussian process from a D dimensional input space, whose input values are points,
- * to a DO dimensional output space. The output space is a Euclidean vector space of dimensionality DO.
+ * A gaussian process from a D dimensional input space, whose input values are points, to a DO dimensional output space.
+ * The output space is a Euclidean vector space of dimensionality DO.
  *
- * @param mean The mean function
- * @param cov  The covariance function. Needs to be positive definite
- * @tparam D The dimensionality of the input space
+ * @param mean
+ *   The mean function
+ * @param cov
+ *   The covariance function. Needs to be positive definite
+ * @tparam D
+ *   The dimensionality of the input space
  */
-class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: MatrixValuedPDKernel[D])(
-  implicit
+class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: MatrixValuedPDKernel[D])(implicit
   val vectorizer: Vectorizer[Value]
 ) {
 
@@ -39,7 +41,6 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   def domain = Domain.intersection(mean.domain, cov.domain)
 
   /**
-   *
    * Sample values of the Gaussian process evaluated at the given points.
    */
   def sampleAtPoints[DDomain[DD] <: DiscreteDomain[DD]](
@@ -49,11 +50,11 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain
-   * is an unstructured points domain
+   * Compute the marginal distribution for the given points. The result is again a Gaussian process, whose domain is an
+   * unstructured points domain
    */
-  def marginal(points: IndexedSeq[Point[D]])(
-    implicit domainCreator: UnstructuredPointsDomain.Create[D]
+  def marginal(points: IndexedSeq[Point[D]])(implicit
+    domainCreator: UnstructuredPointsDomain.Create[D]
   ): DiscreteGaussianProcess[D, UnstructuredPointsDomain, Value] = {
     val domain = domainCreator.create(points)
     discretize(domain)
@@ -67,9 +68,12 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   /**
    * Computes the marginal likelihood of the observed data.
    *
-   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
+   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the
+   * observed data would be selected.
    *
-   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   * @param trainingData
+   *   Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at
+   *   each point.
    */
   def marginalLikelihood(trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]): Double = {
     require(trainingData.nonEmpty, "provide observations to calculate the marginal likelihood")
@@ -98,9 +102,9 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData.
-   * It is computed using Gaussian process regression.
-   * We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
+   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using
+   * Gaussian process regression. We assume that the trainingData is subject to isotropic Gaussian noise with variance
+   * sigma2.
    */
   def posterior(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): GaussianProcess[D, Value] = {
     val cov =
@@ -110,8 +114,8 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * The posterior distribution of the gaussian process, with respect to the given trainingData.
-   * It is computed using Gaussian process regression.
+   * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using
+   * Gaussian process regression.
    */
   def posterior(
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
@@ -128,8 +132,7 @@ object GaussianProcess {
   /**
    * Creates a new Gaussian process with given mean and covariance, which is defined on the given domain.
    */
-  def apply[D: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(
-    implicit
+  def apply[D: NDSpace, Value](mean: Field[D, Value], cov: MatrixValuedPDKernel[D])(implicit
     vectorizer: Vectorizer[Value]
   ): GaussianProcess[D, Value] = {
     new GaussianProcess[D, Value](mean, cov)
@@ -147,10 +150,14 @@ object GaussianProcess {
   }
 
   /**
-   * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to  zero-mean noise with given variance.
+   * * Performs a Gaussian process regression, where we assume that each training point (vector) is subject to zero-mean
+   * noise with given variance.
    *
-   * @param gp           The gaussian process
-   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   * @param gp
+   *   The gaussian process
+   * @param trainingData
+   *   Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at
+   *   each point.
    */
   def regression[D: NDSpace, Value](
     gp: GaussianProcess[D, Value],
@@ -196,10 +203,14 @@ object GaussianProcess {
   /**
    * * Computes the marginal likelihood of the observed data, according to the given GP.
    *
-   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the observed data would be selected.
+   * This can for example be used in a model selection setting, where the GP with the maximum marginal likelihood of the
+   * observed data would be selected.
    *
-   * @param gp           The gaussian process
-   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   * @param gp
+   *   The gaussian process
+   * @param trainingData
+   *   Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at
+   *   each point.
    */
   def marginalLikelihood[D: NDSpace, Value](
     gp: GaussianProcess[D, Value],
@@ -209,10 +220,11 @@ object GaussianProcess {
   }
 
   /**
-   *
-   * @tparam A combines the interface for NDSpace for GaussianProcess as well as PointId in DiscreteGaussianProcess
-   * @todo The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more than a few points). Instead an implementation
-   *       with a Cholesky decomposition would be more efficient.
+   * @tparam A
+   *   combines the interface for NDSpace for GaussianProcess as well as PointId in DiscreteGaussianProcess
+   * @todo
+   *   The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more
+   *   than a few points). Instead an implementation with a Cholesky decomposition would be more efficient.
    */
   private[scalismo] def marginalLikelihoodCalculation[A, Value](
     cov: (A, A) => DenseMatrix[Double],
@@ -247,7 +259,7 @@ object GaussianProcess {
 
     val KyInv = inv(Ky)
     val const = outputDim * trainingData.length * 0.5 * math.log(math.Pi * 2)
-    //det(KyInv) > 0, because Ky is PSD, therefore we can ignore the sign of logdet
+    // det(KyInv) > 0, because Ky is PSD, therefore we can ignore the sign of logdet
     val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * logdet(Ky)._2) - const
     margLikehood
   }
@@ -256,8 +268,7 @@ object GaussianProcess {
 
 object GaussianProcess1D {
 
-  def apply[Value](mean: Field[_1D, Value], cov: MatrixValuedPDKernel[_1D])(
-    implicit
+  def apply[Value](mean: Field[_1D, Value], cov: MatrixValuedPDKernel[_1D])(implicit
     vectorizer: Vectorizer[Value]
   ): GaussianProcess[_1D, Value] = {
     new GaussianProcess[_1D, Value](mean, cov)
@@ -278,8 +289,7 @@ object GaussianProcess1D {
 
 object GaussianProcess2D {
 
-  def apply[Value](mean: Field[_2D, Value], cov: MatrixValuedPDKernel[_2D])(
-    implicit
+  def apply[Value](mean: Field[_2D, Value], cov: MatrixValuedPDKernel[_2D])(implicit
     vectorizer: Vectorizer[Value]
   ): GaussianProcess[_2D, Value] = {
     new GaussianProcess[_2D, Value](mean, cov)
@@ -300,8 +310,7 @@ object GaussianProcess2D {
 
 object GaussianProcess3D {
 
-  def apply[Value](mean: Field[_3D, Value], cov: MatrixValuedPDKernel[_3D])(
-    implicit
+  def apply[Value](mean: Field[_3D, Value], cov: MatrixValuedPDKernel[_3D])(implicit
     vectorizer: Vectorizer[Value]
   ): GaussianProcess[_3D, Value] = {
     new GaussianProcess[_3D, Value](mean, cov)

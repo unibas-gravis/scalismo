@@ -34,7 +34,8 @@ case class TetrahedralCell(ptId1: PointId, ptId2: PointId, ptId3: PointId, ptId4
   val triangles = Seq(TriangleCell(ptId1, ptId2, ptId3),
                       TriangleCell(ptId1, ptId4, ptId2),
                       TriangleCell(ptId1, ptId3, ptId4),
-                      TriangleCell(ptId2, ptId4, ptId3))
+                      TriangleCell(ptId2, ptId4, ptId3)
+  )
 
   /** Returns true if @ptId is one of the point ids of the tetrahedral. */
   def containsPoint(ptId: PointId): Boolean = {
@@ -52,10 +53,8 @@ trait TetrahedralMesh[D] extends DiscreteDomain[D] {
   def tetrahedralization: TetrahedralList
 
   /**
-   * Superset of points used to define the tetrahedral mesh.
-   * In general it contains exactly the points used in all
-   * tetrahedrals, but it not restricted to only contain
-   * points used in a tetrahedral. Points not used in any
+   * Superset of points used to define the tetrahedral mesh. In general it contains exactly the points used in all
+   * tetrahedrals, but it not restricted to only contain points used in a tetrahedral. Points not used in any
    * tetrahedral are allowed.
    */
   def pointSet: UnstructuredPoints[D]
@@ -64,13 +63,15 @@ trait TetrahedralMesh[D] extends DiscreteDomain[D] {
 
 object TetrahedralMesh {
 
-  def apply[D: NDSpace](pointList: IndexedSeq[Point[D]],
-                        topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
+  def apply[D: NDSpace](pointList: IndexedSeq[Point[D]], topology: TetrahedralList)(implicit
+    creator: Create[D]
+  ): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(UnstructuredPoints(pointList.toIndexedSeq), topology)
   }
 
-  def apply[D: NDSpace](pointSet: UnstructuredPoints[D],
-                        topology: TetrahedralList)(implicit creator: Create[D]): TetrahedralMesh[D] = {
+  def apply[D: NDSpace](pointSet: UnstructuredPoints[D], topology: TetrahedralList)(implicit
+    creator: Create[D]
+  ): TetrahedralMesh[D] = {
     creator.createTetrahedraleMesh(pointSet, topology)
   }
 
@@ -81,7 +82,8 @@ object TetrahedralMesh {
 
   trait Create3D extends Create[_3D] {
     override def createTetrahedraleMesh(pointSet: UnstructuredPoints[_3D],
-                                        topology: TetrahedralList): TetrahedralMesh3D = {
+                                        topology: TetrahedralList
+    ): TetrahedralMesh3D = {
       TetrahedralMesh3D(pointSet, topology)
     }
   }
@@ -93,8 +95,7 @@ object TetrahedralMesh {
   implicit object domainWarp extends DomainWarp[_3D, TetrahedralMesh] {
 
     /**
-     * Warp the points of the domain of the discrete field and turn it into the
-     * warped domain
+     * Warp the points of the domain of the discrete field and turn it into the warped domain
      */
     override def transformWithField(
       domain: TetrahedralMesh[_3D],
@@ -110,7 +111,8 @@ object TetrahedralMesh {
     }
 
     override def transform(pointSet: TetrahedralMesh[_3D],
-                           transformation: Transformation[_3D]): TetrahedralMesh[_3D] = {
+                           transformation: Transformation[_3D]
+    ): TetrahedralMesh[_3D] = {
       TetrahedralMesh3D(pointSet.pointSet.transform(transformation), pointSet.tetrahedralization)
     }
   }
@@ -130,18 +132,20 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPoints[_3D], tetrahedralizati
   lazy val boundingBox: BoxDomain[_3D] = pointSet.boundingBox
 
   /**
-   * Applies a point transformation to the point set and returns a new transformed mesh.
-   * The method keeps the tetrahedralization as it is and only changes the location of the points.
+   * Applies a point transformation to the point set and returns a new transformed mesh. The method keeps the
+   * tetrahedralization as it is and only changes the location of the points.
    *
-   * @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
+   * @param transform
+   *   A function that maps a given point to a new position. All instances of [[scalismo.registration.Transformation]]
+   *   being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
    */
   def transform(transform: Point[_3D] => Point[_3D]): TetrahedralMesh3D = {
     TetrahedralMesh3D(pointSet.points.map(transform).toIndexedSeq, tetrahedralization)
   }
 
   /**
-   * Returns the volume of the TetrahedralMesh as sum of all tetrahedrals.
-   * For meshes with overlapping tetrahedrals the value will not be correct.
+   * Returns the volume of the TetrahedralMesh as sum of all tetrahedrals. For meshes with overlapping tetrahedrals the
+   * value will not be correct.
    */
   lazy val volume: Double = {
     var sum = 0.0
@@ -195,12 +199,14 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPoints[_3D], tetrahedralizati
   /**
    * Returns a random point lying within the tetrahedron defined by the indicated cell.
    *
-   * The sampled points follow a uniform distribution within the tetrahedron. The method
-   * if based on the paper Generating Random Points in a Tetrahedron" from Rocchini et. al.:
+   * The sampled points follow a uniform distribution within the tetrahedron. The method if based on the paper
+   * Generating Random Points in a Tetrahedron" from Rocchini et. al.:
    * https://www.tandfonline.com/doi/abs/10.1080/10867651.2000.10487528
    *
-   * @param tc  Tetrahedral cell of the mesh, in which to draw a random point
-   * @param rnd implicit [[Random]] object
+   * @param tc
+   *   Tetrahedral cell of the mesh, in which to draw a random point
+   * @param rnd
+   *   implicit [[Random]] object
    */
   def samplePointInTetrahedralCell(tc: TetrahedralCell)(implicit rnd: Random): Point[_3D] = {
     val bc = BarycentricCoordinates4.randomUniform

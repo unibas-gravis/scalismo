@@ -71,7 +71,10 @@ trait ValueInterpolator[@specialized(Double, Float) A] {
     }
   }
 
-  /** direct access to averaging function, warning: unstable for large sequences! (implement hierarchical blending for better stability) */
+  /**
+   * direct access to averaging function, warning: unstable for large sequences! (implement hierarchical blending for
+   * better stability)
+   */
   def average(first: A, rest: A*): A = {
     var mix: A = first
     var n = 1
@@ -153,7 +156,8 @@ object ValueInterpolator {
                                           v2: EuclideanVector1D,
                                           f2: Double,
                                           v3: EuclideanVector1D,
-                                          f3: Double): EuclideanVector1D = {
+                                          f3: Double
+    ): EuclideanVector1D = {
       EuclideanVector1D(v1.x * f1 + v2.x * f2 + v3.x * f3)
     }
 
@@ -176,7 +180,8 @@ object ValueInterpolator {
                                           v2: EuclideanVector2D,
                                           f2: Double,
                                           v3: EuclideanVector2D,
-                                          f3: Double): EuclideanVector2D = {
+                                          f3: Double
+    ): EuclideanVector2D = {
       EuclideanVector2D(v1.x * f1 + v2.x * f2 + v3.x * f3, v1.y * f1 + v2.y * f2 + v3.y * f3)
     }
 
@@ -196,17 +201,20 @@ object ValueInterpolator {
     override def blend(obj1: EuclideanVector3D, obj2: EuclideanVector3D, l: Double): EuclideanVector3D =
       EuclideanVector3D(obj1.x * l + obj2.x * (1.0 - l),
                         obj1.y * l + obj2.y * (1.0 - l),
-                        obj1.z * l + obj2.z * (1.0 - l))
+                        obj1.z * l + obj2.z * (1.0 - l)
+      )
 
     override def barycentricInterpolation(v1: EuclideanVector3D,
                                           f1: Double,
                                           v2: EuclideanVector3D,
                                           f2: Double,
                                           v3: EuclideanVector3D,
-                                          f3: Double): EuclideanVector3D = {
+                                          f3: Double
+    ): EuclideanVector3D = {
       EuclideanVector3D(v1.x * f1 + v2.x * f2 + v3.x * f3,
                         v1.y * f1 + v2.y * f2 + v3.y * f3,
-                        v1.z * f1 + v2.z * f2 + v3.z * f3)
+                        v1.z * f1 + v2.z * f2 + v3.z * f3
+      )
     }
 
     override def average(first: EuclideanVector3D, rest: EuclideanVector3D*): EuclideanVector3D = {
@@ -234,7 +242,8 @@ object ValueInterpolator {
                                           v2: EuclideanVector[_1D],
                                           f2: Double,
                                           v3: EuclideanVector[_1D],
-                                          f3: Double): EuclideanVector[_1D] =
+                                          f3: Double
+    ): EuclideanVector[_1D] =
       vectorBlender1D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
     override def average(first: EuclideanVector[_1D], rest: EuclideanVector[_1D]*): EuclideanVector[_1D] = {
@@ -256,7 +265,8 @@ object ValueInterpolator {
                                           v2: EuclideanVector[_2D],
                                           f2: Double,
                                           v3: EuclideanVector[_2D],
-                                          f3: Double): EuclideanVector[_2D] =
+                                          f3: Double
+    ): EuclideanVector[_2D] =
       vectorBlender2D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
     override def average(first: EuclideanVector[_2D], rest: EuclideanVector[_2D]*): EuclideanVector[_2D] = {
@@ -280,7 +290,8 @@ object ValueInterpolator {
                                           v2: EuclideanVector[_3D],
                                           f2: Double,
                                           v3: EuclideanVector[_3D],
-                                          f3: Double): EuclideanVector[_3D] =
+                                          f3: Double
+    ): EuclideanVector[_3D] =
       vectorBlender3D.barycentricInterpolation(v1, f1, v2, f2, v3, f3)
 
     override def average(first: EuclideanVector[_3D], rest: EuclideanVector[_3D]*): EuclideanVector[_3D] = {

@@ -81,10 +81,12 @@ object ActiveShapeModelIO {
       val numberOfPoints = profiles.data.length
       val profileLength = if (numberOfPoints > 0) profiles.data.head.distribution.mean.size else 0
       val means: NDArray[Float] = new NDArray(IndexedSeq[Long](numberOfPoints, profileLength),
-                                              profiles.data.flatMap(_.distribution.mean.toArray).toArray.map(_.toFloat))
+                                              profiles.data.flatMap(_.distribution.mean.toArray).toArray.map(_.toFloat)
+      )
       val covariances: NDArray[Float] =
         new NDArray(IndexedSeq[Long](numberOfPoints * profileLength, profileLength),
-                    profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat))
+                    profiles.data.flatMap(_.distribution.cov.toArray).toArray.map(_.toFloat)
+        )
 
       val result = for {
         _ <- h5file.writeIntAttribute(path, Names.Attribute.NumberOfPoints, numberOfPoints)
@@ -111,7 +113,7 @@ object ActiveShapeModelIO {
       _ <- {
         (asmVersionMajor, asmVersionMinor) match {
           case (1, 0) => Success(())
-          case _      => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
+          case _ => Failure(new IOException(s"Unsupported ActiveShapeModel version: $asmVersionMajor.$asmVersionMinor"))
         }
       }
       fePath = HDFPath(asmPath, Names.Group.FeatureExtractor)
@@ -129,7 +131,8 @@ object ActiveShapeModelIO {
 
   private[this] def readProfiles(modelReader: StatisticalModelReader,
                                  path: HDFPath,
-                                 referenceMesh: TriangleMesh[_3D]): Try[Profiles] = {
+                                 referenceMesh: TriangleMesh[_3D]
+  ): Try[Profiles] = {
 
     for {
       profileLength <- modelReader.readIntAttribute(path, Names.Attribute.ProfileLength)

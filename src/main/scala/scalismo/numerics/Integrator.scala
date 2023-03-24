@@ -31,9 +31,8 @@ case class Integrator[D: NDSpace](sampler: Sampler[D]) {
     val scalar = Scalar[A]
     val zero = scalar.fromInt(0)
     val samples = sampler.sample()
-    val sum = new ParVector(samples.toVector).map {
-      case (pt, p) =>
-        scalar.toDouble(f(pt).getOrElse(zero)) * (1.0 / p.toFloat)
+    val sum = new ParVector(samples.toVector).map { case (pt, p) =>
+      scalar.toDouble(f(pt).getOrElse(zero)) * (1.0 / p.toFloat)
     }.sum
     scalar.fromDouble(sum / samples.size)
   }

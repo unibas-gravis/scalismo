@@ -22,7 +22,7 @@ import breeze.linalg.DenseVector
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.geometry._
-import scalismo.io.{StatisticalModelIO}
+import scalismo.io.StatisticalModelIO
 import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
@@ -49,9 +49,8 @@ class StatisticalModelTests extends ScalismoTestSuite {
         val instNew = newModel.instance(coeffs)
         inst.pointSet.points
           .zip(instNew.pointSet.points)
-          .foreach {
-            case (pt1, pt2) =>
-              (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
+          .foreach { case (pt1, pt2) =>
+            (pt1.toVector - pt2.toVector).norm should be(0.0 +- (0.1))
           }
       }
     }

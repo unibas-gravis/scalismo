@@ -260,17 +260,22 @@ object EuclideanVector {
   /**
    * create a Cartesian vector from polar coordinates
    *
-   * @param r radial distance, 0 .. infinity
-   * @param phi azimuth, 0 .. 2*Pi
+   * @param r
+   *   radial distance, 0 .. infinity
+   * @param phi
+   *   azimuth, 0 .. 2*Pi
    */
   def fromPolar(r: Double, phi: Double): EuclideanVector[_2D] = EuclideanVector(r * math.cos(phi), r * math.sin(phi))
 
   /**
    * create a Cartesian vector from spherical coordinates
    *
-   * @param r radial distance, 0 .. infinity
-   * @param theta inclination, 0 .. Pi
-   * @param phi azimuth, 0 .. 2*Pi
+   * @param r
+   *   radial distance, 0 .. infinity
+   * @param theta
+   *   inclination, 0 .. Pi
+   * @param phi
+   *   azimuth, 0 .. 2*Pi
    */
   def fromSpherical(r: Double, theta: Double, phi: Double): EuclideanVector[_3D] =
     EuclideanVector((r * math.cos(phi) * math.sin(theta)), (r * math.sin(phi) * math.sin(theta)), r * math.cos(theta))

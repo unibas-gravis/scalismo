@@ -77,9 +77,9 @@ class HDF5Reader(h5file: HdfFile) extends Closeable with StatisticalModelReader 
   }
 
   /**
-   * Reads an ndArray from the path. The dataCast is a caster (usually done with asInstance[T])
-   * which casts a type Object into an Array[T]. The reason this has to be provided is that
-   * it is not possible to cast to a generic type, due to type erasure.
+   * Reads an ndArray from the path. The dataCast is a caster (usually done with asInstance[T]) which casts a type
+   * Object into an Array[T]. The reason this has to be provided is that it is not possible to cast to a generic type,
+   * due to type erasure.
    */
   def readNDArrayFloat(path: HDFPath): Try[NDArray[Float]] = {
     Try {

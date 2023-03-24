@@ -22,22 +22,27 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
   def generatePositiveOrientedSingleTetrahedronMesh(): TetrahedralMesh3D = {
     val points = {
       val points = IndexedSeq.fill(4)(genPoint())
-      if (BoundingSphereHelpers.calculateSignedVolume(points(0).toVector,
-                                                      points(1).toVector,
-                                                      points(2).toVector,
-                                                      points(3).toVector) < 0) {
+      if (
+        BoundingSphereHelpers.calculateSignedVolume(points(0).toVector,
+                                                    points(1).toVector,
+                                                    points(2).toVector,
+                                                    points(3).toVector
+        ) < 0
+      ) {
         IndexedSeq(points(1), points(2), points(3), points(0))
       } else
         points
     }
     TetrahedralMesh3D(points,
-                      TetrahedralList(IndexedSeq(TetrahedralCell(PointId(0), PointId(1), PointId(2), PointId(3)))))
+                      TetrahedralList(IndexedSeq(TetrahedralCell(PointId(0), PointId(1), PointId(2), PointId(3))))
+    )
   }
 
   def getBarycentricCoordinatesFromVTK(a: Point[_3D],
                                        b: Point[_3D],
                                        c: Point[_3D],
-                                       point: Point[_3D]): IndexedSeq[Double] = {
+                                       point: Point[_3D]
+  ): IndexedSeq[Double] = {
     val barycentricCoordinates = new Array[Double](3)
     val vtkTriangle = new vtkTriangle()
     vtkTriangle.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, barycentricCoordinates)
@@ -49,7 +54,8 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
                                        b: Point[_3D],
                                        c: Point[_3D],
                                        d: Point[_3D],
-                                       point: Point[_3D]): IndexedSeq[Double] = {
+                                       point: Point[_3D]
+  ): IndexedSeq[Double] = {
     val barycentricCoordinates = new Array[Double](4)
     val vtkTetra = new vtkTetra()
     vtkTetra.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)

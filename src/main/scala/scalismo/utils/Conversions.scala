@@ -180,7 +180,7 @@ object VtkHelpers {
         Scalar.DoubleIsScalar.createArray(p).map((d: Double) => scalar.fromDouble(d))
       // complicated cases, so we're more explicit about what we're doing
       case VTK_CHAR =>
-        val in = arrayVTK.asInstanceOf[vtkCharArray] //.GetJavaArray()
+        val in = arrayVTK.asInstanceOf[vtkCharArray] // .GetJavaArray()
         val out: Array[Byte] = new Array[Byte](numElementsInArray)
         var i = 0
         while (i < out.length) {
@@ -235,7 +235,8 @@ object TetrahedralMeshConversion {
       TetrahedralCell(PointId(idList.GetId(0).toInt),
                       PointId(idList.GetId(1).toInt),
                       PointId(idList.GetId(2).toInt),
-                      PointId(idList.GetId(3).toInt))
+                      PointId(idList.GetId(3).toInt)
+      )
     }
     idList.Delete()
     (points, cells)
@@ -243,14 +244,14 @@ object TetrahedralMeshConversion {
 
   def vtkUnstructuredGridToTetrahedralMesh(ug: vtkUnstructuredGrid): Try[TetrahedralMesh[_3D]] = {
     val cellsPointsOrFailure = extractPointsAndCells(ug)
-    cellsPointsOrFailure.map {
-      case (points, cells) =>
-        TetrahedralMesh3D(UnstructuredPoints(points.toIndexedSeq), TetrahedralList(cells))
+    cellsPointsOrFailure.map { case (points, cells) =>
+      TetrahedralMesh3D(UnstructuredPoints(points.toIndexedSeq), TetrahedralList(cells))
     }
   }
 
   def tetrahedralMeshToVTKUnstructuredGrid(tetramesh: TetrahedralMesh[_3D],
-                                           template: Option[vtkUnstructuredGrid] = None): vtkUnstructuredGrid = {
+                                           template: Option[vtkUnstructuredGrid] = None
+  ): vtkUnstructuredGrid = {
 
     val ug = new vtkUnstructuredGrid()
 
@@ -346,23 +347,21 @@ object MeshConversion {
   def vtkPolyDataToTriangleMesh(pd: vtkPolyData): Try[TriangleMesh[_3D]] = {
     // TODO currently all data arrays are ignored
     val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd)
-    cellsPointsOrFailure.map {
-      case (points, cells) =>
-        TriangleMesh3D(UnstructuredPoints(points.toIndexedSeq), TriangleList(cells))
+    cellsPointsOrFailure.map { case (points, cells) =>
+      TriangleMesh3D(UnstructuredPoints(points.toIndexedSeq), TriangleList(cells))
     }
   }
 
   def vtkPolyDataToCorrectedTriangleMesh(pd: vtkPolyData): Try[TriangleMesh[_3D]] = {
 
     val cellsPointsOrFailure = vtkPolyDataToTriangleMeshCommon(pd, correctFlag = true)
-    cellsPointsOrFailure.map {
-      case (points, cells) =>
-        val cellPointIds = cells.flatMap(_.pointIds).distinct
-        val oldId2newId = cellPointIds.zipWithIndex.map { case (id, index) => (id, PointId(index)) }.toMap
-        val newCells = cells.map(c => TriangleCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3)))
-        val oldPoints = points.toIndexedSeq
-        val newPoints = cellPointIds.map(id => oldPoints(id.id))
-        TriangleMesh3D(UnstructuredPoints(newPoints), TriangleList(newCells))
+    cellsPointsOrFailure.map { case (points, cells) =>
+      val cellPointIds = cells.flatMap(_.pointIds).distinct
+      val oldId2newId = cellPointIds.zipWithIndex.map { case (id, index) => (id, PointId(index)) }.toMap
+      val newCells = cells.map(c => TriangleCell(oldId2newId(c.ptId1), oldId2newId(c.ptId2), oldId2newId(c.ptId3)))
+      val oldPoints = points.toIndexedSeq
+      val newPoints = cellPointIds.map(id => oldPoints(id.id))
+      TriangleMesh3D(UnstructuredPoints(newPoints), TriangleList(newCells))
     }
   }
 
@@ -401,9 +400,11 @@ object MeshConversion {
   }
 
   def scalarMeshFieldToVtkPolyData[S: Scalar: ClassTag](meshData: ScalarMeshField[S],
-                                                        template: Option[vtkPolyData] = None): vtkPolyData = {
+                                                        template: Option[vtkPolyData] = None
+  ): vtkPolyData = {
     val pd = meshToVtkPolyData(meshData.mesh, template)
-    val scalarData = VtkHelpers.scalarArrayToVtkDataArray(ScalarArray(meshData.data.toArray), 1) // TODO make this more general
+    val scalarData =
+      VtkHelpers.scalarArrayToVtkDataArray(ScalarArray(meshData.data.toArray), 1) // TODO make this more general
     pd.GetPointData().SetScalars(scalarData)
     pd
   }
@@ -506,7 +507,8 @@ object CommonConversions {
 trait CanConvertToVtk[D] {
 
   def toVtk[Pixel: Scalar: ClassTag](img: DiscreteImage[D, Pixel],
-                                     interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
+                                     interpolationMode: VtkInterpolationMode
+  ): vtkStructuredPoints = {
 
     val sp = new vtkStructuredPoints()
     sp.SetNumberOfScalarComponents(1, new vtkInformation())
@@ -528,7 +530,8 @@ trait CanConvertToVtk[D] {
 
   def setDomainInfo(domain: StructuredPoints[D],
                     sp: vtkStructuredPoints,
-                    interpolationMode: VtkInterpolationMode): vtkStructuredPoints
+                    interpolationMode: VtkInterpolationMode
+  ): vtkStructuredPoints
 
   def fromVtk[Pixel: Scalar: ClassTag](sp: vtkImageData): Try[DiscreteImage[D, Pixel]]
 
@@ -554,7 +557,8 @@ object CanConvertToVtk {
 
     override def setDomainInfo(domain: StructuredPoints[_2D],
                                sp: vtkStructuredPoints,
-                               interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
+                               interpolationMode: VtkInterpolationMode
+    ): vtkStructuredPoints = {
       sp.SetDimensions(domain.size(0), domain.size(1), 1)
       sp.SetOrigin(domain.origin(0), domain.origin(1), 0)
       sp.SetSpacing(domain.spacing(0), domain.spacing(1), 0)
@@ -596,7 +600,8 @@ object CanConvertToVtk {
   implicit object _3DCanConvertToVtk$ extends CanConvertToVtk[_3D] {
     override def setDomainInfo(domain: StructuredPoints[_3D],
                                sp: vtkStructuredPoints,
-                               interpolationMode: VtkInterpolationMode): vtkStructuredPoints = {
+                               interpolationMode: VtkInterpolationMode
+    ): vtkStructuredPoints = {
 
       // Here depending on the image directions (if read from Nifti, can be anything RAS, ASL, LAS, ..),
       // we need to reslice the image in vtk's voxel ordering that is RAI (which in our LPS world coordinates system

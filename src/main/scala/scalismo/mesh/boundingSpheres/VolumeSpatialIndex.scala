@@ -31,7 +31,8 @@ trait VolumeSpatialIndex[D] extends SpatialIndex[D] {
   /**
    * Query the closest point on a surface.
    *
-   * @return A desciption of the closest point.
+   * @return
+   *   A desciption of the closest point.
    */
   def getClosestPointToVolume(pt: Point[D]): ClosestPointWithType
 }
@@ -56,7 +57,8 @@ private[boundingSpheres] case class VolumeClosestPointMeta(distance2: Double,
                                                            pt: EuclideanVector[_3D],
                                                            ptType: VolumeClosestPointType,
                                                            bc: (Double, Double, Double),
-                                                           idx: (Int, Int, Int))
+                                                           idx: (Int, Int, Int)
+)
 
 /**
  * Companion object for the surface distance implementation for TriangleMesh3D.
@@ -91,8 +93,8 @@ object TetrahedralMesh3DSpatialIndex {
  */
 private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere,
                                                   private val mesh: TetrahedralMesh3D,
-                                                  private val tetrahedrons: Seq[Tetrahedron])
-    extends VolumeSpatialIndex[_3D] {
+                                                  private val tetrahedrons: Seq[Tetrahedron]
+) extends VolumeSpatialIndex[_3D] {
 
   /**
    * Calculates the squared closest distance to the surface.
@@ -124,7 +126,8 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
       case POINT =>
         ClosestPointIsVertex(res.get().pt.toPoint,
                              res.get().distance2,
-                             PointId(tetrahedron.triangles(res.get().idx._1).pointIds(res.get().idx._2).id))
+                             PointId(tetrahedron.triangles(res.get().idx._1).pointIds(res.get().idx._2).id)
+        )
 
       case ON_LINE =>
         val idx = res.get().idx
@@ -134,17 +137,20 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
                                (PointId(tri.pointIds(0).id), PointId(tri.pointIds(1).id)),
-                               res.get().bc.a)
+                               res.get().bc.a
+            )
           case (_, 1, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
                                (PointId(tri.pointIds(1).id), PointId(tri.pointIds(2).id)),
-                               res.get().bc.a)
+                               res.get().bc.a
+            )
           case (_, 2, _) =>
             ClosestPointOnLine(res.get().pt.toPoint,
                                res.get().distance2,
                                (PointId(tri.pointIds(2).id), PointId(tri.pointIds(0).id)),
-                               res.get().bc.a)
+                               res.get().bc.a
+            )
           case _ =>
             throw new RuntimeException("not a valid line index")
         }
@@ -166,7 +172,8 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
           BarycentricCoordinates4(1.0 - res.get().bc.a - res.get().bc.b - res.get().bc.c,
                                   res.get().bc.a,
                                   res.get().bc.b,
-                                  res.get().bc.c)
+                                  res.get().bc.c
+          )
         )
 
       case _ => throw new RuntimeException("not a valid PointType")
@@ -188,7 +195,11 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
     distanceToPartition(p, bs, res.get(), lastIdx.get())
   }
 
-  /** @note both values contain a mutable state, this is needed to improve speed when having many queries with successive near points. */
+  /**
+   * @note
+   *   both values contain a mutable state, this is needed to improve speed when having many queries with successive
+   *   near points.
+   */
   private val lastIdx: ThreadLocal[Index] = new ThreadLocal[Index]() {
     override protected def initialValue(): Index = {
       new Index(0)
@@ -206,7 +217,8 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
   private def distanceToPartition(point: EuclideanVector[_3D],
                                   partition: BoundingSphere,
                                   result: CP3,
-                                  index: Index): Unit = {
+                                  index: Index
+  ): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toTetrahedron(point, tetrahedrons(partition.idx))
@@ -224,28 +236,38 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
 
         if (distanceToLeftCenter < distanceToRightCenter) {
           // nearer sphere first
-          if ((distanceToLeftCenter <= leftRadius) || // point in sphere?
-              (result.distance2 >= distanceToLeftCenter + leftRadius) || // are we close?
-              (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))) {
+          if (
+            (distanceToLeftCenter <= leftRadius) || // point in sphere?
+            (result.distance2 >= distanceToLeftCenter + leftRadius) || // are we close?
+            (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))
+          ) {
             // even better estimation
             distanceToPartition(point, partition.left, result, index) // test partition
           }
-          if ((distanceToRightCenter <= rightRadius) ||
-              (result.distance2 >= distanceToRightCenter + rightRadius) ||
-              (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
-                                                                2))) {
+          if (
+            (distanceToRightCenter <= rightRadius) ||
+            (result.distance2 >= distanceToRightCenter + rightRadius) ||
+            (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
+                                                              2
+            ))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
         } else {
-          if ((distanceToRightCenter <= rightRadius) ||
-              (result.distance2 >= distanceToRightCenter + rightRadius) ||
-              (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
-                                                                2))) {
+          if (
+            (distanceToRightCenter <= rightRadius) ||
+            (result.distance2 >= distanceToRightCenter + rightRadius) ||
+            (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
+                                                              2
+            ))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
-          if ((distanceToLeftCenter <= leftRadius) ||
-              (result.distance2 >= distanceToLeftCenter + leftRadius) ||
-              (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))) {
+          if (
+            (distanceToLeftCenter <= leftRadius) ||
+            (result.distance2 >= distanceToLeftCenter + leftRadius) ||
+            (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.left, result, index)
           }
         }
@@ -255,17 +277,21 @@ private[mesh] class TetrahedralMesh3DSpatialIndex(private val bs: BoundingSphere
           val lc2 = (point - partition.left.center).norm2
           val lr2 = partition.left.r2
 
-          if ((lc2 <= lr2) ||
-              (result.distance2 >= lc2 + lr2) ||
-              (4.0 * lc2 * lr2 >= pow(lc2 + lr2 - result.distance2, 2))) {
+          if (
+            (lc2 <= lr2) ||
+            (result.distance2 >= lc2 + lr2) ||
+            (4.0 * lc2 * lr2 >= pow(lc2 + lr2 - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.left, result, index)
           }
         } else if (partition.hasRight) {
           val rc2 = (point - partition.right.center).norm2
           val rr2 = partition.right.r2
-          if ((rc2 <= rr2) ||
-              (result.distance2 >= rc2 + rr2) ||
-              (4.0 * rc2 * rr2 >= pow(rc2 + rr2 - result.distance2, 2))) {
+          if (
+            (rc2 <= rr2) ||
+            (result.distance2 >= rc2 + rr2) ||
+            (4.0 * rc2 * rr2 >= pow(rc2 + rr2 - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
         }

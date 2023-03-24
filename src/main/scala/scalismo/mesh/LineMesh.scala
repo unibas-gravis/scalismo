@@ -28,14 +28,14 @@ import scala.language.implicitConversions
  */
 case class LineCell(ptId1: PointId, ptId2: PointId) extends Cell {
 
-  /** Identifiers of the points belonging to the cell*/
+  /** Identifiers of the points belonging to the cell */
   val pointIds = IndexedSeq(ptId1, ptId2)
 
-  /** Returns true if the given point identifier is part of the line cell*/
+  /** Returns true if the given point identifier is part of the line cell */
   def containsPoint(ptId: PointId): Boolean = ptId1 == ptId || ptId2 == ptId
 }
 
-trait LineMesh[D] extends DiscreteDomain[D] { //(val pointSet: UnstructuredPoints[D], val topology: LineList) {
+trait LineMesh[D] extends DiscreteDomain[D] { // (val pointSet: UnstructuredPoints[D], val topology: LineList) {
   val topology: LineList
   val pointSet: UnstructuredPoints[D]
 
@@ -53,11 +53,15 @@ trait LineMesh[D] extends DiscreteDomain[D] { //(val pointSet: UnstructuredPoint
   lazy val length: Double = lines.map(line => computeLineLength(line)).sum
 
   /**
-   *  Returns a line mesh that is the image of this mesh by the given transform.
+   * Returns a line mesh that is the image of this mesh by the given transform.
    *
-   *  This method maps all mesh points to their images by the given transform while maintaining the same line cell relations.
+   * This method maps all mesh points to their images by the given transform while maintaining the same line cell
+   * relations.
    *
-   *  @param transform A function that maps a given point to a new position. All instances of [[scalismo.registration.transformation.Transformation]] being descendants of <code>Function1[Point[_3D], Point[_3D] ]</code> are valid arguments.
+   * @param transform
+   *   A function that maps a given point to a new position. All instances of
+   *   [[scalismo.registration.transformation.Transformation]] being descendants of <code>Function1[Point[_3D],
+   *   Point[_3D] ]</code> are valid arguments.
    */
   def transform(transform: Point[D] => Point[D])(implicit creator: LineMesh.Create[D]): LineMesh[D] = {
     creator.createLineMesh(pointSet.transform(transform), topology)
@@ -132,8 +136,7 @@ object LineMesh {
   implicit object domainWarp2D extends DomainWarp[_2D, LineMesh] {
 
     /**
-     * Warp the points of the domain of the discrete field and turn it into the
-     * warped domain
+     * Warp the points of the domain of the discrete field and turn it into the warped domain
      */
     override def transformWithField(
       domain: LineMesh[_2D],
@@ -154,8 +157,7 @@ object LineMesh {
   implicit object domainWarp3D extends DomainWarp[_3D, LineMesh] {
 
     /**
-     * Warp the points of the domain of the discrete field and turn it into the
-     * warped domain
+     * Warp the points of the domain of the discrete field and turn it into the warped domain
      */
     override def transformWithField(
       domain: LineMesh[_3D],
