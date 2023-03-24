@@ -15,7 +15,6 @@
  */
 package scalismo.io.statisticalmodel
 
-import com.sun.tools.javac.code.TypeTag
 import scalismo.hdf5json.HDFPath
 
 import scala.util.Try
