@@ -31,7 +31,7 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
   implicit val rng: Random = Random(42L)
 
   private def createTmpH5File(): File = {
-    val f = File.createTempFile("hdf5file", ".h5")
+    val f = File.createTempFile("hdf5file", ".h5.json")
     f.deleteOnExit()
     f
   }

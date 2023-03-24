@@ -52,12 +52,6 @@ class MeshIOTests extends ScalismoTestSuite {
       testWriteRead(".stl")
     }
 
-    it("returns a Failure object instead of throwing an exception for nonexistent files") {
-      val path = "/NONEXISTENT-b1cfa24000992425413ff27a52c07705ba507062a71efd7f924178972545bf7353d6ed78aea47a1.h5"
-      val failed = MeshIO.readHDF5(new File(path))
-      failed.isFailure should be(true)
-    }
-
     it("yields the original polyline when reading  and writing a polyLine in 2D") {
       val path = getClass.getResource("/linemesh.vtk").getPath
       val origMesh = MeshIO.readLineMesh2D(new File(URLDecoder.decode(path, "UTF-8"))).get

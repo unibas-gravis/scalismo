@@ -30,7 +30,8 @@ import scalismo.image.{
   DiscreteImageDomain3D,
   StructuredPoints
 }
-import scalismo.io.{StatismoIO, StatisticalModelIO}
+import scalismo.io.{StatisticalModelIO}
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{GridSampler, UniformSampler}

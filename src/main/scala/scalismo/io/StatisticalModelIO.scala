@@ -20,7 +20,9 @@ import scalismo.common.interpolation.NearestNeighborInterpolator3D
 import java.io.*
 import scalismo.common.{Scalar, UnstructuredPointsDomain, Vectorizer}
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector}
+import scalismo.hdf5json.HDFPath
 import scalismo.image.DiscreteImageDomain
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.mesh.{LineMesh, TetrahedralMesh, TriangleMesh}
 import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, PointDistributionModel, StatisticalMeshModel}
 
@@ -41,7 +43,7 @@ object StatisticalModelIO {
    */
   def readStatisticalTriangleMeshModel2D(file: File,
                                          modelPath: String = "/"): Try[PointDistributionModel[_2D, TriangleMesh]] = {
-    StatismoIO.readStatismoPDM[_2D, TriangleMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_2D, TriangleMesh](file, HDFPath(modelPath))
   }
 
   /**
@@ -53,7 +55,7 @@ object StatisticalModelIO {
   def writeStatisticalTriangleMeshModel2D(model: PointDistributionModel[_2D, TriangleMesh],
                                           file: File,
                                           modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_2D, TriangleMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_2D, TriangleMesh](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -64,7 +66,7 @@ object StatisticalModelIO {
    */
   def readStatisticalTriangleMeshModel3D(file: File,
                                          modelPath: String = "/"): Try[PointDistributionModel[_3D, TriangleMesh]] = {
-    StatismoIO.readStatismoPDM[_3D, TriangleMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, TriangleMesh](file, HDFPath(modelPath))
   }
 
   /**
@@ -76,7 +78,7 @@ object StatisticalModelIO {
   def writeStatisticalTriangleMeshModel3D(model: PointDistributionModel[_3D, TriangleMesh],
                                           file: File,
                                           modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_3D, TriangleMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, TriangleMesh](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -87,7 +89,7 @@ object StatisticalModelIO {
    */
   def readStatisticalLineMeshModel2D(file: File,
                                      modelPath: String = "/"): Try[PointDistributionModel[_2D, LineMesh]] = {
-    StatismoIO.readStatismoPDM[_2D, LineMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_2D, LineMesh](file, HDFPath(modelPath))
   }
 
   /**
@@ -99,7 +101,7 @@ object StatisticalModelIO {
   def writeStatisticalLineMeshModel2D(model: PointDistributionModel[_2D, LineMesh],
                                       file: File,
                                       modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_2D, LineMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_2D, LineMesh](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -110,7 +112,7 @@ object StatisticalModelIO {
    */
   def readStatisticalLineMeshModel3D(file: File,
                                      modelPath: String = "/"): Try[PointDistributionModel[_3D, LineMesh]] = {
-    StatismoIO.readStatismoPDM[_3D, LineMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, LineMesh](file, HDFPath(modelPath))
   }
 
   /**
@@ -122,7 +124,7 @@ object StatisticalModelIO {
   def writeStatisticalLineMeshModel3D(model: PointDistributionModel[_3D, LineMesh],
                                       file: File,
                                       modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_3D, LineMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, LineMesh](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -135,7 +137,7 @@ object StatisticalModelIO {
     file: File,
     modelPath: String = "/"
   ): Try[PointDistributionModel[_3D, TetrahedralMesh]] = {
-    StatismoIO.readStatismoPDM[_3D, TetrahedralMesh](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, TetrahedralMesh](file, HDFPath(modelPath))
   }
 
   /**
@@ -147,7 +149,7 @@ object StatisticalModelIO {
   def writeStatisticalTetrahedralMeshModel3D(model: PointDistributionModel[_3D, TetrahedralMesh],
                                              file: File,
                                              modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_3D, TetrahedralMesh](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, TetrahedralMesh](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -160,7 +162,7 @@ object StatisticalModelIO {
     file: File,
     modelPath: String = "/"
   ): Try[PointDistributionModel[_3D, UnstructuredPointsDomain]] = {
-    StatismoIO.readStatismoPDM[_3D, UnstructuredPointsDomain](file, modelPath)
+    StatismoIO.readStatismoPDM[_3D, UnstructuredPointsDomain](file, HDFPath(modelPath))
   }
 
   /**
@@ -172,7 +174,7 @@ object StatisticalModelIO {
   def writeStatisticalPointModel3D(model: PointDistributionModel[_3D, UnstructuredPointsDomain],
                                    file: File,
                                    modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_3D, UnstructuredPointsDomain](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_3D, UnstructuredPointsDomain](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -185,7 +187,7 @@ object StatisticalModelIO {
     file: File,
     modelPath: String = "/"
   ): Try[PointDistributionModel[_2D, UnstructuredPointsDomain]] = {
-    StatismoIO.readStatismoPDM[_2D, UnstructuredPointsDomain](file, modelPath)
+    StatismoIO.readStatismoPDM[_2D, UnstructuredPointsDomain](file, HDFPath(modelPath))
   }
 
   /**
@@ -197,7 +199,7 @@ object StatisticalModelIO {
   def writeStatisticalPointModel2D(model: PointDistributionModel[_2D, UnstructuredPointsDomain],
                                    file: File,
                                    modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_2D, UnstructuredPointsDomain](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_2D, UnstructuredPointsDomain](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -210,7 +212,7 @@ object StatisticalModelIO {
     file: File,
     modelPath: String = "/"
   ): Try[PointDistributionModel[_1D, UnstructuredPointsDomain]] = {
-    StatismoIO.readStatismoPDM[_1D, UnstructuredPointsDomain](file, modelPath)
+    StatismoIO.readStatismoPDM[_1D, UnstructuredPointsDomain](file, HDFPath(modelPath))
   }
 
   /**
@@ -222,7 +224,7 @@ object StatisticalModelIO {
   def writeStatisticalPointModel1D(model: PointDistributionModel[_1D, UnstructuredPointsDomain],
                                    file: File,
                                    modelPath: String = "/"): Try[Unit] = {
-    StatismoIO.writeStatismoPDM[_1D, UnstructuredPointsDomain](model, file, modelPath)
+    StatismoIO.writeStatismoPDM[_1D, UnstructuredPointsDomain](model, file, HDFPath(modelPath))
   }
 
   /**
@@ -282,7 +284,7 @@ object StatisticalModelIO {
   def readDeformationModel2D(
     file: java.io.File
   ): Try[DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain, EuclideanVector[_2D]]] = {
-    StatismoIO.readStatismoImageModel[_2D, EuclideanVector[_2D]](file, "/")
+    StatismoIO.readStatismoImageModel[_2D, EuclideanVector[_2D]](file, HDFPath("/"))
   }
 
   /**
@@ -293,7 +295,7 @@ object StatisticalModelIO {
   def readDeformationModel3D(
     file: java.io.File
   ): Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, EuclideanVector[_3D]]] = {
-    StatismoIO.readStatismoImageModel[_3D, EuclideanVector[_3D]](file, "/")
+    StatismoIO.readStatismoImageModel[_3D, EuclideanVector[_3D]](file, HDFPath("/"))
   }
 
   /**
@@ -305,7 +307,7 @@ object StatisticalModelIO {
    */
   def writeDeformationModel2D(gp: DiscreteLowRankGaussianProcess[_2D, DiscreteImageDomain, EuclideanVector[_2D]],
                               file: File): Try[Unit] = {
-    StatismoIO.writeStatismoImageModel[_2D, EuclideanVector[_2D]](gp, file, "/")
+    StatismoIO.writeStatismoImageModel[_2D, EuclideanVector[_2D]](gp, file, HDFPath("/"))
   }
 
   /**
@@ -317,7 +319,7 @@ object StatisticalModelIO {
    */
   def writeDeformationModel3D(gp: DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, EuclideanVector[_3D]],
                               file: File): Try[Unit] = {
-    StatismoIO.writeStatismoImageModel[_3D, EuclideanVector[_3D]](gp, file, "/")
+    StatismoIO.writeStatismoImageModel[_3D, EuclideanVector[_3D]](gp, file, HDFPath("/"))
   }
 
   /**
@@ -329,7 +331,7 @@ object StatisticalModelIO {
   def readVolumeMeshIntensityModel3D(
     file: File
   ): Try[DiscreteLowRankGaussianProcess[_3D, TetrahedralMesh, Float]] = {
-    StatismoIO.readIntensityModel[_3D, TetrahedralMesh, Float](file, "/")
+    StatismoIO.readIntensityModel[_3D, TetrahedralMesh, Float](file, HDFPath("/"))
   }
 
   /**
@@ -341,7 +343,7 @@ object StatisticalModelIO {
    */
   def writeVolumeMeshIntensityModel3D(gp: DiscreteLowRankGaussianProcess[_3D, TetrahedralMesh, Float],
                                       file: File): Try[Unit] = {
-    StatismoIO.writeIntensityModel[_3D, TetrahedralMesh, Float](gp, file, "/")
+    StatismoIO.writeIntensityModel[_3D, TetrahedralMesh, Float](gp, file, HDFPath("/"))
   }
 
   /**
@@ -353,7 +355,7 @@ object StatisticalModelIO {
   def readImageIntensityModel3D(
     file: File
   ): Try[DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, Float]] = {
-    StatismoIO.readStatismoImageModel[_3D, Float](file, "/")
+    StatismoIO.readStatismoImageModel[_3D, Float](file, HDFPath("/"))
   }
 
   /** Writes a model of 3D deformation fields defined on a 3D image domain
@@ -366,7 +368,7 @@ object StatisticalModelIO {
     gp: DiscreteLowRankGaussianProcess[_3D, DiscreteImageDomain, Float],
     file: File
   ): Try[Unit] = {
-    StatismoIO.writeStatismoImageModel[_3D, Float](gp, file, "/")
+    StatismoIO.writeStatismoImageModel[_3D, Float](gp, file, HDFPath("/"))
   }
 
 }

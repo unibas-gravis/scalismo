@@ -58,6 +58,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
       model1: PointDistributionModel[D, DDomain],
       model2: PointDistributionModel[D, DDomain]
     ): Unit = {
+
       assert(model1.mean == model2.mean)
       assert(breeze.linalg.norm(model1.gp.variance - model2.gp.variance) < 1e-5)
       assert(breeze.linalg.sum(model1.gp.basisMatrix - model2.gp.basisMatrix) < 1e-5)
@@ -105,7 +106,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     val model1D: PointDistributionModel[_1D, UnstructuredPointsDomain] = create1Dmodel()
 
     it("can write and read a 3D PDM with a TriangleMesh domain") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = new java.io.File("./x.h5.json") //File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -118,7 +119,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("can read a 3D TriangleMeshModel as a PDM without cell connectivity") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -131,7 +132,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("can write and read a 2D PDM with a LineMesh domain") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -144,7 +145,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("can read a 2D TriangleMeshModel as a PDM without cell connectivity") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -157,7 +158,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("can write and read a 3D PDM") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
       val model3Dpdm: PointDistributionModel[_3D, UnstructuredPointsDomain] =
         model3D.newReference[UnstructuredPointsDomain](
@@ -175,7 +176,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("can write and read a 2D PDM") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
       val model2Dpdm: PointDistributionModel[_2D, UnstructuredPointsDomain] =
         model2D.newReference[UnstructuredPointsDomain](
@@ -192,7 +193,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("can write and read a 1D PDM") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -205,7 +206,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("fails on reading a 3D TriangleMesh when specifying wrong dimensionality") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -218,7 +219,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     }
 
     it("fails on reading a 3D TriangleMesh when specifying wrong domain cell type") {
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {

@@ -16,16 +16,16 @@
 package scalismo.statisticalmodel.asm
 
 import breeze.linalg.DenseVector
-import ncsa.hdf.`object`.Group
+import io.jhdf.api.Group
 import scalismo.common.PointId
 import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.hdf5json.HDFPath
+import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.asm.PreprocessedImage.{Gradient, Intensity}
 
 import scala.collection.immutable
 import scala.util.{Failure, Try}
-import scalismo.io.HDF5Reader
-import scalismo.io.HDF5Writer
 
 trait FeatureExtractor
     extends Function4[PreprocessedImage, Point[_3D], TriangleMesh[_3D], PointId, Option[DenseVector[Double]]]
@@ -134,21 +134,20 @@ object NormalDirectionFeatureExtractorIOHandler extends FeatureExtractorIOHandle
   private val NumberOfPoints = "numberOfPoints"
   private val Spacing = "spacing"
 
-  override def load(meta: IOMetadata, h5File: HDF5Reader, h5Group: io.jhdf.api.Group): Try[FeatureExtractor] = {
-    val groupName = h5Group.getPath
+  override def load(meta: IOMetadata, modelReader: StatisticalModelReader, path: HDFPath): Try[FeatureExtractor] = {
+    val groupName = path
     for {
-      numberOfPoints <- h5File.readInt(s"$groupName/$NumberOfPoints")
-      spacing <- h5File.readFloat(s"$groupName/$Spacing")
+      numberOfPoints <- modelReader.readInt(HDFPath(groupName, NumberOfPoints))
+      spacing <- modelReader.readFloat(HDFPath(groupName, Spacing))
     } yield NormalDirectionFeatureExtractor(numberOfPoints, spacing.toDouble, meta)
   }
 
-  override def save(t: FeatureExtractor, h5File: HDF5Writer, h5Group: Group): Try[Unit] = {
+  override def save(t: FeatureExtractor, h5File: HDF5Writer, path: HDFPath): Try[Unit] = {
     t match {
       case fe: NormalDirectionFeatureExtractor =>
-        val groupName = h5Group.getFullName
         for {
-          _ <- h5File.writeInt(s"$groupName/$NumberOfPoints", fe.numberOfPoints)
-          _ <- h5File.writeFloat(s"$groupName/$Spacing", fe.spacing.toFloat)
+          _ <- h5File.writeInt(HDFPath(path, NumberOfPoints), fe.numberOfPoints)
+          _ <- h5File.writeFloat(HDFPath(path, Spacing), fe.spacing.toFloat)
         } yield ()
       case _ => Failure(new IllegalArgumentException("unsupported feature extractor class: " + t.getClass.getName))
     }

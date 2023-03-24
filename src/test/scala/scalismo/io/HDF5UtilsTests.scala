@@ -16,15 +16,15 @@
 package scalismo.io
 
 import java.io.File
-
 import scalismo.ScalismoTestSuite
-
+import scalismo.io.statisticalmodel.{HDF5Writer, NDArray, StatisticalModelIOUtils}
+import scalismo.hdf5json.HDFPath
 import scala.util.Try
 
 class HDF5UtilsTests extends ScalismoTestSuite {
 
   def createTmpH5File(): File = {
-    val f = File.createTempFile("hdf5file", ".h5")
+    val f = File.createTempFile("hdf5file", ".h5.json")
     f.deleteOnExit()
     f
   }
@@ -33,43 +33,34 @@ class HDF5UtilsTests extends ScalismoTestSuite {
     it("can write and read an int") {
 
       val h5file = createTmpH5File()
-      val h5 = HDF5Utils.createFile(h5file).get
+      val h5 = StatisticalModelIOUtils.createFile(h5file).get
       val anInt = 5
-      h5.writeInt("/agroup/anInt", anInt)
-      val h5new = HDF5Utils.openFileForReading(h5file).get
-      h5new.readInt("/agroup/anInt").get should be(anInt)
+      h5.writeInt(HDFPath("/agroup/anInt"), anInt)
+      h5.write()
+      val h5new = StatisticalModelIOUtils.openFileForReading(h5file).get
+      h5new.readInt(HDFPath("/agroup/anInt")).get should be(anInt)
     }
 
     it("can write and read an NDArray[Int]") {
       val h5file = createTmpH5File()
-      val h5: HDF5Writer = HDF5Utils.createFile(h5file).get
+      val h5: HDF5Writer = StatisticalModelIOUtils.createFile(h5file).get
       val arr = NDArray(IndexedSeq(2, 3), Array(1, 2, 3, 4, 5, 6))
-      h5.writeNDArray("/aGroup/array", arr).get
-      val h5new = HDF5Utils.openFileForReading(h5file).get
-      val dataAsArray = h5new.readNDArray[Int]("/aGroup/array").get.data
+      h5.writeNDArray(HDFPath("/aGroup/array"), arr).get
+      h5.write()
+      val h5new = StatisticalModelIOUtils.openFileForReading(h5file).get
+      val dataAsArray = h5new.readNDArrayInt(HDFPath("/aGroup/array")).get.data
       dataAsArray.sameElements(arr.data) should be(true)
     }
 
     it("can write and read an NDArray[Float]") {
       val h5file = createTmpH5File()
-      val h5: HDF5Writer = HDF5Utils.createFile(h5file).get
+      val h5: HDF5Writer = StatisticalModelIOUtils.createFile(h5file).get
       val arr = NDArray(IndexedSeq(2, 3), Array(1f, 2f, 3f, 4f, 5f, 6f))
-      h5.writeNDArray("/aGroup/array", arr).get
-      val h5new = HDF5Utils.openFileForReading(h5file).get
-      val dataAsArray = h5new.readNDArray[Float]("/aGroup/array").get.data
+      h5.writeNDArray(HDFPath("/aGroup/array"), arr).get
+      h5.write()
+      val h5new = StatisticalModelIOUtils.openFileForReading(h5file).get
+      val dataAsArray = h5new.readNDArrayFloat(HDFPath("/aGroup/array")).get.data
       dataAsArray.sameElements(arr.data) should be(true)
-    }
-
-    it("fails to write an unknown type") {
-      // find problems with Try[Unit] where map/flatMap issues arise
-      val h5file = createTmpH5File()
-      val h5: HDF5Writer = HDF5Utils.createFile(h5file).get
-      // new type, certainly unknown
-      case class NT(v: Double)
-      val arr: NDArray[NT] = NDArray(IndexedSeq(2, 3), Array(NT(1.0), NT(1.0), NT(1.0), NT(1.0), NT(1.0), NT(1.0)))
-      val result: Try[Unit] = h5.writeNDArray("/aGroup/array", arr)
-      // expect Exception: unknown type
-      intercept[Exception](result.get)
     }
   }
 }

@@ -23,6 +23,7 @@ import scalismo.common.UnstructuredPointsDomain.Create.{
 }
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPoints, UnstructuredPointsDomain}
 import scalismo.geometry.{_1D, _2D, _3D, Point}
+import scalismo.io.statisticalmodel.NDArray
 import scalismo.mesh.{
   LineCell,
   LineList,
