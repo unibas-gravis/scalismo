@@ -20,12 +20,13 @@ import breeze.stats.distributions.RandBasis
 /**
  * A thin wrapper around different random number generators.
  *
- * The purpose of this class is to allow for a unified way of declaring methods that need a source
- * of randomness. The idea is that any method that needs a source of randomness takes an implicit instance to this class as an argument.
- * If the user does not specify an own implicit instance, the default source in the companion object is used.
- * If the result should be deterministic, the user can define his/her own implicit instance with a fixed seed.
+ * The purpose of this class is to allow for a unified way of declaring methods that need a source of randomness. The
+ * idea is that any method that needs a source of randomness takes an implicit instance to this class as an argument. If
+ * the user does not specify an own implicit instance, the default source in the companion object is used. If the result
+ * should be deterministic, the user can define his/her own implicit instance with a fixed seed.
  *
- * @param seed The seed for the Random number generator
+ * @param seed
+ *   The seed for the Random number generator
  */
 private[utils] case class RandomNumberGenerator(seed: Long) {
 
@@ -45,12 +46,6 @@ private[utils] case class RandomNumberGenerator(seed: Long) {
 
 }
 
-@scala.annotation.implicitNotFound("""missing implicit Random
-To fix the missing implicit either use:
-	import scalismo.utils.Random.implicits._
-...or create a seeded random object:
-	import scalismo.utils.Random
-	implicit val rng = Random(1024L)""")
 class Random()(implicit val rng: RandomNumberGenerator) {
 
   def scalaRandom = rng.scalaRandom
@@ -62,14 +57,23 @@ class Random()(implicit val rng: RandomNumberGenerator) {
 
   @deprecated("directly use breezeRandBasis and breeze.stats.distributions.Uniform", "since v0.15")
   def breezeRandomUnform(a: Double, b: Double) = rng.breezeRandomUniform(a, b)
+
 }
 
 object Random {
 
   def apply(seed: Long) = new Random()(RandomNumberGenerator(seed))
 
+  @deprecated("use scalismo.utils.Random.VariableSeed or scalismo.utils.Random.FixedSeed instead", "since v0.92")
   object implicits {
     implicit val randomGenerator: Random = new Random()(RandomNumberGenerator(System.nanoTime()))
   }
 
+  object VariableSeed {
+    given randBasis: Random = Random(System.nanoTime())
+  }
+
+  object FixedSeed {
+    given randBasis: Random = Random(0L)
+  }
 }
