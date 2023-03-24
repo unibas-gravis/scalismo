@@ -278,8 +278,7 @@ object LowRankGaussianProcess {
    * @param gp
    *   The gaussian process to approximate
    * @param sampler
-   *   determines which points will be used as samples for the nystrom approximation.
-   * \@
+   *   determines which points will be used as samples for the nystrom approximation. \@
    */
   def approximateGPNystrom[D: NDSpace, Value](
     gp: GaussianProcess[D, Value],
