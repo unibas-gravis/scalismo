@@ -23,12 +23,14 @@ class AllProposalsLogger[A](logger: ChainStateLogger[A]) extends AcceptRejectLog
   override def accept(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = logger.logState(sample)
 
   override def reject(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = logger.logState(sample)
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = logger.logState(sample)
 }
 
 class AcceptedProposalLogger[A](logger: ChainStateLogger[A]) extends AcceptRejectLogger[A] {
@@ -37,7 +39,8 @@ class AcceptedProposalLogger[A](logger: ChainStateLogger[A]) extends AcceptRejec
   override def accept(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = {
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = {
     state = Some(sample)
     logger.logState(sample)
   }
@@ -45,7 +48,8 @@ class AcceptedProposalLogger[A](logger: ChainStateLogger[A]) extends AcceptRejec
   override def reject(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = {
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = {
     if (state.isDefined) logger.logState(state.get)
   }
 }

@@ -18,10 +18,9 @@ package scalismo.sampling
 import breeze.linalg.DenseVector
 
 /**
- * A sample representation used in the metropolis hastings algorithm.
- * It holds the sampled parameters, as well as a tag (generatedBy), which
- * stores which proposalGenerator has generated that sample
- **/
+ * A sample representation used in the metropolis hastings algorithm. It holds the sampled parameters, as well as a tag
+ * (generatedBy), which stores which proposalGenerator has generated that sample
+ */
 case class MHSample[A](parameters: A, generatedBy: String)
 
 /**
@@ -31,9 +30,8 @@ abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] wit
   self =>
 
   /**
-   * Applies a parameter conversion of the sampled type. With this mechanism it is, for
-   * example possible to derive a generator for a Type T (e.g. ShapeParameters) from a
-   * generator that samples only DenseVectors.
+   * Applies a parameter conversion of the sampled type. With this mechanism it is, for example possible to derive a
+   * generator for a Type T (e.g. ShapeParameters) from a generator that samples only DenseVectors.
    */
   def forType[T](implicit conversion: ParameterConversion[A, T]): MHProposalGenerator[T] = {
     new MHProposalGenerator[T] {
@@ -41,7 +39,8 @@ abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] wit
       /** rate of transition from to (log value) */
       override def logTransitionProbability(from: MHSample[T], to: MHSample[T]): Double = {
         self.logTransitionProbability(from.copy(parameters = conversion.from(from.parameters)),
-                                      to.copy(parameters = conversion.from(to.parameters)))
+                                      to.copy(parameters = conversion.from(to.parameters))
+        )
       }
 
       /** draw a sample from this proposal distribution, may depend on current state */
@@ -53,8 +52,8 @@ abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] wit
   }
 
   /**
-   * returns a new ProposalGenerator, with a new label. This is useful to
-   * summarize complicated labels in composed proposal generators
+   * returns a new ProposalGenerator, with a new label. This is useful to summarize complicated labels in composed
+   * proposal generators
    */
   def relabel(generatedBy: String): MHProposalGenerator[A] = {
     new MHProposalGenerator[A] {
@@ -74,8 +73,8 @@ abstract class MHProposalGenerator[A] extends ProposalGenerator[MHSample[A]] wit
 }
 
 /**
- * Bijection that maps values of type A to B and vice versa.
- * This is used to convert between different parameter types in sampling.
+ * Bijection that maps values of type A to B and vice versa. This is used to convert between different parameter types
+ * in sampling.
  */
 trait ParameterConversion[A, B] extends Function1[A, B] {
   def to(a: A): B

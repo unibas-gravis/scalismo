@@ -51,7 +51,8 @@ case class SVIM[S: Scalar: ClassTag](
 
   override def instance(coefficients: SVIMCoefficients): ScalarVolumeMeshField[S] = {
     ScalarVolumeMeshField(shape.instance(coefficients.shape),
-                          warpReferenceIntensity(intensity.instance(coefficients.intensity).data))
+                          warpReferenceIntensity(intensity.instance(coefficients.intensity).data)
+    )
   }
 
   override def sample()(implicit rnd: Random): ScalarVolumeMeshField[S] = {

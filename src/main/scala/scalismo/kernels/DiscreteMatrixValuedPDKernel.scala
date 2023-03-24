@@ -21,13 +21,14 @@ import scalismo.common.{DiscreteDomain, PointId, PointSet}
 import scalismo.geometry.NDSpace
 
 /**
- *  Discrete representation of a MatrixValuedPDKernel.
- *  Mathematically, it can be represented as a covariance matrix. However, it has more structure, i.e. its entry ij
- *  is a matrix. Furthermore, the class has the knowledge about its domain (the point on which it is defined).
+ * Discrete representation of a MatrixValuedPDKernel. Mathematically, it can be represented as a covariance matrix.
+ * However, it has more structure, i.e. its entry ij is a matrix. Furthermore, the class has the knowledge about its
+ * domain (the point on which it is defined).
  */
 class DiscreteMatrixValuedPDKernel[D: NDSpace] private[scalismo] (val domain: DiscreteDomain[D],
                                                                   val k: (PointId, PointId) => DenseMatrix[Double],
-                                                                  val outputDim: Int) {
+                                                                  val outputDim: Int
+) {
   self =>
   val pointSet = domain.pointSet
   def apply(i: PointId, j: PointId): DenseMatrix[Double] = {
@@ -43,8 +44,8 @@ class DiscreteMatrixValuedPDKernel[D: NDSpace] private[scalismo] (val domain: Di
   }
 
   /**
-   * return the matrix representation of this kernel.
-   * (This is a covariance matrix, consisting of blocks of size DO times DO)
+   * return the matrix representation of this kernel. (This is a covariance matrix, consisting of blocks of size DO
+   * times DO)
    */
   def asBreezeMatrix: DenseMatrix[Double] = {
     val xs = domain.pointSet.points.toIndexedSeq

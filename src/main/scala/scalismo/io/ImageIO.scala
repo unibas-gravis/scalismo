@@ -35,30 +35,28 @@ import scala.util.{Failure, Success, Try}
  *
  * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
  *
- * VTK file format does not indicate the orientation of the image.
- * Therefore, when reading from VTK, we assume that it is in RAI orientation.
- * Hence, no magic is done, the same information (coordinates) present in the
- * VTK file header are directly mapped to our coordinate system.
+ * VTK file format does not indicate the orientation of the image. Therefore, when reading from VTK, we assume that it
+ * is in RAI orientation. Hence, no magic is done, the same information (coordinates) present in the VTK file header are
+ * directly mapped to our coordinate system.
  *
- * This is also the case when writing VTK. Our image domain information (origin, spacing ..) is mapped
- * directly into the written VTK file header.
+ * This is also the case when writing VTK. Our image domain information (origin, spacing ..) is mapped directly into the
+ * written VTK file header.
  *
- * This is however not the case for Nifti files! Nifti file headers contain an affine transform from the ijk
- * image coordinates to an RAS World Coordinate System (therefore supporting different image orientations).
- * In order to read Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :
+ * This is however not the case for Nifti files! Nifti file headers contain an affine transform from the ijk image
+ * coordinates to an RAS World Coordinate System (therefore supporting different image orientations). In order to read
+ * Nifti files coherently, we need to adapt the obtained RAS coordinates to our LPS system :
  *
  * This is done by mirroring the first two dimensions of each point after applying the affine transform
  *
  * The same mirroring is done again when writing an image to the Nifti format.
  *
- *
  * '''Note on Nifti's qform and sform :'''
  *
- * As mentioned above, the Nifti header contains a transform from the unit ijk grid to the RAS world coordinates of the grid.
- * This transform can be encoded in 2 entries of the Nifti header, the qform and the sform. In some files, these 2 entries can both be present,
- * and in some cases could even indicate different transforms. In Scalismo, when such a case happens, we favour the sform entry by default.
- * If you wish instead to favour the qform transform, you can do so by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
- *
+ * As mentioned above, the Nifti header contains a transform from the unit ijk grid to the RAS world coordinates of the
+ * grid. This transform can be encoded in 2 entries of the Nifti header, the qform and the sform. In some files, these 2
+ * entries can both be present, and in some cases could even indicate different transforms. In Scalismo, when such a
+ * case happens, we favour the sform entry by default. If you wish instead to favour the qform transform, you can do so
+ * by setting a flag appropriately in the [[scalismo.io.ImageIO.read3DScalarImage]] method.
  *
  * ''' Documentation on orientation :'''
  *
@@ -67,7 +65,6 @@ import scala.util.{Failure, Success, Try}
  * http://www.slicer.org/slicerWiki/index.php/Coordinate_systems
  *
  * http://brainder.org/2012/09/23/the-nifti-file-format/
- *
  */
 object ImageIO {
 
@@ -86,9 +83,10 @@ object ImageIO {
 
   /**
    * Read a 3D Scalar Image
-   * @param file  image file to be read
-   * @tparam S Voxel type of the image
-   *
+   * @param file
+   *   image file to be read
+   * @tparam S
+   *   Voxel type of the image
    */
   def read3DScalarImage[S: Scalar: ClassTag](
     file: File
@@ -124,12 +122,14 @@ object ImageIO {
   /**
    * Read a 3D Scalar Image, and possibly convert it to the requested voxel type.
    *
-   * This method is similar to the [[read3DScalarImage]] method, except that it will convert the image to the requested voxel type if
-   * the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that case.
+   * This method is similar to the [[read3DScalarImage]] method, except that it will convert the image to the requested
+   * voxel type if the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that
+   * case.
    *
-   * @param file  image file to be read
-   * @tparam S Voxel type of the image
-   *
+   * @param file
+   *   image file to be read
+   * @tparam S
+   *   Voxel type of the image
    */
   def read3DScalarImageAsType[S: Scalar: ClassTag](
     file: File
@@ -165,9 +165,10 @@ object ImageIO {
 
   /**
    * Read a 2D Scalar Image
-   * @param file  image file to be read
-   * @tparam S Voxel type of the image
-   *
+   * @param file
+   *   image file to be read
+   * @tparam S
+   *   Voxel type of the image
    */
   def read2DScalarImage[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
 
@@ -200,12 +201,14 @@ object ImageIO {
   /**
    * Read a 2D Scalar Image, and possibly convert it to the requested voxel type.
    *
-   * This method is similar to the [[read2DScalarImage]] method, except that it will convert the image to the requested voxel type if
-   * the type in the file is different, whereas [[read2DScalarImage]] will throw an exception in that case.
+   * This method is similar to the [[read2DScalarImage]] method, except that it will convert the image to the requested
+   * voxel type if the type in the file is different, whereas [[read2DScalarImage]] will throw an exception in that
+   * case.
    *
-   * @param file  image file to be read
-   * @tparam S Voxel type of the image
-   *
+   * @param file
+   *   image file to be read
+   * @tparam S
+   *   Voxel type of the image
    */
   def read2DScalarImageAsType[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
     def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_2D, T]] = {
@@ -305,7 +308,8 @@ object ImageIO {
    * (section "Orientation information").
    */
   private[this] def transformMatrixFromNifti(volume: FastReadOnlyNiftiVolume,
-                                             favourQform: Boolean): Try[DenseMatrix[Double]] = {
+                                             favourQform: Boolean
+  ): Try[DenseMatrix[Double]] = {
     (volume.header.qform_code, volume.header.sform_code) match {
       case (0, 0) => // Method 1
         val data = Array.fill(16)(0.0d)
@@ -320,7 +324,7 @@ object ImageIO {
       case (q, 0) if q != 0 => // Method 2
         Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
       case (q, s) if s != 0 => // Method 3
-        //Attention: we're by default ignoring the q value here, and solely basing the decision on s != 0, unless the user says so
+        // Attention: we're by default ignoring the q value here, and solely basing the decision on s != 0, unless the user says so
         if (favourQform)
           Success(DenseMatrix.create(4, 4, volume.header.qform_to_mat44.flatten).t)
         else
@@ -351,7 +355,8 @@ object ImageIO {
         val translationVector = DenseVector(affineTransMatrix(0, 3), affineTransMatrix(1, 3), affineTransMatrix(2, 3))
         (x: IntVector[_3D]) => {
 
-          val pointInRas = (rotationAndScalingMatrix * DenseVector(x(0).toDouble, x(1).toDouble, x(2).toDouble) + translationVector)
+          val pointInRas =
+            (rotationAndScalingMatrix * DenseVector(x(0).toDouble, x(1).toDouble, x(2).toDouble) + translationVector)
           val pointInLPS = RAStoLPSMatrix * pointInRas
           Point(pointInLPS(0), pointInLPS(1), pointInLPS(2))
         }
@@ -422,7 +427,8 @@ object ImageIO {
   def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
                                                                  file: File,
                                                                  interpolationMode: VtkInterpolationMode =
-                                                                   VtkAutomaticInterpolatorSelection): Try[Unit] = {
+                                                                   VtkAutomaticInterpolatorSelection
+  ): Try[Unit] = {
 
     val imgVtk = ImageConversion.imageToVtkStructuredPoints(img, interpolationMode)
 

@@ -20,7 +20,8 @@ import scalismo.sampling.{DistributionEvaluator, MHDistributionEvaluator, MHSamp
 /**
  * evaluate a product of distributions
  *
- * @param evaluators Sequence of distributions to evaluate
+ * @param evaluators
+ *   Sequence of distributions to evaluate
  */
 class MHProductEvaluator[A](evaluators: Seq[MHDistributionEvaluator[A]]) extends MHDistributionEvaluator[A] {
   override def logValue(sample: MHSample[A]): Double = {

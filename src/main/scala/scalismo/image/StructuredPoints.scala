@@ -35,12 +35,13 @@ import scala.language.implicitConversions
 /**
  * Defines points in D dimension which are aligned on a regular grid.
  *
- * The grid points are defined by specifying an origin, a spacing between the grid points,
- * and the size (number of points) in each direction.
+ * The grid points are defined by specifying an origin, a spacing between the grid points, and the size (number of
+ * points) in each direction.
  *
  * A global coordinate system is assumed, and all units are measured in mm.
  *
- * @tparam D The dimensionality of the domain
+ * @tparam D
+ *   The dimensionality of the domain
  */
 abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
 
@@ -154,8 +155,8 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
 case class StructuredPoints1D(origin: Point[_1D],
                               spacing: EuclideanVector[_1D],
                               size: IntVector[_1D],
-                              iVec: EuclideanVector[_1D] = EuclideanVector1D(1.0))
-    extends StructuredPoints[_1D] {
+                              iVec: EuclideanVector[_1D] = EuclideanVector1D(1.0)
+) extends StructuredPoints[_1D] {
 
   require(Math.abs(iVec.norm - 1.0) < 1e-10)
 
@@ -174,7 +175,7 @@ case class StructuredPoints1D(origin: Point[_1D],
   }
   override def points: Iterator[Point1D] = generateIterator(0, size(0))
 
-  //override def indexToPhysicalCoordinateTransform = transform
+  // override def indexToPhysicalCoordinateTransform = transform
 
   override def index(linearIdx: PointId) = IntVector(linearIdx.id)
   override def pointId(idx: IntVector[_1D]) = PointId(idx(0))
@@ -219,8 +220,8 @@ case class StructuredPoints2D(origin: Point[_2D],
                               spacing: EuclideanVector[_2D],
                               size: IntVector[_2D],
                               iVec: EuclideanVector[_2D] = EuclideanVector2D(1.0, 0.0),
-                              jVec: EuclideanVector[_2D] = EuclideanVector2D(0.0, 1.0))
-    extends StructuredPoints[_2D] {
+                              jVec: EuclideanVector[_2D] = EuclideanVector2D(0.0, 1.0)
+) extends StructuredPoints[_2D] {
 
   require(Math.abs(iVec.norm - 1.0) < 1e-10)
   require(Math.abs(jVec.norm - 1.0) < 1e-10)
@@ -296,7 +297,8 @@ object StructuredPoints2D {
 
   def apply(boundingBox: BoxDomain[_2D], spacing: EuclideanVector[_2D]): StructuredPoints[_2D] = {
     val size = IntVector2D(Math.ceil(boundingBox.extent(0) / spacing(0)).toInt,
-                           Math.ceil(boundingBox.extent(1) / spacing(1)).toInt)
+                           Math.ceil(boundingBox.extent(1) / spacing(1)).toInt
+    )
 
     StructuredPoints2D(boundingBox.origin, spacing, size)
   }
@@ -308,8 +310,8 @@ case class StructuredPoints3D(origin: Point[_3D],
                               size: IntVector[_3D],
                               iVec: EuclideanVector[_3D] = EuclideanVector3D(1, 0, 0),
                               jVec: EuclideanVector[_3D] = EuclideanVector3D(0, 1, 0),
-                              kVec: EuclideanVector[_3D] = EuclideanVector3D(0, 0, 1))
-    extends StructuredPoints[_3D] {
+                              kVec: EuclideanVector[_3D] = EuclideanVector3D(0, 0, 1)
+) extends StructuredPoints[_3D] {
 
   require(Math.abs(iVec.norm - 1.0) < 1e-10)
   require(Math.abs(jVec.norm - 1.0) < 1e-10)
@@ -377,7 +379,8 @@ case class StructuredPoints3D(origin: Point[_3D],
   override def index(pointId: PointId) =
     IntVector(pointId.id % (size(0) * size(1)) % size(0),
               pointId.id % (size(0) * size(1)) / size(0),
-              pointId.id / (size(0) * size(1)))
+              pointId.id / (size(0) * size(1))
+    )
 
   override def pointId(idx: IntVector[_3D]): PointId = {
     PointId(idx(0) + idx(1) * size(0) + idx(2) * size(0) * size(1))
@@ -400,7 +403,8 @@ object StructuredPoints3D {
   def apply(boundingBox: BoxDomain[_3D], size: IntVector[_3D]): StructuredPoints[_3D] = {
     val spacing = EuclideanVector3D(boundingBox.extent(0) / size(0),
                                     boundingBox.extent(1) / size(1),
-                                    boundingBox.extent(2) / size(2))
+                                    boundingBox.extent(2) / size(2)
+    )
     StructuredPoints3D(boundingBox.origin, spacing, size)
   }
 
@@ -421,9 +425,8 @@ object StructuredPoints3D {
  */
 object StructuredPoints {
 
-  /** Create a new discreteImageDomain with given origin, spacing and size*/
-  def apply[D](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(
-    implicit
+  /** Create a new discreteImageDomain with given origin, spacing and size */
+  def apply[D](origin: Point[D], spacing: EuclideanVector[D], size: IntVector[D])(implicit
     evCreate: CreateStructuredPoints[D]
   ) = {
     evCreate.create(origin, spacing, size)
@@ -452,7 +455,8 @@ object CreateStructuredPoints {
   implicit object CreateStructuredPoints1D extends CreateStructuredPoints[_1D] {
     override def create(origin: Point[_1D],
                         spacing: EuclideanVector[_1D],
-                        size: IntVector[_1D]): StructuredPoints[_1D] = {
+                        size: IntVector[_1D]
+    ): StructuredPoints[_1D] = {
       StructuredPoints1D(origin, spacing, size)
     }
 
@@ -461,7 +465,8 @@ object CreateStructuredPoints {
   implicit object CreateStructuredPoints2D extends CreateStructuredPoints[_2D] {
     override def create(origin: Point[_2D],
                         spacing: EuclideanVector[_2D],
-                        size: IntVector[_2D]): StructuredPoints[_2D] = {
+                        size: IntVector[_2D]
+    ): StructuredPoints[_2D] = {
       new StructuredPoints2D(origin, spacing, size)
     }
 
@@ -470,7 +475,8 @@ object CreateStructuredPoints {
   implicit object CreateStructuredPoints3D extends CreateStructuredPoints[_3D] {
     override def create(origin: Point[_3D],
                         spacing: EuclideanVector[_3D],
-                        size: IntVector[_3D]): StructuredPoints[_3D] = {
+                        size: IntVector[_3D]
+    ): StructuredPoints[_3D] = {
       new StructuredPoints3D(origin, spacing, size)
     }
   }

@@ -16,7 +16,7 @@
 package scalismo.registration
 
 import breeze.linalg.svd.SVD
-import breeze.linalg.{Axis, DenseMatrix, DenseVector, svd, _}
+import breeze.linalg.{svd, Axis, DenseMatrix, DenseVector, _}
 import breeze.stats.mean
 import scalismo.geometry._
 import scalismo.transformations._
@@ -28,7 +28,8 @@ object LandmarkRegistration {
 
   private def rigidSimilarity3DCommon(landmarks: Seq[(Point[_3D], Point[_3D])],
                                       center: Point[_3D],
-                                      similarityFlag: Boolean = false) = {
+                                      similarityFlag: Boolean = false
+  ) = {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, center, similarityFlag)
     assert(t.size == 3)
     assert(rotMat.rows == 3 && rotMat.cols == 3)
@@ -38,15 +39,18 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformations mapping the original landmarks into the target. Attention : correspondence between landmarks is
-   * inferred based on the Landmark identifier and not their order in the sequence.
+   * Returns a rigid transformations mapping the original landmarks into the target. Attention : correspondence between
+   * landmarks is inferred based on the Landmark identifier and not their order in the sequence.
    *
-   * @param originalLms original set of landmarks to be transformed
-   * @param targetLms target landmarks to be mapped to
+   * @param originalLms
+   *   original set of landmarks to be transformed
+   * @param targetLms
+   *   target landmarks to be mapped to
    */
   def rigid3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]],
                                   targetLms: Seq[Landmark[_3D]],
-                                  center: Point[_3D]): TranslationAfterRotation[_3D] = {
+                                  center: Point[_3D]
+  ): TranslationAfterRotation[_3D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
@@ -54,13 +58,17 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformation mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformation mapping the original landmarks (first elements of the tuples) into the corresponding
+   * target points (second elements of the tuples).
    *
-   * @param landmarks sequence of corresponding landmarks
-   * @param center center of rotation to be used for the rigid transformations
+   * @param landmarks
+   *   sequence of corresponding landmarks
+   * @param center
+   *   center of rotation to be used for the rigid transformations
    */
   def rigid3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])],
-                                  center: Point[_3D]): TranslationAfterRotation[_3D] = {
+                                  center: Point[_3D]
+  ): TranslationAfterRotation[_3D] = {
     val (t, (phi, theta, psi), _) = rigidSimilarity3DCommon(landmarks, center)
     TranslationAfterRotation(
       Translation3D(EuclideanVector3D(t(0), t(1), t(2))),
@@ -69,26 +77,34 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a rigid transformations mapping the original landmarks  (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformations mapping the original landmarks (first elements of the tuples) into the
+   * corresponding target points (second elements of the tuples).
    *
-   * @param landmarks sequence of corresponding landmarks
-   * @param center center of rotation to be used for the rigid transformations
+   * @param landmarks
+   *   sequence of corresponding landmarks
+   * @param center
+   *   center of rotation to be used for the rigid transformations
    */
   def rigid2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])],
-                                  center: Point[_2D]): TranslationAfterRotation[_2D] = {
+                                  center: Point[_2D]
+  ): TranslationAfterRotation[_2D] = {
     val (t, rotparams, _) = rigidSimilarity2DCommon(landmarks, center)
     TranslationAfterRotation2D(Translation2D(EuclideanVector2D(t(0), t(1))), Rotation2D(rotparams, center))
   }
 
   /**
-   * Returns a rigid transformations mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a rigid transformations mapping the original landmarks (first elements of the tuples) into the
+   * corresponding target points (second elements of the tuples).
    *
-   * @param landmarks sequence of corresponding landmarks
-   * @param center - center of the rotation
+   * @param landmarks
+   *   sequence of corresponding landmarks
+   * @param center
+   *   \- center of the rotation
    */
   def rigid2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]],
                                   targetLms: Seq[Landmark[_2D]],
-                                  center: Point[_2D]): TranslationAfterRotation[_2D] = {
+                                  center: Point[_2D]
+  ): TranslationAfterRotation[_2D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
@@ -96,14 +112,17 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples)
-   * into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the
+   * corresponding target points (second elements of the tuples).
    *
-   * @param landmarks sequence of corresponding landmarks
-   * @param center - center of the rotation
+   * @param landmarks
+   *   sequence of corresponding landmarks
+   * @param center
+   *   \- center of the rotation
    */
   def similarity3DLandmarkRegistration(landmarks: Seq[(Point[_3D], Point[_3D])],
-                                       center: Point[_3D]): TranslationAfterScalingAfterRotation[_3D] = {
+                                       center: Point[_3D]
+  ): TranslationAfterScalingAfterRotation[_3D] = {
 
     val (t, (phi, theta, psi), s) = rigidSimilarity3DCommon(landmarks, center, similarityFlag = true)
 
@@ -115,14 +134,18 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the
+   * corresponding target points (second elements of the tuples).
    *
-   * @param landmarks sequence of corresponding landmarks
-   * @param center - center of the rotation
+   * @param landmarks
+   *   sequence of corresponding landmarks
+   * @param center
+   *   \- center of the rotation
    */
   def similarity3DLandmarkRegistration(originalLms: Seq[Landmark[_3D]],
                                        targetLms: Seq[Landmark[_3D]],
-                                       center: Point[_3D]): TranslationAfterScalingAfterRotation[_3D] = {
+                                       center: Point[_3D]
+  ): TranslationAfterScalingAfterRotation[_3D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
@@ -130,14 +153,18 @@ object LandmarkRegistration {
   }
 
   /**
-   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the corresponding target points (second elements of the tuples).
+   * Returns a similarity transformation mapping the original landmarks (first elements of the tuples) into the
+   * corresponding target points (second elements of the tuples).
    *
-   * @param landmarks sequence of corresponding landmarks
-   * @param center - center of the rotation
+   * @param landmarks
+   *   sequence of corresponding landmarks
+   * @param center
+   *   \- center of the rotation
    */
   def similarity2DLandmarkRegistration(originalLms: Seq[Landmark[_2D]],
                                        targetLms: Seq[Landmark[_2D]],
-                                       center: Point[_2D]): TranslationAfterScalingAfterRotation[_2D] = {
+                                       center: Point[_2D]
+  ): TranslationAfterScalingAfterRotation[_2D] = {
     val commonLmNames = targetLms.map(_.id) intersect originalLms.map(_.id)
     val landmarksPairs =
       commonLmNames.map(name => (originalLms.find(_.id == name).get.point, targetLms.find(_.id == name).get.point))
@@ -145,7 +172,8 @@ object LandmarkRegistration {
   }
 
   def similarity2DLandmarkRegistration(landmarks: Seq[(Point[_2D], Point[_2D])],
-                                       center: Point[_2D]): TranslationAfterScalingAfterRotation[_2D] = {
+                                       center: Point[_2D]
+  ): TranslationAfterScalingAfterRotation[_2D] = {
     val (t, phi, s) = rigidSimilarity2DCommon(landmarks, similarityFlag = true, center = center)
 
     TranslationAfterScalingAfterRotation(
@@ -165,7 +193,8 @@ object LandmarkRegistration {
 
   private def rigidSimilarity2DCommon(landmarks: Seq[(Point[_2D], Point[_2D])],
                                       center: Point[_2D],
-                                      similarityFlag: Boolean = false) = {
+                                      similarityFlag: Boolean = false
+  ) = {
     val (t, rotMat, s) = computeRigidNDTransformParams(landmarks, center, similarityFlag)
     assert(t.size == 2)
     assert(rotMat.rows == 2 && rotMat.cols == 2)
@@ -220,8 +249,9 @@ object LandmarkRegistration {
     val trDS = diag(S) dot dMat
 
     /**
-     * In the computation of the scaling factor, we added a division by the number of points (not indicated
-     * in the paper), as the paper version did not seem to give the right result (or we did an error above for which we compensate here  :)
+     * In the computation of the scaling factor, we added a division by the number of points (not indicated in the
+     * paper), as the paper version did not seem to give the right result (or we did an error above for which we
+     * compensate here :)
      */
     val c = (1 / (n * sigma2_x)) * trDS
 

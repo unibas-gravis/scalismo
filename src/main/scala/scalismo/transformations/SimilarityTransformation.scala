@@ -76,8 +76,8 @@ object RotationAfterScaling3D {
 
 case class TranslationAfterScalingAfterRotation[D](translation: Translation[D],
                                                    scaling: Scaling[D],
-                                                   rotation: Rotation[D])
-    extends SimilarityTransformation[D] {
+                                                   rotation: Rotation[D]
+) extends SimilarityTransformation[D] {
 
   val compTrans = CompositeDifferentiableTransformation(translation, ScalingAfterRotation(scaling, rotation))
 
@@ -99,7 +99,8 @@ case class TranslationAfterScalingAfterRotation[D](translation: Translation[D],
 object TranslationAfterScalingAfterRotation2D {
   def apply(translation: Translation[_2D],
             scaling: Scaling[_2D],
-            rotation: Rotation[_2D]): TranslationAfterScalingAfterRotation[_2D] = {
+            rotation: Rotation[_2D]
+  ): TranslationAfterScalingAfterRotation[_2D] = {
     TranslationAfterScalingAfterRotation(translation, scaling, rotation)
   }
 }
@@ -107,15 +108,16 @@ object TranslationAfterScalingAfterRotation2D {
 object TranslationAfterScalingAfterRotation3D {
   def apply(translation: Translation[_3D],
             scaling: Scaling[_3D],
-            rotation: Rotation[_3D]): TranslationAfterScalingAfterRotation[_3D] = {
+            rotation: Rotation[_3D]
+  ): TranslationAfterScalingAfterRotation[_3D] = {
     TranslationAfterScalingAfterRotation(translation, scaling, rotation)
   }
 }
 
 case class RotationAfterScalingAfterTranslation[D](rotation: Rotation[D],
                                                    scaling: Scaling[D],
-                                                   translation: Translation[D])
-    extends SimilarityTransformation[D] {
+                                                   translation: Translation[D]
+) extends SimilarityTransformation[D] {
 
   val compTrans = CompositeDifferentiableTransformation(RotationAfterScaling(rotation, scaling), translation)
 
@@ -138,7 +140,8 @@ case class RotationAfterScalingAfterTranslation[D](rotation: Rotation[D],
 object RotationAfterScalingAfterTranslation2D {
   def apply(rotation: Rotation[_2D],
             scaling: Scaling[_2D],
-            translation: Translation[_2D]): RotationAfterScalingAfterTranslation[_2D] = {
+            translation: Translation[_2D]
+  ): RotationAfterScalingAfterTranslation[_2D] = {
     RotationAfterScalingAfterTranslation(rotation, scaling, translation)
   }
 }
@@ -146,7 +149,8 @@ object RotationAfterScalingAfterTranslation2D {
 object RotationAfterScalingAfterTranslation3D {
   def apply(rotation: Rotation[_3D],
             scaling: Scaling[_3D],
-            translation: Translation[_3D]): RotationAfterScalingAfterTranslation[_3D] = {
+            translation: Translation[_3D]
+  ): RotationAfterScalingAfterTranslation[_3D] = {
     RotationAfterScalingAfterTranslation(rotation, scaling, translation)
   }
 }

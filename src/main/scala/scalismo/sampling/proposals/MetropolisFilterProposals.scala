@@ -23,7 +23,8 @@ import scalismo.utils.Random
 /** Metropolis Filter Proposal with no correction */
 class MetropolisFilterProposal[A](val generator: ProposalGenerator[A] with TransitionRatio[A],
                                   val evaluator: DistributionEvaluator[A],
-                                  val logger: AcceptRejectLogger[A])(implicit random: Random)
+                                  val logger: AcceptRejectLogger[A]
+)(implicit random: Random)
     extends ProposalGenerator[A]
     with TransitionProbability[A] {
 
@@ -43,11 +44,11 @@ class MetropolisFilterProposal[A](val generator: ProposalGenerator[A] with Trans
 object MetropolisFilterProposal {
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A],
                evaluator: DistributionEvaluator[A],
-               logger: AcceptRejectLogger[A])(implicit random: Random) =
+               logger: AcceptRejectLogger[A]
+  )(implicit random: Random) =
     new MetropolisFilterProposal[A](generator, evaluator, logger)
 
-  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
-    implicit
+  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(implicit
     random: Random
   ) = new MetropolisFilterProposal[A](generator, evaluator, new SilentLogger[A])
 
@@ -56,7 +57,8 @@ object MetropolisFilterProposal {
 /** Metropolis Filter Proposal corrected with transition probability */
 class CorrectedMetropolisFilterProposal[A](val generator: ProposalGenerator[A] with TransitionRatio[A],
                                            val evaluator: DistributionEvaluator[A],
-                                           val logger: AcceptRejectLogger[A])(implicit random: Random)
+                                           val logger: AcceptRejectLogger[A]
+)(implicit random: Random)
     extends ProposalGenerator[A]
     with TransitionProbability[A] {
 
@@ -79,11 +81,11 @@ class CorrectedMetropolisFilterProposal[A](val generator: ProposalGenerator[A] w
 object CorrectedMetropolisFilterProposal {
   def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A],
                evaluator: DistributionEvaluator[A],
-               logger: AcceptRejectLogger[A])(implicit random: Random) =
+               logger: AcceptRejectLogger[A]
+  )(implicit random: Random) =
     new CorrectedMetropolisFilterProposal[A](generator, evaluator, logger)
 
-  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(
-    implicit
+  def apply[A](generator: ProposalGenerator[A] with TransitionRatio[A], evaluator: DistributionEvaluator[A])(implicit
     random: Random
   ) = new CorrectedMetropolisFilterProposal[A](generator, evaluator, new SilentLogger[A])
 

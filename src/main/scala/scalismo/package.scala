@@ -27,9 +27,11 @@ package object scalismo {
   /**
    * Initialize and load the required native libraries
    *
-   * @param ignoreErrors ignore failures when trying to load libraries. Only set this if you know what you are doing!
-   * @param gcInterval time interval (in milliseconds) for running the vtk garbage collection.
-   *                   A value <= 0 means that garbage collection is not run automatically.
+   * @param ignoreErrors
+   *   ignore failures when trying to load libraries. Only set this if you know what you are doing!
+   * @param gcInterval
+   *   time interval (in milliseconds) for running the vtk garbage collection. A value <= 0 means that garbage
+   *   collection is not run automatically.
    */
   def initialize(ignoreErrors: Boolean = false, gcInterval: Long = 60 * 1000) = initialized.synchronized {
     import java.io.File

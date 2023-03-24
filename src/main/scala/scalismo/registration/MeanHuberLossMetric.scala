@@ -22,18 +22,18 @@ import scalismo.numerics._
 import scalismo.transformations.TransformationSpace
 
 /**
- * Image to image metric which applies the Huber Loss function to the pointwise pixel difference.
- * The parameter delta defines the threshold. The Huber loss increases quadratically for
- * values below this threshold and linearly for values above this threshold.
- * @see SumOfPointwiseLossMetric.
- *
+ * Image to image metric which applies the Huber Loss function to the pointwise pixel difference. The parameter delta
+ * defines the threshold. The Huber loss increases quadratically for values below this threshold and linearly for values
+ * above this threshold.
+ * @see
+ *   SumOfPointwiseLossMetric.
  */
 case class MeanHuberLossMetric[D: NDSpace, A: Scalar](fixedImage: Field[D, A],
                                                       movingImage: DifferentiableField[D, A],
                                                       transformationSpace: TransformationSpace[D],
                                                       sampler: Sampler[D],
-                                                      delta: Double = 1.345)
-    extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
+                                                      delta: Double = 1.345
+) extends MeanPointwiseLossMetric(fixedImage, movingImage, transformationSpace, sampler) {
 
   val scalar = Scalar[A]
   override protected def lossFunction(v: A): Double = {

@@ -34,13 +34,11 @@ trait PointSet[D] extends Equals {
   def points: Iterator[Point[D]]
 
   /**
-   * *
-   * Returns the domain points in n chunks. Each chunk of the points is given as an iterator
+   * * Returns the domain points in n chunks. Each chunk of the points is given as an iterator
    *
    * The main idea behind this method is to be able to easily parallelize on the domain points, as parallel operations
-   * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would parallelize on the
-   * Seq of iterators instead.
-   *
+   * on a single iterator in Scala end up more costly than sequential access in our case. Using this method, one would
+   * parallelize on the Seq of iterators instead.
    */
   def pointsInChunks(nChunks: Int): Seq[Iterator[Point[D]]]
 
@@ -55,9 +53,8 @@ trait PointSet[D] extends Equals {
   def point(id: PointId): Point[D]
 
   /**
-   * *
-   * Returns the point belonging to the domain that is closest to the indicated position. The point identifier
-   * within th e domain is also returned.
+   * * Returns the point belonging to the domain that is closest to the indicated position. The point identifier within
+   * th e domain is also returned.
    */
   def findClosestPoint(pt: Point[D]): PointWithId[D]
 
@@ -68,7 +65,8 @@ trait PointSet[D] extends Equals {
   /**
    * Returns the smallest continuous box domain that fully contains all the domain points.
    *
-   * The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated boxes)
+   * The bounding box is always oriented along the dimensions of the space (i.e. this method does not return rotated
+   * boxes)
    */
   def boundingBox: BoxDomain[D]
 

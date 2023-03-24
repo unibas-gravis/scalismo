@@ -19,7 +19,7 @@ import java.io.File
 import java.net.URLDecoder
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.{PointId}
+import scalismo.common.PointId
 import scalismo.common.interpolation.{BSplineImageInterpolator2D, BSplineImageInterpolator3D}
 import scalismo.io.ImageIO
 

@@ -21,8 +21,10 @@ import scalismo.geometry._
 /**
  * Basic interface for a discrete image of arbitrary Pixel type
  *
- * @tparam D  The dimensionality of the image
- * @tparam A The type of the pixel (usually a scalar or a vector)
+ * @tparam D
+ *   The dimensionality of the image
+ * @tparam A
+ *   The type of the pixel (usually a scalar or a vector)
  */
 object DiscreteImage {
 

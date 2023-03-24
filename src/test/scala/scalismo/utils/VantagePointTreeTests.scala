@@ -97,8 +97,8 @@ class VantagePointTreeTests extends ScalismoTestSuite {
       val vpClosest = rpoints.map(p => t.findEpsilonNeighbours(p, eps))
       val listClosest =
         rpoints.map(p => points.zip(points.map(metric(_, p))).sortBy(_._2).takeWhile(_._2 <= eps).map(_._1))
-      vpClosest.zip(listClosest).foreach {
-        case (vpLookUp, linLookUp) => vpLookUp should contain theSameElementsAs linLookUp
+      vpClosest.zip(listClosest).foreach { case (vpLookUp, linLookUp) =>
+        vpLookUp should contain theSameElementsAs linLookUp
       }
     }
 

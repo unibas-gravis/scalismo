@@ -43,8 +43,8 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
 
   def valuesWithIds: Iterator[(A, PointId)] = values zip pointSet.pointIds
   def pointsWithValues: Iterator[(Point[D], A)] = pointSet.points zip values
-  def pointsWithIds: Iterator[(Point[D], PointId)] = pointSet.points.zipWithIndex.map {
-    case (pt, id) => (pt, PointId(id))
+  def pointsWithIds: Iterator[(Point[D], PointId)] = pointSet.points.zipWithIndex.map { case (pt, id) =>
+    (pt, PointId(id))
   }
 
   def foreach(f: A => Unit): Unit = values.foreach(f)
@@ -55,15 +55,19 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
 
   def transform(
     transformation: Transformation[D]
-  )(implicit canWarp: DomainWarp[D, DDomain],
-    canWarpField: DiscreteFieldWarp[D, DDomain, A]): DiscreteField[D, DDomain, A] = {
+  )(implicit
+    canWarp: DomainWarp[D, DDomain],
+    canWarpField: DiscreteFieldWarp[D, DDomain, A]
+  ): DiscreteField[D, DDomain, A] = {
     canWarpField.transform(this, transformation)
   }
 
   /**
    * Interpolates the discrete field using the given interpolator.
-   * @param interpolator Implements an interpolation scheme (e.g. Nearest Neighbor, B-Spline, ...)
-   * @return A continuous field of the same type.
+   * @param interpolator
+   *   Implements an interpolation scheme (e.g. Nearest Neighbor, B-Spline, ...)
+   * @return
+   *   A continuous field of the same type.
    */
   def interpolate(interpolator: FieldInterpolator[D, DDomain, A]): Field[D, A] = {
     interpolator.interpolate(this)
@@ -71,8 +75,10 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
 
   /**
    * Interpolates the discrete field using the given interpolator.
-   * @param interpolator Implements an interpolation scheme (e.g. Nearest Neighbor, B-Spline, ...)
-   * @return A continuous field of the same type.
+   * @param interpolator
+   *   Implements an interpolation scheme (e.g. Nearest Neighbor, B-Spline, ...)
+   * @return
+   *   A continuous field of the same type.
    */
   def interpolateDifferentiable(
     interpolator: DifferentiableFieldInterpolator[D, DDomain, A, EuclideanVector[D]]
@@ -85,8 +91,8 @@ class DiscreteField[D, DDomain[D] <: DiscreteDomain[D], A](val domain: DDomain[D
 
       case that: DiscreteField[D @unchecked, DDomain @unchecked, A @unchecked] =>
         (that canEqual this) &&
-          domain == that.domain &&
-          data == that.data
+        domain == that.domain &&
+        data == that.data
 
       case _ => false
     }
@@ -109,11 +115,13 @@ object DiscreteField {
   }
 
   def apply[D, DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[D],
-                                                   data: IndexedSeq[A]): DiscreteField[D, DDomain, A] =
+                                                   data: IndexedSeq[A]
+  ): DiscreteField[D, DDomain, A] =
     new DiscreteField[D, DDomain, A](domain, data)
 
   def apply[D, DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[D],
-                                                   values: Point[D] => A): DiscreteField[D, DDomain, A] = {
+                                                   values: Point[D] => A
+  ): DiscreteField[D, DDomain, A] = {
     val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
     new DiscreteField(domain, valueSeq)
   }
@@ -160,8 +168,8 @@ object DiscreteField {
 
   implicit class DiscreteImageOps[D: NDSpace, A](discreteField: DiscreteField[D, DiscreteImageDomain, A]) {
 
-    //private val pointSet = discreteField.pointSet
-    //val dimensionality = ndSpace.dimensionality
+    // private val pointSet = discreteField.pointSet
+    // val dimensionality = ndSpace.dimensionality
 
     def apply(idx: IntVector[D]): A = discreteField(discreteField.domain.pointSet.pointId(idx))
 
@@ -175,11 +183,13 @@ object DiscreteField {
 
 object DiscreteField1D {
   def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_1D],
-                                                data: IndexedSeq[A]): DiscreteField[_1D, DDomain, A] =
+                                                data: IndexedSeq[A]
+  ): DiscreteField[_1D, DDomain, A] =
     new DiscreteField[_1D, DDomain, A](domain, data)
 
   def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_1D],
-                                                values: Point[_1D] => A): DiscreteField[_1D, DDomain, A] = {
+                                                values: Point[_1D] => A
+  ): DiscreteField[_1D, DDomain, A] = {
     val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
     new DiscreteField[_1D, DDomain, A](domain, valueSeq)
   }
@@ -188,11 +198,13 @@ object DiscreteField1D {
 
 object DiscreteField2D {
   def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_2D],
-                                                data: IndexedSeq[A]): DiscreteField[_2D, DDomain, A] =
+                                                data: IndexedSeq[A]
+  ): DiscreteField[_2D, DDomain, A] =
     new DiscreteField[_2D, DDomain, A](domain, data)
 
   def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_2D],
-                                                values: Point[_2D] => A): DiscreteField[_2D, DDomain, A] = {
+                                                values: Point[_2D] => A
+  ): DiscreteField[_2D, DDomain, A] = {
     val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
     new DiscreteField[_2D, DDomain, A](domain, valueSeq)
   }
@@ -201,11 +213,13 @@ object DiscreteField2D {
 
 object DiscreteField3D {
   def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_3D],
-                                                data: IndexedSeq[A]): DiscreteField[_3D, DDomain, A] =
+                                                data: IndexedSeq[A]
+  ): DiscreteField[_3D, DDomain, A] =
     new DiscreteField[_3D, DDomain, A](domain, data)
 
   def apply[DDomain[D] <: DiscreteDomain[D], A](domain: DDomain[_3D],
-                                                values: Point[_3D] => A): DiscreteField[_3D, DDomain, A] = {
+                                                values: Point[_3D] => A
+  ): DiscreteField[_3D, DDomain, A] = {
     val valueSeq = domain.pointSet.points.map(values).toIndexedSeq
     new DiscreteField[_3D, DDomain, A](domain, valueSeq)
   }
@@ -215,12 +229,13 @@ object DiscreteField3D {
 trait DiscreteFieldWarp[D, DDomain[D] <: DiscreteDomain[D], Value] {
 
   def transformWithField(discreteField: DiscreteField[D, DDomain, Value],
-                         warpField: DiscreteField[D, DDomain, EuclideanVector[D]])(
-    implicit domainWarp: DomainWarp[D, DDomain]
+                         warpField: DiscreteField[D, DDomain, EuclideanVector[D]]
+  )(implicit
+    domainWarp: DomainWarp[D, DDomain]
   ): DDomain[D]
 
-  def transform(discreteField: DiscreteField[D, DDomain, Value], transformation: Transformation[D])(
-    implicit domainWarp: DomainWarp[D, DDomain]
+  def transform(discreteField: DiscreteField[D, DDomain, Value], transformation: Transformation[D])(implicit
+    domainWarp: DomainWarp[D, DDomain]
   ): DiscreteField[D, DDomain, Value]
 }
 

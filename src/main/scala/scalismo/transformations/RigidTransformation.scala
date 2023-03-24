@@ -17,8 +17,8 @@ import scalismo.transformations.ParametricTransformation.JacobianField
 import scalismo.transformations.TransformationSpace.ParameterVector
 
 /**
- * Trait for D-dimensional rigid transform, that is a composition of rotation and translation transform.
- * Instances of this trait exist only for [[_2D]] and [[_3D]] as [[Rotation]] is not defined for [[_1D]]
+ * Trait for D-dimensional rigid transform, that is a composition of rotation and translation transform. Instances of
+ * this trait exist only for [[_2D]] and [[_3D]] as [[Rotation]] is not defined for [[_1D]]
  */
 trait RigidTransformation[D]
     extends SimilarityTransformation[D]

@@ -106,7 +106,7 @@ class PointDistributionModelIOTest extends ScalismoTestSuite {
     val model1D: PointDistributionModel[_1D, UnstructuredPointsDomain] = create1Dmodel()
 
     it("can write and read a 3D PDM with a TriangleMesh domain") {
-      val dummyFile = new java.io.File("./x.h5.json") //File.createTempFile("dummy", "h5.json")
+      val dummyFile = new java.io.File("./x.h5.json") // File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {

@@ -76,7 +76,7 @@ class KernelTransformationTests extends ScalismoTestSuite {
         realKernelMatrix(i * kernelDim + di, j * kernelDim + dj) = scalarKernel(points(i), points(j))(di, dj)
       }
 
-      //val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
+      // val (_,realrealLambdas,_) = breeze.linalg.svd(realKernelMatrix)
       val (_, realLambdas, _) = RandomSVD.computeSVD(realKernelMatrix * (1.0 / numPoints), eigPairsApprox.size)
 
       for (l <- approxLambdas.zipWithIndex)
@@ -125,7 +125,8 @@ class KernelTransformationTests extends ScalismoTestSuite {
           1.0 / domain.volume // the eigenfunction is orthogonal with respect to the measure p(x) (from the sampler)
         val phiImg = DifferentiableField(domain,
                                          (x: Point[_1D]) => phi_i(x)(0) * phi_i(x)(0) * p(x),
-                                         (pt: Point[_1D]) => EuclideanVector(0.0))
+                                         (pt: Point[_1D]) => EuclideanVector(0.0)
+        )
 
         val v = integrator.integrateScalar(phiImg)
         v should be(1.0 +- 0.1)

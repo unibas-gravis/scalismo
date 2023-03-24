@@ -104,7 +104,7 @@ class RegistrationTests extends ScalismoTestSuite {
       Point(0, 0, 0)
     )
 
-    //should not test on parameters here since many euler angles can lead to the same rotation matrix
+    // should not test on parameters here since many euler angles can lead to the same rotation matrix
     val rigidRegTransformed = mesh transform regResult
     it("can retrieve correct parameters") {
 
@@ -156,7 +156,7 @@ class RegistrationTests extends ScalismoTestSuite {
         val rotation = Rotation2D(-angle, c)
         val translation = Translation2D(EuclideanVector2D(1.0, 1.5))
 
-        val scalingFactor = 2.0 //scala.util.Random.nextDouble()
+        val scalingFactor = 2.0 // scala.util.Random.nextDouble()
 
         val similarityTransformation =
           TranslationAfterScalingAfterRotation2D(translation, Scaling2D(scalingFactor), rotation)
@@ -196,7 +196,7 @@ class RegistrationTests extends ScalismoTestSuite {
         Point(0, 0, 0)
       )
 
-      //should not test on parameters here since many euler angles can lead to the same rotation matrix
+      // should not test on parameters here since many euler angles can lead to the same rotation matrix
       val regSim = mesh transform regResult
 
       for ((p, i) <- regSim.pointSet.points.zipWithIndex.take(100)) {
@@ -267,7 +267,8 @@ class RegistrationTests extends ScalismoTestSuite {
 
       val domain = discreteFixedImage.domain
       val gp = GaussianProcess(Field(EuclideanSpace2D, (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
-                               DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+                               DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2)
+      )
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val gpParams = DenseVector.ones[Double](lowRankGp.rank)
@@ -300,7 +301,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val domain = discreteFixedImage.domain
 
       val gp = GaussianProcess(Field(EuclideanSpace2D, (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
-                               DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2))
+                               DiagonalKernel(GaussianKernel[_2D](50.0) * 50.0, 2)
+      )
       val sampler = UniformSampler(domain.boundingBox, numberOfPoints = 200)
       val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, numBasisFunctions = 3)
       val nnInterpolatedGp = lowRankGp.discretize(domain).interpolate(NearestNeighborInterpolator())
@@ -335,7 +337,8 @@ class RegistrationTests extends ScalismoTestSuite {
       val domain = discreteFixedImage.domain
 
       val gp = GaussianProcess(Field(EuclideanSpace2D, (_: Point[_2D]) => EuclideanVector.zeros[_2D]),
-                               DiagonalKernel(GaussianKernel[_2D](20.0) * 50.0, 2))
+                               DiagonalKernel(GaussianKernel[_2D](20.0) * 50.0, 2)
+      )
       val lowRankGp =
         LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator()).truncate(5)
       val translationSpace = TranslationSpace2D
@@ -346,7 +349,8 @@ class RegistrationTests extends ScalismoTestSuite {
           gpTransformationSpace
         )
       val gtParams = DenseVector.vertcat(DenseVector.ones[Double](translationSpace.numberOfParameters) * 10.0,
-                                         DenseVector.ones[Double](gpTransformationSpace.numberOfParameters) * 1.0)
+                                         DenseVector.ones[Double](gpTransformationSpace.numberOfParameters) * 1.0
+      )
       val groundTruthTransform = transformationSpace.transformationForParameters(gtParams)
       val transformedLena = fixedImage compose groundTruthTransform
       val metricSampler = GridSampler(DiscreteImageDomain2D(domain.boundingBox, IntVector(20, 20)))

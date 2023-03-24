@@ -83,7 +83,8 @@ object DiscreteImageDomain2D {
             spacing: EuclideanVector[_2D],
             size: IntVector[_2D],
             iVec: EuclideanVector[_2D] = EuclideanVector2D(1, 0),
-            jVec: EuclideanVector[_2D] = EuclideanVector2D(0, 1)): DiscreteImageDomain[_2D] = {
+            jVec: EuclideanVector[_2D] = EuclideanVector2D(0, 1)
+  ): DiscreteImageDomain[_2D] = {
     DiscreteImageDomain(StructuredPoints2D(origin, spacing, size, iVec, jVec))
   }
 
@@ -111,7 +112,8 @@ object DiscreteImageDomain3D {
             size: IntVector[_3D],
             iVec: EuclideanVector[_3D],
             jVec: EuclideanVector[_3D],
-            kVec: EuclideanVector[_3D]): DiscreteImageDomain[_3D] = {
+            kVec: EuclideanVector[_3D]
+  ): DiscreteImageDomain[_3D] = {
     DiscreteImageDomain(StructuredPoints3D(origin, spacing, size, iVec, jVec, kVec))
   }
 

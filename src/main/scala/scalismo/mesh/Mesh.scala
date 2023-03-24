@@ -27,7 +27,8 @@ import scala.collection.parallel.immutable.ParVector
 object Mesh {
 
   /**
-   * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
+   * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance
+   * transform of the mesh
    */
   @deprecated("Is moved to TriangleMesh3DMeshOperations.", "0.14")
   def meshToDistanceImage(mesh: TriangleMesh[_3D]): DifferentiableField[_3D, Float] = {
@@ -44,9 +45,8 @@ object Mesh {
   }
 
   /**
-   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
-   * All cells containing deleted points are also deleted.
-   *
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed. All cells containing
+   * deleted points are also deleted.
    */
   @deprecated("Is moved to TriangleMesh3DMeshOperations.", "0.14")
   def clipMesh(mesh: TriangleMesh[_3D], clipPointPredicate: Point[_3D] => Boolean): TriangleMesh[_3D] = {
@@ -66,8 +66,8 @@ object Mesh {
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointTriplet.map {
-      case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
+    val cells = remainingPointTriplet.map { case vec =>
+      TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
     }
 
     TriangleMesh3D(points.toIndexedSeq, TriangleList(cells.toIndexedSeq))

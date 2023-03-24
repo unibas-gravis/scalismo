@@ -63,7 +63,8 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
   def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] =
     intersect.getIntersectionPoints(point, direction)
   def getIntersectionPointsOnSurface(point: Point[_3D],
-                                     direction: EuclideanVector[_3D]): Seq[(TriangleId, BarycentricCoordinates)] =
+                                     direction: EuclideanVector[_3D]
+  ): Seq[(TriangleId, BarycentricCoordinates)] =
     intersect.getSurfaceIntersectionPoints(point, direction)
 
   private lazy val closestPointOnSurface: SurfaceSpatialIndex[_3D] =
@@ -83,9 +84,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
   def triangleIsOnBoundary(tid: TriangleId): Boolean = boundary.triangleIsOnBoundary(tid: TriangleId)
 
   /**
-   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
-   * All cells containing deleted points are also deleted.
-   * @todo use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed. All cells containing
+   * deleted points are also deleted.
+   * @todo
+   *   use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
    */
   def clip(clipPointPredicate: Point[_3D] => Boolean): TriangleMesh[_3D] = {
     // predicate tested at the beginning, once.
@@ -101,15 +103,16 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
     val points = remainingPointTriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointTriplet.map {
-      case vec => TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
+    val cells = remainingPointTriplet.map { case vec =>
+      TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
     }
 
     TriangleMesh3D(points.toIndexedSeq, TriangleList(cells.toIndexedSeq))
   }
 
   /**
-   * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance transform of the mesh
+   * Returns a new continuous [[DifferentiableScalarImage]] defined on 3-dimensional [[RealSpace]] which is the distance
+   * transform of the mesh
    */
   def toDistanceImage: DifferentiableField[_3D, Float] = {
     def dist(pt: Point[_3D]): Float = Math.sqrt(shortestDistanceToSurfaceSquared(pt)).toFloat
@@ -126,10 +129,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
   }
 
   /**
-   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[EuclideanSpace]] , where the mesh surface is used to split the image domain.
-   * Points lying on the space side pointed towards by the surface normals will have value 0. Points lying on the other side have
-   * value 1. Hence if the mesh is a closed surface, points inside the surface have value 1 and points outside 0.
-   *
+   * Returns a new continuous binary [[ScalarImage]] defined on 3-dimensional [[EuclideanSpace]] , where the mesh
+   * surface is used to split the image domain. Points lying on the space side pointed towards by the surface normals
+   * will have value 0. Points lying on the other side have value 1. Hence if the mesh is a closed surface, points
+   * inside the surface have value 1 and points outside 0.
    */
   def toBinaryImage: Field[_3D, Short] = {
 
@@ -160,8 +163,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
   /**
    * mask points behind clipping plane
    *
-   * @param point  point in clipping plane
-   * @param normal normal vector of clipping plane
+   * @param point
+   *   point in clipping plane
+   * @param normal
+   *   normal vector of clipping plane
    */
   def maskWithPlane(point: Point[_3D], normal: EuclideanVector[_3D]): MeshCompactifier = {
     val n = normal.normalize
@@ -169,18 +174,20 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
   }
 
   /**
-   * Mask reduces the pointSet and triangulation of a mesh to keep only those parts
-   * that evaluate to true for the passed in predicate.
-   * @param pointFilter predicate that maps 3d locations to boolean ('true' = keep location).
+   * Mask reduces the pointSet and triangulation of a mesh to keep only those parts that evaluate to true for the passed
+   * in predicate.
+   * @param pointFilter
+   *   predicate that maps 3d locations to boolean ('true' = keep location).
    */
   def maskSpatially(pointFilter: (Point[_3D]) => Boolean): MeshCompactifier = {
     mask((pid: PointId) => pointFilter(mesh.pointSet.point(pid)), _ => true)
   }
 
   /**
-   * Mask reduces the pointSet and triangulation of a mesh to keep only those parts
-   * that evaluate to true for the passed in predicate.
-   * @param pointFilter Predicate that maps PointId to boolean ('true' = keep location).
+   * Mask reduces the pointSet and triangulation of a mesh to keep only those parts that evaluate to true for the passed
+   * in predicate.
+   * @param pointFilter
+   *   Predicate that maps PointId to boolean ('true' = keep location).
    */
   def maskPoints(pointFilter: (PointId) => Boolean): MeshCompactifier = {
     mask(pointFilter, _ => true)
@@ -188,7 +195,8 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
   /**
    * Mask a mesh to a subset of the triangles.
-   * @param triangleFilter Predicate that maps TriangleId to boolean ('true' = keep triangle).
+   * @param triangleFilter
+   *   Predicate that maps TriangleId to boolean ('true' = keep triangle).
    */
   def maskTriangles(triangleFilter: (TriangleId) => Boolean): MeshCompactifier = {
     mask(_ => true, triangleFilter)
@@ -196,8 +204,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
   /**
    * Mask a mesh to a subset of points and triangles.
-   * @param pointFilter Predicate that maps PointId to boolean ('true' = keep location).
-   * @param triangleFilter Predicate that maps TriangleId to boolean ('true' = keep triangle).
+   * @param pointFilter
+   *   Predicate that maps PointId to boolean ('true' = keep location).
+   * @param triangleFilter
+   *   Predicate that maps TriangleId to boolean ('true' = keep triangle).
    */
   def mask(pointFilter: (PointId) => Boolean, triangleFilter: (TriangleId) => Boolean): MeshCompactifier = {
     MeshCompactifier(mesh, pointFilter, triangleFilter)
@@ -213,9 +223,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
   /**
    * Attempts to reduce the number of vertices of a mesh to the given number of vertices.
    *
-   * @param targetedNumberOfVertices The targeted number of vertices. Note that it is not guaranteed
-   *                                 that this number is reached exactly
-   * @return The decimated mesh
+   * @param targetedNumberOfVertices
+   *   The targeted number of vertices. Note that it is not guaranteed that this number is reached exactly
+   * @return
+   *   The decimated mesh
    */
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
     val refVtk = MeshConversion.meshToVtkPolyData(mesh)
@@ -261,7 +272,8 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   def getIntersectionPoints(point: Point[_3D], direction: EuclideanVector[_3D]): Seq[Point[_3D]] =
     intersect.getIntersectionPoints(point, direction)
   def getIntersectionPointsOnSurface(point: Point[_3D],
-                                     direction: EuclideanVector[_3D]): Seq[(TetrahedronId, BarycentricCoordinates4)] =
+                                     direction: EuclideanVector[_3D]
+  ): Seq[(TetrahedronId, BarycentricCoordinates4)] =
     intersect.getVolumeIntersectionPoints(point, direction)
 
   /**
@@ -310,9 +322,10 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
   }
 
   /**
-   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed.
-   * All cells containing deleted points are also deleted.
-   * @todo use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
+   * Returns a new [[TriangleMesh]] where all points satisfying the given predicate are removed. All cells containing
+   * deleted points are also deleted.
+   * @todo
+   *   use MeshCompactifier to express this functionality. But first verify and test that it remains the same.
    */
   def clip(clipPointPredicate: Point[_3D] => Boolean): TetrahedralMesh[_3D] = {
     // predicate tested at the beginning, once.
@@ -331,9 +344,8 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
 
     val points = remainingPointQuatriplet.flatten.distinct
     val pt2Id = points.zipWithIndex.toMap
-    val cells = remainingPointQuatriplet.map {
-      case vec =>
-        TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))), PointId(pt2Id(vec(3))))
+    val cells = remainingPointQuatriplet.map { case vec =>
+      TetrahedralCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))), PointId(pt2Id(vec(3))))
     }
 
     TetrahedralMesh3D(points.toIndexedSeq, TetrahedralList(cells.toIndexedSeq))

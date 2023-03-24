@@ -80,7 +80,8 @@ private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
   private def distanceToPartition(point: EuclideanVector[_3D],
                                   partition: BoundingSphere,
                                   result: Distance2,
-                                  index: Index): Unit = {
+                                  index: Index
+  ): Unit = {
     if (partition.idx >= 0) {
       // we have found a leave
       val res = BSDistance.toPoint(point, pointList(partition.idx))
@@ -99,28 +100,38 @@ private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
 
         if (distanceToLeftCenter < distanceToRightCenter) {
           // nearer sphere first
-          if ((distanceToLeftCenter <= leftRadius) || // point in sphere?
-              (result.distance2 >= distanceToLeftCenter + leftRadius) || // are we close?
-              (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))) {
+          if (
+            (distanceToLeftCenter <= leftRadius) || // point in sphere?
+            (result.distance2 >= distanceToLeftCenter + leftRadius) || // are we close?
+            (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))
+          ) {
             // even better estimation
             distanceToPartition(point, partition.left, result, index) // test partition
           }
-          if ((distanceToRightCenter <= rightRadius) ||
-              (result.distance2 >= distanceToRightCenter + rightRadius) ||
-              (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
-                                                                2))) {
+          if (
+            (distanceToRightCenter <= rightRadius) ||
+            (result.distance2 >= distanceToRightCenter + rightRadius) ||
+            (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
+                                                              2
+            ))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
         } else {
-          if ((distanceToRightCenter <= rightRadius) ||
-              (result.distance2 >= distanceToRightCenter + rightRadius) ||
-              (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
-                                                                2))) {
+          if (
+            (distanceToRightCenter <= rightRadius) ||
+            (result.distance2 >= distanceToRightCenter + rightRadius) ||
+            (4.0 * distanceToRightCenter * rightRadius >= pow(distanceToRightCenter + rightRadius - result.distance2,
+                                                              2
+            ))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
-          if ((distanceToLeftCenter <= leftRadius) ||
-              (result.distance2 >= distanceToLeftCenter + leftRadius) ||
-              (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))) {
+          if (
+            (distanceToLeftCenter <= leftRadius) ||
+            (result.distance2 >= distanceToLeftCenter + leftRadius) ||
+            (4.0 * distanceToLeftCenter * leftRadius >= pow(distanceToLeftCenter + leftRadius - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.left, result, index)
           }
         }
@@ -130,17 +141,21 @@ private class DiscreteSpatialIndexImplementation(private val bs: BoundingSphere,
           val lc2 = (point - partition.left.center).norm2
           val lr2 = partition.left.r2
 
-          if ((lc2 <= lr2) ||
-              (result.distance2 >= lc2 + lr2) ||
-              (4.0 * lc2 * lr2 >= pow(lc2 + lr2 - result.distance2, 2))) {
+          if (
+            (lc2 <= lr2) ||
+            (result.distance2 >= lc2 + lr2) ||
+            (4.0 * lc2 * lr2 >= pow(lc2 + lr2 - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.left, result, index)
           }
         } else if (partition.hasRight) {
           val rc2 = (point - partition.right.center).norm2
           val rr2 = partition.right.r2
-          if ((rc2 <= rr2) ||
-              (result.distance2 >= rc2 + rr2) ||
-              (4.0 * rc2 * rr2 >= pow(rc2 + rr2 - result.distance2, 2))) {
+          if (
+            (rc2 <= rr2) ||
+            (result.distance2 >= rc2 + rr2) ||
+            (4.0 * rc2 * rr2 >= pow(rc2 + rr2 - result.distance2, 2))
+          ) {
             distanceToPartition(point, partition.right, result, index)
           }
         }

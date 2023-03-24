@@ -44,7 +44,8 @@ class SamplerTests extends ScalismoTestSuite {
                           v1: EuclideanVector[_3D],
                           dot00: Double,
                           dot01: Double,
-                          dot11: Double)
+                          dot11: Double
+      )
 
       def infoForId(cellId: Int): CellInfo = {
         val cell = facemesh.cells(cellId)
@@ -105,10 +106,9 @@ class SamplerTests extends ScalismoTestSuite {
           val cellIdWithArea = random.scalaRandom.shuffle(facemesh.cells.indices zip cellAreas)
 
           var areaRemaining = mesh.area * targetRatio
-          val areaCellIds = cellIdWithArea.takeWhile {
-            case (id, area) =>
-              areaRemaining -= area
-              areaRemaining > 0
+          val areaCellIds = cellIdWithArea.takeWhile { case (id, area) =>
+            areaRemaining -= area
+            areaRemaining > 0
           }
           val (cellIds, _) = areaCellIds.unzip
           //          println(s"selected ${cellIds.size} out of ${facemesh.cells.size} cells")
@@ -119,7 +119,7 @@ class SamplerTests extends ScalismoTestSuite {
 
         val (randomAreas, areaAdjust) = randomArea(facemesh, randomAreaSizeRatio)
         val actualRatio = (facemesh.area * randomAreaSizeRatio + areaAdjust) / facemesh.area
-        //println(s"actual ratio of selected areas = $actualRatio")
+        // println(s"actual ratio of selected areas = $actualRatio")
 
         val numSampledPointsInArea = new ParVector(randomAreas.toVector)
           .flatMap(cellId => {

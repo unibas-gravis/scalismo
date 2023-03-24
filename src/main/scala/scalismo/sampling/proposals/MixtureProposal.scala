@@ -83,8 +83,7 @@ object MixtureProposal {
     new MixtureProposal[A](proposals.toIndexedSeq)
 
   /** mixture distribution of proposals with a transition probability */
-  def fromProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with TransitionProbability[A])*)(
-    implicit
+  def fromProposalsWithTransition[A](proposals: (Double, ProposalGenerator[A] with TransitionProbability[A])*)(implicit
     rnd: Random
   ): MixtureProposal[A] with TransitionProbability[A] = new MixtureProposalWithTransition[A](proposals.toIndexedSeq)
 
@@ -100,7 +99,10 @@ object MixtureProposal {
   )(implicit rnd: Random): MixtureProposal[A] with SymmetricTransitionRatio[A] with TransitionProbability[A] =
     new MixtureProposalWithTransition[A](proposals.toIndexedSeq) with SymmetricTransitionRatio[A]
 
-  /** create a mixture proposal from a sequence of components - use together with implicits._ for the simplified operator syntax: MixtureProposal(0.4 *: prop1 + 0.6 *: prop2) */
+  /**
+   * create a mixture proposal from a sequence of components - use together with implicits._ for the simplified operator
+   * syntax: MixtureProposal(0.4 *: prop1 + 0.6 *: prop2)
+   */
   def apply[A](components: Seq[(Double, A)])(implicit builder: CreateMixture[A], rnd: Random): A =
     builder.create(components)
 
@@ -169,7 +171,10 @@ object MixtureProposal {
     }
   }
 
-  /** implicit conversions for simple building: MixtureProposal(0.5 *: prop1 + 0.25 *: prop2 + 0.25 *: prop3) - handles all symmetry and transition traits */
+  /**
+   * implicit conversions for simple building: MixtureProposal(0.5 *: prop1 + 0.25 *: prop2 + 0.25 *: prop3) - handles
+   * all symmetry and transition traits
+   */
   object implicits {
 
     import scala.language.implicitConversions

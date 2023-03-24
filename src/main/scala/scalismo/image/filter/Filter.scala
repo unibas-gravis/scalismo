@@ -32,8 +32,9 @@ trait Filter[D] extends Function1[Point[D], Float] {
 /**
  * One dimensional Gaussian Blur Filter to be used in a convolution
  * @constructor
- * @param stddev Standard deviation of the Gaussian to be used.
- * The extent of the support of the Filter is fixed to be 6 times the standard deviation (3 stddev on each direction)
+ * @param stddev
+ *   Standard deviation of the Gaussian to be used. The extent of the support of the Filter is fixed to be 6 times the
+ *   standard deviation (3 stddev on each direction)
  */
 case class GaussianFilter1D(stddev: Double) extends Filter[_1D] {
   def apply(p: Point[_1D]) = {
@@ -77,9 +78,11 @@ case class GaussianFilter3D(stddev: Double) extends Filter[_3D] {
 }
 
 /**
- * D- dimensional box Blurring Filter to be used in a convolution. The filter has a value 1 in its support and 0 otherwise
+ * D- dimensional box Blurring Filter to be used in a convolution. The filter has a value 1 in its support and 0
+ * otherwise
  * @constructor
- * @param width Defines the width of the filter support
+ * @param width
+ *   Defines the width of the filter support
  */
 case class BoxedFilter[D: NDSpace](width: Double) extends Filter[D] {
   def apply(p: Point[D]) = if (support.isDefinedAt(p)) 1f else 0f

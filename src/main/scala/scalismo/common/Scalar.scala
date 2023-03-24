@@ -25,12 +25,12 @@ import scala.reflect.ClassTag
 /**
  * Trait signifying that the data is scalar (i.e., numeric).
  *
- * Note that while unsigned integral types (UByte, UShort, UInt, ULong) are supported,
- * some operations may be significantly slower than when using the built-in primitive
- * (signed) data types. In other words, it may be worthwile to directly map the
- * data to a signed type after reading, then working with the signed data.
+ * Note that while unsigned integral types (UByte, UShort, UInt, ULong) are supported, some operations may be
+ * significantly slower than when using the built-in primitive (signed) data types. In other words, it may be worthwile
+ * to directly map the data to a signed type after reading, then working with the signed data.
  *
- * @tparam S the type of the actual scalar data.
+ * @tparam S
+ *   the type of the actual scalar data.
  */
 trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
 
@@ -61,25 +61,33 @@ trait Scalar[@specialized(Byte, Short, Int, Float, Double) S] extends Any {
 /**
  * Trait signifying that the data is scalar, and of a primitive JVM type.
  *
- * @tparam S the (primitive) type of the actual scalar data.
+ * @tparam S
+ *   the (primitive) type of the actual scalar data.
  */
 abstract class PrimitiveScalar[S <: AnyVal: ClassTag] extends Scalar[S] {
   def createArray(data: Array[S]): PrimitiveScalarArray[S] = new PrimitiveScalarArray[S](data)
 }
 
 /**
- * Trait signifying that the data is scalar, and is using a value class to "wrap" the values of
- * an underlying primitive type.
- * @tparam S the exposed (value class) type of the scalar data.
- * @tparam U the underlying (primitive) type of the actual stored values.
- * @see <a href="http://docs.scala-lang.org/overviews/core/value-classes.html">Value Classes and Universal Traits</a>
+ * Trait signifying that the data is scalar, and is using a value class to "wrap" the values of an underlying primitive
+ * type.
+ * @tparam S
+ *   the exposed (value class) type of the scalar data.
+ * @tparam U
+ *   the underlying (primitive) type of the actual stored values.
+ * @see
+ *   <a href="http://docs.scala-lang.org/overviews/core/value-classes.html">Value Classes and Universal Traits</a>
  */
 abstract class ValueClassScalar[S <: AnyVal, U <: AnyVal: ClassTag] extends Scalar[S] {
 
   protected[scalismo] def convertArray[C](data: Array[C], f: C => S): ValueClassScalarArray[S, U] = {
-    createArray(ArrayUtils.fastMap[C, U](data, { c =>
-      toUnderlying(f(c))
-    }))
+    createArray(
+      ArrayUtils.fastMap[C, U](data,
+                               { c =>
+                                 toUnderlying(f(c))
+                               }
+      )
+    )
   }
   def createArray(data: Array[U]): ValueClassScalarArray[S, U]
 
@@ -271,73 +279,95 @@ object Scalar {
 }
 
 /**
- * Class representing an array of scalar data. Only a subset of the array and generic collections operations is supported,
- * and the data should be treated as immutable. For instance, data values can be accessed by index, but not updated.
- * @tparam S the type of the contained data.
+ * Class representing an array of scalar data. Only a subset of the array and generic collections operations is
+ * supported, and the data should be treated as immutable. For instance, data values can be accessed by index, but not
+ * updated.
+ * @tparam S
+ *   the type of the contained data.
  */
 sealed trait ScalarArray[S] extends IndexedSeq[S] {
 
   /**
    * Returns the <code>index</code>th element of the array
-   * @param index the index of the value to return
-   * @return the value at index <code>index</code>
+   * @param index
+   *   the index of the value to return
+   * @return
+   *   the value at index <code>index</code>
    */
   def apply(index: Int): S
 
   /**
    * Returns the length of the data array.
-   * @return the length of the data array
+   * @return
+   *   the length of the data array
    */
   def length: Int
 
   /**
    * Determines if <code>index</code> lies within the bounds of the array
-   * @param index the index in the array for which to check if it lies within the array bounds
-   * @return <code>true</code> if <code>index</code> lies within the array bounds, <code>false</code> otherwise.
+   * @param index
+   *   the index in the array for which to check if it lies within the array bounds
+   * @return
+   *   <code>true</code> if <code>index</code> lies within the array bounds, <code>false</code> otherwise.
    */
   final override def isDefinedAt(index: Int): Boolean = index < size && index >= 0
 
   /**
    * Maps this [[ScalarArray]] to another [[ScalarArray]] using the given mapping function
-   * @param f the mapping function to use
-   * @tparam T the type of the values of the resulting [[ScalarArray]]
-   * @return a new [[ScalarArray]] whose values correspond to the values of this instance, mapped by the function <code>f</code>
+   * @param f
+   *   the mapping function to use
+   * @tparam T
+   *   the type of the values of the resulting [[ScalarArray]]
+   * @return
+   *   a new [[ScalarArray]] whose values correspond to the values of this instance, mapped by the function
+   *   <code>f</code>
    */
   def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T]
 
   /**
    * Returns an iterator over the array's values.
-   * @return an iterator over the array's values.
+   * @return
+   *   an iterator over the array's values.
    */
   def iterator: Iterator[S]
 }
 
 /**
  * Basic implementation of [[ScalarArray]], common to both primitive and value-class scalar arrays.
- * @param rawData the actual raw data contained in the array
- * @tparam S the type of the contained data.
- * @tparam U the type of the underlying contained raw data
+ * @param rawData
+ *   the actual raw data contained in the array
+ * @tparam S
+ *   the type of the contained data.
+ * @tparam U
+ *   the type of the underlying contained raw data
  */
 abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: Array[U]) extends ScalarArray[S] {
 
   /**
    * Returns the length of the data array.
-   * @return the length of the data array
+   * @return
+   *   the length of the data array
    */
   final override def length: Int = rawData.length
 
   /**
    * Convert one datum from the underlying type to the [[ScalarArray]]'s type
-   * @param u a value of the underlying type
-   * @return the corresponding value of the array type
+   * @param u
+   *   a value of the underlying type
+   * @return
+   *   the corresponding value of the array type
    */
   protected def fromUnderlying(u: U): S
 
   /**
    * Maps this [[ScalarArray]] to another [[ScalarArray]] using the given mapping function
-   * @param f the mapping function to use
-   * @tparam T the type of the values of the resulting [[ScalarArray]]
-   * @return a new [[ScalarArray]] whose values correspond to the values of this instance, mapped by the function <code>f</code>
+   * @param f
+   *   the mapping function to use
+   * @tparam T
+   *   the type of the values of the resulting [[ScalarArray]]
+   * @return
+   *   a new [[ScalarArray]] whose values correspond to the values of this instance, mapped by the function
+   *   <code>f</code>
    */
   override def map[T: Scalar: ClassTag](f: S => T): ScalarArray[T] = {
     val toScalar = implicitly[Scalar[T]]
@@ -347,9 +377,11 @@ abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: A
           f(fromUnderlying(u))
         })
       case s: ValueClassScalar[T @unchecked, _] =>
-        s.convertArray[U](rawData, { u =>
-          f(fromUnderlying(u))
-        })
+        s.convertArray[U](rawData,
+                          { u =>
+                            f(fromUnderlying(u))
+                          }
+        )
     }
   }
 
@@ -357,29 +389,36 @@ abstract case class AbstractScalarArray[S, U](protected[scalismo] val rawData: A
 
 /**
  * A [[ScalarArray]] containing data of a native primitive data type.
- * @param rawData the actual raw data contained in the array
- * @tparam S the type of the contained data.
+ * @param rawData
+ *   the actual raw data contained in the array
+ * @tparam S
+ *   the type of the contained data.
  */
 final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) extends AbstractScalarArray[S, S](rawData) {
 
   /**
-   * Convert one datum from the underlying type to the [[ScalarArray]]'s type. Since for primitive
-   * scalars, the underlying data type is the same as the array's data type, the input value is returned unchanged.
-   * @param u a value of this array's data type
-   * @return the value, unchanged
+   * Convert one datum from the underlying type to the [[ScalarArray]]'s type. Since for primitive scalars, the
+   * underlying data type is the same as the array's data type, the input value is returned unchanged.
+   * @param u
+   *   a value of this array's data type
+   * @return
+   *   the value, unchanged
    */
   override protected def fromUnderlying(u: S): S = u
 
   /**
    * Returns the <code>index</code>th element of the array
-   * @param index the index of the value to return
-   * @return the value at index <code>index</code>
+   * @param index
+   *   the index of the value to return
+   * @return
+   *   the value at index <code>index</code>
    */
   override def apply(index: Int): S = rawData(index)
 
   /**
    * Returns an iterator over the array's values.
-   * @return an iterator over the array's values.
+   * @return
+   *   an iterator over the array's values.
    */
   override def iterator: Iterator[S] = rawData.iterator
 
@@ -397,11 +436,16 @@ final class PrimitiveScalarArray[S <: AnyVal: ClassTag](rawData: Array[S]) exten
 }
 
 /**
- * A [[ScalarArray]] containing data of a value class type, which can be mapped from/to an underlying primitive data type.
- * @param rawData the actual raw data contained in the array
- * @param scalar a [[Scalar]] instance, providing the necessary data conversion functions
- * @tparam S the type of the array's data
- * @tparam U the type of the underlying contained raw data
+ * A [[ScalarArray]] containing data of a value class type, which can be mapped from/to an underlying primitive data
+ * type.
+ * @param rawData
+ *   the actual raw data contained in the array
+ * @param scalar
+ *   a [[Scalar]] instance, providing the necessary data conversion functions
+ * @tparam S
+ *   the type of the array's data
+ * @tparam U
+ *   the type of the underlying contained raw data
  */
 final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(implicit scalar: ValueClassScalar[S, U])
     extends AbstractScalarArray[S, U](rawData) {
@@ -410,14 +454,17 @@ final class ValueClassScalarArray[S <: AnyVal, U <: AnyVal](rawData: Array[U])(i
 
   /**
    * Returns the <code>index</code>th element of the array
-   * @param index the index of the value to return
-   * @return the value at index <code>index</code>
+   * @param index
+   *   the index of the value to return
+   * @return
+   *   the value at index <code>index</code>
    */
   override def apply(index: Int): S = fromUnderlying(rawData(index))
 
   /**
    * Returns an iterator over the array's values.
-   * @return an iterator over the array's values.
+   * @return
+   *   an iterator over the array's values.
    */
   override def iterator: Iterator[S] = rawData.iterator.map(scalar.fromUnderlying)
 
@@ -456,9 +503,11 @@ object ScalarArray {
     scalar match {
       case p: PrimitiveScalar[T @unchecked] => p.createArray(array)
       case v: ValueClassScalar[T @unchecked, _] =>
-        v.convertArray[T](array, { t =>
-          t
-        })
+        v.convertArray[T](array,
+                          { t =>
+                            t
+                          }
+        )
     }
   }
 

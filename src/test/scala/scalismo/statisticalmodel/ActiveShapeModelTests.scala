@@ -84,7 +84,8 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
              Fixture.searchMethod,
              20,
              Fixture.fittingConfig,
-             ModelTransformations(nullInitialParameters, Fixture.alignment))
+             ModelTransformations(nullInitialParameters, Fixture.alignment)
+        )
         .get
         .mesh
       assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.95)

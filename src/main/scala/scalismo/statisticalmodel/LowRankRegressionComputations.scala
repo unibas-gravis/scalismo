@@ -20,17 +20,17 @@ import scalismo.common.{DiscreteDomain, DiscreteField, PointId, Vectorizer}
 import scalismo.geometry.{NDSpace, Point}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 
-/** This class and its companion objects are helper, to factor the computation is the
- * lowrank gaussian process regression, that are used at many places in the code.
- * The notation is based on
- * Albrecht, Thomas, et al. "Posterior shape models." Medical image analysis 17.8 (2013): 959-973.
- * See this paper for an explanation of what the individual terms do
- *
- **/
+/**
+ * This class and its companion objects are helper, to factor the computation is the lowrank gaussian process
+ * regression, that are used at many places in the code. The notation is based on Albrecht, Thomas, et al. "Posterior
+ * shape models." Medical image analysis 17.8 (2013): 959-973. See this paper for an explanation of what the individual
+ * terms do
+ */
 private[scalismo] case class LowRankRegressionComputation(Minv: DenseMatrix[Double],
                                                           yVec: DenseVector[Double],
                                                           meanVec: DenseVector[Double],
-                                                          QtL: DenseMatrix[Double])
+                                                          QtL: DenseMatrix[Double]
+)
 private[scalismo] object LowRankRegressionComputation {
 
   /**
@@ -86,16 +86,16 @@ private[scalismo] object LowRankRegressionComputation {
   }
 
   /**
-   * performs the actual computations, as described in the aformentioned paper.
-   * The computation removes all rows of the mean and Q matrix, whose corresponding observation
-   * in yVec contains has a value NaN.
+   * performs the actual computations, as described in the aformentioned paper. The computation removes all rows of the
+   * mean and Q matrix, whose corresponding observation in yVec contains has a value NaN.
    */
   private def doComputation(yVec: DenseVector[Double],
                             meanVec: DenseVector[Double],
                             Q: DenseMatrix[Double],
                             outputDim: Int,
                             errorDistributions: Seq[MultivariateNormalDistribution],
-                            naNStrategy: NaNStrategy): LowRankRegressionComputation = {
+                            naNStrategy: NaNStrategy
+  ): LowRankRegressionComputation = {
     // What we are actually computing here is the following:
     // L would be a block diagonal matrix, which contains on the diagonal the blocks that describes the uncertainty
     // for each point (a d x d) block. We then would compute Q.t * L. For efficiency reasons (L could be large but is sparse)
@@ -103,7 +103,9 @@ private[scalismo] object LowRankRegressionComputation {
     val QtL = Q.t.copy
     assert(QtL.cols == errorDistributions.size * outputDim)
     for ((errDist, i) <- errorDistributions.zipWithIndex) {
-      QtL(::, i * outputDim until (i + 1) * outputDim) := QtL(::, i * outputDim until (i + 1) * outputDim) * breeze.linalg
+      QtL(::, i * outputDim until (i + 1) * outputDim) := QtL(::,
+                                                              i * outputDim until (i + 1) * outputDim
+      ) * breeze.linalg
         .inv(errDist.cov)
     }
 

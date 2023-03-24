@@ -23,22 +23,26 @@ import scalismo.mesh.{TetrahedralMesh, TriangleMesh3D}
 import scala.annotation.tailrec
 
 /**
- * The idea is that we wrap all elementes in hierarchical spheres as we usually can handle queries to a sphere very easily.
- * The idea for the bounding spheres is taken from the following paper of D. Maier, J. Hesser, R. Männer:
- * Fast and Accurate Closest Point Search on Triangulated Surfaces and its Application to Head Motion Estimation
+ * The idea is that we wrap all elementes in hierarchical spheres as we usually can handle queries to a sphere very
+ * easily. The idea for the bounding spheres is taken from the following paper of D. Maier, J. Hesser, R. Männer: Fast
+ * and Accurate Closest Point Search on Triangulated Surfaces and its Application to Head Motion Estimation
  */
 /**
  * Bounding sphere node of the tree structure.
  *
- * @param center Center of bounding sphere.
- * @param r2     Squared radius of bounding sphere.
- * @param idx    Index of entity used to form leave.
+ * @param center
+ *   Center of bounding sphere.
+ * @param r2
+ *   Squared radius of bounding sphere.
+ * @param idx
+ *   Index of entity used to form leave.
  */
 abstract private[mesh] class BoundingSphere(val center: EuclideanVector[_3D],
                                             val r2: Double,
                                             val idx: Int,
                                             val left: BoundingSphere,
-                                            val right: BoundingSphere) {
+                                            val right: BoundingSphere
+) {
 
   /**
    * true if left child sphere exists
@@ -180,8 +184,10 @@ private[mesh] object BoundingSpheres {
       val newCenter = (na + nb) * 0.5
       // val newRadius = ((na - nb) / 2).norm2 // @note: this is numerically unstable
       val newRadius = pow(max((newCenter - a.center).norm + sqrt(a.r2), // numerically more stable
-                              (newCenter - b.center).norm + sqrt(b.r2)),
-                          2)
+                              (newCenter - b.center).norm + sqrt(b.r2)
+                          ),
+                          2
+      )
       (newCenter, newRadius)
     }
     new BoundingSphereSplit(nc, nr, -1, a, b)
@@ -227,7 +233,8 @@ private[mesh] object BoundingSpheres {
   @inline
   def choosePointPairsAndUpdateMatchedIndex(closestPointPairs: Seq[(Double, Int, ((EuclideanVector[_3D], Int), Int))],
                                             sortedPoints: Seq[(EuclideanVector[_3D], Int)],
-                                            matchedPoints: Array[Int]): Array[Boolean] = {
+                                            matchedPoints: Array[Int]
+  ): Array[Boolean] = {
     val chosen = Array.fill[Boolean](closestPointPairs.length)(false)
     val bestPairs = closestPointPairs.sortBy(a => a._1)
     bestPairs.foreach { cp =>
@@ -300,8 +307,8 @@ private class BoundingSphereSplit(center: EuclideanVector[_3D],
                                   r2: Double,
                                   idx: Int,
                                   left: BoundingSphere,
-                                  right: BoundingSphere)
-    extends BoundingSphere(center, r2, idx, left, right) {
+                                  right: BoundingSphere
+) extends BoundingSphere(center, r2, idx, left, right) {
   override def hasLeft: Boolean = left != null
 
   override def hasRight: Boolean = right != null
@@ -379,7 +386,8 @@ private[mesh] object BoundingSphereHelpers {
    */
   def minContainmentSphere(a: EuclideanVector[_3D],
                            b: EuclideanVector[_3D],
-                           c: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+                           c: EuclideanVector[_3D]
+  ): (EuclideanVector[_3D], Double) = {
     var center = a
     var radius2 = 1.0
 
@@ -447,7 +455,7 @@ private[mesh] object BoundingSphereHelpers {
             (p(1) * ab(0) - p(0) * ab(1)) / d0
           else if ((abs(d1) >= abs(d0)) && (abs(d1) >= abs(d2)))
             (p(2) * ab(0) - p(0) * ab(2)) / d1
-          else //if ((abs(d2) >= abs(d0)) && (abs(d2) >= abs(d1)))
+          else // if ((abs(d2) >= abs(d0)) && (abs(d2) >= abs(d1)))
             (p(2) * ab(1) - p(1) * ab(2)) / d2
 
         val alpha2 =
@@ -455,7 +463,7 @@ private[mesh] object BoundingSphereHelpers {
             (p(0) - beta2 * ac(0)) / ab(0)
           else if ((abs(ab(1)) >= abs(ab(0))) && (abs(ab(1)) >= abs(ab(1))))
             (p(1) - beta2 * ac(1)) / ab(1)
-          else //if ((abs(ab(2)) >= abs(ab(0))) and (abs(ab(2)) >= abs(ab(2))))
+          else // if ((abs(ab(2)) >= abs(ab(0))) and (abs(ab(2)) >= abs(ab(2))))
             (p(2) - beta2 * ac(2)) / ab(2)
 
         if (alpha2 < 0 || beta2 < 0 || alpha2 + beta2 > 1) {
@@ -502,7 +510,8 @@ private[mesh] object BoundingSphereHelpers {
   def minContainmentSphere(a: EuclideanVector[_3D],
                            b: EuclideanVector[_3D],
                            c: EuclideanVector[_3D],
-                           d: EuclideanVector[_3D]): (EuclideanVector[_3D], Double) = {
+                           d: EuclideanVector[_3D]
+  ): (EuclideanVector[_3D], Double) = {
 
     val triangles = IndexedSeq(
       IndexedSeq(a, b, c),
@@ -515,7 +524,8 @@ private[mesh] object BoundingSphereHelpers {
                         a: EuclideanVector[_3D],
                         b: EuclideanVector[_3D],
                         c: EuclideanVector[_3D],
-                        d: EuclideanVector[_3D]): Seq[Double] = {
+                        d: EuclideanVector[_3D]
+    ): Seq[Double] = {
       val signedTetrahedronVolume = calculateSignedVolume(a, b, c, d)
       triangles
         .map { t =>
@@ -609,7 +619,8 @@ private[mesh] object BoundingSphereHelpers {
   def calculateSignedVolume(a: EuclideanVector[_3D],
                             b: EuclideanVector[_3D],
                             c: EuclideanVector[_3D],
-                            d: EuclideanVector[_3D]): Double = {
+                            d: EuclideanVector[_3D]
+  ): Double = {
     val t = b - a
     val u = c - a
     val v = d - a

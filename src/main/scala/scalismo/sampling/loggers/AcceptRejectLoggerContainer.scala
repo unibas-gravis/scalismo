@@ -24,14 +24,16 @@ class AcceptRejectLoggerContainer[A](loggers: Seq[AcceptRejectLogger[A]]) extend
   override def accept(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = {
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = {
     loggers.foreach(_.accept(current, sample, generator, evaluator))
   }
 
   override def reject(current: A,
                       sample: A,
                       generator: ProposalGenerator[A],
-                      evaluator: DistributionEvaluator[A]): Unit = {
+                      evaluator: DistributionEvaluator[A]
+  ): Unit = {
     loggers.foreach(_.reject(current, sample, generator, evaluator))
   }
 }

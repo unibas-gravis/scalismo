@@ -9,7 +9,7 @@ import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, Point3
 import scalismo.mesh.{LineMesh, MeshMetrics, TetrahedralMesh, TriangleMesh}
 import scalismo.registration.LandmarkRegistration
 import scalismo.transformations.Transformation
-import scalismo.statisticalmodel.dataset.DataCollection.{TriangleMeshDataCollection}
+import scalismo.statisticalmodel.dataset.DataCollection.TriangleMeshDataCollection
 import scalismo.utils.Random
 
 import scala.annotation.tailrec
@@ -58,8 +58,7 @@ case class DataCollection[D, DDomain[D] <: DiscreteDomain[D], Value](dataItems: 
   /**
    * Perform a leave one out crossvalidation. See nFoldCrossvalidation for details
    */
-  def createLeaveOneOutFolds(
-    implicit
+  def createLeaveOneOutFolds(implicit
     rng: scalismo.utils.Random
   ): Seq[CrossvalidationFold[D, DDomain, Value]] = {
     createCrossValidationFolds(size)
@@ -82,8 +81,7 @@ object DataCollection {
    *
    * The reference mesh is unchanged, only the transformations in the collection are adapted
    */
-  def gpa(dc: TriangleMeshDataCollection[_3D], maxIteration: Int = 3, haltDistance: Double = 1e-5)(
-    implicit
+  def gpa(dc: TriangleMeshDataCollection[_3D], maxIteration: Int = 3, haltDistance: Double = 1e-5)(implicit
     rng: Random
   ): TriangleMeshDataCollection[_3D] = {
 
@@ -103,7 +101,8 @@ object DataCollection {
   }
 
   def fromTriangleMesh3DSequence(reference: TriangleMesh[_3D],
-                                 meshes: Seq[TriangleMesh[_3D]]): TriangleMeshDataCollection[_3D] = {
+                                 meshes: Seq[TriangleMesh[_3D]]
+  ): TriangleMeshDataCollection[_3D] = {
 
     val dfs = for (mesh <- meshes) yield {
       differenceFieldToReference[_3D, TriangleMesh](reference, mesh)
@@ -112,7 +111,8 @@ object DataCollection {
   }
 
   def fromTetrahedralMesh3DSequence(reference: TetrahedralMesh[_3D],
-                                    meshes: Seq[TetrahedralMesh[_3D]]): TetrahedralMeshDataCollection[_3D] = {
+                                    meshes: Seq[TetrahedralMesh[_3D]]
+  ): TetrahedralMeshDataCollection[_3D] = {
 
     val dfs = for (mesh <- meshes) yield {
       differenceFieldToReference[_3D, TetrahedralMesh](reference, mesh)
@@ -170,8 +170,7 @@ object TriangleMeshDataCollection {
     dc.reference.transform(meanTransformation(dc))
   }
 
-  def gpa(dc: TriangleMeshDataCollection[_3D], maxIteration: Int = 5, haltDistance: Double = 1e-5)(
-    implicit
+  def gpa(dc: TriangleMeshDataCollection[_3D], maxIteration: Int = 5, haltDistance: Double = 1e-5)(implicit
     rng: Random
   ): TriangleMeshDataCollection[_3D] = {
     gpaComputation(dc, meanSurfaceFromDataCollection(dc), maxIteration, haltDistance)
@@ -181,7 +180,8 @@ object TriangleMeshDataCollection {
   private def gpaComputation(dc: TriangleMeshDataCollection[_3D],
                              meanShape: TriangleMesh[_3D],
                              maxIteration: Int,
-                             haltDistance: Double)(implicit rng: Random): TriangleMeshDataCollection[_3D] = {
+                             haltDistance: Double
+  )(implicit rng: Random): TriangleMeshDataCollection[_3D] = {
 
     if (maxIteration == 0) return dc
 
@@ -199,7 +199,8 @@ object TriangleMeshDataCollection {
       val surface = dc.reference.transform(p => p + field(p))
       val transform =
         LandmarkRegistration.rigid3DLandmarkRegistration(surface.pointSet.points.toIndexedSeq.zip(meanShapePoints),
-                                                         referenceCenterOfMass)
+                                                         referenceCenterOfMass
+        )
       val newVecs = dc.reference.pointSet.points.toIndexedSeq.map(p => transform(p + field(p)) - p)
       new DiscreteField[_3D, TriangleMesh, EuclideanVector[_3D]](dc.reference, newVecs)
     }

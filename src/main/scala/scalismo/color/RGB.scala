@@ -92,8 +92,7 @@ case class RGB(r: Double, g: Double, b: Double) {
   def toVector: EuclideanVector[_3D] = EuclideanVector(r, g, b)
 
   /**
-   * convert to AWT default color
-   * expects a clamped color value
+   * convert to AWT default color expects a clamped color value
    */
   def toAWTColor: Color = new java.awt.Color(r.toFloat, g.toFloat, b.toFloat)
 }
@@ -187,7 +186,7 @@ object RGB {
     }
   }
 
-  //private def toInt8(value: Double): Int = (value * 255.0).toInt
+  // private def toInt8(value: Double): Int = (value * 255.0).toInt
 
   private def fromInt8(intValue: Int): Double = intValue / 255.0
 }

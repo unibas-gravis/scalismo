@@ -109,7 +109,8 @@ class MixtureTests extends ScalismoTestSuite {
         val mixture = MixtureProposal((plainProposal + plainProposal * 0.5) * 0.6 + 0.4 *: plainProposal)
         mixture.asInstanceOf[MixtureProposal[Double]].mixtureFactors shouldBe IndexedSeq(1.0 / 1.5 * 0.6,
                                                                                          0.5 / 1.5 * 0.6,
-                                                                                         0.4)
+                                                                                         0.4
+        )
       }
     }
   }

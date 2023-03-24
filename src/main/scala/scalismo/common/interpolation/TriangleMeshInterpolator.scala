@@ -7,9 +7,8 @@ import scalismo.mesh.boundingSpheres.{ClosestPointInTriangle, ClosestPointIsVert
 import scalismo.numerics.ValueInterpolator
 
 /**
- * Interpolates a given discrete field defined on the vertices
- * of a triangle mesh (i.e. a MeshField) by means of a surface interpolation
- * on the surface defined by the mesh.
+ * Interpolates a given discrete field defined on the vertices of a triangle mesh (i.e. a MeshField) by means of a
+ * surface interpolation on the surface defined by the mesh.
  */
 case class TriangleMeshInterpolator3D[A: ValueInterpolator]() extends FieldInterpolator[_3D, TriangleMesh, A] {
 

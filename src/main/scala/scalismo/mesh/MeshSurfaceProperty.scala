@@ -19,8 +19,8 @@ import scalismo.common.PointId
 import scalismo.numerics.ValueInterpolator
 
 /**
- * general property defined on the surface of a mesh
- * accessible through the parameterization given by the triangulation of the mesh: TriangleId and BarycentricCoordinates inside the triangle
+ * general property defined on the surface of a mesh accessible through the parameterization given by the triangulation
+ * of the mesh: TriangleId and BarycentricCoordinates inside the triangle
  */
 trait MeshSurfaceProperty[A] {
 
@@ -46,8 +46,7 @@ case class ConstantProperty[A](triangulation: TriangleList, value: A) extends Me
 }
 
 /** property defined per vertex, with interpolation */
-case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(
-  implicit
+case class SurfacePointProperty[A](triangulation: TriangleList, pointData: IndexedSeq[A])(implicit
   val interpolator: ValueInterpolator[A]
 ) extends MeshSurfaceProperty[A] {
 
@@ -86,13 +85,16 @@ object SurfacePointProperty {
 
   /**
    * sample an arbitrary surface property at each point
-   * @param property property to sample
-   * @param reducer reduces multiple values at a single vertex to a single value
-   * @param interpolator interpolator
-   * @return surface property which is backed by the sampled and reduced values at each vertex
+   * @param property
+   *   property to sample
+   * @param reducer
+   *   reduces multiple values at a single vertex to a single value
+   * @param interpolator
+   *   interpolator
+   * @return
+   *   surface property which is backed by the sampled and reduced values at each vertex
    */
-  def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(
-    implicit
+  def sampleSurfaceProperty[A](property: MeshSurfaceProperty[A], reducer: IndexedSeq[A] => A)(implicit
     interpolator: ValueInterpolator[A]
   ): SurfacePointProperty[A] = {
     val triangulation = property.triangulation

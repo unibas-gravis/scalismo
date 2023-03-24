@@ -62,7 +62,6 @@ case class LineList(lines: IndexedSeq[LineCell]) {
   }
 
   /**
-   *
    * points adjacent to a point
    */
   lazy val adjacentPointsForPoint: PointId => IndexedSeq[PointId] = {
@@ -88,7 +87,6 @@ case class LineList(lines: IndexedSeq[LineCell]) {
 
   /**
    * lines connected to a line via a common point
-   *
    */
   lazy val adjecentLinesForLine: LineId => IndexedSeq[LineId] = {
 

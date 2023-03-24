@@ -35,8 +35,7 @@ object UnstructuredPointsDomain {
     }
   }
 
-  implicit def warper[D: NDSpace](
-    implicit
+  implicit def warper[D: NDSpace](implicit
     creator: UnstructuredPoints.Create[D]
   ): DomainWarp[D, UnstructuredPointsDomain] = {
     new DomainWarp[D, UnstructuredPointsDomain] {
@@ -51,7 +50,8 @@ object UnstructuredPointsDomain {
       }
 
       override def transform(domain: UnstructuredPointsDomain[D],
-                             transformation: Transformation[D]): UnstructuredPointsDomain[D] = {
+                             transformation: Transformation[D]
+      ): UnstructuredPointsDomain[D] = {
         UnstructuredPointsDomain(domain.pointSet.transform(transformation))
       }
     }

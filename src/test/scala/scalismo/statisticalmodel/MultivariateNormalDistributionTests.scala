@@ -44,9 +44,10 @@ class MultivariateNormalDistributionTests extends ScalismoTestSuite {
       val cov = DenseMatrix.eye[Double](n) * variance
       val mvn = new MultivariateNormalDistribution(mean, cov)
       val breezeMvn = breeze.stats.distributions.MultivariateGaussian.apply(mean, cov)
-      for (v <- (1 to 4).map(_ =>
-             DenseVector.tabulate(n)(i => random.scalaRandom.nextGaussian() * math.sqrt(cov(i, i)) + mean(i))
-           )) {
+      for (
+        v <- (1 to 4)
+          .map(_ => DenseVector.tabulate(n)(i => random.scalaRandom.nextGaussian() * math.sqrt(cov(i, i)) + mean(i)))
+      ) {
         breezeMvn.logPdf(v) should be(mvn.logpdf(v) +- 1e-5)
       }
     }

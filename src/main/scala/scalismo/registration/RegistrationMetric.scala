@@ -23,11 +23,9 @@ import scalismo.registration.RegistrationMetric.ValueAndDerivative
 import scalismo.transformations.TransformationSpace
 
 /**
- * The basic interface for defining a metric for the scalismo registration framework.
- * It is independent of the object representation that is used. The main assumption is
- * that the objects are subject to a parametric transformation, and we can obtain for each
- * fixed value of the parameters compute the value of the metric and a derivative.
- *
+ * The basic interface for defining a metric for the scalismo registration framework. It is independent of the object
+ * representation that is used. The main assumption is that the objects are subject to a parametric transformation, and
+ * we can obtain for each fixed value of the parameters compute the value of the metric and a derivative.
  */
 trait RegistrationMetric[D] {
 
@@ -45,9 +43,8 @@ trait RegistrationMetric[D] {
   def derivative(parameters: DenseVector[Double]): DenseVector[Double]
 
   /**
-   * Computes value and derivative in one go. It should be the same as calling value and takeDerivative
-   * separately, but allows for more efficient implementations.
-   *
+   * Computes value and derivative in one go. It should be the same as calling value and takeDerivative separately, but
+   * allows for more efficient implementations.
    */
   def valueAndDerivative(parameters: DenseVector[Double]): ValueAndDerivative
 }
