@@ -22,7 +22,8 @@ import scala.language.implicitConversions
 /**
  * evaluate a product of distributions
  *
- * @param evaluators Sequence of distributions to evaluate
+ * @param evaluators
+ *   Sequence of distributions to evaluate
  */
 class ProductEvaluator[A](evaluators: Seq[DistributionEvaluator[A]]) extends DistributionEvaluator[A] {
   override def logValue(sample: A): Double = {

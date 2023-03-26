@@ -73,7 +73,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
                             Point(0, 0, 1),
                             Point(1, 0, 1),
                             Point(1, 1, 1),
-                            Point(0, 1, 1))
+                            Point(0, 1, 1)
+    )
     val domain = UnstructuredPoints(points)
 
     // cells covering the complete cube
@@ -82,7 +83,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
                            TetrahedralCell(0, 2, 5, 1),
                            TetrahedralCell(2, 5, 7, 6),
                            TetrahedralCell(0, 5, 7, 4),
-                           TetrahedralCell(0, 2, 5, 7))
+                           TetrahedralCell(0, 2, 5, 7)
+    )
     val list = TetrahedralList(cells)
 
     TetrahedralMesh3D(domain, list)
@@ -294,7 +296,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
                                                          tet.a.toPoint,
                                                          tet.b.toPoint,
                                                          tet.c.toPoint,
-                                                         tet.d.toPoint)
+                                                         tet.d.toPoint
+              )
 
             val res = BSDistance.calculateBarycentricCoordinates(tet, pOff)
             bc.b shouldBe res._1 +- 1.0e-8
@@ -616,7 +619,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       def genPoint() =
         Point3D(rnd.scalaRandom.nextDouble() * 10 - 5,
                 rnd.scalaRandom.nextDouble() * 10 - 5,
-                rnd.scalaRandom.nextDouble() * 10 - 5)
+                rnd.scalaRandom.nextDouble() * 10 - 5
+        )
 
       def isInside(pt: Point[_3D]) = {
         tmesh.tetrahedrons.exists { cell =>
@@ -685,7 +689,8 @@ class MeshSurfaceDistanceTests extends ScalismoTestSuite {
       def genPoint() =
         Point3D(rnd.scalaRandom.nextDouble() * 10 - 5,
                 rnd.scalaRandom.nextDouble() * 10 - 5,
-                rnd.scalaRandom.nextDouble() * 10 - 5)
+                rnd.scalaRandom.nextDouble() * 10 - 5
+        )
 
       for (i <- 0 until 200) {
         val query = genPoint()

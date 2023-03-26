@@ -29,29 +29,26 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
- * This class implements a subset of the niftijio.NiftyVolume functionality, maintaining
- * almost complete compatibility in terms of field and method names, except where alternative
- * implementations yield a significant performance gain. This affects the following two method
- * usages:
+ * This class implements a subset of the niftijio.NiftyVolume functionality, maintaining almost complete compatibility
+ * in terms of field and method names, except where alternative implementations yield a significant performance gain.
+ * This affects the following two method usages:
  *
- * 1. o.header.sform_to_mat44().flatten -> n.header.sformArray
- * 2. for (d <- 0 until dim; k <- 0 until nz; j <- 0 until ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
+ *   1. o.header.sform_to_mat44().flatten -> n.header.sformArray 2. for (d <- 0 until dim; k <- 0 until nz; j <- 0 until
+ *      ny; i <- 0 until nx) yield o.data(i)(j)(k)(d)
  * -> n.dataAsScalarArray
  *
- * This class is optimized to massively outperform the original implementation when reading .nii files,
- * however it only supports the functionality that is absolutely required for our use case
- * (meaning that, for instance, not all header fields are accessible, only the ones that we
- * actually use. If we need to evaluate more header fields in the future, this class will need
- * to be extended accordingly).
+ * This class is optimized to massively outperform the original implementation when reading .nii files, however it only
+ * supports the functionality that is absolutely required for our use case (meaning that, for instance, not all header
+ * fields are accessible, only the ones that we actually use. If we need to evaluate more header fields in the future,
+ * this class will need to be extended accordingly).
  *
  * This implementation only supports files < 2GB.
  *
- * For more information about the file format, see
- * http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h ,
- * http://brainder.org/2012/09/23/the-nifti-file-format/ ,
- * and the niftijio.NiftiVolume and niftijio.NiftiHeader classes
+ * For more information about the file format, see http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h ,
+ * http://brainder.org/2012/09/23/the-nifti-file-format/ , and the niftijio.NiftiVolume and niftijio.NiftiHeader classes
  *
- * @param filename filename of a file in Nifti format (will be acccessed read only)
+ * @param filename
+ *   filename of a file in Nifti format (will be acccessed read only)
  */
 class FastReadOnlyNiftiVolume private (private val filename: String) {
   lazy val header: NiftiHeader = {
@@ -97,16 +94,17 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
     val arrayLength = nx * ny * nz * dim
 
     /**
-     * This method loads the nifty data into a scalismo ScalarArray of the right type.
-     * The output type O can be different from the input type U, due to the issue
-     * with unsigned and signed types in Scala, which needs to be handled correctly.
+     * This method loads the nifty data into a scalismo ScalarArray of the right type. The output type O can be
+     * different from the input type U, due to the issue with unsigned and signed types in Scala, which needs to be
+     * handled correctly.
      *
-     * This method must only be called if the nifty file does not specify a transform
-     * of the intensities. Otherwise loadArrayWithTransform,
+     * This method must only be called if the nifty file does not specify a transform of the intensities. Otherwise
+     * loadArrayWithTransform,
      */
     def loadArray[U: ClassTag, O](sizeof: Int,
                                   load: MappedByteBuffer => U,
-                                  toScalarArray: Array[U] => ScalarArray[O]): ScalarArray[O] = {
+                                  toScalarArray: Array[U] => ScalarArray[O]
+    ): ScalarArray[O] = {
       assert(!hasTransform)
       val file = new RandomAccessFile(filename, "r")
       val channel = file.getChannel
@@ -133,16 +131,16 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
     }
 
     /**
-     * Loads the the data from the nifti volume, but transforms it first using the transform.
-     * The result type is guaranteed to be of type float. The reason for converting to float is,
-     * that if we kept the original type (e.g. unsigned short) but the intensities are shifted to
-     * the negative, it would result in data loss. Converting everything to float might be a bit
-     * wasteful in terms of memory, but avoids to many different type variants and also seems
-     * to be what ITK (and hence 3D Slicer and itkSnap) is doing.
+     * Loads the the data from the nifti volume, but transforms it first using the transform. The result type is
+     * guaranteed to be of type float. The reason for converting to float is, that if we kept the original type (e.g.
+     * unsigned short) but the intensities are shifted to the negative, it would result in data loss. Converting
+     * everything to float might be a bit wasteful in terms of memory, but avoids to many different type variants and
+     * also seems to be what ITK (and hence 3D Slicer and itkSnap) is doing.
      */
     def loadArrayWithTransform[U: ClassTag](sizeof: Int,
                                             load: MappedByteBuffer => U,
-                                            toFloat: U => Float): ScalarArray[Float] = {
+                                            toFloat: U => Float
+    ): ScalarArray[Float] = {
       val file = new RandomAccessFile(filename, "r")
       val channel = file.getChannel
       val mapped = channel.map(FileChannel.MapMode.READ_ONLY, header.vox_offset.toLong, arrayLength * sizeof)
@@ -223,9 +221,12 @@ class FastReadOnlyNiftiVolume private (private val filename: String) {
           if (x >= 0) x.toFloat else Math.abs(x.toFloat) + (1 << 15)
         }
         if (hasTransform) {
-          loadArrayWithTransform[Char](2, loadChar, { x =>
-            toFloat(x.toShort)
-          })
+          loadArrayWithTransform[Char](2,
+                                       loadChar,
+                                       { x =>
+                                         toFloat(x.toShort)
+                                       }
+          )
         } else {
           loadArray[Char, UShort](2, loadChar, UShortIsScalar.createArray)
         }

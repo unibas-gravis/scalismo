@@ -33,8 +33,8 @@ trait Sampler[D] {
   val numberOfPoints: Int
 
   /**
-   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probability density function
-   * according to which the points are sampled
+   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probability density
+   * function according to which the points are sampled
    */
   def sample(): IndexedSeq[(Point[D], Double)]
 
@@ -85,29 +85,28 @@ case class RandomMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int, see
 case class PointsWithLikelyCorrespondenceSampler(gp: GaussianProcess[_3D, EuclideanVector[_3D]],
                                                  refmesh: TriangleMesh[_3D],
                                                  targetMesh: TriangleMesh[_3D],
-                                                 maxMd: Double)
-    extends Sampler[_3D] {
+                                                 maxMd: Double
+) extends Sampler[_3D] {
 
   //  val meanPts = refmesh.points.map(gp.mean(_).toPoint)
   val meanPts = refmesh.pointSet.points.map { (x: Point[_3D]) =>
     x + gp.mean(x)
   }
   val ptsWithDist = new ParVector(refmesh.pointSet.points.toVector.zipWithIndex)
-    .map {
-      case (refPt, refPtId) =>
-        val closestTgtPt = targetMesh.pointSet.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
-        (refPt, gp.marginal(refPt).mahalanobisDistance((closestTgtPt - refPt).toBreezeVector))
+    .map { case (refPt, refPtId) =>
+      val closestTgtPt = targetMesh.pointSet.findClosestPoint(meanPts.toIndexedSeq(refPtId)).point
+      (refPt, gp.marginal(refPt).mahalanobisDistance((closestTgtPt - refPt).toBreezeVector))
     }
 
   val pts = ptsWithDist
-    .filter {
-      case (refPt, dist) => dist < maxMd
+    .filter { case (refPt, dist) =>
+      dist < maxMd
     }
-    .map {
-      case (refPt, dist) => (refPt, 1.0)
+    .map { case (refPt, dist) =>
+      (refPt, 1.0)
     }
-    .map {
-      case (refPt, dist) => (refPt, 1.0)
+    .map { case (refPt, dist) =>
+      (refPt, 1.0)
     }
     .toIndexedSeq
 
@@ -126,9 +125,8 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(im
   private val p: Double = 1.0 / mesh.area
 
   val accumulatedAreas: Array[Double] = mesh.cells
-    .scanLeft(0.0) {
-      case (sum, cell) =>
-        sum + mesh.computeTriangleArea(cell)
+    .scanLeft(0.0) { case (sum, cell) =>
+      sum + mesh.computeTriangleArea(cell)
     }
     .tail
     .toArray
@@ -184,8 +182,8 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
   }
 }
 
-case class RandomTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int, seed: Int)(
-  implicit rand: Random
+case class RandomTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int, seed: Int)(implicit
+  rand: Random
 ) extends Sampler[_3D] {
 
   val p = 1.0 / mesh.volume
@@ -208,9 +206,8 @@ case class UniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfP
   private val p: Double = 1.0 / mesh.volume
 
   val accumulatedAreas: Array[Double] = mesh.cells
-    .scanLeft(0.0) {
-      case (sum, cell) =>
-        sum + mesh.computeTetrahedronVolume(cell)
+    .scanLeft(0.0) { case (sum, cell) =>
+      sum + mesh.computeTetrahedronVolume(cell)
     }
     .tail
     .toArray
@@ -231,8 +228,8 @@ case class UniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfP
 
 }
 
-case class FixedPointsUniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(
-  implicit rng: Random
+case class FixedPointsUniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit
+  rng: Random
 ) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.volume
   val samplePoints = UniformTetrahedralMeshSampler3D(mesh, numberOfPoints).sample()

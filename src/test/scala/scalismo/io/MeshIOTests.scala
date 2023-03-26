@@ -52,12 +52,6 @@ class MeshIOTests extends ScalismoTestSuite {
       testWriteRead(".stl")
     }
 
-    it("returns a Failure object instead of throwing an exception for nonexistent files") {
-      val path = "/NONEXISTENT-b1cfa24000992425413ff27a52c07705ba507062a71efd7f924178972545bf7353d6ed78aea47a1.h5"
-      val failed = MeshIO.readHDF5(new File(path))
-      failed.isFailure should be(true)
-    }
-
     it("yields the original polyline when reading  and writing a polyLine in 2D") {
       val path = getClass.getResource("/linemesh.vtk").getPath
       val origMesh = MeshIO.readLineMesh2D(new File(URLDecoder.decode(path, "UTF-8"))).get
@@ -273,7 +267,8 @@ object MeshIOTests {
     val points = IndexedSeq.fill(N)(
       Point(rng.scalaRandom.nextGaussian() * 2,
             rng.scalaRandom.nextGaussian() * 100,
-            rng.scalaRandom.nextGaussian() * 1000)
+            rng.scalaRandom.nextGaussian() * 1000
+      )
     )
     val domain = UnstructuredPoints(points)
 
@@ -284,7 +279,8 @@ object MeshIOTests {
       TetrahedralCell(rng.scalaRandom.nextInt(N),
                       rng.scalaRandom.nextInt(N),
                       rng.scalaRandom.nextInt(N),
-                      rng.scalaRandom.nextInt(N))
+                      rng.scalaRandom.nextInt(N)
+      )
     )
     val list = TetrahedralList(cells)
 

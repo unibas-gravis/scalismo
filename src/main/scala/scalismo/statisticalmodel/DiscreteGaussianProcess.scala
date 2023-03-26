@@ -28,9 +28,9 @@ import scalismo.utils.Random
 import scala.language.higherKinds
 
 /**
- * A representation of a gaussian process, which is only defined on a discrete domain.
- * While this is technically similar to a MultivariateNormalDistribution, we highlight with this
- * class that we represent (discrete) functions, defined on the given domain.
+ * A representation of a gaussian process, which is only defined on a discrete domain. While this is technically similar
+ * to a MultivariateNormalDistribution, we highlight with this class that we represent (discrete) functions, defined on
+ * the given domain.
  */
 class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value] private[scalismo] (
   val mean: DiscreteField[D, DDomain, Value],
@@ -67,11 +67,10 @@ class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value
   }
 
   /**
-   * The marginal distribution for the points specified by the given point ids.
-   * Note that this is again a DiscreteGaussianProcess.
+   * The marginal distribution for the points specified by the given point ids. Note that this is again a
+   * DiscreteGaussianProcess.
    */
-  def marginal(pointIds: Seq[PointId])(
-    implicit
+  def marginal(pointIds: Seq[PointId])(implicit
     domainCreator: UnstructuredPoints.Create[D]
   ): DiscreteGaussianProcess[D, UnstructuredPointsDomain, Value] = {
     val domainPts = pointSet.points.toIndexedSeq
@@ -92,7 +91,9 @@ class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value
   /**
    * calculates the log marginal likelihood given trainingData.
    *
-   * @param trainingData Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at each point.
+   * @param trainingData
+   *   Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at
+   *   each point.
    */
   def marginalLikelihood(trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]): Double = {
     require(trainingData.nonEmpty, "provide observations to calculate the marginal likelihood")
@@ -100,8 +101,8 @@ class DiscreteGaussianProcess[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value
   }
 
   /**
-   * Interpolates discrete Gaussian process to have a new, continuous representation as a [[DiscreteLowRankGaussianProcess]],
-   * using nearest neighbor interpolation (for both mean and covariance function)
+   * Interpolates discrete Gaussian process to have a new, continuous representation as a
+   * [[DiscreteLowRankGaussianProcess]], using nearest neighbor interpolation (for both mean and covariance function)
    */
   @deprecated("please use the [[interpolate]] method with a [[NearestNeighborInterpolator]] instead", "0.16")
   def interpolateNearestNeighbor: GaussianProcess[D, Value] = {
@@ -196,8 +197,7 @@ object DiscreteGaussianProcess {
   }
 
   def apply[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value](domain: DDomain[D], gp: GaussianProcess[D, Value])(
-    implicit
-    vectorizer: Vectorizer[Value]
+    implicit vectorizer: Vectorizer[Value]
   ): DiscreteGaussianProcess[D, DDomain, Value] = {
     val domainPoints = domain.pointSet.points.toIndexedSeq
 

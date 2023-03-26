@@ -18,10 +18,9 @@ package scalismo.sampling.proposals
 import scalismo.sampling.{MHProposalGenerator, MHSample}
 
 /**
- * Container for multiple ProposalGenerators stacked together, applied one after the other.
- * It serves the same purpose as CombinedProposal, but is made to work together with the MHSample.
- * In particular, it creates a generatedBy String, which references the name of all the proposals
- * that are combined.
+ * Container for multiple ProposalGenerators stacked together, applied one after the other. It serves the same purpose
+ * as CombinedProposal, but is made to work together with the MHSample. In particular, it creates a generatedBy String,
+ * which references the name of all the proposals that are combined.
  */
 class MHCombinedProposal[A](val proposals: Seq[MHProposalGenerator[A]]) extends MHProposalGenerator[A] {
 

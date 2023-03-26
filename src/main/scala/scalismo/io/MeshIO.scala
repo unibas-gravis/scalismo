@@ -16,15 +16,16 @@
 package scalismo.io
 
 import java.io.{BufferedReader, File, FileReader, IOException}
-
 import scalismo.color.{RGB, RGBA}
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{PointId, Scalar, UnstructuredPoints}
-import scalismo.geometry._
-import scalismo.mesh.TriangleMesh._
-import scalismo.mesh._
+import scalismo.geometry.*
+import scalismo.hdf5json.HDFPath
+import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
+import scalismo.mesh.TriangleMesh.*
+import scalismo.mesh.*
 import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
-import vtk._
+import vtk.*
 
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
@@ -36,18 +37,16 @@ object MeshIO {
    *
    * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
    *
-   * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates
-   * to lie in an LPS world and map them unchanged in our coordinate system.
+   * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates to lie in an LPS
+   * world and map them unchanged in our coordinate system.
    *
    * The same happens at writing, we directly dump our vertex coordinates into the file format(stl, or vtk) without any
    * mirroring magic.
-   *
    *
    * *
    */
   /**
    * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
-   *
    */
   def readScalarMeshField[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val requiredScalarType = ScalarDataType.fromType[S]
@@ -70,7 +69,6 @@ object MeshIO {
 
   /**
    * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
-   *
    */
   def readScalarMeshFieldAsType[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
     val filename = file.getAbsolutePath
@@ -85,7 +83,6 @@ object MeshIO {
   def readMesh(file: File): Try[TriangleMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".h5")  => readHDF5(file)
       case f if f.endsWith(".vtk") => readVTK(file)
       case f if f.endsWith(".stl") => readSTL(file)
       case f if f.endsWith(".ply") => {
@@ -155,8 +152,8 @@ object MeshIO {
   }
 
   /**
-   * Reads a [[TetrahedralMesh[_3D]]] from a file with one of the extensions ".vtk", ".vtu", or ".inp".
-   * The ".vtk" and ".vtu" files are standard VTK formats while ".inp" is the AVS UCD format.
+   * Reads a [[TetrahedralMesh[_3D]]] from a file with one of the extensions ".vtk", ".vtu", or ".inp". The ".vtk" and
+   * ".vtu" files are standard VTK formats while ".inp" is the AVS UCD format.
    */
   def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
     val filename = file.getAbsolutePath
@@ -214,7 +211,8 @@ object MeshIO {
   }
 
   private[io] def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid],
-                                            file: File): Try[TetrahedralMesh[_3D]] = {
+                                            file: File
+  ): Try[TetrahedralMesh[_3D]] = {
     for {
       vtkUg <- readUSFromFile(file)
       tetramesh <- TetrahedralMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
@@ -301,7 +299,8 @@ object MeshIO {
   private[io] def writeToVTKFileThenDelete[T](volume: T,
                                               writeToFile: (vtkUnstructuredGrid, File) => Try[Unit],
                                               convertToVTKUG: T => vtkUnstructuredGrid,
-                                              file: File): Try[Unit] = {
+                                              file: File
+  ): Try[Unit] = {
     val vtkUg = convertToVTKUG(volume)
     for {
       result <- writeToFile(vtkUg, file)
@@ -372,7 +371,8 @@ object MeshIO {
   /**
    * Writes a [[VertexColorMesh3D]] to a file.
    *
-   * **Important**:  For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha channel will be ignored while writing.
+   * **Important**: For PLY, since we use the VTK file writer, and since it does not support RGBA, only RGB, the alpha
+   * channel will be ignored while writing.
    */
   def writeVertexColorMesh3D(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
@@ -398,9 +398,9 @@ object MeshIO {
     val cells: IndexedSeq[TriangleCell] = surface.cells
 
     val maybeError: Try[Unit] = for {
-      h5file <- HDF5Utils.createFile(file)
-      _ <- h5file.writeNDArray("/Surface/0/Vertices", pointSeqToNDArray(domainPoints))
-      _ <- h5file.writeNDArray("/Surface/0/Cells", cellSeqToNDArray(cells))
+      h5file <- StatisticalModelIOUtils.createFile(file)
+      _ <- h5file.writeNDArray(HDFPath("/Surface/0/Vertices"), pointSeqToNDArray(domainPoints))
+      _ <- h5file.writeNDArray(HDFPath("/Surface/0/Cells"), cellSeqToNDArray(cells))
       _ <- Try {
         h5file.close()
       }
@@ -452,7 +452,8 @@ object MeshIO {
           vtkColors.InsertNextTuple4((color.r * 255).toShort,
                                      (color.g * 255).toShort,
                                      (color.b * 255).toShort,
-                                     color.a * 255)
+                                     color.a * 255
+          )
         }
         vtkColors.SetName("RGBA")
         vtkPd.GetPointData().SetScalars(vtkColors)
@@ -646,23 +647,6 @@ object MeshIO {
     plyReader.Delete()
     vtkPd.Delete()
     mesh
-  }
-
-  def readHDF5(file: File): Try[TriangleMesh[_3D]] = {
-
-    val maybeSurface = for {
-      h5file <- HDF5Utils.openFileForReading(file)
-      vertArray <- h5file.readNDArray[Double]("/Surface/0/Vertices")
-      cellArray <- h5file.readNDArray[Int]("/Surface/0/Cells")
-      _ <- Try {
-        h5file.close()
-      }
-    } yield {
-      TriangleMesh3D(UnstructuredPoints(NDArrayToPointSeq(vertArray).toIndexedSeq),
-                     TriangleList(NDArrayToCellSeq(cellArray)))
-    }
-
-    maybeSurface
   }
 
   private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {

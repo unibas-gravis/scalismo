@@ -39,8 +39,7 @@ object Crossvalidation {
     dataCollection: DataCollection[D, DDomain, EuclideanVector[D]],
     evalFun: EvaluationFunction[D, DDomain, A],
     biasModelAndRank: Option[LowRankGaussianProcess[D, EuclideanVector[D]]] = None
-  )(
-    implicit
+  )(implicit
     ndSpace: NDSpace[D],
     domainWarp: DomainWarp[D, DDomain],
     vectorizer: Vectorizer[EuclideanVector[D]],
@@ -50,22 +49,23 @@ object Crossvalidation {
   }
 
   /**
-   * Perform an n-fold crossvalidation. Given the chosen number of folds, this method will repeatedly split the data collection
-   * into a training and and a test set.
-   * A [[StatisticalMeshModel]] is then built from the training set of each fold. In case a biasModel is provided, this model is always added to the model built from the training data.
+   * Perform an n-fold crossvalidation. Given the chosen number of folds, this method will repeatedly split the data
+   * collection into a training and and a test set. A [[StatisticalMeshModel]] is then built from the training set of
+   * each fold. In case a biasModel is provided, this model is always added to the model built from the training data.
    *
-   * For each testing dataset in a fold, the evalFun is called to evaluate the quality of the model built from the training set.
+   * For each testing dataset in a fold, the evalFun is called to evaluate the quality of the model built from the
+   * training set.
    *
-   * @return a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in the fold's testing set,
-   * or an error if the model building for a fold failed.
+   * @return
+   *   a sequence the size of the chosen number of folds that contains the sequence of evaluations for each data item in
+   *   the fold's testing set, or an error if the model building for a fold failed.
    */
   def nFoldCrossvalidation[D, DDomain[D] <: DiscreteDomain[D], A](
     numFolds: Int,
     dc: DataCollection[D, DDomain, EuclideanVector[D]],
     evalFun: EvaluationFunction[D, DDomain, A],
     biasModelAndRank: Option[LowRankGaussianProcess[D, EuclideanVector[D]]] = None
-  )(
-    implicit
+  )(implicit
     ndSpace: NDSpace[D],
     domainWarp: DomainWarp[D, DDomain],
     vectorizer: Vectorizer[EuclideanVector[D]],

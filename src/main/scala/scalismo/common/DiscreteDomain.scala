@@ -14,8 +14,7 @@ trait DiscreteDomain[D] {
 trait DomainWarp[D, DDomain[D] <: DiscreteDomain[D]] {
 
   /**
-   * Warp the points of the domain of the discrete field and turn it into the
-   * warped domain.
+   * Warp the points of the domain of the discrete field and turn it into the warped domain.
    */
   def transformWithField(domain: DDomain[D], warpField: DiscreteField[D, DDomain, EuclideanVector[D]]): DDomain[D]
 

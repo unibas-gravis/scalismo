@@ -19,8 +19,10 @@ import java.io.File
 import java.net.URLDecoder
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.NearestNeighborInterpolator
-import scalismo.geometry._
+import scalismo.geometry.*
+import scalismo.hdf5json.HDFPath
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain2D, DiscreteImageDomain3D}
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
@@ -39,7 +41,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
 
     it("can be written and read again") {
       val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -55,7 +57,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
 
     it("can be written and read again in non-standard location") {
       val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-      val dummyFile = File.createTempFile("dummy", "h5")
+      val dummyFile = File.createTempFile("dummy", "h5.json")
       dummyFile.deleteOnExit()
 
       val t = for {
@@ -69,29 +71,15 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
 
     }
 
-    it("model in version 0.81 can be read") {
+    it("can read a catalog") {
       val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-      val statismoOldFile = new File(URLDecoder.decode(getClass.getResource("/facemodel_v081.h5").getPath, "UTF-8"))
-
-      val t = for {
-        model <- StatisticalModelIO.readStatisticalMeshModel(statismoFile)
-        modelOld <- StatisticalModelIO.readStatisticalMeshModel(statismoOldFile)
-      } yield {
-        assertModelAlmostEqual(model, modelOld)
-      }
-      t.get
-
+      val catalog = StatismoIO.readModelCatalog(statismoFile).get
+      catalog.size should equal(1)
+      val firstEntry = catalog.head
+      firstEntry.name should equal("faceshapemodel")
+      firstEntry.modelType should equal(StatismoIO.StatismoModelType.Polygon_Mesh)
+      firstEntry.modelPath should equal(HDFPath.root)
     }
-  }
-
-  it("can read a catalog") {
-    val statismoFile = new File(URLDecoder.decode(getClass.getResource("/facemodel.h5").getPath, "UTF-8"))
-    val catalog = StatismoIO.readModelCatalog(statismoFile).get
-    catalog.size should equal(1)
-    val firstEntry = catalog.head
-    firstEntry.name should equal("faceshapemodel")
-    firstEntry.modelType should equal(StatismoIO.StatismoModelType.Polygon_Mesh)
-    firstEntry.modelPath should equal("/")
   }
 
   describe("a deformation model") {
@@ -100,11 +88,12 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](gk)
       val domain = DiscreteImageDomain3D(origin = Point3D(1.0, 3.1, 7.5),
                                          spacing = EuclideanVector3D(0.8, 0.7, 0.6),
-                                         size = IntVector3D(10, 12, 9))
+                                         size = IntVector3D(10, 12, 9)
+      )
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
-      val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
+      val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5.json")
       tmpFile.deleteOnExit()
       val discreteGP = lowrankGp.discretize(domain)
       StatisticalModelIO.writeDeformationModel3D(discreteGP, tmpFile).get
@@ -128,11 +117,12 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       val gp = GaussianProcess[_2D, EuclideanVector[_2D]](gk)
       val domain = DiscreteImageDomain2D(origin = Point2D(1.0, 3.1),
                                          spacing = EuclideanVector2D(0.8, 0.7),
-                                         size = IntVector2D(10, 12))
+                                         size = IntVector2D(10, 12)
+      )
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
-      val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5")
+      val tmpFile = java.io.File.createTempFile("adeformationfield", ".h5.json")
       tmpFile.deleteOnExit()
       val discreteGP = lowrankGp.discretize(domain)
       StatisticalModelIO.writeDeformationModel2D(discreteGP, tmpFile).get
@@ -160,7 +150,7 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
 
       val lowrankGp = LowRankGaussianProcess.approximateGPCholesky(domain, gp, 0.1, NearestNeighborInterpolator())
 
-      val tmpFile = java.io.File.createTempFile("volumeIntensityModel", ".h5")
+      val tmpFile = java.io.File.createTempFile("volumeIntensityModel", ".h5.json")
       tmpFile.deleteOnExit()
       val discreteGP = lowrankGp.discretize(domain)
       StatisticalModelIO.writeVolumeMeshIntensityModel3D(discreteGP, tmpFile).get
@@ -170,9 +160,8 @@ class StatisticalModelIOTest extends ScalismoTestSuite {
       discreteGPReread.domain.pointSet.numberOfPoints should equal(discreteGP.domain.pointSet.numberOfPoints)
       discreteGPReread.domain.pointSet.points
         .zip(discreteGP.domain.pointSet.points)
-        .foreach {
-          case (p1, p2) =>
-            (p1 - p2).norm should be < 0.1
+        .foreach { case (p1, p2) =>
+          (p1 - p2).norm should be < 0.1
         }
       discreteGPReread.domain.cells.toSeq should equal(discreteGP.domain.cells.toSeq)
 

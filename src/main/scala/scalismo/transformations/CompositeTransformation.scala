@@ -7,13 +7,17 @@ import scalismo.transformations.ParametricTransformation.JacobianField
 import scalismo.transformations.TransformationSpace.ParameterVector
 
 /**
- *  Class defining transformations composed of two argument transforms.
- *  The resulting transform is <code>outerTransform compose innerTransform</code>
+ * Class defining transformations composed of two argument transforms. The resulting transform is <code>outerTransform
+ * compose innerTransform</code>
  *
- *  @param innerTransformation transform to be applied first. Must be a parametric differentiable transform
- *  @param outerTransformation transform to be applied second. Must be a parametric differentiable transform
+ * @param innerTransformation
+ *   transform to be applied first. Must be a parametric differentiable transform
+ * @param outerTransformation
+ *   transform to be applied second. Must be a parametric differentiable transform
  */
-class CompositeTransformation[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D], I[D] <: ParametricTransformation[
+class CompositeTransformation[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D], I[
+  D
+] <: ParametricTransformation[
   D
 ]](
   val outerTransformation: O[D],
@@ -43,7 +47,9 @@ class CompositeTransformation[D, O[D] <: ParametricTransformation[D] with CanDif
 }
 
 object CompositeTransformation {
-  def apply[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D], I[D] <: ParametricTransformation[
+  def apply[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D], I[
+    D
+  ] <: ParametricTransformation[
     D
   ]](
     outerTransformation: O[D],
@@ -53,7 +59,9 @@ object CompositeTransformation {
   }
 }
 
-case class ProductTransformationSpace[D, OuterTS[D] <: TransformationSpaceWithDifferentiableTransforms[D], InnerTS[D] <: TransformationSpace[
+case class ProductTransformationSpace[D, OuterTS[D] <: TransformationSpaceWithDifferentiableTransforms[D], InnerTS[
+  D
+] <: TransformationSpace[
   D
 ]](
   outerTS: OuterTS[D],
@@ -80,12 +88,14 @@ case class ProductTransformationSpace[D, OuterTS[D] <: TransformationSpaceWithDi
   }
 }
 
-case class CompositeDifferentiableTransformation[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[
-  D
-], I[
-  D
-] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D]](override val outerTransformation: O[D],
-                                                                      override val innerTransformation: I[D])
+case class CompositeDifferentiableTransformation[D,
+                                                 O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[
+                                                   D
+                                                 ],
+                                                 I[
+                                                   D
+                                                 ] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D]
+](override val outerTransformation: O[D], override val innerTransformation: I[D])
     extends CompositeTransformation[D, O, I](outerTransformation, innerTransformation)
     with CanDifferentiateWRTPosition[D] {
 
@@ -95,7 +105,9 @@ case class CompositeDifferentiableTransformation[D, O[D] <: ParametricTransforma
 }
 
 object CompositeDifferentiableTransformation {
-  def apply[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D], I[D] <: ParametricTransformation[
+  def apply[D, O[D] <: ParametricTransformation[D] with CanDifferentiateWRTPosition[D], I[
+    D
+  ] <: ParametricTransformation[
     D
   ] with CanDifferentiateWRTPosition[D]](
     outerTransformation: O[D],
@@ -105,9 +117,13 @@ object CompositeDifferentiableTransformation {
   }
 }
 
-case class ProductTransformationSpaceWithDifferentiableTransforms[D, OuterTS[D] <: TransformationSpaceWithDifferentiableTransforms[
-  D
-], InnerTS[D] <: TransformationSpaceWithDifferentiableTransforms[D]](
+case class ProductTransformationSpaceWithDifferentiableTransforms[
+  D,
+  OuterTS[D] <: TransformationSpaceWithDifferentiableTransforms[
+    D
+  ],
+  InnerTS[D] <: TransformationSpaceWithDifferentiableTransforms[D]
+](
   outerTS: OuterTS[D],
   innerTS: InnerTS[D]
 ) extends TransformationSpaceWithDifferentiableTransforms[D] {
@@ -122,7 +138,8 @@ case class ProductTransformationSpaceWithDifferentiableTransforms[D, OuterTS[D] 
     val outerParams = p(0 until outerTS.numberOfParameters)
     val innerParams = p(outerTS.numberOfParameters until innerTS.numberOfParameters)
     CompositeDifferentiableTransformation(outerTS.transformationForParameters(outerParams),
-                                          innerTS.transformationForParameters(innerParams))
+                                          innerTS.transformationForParameters(innerParams)
+    )
   }
 
   /** returns identity transformation) */

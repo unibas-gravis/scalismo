@@ -21,16 +21,21 @@ import scala.language.higherKinds
 /**
  * Base trait for all interpolators that can be used to interpolate a [[DiscreteField]]
  *
- * @tparam D       Dimensionality
- * @tparam DDomain Type of the [[PointSet]] that the interpolator can interpolate
- * @tparam A       The value type
+ * @tparam D
+ *   Dimensionality
+ * @tparam DDomain
+ *   Type of the [[PointSet]] that the interpolator can interpolate
+ * @tparam A
+ *   The value type
  */
 trait FieldInterpolator[D, DDomain[D] <: DiscreteDomain[D], A] {
 
   /**
    * Interpolates a given discrete field using the given interpolator.
-   * @param df the discrete field to be interpolated
-   * @return A continuous field of the same type.
+   * @param df
+   *   the discrete field to be interpolated
+   * @return
+   *   A continuous field of the same type.
    */
   def interpolate(df: DiscreteField[D, DDomain, A]): Field[D, A]
 }

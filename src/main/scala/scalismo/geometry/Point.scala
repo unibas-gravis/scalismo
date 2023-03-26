@@ -169,16 +169,21 @@ object Point {
 
   /**
    * create a Cartesian point from polar coordinates
-   * @param r radial distance, 0 .. infinity
-   * @param phi azimuth, 0 .. 2*Pi
+   * @param r
+   *   radial distance, 0 .. infinity
+   * @param phi
+   *   azimuth, 0 .. 2*Pi
    */
   def fromPolar(r: Double, phi: Double): Point[_2D] = EuclideanVector.fromPolar(r, phi).toPoint
 
   /**
    * create a Cartesian point from spherical coordinates
-   * @param r radial distance, 0 .. infinity
-   * @param theta inclination, 0 .. Pi
-   * @param phi azimuth, 0 .. 2*Pi
+   * @param r
+   *   radial distance, 0 .. infinity
+   * @param theta
+   *   inclination, 0 .. Pi
+   * @param phi
+   *   azimuth, 0 .. 2*Pi
    */
   def fromSpherical(r: Double, theta: Double, phi: Double): Point[_3D] =
     EuclideanVector.fromSpherical(r, theta, phi).toPoint

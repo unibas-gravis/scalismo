@@ -51,9 +51,12 @@ private[scalismo] object ScalarDataType extends Enumeration {
 
   /**
    * Return the ScalarType value corresponding to a given type
-   * @tparam T a scalar type
-   * @return the corresponding ScalarType value
-   * @throws IllegalArgumentException if no corresponding value was found.
+   * @tparam T
+   *   a scalar type
+   * @return
+   *   the corresponding ScalarType value
+   * @throws IllegalArgumentException
+   *   if no corresponding value was found.
    */
   def fromType[T: Scalar]: Value = {
     Scalar[T].scalarType match {
@@ -71,9 +74,12 @@ private[scalismo] object ScalarDataType extends Enumeration {
 
   /**
    * Return the ScalarType value corresponding to a given VTK type constant
-   * @param vtkId a VTK type constant
-   * @return the corresponding ScalarType value
-   * @throws IllegalArgumentException if no corresponding value was found.
+   * @param vtkId
+   *   a VTK type constant
+   * @return
+   *   the corresponding ScalarType value
+   * @throws IllegalArgumentException
+   *   if no corresponding value was found.
    */
   def fromVtkId(vtkId: Int): Value = {
     // there are two ways in VTK to represent a (signed) byte.
@@ -84,9 +90,12 @@ private[scalismo] object ScalarDataType extends Enumeration {
 
   /**
    * Return the ScalarType value corresponding to a given Nifti type constant
-   * @param niftiId a Nifti type constant
-   * @return the corresponding ScalarType value
-   * @throws IllegalArgumentException if no corresponding value was found.
+   * @param niftiId
+   *   a Nifti type constant
+   * @return
+   *   the corresponding ScalarType value
+   * @throws IllegalArgumentException
+   *   if no corresponding value was found.
    */
   def fromNiftiId(niftiId: Short): ScalarDataType.Value = {
     values
@@ -95,9 +104,13 @@ private[scalismo] object ScalarDataType extends Enumeration {
   }
 
   /**
-   * Return the ScalarType value corresponding to the data present in a given file. Only .vtk, .nii and .nia files are supported.
-   * @param file the file to check
-   * @return the scalar type present in the given file, wrapped in a [[scala.util.Success]], or a [[scala.util.Failure]] explaining the error.
+   * Return the ScalarType value corresponding to the data present in a given file. Only .vtk, .nii and .nia files are
+   * supported.
+   * @param file
+   *   the file to check
+   * @return
+   *   the scalar type present in the given file, wrapped in a [[scala.util.Success]], or a [[scala.util.Failure]]
+   *   explaining the error.
    */
   def ofFile(file: File): Try[ScalarDataType.Value] = {
     val fn = file.getName
@@ -119,7 +132,8 @@ private[scalismo] object ScalarDataType extends Enumeration {
       // prevent memory leaks
       vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
       ScalarDataType.fromVtkId(st)
-    } else {
+    }
+    else {
       Failure(new Exception(s"File $file: unsupported file extension"))
     }
   }

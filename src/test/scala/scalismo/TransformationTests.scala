@@ -178,12 +178,11 @@ class TransformationTests extends ScalismoTestSuite {
       val inverseRotation = rotation.inverse
 
       val rotRotMesh = mesh.transform(rotation).transform(inverseRotation)
-      rotRotMesh.pointSet.points.zipWithIndex.foreach {
-        case (p, i) =>
-          val id = PointId(i)
-          p(0) should be(mesh.pointSet.point(id)(0) +- 0.000001)
-          p(1) should be(mesh.pointSet.point(id)(1) +- 0.000001)
-          p(2) should be(mesh.pointSet.point(id)(2) +- 0.000001)
+      rotRotMesh.pointSet.points.zipWithIndex.foreach { case (p, i) =>
+        val id = PointId(i)
+        p(0) should be(mesh.pointSet.point(id)(0) +- 0.000001)
+        p(1) should be(mesh.pointSet.point(id)(1) +- 0.000001)
+        p(2) should be(mesh.pointSet.point(id)(2) +- 0.000001)
       }
     }
   }
@@ -205,7 +204,8 @@ class TransformationTests extends ScalismoTestSuite {
     val similarityTransformation =
       TranslationAfterScalingAfterRotation2D(Translation(EuclideanVector2D(2.0, 5.0)),
                                              Scaling(2.0),
-                                             Rotation(Math.PI / 2.0, Point2D(0, 0)))
+                                             Rotation(Math.PI / 2.0, Point2D(0, 0))
+      )
 
     it("correctly transforms a 2D point") {
       val point = Point(1.0, 1.0)

@@ -21,15 +21,15 @@ import breeze.stats.distributions.Gaussian
 import scalismo.utils.Random
 
 /**
- * Implementation of a Randomized approach for SVD,
- * as proposed in
- * Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions
- * N Halko, PG Martinsson, JA Tropp - SIAM review, 2011 - SIAM
+ * Implementation of a Randomized approach for SVD, as proposed in Finding structure with randomness: Probabilistic
+ * algorithms for constructing approximate matrix decompositions N Halko, PG Martinsson, JA Tropp - SIAM review, 2011 -
+ * SIAM
  */
 object RandomSVD {
 
-  def computeSVD(A: DenseMatrix[Double],
-                 k: Int)(implicit rand: Random): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
+  def computeSVD(A: DenseMatrix[Double], k: Int)(implicit
+    rand: Random
+  ): (DenseMatrix[Double], DenseVector[Double], DenseMatrix[Double]) = {
 
     require(A.rows == A.cols) // might be removed later (check in Halko paper)
 

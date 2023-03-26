@@ -83,7 +83,7 @@ class ImageIOTests extends ScalismoTestSuite {
         case Success(img) =>
           val doubles = img.data.map(v => implicitly[Scalar[T]].toDouble(v)).iterator.toArray
           (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
-        //println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
+        // println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
 
       }
       read should be a Symbol("Success")
@@ -99,7 +99,7 @@ class ImageIOTests extends ScalismoTestSuite {
         case Success(img) =>
           val doubles = img.data.map(v => implicitly[Scalar[T]].toDouble(v)).iterator.toArray
           (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
-        //println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
+        // println("vtk " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
       }
       reread should be a Symbol("Success")
       vtk.delete()
@@ -115,7 +115,7 @@ class ImageIOTests extends ScalismoTestSuite {
           case Success(img) =>
             val doubles = img.data.map(v => implicitly[Scalar[T]].toDouble(v)).iterator.toArray
             (doubles.length, doubles.min, doubles.max) should equal((8, 42.0, 49.0))
-          //println("nii " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
+          // println("nii " + typeOf[T] + " " + dim+ " " + img.data.getClass + " " + img.data.deep)
         }
         nii.delete()
       }
@@ -162,7 +162,8 @@ class ImageIOTests extends ScalismoTestSuite {
     it("can be stored to VTK and re-read in right precision") {
       val domain = DiscreteImageDomain3D(Point(-72.85742f, -72.85742f, -273.0f),
                                          EuclideanVector(0.85546875f, 0.85546875f, 1.5f),
-                                         IntVector(15, 15, 15))
+                                         IntVector(15, 15, 15)
+      )
       val values = DenseVector.zeros[Short](15 * 15 * 15).data
       val discreteImage = DiscreteImage(domain, ScalarArray(values))
       val f = File.createTempFile("dummy", ".vtk")

@@ -26,9 +26,8 @@ import scalismo.transformations.TransformationSpace
 import scala.collection.parallel.immutable.ParVector
 
 /**
- * Image to image metric which applies a loss function to the pointwise pixel difference.
- * The total value of the metric is the mean of this pointwise loss. The points are determined by
- * the sampler.
+ * Image to image metric which applies a loss function to the pointwise pixel difference. The total value of the metric
+ * is the mean of this pointwise loss. The points are determined by the sampler.
  */
 abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
   fixedImage: Field[D, A],
@@ -106,8 +105,8 @@ abstract class MeanPointwiseLossMetric[D: NDSpace, A: Scalar](
     // we compute the mean using a monte carlo integration
     val samples = sampler.sample()
     val zeroVector = DenseVector.zeros[Double](transformationSpace.numberOfParameters)
-    val gradientValues = new ParVector(samples.toVector).map {
-      case (pt, _) => fullMetricGradient(pt).getOrElse(zeroVector)
+    val gradientValues = new ParVector(samples.toVector).map { case (pt, _) =>
+      fullMetricGradient(pt).getOrElse(zeroVector)
     }
 
     gradientValues.foldLeft(zeroVector)((acc, g) => acc + g) * (1.0 / samples.size)

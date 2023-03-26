@@ -5,12 +5,13 @@ import scalismo.common.{EuclideanSpace, Field, RealSpace}
 import scalismo.geometry
 import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, NDSpace, Point, SquareMatrix}
 import scalismo.transformations.ParametricTransformation.JacobianField
-import scalismo.transformations.TransformationSpace.{ParameterVector}
+import scalismo.transformations.TransformationSpace.ParameterVector
 
 /**
  * D-dimensional translation transform that is parametric, invertible and differentiable
  *
- *  @param t Translation vector
+ * @param t
+ *   Translation vector
  */
 case class Scaling[D: NDSpace](s: Double) extends RigidTransformation[D] {
 
@@ -66,7 +67,7 @@ case class ScalingSpace[D: NDSpace]() extends TransformationSpaceWithDifferentia
     Scaling(1.0)
   }
 
-  /**Returns a translation transform, where the translation vectors' coordinates are the given parameters*/
+  /** Returns a translation transform, where the translation vectors' coordinates are the given parameters */
   override def transformationForParameters(p: ParameterVector): Scaling[D] = Scaling[D](p(0))
 }
 

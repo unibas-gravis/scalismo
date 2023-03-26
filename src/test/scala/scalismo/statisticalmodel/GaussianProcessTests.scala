@@ -30,7 +30,8 @@ import scalismo.image.{
   DiscreteImageDomain3D,
   StructuredPoints
 }
-import scalismo.io.{StatismoIO, StatisticalModelIO}
+import scalismo.io.StatisticalModelIO
+import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{GridSampler, UniformSampler}
@@ -183,7 +184,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
         .approximateGPNystrom[_3D, EuclideanVector[_3D]](gp, UniformSampler(domain, 6 * 6 * 6), 50)
 
       val trainingData = IndexedSeq((Point(-3.0, -3.0, -1.0), EuclideanVector(1.0, 1.0, 2.0)),
-                                    (Point(-1.0, 3.0, 0.0), EuclideanVector(0.0, -1.0, 0.0)))
+                                    (Point(-1.0, 3.0, 0.0), EuclideanVector(0.0, -1.0, 0.0))
+      )
       val posteriorGPLowRank = gpLowRank.posterior(trainingData, 1e-5)
       val posteriorGP = gp.posterior(trainingData, 1e-5)
 
@@ -229,9 +231,11 @@ class GaussianProcessTests extends ScalismoTestSuite {
       posteriorGPLowRankRegular.rank should equal(posteriorGPLowRankWithNaN.rank)
       for (point <- trainingDataRegular.unzip3._1) yield {
         (posteriorGPLowRankRegular.mean(point) - posteriorGPLowRankWithNaN.mean(point)).norm should be < 1e-5
-        for ((klBasisRegular, klBasisWithNan) <- posteriorGPLowRankRegular.klBasis
-               .zip(posteriorGPLowRankWithNaN.klBasis)) {
-          //(klBasisRegular.eigenfunction(point) - klBasisWithNan.eigenfunction(point)).norm should be < 1e-5
+        for (
+          (klBasisRegular, klBasisWithNan) <- posteriorGPLowRankRegular.klBasis
+            .zip(posteriorGPLowRankWithNaN.klBasis)
+        ) {
+          // (klBasisRegular.eigenfunction(point) - klBasisWithNan.eigenfunction(point)).norm should be < 1e-5
           Math.abs(klBasisRegular.eigenvalue - klBasisWithNan.eigenvalue) should be < 1e-5
         }
       }
@@ -245,30 +249,31 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val ddomain = UnstructuredPointsDomain3D(points)
       val trainingData = ddomain.pointSet.points.map(p => (p, EuclideanVector3D(1.0, 1.0, 1.0))).toIndexedSeq
 
-      //define the various gps
+      // define the various gps
       val gp = GaussianProcess[_3D, EuclideanVector[_3D]](meanField, DiagonalKernel(GaussianKernel[_3D](5), 3))
       val lowRankGp = LowRankGaussianProcess
         .approximateGPCholesky[_3D, UnstructuredPointsDomain, EuclideanVector[_3D]](ddomain,
                                                                                     gp,
                                                                                     0.01,
-                                                                                    NearestNeighborInterpolator3D())
+                                                                                    NearestNeighborInterpolator3D()
+        )
       val discreteLowRankGp = lowRankGp.discretize(ddomain)
 
-      //calculate the posteriors
+      // calculate the posteriors
       val gpPosterior = gp.posterior(trainingData, 0.1)
       val lowRankPosterior = lowRankGp.posterior(trainingData, 0.1)
       val discreteLrPosterior =
         discreteLowRankGp.posterior(trainingData.map(t => (ddomain.pointSet.findClosestPoint(t._1).id, t._2)), 0.1)
 
-      //check all the means
+      // check all the means
       val vectorCheck = (v: EuclideanVector[_3D]) => {
         v.x should be(1.0 +- 1e-5)
         v.y should be(1.0 +- 1e-5)
         v.z should be(1.0 +- 1e-5)
       }
-      ddomain.pointSet.points.map(gpPosterior.mean).foreach(vectorCheck) //full gp check
-      ddomain.pointSet.points.map(lowRankPosterior.mean).foreach(vectorCheck) //low rank gp check
-      ddomain.pointSet.pointIds.map(discreteLrPosterior.mean).foreach(vectorCheck) //discrete low rank gp check
+      ddomain.pointSet.points.map(gpPosterior.mean).foreach(vectorCheck) // full gp check
+      ddomain.pointSet.points.map(lowRankPosterior.mean).foreach(vectorCheck) // low rank gp check
+      ddomain.pointSet.pointIds.map(discreteLrPosterior.mean).foreach(vectorCheck) // discrete low rank gp check
     }
 
   }
@@ -463,7 +468,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
           LowRankGaussianProcess.approximateGPCholesky(ssm.referenceMesh,
                                                        gpToApproximate,
                                                        epsilon,
-                                                       NearestNeighborInterpolator())
+                                                       NearestNeighborInterpolator()
+          )
 
         val approxVariance = approximatedGP.klBasis.map(_.eigenvalue).sum
 
@@ -484,7 +490,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
         LowRankGaussianProcess.approximateGPCholesky(ssm.referenceMesh,
                                                      gpToApproximate,
                                                      0.0,
-                                                     NearestNeighborInterpolator())
+                                                     NearestNeighborInterpolator()
+        )
 
       val rank = gpToApproximate.rank
       for (i <- 0 until 10) yield {
@@ -517,15 +524,16 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val trainingData = IndexedSeq((0, EuclideanVector.zeros[_3D]),
                                     (discretizationPoints.size / 2, EuclideanVector.zeros[_3D]),
-                                    (discretizationPoints.size - 1, EuclideanVector.zeros[_3D])).map {
-        case (i, v) => (PointId(i), v)
+                                    (discretizationPoints.size - 1, EuclideanVector.zeros[_3D])
+      ).map { case (i, v) =>
+        (PointId(i), v)
       }
       val cov = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3) * 1e-5)
 
       val trainingDataDiscreteGP = trainingData.map { case (ptId, v) => (ptId, v, cov) }
-      val trainingDataGP = trainingData.map { case (ptId, v)         => (discretizationPoints(ptId.id), v) }
-      val trainingDataLowRankGP = trainingDataDiscreteGP.map {
-        case (ptId, v, cov) => (discreteLowRankGp.domain.pointSet.point(ptId), v, cov)
+      val trainingDataGP = trainingData.map { case (ptId, v) => (discretizationPoints(ptId.id), v) }
+      val trainingDataLowRankGP = trainingDataDiscreteGP.map { case (ptId, v, cov) =>
+        (discreteLowRankGp.domain.pointSet.point(ptId), v, cov)
       }
 
     }
@@ -627,8 +635,8 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
       val discreteInstance = f.discreteLowRankGp.instance(coeffs)
       val contInterpolatedInstance = interpolatedGP.instance(coeffs)
-      f.discreteLowRankGp.domain.pointSet.pointsWithId.foreach {
-        case (p, i) => discreteInstance(i) shouldBe contInterpolatedInstance(p)
+      f.discreteLowRankGp.domain.pointSet.pointsWithId.foreach { case (p, i) =>
+        discreteInstance(i) shouldBe contInterpolatedInstance(p)
       }
     }
 
@@ -660,7 +668,7 @@ class GaussianProcessTests extends ScalismoTestSuite {
       val f = Fixture
       val gp = f.discreteLowRankGp
       val points = (0 until 1000) map { i =>
-        random.scalaRandom.nextInt(gp._domain.pointSet.numberOfPoints)
+        random.scalaRandom.nextInt(gp.domain.pointSet.numberOfPoints)
       }
       points.foreach { pid =>
         val k = gp.rank

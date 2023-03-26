@@ -40,7 +40,8 @@ class MetricTests extends ScalismoTestSuite {
       val domain = BoxDomain(0.0, 1.0)
       val img = DifferentiableField(BoxDomain(0.0, 1.0),
                                     (x: Point[_1D]) => (x * x).toFloat,
-                                    (x: Point[_1D]) => EuclideanVector(2.0) * x(0))
+                                    (x: Point[_1D]) => EuclideanVector(2.0) * x(0)
+      )
       val transSpace = TranslationSpace1D
       val sampler = UniformSampler(domain, 1000)
       MeanSquaresMetric(img, img, transSpace, sampler).value(transSpace.identityTransformation.parameters) should be(

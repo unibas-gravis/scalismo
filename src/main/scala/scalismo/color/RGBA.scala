@@ -90,8 +90,7 @@ case class RGBA(r: Double, g: Double, b: Double, a: Double) {
   }
 
   /**
-   * convert to AWT default color
-   * expects a clamped color value
+   * convert to AWT default color expects a clamped color value
    */
   def toAWTColor: Color = new java.awt.Color(r.toFloat, g.toFloat, b.toFloat, a.toFloat)
 }
@@ -114,7 +113,8 @@ object RGBA {
     RGBA(fromInt8(awtColor.getRed),
          fromInt8(awtColor.getGreen),
          fromInt8(awtColor.getBlue),
-         fromInt8(awtColor.getAlpha))
+         fromInt8(awtColor.getAlpha)
+    )
 
   /** implementation of the Vectorizer interface for RGBA */
   implicit object RGBAComponents extends ComponentRepresentation[RGBA] with Vectorizer[RGBA] {
@@ -178,7 +178,8 @@ object RGBA {
       RGBA(obj1.r * l + (1.0 - l) * obj2.r,
            obj1.g * l + (1.0 - l) * obj2.g,
            obj1.b * l + (1.0 - l) * obj2.b,
-           obj1.a * l + (1.0 - l) * obj2.a)
+           obj1.a * l + (1.0 - l) * obj2.a
+      )
 
     override def average(first: RGBA, rest: RGBA*): RGBA = {
       var r = first.r
@@ -199,11 +200,12 @@ object RGBA {
       RGBA(v1.r * f1 + v2.r * f2 + v3.r * f3,
            v1.g * f1 + v2.g * f2 + v3.g * f3,
            v1.b * f1 + v2.b * f2 + v3.b * f3,
-           v1.a * f1 + v2.a * f2 + v3.a * f3)
+           v1.a * f1 + v2.a * f2 + v3.a * f3
+      )
     }
   }
 
-  //private def toInt8(value: Double): Int = (value * 255.0).toInt
+  // private def toInt8(value: Double): Int = (value * 255.0).toInt
 
   private def fromInt8(intValue: Int): Double = intValue / 255.0
 }

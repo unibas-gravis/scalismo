@@ -31,7 +31,7 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
   implicit val rng: Random = Random(42L)
 
   private def createTmpH5File(): File = {
-    val f = File.createTempFile("hdf5file", ".h5")
+    val f = File.createTempFile("hdf5file", ".h5.json")
     f.deleteOnExit()
     f
   }
@@ -47,12 +47,14 @@ class ActiveShapeModelIOTests extends ScalismoTestSuite {
     val dists =
       for (i <- pointIds.indices)
         yield new MultivariateNormalDistribution(DenseVector.ones[Double](3) * i.toDouble,
-                                                 DenseMatrix.eye[Double](3) * i.toDouble)
+                                                 DenseMatrix.eye[Double](3) * i.toDouble
+        )
     val profiles = new Profiles(pointIds.toIndexedSeq.zip(dists).map { case (i, d) => Profile(i, d) })
     new ActiveShapeModel(shapeModel,
                          profiles,
                          GaussianGradientImagePreprocessor(1),
-                         NormalDirectionFeatureExtractor(1, 1))
+                         NormalDirectionFeatureExtractor(1, 1)
+    )
   }
 
   describe("An active shape model") {

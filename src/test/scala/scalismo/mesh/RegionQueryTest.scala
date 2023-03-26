@@ -55,7 +55,7 @@ class RegionQueryTest extends ScalismoTestSuite {
 
       val bigBox = mesh.boundingBox
 
-      //Smaller Region
+      // Smaller Region
       val o = bigBox.origin
       val e = bigBox.extent * 0.5
       val nBox = BoxDomain(o, o + e)

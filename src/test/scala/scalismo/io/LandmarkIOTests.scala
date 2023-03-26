@@ -109,7 +109,7 @@ class LandmarkIOTests extends ScalismoTestSuite {
 
     it("can serialize and deserialize simple landmarks using JSON") {
       val out = new ByteArrayOutputStream()
-      LandmarkIO.writeLandmarksJsonToStream(jsonLms, out)
+      LandmarkIO.writeLandmarksJsonToStream(jsonLms, out).get
       val written = new String(out.toByteArray)
       val read = LandmarkIO.readLandmarksJsonFromSource[_3D](Source.fromString(written)).get
       read should equal(jsonLms)

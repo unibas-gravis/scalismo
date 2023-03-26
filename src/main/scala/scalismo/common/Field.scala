@@ -31,8 +31,8 @@ object Field {
   }
 
   /**
-   * Lifts a function between pixel values such that it acts on image intensities.
-   * This is useful to write functions that manipulate the image intensities.
+   * Lifts a function between pixel values such that it acts on image intensities. This is useful to write functions
+   * that manipulate the image intensities.
    */
   def lift[D, A](fl: A => A): Field[D, A] => Field[D, A] = { (field: Field[D, A]) =>
     new Field[D, A] {
@@ -57,8 +57,7 @@ object Field3D {
 }
 
 /**
- * An image is simply a function from points to values, together with a domain on which the
- * function is defined.
+ * An image is simply a function from points to values, together with a domain on which the function is defined.
  */
 trait Field[D, A] extends Function1[Point[D], A] {
   self =>
@@ -70,8 +69,7 @@ trait Field[D, A] extends Function1[Point[D], A] {
   def isDefinedAt(pt: Point[D]): Boolean = domain.isDefinedAt(pt)
 
   /**
-   * The value of the image at a given point.
-   * if an image is accessed outside of its definition, an exception is thrown
+   * The value of the image at a given point. if an image is accessed outside of its definition, an exception is thrown
    */
   override def apply(x: Point[D]): A = {
     if (!isDefinedAt(x)) throw new IllegalArgumentException(s"Point $x is outside the domain")
@@ -112,8 +110,8 @@ trait Field[D, A] extends Function1[Point[D], A] {
   }
 
   /**
-   * Lifts the definition of the value function such that it is defined everywhere,
-   * but yields none if the value is outside of the domain
+   * Lifts the definition of the value function such that it is defined everywhere, but yields none if the value is
+   * outside of the domain
    */
   def liftValues: Field[D, Option[A]] = {
     val fun = { (x: Point[D]) =>
@@ -124,7 +122,8 @@ trait Field[D, A] extends Function1[Point[D], A] {
   }
 
   def discretize[DDomain[DD] <: DiscreteDomain[DD]](domain: DDomain[D],
-                                                    outsideValue: A): DiscreteField[D, DDomain, A] = {
+                                                    outsideValue: A
+  ): DiscreteField[D, DDomain, A] = {
 
     val nbChunks = Runtime.getRuntime().availableProcessors() * 2
     val pointChunks = ParVector.fromSpecific(domain.pointSet.pointsInChunks(nbChunks))
@@ -165,8 +164,8 @@ trait DifferentiableField[D, A] extends Field[D, A] { self =>
 }
 
 object DifferentiableField {
-  def apply[D, A](domain: Domain[D], f: Point[D] => A, df: Point[D] => EuclideanVector[D])(
-    implicit scalar: Scalar[A]
+  def apply[D, A](domain: Domain[D], f: Point[D] => A, df: Point[D] => EuclideanVector[D])(implicit
+    scalar: Scalar[A]
   ): DifferentiableField[D, A] = {
 
     val outerdf = df
@@ -184,19 +183,19 @@ object DifferentiableField {
 }
 
 object DifferentiableField1D {
-  def apply[A](domain: Domain[_1D], f: Point[_1D] => A, df: Point[_1D] => EuclideanVector[_1D])(
-    implicit scalar: Scalar[A]
+  def apply[A](domain: Domain[_1D], f: Point[_1D] => A, df: Point[_1D] => EuclideanVector[_1D])(implicit
+    scalar: Scalar[A]
   ): DifferentiableField[_1D, A] = DifferentiableField(domain, f, df)
 }
 
 object DifferentiableField2D {
-  def apply[A](domain: Domain[_2D], f: Point[_2D] => A, df: Point[_2D] => EuclideanVector[_2D])(
-    implicit scalar: Scalar[A]
+  def apply[A](domain: Domain[_2D], f: Point[_2D] => A, df: Point[_2D] => EuclideanVector[_2D])(implicit
+    scalar: Scalar[A]
   ): DifferentiableField[_2D, A] = DifferentiableField(domain, f, df)
 }
 
 object DifferentiableField3D {
-  def apply[A](domain: Domain[_3D], f: Point[_3D] => A, df: Point[_3D] => EuclideanVector[_3D])(
-    implicit scalar: Scalar[A]
+  def apply[A](domain: Domain[_3D], f: Point[_3D] => A, df: Point[_3D] => EuclideanVector[_3D])(implicit
+    scalar: Scalar[A]
   ): DifferentiableField[_3D, A] = DifferentiableField(domain, f, df)
 }

@@ -13,28 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.io
+package scalismo.io.statisticalmodel
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
-import scalismo.common.{PointId}
+import scalismo.common.PointId
 import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
-import scalismo.mesh.{
-  LineCell,
-  LineList,
-  LineMesh2D,
-  LineMesh3D,
-  TetrahedralCell,
-  TetrahedralList,
-  TetrahedralMesh3D,
-  TriangleCell,
-  TriangleList,
-  TriangleMesh2D,
-  TriangleMesh3D
-}
+import scalismo.geometry._
+import scalismo.io.StatismoDomainIO
+import scalismo.mesh._
 
 import scala.language.higherKinds
-import scala.util.{Failure, Success, Try}
 
 class StatismoDomainIOTests extends ScalismoTestSuite {
 
@@ -48,7 +36,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTriangleMesh2D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOTriangleMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                                Option(cellsAsArray))
+                                                                                Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }
@@ -63,7 +52,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOTriangleMesh3D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOTriangleMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                                Option(cellsAsArray))
+                                                                                Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }
@@ -93,7 +83,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOLineMesh2D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOLineMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                            Option(cellsAsArray))
+                                                                            Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }
@@ -108,7 +99,8 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val cellsAsArray: NDArray[Int] = StatismoDomainIO.domainIOLineMesh3D.cellsToArray(input)
       val t = for {
         output <- StatismoDomainIO.domainIOLineMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
-                                                                            Option(cellsAsArray))
+                                                                            Option(cellsAsArray)
+        )
       } yield {
         assert(input == output)
       }

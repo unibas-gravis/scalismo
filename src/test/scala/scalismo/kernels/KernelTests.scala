@@ -71,7 +71,8 @@ class KernelTests extends ScalismoTestSuite {
       val gp =
         LowRankGaussianProcess.approximateGPNystrom[_3D, EuclideanVector[_3D]](GaussianProcess(Field(domain, mu), k),
                                                                                samplerForNystromApprox,
-                                                                               500)
+                                                                               500
+        )
 
       val sampleTransformations = for (i <- (0 until 5000)) yield {
         // TODO: gp.sample() should (arguably) accept seed.

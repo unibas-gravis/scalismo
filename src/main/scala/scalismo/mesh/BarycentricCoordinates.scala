@@ -30,8 +30,8 @@ case class BarycentricCoordinates(a: Double, b: Double, c: Double) {
   }
 
   /** perform bcc interpolation: interpolate vertex values within triangle, needs Interpolation[T] */
-  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A)(
-    implicit blender: ValueInterpolator[A]
+  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A)(implicit
+    blender: ValueInterpolator[A]
   ): A = {
     blender.barycentricInterpolation(v1, a, v2, b, v3, c)
   }
@@ -123,8 +123,8 @@ case class BarycentricCoordinates4(a: Double, b: Double, c: Double, d: Double) {
   }
 
   /** perform bcc interpolation: interpolate vertex values within triangle, needs Interpolation[T] */
-  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A, v4: A)(
-    implicit blender: ValueInterpolator[A]
+  def interpolateProperty[@specialized(Float, Double) A](v1: A, v2: A, v3: A, v4: A)(implicit
+    blender: ValueInterpolator[A]
   ): A = {
     blender.barycentricInterpolation(v1, a, v2, b, v3, c, v4, d)
   }
@@ -163,7 +163,8 @@ object BarycentricCoordinates4 {
                          a: Point[_3D],
                          b: Point[_3D],
                          c: Point[_3D],
-                         d: Point[_3D]): BarycentricCoordinates4 = {
+                         d: Point[_3D]
+  ): BarycentricCoordinates4 = {
     // following https://www.cdsimpson.net/2014/10/barycentric-coordinates.html
     val vap = pt - a
     val vbp = pt - b

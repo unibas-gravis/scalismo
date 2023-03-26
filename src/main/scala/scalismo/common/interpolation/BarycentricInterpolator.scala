@@ -49,7 +49,8 @@ case class BarycentricInterpolator3D[A: ValueInterpolator]() extends Barycentric
           bc.interpolateProperty(df(tetrahedron.ptId1),
                                  df(tetrahedron.ptId2),
                                  df(tetrahedron.ptId3),
-                                 df(tetrahedron.ptId4))
+                                 df(tetrahedron.ptId4)
+          )
         case _ => {
           throw new IllegalStateException(
             "invalid closest point type encountered while interpolating. This should never happend"

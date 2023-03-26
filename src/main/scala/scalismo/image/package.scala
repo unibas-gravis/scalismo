@@ -19,14 +19,15 @@ import scalismo.common.DiscreteField
 import scalismo.geometry.{IntVector, NDSpace}
 
 /**
- * Contains classes for representing discrete and continuous images as well as filters for filtering both types of images.
+ * Contains classes for representing discrete and continuous images as well as filters for filtering both types of
+ * images.
  *
- * In this library, the standard type of images are just functions, defined on some domain.
- * There is also the more traditional discrete image type, which represents image data on a regular pixel/voxel grid.
+ * In this library, the standard type of images are just functions, defined on some domain. There is also the more
+ * traditional discrete image type, which represents image data on a regular pixel/voxel grid.
  *
- * DiscreteImages are mainly used for reading/writing and simple manipulation of image values. The continuous representation
- * of images is much more flexible and most method for manipulating images are defined only on this image type.
- * A discrete image can be converted to a continuous image by using an interpolation procedure:
+ * DiscreteImages are mainly used for reading/writing and simple manipulation of image values. The continuous
+ * representation of images is much more flexible and most method for manipulating images are defined only on this image
+ * type. A discrete image can be converted to a continuous image by using an interpolation procedure:
  * {{{
  * val domain = StructuredPoints(Point(0,0), Vector(1,1), Index(255,255))
  * val di = DiscreteImage(domain)(0)

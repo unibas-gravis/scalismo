@@ -29,10 +29,10 @@ trait MeshManipulation {
   def transformedMesh: TriangleMesh[_3D]
 
   /**
-   * apply operation to a surface property
-   * default implementation: warps old surface property (general but inefficient)
+   * apply operation to a surface property default implementation: warps old surface property (general but inefficient)
    *
-   * @param property surface property to transform
+   * @param property
+   *   surface property to transform
    */
   def applyToSurfaceProperty[A](property: MeshSurfaceProperty[A]): MeshSurfaceProperty[A] =
     WarpedMeshSurfaceProperty(property, meshSurfaceCorrespondence)
@@ -44,11 +44,15 @@ trait MeshManipulation {
 }
 
 /**
- * compact a mesh: remove unreferenced points and triangles with invalid points, also respects external filters for points and triangles
+ * compact a mesh: remove unreferenced points and triangles with invalid points, also respects external filters for
+ * points and triangles
  *
- * @param mesh           mesh to compact
- * @param pointFilter    filter to remove points, keeps on true
- * @param triangleFilter filter to remove triangles, keeps on true
+ * @param mesh
+ *   mesh to compact
+ * @param pointFilter
+ *   filter to remove points, keeps on true
+ * @param triangleFilter
+ *   filter to remove triangles, keeps on true
  */
 class MeshCompactifier(mesh: TriangleMesh[_3D], pointFilter: PointId => Boolean, triangleFilter: TriangleId => Boolean)
     extends MeshManipulation {
@@ -142,7 +146,8 @@ class MeshCompactifier(mesh: TriangleMesh[_3D], pointFilter: PointId => Boolean,
     override def targetTriangulation: TriangleList = mesh.triangulation
 
     override def correspondingPoint(triangleId: TriangleId,
-                                    bcc: BarycentricCoordinates): (TriangleId, BarycentricCoordinates) =
+                                    bcc: BarycentricCoordinates
+    ): (TriangleId, BarycentricCoordinates) =
       (triangleBackMap(triangleId), bcc)
   }
 }
@@ -150,6 +155,7 @@ class MeshCompactifier(mesh: TriangleMesh[_3D], pointFilter: PointId => Boolean,
 object MeshCompactifier {
   def apply(mesh: TriangleMesh[_3D],
             pointFilter: PointId => Boolean,
-            triangleFilter: TriangleId => Boolean): MeshCompactifier =
+            triangleFilter: TriangleId => Boolean
+  ): MeshCompactifier =
     new MeshCompactifier(mesh, pointFilter, triangleFilter)
 }

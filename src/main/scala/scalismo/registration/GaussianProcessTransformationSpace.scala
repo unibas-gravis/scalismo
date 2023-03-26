@@ -61,35 +61,38 @@ case class GaussianProcessTransformation[D](gp: LowRankGaussianProcess[D, Euclid
 }
 
 object GaussianProcessTransformation {
-  def apply[D](gp: LowRankGaussianProcess[D, EuclideanVector[D]],
-               alpha: TransformationSpace.ParameterVector)(implicit vectorizer: Vectorizer[EuclideanVector[D]]) = {
+  def apply[D](gp: LowRankGaussianProcess[D, EuclideanVector[D]], alpha: TransformationSpace.ParameterVector)(implicit
+    vectorizer: Vectorizer[EuclideanVector[D]]
+  ) = {
     new GaussianProcessTransformation[D](gp, alpha)
   }
 }
 
 object GaussianProcessTransformation1D {
   def apply(gp: LowRankGaussianProcess[_1D, EuclideanVector[_1D]],
-            alpha: TransformationSpace.ParameterVector): GaussianProcessTransformation[_1D] = {
+            alpha: TransformationSpace.ParameterVector
+  ): GaussianProcessTransformation[_1D] = {
     new GaussianProcessTransformation[_1D](gp, alpha)
   }
 }
 
 object GaussianProcessTransformation2D {
   def apply(gp: LowRankGaussianProcess[_2D, EuclideanVector[_2D]],
-            alpha: TransformationSpace.ParameterVector): GaussianProcessTransformation[_2D] = {
+            alpha: TransformationSpace.ParameterVector
+  ): GaussianProcessTransformation[_2D] = {
     new GaussianProcessTransformation[_2D](gp, alpha)
   }
 }
 
 object GaussianProcessTransformation3D {
   def apply(gp: LowRankGaussianProcess[_3D, EuclideanVector[_3D]],
-            alpha: TransformationSpace.ParameterVector): GaussianProcessTransformation[_3D] = {
+            alpha: TransformationSpace.ParameterVector
+  ): GaussianProcessTransformation[_3D] = {
     new GaussianProcessTransformation[_3D](gp, alpha)
   }
 }
 
-case class GaussianProcessTransformationSpace[D](gp: LowRankGaussianProcess[D, EuclideanVector[D]])(
-  implicit
+case class GaussianProcessTransformationSpace[D](gp: LowRankGaussianProcess[D, EuclideanVector[D]])(implicit
   vectorizer: VectorVectorizer[D]
 ) extends TransformationSpace[D] {
 

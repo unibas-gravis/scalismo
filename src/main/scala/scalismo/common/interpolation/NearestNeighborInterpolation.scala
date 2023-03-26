@@ -19,8 +19,7 @@ import scalismo.common.{DiscreteDomain, DiscreteField, EuclideanSpace, Field, Re
 import scalismo.geometry.{_1D, _2D, _3D, Point}
 
 /**
- * Nearest neighbor interpolation of a discrete field. This implementation is generic and
- * works for any discrete field.
+ * Nearest neighbor interpolation of a discrete field. This implementation is generic and works for any discrete field.
  */
 case class NearestNeighborInterpolator[D, DDomain[DD] <: DiscreteDomain[DD], A]()
     extends FieldInterpolator[D, DDomain, A] {

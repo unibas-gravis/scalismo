@@ -23,13 +23,12 @@ import scalismo.utils.Random
 
 /**
  * Implements utility methods for evaluating similarity of [[TriangleMesh]] instances
- *
  */
 object MeshMetrics {
 
   /**
-   * For each point of the first mesh, this method computes the shortest distance to the surface of the
-   * second mesh and returns the average over all points
+   * For each point of the first mesh, this method computes the shortest distance to the surface of the second mesh and
+   * returns the average over all points
    */
   def avgDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
 
@@ -41,9 +40,9 @@ object MeshMetrics {
   }
 
   /**
-   * Partial Procrustes distance - returns the average mesh correspondence point distance after performing a rigid alignment
-   * between the two meshes. Note that no scale transformation is applied in the shape alignment.
-   * All mesh points are used for the rigid alignment, therefore both meshes must be in correspondence
+   * Partial Procrustes distance - returns the average mesh correspondence point distance after performing a rigid
+   * alignment between the two meshes. Note that no scale transformation is applied in the shape alignment. All mesh
+   * points are used for the rigid alignment, therefore both meshes must be in correspondence
    */
   def procrustesDistance(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Double = {
     require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
@@ -51,15 +50,16 @@ object MeshMetrics {
     val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
     val m1w = m1.transform(t)
-    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map {
-      case (m1wP, m2P) => (m1wP - m2P).norm
+    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map { case (m1wP, m2P) =>
+      (m1wP - m2P).norm
     }
     dists.sum / m1.pointSet.numberOfPoints
   }
 
   /**
-   * Returns the average tetrahderal mesh distance after performing a rigid alignment between the two tetrahedral meshes.
-   * All tetrahedral mesh points are used for the rigid alignment, therefore both tetrahedral meshes must be in correspondence
+   * Returns the average tetrahderal mesh distance after performing a rigid alignment between the two tetrahedral
+   * meshes. All tetrahedral mesh points are used for the rigid alignment, therefore both tetrahedral meshes must be in
+   * correspondence
    */
   def procrustesDistance(m1: TetrahedralMesh[_3D], m2: TetrahedralMesh[_3D]): Double = {
     require(m1.pointSet.numberOfPoints == m2.pointSet.numberOfPoints)
@@ -67,8 +67,8 @@ object MeshMetrics {
     val landmarks = m1.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks, Point(0, 0, 0))
     val m1w = m1.transform(t)
-    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map {
-      case (m1wP, m2P) => (m1wP - m2P).norm
+    val dists = (m1w.pointSet.points.toIndexedSeq zip m2.pointSet.points.toIndexedSeq).map { case (m1wP, m2P) =>
+      (m1wP - m2P).norm
     }
     dists.sum / m1.pointSet.numberOfPoints
   }

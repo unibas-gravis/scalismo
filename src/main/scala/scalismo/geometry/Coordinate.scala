@@ -45,9 +45,12 @@ abstract class Coordinate[D: NDSpace, @specialized(Int, Float, Double) S] {
 
 /**
  * Implementation trait for methods that are common to all representation of coordinates
- * @tparam D Dimension
- * @tparam Scalar The scalar type of the individual coordinates
- * @tparam Repr The concrete representation of a Coordinate (e.g. vector, point)
+ * @tparam D
+ *   Dimension
+ * @tparam Scalar
+ *   The scalar type of the individual coordinates
+ * @tparam Repr
+ *   The concrete representation of a Coordinate (e.g. vector, point)
  */
 private[scalismo] trait CoordinateOps[D, Scalar, Repr <: Coordinate[D, Scalar]] { self: Coordinate[D, Scalar] =>
 

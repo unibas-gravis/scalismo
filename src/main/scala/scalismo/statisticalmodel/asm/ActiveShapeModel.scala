@@ -49,18 +49,18 @@ object ActiveShapeModel {
                  trainingData: TrainingData,
                  preprocessor: ImagePreprocessor,
                  featureExtractor: FeatureExtractor,
-                 sampler: TriangleMesh[_3D] => Sampler[_3D]): ActiveShapeModel = {
+                 sampler: TriangleMesh[_3D] => Sampler[_3D]
+  ): ActiveShapeModel = {
 
     val sampled = sampler(statisticalModel.reference).sample().map(_._1).toIndexedSeq
     val pointIds = sampled.map(statisticalModel.reference.pointSet.findClosestPoint(_).id)
 
     // preprocessed images can be expensive in terms of memory, so we go through them one at a time.
-    val imageFeatures = trainingData.flatMap {
-      case (image, transform) =>
-        val (pimg, mesh) = (preprocessor(image), statisticalModel.reference.transform(transform))
-        pointIds.map { pointId =>
-          featureExtractor(pimg, mesh.pointSet.point(pointId), mesh, pointId)
-        }
+    val imageFeatures = trainingData.flatMap { case (image, transform) =>
+      val (pimg, mesh) = (preprocessor(image), statisticalModel.reference.transform(transform))
+      pointIds.map { pointId =>
+        featureExtractor(pimg, mesh.pointSet.point(pointId), mesh, pointId)
+      }
     }.toIndexedSeq
 
     // the structure is "wrongly nested" now, like: {img1:{pt1,pt2}, img2:{pt1,pt2}} (flattened).
@@ -82,16 +82,17 @@ object ActiveShapeModel {
 /**
  * Class of instances sampled from an Active Shape Model. A sample is therefore comprised of both a shape sampled from
  * the Shape Model, and a set of sample features at the profile points.
- *
  */
 case class ASMSample(mesh: TriangleMesh[_3D],
                      featureField: DiscreteFeatureField[_3D, UnstructuredPointsDomain],
-                     featureExtractor: FeatureExtractor)
+                     featureExtractor: FeatureExtractor
+)
 
 case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, TriangleMesh],
                             profiles: Profiles,
                             preprocessor: ImagePreprocessor,
-                            featureExtractor: FeatureExtractor) {
+                            featureExtractor: FeatureExtractor
+) {
 
   /**
    * Returns the mean mesh of the shape model, along with the mean feature profiles at the profile points
@@ -108,7 +109,8 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
   }
 
   /**
-   * Returns a random sample mesh from the shape model, along with randomly sampled feature profiles at the profile points
+   * Returns a random sample mesh from the shape model, along with randomly sampled feature profiles at the profile
+   * points
    */
   def sample()(implicit rand: Random): ASMSample = {
     val sampleMesh = statisticalModel.sample()
@@ -122,8 +124,8 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
   }
 
   /**
-   * Utility function that allows to randomly sample different feature profiles, while keeping the profile points
-   * Meant to allow to easily inspect/debug the feature distribution
+   * Utility function that allows to randomly sample different feature profiles, while keeping the profile points Meant
+   * to allow to easily inspect/debug the feature distribution
    */
   def sampleFeaturesOnly()(implicit rand: Random): ASMSample = {
     val smean = statisticalModel.mean
@@ -137,9 +139,8 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
   }
 
   /**
-   * Returns an Active Shape Model where both the statistical shape Model and the profile points distributions are correctly transformed
-   * according to the provided rigid transformation
-   *
+   * Returns an Active Shape Model where both the statistical shape Model and the profile points distributions are
+   * correctly transformed according to the provided rigid transformation
    */
   def transform(rigidTransformation: RigidTransformation[_3D]): ActiveShapeModel = {
     val transformedModel = statisticalModel.transform(rigidTransformation)
@@ -150,25 +151,34 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
     ModelTransformations(
       statisticalModel.coefficients(statisticalModel.mean),
       TranslationAfterRotation3D(TranslationSpace3D.identityTransformation,
-                                 RotationSpace3D(Point3D(0, 0, 0)).identityTransformation)
+                                 RotationSpace3D(Point3D(0, 0, 0)).identityTransformation
+      )
     )
 
   /**
-   * Perform an ASM fitting for the given target image.
-   * This is logically equivalent to calling <code>fitIterator(...).last</code>
+   * Perform an ASM fitting for the given target image. This is logically equivalent to calling
+   * <code>fitIterator(...).last</code>
    *
-   * @param targetImage target image to fit to.
-   * @param searchPointSampler sampler that defines the strategy where profiles are to be sampled.
-   * @param iterations maximum number of iterations for the fitting.
-   * @param config fitting configuration (thresholds). If omitted, uses [[FittingConfiguration.Default]]
-   * @param startingTransformations initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the fitting starts from the mean shape, with no rigid transformation)
-   * @return fitting result after the given number of iterations
+   * @param targetImage
+   *   target image to fit to.
+   * @param searchPointSampler
+   *   sampler that defines the strategy where profiles are to be sampled.
+   * @param iterations
+   *   maximum number of iterations for the fitting.
+   * @param config
+   *   fitting configuration (thresholds). If omitted, uses [[FittingConfiguration.Default]]
+   * @param startingTransformations
+   *   initial transformations to apply to the statistical model. If omitted, no transformations are applied (i.e. the
+   *   fitting starts from the mean shape, with no rigid transformation)
+   * @return
+   *   fitting result after the given number of iterations
    */
   def fit(targetImage: DiscreteImage[_3D, Float],
           searchPointSampler: SearchPointSampler,
           iterations: Int,
           config: FittingConfiguration = FittingConfiguration.Default,
-          startingTransformations: ModelTransformations = noTransformations): Try[FittingResult] = {
+          startingTransformations: ModelTransformations = noTransformations
+  ): Try[FittingResult] = {
 
     // we're manually looping the iterator here because we're only interested in the last result -- no need to keep all intermediates.
     val it = fitIterator(targetImage, searchPointSampler, iterations, config, startingTransformations)
@@ -184,22 +194,25 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
   }
 
   /**
-   * Perform iterative ASM fitting for the given target image. This is essentially the same as the [[fit]] method, except that it returns the full iterator, so every step can be examined.
-   * @see [[fit()]] for a description of the parameters.
-   *
+   * Perform iterative ASM fitting for the given target image. This is essentially the same as the [[fit]] method,
+   * except that it returns the full iterator, so every step can be examined.
+   * @see
+   *   [[fit()]] for a description of the parameters.
    */
   def fitIterator(targetImage: DiscreteImage[_3D, Float],
                   searchPointSampler: SearchPointSampler,
                   iterations: Int,
                   config: FittingConfiguration = FittingConfiguration.Default,
-                  initialTransform: ModelTransformations = noTransformations): Iterator[Try[FittingResult]] = {
+                  initialTransform: ModelTransformations = noTransformations
+  ): Iterator[Try[FittingResult]] = {
     fitIteratorPreprocessed(preprocessor(targetImage), searchPointSampler, iterations, config, initialTransform)
   }
 
   /**
-   * Perform iterative ASM fitting for the given preprocessed image. This is essentially the same as the [[fitIterator]] method, except that it uses the already preprocessed image.
-   * @see [[fit()]] for a description of the parameters.
-   *
+   * Perform iterative ASM fitting for the given preprocessed image. This is essentially the same as the [[fitIterator]]
+   * method, except that it uses the already preprocessed image.
+   * @see
+   *   [[fit()]] for a description of the parameters.
    */
   def fitIteratorPreprocessed(
     image: PreprocessedImage,
@@ -233,7 +246,8 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
                       sampler: SearchPointSampler,
                       config: FittingConfiguration,
                       mesh: TriangleMesh[_3D],
-                      poseTransform: TranslationAfterRotation[_3D]): Try[FittingResult] = {
+                      poseTransform: TranslationAfterRotation[_3D]
+  ): Try[FittingResult] = {
     val refPtIdsWithTargetPt = findBestCorrespondingPoints(image, mesh, sampler, config, poseTransform)
 
     if (refPtIdsWithTargetPt.isEmpty) {
@@ -243,14 +257,14 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
     } else
       Try {
 
-        val refPtsWithTargetPts = refPtIdsWithTargetPt.map {
-          case (refPtId, tgtPt) => (statisticalModel.reference.pointSet.point(refPtId), tgtPt)
+        val refPtsWithTargetPts = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) =>
+          (statisticalModel.reference.pointSet.point(refPtId), tgtPt)
         }
         val bestRigidTransform =
           LandmarkRegistration.rigid3DLandmarkRegistration(refPtsWithTargetPts, poseTransform.rotation.center)
 
-        val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map {
-          case (refPtId, tgtPt) => (refPtId, bestRigidTransform.inverse(tgtPt))
+        val refPtIdsWithTargetPtAtModelSpace = refPtIdsWithTargetPt.map { case (refPtId, tgtPt) =>
+          (refPtId, bestRigidTransform.inverse(tgtPt))
         }
         val bestReconstruction = statisticalModel.posterior(refPtIdsWithTargetPtAtModelSpace, 1e-5).mean
         val coeffs = statisticalModel.coefficients(bestReconstruction)
@@ -277,7 +291,8 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
 
     val matchingPts = new ParVector(profiles.ids.toVector).map { index =>
       (profiles(index).pointId,
-       findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform))
+       findBestMatchingPointAtPoint(img, mesh, index, sampler, config, profiles(index).pointId, poseTransform)
+      )
     }
 
     val matchingPtsWithinDist = matchingPts.filter(_._2.isDefined).map(p => (p._1, p._2.get))
@@ -291,7 +306,8 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
                                            searchPointSampler: SearchPointSampler,
                                            config: FittingConfiguration,
                                            pointId: PointId,
-                                           poseTransform: RigidTransformation[_3D]): Option[Point[_3D]] = {
+                                           poseTransform: RigidTransformation[_3D]
+  ): Option[Point[_3D]] = {
     val sampledPoints = searchPointSampler(mesh, pointId)
 
     val pointsWithFeatureDistances = (for (point <- sampledPoints) yield {
@@ -310,7 +326,7 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
       if (bestFeatureDistance <= config.featureDistanceThreshold) {
         val refPoint = this.refPoint(profileId)
 
-        /** Attention: checking for the deformation vector's pdf needs to be done in the model space !**/
+        /** Attention: checking for the deformation vector's pdf needs to be done in the model space !* */
         val inversePoseTransform = poseTransform.inverse
         val bestPointDistance = statisticalModel.gp
           .marginal(pointId)
@@ -339,13 +355,20 @@ case class ActiveShapeModel(statisticalModel: PointDistributionModel[_3D, Triang
 
 /**
  * Fitting Configuration, specifying thresholds and bounds.
- * @param featureDistanceThreshold threshold for the feature distance. If the mahalanobis distance of a candidate point's features to the corresponding profile's mean is larger than this value, then that candidate point will be ignored during fitting.
- * @param pointDistanceThreshold threshold for point distance: If the mahalanobis distance of a candidate point to its corresponding marginal distribution is larger than this value, then that candidate point will be ignored during fitting.
- * @param modelCoefficientBounds bounds to apply on the model coefficients. In other words, by setting this to n, all coefficients of the fitting result will be restricted to the interval [-n, n].
+ * @param featureDistanceThreshold
+ *   threshold for the feature distance. If the mahalanobis distance of a candidate point's features to the
+ *   corresponding profile's mean is larger than this value, then that candidate point will be ignored during fitting.
+ * @param pointDistanceThreshold
+ *   threshold for point distance: If the mahalanobis distance of a candidate point to its corresponding marginal
+ *   distribution is larger than this value, then that candidate point will be ignored during fitting.
+ * @param modelCoefficientBounds
+ *   bounds to apply on the model coefficients. In other words, by setting this to n, all coefficients of the fitting
+ *   result will be restricted to the interval [-n, n].
  */
 case class FittingConfiguration(featureDistanceThreshold: Double,
                                 pointDistanceThreshold: Double,
-                                modelCoefficientBounds: Double)
+                                modelCoefficientBounds: Double
+)
 
 object FittingConfiguration {
   lazy val Default =
@@ -357,18 +380,23 @@ object FittingConfiguration {
  *
  * Sample usage: <code>val mesh = ssm.instance(t.coefficients).transform(t.rigidTransform)</code>
  *
- * @param coefficients model coefficients to apply. These determine the shape transformation.
- * @param rigidTransform rigid transformation to apply. These determine translation and rotation.
+ * @param coefficients
+ *   model coefficients to apply. These determine the shape transformation.
+ * @param rigidTransform
+ *   rigid transformation to apply. These determine translation and rotation.
  */
 case class ModelTransformations(coefficients: DenseVector[Double], rigidTransform: TranslationAfterRotation[_3D])
 
 /**
  * Fitting results.
  *
- * Note that the fields are redundant: the mesh is completely determined by the transformations.
- * It's essentially provided for user convenience, because it would be very likely to be (re-)constructed anyway from the transformations.
+ * Note that the fields are redundant: the mesh is completely determined by the transformations. It's essentially
+ * provided for user convenience, because it would be very likely to be (re-)constructed anyway from the
+ * transformations.
  *
- * @param transformations transformations to apply to the model
- * @param mesh the mesh resulting from applying these transformations
+ * @param transformations
+ *   transformations to apply to the model
+ * @param mesh
+ *   the mesh resulting from applying these transformations
  */
 case class FittingResult(transformations: ModelTransformations, mesh: TriangleMesh[_3D])

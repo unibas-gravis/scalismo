@@ -21,8 +21,7 @@ import scalismo.geometry.{NDSpace, Point}
 import scala.math.Numeric.Implicits._
 
 /**
- * Metric is a trait whose instances each represent a way to measure distances between
- * instances of a type.
+ * Metric is a trait whose instances each represent a way to measure distances between instances of a type.
  *
  * `A` represents the type of the points and `R` represents the metric value.
  */
@@ -32,8 +31,7 @@ private[scalismo] trait Metric[A, R] {
   def distance(x: A, y: A): R
 
   /**
-   * Returns the distance between x and a hyperplane that passes through y and perpendicular to
-   * that dimension.
+   * Returns the distance between x and a hyperplane that passes through y and perpendicular to that dimension.
    */
   def planarDistance(dimension: Int)(x: A, y: A): R
 }

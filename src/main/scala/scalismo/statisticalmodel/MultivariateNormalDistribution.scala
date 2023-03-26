@@ -157,8 +157,10 @@ object MultivariateNormalDistribution {
 
   /**
    * Create a multivariate normal distribution given the mean and the orthonormal directions with associated variance
-   * @param mean the mean vector
-   * @param mainAxis a sequence of tuples (phi, sigma2) where phi is a unit vector and sigma2 the variance in the direction of phi
+   * @param mean
+   *   the mean vector
+   * @param mainAxis
+   *   a sequence of tuples (phi, sigma2) where phi is a unit vector and sigma2 the variance in the direction of phi
    */
   def apply(mean: DenseVector[Double], mainAxis: Seq[(DenseVector[Double], Double)]): MultivariateNormalDistribution = {
 
@@ -203,10 +205,12 @@ object MultivariateNormalDistribution {
 }
 
 @deprecated("Please use MultivariateNormalDistribution instead. This object wil be removed in future versions.",
-            "0.13.0")
+            "0.13.0"
+)
 object NDimensionalNormalDistribution {
   def apply[D: NDSpace](mean: EuclideanVector[D],
-                        principalComponents: Seq[(EuclideanVector[D], Double)]): NDimensionalNormalDistribution[D] = {
+                        principalComponents: Seq[(EuclideanVector[D], Double)]
+  ): NDimensionalNormalDistribution[D] = {
     val dim = implicitly[NDSpace[D]].dimensionality
     require(principalComponents.length == dim)
 
@@ -224,7 +228,8 @@ object NDimensionalNormalDistribution {
 }
 
 @deprecated("Please use MultivariateNormalDistribution instead. This class wil be removed in future versions.",
-            "0.13.0")
+            "0.13.0"
+)
 case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], cov: SquareMatrix[D])
     extends MultivariateNormalDistributionLike[EuclideanVector[D], SquareMatrix[D]] {
 
@@ -238,8 +243,8 @@ case class NDimensionalNormalDistribution[D: NDSpace](mean: EuclideanVector[D], 
 
   override def sample()(implicit rand: Random): EuclideanVector[D] = EuclideanVector.fromBreezeVector(impl.sample())
 
-  override def principalComponents: Seq[(EuclideanVector[D], Double)] = impl.principalComponents.map {
-    case (v, d) => (EuclideanVector.fromBreezeVector(v), d)
+  override def principalComponents: Seq[(EuclideanVector[D], Double)] = impl.principalComponents.map { case (v, d) =>
+    (EuclideanVector.fromBreezeVector(v), d)
   }
 
   override def mahalanobisDistance(x: EuclideanVector[D]): Double = impl.mahalanobisDistance(x.toBreezeVector)

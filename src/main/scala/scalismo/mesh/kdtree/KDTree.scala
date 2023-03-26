@@ -18,7 +18,7 @@ package scalismo.mesh.kdtree
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.{Builder}
+import scala.collection.mutable.Builder
 import scala.math.Ordering.Implicits._
 
 private[scalismo] class KDTree[A] private (root: KDTreeNode[A, Boolean])(implicit ord: DimensionalOrdering[A])
@@ -71,8 +71,8 @@ sealed private[scalismo] trait KDTreeNode[A, B] {
   def toStringSeq(indent: Int): Seq[String]
   def size: Int
   def isEmpty: Boolean
-  def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(
-    implicit metric: Metric[A, R],
+  def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(implicit
+    metric: Metric[A, R],
     ord: Ordering[R]
   ): Seq[((A, B), R)]
   def findNearest[R](x: A, n: Int)(implicit metric: Metric[A, R], ord: Ordering[R]): Seq[(A, B)]
@@ -93,7 +93,8 @@ private[scalismo] case class KDTreeInnerNode[A, B](dim: Int,
                                                    key: A,
                                                    value: B,
                                                    below: KDTreeNode[A, B],
-                                                   above: KDTreeNode[A, B])(ordering: Ordering[A])
+                                                   above: KDTreeNode[A, B]
+)(ordering: Ordering[A])
     extends KDTreeNode[A, B] {
   def toStringSeq(indent: Int) = {
     val i = "  " * indent
@@ -127,8 +128,8 @@ private[scalismo] case class KDTreeInnerNode[A, B](dim: Int,
     findNearest0(x, n, minParent, values) map { _._1 }
   }
 
-  def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(
-    implicit metric: Metric[A, R],
+  def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(implicit
+    metric: Metric[A, R],
     ord: Ordering[R]
   ): Seq[((A, B), R)] = {
     if (skipParent eq this) values
@@ -179,8 +180,8 @@ private[scalismo] case class KDTreeEmpty[A, B]() extends KDTreeNode[A, B] {
   def isEmpty = true
   def findNearest[R](x: A, n: Int)(implicit metric: Metric[A, R], ord: Ordering[R]): Seq[(A, B)] =
     Seq.empty
-  def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(
-    implicit metric: Metric[A, R],
+  def findNearest0[R](x: A, n: Int, skipParent: KDTreeNode[A, B], values: Seq[((A, B), R)])(implicit
+    metric: Metric[A, R],
     ord: Ordering[R]
   ): Seq[((A, B), R)] = values
   def toSeq: Seq[(A, B)] = Seq.empty

@@ -8,7 +8,8 @@ import scalismo.ScalismoTestSuite
 import scalismo.common.DiscreteField
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.io.{ImageIO, MeshIO, StatismoIO, StatisticalModelIO}
+import scalismo.io.statisticalmodel.StatismoIO
+import scalismo.io.{ImageIO, MeshIO, StatisticalModelIO}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.{Sampler, UniformMeshSampler3D}
 import scalismo.registration.LandmarkRegistration
@@ -83,7 +84,8 @@ class ActiveShapeModelTests extends ScalismoTestSuite {
              Fixture.searchMethod,
              20,
              Fixture.fittingConfig,
-             ModelTransformations(nullInitialParameters, Fixture.alignment))
+             ModelTransformations(nullInitialParameters, Fixture.alignment)
+        )
         .get
         .mesh
       assert(MeshMetrics.diceCoefficient(fit, Fixture.targetMesh) > 0.95)

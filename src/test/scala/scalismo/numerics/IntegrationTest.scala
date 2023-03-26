@@ -55,7 +55,8 @@ class IntegrationTest extends ScalismoTestSuite {
       val numPoints = 1000
       val grid = DiscreteImageDomain1D(Point(-math.Pi.toFloat),
                                        EuclideanVector(2 * math.Pi.toFloat / numPoints),
-                                       IntVector(numPoints))
+                                       IntVector(numPoints)
+      )
       val integrator = Integrator(GridSampler(grid))
 
       val res = integrator.integrateScalar(img)
