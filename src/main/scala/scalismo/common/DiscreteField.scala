@@ -239,8 +239,15 @@ trait DiscreteFieldWarp[D, DDomain[D] <: DiscreteDomain[D], Value] {
   ): DiscreteField[D, DDomain, Value]
 }
 
+@deprecated("Use ScalarMeshField3D or DiscreteField3D instead", "0.92")
 object ScalarMeshField {
-  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Traversable[S]): ScalarMeshField[S] = {
+  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Iterable[S]): ScalarMeshField[S] = {
+    DiscreteField(mesh, ScalarArray(data.toArray))
+  }
+}
+
+object ScalarMeshField3D {
+  def apply[S: Scalar: ClassTag](mesh: TriangleMesh[_3D], data: Iterable[S]): ScalarMeshField[S] = {
     DiscreteField(mesh, ScalarArray(data.toArray))
   }
 }
