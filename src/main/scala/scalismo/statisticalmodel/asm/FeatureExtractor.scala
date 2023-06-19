@@ -102,31 +102,34 @@ case class NormalDirectionFeatureExtractor(numberOfPoints: Int,
                      mesh: TriangleMesh[_3D],
                      profilePointId: PointId
   ): Option[DenseVector[Double]] = {
-    val normal: EuclideanVector[_3D] = mesh.vertexNormals(
-      profilePointId
-    ) // TODO: this was adapted when switched to new mesh... Check if this is correct.
-    val unitNormal = normal * (1.0 / normal.norm)
+    Try {
+      val normal: EuclideanVector[_3D] = mesh.vertexNormals(
+        profilePointId
+      ) // TODO: this was adapted when switched to new mesh... Check if this is correct.
+      val unitNormal = normal * (1.0 / normal.norm)
 
-    val sampledPoints =
-      featurePoints(mesh, profilePointId, point).get // .get is safe: we know that the method always returns Some(...)
+      val sampledPoints =
+        featurePoints(mesh, profilePointId, point).get // .get is safe: we know that the method always returns Some(...)
 
-    val samples = for (samplePt <- sampledPoints) yield {
-      if (image.isDefinedAt(samplePt)) {
-        image.valueType match {
-          case Intensity => image(samplePt)(0).toDouble
-          case Gradient =>
-            val gradient = EuclideanVector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
-            gradient dot unitNormal
+      val samples = for (samplePt <- sampledPoints) yield {
+        if (image.isDefinedAt(samplePt)) {
+          image.valueType match {
+            case Intensity => image(samplePt)(0).toDouble
+            case Gradient =>
+              val gradient = EuclideanVector.fromBreezeVector[_3D](image(samplePt).map(_.toDouble))
+              gradient dot unitNormal
+          }
+        } else {
+          // this exception is to break out of the loop, as the feature
+          // is useless anyway
+          throw Exception("invalid sample point")
         }
-      } else {
-        // fail-fast: immediately return, since the entire feature is "useless"
-        return None
       }
-    }
 
-    val sum = samples.map(math.abs).sum
-    val features = if (sum == 0 || image.valueType == Intensity) samples else samples.map(d => d / sum)
-    Some(DenseVector(features.toArray))
+      val sum = samples.map(math.abs).sum
+      val features = if (sum == 0 || image.valueType == Intensity) samples else samples.map(d => d / sum)
+      DenseVector(features.toArray)
+    }.toOption
   }
 
   override def featurePoints(mesh: TriangleMesh[_3D],

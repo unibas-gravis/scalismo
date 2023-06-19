@@ -283,7 +283,7 @@ object EuclideanVector {
   /** spire VectorSpace implementation for Vector */
   implicit def spireVectorSpace[D: NDSpace]: VectorSpace[EuclideanVector[D], Double] =
     new spire.algebra.VectorSpace[EuclideanVector[D], Double] {
-      implicit override def scalar: Field[Double] = Field[Double]
+      override def scalar: Field[Double] = Field[Double]
       override def timesl(r: Double, v: EuclideanVector[D]): EuclideanVector[D] = v.map(f => f * r)
       override def negate(x: EuclideanVector[D]): EuclideanVector[D] = x.map(f => -f)
       override def zero: EuclideanVector[D] = zeros[D]
