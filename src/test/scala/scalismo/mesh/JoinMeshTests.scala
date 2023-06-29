@@ -32,31 +32,25 @@ class JoinMeshTests extends ScalismoTestSuite {
     object Fixture {
       implicit def toPointId(i: Int): PointId = PointId(i)
 
-      val oneTrianglesMesh = TriangleMesh3D(IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1)),
-                                            TriangleList(IndexedSeq(TriangleCell(0, 1, 2)))
-      )
+      private val points1 = IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1))
+      private val triangels1 = TriangleList(IndexedSeq(TriangleCell(0, 1, 2)))
+      val mesh1 = TriangleMesh3D(points1, triangels1)
 
-      val twoTrianglesMesh = TriangleMesh3D(IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1)),
-                                            TriangleList(IndexedSeq(TriangleCell(0, 1, 2), TriangleCell(0, 2, 3)))
-      )
+      private val points2 = IndexedSeq(Point(10, 10, 10), Point(10, 10, 11), Point(11, 10, 10), Point(10, 11, 11))
+      private val triangels2 = TriangleList(IndexedSeq(TriangleCell(0, 1, 2), TriangleCell(0, 2, 3)))
+      val mesh2 = TriangleMesh3D(points2, triangels2)
+
+      private val newPoints = points1 ++ points2
+      private val newTriangles =
+        TriangleList(IndexedSeq(TriangleCell(0, 1, 2), TriangleCell(4, 5, 6), TriangleCell(4, 6, 7)))
+      val joinedMeshExpected = TriangleMesh3D(points1 ++ points2, newTriangles)
     }
 
-    it("yields consecutive point ids") {
-      val mesh1t = Fixture.oneTrianglesMesh
-      val mesh2t = Fixture.twoTrianglesMesh
-      val joinedMesh = mesh1t.operations.join(mesh2t)
-      val pointIds = joinedMesh.pointSet.pointIds.toIndexedSeq
-      pointIds.map(
-        _.id
-      ) should contain theSameElementsInOrderAs (0 until (mesh1t.pointSet.numberOfPoints + mesh2t.pointSet.numberOfPoints))
+    it("results in the correctly joined mesh") {
+      val joinedMesh = Fixture.mesh1.operations.join(Fixture.mesh2)
+      joinedMesh should equal(Fixture.joinedMeshExpected)
     }
 
-    it("yields a mesh whose surface area is approximately equal the sum of the individual meshes") {
-      val mesh1t = Fixture.oneTrianglesMesh
-      val mesh2t = Fixture.twoTrianglesMesh
-      val joinedMesh = mesh1t.operations.join(mesh2t)
-      joinedMesh.area should be(mesh1t.area + mesh2t.area +- 1e-5)
-    }
   }
 
   describe("Meshoperations.join for tetrahedral meshes") {
@@ -64,32 +58,25 @@ class JoinMeshTests extends ScalismoTestSuite {
     object Fixture {
       implicit def toPointId(i: Int): PointId = PointId(i)
 
-      val oneTetrahedralMesh =
-        TetrahedralMesh3D(IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1)),
-                          TetrahedralList(IndexedSeq(TetrahedralCell(0, 1, 2, 3)))
-        )
+      private val points1 = IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1))
+      private val tetrahedra1 = TetrahedralList(IndexedSeq(TetrahedralCell(0, 1, 2, 3)))
+      val mesh1 = TetrahedralMesh3D(points1, tetrahedra1)
 
-      val twoTetrahedralMesh = TetrahedralMesh3D(
-        IndexedSeq(Point(0, 0, 0), Point(0, 0, 1), Point(1, 0, 0), Point(0, 1, 1), Point(1, 1, 1)),
-        TetrahedralList(IndexedSeq(TetrahedralCell(0, 1, 2, 3), TetrahedralCell(1, 2, 3, 4)))
+      private val points2 = IndexedSeq(Point(10, 10, 10), Point(10, 10, 11), Point(11, 10, 10), Point(10, 11, 11))
+      private val tetrahedra2 = TetrahedralList(IndexedSeq(TetrahedralCell(0, 1, 2, 3), TetrahedralCell(1, 2, 3, 4)))
+      val mesh2 = TetrahedralMesh3D(points2, tetrahedra2)
+
+      private val newPoints = points1 ++ points2
+      private val newTetrahedra = TetrahedralList(
+        IndexedSeq(TetrahedralCell(0, 1, 2, 3), TetrahedralCell(4, 5, 6, 7), TetrahedralCell(5, 6, 7, 8))
       )
+      val joinedMeshExpected = TetrahedralMesh3D(points1 ++ points2, newTetrahedra)
+
     }
 
-    it("yields consecutive point ids") {
-      val mesh1t = Fixture.oneTetrahedralMesh
-      val mesh2t = Fixture.twoTetrahedralMesh
-      val joinedMesh = mesh1t.operations.join(mesh2t)
-      val pointIds = joinedMesh.pointSet.pointIds.toIndexedSeq
-      pointIds.map(
-        _.id
-      ) should contain theSameElementsInOrderAs (0 until (mesh1t.pointSet.numberOfPoints + mesh2t.pointSet.numberOfPoints))
-    }
-
-    it("yields a mesh whose surface area is approximately equal the sum of the individual meshes") {
-      val mesh1t = Fixture.oneTetrahedralMesh
-      val mesh2t = Fixture.twoTetrahedralMesh
-      val joinedMesh = mesh1t.operations.join(mesh2t)
-      joinedMesh.volume should be(mesh1t.volume + mesh2t.volume +- 1e-5)
+    it("results in the correctly joined mesh\"") {
+      val joinedMesh = Fixture.mesh1.operations.join(Fixture.mesh2)
+      joinedMesh should equal(Fixture.joinedMeshExpected)
     }
   }
 }
