@@ -38,8 +38,8 @@ class MeshIOTests extends ScalismoTestSuite {
       val origMesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
 
       def testWriteRead(extension: String): Unit = {
-        val tmpFile = File.createTempFile("mesh", ".vtk")
-        val writeStatus = MeshIO.writeVTK(origMesh, tmpFile)
+        val tmpFile = File.createTempFile("mesh", extension)
+        val writeStatus = MeshIO.writeMesh(origMesh, tmpFile)
         writeStatus.isSuccess should be(true)
 
         val meshTry = MeshIO.readMesh(tmpFile)
