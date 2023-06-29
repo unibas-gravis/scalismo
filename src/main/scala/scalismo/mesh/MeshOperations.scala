@@ -15,7 +15,7 @@
  */
 package scalismo.mesh
 
-import scalismo.common.{DifferentiableField, EuclideanSpace, Field, PointId}
+import scalismo.common.{DifferentiableField, EuclideanSpace, Field, PointId, UnstructuredPoints3D}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
 import scalismo.mesh.boundingSpheres.{
@@ -242,6 +242,28 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
     MeshConversion.vtkPolyDataToTriangleMesh(decimatedRefVTK).get
   }
 
+  /**
+   * Joins two meshes together, by creating a new mesh with the vertices and triangles of both meshes. The two meshes
+   * won't be connected by triangles.
+   */
+  def join(otherMesh: TriangleMesh[_3D]): TriangleMesh[_3D] = {
+    def fixupTriangles(t: TriangleCell, offset: Int): TriangleCell =
+      TriangleCell(
+        PointId(t.ptId1.id + offset),
+        PointId(t.ptId2.id + offset),
+        PointId(t.ptId3.id + offset)
+      )
+
+    val newDomain = UnstructuredPoints3D(mesh.pointSet.points.toIndexedSeq ++ otherMesh.pointSet.points.toIndexedSeq)
+    val newTriangulation = TriangleList(
+      mesh.triangulation.triangles ++
+        otherMesh.triangulation.triangles.map(t => fixupTriangles(t, mesh.pointSet.numberOfPoints))
+    )
+    TriangleMesh3D(
+      newDomain,
+      newTriangulation
+    )
+  }
 }
 
 class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
@@ -349,5 +371,29 @@ class TetrahedralMesh3DOperations(private val mesh: TetrahedralMesh[_3D]) {
     }
 
     TetrahedralMesh3D(points.toIndexedSeq, TetrahedralList(cells.toIndexedSeq))
+  }
+
+  /**
+   * Joins two meshes together, by creating a new mesh with the vertices and triangles of both meshes. The two meshes
+   * won't be connected by triangles.
+   */
+  def join(otherMesh: TetrahedralMesh[_3D]): TetrahedralMesh[_3D] = {
+    def fixupTetrahedron(t: TetrahedralCell, offset: Int): TetrahedralCell =
+      TetrahedralCell(
+        PointId(t.ptId1.id + offset),
+        PointId(t.ptId2.id + offset),
+        PointId(t.ptId3.id + offset),
+        PointId(t.ptId4.id + offset)
+      )
+
+    val newDomain = UnstructuredPoints3D(mesh.pointSet.points.toIndexedSeq ++ otherMesh.pointSet.points.toIndexedSeq)
+    val newTetrahedrization = TetrahedralList(
+      mesh.tetrahedralization.tetrahedrons ++
+        otherMesh.tetrahedralization.tetrahedrons.map(t => fixupTetrahedron(t, mesh.pointSet.numberOfPoints))
+    )
+    TetrahedralMesh3D(
+      newDomain,
+      newTetrahedrization
+    )
   }
 }
