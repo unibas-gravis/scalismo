@@ -43,7 +43,7 @@ class JoinMeshTests extends ScalismoTestSuite {
       private val newPoints = points1 ++ points2
       private val newTriangles =
         TriangleList(IndexedSeq(TriangleCell(0, 1, 2), TriangleCell(4, 5, 6), TriangleCell(4, 6, 7)))
-      val joinedMeshExpected = TriangleMesh3D(points1 ++ points2, newTriangles)
+      val joinedMeshExpected = TriangleMesh3D(newPoints, newTriangles)
     }
 
     it("results in the correctly joined mesh") {
@@ -70,7 +70,7 @@ class JoinMeshTests extends ScalismoTestSuite {
       private val newTetrahedra = TetrahedralList(
         IndexedSeq(TetrahedralCell(0, 1, 2, 3), TetrahedralCell(4, 5, 6, 7), TetrahedralCell(5, 6, 7, 8))
       )
-      val joinedMeshExpected = TetrahedralMesh3D(points1 ++ points2, newTetrahedra)
+      val joinedMeshExpected = TetrahedralMesh3D(newPoints, newTetrahedra)
 
     }
 
