@@ -3,7 +3,7 @@
 ![build](https://github.com/unibas-gravis/scalismo/actions/workflows/ci.yml/badge.svg) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scalismo_3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scalismo_3) [![Gitter](https://badges.gitter.im/unibas-gravis/scalismo.svg)](https://gitter.im/unibas-gravis/scalismo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 Scalismo is a library for statistical shape modeling and model-based image analysis in Scala, developed by the
-[Graphics and Vision Research Group](http://gravis.cs.unibas.ch) at the [University of Basel](http://www.unibas.ch). It is based on the  the concept of [Probabilistic Morphable Models](https://gravis.dmi.unibas.ch/PMM/). 
+[Graphics and Vision Research Group](https://shapemodelling.cs.unibas.ch/web/about-gravis) at the [University of Basel](http://www.unibas.ch).  
 
 The vision of the project is to provide an environment for modelling and image analysis which 
 
@@ -13,7 +13,7 @@ The vision of the project is to provide an environment for modelling and image a
 
 ## Documentation
 
-* The [Scalismo website](https://unibas-gravis.github.io/scalismo-microsite) contains comprehensive documentation including a series of  [tutorials](https://unibas-gravis.github.io/scalismo-microsite/tutorials.html), [API doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html) and links to further ressources and papers. 
+* The [Scalismo website](https://scalismo.org) contains comprehensive documentation including a series of  [tutorials](https://scalismo.org/docs), [API doc](http://unibas-gravis.github.io/scalismo/latest/api/index.html) and links to further ressources and papers. 
 
 ## How can I help?
 While scalismo is already fully usable for shape modeling and simple image processing task, its functionality is currently targeted
@@ -24,7 +24,7 @@ We welcome contributions to scalismo. Please check the [Contributor's guide](con
 We are also always grateful if you report bugs or if give us feedback on how you use scalismo in your work and how you think we can improve it. 
 
 ## Maintainers
-The project is developed and maintained by the [Graphics and Vision Research group](https://gravis.dmi.unibas.ch), [University of Basel](https://www.unibas.ch) in collaboration with [Shapemeans GmbH](https://www.shapemeans.com).
+The project is developed and maintained by the  [University of Basel](https://www.unibas.ch) in collaboration with [Shapemeans GmbH](https://www.shapemeans.com).
 The current maintainers of the project (people who can merge pull requests) are: 
 
 * [Ghazi Bouabene](https://github.com/ghazi-bouabene)
@@ -48,5 +48,5 @@ The design of the registration approach used in scalismo is strongly influenced 
 ## Copyright and License
 All code is available to you under the Apache license, version 2, available at http://www.apache.org/licenses/LICENSE-2.0. 
 
-Copyright, University of Basel, 2015.
+Copyright, University of Basel, 2023.
 
