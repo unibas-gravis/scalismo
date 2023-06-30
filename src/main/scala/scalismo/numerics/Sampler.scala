@@ -33,13 +33,13 @@ trait Sampler[D] {
   val numberOfPoints: Int
 
   /**
-   * sample n points (x_1, ... x_n), yielding an sequence of (x_i, p(x_i)), i=1..n , p is the probability density
+   * generates a sequence of [[numberOfPoints]] sample points (x_i, p(x_i)), i=1..n , where p is the probability density
    * function according to which the points are sampled
    */
   def sample(): IndexedSeq[(Point[D], Double)]
 
   /**
-   * sample n points.
+   * generates a sequence of [[numberOfPoints]] points.
    */
   def samplePoints(): IndexedSeq[Point[D]] = sample().map(_._1)
 
@@ -154,8 +154,8 @@ case class UniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(im
 case class FixedPointsUniformMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rng: Random)
     extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.area
-  val samplePoints = UniformMeshSampler3D(mesh, numberOfPoints).sample()
-  override def sample() = samplePoints
+  val samplePointsWithProbability = UniformMeshSampler3D(mesh, numberOfPoints).sample()
+  override def sample() = samplePointsWithProbability
 }
 
 case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int)(implicit rand: Random)
@@ -166,7 +166,7 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
 
   val meshPoints = mesh.pointSet.points.toIndexedSeq
 
-  def samplePoints = for (i <- 0 until numberOfPoints) yield {
+  override def samplePoints() = for (i <- 0 until numberOfPoints) yield {
     val idx = rand.scalaRandom.nextInt(mesh.pointSet.numberOfPoints)
     meshPoints(idx)
   }
@@ -178,7 +178,7 @@ case class FixedPointsMeshSampler3D(mesh: TriangleMesh[_3D], numberOfPoints: Int
     lastSampledPoints match {
       case Some(lastSampledPoints) => lastSampledPoints
       case None => {
-        val pts = samplePoints.map(pt => (pt, p))
+        val pts = samplePoints().map(pt => (pt, p))
         lastSampledPoints = Some(pts)
         pts
       }
@@ -237,8 +237,8 @@ case class FixedPointsUniformTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D]
   rng: Random
 ) extends Sampler[_3D] {
   override val volumeOfSampleRegion = mesh.volume
-  val samplePoints = UniformTetrahedralMeshSampler3D(mesh, numberOfPoints).sample()
-  override def sample() = samplePoints
+  val samplePointsWithProbability = UniformTetrahedralMeshSampler3D(mesh, numberOfPoints).sample()
+  override def sample() = samplePointsWithProbability
 }
 
 case class FixedPointsTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numberOfPoints: Int)(implicit rand: Random)
@@ -249,7 +249,7 @@ case class FixedPointsTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numbe
 
   val meshPoints = mesh.pointSet.points.toIndexedSeq
 
-  def samplePoints = for (i <- 0 until numberOfPoints) yield {
+  override def samplePoints() = for (i <- 0 until numberOfPoints) yield {
     val idx = rand.scalaRandom.nextInt(mesh.pointSet.numberOfPoints)
     meshPoints(idx)
   }
@@ -261,11 +261,10 @@ case class FixedPointsTetrahedralMeshSampler3D(mesh: TetrahedralMesh[_3D], numbe
     lastSampledPoints match {
       case Some(lastSampledPoints) => lastSampledPoints
       case None => {
-        val pts = samplePoints.map(pt => (pt, p))
+        val pts = samplePoints().map(pt => (pt, p))
         lastSampledPoints = Some(pts)
         pts
       }
-
     }
   }
 }
