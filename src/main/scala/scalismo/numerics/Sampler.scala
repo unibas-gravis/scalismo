@@ -38,6 +38,11 @@ trait Sampler[D] {
    */
   def sample(): IndexedSeq[(Point[D], Double)]
 
+  /**
+   * sample n points.
+   */
+  def samplePoints(): IndexedSeq[Point[D]] = sample().map(_._1)
+
   def volumeOfSampleRegion: Double
 }
 
