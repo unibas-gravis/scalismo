@@ -55,11 +55,19 @@ class MeshBoundaryTests extends ScalismoTestSuite {
 
     it("should calculate the correct number of mesh boundary points and triangles") {
       val mesh = Fixture.faceMesh
+      val meshNoTriangles = TriangleMesh3D(
+        mesh.pointSet.points.toIndexedSeq,
+        TriangleList(IndexedSeq())
+      )
       val boundaryPointIds = mesh.pointSet.pointIds.toSeq.filter(id => mesh.operations.pointIsOnBoundary(id))
       val boundaryTriangleIds = mesh.triangulation.triangleIds.filter(id => mesh.operations.triangleIsOnBoundary(id))
-
       boundaryPointIds.length shouldBe 918
       boundaryTriangleIds.length shouldBe 782
+
+      val allBoundaryPointIds = meshNoTriangles.pointSet.pointIds.toSeq.filter(id => meshNoTriangles.operations.pointIsOnBoundary(id))
+      val allBoundaryTriangleIds = meshNoTriangles.triangulation.triangleIds.filter(id => meshNoTriangles.operations.triangleIsOnBoundary(id))
+      allBoundaryPointIds.length shouldBe 0
+      allBoundaryTriangleIds.length shouldBe 0
     }
 
     it("should have all elements on the boundary for a single-triangle mesh") {
