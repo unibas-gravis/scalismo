@@ -160,31 +160,31 @@ object MeshBoundaryPredicates {
     val pointOnBorder = new Array[Boolean](nPts)
     val triangleOnBorder = new Array[Boolean](nTriangles)
 
-    val edgeOnBorderBuilder = new CSCMatrix.Builder[Boolean](nPts, nPts)
-    triangles.foreach { triangle =>
-      edgesOfATriangle.foreach { edge =>
-        val v1 = triangle.pointIds(edge._1).id
-        val v2 = triangle.pointIds(edge._2).id
-        edgeOnBorderBuilder.add(v1, v2, false)
-        edgeOnBorderBuilder.add(v2, v1, false)
-      }
-    }
-    val edgeOnBorderTmp = edgeOnBorderBuilder.result()
-
     // edges from only a single triangle lie on the border,
     // edges contained in two triangles are not on a border
+    var edgeOnBorderSet: Set[(Int, Int)] = Set.empty
     triangles.foreach { triangle =>
       edgesOfATriangle.foreach { edge =>
         val v1 = triangle.pointIds(edge._1).id
         val v2 = triangle.pointIds(edge._2).id
-        edgeOnBorderTmp(v1, v2) = !edgeOnBorderTmp(v1, v2)
-        edgeOnBorderTmp(v2, v1) = !edgeOnBorderTmp(v2, v1)
+
+        if (edgeOnBorderSet.contains((v1, v2)) || edgeOnBorderSet.contains((v2, v1))) {
+          edgeOnBorderSet -= ((v1, v2))
+          edgeOnBorderSet -= ((v2, v1))
+        } else {
+          edgeOnBorderSet += ((v1, v2))
+        }
       }
+    }
+    val edgeOnBorderBuilder = new CSCMatrix.Builder[Boolean](nPts, nPts)
+
+    edgeOnBorderSet.foreach{case(v1, v2) =>
+      edgeOnBorderBuilder.add(v1, v2, true)
+      edgeOnBorderBuilder.add(v2, v1, true)
     }
 
     // optimization : we do not need values corresponding to false in the sparse representation
-    val edgeOnBorder = reduceCSCMatrixBooleansToTrueEntries(edgeOnBorderTmp)
-
+    val edgeOnBorder = edgeOnBorderBuilder.result()
     // points at one end of a border edge are also on the border,
     // triangles with one side on the border are also on the border
     triangles.zipWithIndex.foreach { t =>
@@ -205,12 +205,12 @@ object MeshBoundaryPredicates {
   }
 
   /**
-   * Build boundary index for triangle mesh.
+   * Build boundary index for tetrahedral mesh.
    *
    * @param mesh
-   *   Incoming triangle mesh.
+   *   Incoming tetrahedral mesh.
    * @return
-   *   Boundary that can be queried for by index for points, edges, and triangles.
+   *   Boundary that can be queried for by index for points, edges, and tetrahedral.
    */
   def apply[D](mesh: TetrahedralMesh[D]): TetrahedralMeshBoundaryPredicates = {
 
