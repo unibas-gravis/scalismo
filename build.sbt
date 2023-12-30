@@ -1,6 +1,6 @@
 import sbt.Resolver
 
-ThisBuild / version := "0.92.0"
+ThisBuild / version := "0.92.1"
 
 Test / parallelExecution := false
 
