@@ -239,6 +239,12 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
     md.simplify(targetedNumberOfFaces, aggressiveness)
   }
 
+  def decimateCustom(targetedNumberOfFaces: Int): TriangleMesh[_3D] = {
+
+    val md = new MeshDecimation(mesh)
+    md.simplify(targetedNumberOfFaces, 8)
+  }
+
   /**
    * Joins two meshes together, by creating a new mesh with the vertices and triangles of both meshes. The two meshes
    * won't be connected by triangles.
