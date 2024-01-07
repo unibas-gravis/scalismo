@@ -147,10 +147,9 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
     val triangleCount = numberOfTriangles
 
-    println(s"Target count: ${targetCount}")
+    println(s"Target triangle count: ${targetCount}, from ${triangleCount}.")
     var iteration = 0
     while (iteration < maxIterations) {
-//    (0 until 10).foreach { iteration =>
       println(
         f"Iteration ${iteration} -> triangles [ deleted: ${deletedTriangles} : count: ${triangleCount - deletedTriangles} | removed: ${(deletedTriangles * 100 / triangleCount)}]"
       )
@@ -167,50 +166,53 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
       triangles = triangles.map(triangle => triangle.copy(dirty = false))
 
-      for (i <- triangles.length - 1 to 0 by -1) {
-        val t = triangles(i)
+      (0 until triangles.length).foreach {
+        i => // DO NOT USE FOREACH as the triangles are updated within the loop - yes, I know, very ugly.
+          val t = triangles(i)
 
-        if (t.err.err(3) <= threshold && !t.deleted && !t.dirty) {
-          for (j <- 0 until 3) {
-            if (t.err.err(j) < threshold) {
-              val i0 = t.v.pointIds(j).id
-              val i1 = t.v.pointIds((j + 1) % 3).id
+          if (t.err.err(3) <= threshold && !t.deleted && !t.dirty) {
+            var j = 0;
+            while (j < 3) {
+//          for (j <- 0 until 3) {
+              if (t.err.err(j) < threshold) {
+                val i0 = t.v.pointIds(j).id
+                val i1 = t.v.pointIds((j + 1) % 3).id
 
-              val v0 = vertices(i0)
-              val v1 = vertices(i1)
+                val v0 = vertices(i0)
+                val v1 = vertices(i1)
 
-              if (v0.border == v1.border) {
-                val (error, p) = calculateError(v0, v1)
+                if (v0.border == v1.border) {
+                  val (error, p) = calculateError(v0, v1)
 
-                val (flipped0, deleted0) = flipped(p, i1, v0)
-                val (flipped1, deleted1) = flipped(p, i0, v1)
+                  val (flipped0, deleted0) = flipped(p, i1, v0)
+                  val (flipped1, deleted1) = flipped(p, i0, v1)
 
-                if (!flipped0 && !flipped1) {
-                  vertices = vertices.updated(i0, vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q)))
-                  val tstart = refs.length
+                  if (!flipped0 && !flipped1) {
+                    vertices = vertices.updated(i0, vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q)))
+                    val tstart = refs.length
 
-                  deletedTriangles += updateTriangles(i0, v0, deleted0)
-                  deletedTriangles += updateTriangles(i0, v1, deleted1)
+                    deletedTriangles += updateTriangles(i0, v0, deleted0)
+                    deletedTriangles += updateTriangles(i0, v1, deleted1)
 
-                  val tcount = refs.length - tstart
+                    val tcount = refs.length - tstart
 
-                  vertices = vertices.updated(i0, v0.copy(tstart = tstart, tcount = tcount))
-
-//                  iteration = maxIterations // This is from original code, but breaking here misses all loops.!
+                    vertices = vertices.updated(i0, v0.copy(tstart = tstart, tcount = tcount))
+                    j = 3
+                  }
                 }
               }
+              j += 1
+            }
+            if (triangleCount - deletedTriangles <= targetCount) {
+              iteration = maxIterations
             }
           }
-          if (triangleCount - deletedTriangles <= targetCount) {
-            iteration = maxIterations
-          }
-        }
       }
       iteration += 1
     }
 
     compactMesh()
-
+    println(s"Final triangles count: ${triangles.length}.")
     createSimplifiedMesh()
   }
 
@@ -433,6 +435,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
   }
 
   private def createSimplifiedMesh(): TriangleMesh[_3D] = {
+    // TODO: Add vertex color information if available!
     val newPoints: IndexedSeq[Point[_3D]] = vertices.map(v => v.p)
     val newTriangles: IndexedSeq[TriangleCell] = triangles.map(t => t.v)
     val newTopology: TriangleList = TriangleList(newTriangles)
