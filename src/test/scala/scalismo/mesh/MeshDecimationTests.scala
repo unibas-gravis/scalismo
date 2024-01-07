@@ -12,8 +12,8 @@ class MeshDecimationTests extends ScalismoTestSuite {
     val path = getClass.getResource("/facemesh.stl").getPath
     println(path)
     val facemesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
-    val pathDec = "/Users/dennis/repos/scalismo/src/test/resources/facemesh_dec.stl"
-    val pathDecCustom = "/Users/dennis/repos/scalismo/src/test/resources/facemesh_dec_custom.stl"
+    val pathDec = "src/test/resources/facemesh_dec.stl"
+    val pathDecCustom = "src/test/resources/facemesh_dec_custom.stl"
 
 //    it("has a reduced number of points") {
 //      val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 3)
