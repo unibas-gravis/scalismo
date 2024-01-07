@@ -23,9 +23,9 @@ class MeshDecimationTests extends ScalismoTestSuite {
 
     it("has approximately preserves the surface") {
       val startTime = System.nanoTime()
-      val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 2)
+      val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 4)
       val midTime = System.nanoTime()
-      val reducedMeshCustom = facemesh.operations.decimateCustom(facemesh.pointSet.numberOfPoints / 2)
+      val reducedMeshCustom = facemesh.operations.decimateCustom(facemesh.triangulation.triangles.length / 4)
       val endTime = System.nanoTime()
       val elapsedTimeSeconds0 = (midTime - startTime) / 1e9
       val elapsedTimeSeconds1 = (endTime - midTime) / 1e9
