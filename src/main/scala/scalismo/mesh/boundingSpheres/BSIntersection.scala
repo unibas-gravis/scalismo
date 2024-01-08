@@ -208,7 +208,7 @@ private[boundingSpheres] object BSIntersection {
 
 }
 
-private[boundingSpheres] object Determinantes {
+object Determinantes {
 
   @inline
   def det2x2(a1: Double, a2: Double, b1: Double, b2: Double): Double = {
