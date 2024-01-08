@@ -18,7 +18,7 @@ package scalismo.mesh
 import breeze.linalg.DenseVector
 import scalismo.common._
 import scalismo.geometry._
-import scalismo.mesh.boundingSpheres.Determinantes
+import scalismo.mesh.boundingSpheres.Determinant
 import scalismo.transformations.Transformation
 import scalismo.utils.Random
 import vtk.vtkTetra
@@ -161,7 +161,7 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPoints[_3D], tetrahedralizati
     val c = pointSet.point(tetrahedron.ptId3)
     val d = pointSet.point(tetrahedron.ptId4)
 
-    val signedVolume = Determinantes.det3x3(
+    val signedVolume = Determinant.det3x3(
       b.x - a.x,
       c.x - a.x,
       d.x - a.x,
