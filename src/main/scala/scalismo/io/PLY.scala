@@ -65,9 +65,6 @@ object PLY {
 //  private def load(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
 
   private def load(file: File): Try[TriangleMesh[_3D]] = {
-
-    // read the ply header to find out if the ply is a textured mesh in ASCII (in which case we return a failure since VTKPLYReader Update() would crash otherwise)
-    // vtk loader: https://kitware.github.io/vtk-js/api/IO_Geometry_PLYReader.html
     if (!file.exists()) {
       val filename = file.getCanonicalFile
       Failure(new IOException(s"Could not read ply file with name $filename. Reason: The file does not exist"))
@@ -77,63 +74,27 @@ object PLY {
 
       val headerLines = lineIterator.dropWhile(_ != "ply").takeWhile(_ != "end_header").toArray :+ "end_header"
 
-      if (headerLines.exists(_.contains("TextureFile")) && headerLines.exists(_.contains("format ascii"))) {
-        Failure(
-          new IOException(
-            "PLY file $filename seems to be a textured mesh in ASCII format which creates issues with the VTK ply reader. Please convert it to a binary ply or to a vertex color or shape only ply."
-          )
-        )
+      val headerInfo = parseHeader(headerLines).get
+      if (headerInfo.format == PLYTypeFormat.ASCII) {
+        Try { TriangleMesh3D(IndexedSeq(), TriangleList(IndexedSeq())) }
       } else {
-        val headerInfo = parseHeader(headerLines).get
-        val vertexInfo = headerInfo.elements.find(_.format == PLYElementFormat.VERTEX).get
-        val vertexDefined = validateElementVertex(vertexInfo)
-        val faceInfo = headerInfo.elements.find(_.format == PLYElementFormat.FACE).get
-        val faceDefined = validateElementFace(faceInfo)
-        if (!vertexDefined.status) {
-          Failure(
-            new IOException(
-              "Unsupported element property provided"
-            )
-          )
-        } else if (!vertexDefined.is3DVertex) {
-          Failure(
-            new IOException(
-              "Vertex (x,y,z) not defined in file."
-            )
-          )
-        } else if (!faceDefined) {
-          Failure(
-            new IOException(
-              "Face element defined but no property defined."
-            )
-          )
-        } else {
-          if (headerInfo.format == PLYTypeFormat.ASCII) {
-            Try { TriangleMesh3D(IndexedSeq(), TriangleList(IndexedSeq())) }
-          } else {
-            println("BINARY")
-//            val dis = new DataInputStream(new FileInputStream(file))
-//            dis.skipBytes(headerInfo.headerLength)
+        println("BINARY")
+        val byteOrder =
+          if (headerInfo.format.format == PLYTypeFormat.BINARY_LITTLE_ENDIAN) ByteOrder.LITTLE_ENDIAN
+          else ByteOrder.BIG_ENDIAN
 
-            val byteOrder =
-              if (headerInfo.format.format == PLYTypeFormat.BINARY_LITTLE_ENDIAN) ByteOrder.LITTLE_ENDIAN
-              else ByteOrder.BIG_ENDIAN
+        val dataBuffer = readFileToByteBuffer(file.toString)
+        dataBuffer.position(headerInfo.headerLength)
+        dataBuffer.slice().order(byteOrder)
 
-            val dataBuffer = readFileToByteBuffer(file.toString)
-            dataBuffer.position(headerInfo.headerLength)
-            dataBuffer
-              .slice()
-              .order(byteOrder) // create a new ByteBuffer view for the data after the header
+        val points = readPointsBinary(dataBuffer, headerInfo.vertexInfo, byteOrder)
+        val triangles = readTrianglesBinary(dataBuffer, headerInfo.faceInfo, byteOrder)
 
-            val points = readPoints(dataBuffer, vertexInfo, byteOrder)
-            val trignaleList = readTriangles(dataBuffer, faceInfo, byteOrder)
-
-            Try {
-              TriangleMesh3D(points, TriangleList(trignaleList))
-            }
-          }
+        Try {
+          TriangleMesh3D(points, TriangleList(triangles))
         }
       }
+
     }
   }
 
@@ -146,8 +107,10 @@ object PLY {
     buffer
   }
 
-  private def readPoints(buffer: ByteBuffer, vertexInfo: PLYElement, byteOrder: ByteOrder): IndexedSeq[Point3D] = {
-    val pointSize = vertexInfo.properties.map(f => PLY_PROPERTY_ELEMENTS(f.format)).sum
+  private def readPointsBinary(buffer: ByteBuffer,
+                               vertexInfo: PLYElement,
+                               byteOrder: ByteOrder
+  ): IndexedSeq[Point3D] = {
     val xIndex = vertexInfo.properties.indexOf(vertexInfo.properties.find(_.name == "x").get)
     val yIndex = vertexInfo.properties.indexOf(vertexInfo.properties.find(_.name == "y").get)
     val zIndex = vertexInfo.properties.indexOf(vertexInfo.properties.find(_.name == "z").get)
@@ -164,9 +127,9 @@ object PLY {
     }
   }
 
-  private def readTriangles(buffer: ByteBuffer,
-                            faceInfo: PLYElement,
-                            byteOrder: ByteOrder
+  private def readTrianglesBinary(buffer: ByteBuffer,
+                                  faceInfo: PLYElement,
+                                  byteOrder: ByteOrder
   ): IndexedSeq[TriangleCell] = {
     if (faceInfo.count == 0) {
       IndexedSeq.empty
@@ -207,12 +170,6 @@ object PLY {
     }
   }
 
-  private def readStream(dis: DataInputStream, bytes: Int, byteOrder: ByteOrder): ByteBuffer = {
-    val buffer = new Array[Byte](bytes)
-    dis.readFully(buffer)
-    ByteBuffer.wrap(buffer).order(byteOrder)
-  }
-
   sealed trait PLYTypeFormat
 
   val PLY_FORMAT_ASCII = "ascii"
@@ -221,17 +178,6 @@ object PLY {
 
   val PLY_ELEMENT_VERTEX = "vertex"
   val PLY_ELEMENT_FACE = "face"
-
-  private val PLY_PROPERTY_ELEMENTS = Map(
-    "char" -> 1,
-    "uchar" -> 1,
-    "short" -> 2,
-    "ushort" -> 2,
-    "int" -> 4,
-    "uint" -> 4,
-    "float" -> 4,
-    "double" -> 8
-  )
 
   private object PLYTypeFormat extends Enumeration {
     type PLYTypeFormat = Value
@@ -246,7 +192,12 @@ object PLY {
   private case class PLYFormat(format: PLYTypeFormat.PLYTypeFormat, version: String)
   private case class PLYProperty(format: String, name: String, listFormat: Option[String] = None)
   private case class PLYElement(format: PLYElementFormat.PLYElementFormat, count: Int, properties: Seq[PLYProperty])
-  private case class HeaderInfo(format: PLYFormat, elements: Seq[PLYElement], comments: Seq[String], headerLength: Int)
+  private case class HeaderInfo(format: PLYFormat,
+                                vertexInfo: PLYElement,
+                                faceInfo: PLYElement,
+                                comments: Seq[String],
+                                headerLength: Int
+  )
   private case class PLYItemsDefined(status: Boolean,
                                      is3DVertex: Boolean,
                                      is3DNormal: Boolean,
@@ -328,10 +279,30 @@ object PLY {
       }
       cnt += 1
     }
-    HeaderInfo(fileFormat.get,
-               fileElements.toSeq,
-               fileComments.toSeq,
-               header.map(_.getBytes("UTF-8").length).sum + header.length
+
+    val vertexInfo = fileElements.find(_.format == PLYElementFormat.VERTEX).get
+    val faceInfo = fileElements.find(_.format == PLYElementFormat.FACE).get
+    val faceDefined = validateElementFace(faceInfo)
+    val vertexDefined = validateElementVertex(vertexInfo)
+    if (!vertexDefined.status) {
+      throw new IOException(
+        "Unsupported element property provided"
+      )
+    } else if (!vertexDefined.is3DVertex) {
+      throw new IOException(
+        "Vertex (x,y,z) not defined in file."
+      )
+    } else if (!faceDefined) {
+      throw new IOException(
+        "Face element defined but no property defined."
+      )
+    }
+    HeaderInfo(
+      format = fileFormat.get,
+      vertexInfo = vertexInfo,
+      faceInfo = faceInfo,
+      comments = fileComments.toArray,
+      headerLength = header.map(_.getBytes("UTF-8").length).sum + header.length
     )
   }
 
