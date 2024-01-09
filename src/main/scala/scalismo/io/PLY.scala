@@ -14,7 +14,8 @@ import java.io.{
   FileInputStream,
   FileOutputStream,
   FileReader,
-  IOException
+  IOException,
+  RandomAccessFile
 }
 import java.nio.{ByteBuffer, ByteOrder}
 import java.nio.file.Files
@@ -29,7 +30,7 @@ object PLY {
     val faceFile = new File("src/test/resources/facemesh.stl")
     val outTest = new File("src/test/resources/facemesh_test.ply")
     val outTest2 = new File("src/test/resources/facemesh_test2.ply")
-    doSomeWriting(faceFile, outTest, outTest2)
+//    doSomeWriting(faceFile, outTest, outTest2)
     doSomeReading(outTest, outTest2)
   }
 
@@ -86,7 +87,8 @@ object PLY {
         val headerInfo = parseHeader(headerLines).get
         val vertexInfo = headerInfo.elements.find(_.format == PLYElementFormat.VERTEX).get
         val vertexDefined = validateElementVertex(vertexInfo)
-        val faceInfo = headerInfo.elements.find(_.format == PLYElementFormat.FACE)
+        val faceInfo = headerInfo.elements.find(_.format == PLYElementFormat.FACE).get
+        val faceDefined = validateElementFace(faceInfo)
         if (!vertexDefined.status) {
           Failure(
             new IOException(
@@ -99,11 +101,7 @@ object PLY {
               "Vertex (x,y,z) not defined in file."
             )
           )
-        } else if (
-          faceInfo.exists { case PLYElement(_, count, properties) =>
-            count > 0 && properties.isEmpty
-          }
-        ) {
+        } else if (!faceDefined) {
           Failure(
             new IOException(
               "Face element defined but no property defined."
@@ -114,65 +112,98 @@ object PLY {
             Try { TriangleMesh3D(IndexedSeq(), TriangleList(IndexedSeq())) }
           } else {
             println("BINARY")
-            val dis = new DataInputStream(new FileInputStream(file))
-            dis.skipBytes(headerInfo.headerLength)
+//            val dis = new DataInputStream(new FileInputStream(file))
+//            dis.skipBytes(headerInfo.headerLength)
+
             val byteOrder =
               if (headerInfo.format.format == PLYTypeFormat.BINARY_LITTLE_ENDIAN) ByteOrder.LITTLE_ENDIAN
               else ByteOrder.BIG_ENDIAN
 
-            val points = (0 until vertexInfo.count).map { i =>
-              var x: Double = 0.0;
-              var y: Double = 0.0;
-              var z: Double = 0.0;
-              var nx: Double = 0.0;
-              var ny: Double = 0.0;
-              var nz: Double = 0.0;
-              var red: Int = 0;
-              var green: Int = 0;
-              var blue: Int = 0;
-              var u: Double = 0.0
-              var v: Double = 0.0
-              vertexInfo.properties.foreach { item =>
-                item.name.match {
-                  case "x"     => x = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "y"     => y = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "z"     => z = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "nx"    => nx = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "ny"    => ny = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "nz"    => nz = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "red"   => red = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getInt
-                  case "green" => green = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getInt
-                  case "blue"  => blue = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getInt
-                  case "u" | "s" | "texture_u" =>
-                    u = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case "v" | "t" | "texture_v" =>
-                    v = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getFloat
-                  case _ => ??? // Throw error!!!
-                }
-              }
-              Point3D(x, y, z)
-            }
-            val triangleList: Option[IndexedSeq[TriangleCell]] = faceInfo.map { faceInfo =>
-              (0 until faceInfo.count).map { i =>
-                val ids: Array[Int] = Array(0, 0, 0)
-                faceInfo.properties.foreach { item =>
-                  if (item.listFormat.isDefined) {
-                    val cnt = readStream(dis, PLY_PROPERTY_ELEMENTS(item.listFormat.get), byteOrder).get.toInt
-                    (0 until cnt).foreach { j =>
-                      ids(j) = readStream(dis, PLY_PROPERTY_ELEMENTS(item.format), byteOrder).getInt
-                    }
-                  }
-                }
-                TriangleCell(PointId(ids(0)), PointId(ids(1)), PointId(ids(2)))
-              }
-            }
+            val dataBuffer = readFileToByteBuffer(file.toString)
+            dataBuffer.position(headerInfo.headerLength)
+            dataBuffer
+              .slice()
+              .order(byteOrder) // create a new ByteBuffer view for the data after the header
+
+            val points = readPoints(dataBuffer, vertexInfo, byteOrder)
+            val trignaleList = readTriangles(dataBuffer, faceInfo, byteOrder)
 
             Try {
-              TriangleMesh3D(points, TriangleList(triangleList.getOrElse(IndexedSeq())))
+              TriangleMesh3D(points, TriangleList(trignaleList))
             }
           }
         }
       }
+    }
+  }
+
+  private def readFileToByteBuffer(file: String): ByteBuffer = {
+    val raf = new RandomAccessFile(file, "r")
+    val channel = raf.getChannel
+    val buffer = ByteBuffer.allocate(channel.size.toInt)
+    channel.read(buffer)
+    buffer.rewind()
+    buffer
+  }
+
+  private def readPoints(buffer: ByteBuffer, vertexInfo: PLYElement, byteOrder: ByteOrder): IndexedSeq[Point3D] = {
+    val pointSize = vertexInfo.properties.map(f => PLY_PROPERTY_ELEMENTS(f.format)).sum
+    val xIndex = vertexInfo.properties.indexOf(vertexInfo.properties.find(_.name == "x").get)
+    val yIndex = vertexInfo.properties.indexOf(vertexInfo.properties.find(_.name == "y").get)
+    val zIndex = vertexInfo.properties.indexOf(vertexInfo.properties.find(_.name == "z").get)
+    (0 until vertexInfo.count).map { _ =>
+      val data = vertexInfo.properties.map { item =>
+        val value = readProperty(buffer, item.format, byteOrder)
+        (item.name, value)
+      }
+      Point3D(
+        data(xIndex)._2.asInstanceOf[Float],
+        data(yIndex)._2.asInstanceOf[Float],
+        data(zIndex)._2.asInstanceOf[Float]
+      )
+    }
+  }
+
+  private def readTriangles(buffer: ByteBuffer,
+                            faceInfo: PLYElement,
+                            byteOrder: ByteOrder
+  ): IndexedSeq[TriangleCell] = {
+    if (faceInfo.count == 0) {
+      IndexedSeq.empty
+    } else {
+      faceInfo.properties.headOption
+        .map { propertyList =>
+          val listCounterFormat = propertyList.listFormat.get
+          val listFormat = propertyList.format
+          (0 until faceInfo.count).map { _ =>
+            val cnt = readProperty(buffer, listCounterFormat, byteOrder).asInstanceOf[Int]
+            if (cnt != 3) {
+              throw new IOException(
+                "Faces elements different than 3 specified."
+              )
+            }
+            (0 until 3).map { _ =>
+              readProperty(buffer, listFormat, byteOrder).asInstanceOf[Int]
+            }
+          }
+        }
+        .getOrElse(IndexedSeq.empty)
+        .map { case Seq(id1, id2, id3) =>
+          TriangleCell(PointId(id1), PointId(id2), PointId(id3))
+        }
+    }
+  }
+
+  private def readProperty(buffer: ByteBuffer, format: String, byteOrder: ByteOrder): Any = {
+    format match {
+      case "char"   => buffer.order(byteOrder).get()
+      case "uchar"  => buffer.order(byteOrder).get() & 0xff
+      case "short"  => buffer.order(byteOrder).getShort
+      case "ushort" => buffer.order(byteOrder).getShort & 0xffff
+      case "int"    => buffer.order(byteOrder).getInt
+      case "uint"   => buffer.order(byteOrder).getInt & 0xffffffffL
+      case "float"  => buffer.order(byteOrder).getFloat
+      case "double" => buffer.order(byteOrder).getDouble
     }
   }
 
@@ -223,6 +254,12 @@ object PLY {
                                      is3DUV: Boolean
   )
 
+  private def validateElementFace(element: PLYElement): Boolean = {
+    if (element.count == 0) true
+    else {
+      element.properties.length == 1 && element.properties.head.listFormat.isDefined
+    }
+  }
   private def validateElementVertex(element: PLYElement): PLYItemsDefined = {
     val xyz = Seq("x", "y", "z")
     val n = Seq("nx", "ny", "nz")
