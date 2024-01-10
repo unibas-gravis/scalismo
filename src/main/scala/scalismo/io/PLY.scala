@@ -1,30 +1,24 @@
 package scalismo.io
 import scalismo.color.RGBA
 import scalismo.common.PointId
-
-import java.nio.charset.StandardCharsets
 import scalismo.geometry.{_3D, Point3D}
-import scalismo.mesh.{SurfacePointProperty, TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D, VertexColorMesh3D}
+import scalismo.mesh.*
 
-import java.io.{
-  BufferedOutputStream,
-  BufferedReader,
-  DataInputStream,
-  DataOutputStream,
-  File,
-  FileInputStream,
-  FileOutputStream,
-  FileReader,
-  IOException,
-  RandomAccessFile
-}
-import java.nio.{ByteBuffer, ByteOrder}
+import java.io.*
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.{ByteBuffer, ByteOrder}
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 object PLY {
+
+  val PLY_FORMAT_ASCII = "ascii"
+  val PLY_FORMAT_BIG = "binary_big_endian"
+  val PLY_FORMAT_LITTLE = "binary_little_endian"
+  val PLY_ELEMENT_VERTEX = "vertex"
+  val PLY_ELEMENT_FACE = "face"
 
   def main(args: Array[String]): Unit = {
     scalismo.initialize()
@@ -32,9 +26,10 @@ object PLY {
     val outTest = new File("src/test/resources/facemesh_test.ply")
     val outTest2 = new File("src/test/resources/facemesh_test2.ply")
     val outTestColor = new File("src/test/resources/facemesh_test_color.ply")
-    doSomeWriting(faceFile, outTest, outTest2)
-    doSomeColorWriting(faceFile, outTestColor)
-    doSomeReading(outTest, outTestColor)
+    val meshAscii = new File("src/test/resources/facemesh_test_color_ascii.ply")
+//    doSomeWriting(faceFile, outTest, outTest2)
+//    doSomeColorWriting(faceFile, outTestColor)
+    doSomeReading(meshAscii, meshAscii)
   }
 
   def doSomeReading(input1: File, input2: File): Unit = {
@@ -77,6 +72,57 @@ object PLY {
     val elapsedTimeSeconds1 = (endTime - midTime) / 1e9
     println(s"Elapsed Time: $elapsedTimeSeconds0 seconds")
     println(s"Elapsed Time: $elapsedTimeSeconds1 seconds")
+  }
+
+  def save(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
+    val (mesh, colors) = surface match {
+      case Right(colorMesh) => (colorMesh.shape, Option(colorMesh.color.pointData.iterator))
+      case Left(shapeOnly)  => (shapeOnly, None)
+    }
+    val hasColor = colors.isDefined
+
+    val headerContent = createHeader(mesh.pointSet.numberOfPoints, mesh.triangulation.triangles.length, hasColor)
+
+    Try {
+      val dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
+      try {
+        val colorIterator = colors.getOrElse(Iterator())
+
+        dos.write(headerContent.getBytes("UTF-8"))
+        mesh.pointSet.points.foreach { p =>
+          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.x.toFloat).array())
+          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.y.toFloat).array())
+          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.z.toFloat).array())
+
+          if (hasColor) {
+            val c = colorIterator.next()
+            dos.writeByte((c.r * 255).toByte)
+            dos.writeByte((c.g * 255).toByte)
+            dos.writeByte((c.b * 255).toByte)
+            dos.writeByte((c.a * 255).toByte)
+          }
+        }
+        mesh.triangulation.triangles.foreach { t =>
+          dos.writeByte(3)
+          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(t.ptId1.id).array())
+          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(t.ptId2.id).array())
+          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(t.ptId3.id).array())
+        }
+      } finally {
+        dos.close()
+      }
+    }
+  }
+
+  private def createHeader(numVertices: Int, numFaces: Int, vertexColors: Boolean): String = {
+    val header = new StringBuilder
+    header.append("ply\nformat binary_little_endian 1.0\ncomment Scalismo generated PLY File\n")
+    header.append(f"element vertex $numVertices\nproperty float x\nproperty float y\nproperty float z\n")
+    if (vertexColors) {
+      header.append("property uchar red\nproperty uchar green\nproperty uchar blue\nproperty uchar alpha\n")
+    }
+    header.append(f"element face $numFaces\nproperty list uchar int vertex_indices\nend_header\n")
+    header.toString()
   }
 
   private def load(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
@@ -131,17 +177,6 @@ object PLY {
       case index => Some(index)
     }
   }
-
-  case class PropertyIndexes(x: Int,
-                             y: Int,
-                             z: Int,
-                             red: Option[Int],
-                             green: Option[Int],
-                             blue: Option[Int],
-                             alpha: Option[Int],
-                             isRGB: Boolean,
-                             isRGBA: Boolean
-  )
 
   private def getPointPropertyIndex(items: Seq[PLYProperty]): PropertyIndexes = {
     val xIndex = getPropertyIndex(items, "x").get
@@ -313,47 +348,13 @@ object PLY {
     }
   }
 
-  sealed trait PLYTypeFormat
-
-  val PLY_FORMAT_ASCII = "ascii"
-  val PLY_FORMAT_BIG = "binary_big_endian"
-  val PLY_FORMAT_LITTLE = "binary_little_endian"
-
-  val PLY_ELEMENT_VERTEX = "vertex"
-  val PLY_ELEMENT_FACE = "face"
-
-  private object PLYTypeFormat extends Enumeration {
-    type PLYTypeFormat = Value
-    val ASCII, BINARY_BIG_ENDIAN, BINARY_LITTLE_ENDIAN = Value
-  }
-
-  private object PLYElementFormat extends Enumeration {
-    type PLYElementFormat = Value
-    val VERTEX, FACE = Value
-  }
-
-  private case class PLYFormat(format: PLYTypeFormat.PLYTypeFormat, version: String)
-  private case class PLYProperty(format: String, name: String, listFormat: Option[String] = None)
-  private case class PLYElement(format: PLYElementFormat.PLYElementFormat, count: Int, properties: Seq[PLYProperty])
-  private case class HeaderInfo(format: PLYFormat,
-                                vertexInfo: PLYElement,
-                                faceInfo: PLYElement,
-                                comments: Seq[String],
-                                headerLength: Int
-  )
-  private case class PLYItemsDefined(status: Boolean,
-                                     is3DVertex: Boolean,
-                                     is3DNormal: Boolean,
-                                     is3DVertexColor: Boolean,
-                                     is3DUV: Boolean
-  )
-
   private def validateElementFace(element: PLYElement): Boolean = {
     if (element.count == 0) true
     else {
       element.properties.length == 1 && element.properties.head.listFormat.isDefined
     }
   }
+
   private def validateElementVertex(element: PLYElement): PLYItemsDefined = {
     val xyz = Seq("x", "y", "z")
     val n = Seq("nx", "ny", "nz")
@@ -450,55 +451,47 @@ object PLY {
     )
   }
 
-  def save(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
-    val (mesh, colors) = surface match {
-      case Right(colorMesh) => (colorMesh.shape, Option(colorMesh.color.pointData.iterator))
-      case Left(shapeOnly)  => (shapeOnly, None)
-    }
-    val hasColor = colors.isDefined
+  sealed trait PLYTypeFormat
 
-    val headerContent = createHeader(mesh.pointSet.numberOfPoints, mesh.triangulation.triangles.length, hasColor)
+  case class PropertyIndexes(x: Int,
+                             y: Int,
+                             z: Int,
+                             red: Option[Int],
+                             green: Option[Int],
+                             blue: Option[Int],
+                             alpha: Option[Int],
+                             isRGB: Boolean,
+                             isRGBA: Boolean
+  )
 
-    Try {
-      val dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
-      try {
-        val colorIterator = colors.getOrElse(Iterator())
+  private case class PLYFormat(format: PLYTypeFormat.PLYTypeFormat, version: String)
 
-        dos.write(headerContent.getBytes("UTF-8"))
-        mesh.pointSet.points.foreach { p =>
-          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.x.toFloat).array())
-          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.y.toFloat).array())
-          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.z.toFloat).array())
+  private case class PLYProperty(format: String, name: String, listFormat: Option[String] = None)
 
-          if (hasColor) {
-            val c = colorIterator.next()
-            dos.writeByte((c.r * 255).toByte)
-            dos.writeByte((c.g * 255).toByte)
-            dos.writeByte((c.b * 255).toByte)
-            dos.writeByte((c.a * 255).toByte)
-          }
-        }
-        mesh.triangulation.triangles.foreach { t =>
-          dos.writeByte(3)
-          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(t.ptId1.id).array())
-          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(t.ptId2.id).array())
-          dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(t.ptId3.id).array())
-        }
-      } finally {
-        dos.close()
-      }
-    }
+  private case class PLYElement(format: PLYElementFormat.PLYElementFormat, count: Int, properties: Seq[PLYProperty])
+
+  private case class HeaderInfo(format: PLYFormat,
+                                vertexInfo: PLYElement,
+                                faceInfo: PLYElement,
+                                comments: Seq[String],
+                                headerLength: Int
+  )
+
+  private case class PLYItemsDefined(status: Boolean,
+                                     is3DVertex: Boolean,
+                                     is3DNormal: Boolean,
+                                     is3DVertexColor: Boolean,
+                                     is3DUV: Boolean
+  )
+
+  private object PLYTypeFormat extends Enumeration {
+    type PLYTypeFormat = Value
+    val ASCII, BINARY_BIG_ENDIAN, BINARY_LITTLE_ENDIAN = Value
   }
 
-  private def createHeader(numVertices: Int, numFaces: Int, vertexColors: Boolean): String = {
-    val header = new StringBuilder
-    header.append("ply\nformat binary_little_endian 1.0\ncomment Scalismo generated PLY File\n")
-    header.append(f"element vertex $numVertices\nproperty float x\nproperty float y\nproperty float z\n")
-    if (vertexColors) {
-      header.append("property uchar red\nproperty uchar green\nproperty uchar blue\nproperty uchar alpha\n")
-    }
-    header.append(f"element face $numFaces\nproperty list uchar int vertex_indices\nend_header\n")
-    header.toString()
+  private object PLYElementFormat extends Enumeration {
+    type PLYElementFormat = Value
+    val VERTEX, FACE = Value
   }
 
 }
