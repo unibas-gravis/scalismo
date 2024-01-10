@@ -53,6 +53,8 @@ object PLY {
     println(s"Elapsed Time: $elapsedTimeSeconds0 seconds")
     println(s"Elapsed Time: $elapsedTimeSeconds1 seconds")
     println(m1 == m2)
+    println(m1.pointSet.points.toIndexedSeq == m2.pointSet.points.toIndexedSeq)
+    println(m1.triangulation.triangles == m2.triangulation.triangles)
   }
 
   def doSomeColorWriting(input: File, output: File): Unit = {
@@ -85,12 +87,13 @@ object PLY {
       Try {
         val breader = new BufferedReader(new FileReader(file))
         val lineIterator = Iterator.continually(breader.readLine())
-
         val headerLines = lineIterator.dropWhile(_ != "ply").takeWhile(_ != "end_header").toArray :+ "end_header"
 
-        val headerInfo = parseHeader(headerLines).get
-        if (headerInfo.format == PLYTypeFormat.ASCII) {
-          Left(TriangleMesh3D(IndexedSeq(), TriangleList(IndexedSeq())))
+        val headerInfo: HeaderInfo = parseHeader(headerLines).get
+        val (points, colors, triangles) = if (headerInfo.format.format == PLYTypeFormat.ASCII) {
+          val (points, colors) = readPoints(lineIterator, headerInfo.vertexInfo)
+          val triangles = readTriangles(lineIterator, headerInfo.faceInfo)
+          (points, colors, triangles)
         } else {
           val byteOrder =
             if (headerInfo.format.format == PLYTypeFormat.BINARY_LITTLE_ENDIAN) ByteOrder.LITTLE_ENDIAN
@@ -102,11 +105,12 @@ object PLY {
 
           val (points, colors) = readPointsBinary(dataBuffer, headerInfo.vertexInfo, byteOrder)
           val triangles = readTrianglesBinary(dataBuffer, headerInfo.faceInfo, byteOrder)
-          val mesh = TriangleMesh3D(points, TriangleList(triangles))
-          colors match {
-            case Some(c) => Right(VertexColorMesh3D(mesh, SurfacePointProperty[RGBA](mesh.triangulation, c)))
-            case None    => Left(mesh)
-          }
+          (points, colors, triangles)
+        }
+        val mesh = TriangleMesh3D(points, TriangleList(triangles))
+        colors match {
+          case Some(c) => Right(VertexColorMesh3D(mesh, SurfacePointProperty[RGBA](mesh.triangulation, c)))
+          case None    => Left(mesh)
         }
       }
     }
@@ -128,48 +132,60 @@ object PLY {
     }
   }
 
-  private def readPointsBinary(buffer: ByteBuffer,
-                               vertexInfo: PLYElement,
-                               byteOrder: ByteOrder
-  ): (IndexedSeq[Point3D], Option[IndexedSeq[RGBA]]) = {
-    val xIndex = getPropertyIndex(vertexInfo.properties, "x").get
-    val yIndex = getPropertyIndex(vertexInfo.properties, "y").get
-    val zIndex = getPropertyIndex(vertexInfo.properties, "z").get
+  case class PropertyIndexes(x: Int,
+                             y: Int,
+                             z: Int,
+                             red: Option[Int],
+                             green: Option[Int],
+                             blue: Option[Int],
+                             alpha: Option[Int],
+                             isRGB: Boolean,
+                             isRGBA: Boolean
+  )
 
-    val redIndex = getPropertyIndex(vertexInfo.properties, "red")
-    val greenIndex = getPropertyIndex(vertexInfo.properties, "green")
-    val blueIndex = getPropertyIndex(vertexInfo.properties, "blue")
-    val alphaIndex = getPropertyIndex(vertexInfo.properties, "alpha")
+  private def getPointPropertyIndex(items: Seq[PLYProperty]): PropertyIndexes = {
+    val xIndex = getPropertyIndex(items, "x").get
+    val yIndex = getPropertyIndex(items, "y").get
+    val zIndex = getPropertyIndex(items, "z").get
+
+    val redIndex = getPropertyIndex(items, "red")
+    val greenIndex = getPropertyIndex(items, "green")
+    val blueIndex = getPropertyIndex(items, "blue")
+    val alphaIndex = getPropertyIndex(items, "alpha")
 
     val isRGB = redIndex.isDefined && greenIndex.isDefined && blueIndex.isDefined
     val isRGBA = isRGB && alphaIndex.isDefined
+    PropertyIndexes(xIndex, yIndex, zIndex, redIndex, greenIndex, blueIndex, alphaIndex, isRGB, isRGBA)
+  }
 
+  private def readPoints(lineIterator: Iterator[String],
+                         vertexInfo: PLYElement
+  ): (IndexedSeq[Point3D], Option[IndexedSeq[RGBA]]) = {
+    val pIndex = getPointPropertyIndex(vertexInfo.properties)
     val data: IndexedSeq[(Point3D, Option[RGBA])] = (0 until vertexInfo.count).map { _ =>
-      val data = vertexInfo.properties.map { item =>
-        val value = readProperty(buffer, item.format, byteOrder)
-        (item.name, value)
-      }
+      val line = lineIterator.next()
+      val split = line.split(" ")
       val p = Point3D(
-        data(xIndex)._2.asInstanceOf[Float],
-        data(yIndex)._2.asInstanceOf[Float],
-        data(zIndex)._2.asInstanceOf[Float]
+        split(pIndex.x).toFloat,
+        split(pIndex.y).toFloat,
+        split(pIndex.z).toFloat
       )
-      val c = if (isRGB) {
+      val c = if (pIndex.isRGB) {
         Option(
           RGBA(
-            data(redIndex.get)._2.asInstanceOf[Int].toDouble / 255.0,
-            data(greenIndex.get)._2.asInstanceOf[Int].toDouble / 255.0,
-            data(blueIndex.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            split(pIndex.red.get).toDouble / 255.0,
+            split(pIndex.green.get).toDouble / 255.0,
+            split(pIndex.blue.get).toDouble / 255.0,
             1.0
           )
         )
-      } else if (isRGBA) {
+      } else if (pIndex.isRGBA) {
         Option(
           RGBA(
-            data(redIndex.get)._2.asInstanceOf[Int].toDouble / 255.0,
-            data(greenIndex.get)._2.asInstanceOf[Int].toDouble / 255.0,
-            data(blueIndex.get)._2.asInstanceOf[Int].toDouble / 255.0,
-            data(alphaIndex.get)._2.asInstanceOf[Int].toDouble / 255.0
+            split(pIndex.red.get).toDouble / 255.0,
+            split(pIndex.green.get).toDouble / 255.0,
+            split(pIndex.blue.get).toDouble / 255.0,
+            split(pIndex.alpha.get).toDouble / 255.0
           )
         )
       } else {
@@ -180,6 +196,78 @@ object PLY {
     val (points, colors) = data.unzip
     val flattenedColors: Option[IndexedSeq[RGBA]] = if (colors.exists(_.isEmpty)) None else Some(colors.flatten)
     (points, flattenedColors)
+  }
+
+  private def readPointsBinary(buffer: ByteBuffer,
+                               vertexInfo: PLYElement,
+                               byteOrder: ByteOrder
+  ): (IndexedSeq[Point3D], Option[IndexedSeq[RGBA]]) = {
+    val pIndex = getPointPropertyIndex(vertexInfo.properties)
+    val data: IndexedSeq[(Point3D, Option[RGBA])] = (0 until vertexInfo.count).map { _ =>
+      val data = vertexInfo.properties.map { item =>
+        val value = readProperty(buffer, item.format, byteOrder)
+        (item.name, value)
+      }
+      val p = Point3D(
+        data(pIndex.x)._2.asInstanceOf[Float],
+        data(pIndex.y)._2.asInstanceOf[Float],
+        data(pIndex.z)._2.asInstanceOf[Float]
+      )
+      val c = if (pIndex.isRGB) {
+        Option(
+          RGBA(
+            data(pIndex.red.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            data(pIndex.green.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            data(pIndex.blue.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            1.0
+          )
+        )
+      } else if (pIndex.isRGBA) {
+        Option(
+          RGBA(
+            data(pIndex.red.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            data(pIndex.green.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            data(pIndex.blue.get)._2.asInstanceOf[Int].toDouble / 255.0,
+            data(pIndex.alpha.get)._2.asInstanceOf[Int].toDouble / 255.0
+          )
+        )
+      } else {
+        None
+      }
+      (p, c)
+    }
+    val (points, colors) = data.unzip
+    val flattenedColors: Option[IndexedSeq[RGBA]] = if (colors.exists(_.isEmpty)) None else Some(colors.flatten)
+    (points, flattenedColors)
+  }
+
+  private def readTriangles(lineIterator: Iterator[String], faceInfo: PLYElement): IndexedSeq[TriangleCell] = {
+    if (faceInfo.count == 0) {
+      IndexedSeq.empty
+    } else {
+      faceInfo.properties.headOption
+        .map { propertyList =>
+          val listCounterFormat = propertyList.listFormat.get
+          val listFormat = propertyList.format
+          (0 until faceInfo.count).map { _ =>
+            val line = lineIterator.next()
+            val split = line.split(" ")
+            val cnt = split(0).toInt
+            if (cnt != 3) {
+              throw new IOException(
+                "Faces elements different than 3 specified."
+              )
+            }
+            (1 to 3).map { i =>
+              split(i).toInt
+            }
+          }
+        }
+        .getOrElse(IndexedSeq.empty)
+        .map { case Seq(id1, id2, id3) =>
+          TriangleCell(PointId(id1), PointId(id2), PointId(id3))
+        }
+    }
   }
 
   private def readTrianglesBinary(buffer: ByteBuffer,
