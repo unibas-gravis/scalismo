@@ -1,7 +1,7 @@
 package scalismo.io
 import scalismo.color.RGBA
 import scalismo.common.PointId
-import scalismo.geometry.{Point3D, _3D}
+import scalismo.geometry.{_3D, Point3D}
 import scalismo.mesh.*
 
 import java.io.*
@@ -297,6 +297,7 @@ object PLY {
   private def validateElementFace(element: PLYElement): Boolean = {
     if (element.count == 0) true
     else {
+      // TODO: Update to > 1 to e.g. support texture file
       element.properties.length == 1 && element.properties.head.listFormat.isDefined
     }
   }
