@@ -1,7 +1,7 @@
 package scalismo.io
 import scalismo.color.RGBA
 import scalismo.common.PointId
-import scalismo.geometry.{_3D, Point3D}
+import scalismo.geometry.{Point3D, _3D}
 import scalismo.mesh.*
 
 import java.io.*
