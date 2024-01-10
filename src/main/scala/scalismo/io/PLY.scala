@@ -1,7 +1,7 @@
 package scalismo.io
 import scalismo.color.RGBA
 import scalismo.common.PointId
-import scalismo.geometry.{_3D, Point3D}
+import scalismo.geometry.{Point3D, _3D}
 import scalismo.mesh.*
 
 import java.io.*
@@ -19,60 +19,6 @@ object PLY {
   val PLY_FORMAT_LITTLE = "binary_little_endian"
   val PLY_ELEMENT_VERTEX = "vertex"
   val PLY_ELEMENT_FACE = "face"
-
-  def main(args: Array[String]): Unit = {
-    scalismo.initialize()
-    val faceFile = new File("src/test/resources/facemesh.stl")
-    val outTest = new File("src/test/resources/facemesh_test.ply")
-    val outTest2 = new File("src/test/resources/facemesh_test2.ply")
-    val outTestColor = new File("src/test/resources/facemesh_test_color.ply")
-    val meshAscii = new File("src/test/resources/facemesh_test_color_ascii.ply")
-//    doSomeWriting(faceFile, outTest, outTest2)
-//    doSomeColorWriting(faceFile, outTestColor)
-    doSomeReading(meshAscii, meshAscii)
-  }
-
-  def doSomeReading(input1: File, input2: File): Unit = {
-    println("Reading stuff")
-    val startTime = System.nanoTime()
-    val m1: TriangleMesh[_3D] = MeshIO.readMesh(input1).get
-    val midTime = System.nanoTime()
-    val m2 = load(input2).map {
-      case Right(vertexColor) => vertexColor.shape
-      case Left(shape)        => shape
-    }.get
-
-    val endTime = System.nanoTime()
-    val elapsedTimeSeconds0 = (midTime - startTime) / 1e9
-    val elapsedTimeSeconds1 = (endTime - midTime) / 1e9
-    println(s"Elapsed Time: $elapsedTimeSeconds0 seconds")
-    println(s"Elapsed Time: $elapsedTimeSeconds1 seconds")
-    println(m1 == m2)
-    println(m1.pointSet.points.toIndexedSeq == m2.pointSet.points.toIndexedSeq)
-    println(m1.triangulation.triangles == m2.triangulation.triangles)
-  }
-
-  def doSomeColorWriting(input: File, output: File): Unit = {
-    println("Color writing")
-    val faceMesh = MeshIO.readMesh(input).get
-    val colors = (0 until faceMesh.pointSet.numberOfPoints).map(f => RGBA(0.0, 0.1, 0.5, 1.0))
-    val cMesh = VertexColorMesh3D(faceMesh, new SurfacePointProperty[RGBA](faceMesh.triangulation, colors))
-    save(Right(cMesh), output)
-  }
-
-  def doSomeWriting(input: File, output1: File, output2: File): Unit = {
-    val faceMesh = MeshIO.readMesh(input).get
-    println("Writing stuff")
-    val startTime = System.nanoTime()
-    MeshIO.writeMesh(faceMesh, output1)
-    val midTime = System.nanoTime()
-    save(Left(faceMesh), output2)
-    val endTime = System.nanoTime()
-    val elapsedTimeSeconds0 = (midTime - startTime) / 1e9
-    val elapsedTimeSeconds1 = (endTime - midTime) / 1e9
-    println(s"Elapsed Time: $elapsedTimeSeconds0 seconds")
-    println(s"Elapsed Time: $elapsedTimeSeconds1 seconds")
-  }
 
   def save(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
     val (mesh, colors) = surface match {
@@ -125,7 +71,7 @@ object PLY {
     header.toString()
   }
 
-  private def load(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
+  def load(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
     if (!file.exists()) {
       val filename = file.getCanonicalFile
       Failure(new IOException(s"Could not read ply file with name $filename. Reason: The file does not exist"))
