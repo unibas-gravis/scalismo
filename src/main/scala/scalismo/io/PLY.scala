@@ -1,9 +1,10 @@
 package scalismo.io
+import scalismo.color.RGBA
 import scalismo.common.PointId
 
 import java.nio.charset.StandardCharsets
 import scalismo.geometry.{_3D, Point3D}
-import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D, VertexColorMesh3D}
+import scalismo.mesh.{SurfacePointProperty, TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D, VertexColorMesh3D}
 
 import java.io.{
   BufferedOutputStream,
@@ -30,8 +31,10 @@ object PLY {
     val faceFile = new File("src/test/resources/facemesh.stl")
     val outTest = new File("src/test/resources/facemesh_test.ply")
     val outTest2 = new File("src/test/resources/facemesh_test2.ply")
+    val outTestColor = new File("src/test/resources/facemesh_test_color.ply")
 //    doSomeWriting(faceFile, outTest, outTest2)
-    doSomeReading(outTest, outTest2)
+    doSomeColorWriting(faceFile, outTestColor)
+//    doSomeReading(outTest, outTest2)
   }
 
   def doSomeReading(input1: File, input2: File): Unit = {
@@ -46,6 +49,14 @@ object PLY {
     println(s"Elapsed Time: $elapsedTimeSeconds0 seconds")
     println(s"Elapsed Time: $elapsedTimeSeconds1 seconds")
     println(m1 == m2)
+  }
+
+  def doSomeColorWriting(input: File, output: File): Unit = {
+    println("Color writing")
+    val faceMesh = MeshIO.readMesh(input).get
+    val colors = (0 until faceMesh.pointSet.numberOfPoints).map(f => RGBA(0.0, 0.1, 0.5, 1.0))
+    val cMesh = VertexColorMesh3D(faceMesh, new SurfacePointProperty[RGBA](faceMesh.triangulation, colors))
+    save(Right(cMesh), output)
   }
 
   def doSomeWriting(input: File, output1: File, output2: File): Unit = {
@@ -215,14 +226,15 @@ object PLY {
     val xyz = Seq("x", "y", "z")
     val n = Seq("nx", "ny", "nz")
     val color = Seq("red", "green", "blue")
+    val colora = Seq("red", "green", "blue", "alpha")
     val st = Seq("s", "t")
     val uv = Seq("u", "v")
     val texture = Seq("texture_u", "texture_v")
-    val all = xyz ++ n ++ color ++ st ++ uv ++ texture
+    val all = xyz ++ n ++ color ++ colora ++ st ++ uv ++ texture
     val names = element.properties.map(_.name)
     val is3DVertexDefined = xyz.forall(names.contains)
     val is3DNormalDefined = n.forall(names.contains)
-    val is3DVertexColorDefined = color.forall(names.contains)
+    val is3DVertexColorDefined = color.forall(names.contains) || colora.forall(names.contains)
     val is3DUVsDefined =
       st.forall(names.contains) ||
         uv.forall(names.contains) ||
@@ -307,21 +319,32 @@ object PLY {
   }
 
   def save(surface: Either[TriangleMesh[_3D], VertexColorMesh3D], file: File): Try[Unit] = {
-    val mesh = surface match {
-      case Right(colorMesh) => colorMesh.shape
-      case Left(shapeOnly)  => shapeOnly
+    val (mesh, colors) = surface match {
+      case Right(colorMesh) => (colorMesh.shape, Option(colorMesh.color.pointData.iterator))
+      case Left(shapeOnly)  => (shapeOnly, None)
     }
+    val hasColor = colors.isDefined
 
-    val headerContent = createHeader(mesh.pointSet.numberOfPoints, mesh.triangulation.triangles.length, false)
+    val headerContent = createHeader(mesh.pointSet.numberOfPoints, mesh.triangulation.triangles.length, hasColor)
 
     Try {
       val dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
       try {
+        val colorIterator = colors.getOrElse(Iterator())
+
         dos.write(headerContent.getBytes("UTF-8"))
         mesh.pointSet.points.foreach { p =>
           dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.x.toFloat).array())
           dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.y.toFloat).array())
           dos.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(p.z.toFloat).array())
+
+          if (hasColor) {
+            val c = colorIterator.next()
+            dos.writeByte((c.r * 255).toByte)
+            dos.writeByte((c.g * 255).toByte)
+            dos.writeByte((c.b * 255).toByte)
+            dos.writeByte((c.a * 255).toByte)
+          }
         }
         mesh.triangulation.triangles.foreach { t =>
           dos.writeByte(3)
@@ -340,7 +363,7 @@ object PLY {
     header.append("ply\nformat binary_little_endian 1.0\ncomment Scalismo generated PLY File\n")
     header.append(f"element vertex $numVertices\nproperty float x\nproperty float y\nproperty float z\n")
     if (vertexColors) {
-      header.append("property uchar r\nproperty uchar g\nproperty uchar b\nproperty uchar a\n")
+      header.append("property uchar red\nproperty uchar green\nproperty uchar blue\nproperty uchar alpha\n")
     }
     header.append(f"element face $numFaces\nproperty list uchar int vertex_indices\nend_header\n")
     header.toString()
