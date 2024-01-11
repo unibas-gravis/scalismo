@@ -16,14 +16,12 @@
 
 // The STL implementation is based on the ScalaCad implementation: https://github.com/joewing/ScalaCad
 package scalismo.io.stl
-
 import scalismo.mesh.{TriangleList, TriangleMesh3D}
 
 object STLMesh {
   def writeSTL(mesh: TriangleMesh3D, filename: String): Unit = {
-//    StlBinaryFileWriter.write(r, os)
+    STLMeshWriter.write(mesh, filename, "This is a header")
   }
-
   def readTriangleMesh3D(filename: String): TriangleMesh3D = {
     TriangleMesh3D(IndexedSeq(), TriangleList(IndexedSeq()))
   }
