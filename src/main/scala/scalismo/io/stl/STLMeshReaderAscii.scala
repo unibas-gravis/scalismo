@@ -15,7 +15,8 @@ object STLMeshReaderAscii {
     val triangles = ArrayBuffer.empty[STLTriangle]
     var line: String = null
     while ( {
-      line = breader.readLine(); line != null && !line.trim.startsWith("endsolid")
+      line = breader.readLine();
+      line != null && !line.trim.startsWith("endsolid")
     }) {
       line = line.trim.replaceAll(" +", " ")
       val triangleStrings: Array[String] = Array(line) ++
@@ -28,27 +29,7 @@ object STLMeshReaderAscii {
     STLHelpers.STLTrianglesToTriangleMesh(triangles.toSeq)
   }
 
-  private def parseNormalString(data: String): EuclideanVector3D ={
-    val parts = data.split(" ").filter(f => f != " ")
-    if(parts.length != 5){
-      throw new IOException("Wrong faces normal format.")
-    }
-    else{
-      EuclideanVector3D(parts(2).toFloat, parts(3).toFloat, parts(4).toFloat)
-    }
-  }
-
-  private def parseVertexString(data: String): Point3D = {
-    val parts = data.split(" ").filter(f => f != " ")
-    if (parts.length != 4) {
-      throw new IOException("Wrong faces vertex format.")
-    }
-    else {
-      Point3D(parts(1).toFloat, parts(2).toFloat, parts(3).toFloat)
-    }
-  }
-
-  private def parseTriangleStrings(data: Seq[String]): Try[STLTriangle] = Try{
+  private def parseTriangleStrings(data: Seq[String]): Try[STLTriangle] = Try {
     if (data.length != 7 ||
       !data(0).startsWith("facet normal") ||
       !data(1).startsWith("outer loop") ||
@@ -64,5 +45,25 @@ object STLMeshReaderAscii {
     val p2 = parseVertexString(data(3))
     val p3 = parseVertexString(data(4))
     STLTriangle(n, p1, p2, p3)
+  }
+
+  private def parseNormalString(data: String): EuclideanVector3D = {
+    val parts = data.split(" ").filter(f => f != " ")
+    if (parts.length != 5) {
+      throw new IOException("Wrong faces normal format.")
+    }
+    else {
+      EuclideanVector3D(parts(2).toFloat, parts(3).toFloat, parts(4).toFloat)
+    }
+  }
+
+  private def parseVertexString(data: String): Point3D = {
+    val parts = data.split(" ").filter(f => f != " ")
+    if (parts.length != 4) {
+      throw new IOException("Wrong faces vertex format.")
+    }
+    else {
+      Point3D(parts(1).toFloat, parts(2).toFloat, parts(3).toFloat)
+    }
   }
 }

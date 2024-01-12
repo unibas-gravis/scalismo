@@ -15,22 +15,24 @@
  */
 
 package scalismo.io.stl
+
 import scalismo.mesh.TriangleMesh3D
 
-import java.io.{BufferedReader, File, FileReader}
+import java.io.{BufferedReader, FileReader}
 import scala.util.Try
 
 object STLMesh {
   def write(mesh: TriangleMesh3D, filename: String): Try[Unit] = {
     STLMeshWriter.write(mesh, filename, "This is a header")
   }
+
   def read(filename: String): Try[TriangleMesh3D] = {
     val breader = new BufferedReader(new FileReader(filename))
     val fileType = breader.readLine().take(5)
-    if(fileType == "solid"){
+    if (fileType == "solid") {
       STLMeshReaderAscii.read(filename)
     }
-    else{
+    else {
       STLMeshReaderBinary.read(filename)
     }
   }

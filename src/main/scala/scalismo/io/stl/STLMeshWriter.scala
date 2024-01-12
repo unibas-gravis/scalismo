@@ -3,12 +3,13 @@ package scalismo.io.stl
 import scalismo.geometry.EuclideanVector3D
 import scalismo.mesh.TriangleMesh3D
 
-import java.io.{BufferedOutputStream, DataOutputStream, FileOutputStream, OutputStream}
+import java.io.{BufferedOutputStream, DataOutputStream, FileOutputStream}
 import java.nio.{ByteBuffer, ByteOrder}
 import scala.util.Try
 
 object STLMeshWriter {
   private val ORDER = ByteOrder.LITTLE_ENDIAN
+
   def write(mesh: TriangleMesh3D, file: String, header: String): Try[Unit] = Try {
     val dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
     val headerMaxLength = 80
@@ -29,25 +30,30 @@ object STLMeshWriter {
     }
     dos.close()
   }
-  private def writeString(dos: DataOutputStream, data: String): Unit ={
+
+  private def writeString(dos: DataOutputStream, data: String): Unit = {
     dos.write(ByteBuffer.allocate(data.getBytes.length)
       .order(ORDER).put(data.getBytes("UTF-8")).array())
   }
+
   private def writeShort(dos: DataOutputStream, data: Short): Unit = {
     dos.write(ByteBuffer.allocate(2).order(ORDER)
       .putShort(data).array())
   }
+
   private def writeInt(dos: DataOutputStream, data: Int): Unit = {
     dos.write(ByteBuffer.allocate(4).order(ORDER)
       .putInt(data).array())
   }
-  private def writeFloat(dos: DataOutputStream, data: Float): Unit ={
-    dos.write(ByteBuffer.allocate(4).order(ORDER)
-      .putFloat(data).array())
-  }
+
   private def writeVertex(dos: DataOutputStream, vertex: EuclideanVector3D): Unit = {
     writeFloat(dos, vertex.x.toFloat)
     writeFloat(dos, vertex.y.toFloat)
     writeFloat(dos, vertex.z.toFloat)
+  }
+
+  private def writeFloat(dos: DataOutputStream, data: Float): Unit = {
+    dos.write(ByteBuffer.allocate(4).order(ORDER)
+      .putFloat(data).array())
   }
 }
