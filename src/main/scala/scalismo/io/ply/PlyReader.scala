@@ -132,11 +132,10 @@ object PlyReader {
     }
 
     val format = PlyFormat.values.find(v => v.toString == parts(1))
-    if (!format.isDefined) {
+    if (format.isEmpty) {
       throw new IOException("Can not read ply file in the format " + parts(1) + ".")
     }
     format.get
-
   }
 
   private def parseElementsInHeader(header: List[String]): List[(String, PlyElementReader)] = {
@@ -191,26 +190,29 @@ object PlyReader {
   private def makeReader(format: Array[String]): PlyPropertyReader[_] = {
     if (format.size == 1) {
       PlyTypes.withName(format(0)) match {
-        case PlyTypes.char | PlyTypes.int8   => new PlyPropertyReader(new FixedLengthSequenceReader[Char])
-        case PlyTypes.uchar | PlyTypes.uint8 => new PlyPropertyReader(new FixedLengthSequenceReader[Byte])
-        case PlyTypes.int | PlyTypes.int32   => new PlyPropertyReader(new FixedLengthSequenceReader[Int])
-        case PlyTypes.long | PlyTypes.int64  => new PlyPropertyReader(new FixedLengthSequenceReader[Long])
+        case PlyTypes.char | PlyTypes.int8                 => new PlyPropertyReader(new FixedLengthSequenceReader[Char])
+        case PlyTypes.uchar | PlyTypes.uint8               => new PlyPropertyReader(new FixedLengthSequenceReader[Byte])
+        case PlyTypes.int | PlyTypes.int32 | PlyTypes.uint => new PlyPropertyReader(new FixedLengthSequenceReader[Int])
+        case PlyTypes.long | PlyTypes.int64                => new PlyPropertyReader(new FixedLengthSequenceReader[Long])
         case PlyTypes.float | PlyTypes.float32 | PlyTypes.float32 =>
           new PlyPropertyReader(new FixedLengthSequenceReader[Float])
         case PlyTypes.double | PlyTypes.float64 => new PlyPropertyReader(new FixedLengthSequenceReader[Double])
-        case PlyTypes.short | PlyTypes.int16    => new PlyPropertyReader(new FixedLengthSequenceReader[Short])
+        case PlyTypes.short | PlyTypes.int16 | PlyTypes.ushort =>
+          new PlyPropertyReader(new FixedLengthSequenceReader[Short])
         case _ =>
           throw new IOException("Do not know how to read property type: " + format(0))
       }
     } else if (format.size == 3) {
       PlyTypes.withName(format(2)) match {
-        case PlyTypes.char | PlyTypes.int8      => new PlyPropertyReader(new VariableLengthSequenceReader[Char])
-        case PlyTypes.uchar | PlyTypes.uint8    => new PlyPropertyReader(new VariableLengthSequenceReader[Byte])
-        case PlyTypes.int | PlyTypes.int32      => new PlyPropertyReader(new VariableLengthSequenceReader[Int])
+        case PlyTypes.char | PlyTypes.int8   => new PlyPropertyReader(new VariableLengthSequenceReader[Char])
+        case PlyTypes.uchar | PlyTypes.uint8 => new PlyPropertyReader(new VariableLengthSequenceReader[Byte])
+        case PlyTypes.int | PlyTypes.int32 | PlyTypes.uint =>
+          new PlyPropertyReader(new VariableLengthSequenceReader[Int])
         case PlyTypes.long | PlyTypes.int64     => new PlyPropertyReader(new VariableLengthSequenceReader[Long])
         case PlyTypes.float | PlyTypes.float32  => new PlyPropertyReader(new VariableLengthSequenceReader[Float])
         case PlyTypes.double | PlyTypes.float64 => new PlyPropertyReader(new VariableLengthSequenceReader[Double])
-        case PlyTypes.short | PlyTypes.int16    => new PlyPropertyReader(new VariableLengthSequenceReader[Short])
+        case PlyTypes.short | PlyTypes.int16 | PlyTypes.ushort =>
+          new PlyPropertyReader(new VariableLengthSequenceReader[Short])
         case _ =>
           throw new IOException("Do not know how to read property type: " + format.mkString(" "))
       }
