@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-// The STL implementation is based on the ScalaCad implementation: https://github.com/joewing/ScalaCad
 package scalismo.io.stl
-import scalismo.mesh.{TriangleList, TriangleMesh3D}
+import scalismo.mesh.TriangleMesh3D
+
+import java.io.{BufferedReader, File, FileReader}
+import scala.util.Try
 
 object STLMesh {
-  def writeSTL(mesh: TriangleMesh3D, filename: String): Unit = {
+  def write(mesh: TriangleMesh3D, filename: String): Try[Unit] = {
     STLMeshWriter.write(mesh, filename, "This is a header")
   }
-  def readTriangleMesh3D(filename: String): TriangleMesh3D = {
-    TriangleMesh3D(IndexedSeq(), TriangleList(IndexedSeq()))
+  def read(filename: String): Try[TriangleMesh3D] = {
+    val breader = new BufferedReader(new FileReader(filename))
+    val fileType = breader.readLine().take(5)
+    if(fileType == "solid"){
+      STLMeshReaderAscii.read(filename)
+    }
+    else{
+      STLMeshReaderBinary.read(filename)
+    }
   }
 }
