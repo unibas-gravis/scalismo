@@ -288,7 +288,7 @@ object PLY {
       case "short"  => buffer.order(byteOrder).getShort
       case "ushort" => buffer.order(byteOrder).getShort & 0xffff
       case "int"    => buffer.order(byteOrder).getInt
-      case "uint"   => buffer.order(byteOrder).getInt & 0xffffffffL
+      case "uint"   => buffer.order(byteOrder).getInt & 0xffffffff
       case "float"  => buffer.order(byteOrder).getFloat
       case "double" => buffer.order(byteOrder).getDouble
     }
