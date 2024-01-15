@@ -226,6 +226,7 @@ object PLY {
     if (faceInfo.count == 0) {
       IndexedSeq.empty
     } else {
+      // TODO: Update to support texture file
       faceInfo.properties.headOption
         .map { propertyList =>
           val listCounterFormat = propertyList.listFormat.get
@@ -297,8 +298,7 @@ object PLY {
   private def validateElementFace(element: PLYElement): Boolean = {
     if (element.count == 0) true
     else {
-      // TODO: Update to > 1 to e.g. support texture file
-      element.properties.length == 1 && element.properties.head.listFormat.isDefined
+      element.properties.length == 1 && element.properties.head.listFormat.isDefined && element.properties.head.name == "vertex_indices"
     }
   }
 

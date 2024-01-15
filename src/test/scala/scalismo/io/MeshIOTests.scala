@@ -94,7 +94,7 @@ class MeshIOTests extends ScalismoTestSuite {
       reRead should equal(shape)
     }
 
-    it("correctly fails when reading a textured ascii ply") {
+    it("correctly fails when reading a ply with face properties other than vertex_indices") {
       val path = getClass.getResource("/mean_textured.ply").getPath
       val shape = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8")))
       assert(shape.isFailure)
