@@ -228,12 +228,14 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
    *   The decimated mesh
    */
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
-    val fraction = targetedNumberOfVertices.toDouble / mesh.triangulation.triangles.length.toDouble
-    decimateFaces((mesh.pointSet.numberOfPoints.toDouble * fraction).toInt)
+    require(targetedNumberOfVertices > 0)
+    val fraction = 1.0 max (mesh.pointSet.numberOfPoints / targetedNumberOfVertices.toDouble)
+    decimateFaces((mesh.triangulation.triangles.length / fraction).toInt)
   }
 
-  def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 8): TriangleMesh[_3D] = {
-
+  def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 7): TriangleMesh[_3D] = {
+    require(targetedNumberOfFaces > 0)
+    require(aggressiveness > 0 && aggressiveness < 20)
     val md = new MeshDecimation(mesh)
     md.simplify(targetedNumberOfFaces, aggressiveness)
   }
