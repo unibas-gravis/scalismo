@@ -298,7 +298,10 @@ object PLY {
   private def validateElementFace(element: PLYElement): Boolean = {
     if (element.count == 0) true
     else {
-      element.properties.length == 1 && element.properties.head.listFormat.isDefined && element.properties.head.name == "vertex_indices"
+      element.properties.length == 1 && element.properties.head.listFormat.isDefined && Seq(
+        "vertex_indices",
+        "vertex_index"
+      ).contains(element.properties.head.name)
     }
   }
 
