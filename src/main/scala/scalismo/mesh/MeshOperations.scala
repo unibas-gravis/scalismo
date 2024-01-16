@@ -229,23 +229,14 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
    *   The decimated mesh
    */
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
-    val refVtk = MeshConversion.meshToVtkPolyData(mesh)
-    val decimate = new vtk.vtkQuadricDecimation()
-
-    val reductionRate = 1.0 - (targetedNumberOfVertices / mesh.pointSet.numberOfPoints.toDouble)
-
-    decimate.SetTargetReduction(reductionRate)
-
-    decimate.SetInputData(refVtk)
-    decimate.Update()
-    val decimatedRefVTK = decimate.GetOutput()
-    MeshConversion.vtkPolyDataToTriangleMesh(decimatedRefVTK).get
+    val fraction = targetedNumberOfVertices.toDouble / mesh.triangulation.triangles.length.toDouble
+    decimateFaces((mesh.pointSet.numberOfPoints.toDouble * fraction).toInt)
   }
 
-  def decimateCustom(targetedNumberOfFaces: Int): TriangleMesh[_3D] = {
+  def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 8): TriangleMesh[_3D] = {
 
     val md = new MeshDecimation(mesh)
-    md.simplify(targetedNumberOfFaces, 8)
+    md.simplify(targetedNumberOfFaces, aggressiveness)
   }
 
   /**
