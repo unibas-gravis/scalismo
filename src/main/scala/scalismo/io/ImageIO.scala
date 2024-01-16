@@ -76,7 +76,7 @@ object ImageIO {
   private lazy val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
   private lazy val LPStoRASMatrix = inv(RAStoLPSMatrix)
 
-  def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
+  def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean = false): Try[DiscreteImage[_3D, S]] = {
 
     for {
       volume <- FastReadOnlyNiftiVolume.read(file.getAbsolutePath)

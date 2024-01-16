@@ -138,7 +138,7 @@ class TransformationTests extends ScalismoTestSuite {
   describe("In 3D") {
 
     val path = getClass.getResource("/3dimage.nii").getPath
-    val discreteImage = ImageIO.readNifti[Short](new File(URLDecoder.decode(path, "UTF-8")), favourQform = false).get
+    val discreteImage = ImageIO.readNifti[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
     val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("translation forth and back of a real dataset yields the same image") {
