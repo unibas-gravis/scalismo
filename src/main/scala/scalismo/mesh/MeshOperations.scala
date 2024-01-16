@@ -229,24 +229,18 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
    *   The decimated mesh
    */
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
-    val refVtk = MeshConversion.meshToVtkPolyData(mesh)
-    val decimate = new vtk.vtkQuadricDecimation()
-
-    val reductionRate = 1.0 - (targetedNumberOfVertices / mesh.pointSet.numberOfPoints.toDouble)
-
-    decimate.SetTargetReduction(reductionRate)
-
-    decimate.SetInputData(refVtk)
-    decimate.Update()
-    val decimatedRefVTK = decimate.GetOutput()
-    MeshConversion.vtkPolyDataToTriangleMesh(decimatedRefVTK).get
+    require(targetedNumberOfVertices > 0)
+    val fraction = 1.0 max (mesh.pointSet.numberOfPoints / targetedNumberOfVertices.toDouble)
+    decimateFaces((mesh.triangulation.triangles.length / fraction).toInt)
   }
 
-  def decimateCustom(targetedNumberOfFaces: Int): TriangleMesh[_3D] = {
-
+  def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 7): TriangleMesh[_3D] = {
+    require(targetedNumberOfFaces > 0)
+    require(aggressiveness > 0 && aggressiveness < 20)
     val md = new MeshDecimation(mesh)
-    md.simplify(targetedNumberOfFaces, 8)
+    md.simplify(targetedNumberOfFaces, aggressiveness)
   }
+
 
   /**
    * Joins two meshes together, by creating a new mesh with the vertices and triangles of both meshes. The two meshes
