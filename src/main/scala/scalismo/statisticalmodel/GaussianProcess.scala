@@ -114,6 +114,17 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
+   * The MAP of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
+   * regression. We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
+   */
+  def MAP(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
+    val cov =
+      MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
+    val fullTrainingData = trainingData.map { case (p, v) => (p, v, cov) }
+    GaussianProcess.regressionMean(this, fullTrainingData)
+  }
+
+  /**
    * The posterior distribution of the gaussian process, with respect to the given trainingData. It is computed using
    * Gaussian process regression.
    */
@@ -121,6 +132,16 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
   ): GaussianProcess[D, Value] = {
     GaussianProcess.regression(this, trainingData)
+  }
+
+  /**
+   * The MAP of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
+   * regression.
+   */
+  def MAP(
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  ): Field[D, Value] = {
+    GaussianProcess.regressionMean(this, trainingData)
   }
 }
 
@@ -164,40 +185,72 @@ object GaussianProcess {
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
   )(implicit vectorizer: Vectorizer[Value]): GaussianProcess[D, Value] = {
 
-    val outputDim = vectorizer.dim
-
-    val (xs, ys, errorDists) = trainingData.unzip3
-
-    val mVec = DiscreteField.vectorize[D, Value](xs.map(gp.mean))
-    val yVec = DiscreteField.vectorize[D, Value](ys)
-    val fVec = yVec - mVec
-
-    val K = Kernel.computeKernelMatrix(xs, gp.cov)
-    for ((errorDist, i) <- errorDists.zipWithIndex) {
-      K(i * outputDim until (i + 1) * outputDim, i * outputDim until (i + 1) * outputDim) += errorDist.cov
-    }
-
-    val K_inv = breeze.linalg.inv(K)
-
-    def xstar(x: Point[D]) = {
-      Kernel.computeKernelVectorFor[D](x, xs, gp.cov)
-    }
-
-    def posteriorMean(x: Point[D]): Value = {
-      vectorizer.unvectorize((xstar(x) * K_inv) * fVec + vectorizer.vectorize(gp.mean(x)))
-    }
+    val (invKernel, xstar, posteriorMean) = regressionDataUnpack(gp, trainingData)
 
     val posteriorKernel = new MatrixValuedPDKernel[D] {
       override def domain = gp.domain
 
       override def k(x: Point[D], y: Point[D]): DenseMatrix[Double] = {
-        gp.cov(x, y) - (xstar(x) * K_inv * xstar(y).t)
+        gp.cov(x, y) - (xstar(x) * invKernel * xstar(y).t)
       }
 
       override def outputDim = gp.outputDim
     }
 
-    new GaussianProcess[D, Value](Field(gp.domain, posteriorMean _), posteriorKernel)
+    new GaussianProcess[D, Value](Field(gp.domain, posteriorMean), posteriorKernel)
+  }
+
+  /**
+   * * Performs a MAP of a Gaussian process, where we assume that each training point (vector) is subject to zero-mean
+   * noise with given variance.
+   *
+   * @param gp
+   *   The gaussian process
+   * @param trainingData
+   *   Point/value pairs where that the sample should approximate, together with an error model (the uncertainty) at
+   *   each point.
+   */
+  def regressionMean[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  )(implicit vectorizer: Vectorizer[Value]): Field[D, Value] = {
+
+    val (_, _, posteriorMean) = regressionDataUnpack(gp, trainingData)
+
+    Field(gp.domain, posteriorMean)
+  }
+
+  private def regressionDataUnpack[D: NDSpace, Value](
+    gp: GaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  )(implicit
+    vectorizer: Vectorizer[Value]
+  ): (
+    DenseMatrix[Double],
+    Point[D] => DenseMatrix[Double],
+    Point[D] => Value
+  ) = {
+    val outputDim = vectorizer.dim
+    val (xs, ys, errorDists) = trainingData.unzip3
+    val mVec = DiscreteField.vectorize[D, Value](xs.map(gp.mean))
+    val yVec = DiscreteField.vectorize[D, Value](ys)
+    val fVec = yVec - mVec
+    val K: DenseMatrix[Double] = Kernel.computeKernelMatrix(xs, gp.cov)
+    for ((errorDist, i) <- errorDists.zipWithIndex) {
+      K(i * outputDim until (i + 1) * outputDim, i * outputDim until (i + 1) * outputDim) += errorDist.cov
+    }
+
+    val invKernel: DenseMatrix[Double] = breeze.linalg.inv(K)
+
+    def xstar(x: Point[D]): DenseMatrix[Double] = {
+      Kernel.computeKernelVectorFor[D](x, xs, gp.cov)
+    }
+
+    def posteriorMean(x: Point[D]): Value = {
+      vectorizer.unvectorize((xstar(x) * invKernel) * fVec + vectorizer.vectorize(gp.mean(x)))
+    }
+
+    (invKernel, xstar, posteriorMean)
   }
 
   /**

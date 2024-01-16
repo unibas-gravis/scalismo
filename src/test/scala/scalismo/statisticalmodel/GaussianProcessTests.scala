@@ -538,6 +538,39 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     }
 
+    def measureTime[A](func: => A): (A, Double) = {
+      val startTime = System.nanoTime()
+      val result = func
+      val endTime = System.nanoTime()
+      val elapsedTime = (endTime - startTime) / 1e9
+      (result, elapsedTime)
+    }
+
+    it("yields the same result for gp regression mean as MAP and MAP is faster to compute") {
+      val f = Fixture
+      val numIterations = 1000
+      val sigma = 1e-5
+      val timeMean =
+        (0 until numIterations)
+          .map(_ => measureTime(f.gp.posterior(f.trainingDataGP, sigma).mean)._2)
+          .sum / numIterations.toDouble
+      val timeMap =
+        (0 until numIterations)
+          .map(_ => measureTime(f.gp.MAP(f.trainingDataGP, sigma))._2)
+          .sum / numIterations.toDouble
+
+      val gpMean = f.gp.posterior(f.trainingDataGP, sigma).mean
+      val gpMAP = f.gp.MAP(f.trainingDataGP, sigma)
+
+      // both posterior processes should give the same values at the specialized points
+      for ((pt, id) <- f.discretizationPoints.zipWithIndex) {
+        for (d <- 0 until 3) {
+          gpMean(pt)(d) should be(gpMAP(pt)(d) +- 1e-5)
+        }
+      }
+      timeMap should be < timeMean
+    }
+
     it("will yield the correct values at the interpolation points when it is interpolated") {
       val f = Fixture
       val gp = f.discreteLowRankGp.interpolateNystrom(100)

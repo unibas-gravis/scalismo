@@ -191,6 +191,19 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
     LowRankGaussianProcess.regression(this, trainingData)
   }
 
+  override def MAP(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
+    val cov =
+      MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
+    val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
+    MAP(newtd)
+  }
+
+  override def MAP(
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
+  ): Field[D, Value] = {
+    LowRankGaussianProcess.regressionMean(this, trainingData)
+  }
+
   override def marginal(points: IndexedSeq[Point[D]])(implicit
     domainCreator: UnstructuredPointsDomain.Create[D]
   ): DiscreteLowRankGaussianProcess[D, UnstructuredPointsDomain, Value] = {
@@ -434,6 +447,19 @@ object LowRankGaussianProcess {
       Eigenpair(newEv, newEf)
     }
     new LowRankGaussianProcess[D, Value](mean_p, klBasis_p)
+  }
+
+  def regressionMean[D: NDSpace, Value](
+    gp: LowRankGaussianProcess[D, Value],
+    trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy = NaNStrategy.NanIsNumericValue
+  )(implicit vectorizer: Vectorizer[Value]): Field[D, Value] = {
+    val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
+      LowRankRegressionComputation.fromLowrankGP(gp, trainingData, naNStrategy)
+    val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
+
+    val mean_p = gp.instance(mean_coeffs)
+    mean_p
   }
 
   /**
