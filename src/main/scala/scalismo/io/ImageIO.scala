@@ -15,18 +15,13 @@
  */
 package scalismo.io
 
-import breeze.linalg
-import breeze.linalg.{diag, DenseMatrix, DenseVector}
+import breeze.linalg.{diag, inv, DenseMatrix, DenseVector}
 import niftijio.NiftiVolume
 import scalismo.common.Scalar
-import scalismo.geometry._
+import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, IntVector, IntVector3D, Point}
 import scalismo.image.{DiscreteImage, DiscreteImageDomain, StructuredPoints, StructuredPoints3D}
-import scalismo.utils.ImageConversion.{VtkAutomaticInterpolatorSelection, VtkInterpolationMode}
-import scalismo.utils.{CanConvertToVtk, ImageConversion}
-import spire.math.{UByte, UInt, UShort}
-import vtk._
 
-import java.io.{File, IOException}
+import java.io.File
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
@@ -79,166 +74,7 @@ object ImageIO {
   }
 
   private lazy val RAStoLPSMatrix = DenseMatrix((-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
-  private lazy val LPStoRASMatrix = linalg.inv(RAStoLPSMatrix)
-
-  /**
-   * Read a 3D Scalar Image
-   * @param file
-   *   image file to be read
-   * @tparam S
-   *   Voxel type of the image
-   */
-  def read3DScalarImage[S: Scalar: ClassTag](
-    file: File
-  ): Try[DiscreteImage[_3D, S]] = {
-
-    file match {
-      case f if f.getAbsolutePath.endsWith(".vtk") =>
-        val reader = new vtkStructuredPointsReader()
-        reader.SetFileName(f.getAbsolutePath)
-        reader.Update()
-        val errCode = reader.GetErrorCode()
-        if (errCode != 0) {
-          return Failure(
-            new IOException(
-              s"Failed to read vtk file ${f.getAbsolutePath}. " +
-                s"(error code from vtkReader = $errCode)"
-            )
-          )
-        }
-        val sp = reader.GetOutput()
-        val img = ImageConversion.vtkStructuredPointsToScalarImage[_3D, S](sp)
-        reader.Delete()
-        sp.Delete()
-        // unfortunately, there may still be VTK leftovers, so run garbage collection
-        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
-        img
-      case f if f.getAbsolutePath.endsWith(".nii") || f.getAbsolutePath.endsWith(".nia") =>
-        readNifti[S](f, favourQform = false)
-      case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
-    }
-  }
-
-  /**
-   * Read a 3D Scalar Image, and possibly convert it to the requested voxel type.
-   *
-   * This method is similar to the [[read3DScalarImage]] method, except that it will convert the image to the requested
-   * voxel type if the type in the file is different, whereas [[read3DScalarImage]] will throw an exception in that
-   * case.
-   *
-   * @param file
-   *   image file to be read
-   * @tparam S
-   *   Voxel type of the image
-   */
-  def read3DScalarImageAsType[S: Scalar: ClassTag](
-    file: File
-  ): Try[DiscreteImage[_3D, S]] = {
-    def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_3D, T]] = {
-      read3DScalarImage[T](file)
-    }
-
-    val result = (for {
-      fileScalarType <- ScalarDataType.ofFile(file)
-    } yield {
-      val expectedScalarType = ScalarDataType.fromType[S]
-      if (expectedScalarType == fileScalarType) {
-        loadAs[S]
-      } else {
-        val s = implicitly[Scalar[S]]
-        fileScalarType match {
-          case ScalarDataType.Byte   => loadAs[Byte].map(_.map(s.fromByte))
-          case ScalarDataType.Short  => loadAs[Short].map(_.map(s.fromShort))
-          case ScalarDataType.Int    => loadAs[Int].map(_.map(s.fromInt))
-          case ScalarDataType.Float  => loadAs[Float].map(_.map(s.fromFloat))
-          case ScalarDataType.Double => loadAs[Double].map(_.map(s.fromDouble))
-          case ScalarDataType.UByte  => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
-          case ScalarDataType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
-          case ScalarDataType.UInt   => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
-
-          case _ => Failure(new IllegalArgumentException(s"unknown scalar type $fileScalarType"))
-        }
-      }
-    }).flatten
-    result
-  }
-
-  /**
-   * Read a 2D Scalar Image
-   * @param file
-   *   image file to be read
-   * @tparam S
-   *   Voxel type of the image
-   */
-  def read2DScalarImage[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
-
-    file match {
-      case f if f.getAbsolutePath.endsWith(".vtk") =>
-        val reader = new vtkStructuredPointsReader()
-        reader.SetFileName(f.getAbsolutePath)
-        reader.Update()
-        val errCode = reader.GetErrorCode()
-        if (errCode != 0) {
-          return Failure(
-            new IOException(
-              s"Failed to read vtk file ${file.getAbsolutePath}. " +
-                s"(error code from vtkReader = $errCode"
-            )
-          )
-        }
-        val sp = reader.GetOutput()
-        val img = ImageConversion.vtkStructuredPointsToScalarImage[_2D, S](sp)
-        reader.Delete()
-        sp.Delete()
-        // unfortunately, there may still be VTK leftovers, so run garbage collection
-        vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
-        img
-
-      case _ => Failure(new Exception("Unknown file type received" + file.getAbsolutePath))
-    }
-  }
-
-  /**
-   * Read a 2D Scalar Image, and possibly convert it to the requested voxel type.
-   *
-   * This method is similar to the [[read2DScalarImage]] method, except that it will convert the image to the requested
-   * voxel type if the type in the file is different, whereas [[read2DScalarImage]] will throw an exception in that
-   * case.
-   *
-   * @param file
-   *   image file to be read
-   * @tparam S
-   *   Voxel type of the image
-   */
-  def read2DScalarImageAsType[S: Scalar: ClassTag](file: File): Try[DiscreteImage[_2D, S]] = {
-    def loadAs[T: Scalar: ClassTag]: Try[DiscreteImage[_2D, T]] = {
-      read2DScalarImage[T](file)
-    }
-
-    val result = (for {
-      fileScalarType <- ScalarDataType.ofFile(file)
-    } yield {
-      val expectedScalarType = ScalarDataType.fromType[S]
-      if (expectedScalarType == fileScalarType) {
-        loadAs[S]
-      } else {
-        val s = implicitly[Scalar[S]]
-        fileScalarType match {
-          case ScalarDataType.Byte   => loadAs[Byte].map(_.map(s.fromByte))
-          case ScalarDataType.Short  => loadAs[Short].map(_.map(s.fromShort))
-          case ScalarDataType.Int    => loadAs[Int].map(_.map(s.fromInt))
-          case ScalarDataType.Float  => loadAs[Float].map(_.map(s.fromFloat))
-          case ScalarDataType.Double => loadAs[Double].map(_.map(s.fromDouble))
-          case ScalarDataType.UByte  => loadAs[UByte].map(_.map(u => s.fromShort(u.toShort)))
-          case ScalarDataType.UShort => loadAs[UShort].map(_.map(u => s.fromInt(u.toInt)))
-          case ScalarDataType.UInt   => loadAs[UInt].map(_.map(u => s.fromLong(u.toLong)))
-
-          case _ => Failure(new IllegalArgumentException(s"unknown scalar type $fileScalarType"))
-        }
-      }
-    }).flatten
-    result
-  }
+  private lazy val LPStoRASMatrix = inv(RAStoLPSMatrix)
 
   def readNifti[S: Scalar: ClassTag](file: File, favourQform: Boolean): Try[DiscreteImage[_3D, S]] = {
 
@@ -421,32 +257,6 @@ object ImageIO {
       volume.header.pixdim(3) = domain.pointSet.spacing(2).toFloat
 
       volume.write(file.getAbsolutePath)
-    }
-  }
-
-  def writeVTK[D: NDSpace: CanConvertToVtk, S: Scalar: ClassTag](img: DiscreteImage[D, S],
-                                                                 file: File,
-                                                                 interpolationMode: VtkInterpolationMode =
-                                                                   VtkAutomaticInterpolatorSelection
-  ): Try[Unit] = {
-
-    val imgVtk = ImageConversion.imageToVtkStructuredPoints(img, interpolationMode)
-
-    val writer = new vtkStructuredPointsWriter()
-    writer.SetInputData(imgVtk)
-    writer.SetFileName(file.getAbsolutePath)
-    writer.SetFileTypeToBinary()
-    writer.Update()
-    val errorCode = writer.GetErrorCode()
-
-    // unfortunately, there will probably still be VTK leftovers from objects allocated
-    // outside of our control, so run garbage collection
-    vtkObjectBase.JAVA_OBJECT_MANAGER.gc(false)
-
-    if (errorCode != 0) {
-      Failure(new IOException(s"Error writing vtk file ${file.getAbsolutePath} (error code $errorCode"))
-    } else {
-      Success(())
     }
   }
 
