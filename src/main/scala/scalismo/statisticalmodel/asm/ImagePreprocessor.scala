@@ -23,7 +23,6 @@ import scalismo.common.{Domain, Field}
 import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.hdf5json.HDFPath
 import scalismo.image.DiscreteImage
-import scalismo.image.filter.DiscreteImageFilter
 import scalismo.io.statisticalmodel.{HDF5Reader, HDF5Writer, StatisticalModelReader}
 import scalismo.statisticalmodel.asm.PreprocessedImage.Type
 
@@ -139,8 +138,12 @@ case class GaussianGradientImagePreprocessor(stddev: Double,
     override val valueType = PreprocessedImage.Gradient
 
     val gradientImage: Field[_3D, EuclideanVector[_3D]] = {
+      // TODO: Implement own version of Gaussian image smoothing
       if (stddev > 0) {
-        DiscreteImageFilter.gaussianSmoothing(inputImage, stddev)
+//        DiscreteImageFilter.gaussianSmoothing(inputImage, stddev)
+        throw new IllegalArgumentException(
+          s"Gaussian smoothing no longer implemented in Scalismo."
+        )
       } else {
         inputImage
       }
