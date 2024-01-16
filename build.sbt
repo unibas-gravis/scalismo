@@ -48,7 +48,7 @@ lazy val root = (project in file("."))
       "org.scalanlp" %% "breeze-natives" % "2.1.0",
       "ch.unibas.cs.gravis" % "scalismo-niftijiojar" % "0.1.0",
       "ch.unibas.cs.gravis" %% "scalismo-hdf5-json" % "0.1-RC1",
-      "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.2-RC1",
+      "ch.unibas.cs.gravis" % "vtkjavanativesall" % "0.2-RC1" % "test",
       "io.jhdf" % "jhdf" % "0.6.10",
       "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
       "org.slf4j" % "slf4j-nop" % "2.0.7", // this silences slf4j complaints in registration classes
