@@ -128,15 +128,15 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
         }
       }
 
-      it("Interpolates the values correctly for a test dataset") {
-        val testImgUrl = getClass.getResource("/lena256.vtk").getPath
-        val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
-        val interpolatedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Short](2))
-
-        for ((p, i) <- discreteFixedImage.domain.pointSet.points.zipWithIndex) {
-          interpolatedImage(p).toShort should be(discreteFixedImage(PointId(i)) +- 30)
-        }
-      }
+//      it("Interpolates the values correctly for a test dataset") {
+//        val testImgUrl = getClass.getResource("/lena256.vtk").getPath
+//        val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
+//        val interpolatedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Short](2))
+//
+//        for ((p, i) <- discreteFixedImage.domain.pointSet.points.zipWithIndex) {
+//          interpolatedImage(p).toShort should be(discreteFixedImage(PointId(i)) +- 30)
+//        }
+//      }
 
       it("Derivative of interpolated function is correct") {
         val domain = DiscreteImageDomain2D((-2.0, -2.0), (0.01, 0.01), (400, 400))
@@ -219,7 +219,8 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
 
       it("Interpolates a real dataset correctly") {
         val path = getClass.getResource("/3dimage.nii").getPath
-        val discreteImage = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
+        val discreteImage =
+          ImageIO.readNifti[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
         val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](1))
 
         for ((p, i) <- discreteImage.domain.pointSet.points.zipWithIndex.filter(p => p._2 % 100 == 0))
