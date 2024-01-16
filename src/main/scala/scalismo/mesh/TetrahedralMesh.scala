@@ -16,12 +16,11 @@
 package scalismo.mesh
 
 import breeze.linalg.DenseVector
-import scalismo.common._
-import scalismo.geometry._
-import scalismo.mesh.boundingSpheres.Determinant
+import scalismo.common.*
+import scalismo.geometry.*
+import scalismo.numerics.Determinant
 import scalismo.transformations.Transformation
 import scalismo.utils.Random
-import vtk.vtkTetra
 
 import scala.language.implicitConversions
 
