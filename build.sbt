@@ -1,6 +1,6 @@
 import sbt.Resolver
 
-ThisBuild / version := "0.92.1"
+ThisBuild / version := "0.93.0"
 
 Test / parallelExecution := false
 
@@ -50,7 +50,7 @@ lazy val root = (project in file("."))
       "ch.unibas.cs.gravis" %% "scalismo-hdf5-json" % "0.1-RC1",
       "io.jhdf" % "jhdf" % "0.6.10",
       "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4",
-      "org.slf4j" % "slf4j-nop" % "2.0.7", // this silences slf4j complaints in registration classes
+      "org.slf4j" % "slf4j-nop" % "2.0.7" // this silences slf4j complaints in registration classes
     )
   )
   .enablePlugins(GitBranchPrompt)
