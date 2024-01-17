@@ -173,6 +173,32 @@ case class PointDistributionModel[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
   }
 
   /**
+   * Similar to [[DiscreteLowRankGaussianProcess.MAP(Int, Point[_3D])], sigma2: Double)]], but the training data
+   * is defined by specifying the target point instead of the displacement vector
+   */
+  def MAP(trainingData: IndexedSeq[(PointId, Point[D])], sigma2: Double): DDomain[D] = {
+    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint) =>
+      (id, targetPoint - reference.pointSet.point(id))
+    }
+    val mean = gp.MAP(trainingDataWithDisplacements, sigma2)
+    warper.transformWithField(gp.domain, mean)
+  }
+
+  /**
+   * Similar to [[DiscreteLowRankGaussianProcess.MAP(Int, Point[_3D], Double)]]], but the training data is defined
+   * by specifying the target point instead of the displacement vector
+   */
+  def MAP(
+                 trainingData: IndexedSeq[(PointId, Point[D], MultivariateNormalDistribution)]
+               ): DDomain[D] = {
+    val trainingDataWithDisplacements = trainingData.map { case (id, targetPoint, cov) =>
+      (id, targetPoint - reference.pointSet.point(id), cov)
+    }
+    val mean = gp.MAP(trainingDataWithDisplacements)
+    warper.transformWithField(gp.domain, mean)
+  }
+
+  /**
    * transform the statistical mesh model using the given rigid transform. The spanned shape space is not affected by
    * this operations.
    */
