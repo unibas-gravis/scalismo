@@ -80,8 +80,8 @@ object PLYMeshReaderBinary {
           )
         )
       (0 until faceInfo.count).map { _ =>
-        val data = faceInfo.properties.map { item =>
-          item.read(buffer, byteOrder)
+        val data = faceInfo.properties.map { property =>
+          property.read(buffer, byteOrder)
         }
         val vertexData = data(vertexIndex)
         if (vertexData.length != 3) {

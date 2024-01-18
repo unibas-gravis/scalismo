@@ -69,30 +69,44 @@ object PLYMeshReaderAscii {
     if (faceInfo.count == 0) {
       IndexedSeq.empty
     } else {
-      // TODO: Update to support texture file
-      faceInfo.properties.headOption
-        .map { propertyList =>
-          //          val listCounterFormat = propertyList.listFormat.get
-          //          val listFormat = propertyList.format
-          (0 until faceInfo.count).map { _ =>
-            val line = lineIterator.next()
-            val split = line.split(" ")
-            val cnt = split(0).toInt
-            if (cnt != 3) {
-              throw new IOException(
-                "Faces elements different than 3 specified."
-              )
+      val vertexIndex = PLYHelpers
+        .getFacePropertyIndex(faceInfo.properties)
+        .vertexIndex
+        .getOrElse(
+          throw new IOException(
+            "Faces property vertex_index not found."
+          )
+        )
+      (0 until faceInfo.count).map { _ =>
+        val line = lineIterator.next()
+        val split = line.split(" ")
+        if (split.isEmpty) {
+          throw new IOException(
+            "Faces property line is empty."
+          )
+        }
+        var cnt = 0
+        val vertexData = faceInfo.properties.map { property =>
+          if (property.isList) {
+            val listLength = split(cnt).toInt
+            cnt += 1
+            (0 until listLength).map { _ =>
+              val item = split(cnt)
+              cnt += 1
+              item
             }
-            (1 to 3).map { i =>
-              split(i).toInt
-            }
+          } else {
+            val item = split(cnt)
+            cnt += 1
+            Seq(item)
           }
         }
-        .getOrElse(IndexedSeq.empty)
-        .map { case Seq(id1, id2, id3) =>
-          TriangleCell(PointId(id1), PointId(id2), PointId(id3))
-        }
+        TriangleCell(
+          PointId(vertexData(vertexIndex)(0).toInt),
+          PointId(vertexData(vertexIndex)(1).toInt),
+          PointId(vertexData(vertexIndex)(2).toInt)
+        )
+      }
     }
   }
-
 }
