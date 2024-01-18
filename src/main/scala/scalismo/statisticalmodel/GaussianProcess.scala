@@ -278,9 +278,6 @@ object GaussianProcess {
   /**
    * @tparam A
    *   combines the interface for NDSpace for GaussianProcess as well as PointId in DiscreteGaussianProcess
-   * @todo
-   *   The current implementation can be optimized as it inverts the data covariance matrix (that can be heavy for more
-   *   than a few points). Instead an implementation with a Cholesky decomposition would be more efficient.
    */
   private[scalismo] def marginalLikelihoodCalculation[A, Value](
     cov: (A, A) => DenseMatrix[Double],
@@ -313,10 +310,10 @@ object GaussianProcess {
       }
     }
 
-    val KyInv = inv(Ky)
+    val L = breeze.linalg.cholesky(Ky)
     val const = outputDim * trainingData.length * 0.5 * math.log(math.Pi * 2)
     // det(KyInv) > 0, because Ky is PSD, therefore we can ignore the sign of logdet
-    val margLikehood = ((yVecZeroMean.t * KyInv * yVecZeroMean) * -0.5) - (0.5 * logdet(Ky)._2) - const
+    val margLikehood = ((yVecZeroMean.t * L.t \ (L \ yVecZeroMean)) * -0.5) - (0.5 * logdet(Ky)._2) - const
     margLikehood
   }
 
