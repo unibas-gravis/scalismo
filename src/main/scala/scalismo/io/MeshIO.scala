@@ -26,7 +26,7 @@ import scalismo.mesh.TriangleMesh.*
 import scalismo.mesh.*
 import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
 import vtk.*
-import scalismo.io.PLY
+import scalismo.io.ply.PLYMesh
 
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
@@ -87,7 +87,7 @@ object MeshIO {
       case f if f.endsWith(".vtk") => readVTK(file)
       case f if f.endsWith(".stl") => readSTL(file)
       case f if f.endsWith(".ply") => {
-        PLY.load(file).map {
+        PLYMesh.read(file).map {
           case Right(vertexColor) => vertexColor.shape
           case Left(shape)        => shape
         }
@@ -101,7 +101,7 @@ object MeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".ply") =>
-        PLY.load(file).map {
+        PLYMesh.read(file).map {
           case Right(colorMesh3D) => colorMesh3D
           case Left(_)            => throw new Exception("Indicated PLY file does not contain color values.")
         }
@@ -359,7 +359,7 @@ object MeshIO {
       case f if f.endsWith(".h5")  => writeHDF5(mesh, file)
       case f if f.endsWith(".vtk") => writeVTK(mesh, file)
       case f if f.endsWith(".stl") => writeSTL(mesh, file)
-      case f if f.endsWith(".ply") => PLY.save(Left(mesh), file)
+      case f if f.endsWith(".ply") => PLYMesh.write(mesh, file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
@@ -374,7 +374,7 @@ object MeshIO {
   def writeVertexColorMesh3D(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".ply") => PLY.save(Right(mesh), file)
+      case f if f.endsWith(".ply") => PLYMesh.write(mesh, file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
