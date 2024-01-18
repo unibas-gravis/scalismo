@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package scalismo.io.ply
+package scalismo.io.plyScalismoFaces
 
 import scalismo.common.PointId
 import scalismo.geometry.{_2D, _3D, EuclideanVector, Point}
@@ -23,19 +23,19 @@ import scalismo.geometry.{_2D, _3D, EuclideanVector, Point}
  */
 object PlyMeshHelper {
 
-  private[ply] def zeroOne2Int(d: Double): Int = {
+  private[plyScalismoFaces] def zeroOne2Int(d: Double): Int = {
     (d * 255).toInt
   }
 
-  private[ply] def zeroOne2Byte(d: Double): Byte = {
+  private[plyScalismoFaces] def zeroOne2Byte(d: Double): Byte = {
     (d * 255).toByte
   }
 
-  private[ply] def byte2ZeroOne(b: Byte): Double = {
+  private[plyScalismoFaces] def byte2ZeroOne(b: Byte): Double = {
     ((b.toDouble + 256) % 256) / 255
   }
 
-  private[ply] def any2Double(any: Any): Double = {
+  private[plyScalismoFaces] def any2Double(any: Any): Double = {
     any match {
       case d: Double  => d
       case f: Float   => f.toDouble
@@ -50,7 +50,7 @@ object PlyMeshHelper {
     }
   }
 
-  private[ply] def any2Byte(any: Any): Byte = {
+  private[plyScalismoFaces] def any2Byte(any: Any): Byte = {
     any match {
       case c: Char    => c.toByte
       case b: Byte    => b
@@ -60,7 +60,7 @@ object PlyMeshHelper {
     }
   }
 
-  private[ply] def any2Int(any: Any): Int = {
+  private[plyScalismoFaces] def any2Int(any: Any): Int = {
     any match {
       case i: Int     => i
       case s: Short   => s.toInt
@@ -72,7 +72,7 @@ object PlyMeshHelper {
     }
   }
 
-  private[ply] def listOfAny2ListOfPointIDs(any: Any): List[PointId] = {
+  private[plyScalismoFaces] def listOfAny2ListOfPointIDs(any: Any): List[PointId] = {
     any match {
       case list: List[Any] =>
         list
@@ -85,7 +85,7 @@ object PlyMeshHelper {
     }
   }
 
-  private[ply] def listOfAny2ListOfPoint2D(any: Any): Seq[Point[_2D]] = {
+  private[plyScalismoFaces] def listOfAny2ListOfPoint2D(any: Any): Seq[Point[_2D]] = {
     any match {
       case list: List[Any] =>
         list
@@ -100,7 +100,7 @@ object PlyMeshHelper {
     }
   }
 
-  private[ply] def listOfAny2ListOfVector3D(any: Any): Seq[EuclideanVector[_3D]] = {
+  private[plyScalismoFaces] def listOfAny2ListOfVector3D(any: Any): Seq[EuclideanVector[_3D]] = {
     any match {
       case list: List[Any] =>
         list

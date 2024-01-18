@@ -1,4 +1,4 @@
-package scalismo.io.ply
+package scalismo.io.plyScalismoFaces
 
 import scala.collection.LazyZip3
 

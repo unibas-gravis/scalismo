@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package scalismo.io.ply
+package scalismo.io.plyScalismoFaces
 
 /**
  * The PLYHelpers object encapsulates all well defined tokens, format specifier or types used to describe the specific
@@ -43,7 +43,7 @@ object PlyHelpers {
   /**
    * Used parameter type names. (newer version not yet supported)
    */
-  private[ply] object PlyTypes extends Enumeration {
+  private[plyScalismoFaces] object PlyTypes extends Enumeration {
     type PlyTypes = Value
     val none = Value("none")
     val char = Value("char")
@@ -67,7 +67,7 @@ object PlyHelpers {
   /**
    * String tokens occuring in ply header descriptions
    */
-  private[ply] object PLY {
+  private[plyScalismoFaces] object PLY {
     val startHeader = "ply"
     val endHeader = "end_header"
     val format = "format"

@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package scalismo.io.ply
+package scalismo.io.plyScalismoFaces
 
-import scalismo.io.ply.PlyHelpers.PlyFormat._
-import scalismo.io.ply.PlyHelpers.PlyHeader._
-import scalismo.io.ply.PlyHelpers._
-import scalismo.io.ply.PlyMeshReader._
+import scalismo.io.plyScalismoFaces.PlyHelpers.PlyFormat._
+import scalismo.io.plyScalismoFaces.PlyHelpers.PlyHeader._
+import scalismo.io.plyScalismoFaces.PlyHelpers._
+import scalismo.io.plyScalismoFaces.PlyMeshReader._
 import scalismo.mesh.{SurfacePointProperty, TriangleMesh3D, VertexColorMesh3D}
 
 import scala.util.Try
