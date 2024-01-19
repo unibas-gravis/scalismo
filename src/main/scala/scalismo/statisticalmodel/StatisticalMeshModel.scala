@@ -146,18 +146,18 @@ case class StatisticalMeshModel private (referenceMesh: TriangleMesh[_3D],
   }
 
   /**
-   * Similar to [[DiscreteLowRankGaussianProcess.MAP(Int, Point[_3D])], sigma2: Double)]], but the training data
-   * is defined by specifying the target point instead of the displacement vector
+   * Similar to [[DiscreteLowRankGaussianProcess.posteriorMean(Int, Point[_3D])], sigma2: Double)]], but the training
+   * data is defined by specifying the target point instead of the displacement vector
    */
-  def MAP(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): TriangleMesh3D =
-    pdm.MAP(trainingData, sigma2)
+  def posteriorMean(trainingData: IndexedSeq[(PointId, Point[_3D])], sigma2: Double): TriangleMesh3D =
+    pdm.posteriorMean(trainingData, sigma2)
 
   /**
-   * Similar to [[DiscreteLowRankGaussianProcess.MAP(Int, Point[_3D], Double)]]], but the training data is defined
-   * by specifying the target point instead of the displacement vector
+   * Similar to [[DiscreteLowRankGaussianProcess.posteriorMean(Int, Point[_3D], Double)]]], but the training data is
+   * defined by specifying the target point instead of the displacement vector
    */
-  def MAP(trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]): TriangleMesh3D =
-    pdm.MAP(trainingData)
+  def posteriorMean(trainingData: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)]): TriangleMesh3D =
+    pdm.posteriorMean(trainingData)
 
   /**
    * transform the statistical mesh model using the given rigid transform. The spanned shape space is not affected by

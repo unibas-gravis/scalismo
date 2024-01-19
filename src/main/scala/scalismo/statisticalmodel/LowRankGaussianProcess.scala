@@ -191,14 +191,14 @@ class LowRankGaussianProcess[D: NDSpace, Value](mean: Field[D, Value], val klBas
     LowRankGaussianProcess.regression(this, trainingData)
   }
 
-  override def MAP(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
+  override def posteriorMean(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
     val cov =
       MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (pt, df) => (pt, df, cov) }
-    MAP(newtd)
+    posteriorMean(newtd)
   }
 
-  override def MAP(
+  override def posteriorMean(
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
   ): Field[D, Value] = {
     LowRankGaussianProcess.regressionMean(this, trainingData)

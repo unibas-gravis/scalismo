@@ -117,10 +117,10 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * The MAP of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
+   * The posterior mean (MAP) of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
    * regression. We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
    */
-  def MAP(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
+  def posteriorMean(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
     val cov =
       MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val fullTrainingData = trainingData.map { case (p, v) => (p, v, cov) }
@@ -138,10 +138,10 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * The MAP of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
+   * The posterior mean (MAP) of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
    * regression.
    */
-  def MAP(
+  def posteriorMean(
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
   ): Field[D, Value] = {
     GaussianProcess.regressionMean(this, trainingData)

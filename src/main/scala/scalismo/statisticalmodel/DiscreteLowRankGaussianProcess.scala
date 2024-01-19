@@ -197,27 +197,25 @@ class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDomain[D
 
   /**
    * Discrete version of
-   * [[DiscreteLowRankGaussianProcess.MAP(IndexedSeq[(Point[D], Vector[DO])], sigma2: Double]]. In contrast to
+   * [[DiscreteLowRankGaussianProcess.posteriorMean(IndexedSeq[(Point[D], Vector[DO])], sigma2: Double]]. In contrast to
    * this method, the points for the training data are defined by the pointId. The returned posterior process is defined
    * at the same points.
    */
-  def MAP(trainingData: IndexedSeq[(PointId, Value)],
-                sigma2: Double
-               ): DiscreteField[D, DDomain, Value] = {
+  def posteriorMean(trainingData: IndexedSeq[(PointId, Value)], sigma2: Double): DiscreteField[D, DDomain, Value] = {
     val cov =
       MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
     val newtd = trainingData.map { case (ptId, df) => (ptId, df, cov) }
-    MAP(newtd)
+    posteriorMean(newtd)
   }
 
   /**
-   * Discrete version of [[DiscreteLowRankGaussianProcess.MAP(IndexedSeq[(Point[D], Vector[DO], Double)])]]. In
-   * contrast to this method, the points for the training data are defined by the pointId. The returned posterior
+   * Discrete version of [[DiscreteLowRankGaussianProcess.posteriorMean(IndexedSeq[(Point[D], Vector[DO], Double)])]].
+   * In contrast to this method, the points for the training data are defined by the pointId. The returned posterior
    * process is defined at the same points.
    */
-  def MAP(
-                 trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
-               ): DiscreteField[D, DDomain, Value] = {
+  def posteriorMean(
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
+  ): DiscreteField[D, DDomain, Value] = {
     DiscreteLowRankGaussianProcess.regressionMean(this, trainingData)
   }
 
@@ -527,10 +525,10 @@ object DiscreteLowRankGaussianProcess {
    * Discrete implementation of [[LowRankGaussianProcess.regressionMean]]
    */
   def regressionMean[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value](
-                                                                      gp: DiscreteLowRankGaussianProcess[D, DDomain, Value],
-                                                                      trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)],
-                                                                      naNStrategy: NaNStrategy = NanIsNumericValue
-                                                                    )(implicit vectorizer: Vectorizer[Value]): DiscreteField[D, DDomain, Value] = {
+    gp: DiscreteLowRankGaussianProcess[D, DDomain, Value],
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy = NanIsNumericValue
+  )(implicit vectorizer: Vectorizer[Value]): DiscreteField[D, DDomain, Value] = {
 
     val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
       LowRankRegressionComputation.fromDiscreteLowRankGP(gp, trainingData, naNStrategy)

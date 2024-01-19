@@ -93,7 +93,7 @@ class StatisticalModelTests extends ScalismoTestSuite {
       val ref = model.referenceMesh
       val data = ref.pointSet.pointIds.toIndexedSeq.map(id => (id, ref.pointSet.point(id)))
       val mean = measureTime(model.posterior(data, 1.0).mean)
-      val map = measureTime(model.MAP(data, 1.0))
+      val map = measureTime(model.posteriorMean(data, 1.0))
       map._2 should be < mean._2
       assert(mean._1 == map._1)
     }

@@ -548,11 +548,11 @@ class GaussianProcessTests extends ScalismoTestSuite {
           .sum / numIterations.toDouble
       val timeMap =
         (0 until numIterations)
-          .map(_ => measureTime(f.gp.MAP(f.trainingDataGP, sigma))._2)
+          .map(_ => measureTime(f.gp.posteriorMean(f.trainingDataGP, sigma))._2)
           .sum / numIterations.toDouble
 
       val gpMean = f.gp.posterior(f.trainingDataGP, sigma).mean
-      val gpMAP = f.gp.MAP(f.trainingDataGP, sigma)
+      val gpMAP = f.gp.posteriorMean(f.trainingDataGP, sigma)
 
       // both posterior processes should give the same values at the specialized points
       for ((pt, id) <- f.discretizationPoints.zipWithIndex) {
@@ -573,11 +573,11 @@ class GaussianProcessTests extends ScalismoTestSuite {
           .sum / numIterations.toDouble
       val timeMap =
         (0 until numIterations)
-          .map(_ => measureTime(f.discreteLowRankGp.MAP(f.trainingDataDiscreteGP))._2)
+          .map(_ => measureTime(f.discreteLowRankGp.posteriorMean(f.trainingDataDiscreteGP))._2)
           .sum / numIterations.toDouble
 
       val gpMean = f.discreteLowRankGp.posterior(f.trainingDataDiscreteGP).mean
-      val gpMAP = f.discreteLowRankGp.MAP(f.trainingDataDiscreteGP)
+      val gpMAP = f.discreteLowRankGp.posteriorMean(f.trainingDataDiscreteGP)
 
       // both posterior processes should give the same values at the specialized points
       for ((_, id) <- gpMean.pointsWithIds.toSeq) {
