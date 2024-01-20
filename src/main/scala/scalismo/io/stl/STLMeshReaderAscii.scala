@@ -29,10 +29,11 @@ object STLMeshReaderAscii {
 
     val triangles = ArrayBuffer.empty[STLTriangle]
     var line: String = null
-    while ( {
+    def hasLineToProcess(): Boolean = {
       line = breader.readLine();
       line != null && !line.trim.startsWith("endsolid")
-    }) {
+    }
+    while ( hasLineToProcess() ) {
       line = line.trim.replaceAll(" +", " ")
       val triangleStrings: Array[String] = Array(line) ++
         (0 until 6).map(_ => breader.readLine().trim.replaceAll(" +", " ")).toArray
