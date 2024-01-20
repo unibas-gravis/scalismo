@@ -22,8 +22,19 @@ import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh3D}
 import java.nio.ByteOrder
 import scala.collection.mutable
 
-private val ORDER = ByteOrder.LITTLE_ENDIAN
-private val HEADER_LENGTH = 80
+// Binary numbers are assumed to be little-endian in the STL format.
+val STL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN
+val STL_HEADER_LENGTH = 80
+
+val TRIANGLE_LINE_DESCRIPTIONS = Seq(
+  "facet normal",
+  "outer loop",
+  "vertex",
+  "vertex",
+  "vertex",
+  "endloop",
+  "endfacet"
+)
 
 case class STLTriangle(n: EuclideanVector3D, p1: Point3D, p2: Point3D, p3: Point3D)
 

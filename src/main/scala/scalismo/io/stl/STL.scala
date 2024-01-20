@@ -22,7 +22,7 @@ import scala.util.Try
 
 object STL {
   def write(mesh: TriangleMesh3D, filename: String): Try[Unit] = {
-    STLMeshWriter.write(mesh, filename, "This is a header")
+    STLMeshWriter.write(mesh, filename, "Scalismo generated STL File")
   }
 
   def read(filename: String): Try[TriangleMesh3D] = {

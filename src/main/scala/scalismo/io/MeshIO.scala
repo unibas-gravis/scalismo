@@ -22,7 +22,7 @@ import scalismo.common.{PointId, Scalar, UnstructuredPoints}
 import scalismo.geometry.*
 import scalismo.hdf5json.HDFPath
 import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
-import scalismo.io.stl.STLMesh
+import scalismo.io.stl.STL
 import scalismo.mesh.TriangleMesh.*
 import scalismo.mesh.*
 import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
@@ -85,7 +85,7 @@ object MeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTK(file)
-      case f if f.endsWith(".stl") => STLMesh.read(file.toString)
+      case f if f.endsWith(".stl") => STL.read(file.toString)
       case f if f.endsWith(".ply") => {
         readPLY(file).map { res =>
           res match {
@@ -362,7 +362,7 @@ object MeshIO {
     filename match {
       case f if f.endsWith(".h5")  => writeHDF5(mesh, file)
       case f if f.endsWith(".vtk") => writeVTK(mesh, file)
-      case f if f.endsWith(".stl") => STLMesh.write(mesh, file.toString)
+      case f if f.endsWith(".stl") => STL.write(mesh, file.toString)
       case f if f.endsWith(".ply") => writePLY(Left(mesh), file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))

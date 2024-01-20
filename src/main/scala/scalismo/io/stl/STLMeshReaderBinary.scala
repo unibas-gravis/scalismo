@@ -25,7 +25,7 @@ import scala.util.Try
 object STLMeshReaderBinary {
   def read(file: String): Try[TriangleMesh3D] = Try {
     val dataBuffer = FileReader.readFileToByteBuffer(file)
-    dataBuffer.position(HEADER_LENGTH).order(ORDER)
+    dataBuffer.position(STL_HEADER_LENGTH).order(STL_BYTE_ORDER)
 
     val numTriangles = readInt(dataBuffer)
     val trianglesArray = new Array[STLTriangle](numTriangles)

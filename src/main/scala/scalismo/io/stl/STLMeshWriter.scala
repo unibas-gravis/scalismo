@@ -23,12 +23,9 @@ import java.nio.{ByteBuffer, ByteOrder}
 import scala.util.Try
 
 object STLMeshWriter {
-  private val ORDER = ByteOrder.LITTLE_ENDIAN
-
   def write(mesh: TriangleMesh3D, file: String, header: String): Try[Unit] = Try {
     val dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
-    val headerMaxLength = 80
-    val headerCapped = header.take(headerMaxLength).padTo(headerMaxLength, ' ')
+    val headerCapped = header.take(STL_HEADER_LENGTH).padTo(STL_HEADER_LENGTH, ' ')
     writeString(dos, headerCapped)
     writeInt(dos, mesh.triangulation.triangles.length)
     mesh.triangulation.triangleIds.foreach { id =>
@@ -48,16 +45,16 @@ object STLMeshWriter {
 
   private def writeString(dos: DataOutputStream, data: String): Unit = {
     dos.write(ByteBuffer.allocate(data.getBytes.length)
-      .order(ORDER).put(data.getBytes("UTF-8")).array())
+      .order(STL_BYTE_ORDER).put(data.getBytes("ASCII")).array())
   }
 
   private def writeShort(dos: DataOutputStream, data: Short): Unit = {
-    dos.write(ByteBuffer.allocate(2).order(ORDER)
+    dos.write(ByteBuffer.allocate(2).order(STL_BYTE_ORDER)
       .putShort(data).array())
   }
 
   private def writeInt(dos: DataOutputStream, data: Int): Unit = {
-    dos.write(ByteBuffer.allocate(4).order(ORDER)
+    dos.write(ByteBuffer.allocate(4).order(STL_BYTE_ORDER)
       .putInt(data).array())
   }
 
@@ -68,7 +65,7 @@ object STLMeshWriter {
   }
 
   private def writeFloat(dos: DataOutputStream, data: Float): Unit = {
-    dos.write(ByteBuffer.allocate(4).order(ORDER)
+    dos.write(ByteBuffer.allocate(4).order(STL_BYTE_ORDER)
       .putFloat(data).array())
   }
 }
