@@ -20,7 +20,7 @@ import scalismo.mesh.TriangleMesh3D
 import java.io.{BufferedReader, FileReader}
 import scala.util.Try
 
-object STLMesh {
+object STL {
   def write(mesh: TriangleMesh3D, filename: String): Try[Unit] = {
     STLMeshWriter.write(mesh, filename, "This is a header")
   }
