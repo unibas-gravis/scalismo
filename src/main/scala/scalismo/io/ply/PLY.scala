@@ -21,7 +21,7 @@ import scalismo.mesh.{TriangleMesh, VertexColorMesh3D}
 import java.io.{File, IOException}
 import scala.util.{Failure, Try}
 
-object PLYMesh {
+object PLY {
 
   def write(mesh: TriangleMesh[_3D], filename: File): Try[Unit] = {
     PLYMeshWriter.write(mesh, None, filename)
