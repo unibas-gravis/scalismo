@@ -29,11 +29,11 @@ object STLMeshReaderAscii {
 
     val triangles = ArrayBuffer.empty[STLTriangle]
     var line: String = null
-    def hasLineToProcess(): Boolean = {
+    def hasLineToProcess: Boolean = {
       line = breader.readLine();
       line != null && !line.trim.startsWith("endsolid")
     }
-    while (hasLineToProcess()) {
+    while (hasLineToProcess) {
       line = line.trim.replaceAll(" +", " ")
       val triangleStrings: Array[String] = Array(line) ++
         (0 until 6).map(_ => breader.readLine().trim.replaceAll(" +", " ")).toArray
@@ -50,7 +50,6 @@ object STLMeshReaderAscii {
       throw new IOException("Wrong faces description format does not include all 7 descriptors.")
     }
 
-    // NOTE 2024-01-21 (Andreas Morel-Forster): Maybe not needed checks. Trade-off format checking vs. performance.
     checkTag(data(1), "outer loop")
     checkTag(data(5), "endloop")
     checkTag(data(6), "endfacet")
@@ -63,7 +62,7 @@ object STLMeshReaderAscii {
     )
   }
 
-  private def checkTag(part: String, tag: String) = {
+  private def checkTag(part: String, tag: String): Unit = {
     if (!part.startsWith(tag)) {
       throw new IOException(f"Wrong start of line, expected ${tag} but start is ${part.take(tag.length)}")
     }
