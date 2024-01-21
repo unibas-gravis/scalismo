@@ -17,6 +17,7 @@ package scalismo.io.stl
 
 import scalismo.geometry.EuclideanVector3D
 import scalismo.mesh.TriangleMesh3D
+import scalismo.io.stl.STL.{STL_BYTE_ORDER, STL_HEADER_LENGTH}
 
 import java.io.{BufferedOutputStream, DataOutputStream, FileOutputStream}
 import java.nio.{ByteBuffer, ByteOrder}
@@ -44,18 +45,33 @@ object STLMeshWriter {
   }
 
   private def writeString(dos: DataOutputStream, data: String): Unit = {
-    dos.write(ByteBuffer.allocate(data.getBytes.length)
-      .order(STL_BYTE_ORDER).put(data.getBytes("ASCII")).array())
+    dos.write(
+      ByteBuffer
+        .allocate(data.getBytes.length)
+        .order(STL_BYTE_ORDER)
+        .put(data.getBytes("ASCII"))
+        .array()
+    )
   }
 
   private def writeShort(dos: DataOutputStream, data: Short): Unit = {
-    dos.write(ByteBuffer.allocate(2).order(STL_BYTE_ORDER)
-      .putShort(data).array())
+    dos.write(
+      ByteBuffer
+        .allocate(2)
+        .order(STL_BYTE_ORDER)
+        .putShort(data)
+        .array()
+    )
   }
 
   private def writeInt(dos: DataOutputStream, data: Int): Unit = {
-    dos.write(ByteBuffer.allocate(4).order(STL_BYTE_ORDER)
-      .putInt(data).array())
+    dos.write(
+      ByteBuffer
+        .allocate(4)
+        .order(STL_BYTE_ORDER)
+        .putInt(data)
+        .array()
+    )
   }
 
   private def writeVertex(dos: DataOutputStream, vertex: EuclideanVector3D): Unit = {
@@ -65,7 +81,12 @@ object STLMeshWriter {
   }
 
   private def writeFloat(dos: DataOutputStream, data: Float): Unit = {
-    dos.write(ByteBuffer.allocate(4).order(STL_BYTE_ORDER)
-      .putFloat(data).array())
+    dos.write(
+      ByteBuffer
+        .allocate(4)
+        .order(STL_BYTE_ORDER)
+        .putFloat(data)
+        .array()
+    )
   }
 }
