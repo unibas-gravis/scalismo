@@ -172,7 +172,6 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           if (t.err.err(3) <= threshold && !t.deleted && !t.dirty) {
             var j = 0;
             while (j < 3) {
-//          for (j <- 0 until 3) {
               if (t.err.err(j) < threshold) {
                 val i0 = t.v.pointIds(j).id
                 val i1 = t.v.pointIds((j + 1) % 3).id
@@ -181,7 +180,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
                 val v1 = vertices(i1)
 
                 if (v0.border == v1.border) {
-                  val (error, p) = calculateError(v0, v1)
+                  val (_, p) = calculateError(v0, v1)
 
                   val (flipped0, deleted0) = flipped(p, i1, v0)
                   val (flipped1, deleted1) = flipped(p, i0, v1)
@@ -273,7 +272,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           val vNew = // TODO: Needs to verified!!!
             if (r.tvertex == 0) t.v.copy(ptId1 = PointId(i0))
             else if (r.tvertex == 1) t.v.copy(ptId2 = PointId(i0))
-            else t.v.copy(ptId3 = PointId(i0))
+            else if (r.tvertex == 2) t.v.copy(ptId3 = PointId(i0))
+            else t.v // this state should not be reachable
           triangles = triangles.updated(r.tid,
                                         t.copy(
                                           v = vNew,
@@ -290,7 +290,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
   private def updateMesh(iteration: Int): Unit = {
     if (iteration == 0) {
-      triangles.zipWithIndex.foreach { case (t, i) =>
+      (0 until triangles.length).foreach { i =>
+        val t = triangles(i)
         (0 until 3).foreach { j =>
           val id = t.v.pointIds(j).id
           val v = vertices(id)
@@ -299,10 +300,27 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           vertices = vertices.updated(id, v.copy(q = newQ))
         }
       }
+      (0 until triangles.length).foreach { i =>
+        val t = triangles(i)
+        val allErrors = (0 until 3).map { j =>
+          val (err, _) = calculateError(vertices(t.v.pointIds(j).id), vertices(t.v.pointIds((j+1)%3).id))
+          err
+        }
+        val err = ErrorEntry(
+          Array[Double](
+            allErrors(0),
+            allErrors(1),
+            allErrors(2),
+            Math.min(allErrors(0), Math.min(allErrors(1), allErrors(2)))
+          )
+        )
+        triangles = triangles.updated(i, t.copy(err = err))
+      }
     } else if (iteration > 0) {
       var distance = 0
       // Probably can be updated by filtering!
-      triangles.zipWithIndex.foreach { case (t, i) =>
+      (0 until triangles.length).foreach { i =>
+        val t = triangles(i)
         if (!t.deleted) {
           triangles = triangles.updated(distance, t)
           distance += 1
@@ -313,7 +331,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
     vertices = vertices.map(vertex => vertex.copy(tstart = 0, tcount = 0))
 
-    triangles.zipWithIndex.foreach { case (t, i) =>
+    (0 until triangles.length).foreach { i =>
+      val t = triangles(i)
       (0 until 3).foreach { j =>
         val id0 = t.v.pointIds(j).id
         val v0 = vertices(id0)
@@ -330,7 +349,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
     refs = refs.take(triangles.length * 3)
 
-    triangles.zipWithIndex.foreach { case (t, i) =>
+    (0 until triangles.length).foreach { i =>
+      val t = triangles(i)
       (0 until 3).foreach { j =>
         val vId = t.v.pointIds(j).id
         val v = vertices(vId)
@@ -348,7 +368,9 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
     vertices = vertices.map(vertex => vertex.copy(tcount = 0))
 
-    triangles.foreach { t =>
+    (0 until triangles.length).foreach{i =>
+//    triangles.foreach { t =>
+      val t = triangles(i)
       if (!t.deleted) {
         triangles = triangles.updated(distance, t)
         distance += 1
@@ -362,15 +384,17 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     triangles = triangles.take(distance)
 
     distance = 0
-    vertices.zipWithIndex.foreach { case (v, i) =>
-      if (v.tcount > 0) {
+    (0 until vertices.length).foreach { i =>
+      val v = vertices(i)
+      if (v.tcount != 0) {
         vertices = vertices.updated(i, v.copy(tstart = distance))
         val vDist = vertices(distance)
         vertices = vertices.updated(distance, vDist.copy(p = v.p))
         distance += 1
       }
     }
-    triangles.zipWithIndex.foreach { case (t, i) =>
+    (0 until triangles.length).foreach { i =>
+      val t = triangles(i)
       val newIds = (0 until 3).map { j =>
         PointId(vertices(t.v.pointIds(j).id).tstart)
       }
