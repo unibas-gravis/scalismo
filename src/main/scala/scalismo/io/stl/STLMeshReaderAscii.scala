@@ -15,7 +15,7 @@
  */
 package scalismo.io.stl
 
-import scalismo.geometry.{EuclideanVector3D, Point3D}
+import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point3D}
 import scalismo.mesh.TriangleMesh3D
 
 import java.io.{BufferedReader, FileReader, IOException}
@@ -33,7 +33,7 @@ object STLMeshReaderAscii {
       line = breader.readLine();
       line != null && !line.trim.startsWith("endsolid")
     }
-    while ( hasLineToProcess() ) {
+    while (hasLineToProcess()) {
       line = line.trim.replaceAll(" +", " ")
       val triangleStrings: Array[String] = Array(line) ++
         (0 until 6).map(_ => breader.readLine().trim.replaceAll(" +", " ")).toArray
@@ -42,36 +42,56 @@ object STLMeshReaderAscii {
     }
     breader.close()
 
-    STLHelpers.STLTrianglesToTriangleMesh(triangles.toSeq)
+    STLTriangle.STLTrianglesToTriangleMesh(triangles.toSeq)
   }
 
   private def parseTriangleStrings(data: Seq[String]): STLTriangle = {
-    if (data.length != 7){
+    if (data.length != 7) {
       throw new IOException("Wrong faces description format does not include all 7 descriptors.")
     }
-    val filtered3Ddata = data.zip(TRIANGLE_LINE_DESCRIPTIONS).map{ case (s, desc) =>
-      if(!s.startsWith(desc)){
-        throw new IOException(f"Wrong faces description format, does not include ${desc}.")
-      }
-      val split = s.replace(desc, "").split(" ").filter(f => f != " ")
-      if(split.length != 3){
-        throw new IOException(f"Wrong number of faces items for ${desc}.")
-      }
-      split
-    }
+
+    // NOTE 2024-01-21 (Andreas Morel-Forster): Maybe not needed checks. Trade-off format checking vs. performance.
+    checkTag(data(1), "outer loop")
+    checkTag(data(5), "endloop")
+    checkTag(data(6), "endfacet")
+
     STLTriangle(
-      parseNormalString(filtered3Ddata(0)),
-      parseVertexString(filtered3Ddata(2)),
-      parseVertexString(filtered3Ddata(3)),
-      parseVertexString(filtered3Ddata(4))
+      parseNormalString(data(0)),
+      parseVertexString(data(2)),
+      parseVertexString(data(3)),
+      parseVertexString(data(4))
     )
   }
 
-  private def parseNormalString(parts: Seq[String]): EuclideanVector3D = {
-      EuclideanVector3D(parts(0).toFloat, parts(1).toFloat, parts(2).toFloat)
+  private def checkTag(part: String, tag: String) = {
+    if (!part.startsWith(tag)) {
+      throw new IOException(f"Wrong start of line, expected ${tag} but start is ${part.take(tag.length)}")
+    }
   }
 
-  private def parseVertexString(parts: Seq[String]): Point3D = {
-      Point3D(parts(1).toFloat, parts(1).toFloat, parts(2).toFloat)
+  private def splitChecked(part: String, tag: String, nElements: Int) = {
+    if (!part.startsWith(tag)) {
+      throw new IOException(f"Wrong identifier at beginning, expected ${tag} but start is ${part.take(tag.length)}")
+    }
+
+    val parts = part.replace(tag, "").trim.split(" ")
+    if (parts.length != nElements) {
+      throw new IOException(f"Wrong number of elements for ${tag}. Found ${parts.length}, expected ${nElements}")
+    }
+    parts
+  }
+
+  private def parseNormalString(part: String): EuclideanVector3D = {
+    val tag = "facet normal"
+    val expectedValues = 3
+    val parts = splitChecked(part, tag, expectedValues).map(_.toDouble)
+    EuclideanVector3D(parts(0), parts(1), parts(2))
+  }
+
+  private def parseVertexString(part: String): Point3D = {
+    val tag = "vertex"
+    val expectedValues = 3
+    val parts = splitChecked(part, tag, expectedValues).map(_.toDouble)
+    Point3D(parts(0), parts(1), parts(2))
   }
 }
