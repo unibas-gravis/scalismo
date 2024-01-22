@@ -116,10 +116,12 @@ class MeshIOTests extends ScalismoTestSuite {
       reRead should equal(shape)
     }
 
-    it("correctly fails when reading a textured ascii ply") {
-      val path = getClass.getResource("/mean_textured.ply").getPath
-      val shape = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8")))
-      assert(shape.isFailure)
+    it("correctly reads textured mesh and discards unsupported properties") {
+      val pathTextured = getClass.getResource("/mean_textured.ply").getPath
+      val pathVertexColor = getClass.getResource("/mean_vertexColor.ply").getPath
+      val shapeTexture = MeshIO.readMesh(new File(URLDecoder.decode(pathTextured, "UTF-8"))).get
+      val shapeVertexColor = MeshIO.readMesh(new File(URLDecoder.decode(pathVertexColor, "UTF-8"))).get
+      shapeTexture should equal(shapeVertexColor)
     }
 
     it("correctly writes and reads a tetrahedral mesh to a vtk file ") {
