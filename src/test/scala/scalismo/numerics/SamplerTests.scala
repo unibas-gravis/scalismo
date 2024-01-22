@@ -15,14 +15,15 @@
  */
 package scalismo.numerics
 
+import java.io.File
+import java.net.URLDecoder
+
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.*
+import scalismo.geometry._
 import scalismo.io.MeshIO
 import scalismo.mesh.TriangleMesh
 import scalismo.utils.{Memoize, Random}
 
-import java.io.File
-import java.net.URLDecoder
 import scala.collection.parallel.immutable.ParVector
 
 class SamplerTests extends ScalismoTestSuite {

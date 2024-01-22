@@ -15,18 +15,23 @@
  */
 package scalismo.image
 
+import java.io.File
+import java.net.URLDecoder
+
 import org.scalatest.PrivateMethodTester
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.common.interpolation.{BSplineImageInterpolator1D, BSplineImageInterpolator2D, BSplineImageInterpolator3D}
-import scalismo.geometry.*
-import scalismo.geometry.EuclideanVector.implicits.*
-import scalismo.geometry.IntVector.implicits.*
-import scalismo.geometry.Point.implicits.*
+import scalismo.common.interpolation.{
+  BSplineImageInterpolator1D,
+  BSplineImageInterpolator2D,
+  BSplineImageInterpolator3D
+}
+import scalismo.geometry.IntVector.implicits._
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.EuclideanVector.implicits._
+import scalismo.geometry._
 import scalismo.io.ImageIO
 
-import java.io.File
-import java.net.URLDecoder
 import scala.language.implicitConversions
 
 class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
@@ -122,6 +127,16 @@ class InterpolationTest extends ScalismoTestSuite with PrivateMethodTester {
           continuousImg(pt) should be(discreteImage(PointId(idx)) +- 0.0001f)
         }
       }
+
+//      it("Interpolates the values correctly for a test dataset") {
+//        val testImgUrl = getClass.getResource("/lena256.vtk").getPath
+//        val discreteFixedImage = ImageIO.read2DScalarImage[Short](new File(URLDecoder.decode(testImgUrl, "UTF-8"))).get
+//        val interpolatedImage = discreteFixedImage.interpolate(BSplineImageInterpolator2D[Short](2))
+//
+//        for ((p, i) <- discreteFixedImage.domain.pointSet.points.zipWithIndex) {
+//          interpolatedImage(p).toShort should be(discreteFixedImage(PointId(i)) +- 30)
+//        }
+//      }
 
       it("Derivative of interpolated function is correct") {
         val domain = DiscreteImageDomain2D((-2.0, -2.0), (0.01, 0.01), (400, 400))

@@ -17,8 +17,8 @@ package scalismo.numerics
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.{BoxDomain, BoxDomain1D, DifferentiableField, Field}
-import scalismo.geometry.*
-import scalismo.geometry.Point.implicits.*
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, StructuredPoints}
 import scalismo.utils.Random
 

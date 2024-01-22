@@ -18,9 +18,9 @@ package scalismo.registration
 import breeze.linalg.DenseMatrix
 import scalismo.ScalismoTestSuite
 import scalismo.common.{BoxDomain, DifferentiableField}
-import scalismo.geometry.*
-import scalismo.geometry.EuclideanVector.*
-import scalismo.geometry.Point.implicits.*
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
+import scalismo.geometry.EuclideanVector._
 import scalismo.image.{DiscreteImageDomain, DiscreteImageDomain1D, StructuredPoints}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
 import scalismo.numerics.{GridSampler, Integrator, RandomSVD, UniformSampler}

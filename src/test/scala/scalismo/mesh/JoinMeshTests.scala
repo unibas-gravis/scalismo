@@ -15,13 +15,14 @@
  */
 package scalismo.mesh
 
+import java.io.File
+import java.net.URLDecoder
+
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.geometry.Point
 import scalismo.io.MeshIO
 
-import java.io.File
-import java.net.URLDecoder
 import scala.language.implicitConversions
 
 class JoinMeshTests extends ScalismoTestSuite {

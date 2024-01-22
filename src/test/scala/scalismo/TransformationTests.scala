@@ -15,19 +15,20 @@
  */
 package scalismo
 
+import java.io.File
+import java.net.URLDecoder
+
 import breeze.linalg.DenseVector
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{DifferentiableField, PointId}
-import scalismo.geometry.*
-import scalismo.geometry.EuclideanVector.implicits.*
-import scalismo.geometry.IntVector.implicits.*
-import scalismo.geometry.Point.implicits.*
+import scalismo.geometry.EuclideanVector.implicits._
+import scalismo.geometry.IntVector.implicits._
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry._
 import scalismo.image.{StructuredPoints, StructuredPoints1D}
 import scalismo.io.{ImageIO, MeshIO}
-import scalismo.transformations.*
+import scalismo.transformations._
 
-import java.io.File
-import java.net.URLDecoder
 import scala.language.implicitConversions
 
 class TransformationTests extends ScalismoTestSuite {

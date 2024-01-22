@@ -17,9 +17,16 @@ package scalismo.geometry
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.ScalismoTestSuite
-import scalismo.registration.*
+import scalismo.registration._
+import scalismo.transformations.{
+  RigidTransformation,
+  RotationSpace,
+  RotationSpace2D,
+  Transformation,
+  Translation,
+  TranslationAfterRotation2D
+}
 import scalismo.statisticalmodel.MultivariateNormalDistribution
-import scalismo.transformations.*
 import scalismo.utils.Random
 
 class GeometryTests extends ScalismoTestSuite {

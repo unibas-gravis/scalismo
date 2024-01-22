@@ -2,7 +2,7 @@ package scalismo.common
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.BarycentricInterpolator
-import scalismo.geometry.{EuclideanVector, Point, Point3D, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Point, Point3D}
 import scalismo.mesh.{TetrahedralCell, TetrahedralList, TetrahedralMesh, TetrahedralMesh3D}
 import scalismo.utils.Random
 

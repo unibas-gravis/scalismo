@@ -1,10 +1,10 @@
 package scalismo.mesh
 
-import scalismo.ScalismoTestSuite
-import scalismo.io.MeshIO
-
 import java.io.File
 import java.net.URLDecoder
+
+import scalismo.ScalismoTestSuite
+import scalismo.io.MeshIO
 
 class MeshDecimationTests extends ScalismoTestSuite {
   describe("A decimated mesh") {

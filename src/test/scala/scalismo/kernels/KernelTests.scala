@@ -15,14 +15,14 @@
  */
 package scalismo.kernels
 
-import scalismo.ScalismoTestSuite
 import scalismo.common.{BoxDomain, EuclideanSpace, Field, RealSpace}
-import scalismo.geometry.Point.implicits.*
-import scalismo.geometry.{EuclideanVector, Point, _1D, _3D}
+import scalismo.geometry.Point.implicits._
+import scalismo.geometry.{_1D, _3D, EuclideanVector, Point}
 import scalismo.numerics.UniformSampler
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
-import scalismo.transformations.Transformation
 import scalismo.utils.Random
+import scalismo.ScalismoTestSuite
+import scalismo.transformations.Transformation
 
 import scala.collection.parallel.immutable.ParVector
 
