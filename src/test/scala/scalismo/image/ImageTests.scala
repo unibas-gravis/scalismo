@@ -17,11 +17,11 @@ package scalismo.image
 
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.common.{BoxDomain, DifferentiableField, Field, PointId, Scalar, ScalarArray}
-import scalismo.geometry.IntVector.implicits._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.EuclideanVector.implicits._
-import scalismo.geometry._
+import scalismo.common.*
+import scalismo.geometry.*
+import scalismo.geometry.EuclideanVector.implicits.*
+import scalismo.geometry.IntVector.implicits.*
+import scalismo.geometry.Point.implicits.*
 import scalismo.transformations.{Translation1D, Translation2D}
 
 import scala.language.implicitConversions

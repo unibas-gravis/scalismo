@@ -15,8 +15,6 @@
  */
 package scalismo.io
 
-import java.io.File
-import java.net.URLDecoder
 import scalismo.ScalismoTestSuite
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.*
@@ -26,6 +24,9 @@ import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, GaussianKernel3D}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
 import scalismo.utils.Random
+
+import java.io.File
+import java.net.URLDecoder
 
 class StatisticalModelIOTest extends ScalismoTestSuite {
 

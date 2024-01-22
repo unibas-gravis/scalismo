@@ -15,10 +15,11 @@
  */
 package scalismo.io
 
-import java.io.File
 import scalismo.ScalismoTestSuite
-import scalismo.io.statisticalmodel.{HDF5Writer, NDArray, StatisticalModelIOUtils}
 import scalismo.hdf5json.HDFPath
+import scalismo.io.statisticalmodel.{HDF5Writer, NDArray, StatisticalModelIOUtils}
+
+import java.io.File
 import scala.util.Try
 
 class HDF5UtilsTests extends ScalismoTestSuite {

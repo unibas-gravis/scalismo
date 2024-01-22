@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPoints}
-import scalismo.geometry.{_3D, EuclideanVector3D, Point, Point3D}
+import scalismo.geometry.{EuclideanVector3D, Point, Point3D, _3D}
 import scalismo.transformations.{Rotation, Translation}
 import scalismo.utils.Random
 

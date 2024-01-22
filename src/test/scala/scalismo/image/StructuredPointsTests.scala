@@ -16,17 +16,17 @@
 
 package scalismo.image
 
-import java.io.File
-import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.geometry.IntVector.implicits._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.EuclideanVector.implicits._
-import scalismo.geometry._
+import scalismo.geometry.*
+import scalismo.geometry.EuclideanVector.implicits.*
+import scalismo.geometry.IntVector.implicits.*
+import scalismo.geometry.Point.implicits.*
 import scalismo.io.ImageIO
 import scalismo.utils.Random
+
+import java.io.File
+import java.net.URLDecoder
 
 class StructuredPointsTests extends ScalismoTestSuite {
 

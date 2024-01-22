@@ -18,10 +18,7 @@ package scalismo.sampling.proposals
 
 import scalismo.ScalismoTestSuite
 import scalismo.sampling.evaluators.GaussianEvaluator
-import scalismo.sampling.proposals.MixtureProposal.{
-  SymmetricProposalGenerator,
-  SymmetricProposalGeneratorWithTransition
-}
+import scalismo.sampling.proposals.MixtureProposal.{SymmetricProposalGenerator, SymmetricProposalGeneratorWithTransition}
 import scalismo.sampling.{ProposalGenerator, SymmetricTransitionRatio, TransitionProbability}
 import scalismo.utils.Random
 
@@ -79,7 +76,7 @@ class MixtureTests extends ScalismoTestSuite {
     }
 
     describe("constructed by the implicit construction language") {
-      import MixtureProposal.implicits._
+      import MixtureProposal.implicits.*
 
       it("is a plain ProposalGenerator for plain proposals") {
         MixtureProposal(0.25 *: plainProposal + plainProposal * 0.75): ProposalGenerator[Double]

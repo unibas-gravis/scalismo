@@ -17,7 +17,7 @@
 package scalismo.common
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{_2D, _3D, Point, Point2D, Point3D}
+import scalismo.geometry.*
 
 class PointSetTest extends ScalismoTestSuite {
   describe("A pointset") {

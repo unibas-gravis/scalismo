@@ -18,9 +18,9 @@ package scalismo.io.statisticalmodel
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
 import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
-import scalismo.geometry._
+import scalismo.geometry.*
 import scalismo.io.StatismoDomainIO
-import scalismo.mesh._
+import scalismo.mesh.*
 
 import scala.language.higherKinds
 

@@ -34,8 +34,6 @@ import scalismo.mesh.boundingSpheres.{
   TriangulatedSurfaceIntersectionIndex,
   VolumeSpatialIndex
 }
-import scalismo.utils.MeshConversion
-
 import scala.collection.parallel.immutable.ParVector
 
 object MeshOperations {

@@ -16,7 +16,7 @@
 package scalismo.utils
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry.{_2D, _3D, Point}
+import scalismo.geometry.{Point, _2D, _3D}
 
 import scala.collection.immutable.IndexedSeq
 
