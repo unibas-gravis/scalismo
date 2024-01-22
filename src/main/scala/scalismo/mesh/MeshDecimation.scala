@@ -27,10 +27,6 @@ class SymmetricMatrix private (private val m: Array[Double]) {
   def this(a: Double, b: Double, c: Double, d: Double) =
     this(Array(a * a, a * b, a * c, a * d, b * b, b * c, b * d, c * c, c * d, d * d))
 
-  def set(s: SymmetricMatrix): Unit = {
-    System.arraycopy(s.m, 0, m, 0, m.length)
-  }
-
   def getValue(c: Int): Double = m(c)
 
   // Determinant
@@ -52,19 +48,6 @@ class SymmetricMatrix private (private val m: Array[Double]) {
       m(8) + n.getValue(8),
       m(9) + n.getValue(9)
     )
-  }
-
-  def addLocal(n: SymmetricMatrix): Unit = {
-    m(0) += n.getValue(0)
-    m(1) += n.getValue(1)
-    m(2) += n.getValue(2)
-    m(3) += n.getValue(3)
-    m(4) += n.getValue(4)
-    m(5) += n.getValue(5)
-    m(6) += n.getValue(6)
-    m(7) += n.getValue(7)
-    m(8) += n.getValue(8)
-    m(9) += n.getValue(9)
   }
 }
 
@@ -110,9 +93,6 @@ case class Ref(
 )
 
 class MeshDecimation(mesh: TriangleMesh[_3D]) {
-  var updatedPoints: Seq[Point[_3D]] = mesh.pointSet.points.toIndexedSeq
-  var updatedTriangles: Seq[TriangleCell] = mesh.triangulation.triangles
-
   val numberOfPoints: Int = mesh.pointSet.numberOfPoints
   val numberOfTriangles: Int = mesh.triangulation.triangles.length
 
