@@ -15,20 +15,20 @@
  */
 package scalismo.statisticalmodel.dataset
 
-import java.io.File
-import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
 import scalismo.common.Field
-import scalismo.geometry._
+import scalismo.geometry.*
 import scalismo.io.MeshIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.mesh.{MeshMetrics, TriangleMesh}
 import scalismo.numerics.UniformMeshSampler3D
 import scalismo.registration.LandmarkRegistration
-import scalismo.transformations.Translation
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, StatisticalMeshModel}
+import scalismo.transformations.Translation
 import scalismo.utils.Random
+
+import java.io.File
+import java.net.URLDecoder
 
 class DataCollectionTests extends ScalismoTestSuite {
 

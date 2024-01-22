@@ -15,17 +15,16 @@
  */
 package scalismo.io
 
-import java.io.{ByteArrayOutputStream, File, InputStream}
-import java.net.URLDecoder
-
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
+import scalismo.geometry.*
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
+import java.io.{ByteArrayOutputStream, File, InputStream}
+import java.net.URLDecoder
+import scala.collection.immutable.Seq
 import scala.io.Source
 import scala.language.implicitConversions
-import scala.collection.immutable.Seq
 
 class LandmarkIOTests extends ScalismoTestSuite {
 

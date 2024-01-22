@@ -2,7 +2,7 @@ package scalismo.image
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.geometry.{_2D, EuclideanVector, EuclideanVector2D, IntVector2D, Point2D}
+import scalismo.geometry.*
 
 class DiscreteImageDomainTests extends ScalismoTestSuite {
 

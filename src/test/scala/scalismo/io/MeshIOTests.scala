@@ -16,10 +16,9 @@
 package scalismo.io
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.*
-import scalismo.geometry.{_3D, Point}
-import scalismo.io.MeshIOTests.{createRandomScalarVolumeMeshField, createRandomTetrahedralMesh}
+import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
+import scalismo.geometry.{Point, _3D}
 import scalismo.mesh.*
 import scalismo.utils.Random
 

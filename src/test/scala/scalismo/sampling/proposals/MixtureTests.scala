@@ -18,10 +18,7 @@ package scalismo.sampling.proposals
 
 import scalismo.ScalismoTestSuite
 import scalismo.sampling.evaluators.GaussianEvaluator
-import scalismo.sampling.proposals.MixtureProposal.{
-  SymmetricProposalGenerator,
-  SymmetricProposalGeneratorWithTransition
-}
+import scalismo.sampling.proposals.MixtureProposal.{SymmetricProposalGenerator, SymmetricProposalGeneratorWithTransition}
 import scalismo.sampling.{ProposalGenerator, SymmetricTransitionRatio, TransitionProbability}
 import scalismo.utils.Random
 
