@@ -17,6 +17,8 @@ package scalismo.io.stl
 
 import scalismo.geometry.Point3D
 import scalismo.io.FileReader
+import scalismo.io.stl.STL.{STL_BYTE_ORDER, STL_HEADER_LENGTH}
+import scalismo.io.stl.STLTriangle
 import scalismo.mesh.TriangleMesh3D
 
 import java.nio.ByteBuffer
@@ -25,7 +27,7 @@ import scala.util.Try
 object STLMeshReaderBinary {
   def read(file: String): Try[TriangleMesh3D] = Try {
     val dataBuffer = FileReader.readFileToByteBuffer(file)
-    dataBuffer.position(HEADER_LENGTH).order(ORDER)
+    dataBuffer.position(STL_HEADER_LENGTH).order(STL_BYTE_ORDER)
 
     val numTriangles = readInt(dataBuffer)
     val trianglesArray = new Array[STLTriangle](numTriangles)
@@ -38,7 +40,7 @@ object STLMeshReaderBinary {
       readShort(dataBuffer)
       STLTriangle(n, p1, p2, p3)
     }
-    STLHelpers.STLTrianglesToTriangleMesh(triangles)
+    STLTriangle.STLTrianglesToTriangleMesh(triangles)
   }
 
   private def readShort(bb: ByteBuffer): Short = {
