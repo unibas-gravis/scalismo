@@ -16,11 +16,11 @@
 package scalismo.mesh
 
 import breeze.linalg.DenseVector
-import scalismo.common._
-import scalismo.geometry._
+import scalismo.common.*
+import scalismo.geometry.*
+import scalismo.numerics.Determinant
 import scalismo.transformations.Transformation
 import scalismo.utils.Random
-import vtk.vtkTetra
 
 import scala.language.implicitConversions
 
@@ -160,8 +160,18 @@ case class TetrahedralMesh3D(pointSet: UnstructuredPoints[_3D], tetrahedralizati
     val c = pointSet.point(tetrahedron.ptId3)
     val d = pointSet.point(tetrahedron.ptId4)
 
-    // note: replace call to vtk with own implementation
-    val signedVolume = new vtkTetra().ComputeVolume(a.toArray, b.toArray, c.toArray, d.toArray)
+    val signedVolume = Determinant.det3x3(
+      b.x - a.x,
+      c.x - a.x,
+      d.x - a.x,
+      b.y - a.y,
+      c.y - a.y,
+      d.y - a.y,
+      b.z - a.z,
+      c.z - a.z,
+      d.z - a.z
+    ) / 6
+
     math.abs(signedVolume)
   }
 
