@@ -22,6 +22,7 @@ import scalismo.common.{PointId, Scalar, UnstructuredPoints}
 import scalismo.geometry.*
 import scalismo.hdf5json.HDFPath
 import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
+import scalismo.io.stl.STL
 import scalismo.mesh.TriangleMesh.*
 import scalismo.mesh.*
 import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
@@ -84,7 +85,7 @@ object MeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".vtk") => readVTK(file)
-      case f if f.endsWith(".stl") => readSTL(file)
+      case f if f.endsWith(".stl") => STL.read(file.toString)
       case f if f.endsWith(".ply") => {
         readPLY(file).map { res =>
           res match {
@@ -361,7 +362,7 @@ object MeshIO {
     filename match {
       case f if f.endsWith(".h5")  => writeHDF5(mesh, file)
       case f if f.endsWith(".vtk") => writeVTK(mesh, file)
-      case f if f.endsWith(".stl") => writeSTL(mesh, file)
+      case f if f.endsWith(".stl") => STL.write(mesh, file.toString)
       case f if f.endsWith(".ply") => writePLY(Left(mesh), file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
@@ -421,13 +422,6 @@ object MeshIO {
   def writeVTK(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
     val vtkPd = MeshConversion.meshToVtkPolyData(surface)
     val err = writeVTKPdasVTK(vtkPd, file)
-    vtkPd.Delete()
-    err
-  }
-
-  def writeSTL(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshToVtkPolyData(surface)
-    val err = writeVTKPdAsSTL(vtkPd, file)
     vtkPd.Delete()
     err
   }
@@ -500,23 +494,6 @@ object MeshIO {
     succOrFailure
   }
 
-  private def writeVTKPdAsSTL(vtkPd: vtkPolyData, file: File): Try[Unit] = {
-    val writer = new vtkSTLWriter()
-    writer.SetFileName(file.getAbsolutePath)
-    writer.SetInputData(vtkPd)
-    writer.SetFileTypeToBinary()
-    writer.Update()
-    val succOrFailure = if (writer.GetErrorCode() != 0) {
-      Failure(
-        new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})")
-      )
-    } else {
-      Success(())
-    }
-    writer.Delete()
-    succOrFailure
-  }
-
   private def readVTKPolydata(file: File): Try[vtkPolyData] = {
 
     val vtkReader = new vtkPolyDataReader()
@@ -542,35 +519,6 @@ object MeshIO {
       vtkPd.Delete()
       mesh
     }
-  }
-
-  private def readSTL(file: File, correctMesh: Boolean = false): Try[TriangleMesh[_3D]] = {
-    val stlReader = new vtkSTLReader()
-    stlReader.SetFileName(file.getAbsolutePath)
-
-    stlReader.MergingOn()
-
-    // With the default point locator, it may happen that the stlReader merges
-    // points that are very close by but not identical. To make sure that this never happens
-    // we explicitly specify the tolerance.
-    val pointLocator = new vtkMergePoints()
-    pointLocator.SetTolerance(0.0)
-
-    stlReader.SetLocator(pointLocator)
-    stlReader.Update()
-    val errCode = stlReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read stl mesh (received error code $errCode"))
-    }
-
-    val vtkPd = stlReader.GetOutput()
-    val mesh =
-      if (correctMesh) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
-      else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
-
-    stlReader.Delete()
-    vtkPd.Delete()
-    mesh
   }
 
   private def getColorArray(polyData: vtkPolyData): Option[(String, vtkDataArray)] = {
