@@ -236,11 +236,10 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
   def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 7): TriangleMesh[_3D] = {
     require(targetedNumberOfFaces > 0)
-    require(aggressiveness > 0 && aggressiveness < 20)
+    require(aggressiveness > 4 && aggressiveness < 20)
     val md = new MeshDecimation(mesh)
     md.simplify(targetedNumberOfFaces, aggressiveness)
   }
-
 
   /**
    * Joins two meshes together, by creating a new mesh with the vertices and triangles of both meshes. The two meshes
