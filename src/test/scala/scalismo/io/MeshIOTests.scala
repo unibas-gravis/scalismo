@@ -52,6 +52,28 @@ class MeshIOTests extends ScalismoTestSuite {
       testWriteRead(".stl")
     }
 
+    it("stl and ply readers (binary and ascii) yield the same result") {
+      val pathSTL = getClass.getResource("/unit-sphere.stl").getPath
+      val pathSTLascii = getClass.getResource("/unit-sphere_ascii.stl").getPath
+      val pathPLY = getClass.getResource("/unit-sphere.ply").getPath
+      val pathPLYascii = getClass.getResource("/unit-sphere_ascii.ply").getPath
+      val meshSTL = MeshIO.readMesh(new File(URLDecoder.decode(pathSTL, "UTF-8"))).get
+      val meshSTLascii = MeshIO.readMesh(new File(URLDecoder.decode(pathSTLascii, "UTF-8"))).get
+      val meshPLY = MeshIO.readMesh(new File(URLDecoder.decode(pathPLY, "UTF-8"))).get
+      val meshPLYascii = MeshIO.readMesh(new File(URLDecoder.decode(pathPLYascii, "UTF-8"))).get
+      def compareMeshes(m1: TriangleMesh[_3D], m2: TriangleMesh[_3D]): Unit ={
+        m1.triangulation.triangles.toSet should equal(m2.triangulation.triangles.toSet)
+        m1.pointSet.points.toSeq.zip(m2.pointSet.points.toSeq).foreach{case (p1, p2) =>
+          p1.x should be(p2.x +- 1e-6)
+          p1.y should be(p2.y +- 1e-6)
+          p1.z should be(p2.z +- 1e-6)
+        }
+      }
+      compareMeshes(meshSTL, meshSTLascii)
+      compareMeshes(meshSTL, meshPLY)
+      compareMeshes(meshSTL, meshPLYascii)
+    }
+
     it("yields the original polyline when reading  and writing a polyLine in 2D") {
       val path = getClass.getResource("/linemesh.vtk").getPath
       val origMesh = MeshIO.readLineMesh2D(new File(URLDecoder.decode(path, "UTF-8"))).get
@@ -94,10 +116,12 @@ class MeshIOTests extends ScalismoTestSuite {
       reRead should equal(shape)
     }
 
-    it("correctly fails when reading a textured ascii ply") {
-      val path = getClass.getResource("/mean_textured.ply").getPath
-      val shape = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8")))
-      assert(shape.isFailure)
+    it("correctly reads textured mesh and discards unsupported properties") {
+      val pathTextured = getClass.getResource("/mean_textured.ply").getPath
+      val pathVertexColor = getClass.getResource("/mean_vertexColor.ply").getPath
+      val shapeTexture = MeshIO.readMesh(new File(URLDecoder.decode(pathTextured, "UTF-8"))).get
+      val shapeVertexColor = MeshIO.readMesh(new File(URLDecoder.decode(pathVertexColor, "UTF-8"))).get
+      shapeTexture should equal(shapeVertexColor)
     }
 
     it("correctly writes and reads a tetrahedral mesh to a vtk file ") {

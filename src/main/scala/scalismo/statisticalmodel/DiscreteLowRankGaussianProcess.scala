@@ -195,6 +195,30 @@ class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDomain[D
     DiscreteLowRankGaussianProcess.regression(this, trainingData)
   }
 
+  /**
+   * Discrete version of
+   * [[DiscreteLowRankGaussianProcess.posteriorMean(IndexedSeq[(Point[D], Vector[DO])], sigma2: Double]]. In contrast to
+   * this method, the points for the training data are defined by the pointId. The returned posterior process is defined
+   * at the same points.
+   */
+  def posteriorMean(trainingData: IndexedSeq[(PointId, Value)], sigma2: Double): DiscreteField[D, DDomain, Value] = {
+    val cov =
+      MultivariateNormalDistribution(DenseVector.zeros[Double](outputDim), DenseMatrix.eye[Double](outputDim) * sigma2)
+    val newtd = trainingData.map { case (ptId, df) => (ptId, df, cov) }
+    posteriorMean(newtd)
+  }
+
+  /**
+   * Discrete version of [[DiscreteLowRankGaussianProcess.posteriorMean(IndexedSeq[(Point[D], Vector[DO], Double)])]].
+   * In contrast to this method, the points for the training data are defined by the pointId. The returned posterior
+   * process is defined at the same points.
+   */
+  def posteriorMean(
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)]
+  ): DiscreteField[D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.regressionMean(this, trainingData)
+  }
+
   override def marginal(pointIds: Seq[PointId])(implicit
     domainCreator: UnstructuredPoints.Create[D]
   ): DiscreteLowRankGaussianProcess[D, UnstructuredPointsDomain, Value] = {
@@ -495,6 +519,21 @@ object DiscreteLowRankGaussianProcess {
     }
 
     new DiscreteLowRankGaussianProcess(gp.domain, mean_pVector, lambdas_p, eigenMatrix_p)
+  }
+
+  /**
+   * Discrete implementation of [[LowRankGaussianProcess.regressionMean]]
+   */
+  def regressionMean[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value](
+    gp: DiscreteLowRankGaussianProcess[D, DDomain, Value],
+    trainingData: IndexedSeq[(PointId, Value, MultivariateNormalDistribution)],
+    naNStrategy: NaNStrategy = NanIsNumericValue
+  )(implicit vectorizer: Vectorizer[Value]): DiscreteField[D, DDomain, Value] = {
+
+    val LowRankRegressionComputation(_Minv, yVec, mVec, _QtL) =
+      LowRankRegressionComputation.fromDiscreteLowRankGP(gp, trainingData, naNStrategy)
+    val mean_coeffs = (_Minv * _QtL) * (yVec - mVec)
+    gp.instance(mean_coeffs)
   }
 
   def createUsingPCA[D: NDSpace, DDomain[D] <: DiscreteDomain[D], Value](
