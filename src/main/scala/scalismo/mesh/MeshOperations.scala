@@ -236,9 +236,13 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
   def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 7): TriangleMesh[_3D] = {
     require(targetedNumberOfFaces > 0)
-    require(aggressiveness > 4 && aggressiveness < 20)
-    val md = new MeshDecimation(mesh)
-    md.simplify(targetedNumberOfFaces, aggressiveness)
+    require(aggressiveness > 4 && aggressiveness < 15)
+    if (targetedNumberOfFaces >= mesh.triangulation.triangles.length) {
+      mesh
+    } else {
+      val md = new MeshDecimation(mesh)
+      md.simplify(targetedNumberOfFaces, aggressiveness)
+    }
   }
 
   /**

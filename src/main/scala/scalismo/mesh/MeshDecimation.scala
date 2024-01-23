@@ -165,15 +165,21 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
                   val (flipped1, deleted1) = flipped(p, i0, v1)
 
                   if (!flipped0 && !flipped1) {
-                    vertices = vertices.updated(i0, v0.copy(p = p.toPoint, q = v0.q.add(v1.q)))
+                    vertices = vertices.updated(i0, vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q)))
                     val tstart = refs.length
 
                     deletedTriangles += updateTriangles(i0, v0, deleted0)
                     deletedTriangles += updateTriangles(i0, v1, deleted1)
 
                     val tcount = refs.length - tstart
-
-                    vertices = vertices.updated(i0, v0.copy(tstart = tstart, tcount = tcount))
+//                    if (tcount <= v0.tcount) {
+//                      (0 until tcount).foreach { i =>
+//                        refs = refs.updated(tstart, refs(v0.tstart).copy())
+//                      }
+//                      vertices = vertices.updated(i0, vertices(i0).copy(tcount = tcount))
+//                    } else {
+                    vertices = vertices.updated(i0, vertices(i0).copy(tstart = tstart, tcount = tcount))
+//                    }
                     j = 3
                   }
                 }
@@ -390,9 +396,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     (0 until vertices.length).foreach { i =>
       val v = vertices(i)
       if (v.tcount != 0) {
-        vertices = vertices.updated(i, v.copy(tstart = distance))
-        val vDist = vertices(distance)
-        vertices = vertices.updated(distance, vDist.copy(p = v.p))
+        vertices = vertices.updated(i, vertices(i).copy(tstart = distance))
+        vertices = vertices.updated(distance, vertices(distance).copy(p = v.p))
         distance += 1
       }
     }
