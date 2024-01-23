@@ -16,24 +16,10 @@
 package scalismo.mesh
 
 import scalismo.common.{DifferentiableField, EuclideanSpace, Field, PointId, UnstructuredPoints3D}
-import scalismo.geometry.{_3D, EuclideanVector, Point}
-import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
-import scalismo.mesh.boundingSpheres.{
-  BoundingSphereHelpers,
-  BoundingSpheres,
-  ClosestPoint,
-  ClosestPointInTriangle,
-  ClosestPointOnLine,
-  ClosestPointWithType,
-  LineTetrahedralMesh3DIntersectionIndex,
-  LineTriangleMesh3DIntersectionIndex,
-  SurfaceSpatialIndex,
-  TetrahedralMesh3DSpatialIndex,
-  TetrahedralizedVolumeIntersectionIndex,
-  TriangleMesh3DSpatialIndex,
-  TriangulatedSurfaceIntersectionIndex,
-  VolumeSpatialIndex
-}
+import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.mesh.MeshBoundaryPredicates.{TriangleSortedPointIds, fillTriangleOnBorderMap}
+import scalismo.mesh.boundingSpheres.{BoundingSphereHelpers, BoundingSpheres, ClosestPoint, ClosestPointInTriangle, ClosestPointOnLine, ClosestPointWithType, LineTetrahedralMesh3DIntersectionIndex, LineTriangleMesh3DIntersectionIndex, SurfaceSpatialIndex, TetrahedralMesh3DSpatialIndex, TetrahedralizedVolumeIntersectionIndex, TriangleMesh3DSpatialIndex, TriangulatedSurfaceIntersectionIndex, VolumeSpatialIndex}
+import scalismo.mesh.decimate.MeshDecimation
 import scalismo.utils.MeshConversion
 
 import scala.collection.parallel.immutable.ParVector
@@ -228,6 +214,20 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
    * @return
    *   The decimated mesh
    */
+  def decimateOld(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
+    val refVtk = MeshConversion.meshToVtkPolyData(mesh)
+    val decimate = new vtk.vtkQuadricDecimation()
+
+    val reductionRate = 1.0 - (targetedNumberOfVertices / mesh.pointSet.numberOfPoints.toDouble)
+
+    decimate.SetTargetReduction(reductionRate)
+
+    decimate.SetInputData(refVtk)
+    decimate.Update()
+    val decimatedRefVTK = decimate.GetOutput()
+    MeshConversion.vtkPolyDataToTriangleMesh(decimatedRefVTK).get
+  }
+  
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
     require(targetedNumberOfVertices > 0)
     val fraction = 1.0 max (mesh.pointSet.numberOfPoints / targetedNumberOfVertices.toDouble)
