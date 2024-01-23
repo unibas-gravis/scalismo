@@ -1,77 +1,14 @@
-package scalismo.mesh
+package scalismo.mesh.decimate
 
 import scalismo.common.PointId
 import scalismo.geometry.{_3D, EuclideanVector3D, Point, SquareMatrix}
+import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
 
 import scala.collection.mutable.ArrayBuffer
 // Based on https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification
 // and its java implementation: https://gist.github.com/jayfella/00a328b2dbdf6304078a821143b7aef7
 
 case class ErrorEntry(err: Array[Double] = Array.fill(4)(0.0))
-
-class SymmetricMatrix private (private val m: Array[Double]) {
-
-  def this(c: Double) = this(Array.fill(10)(c))
-
-  def this(m11: Double,
-           m12: Double,
-           m13: Double,
-           m14: Double,
-           m22: Double,
-           m23: Double,
-           m24: Double,
-           m33: Double,
-           m34: Double,
-           m44: Double
-  ) = this(Array(m11, m12, m13, m14, m22, m23, m24, m33, m34, m44))
-
-  // Make plane
-  def this(a: Double, b: Double, c: Double, d: Double) =
-    this(Array(a * a, a * b, a * c, a * d, b * b, b * c, b * d, c * c, c * d, d * d))
-
-  def getValue(c: Int): Double = m(c)
-
-  // Determinant
-  def det(a11: Int, a12: Int, a13: Int, a21: Int, a22: Int, a23: Int, a31: Int, a32: Int, a33: Int): Double = {
-    m(a11) * m(a22) * m(a33) + m(a13) * m(a21) * m(a32) + m(a12) * m(a23) * m(a31) -
-      m(a13) * m(a22) * m(a31) - m(a11) * m(a23) * m(a32) - m(a12) * m(a21) * m(a33)
-  }
-
-  def add(n: SymmetricMatrix): SymmetricMatrix = {
-    new SymmetricMatrix(
-      m(0) + n.getValue(0),
-      m(1) + n.getValue(1),
-      m(2) + n.getValue(2),
-      m(3) + n.getValue(3),
-      m(4) + n.getValue(4),
-      m(5) + n.getValue(5),
-      m(6) + n.getValue(6),
-      m(7) + n.getValue(7),
-      m(8) + n.getValue(8),
-      m(9) + n.getValue(9)
-    )
-  }
-}
-
-object SymmetricMatrix {
-  def apply(c: Double): SymmetricMatrix = new SymmetricMatrix(c)
-
-  def apply(m11: Double,
-            m12: Double,
-            m13: Double,
-            m14: Double,
-            m22: Double,
-            m23: Double,
-            m24: Double,
-            m33: Double,
-            m34: Double,
-            m44: Double
-  ): SymmetricMatrix =
-    new SymmetricMatrix(m11, m12, m13, m14, m22, m23, m24, m33, m34, m44)
-
-  def apply(a: Double, b: Double, c: Double, d: Double): SymmetricMatrix =
-    new SymmetricMatrix(a, b, c, d)
-}
 
 case class Triangle(
   v: TriangleCell,
@@ -103,8 +40,9 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       v = mesh.triangulation.triangle(tid)
     )
   )
-  var vertices: IndexedSeq[Vertex] = mesh.pointSet.pointIds.toIndexedSeq.map(pid =>
-    Vertex(
+  var vertices: ArrayBuffer[Vertex] = ArrayBuffer.empty
+  mesh.pointSet.pointIds.toIndexedSeq.foreach(pid =>
+    vertices += Vertex(
       p = mesh.pointSet.point(pid),
       border = mesh.operations.pointIsOnBoundary(pid)
     )
@@ -146,7 +84,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
       triangles.mapInPlace(_.copy(dirty = false))
 
-      (0 until triangles.length).foreach {
+      triangles.indices.foreach {
         i => // DO NOT USE FOREACH as the triangles are updated within the loop - yes, I know, very ugly.
           val t = triangles(i)
 
@@ -167,14 +105,14 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
                   val (flipped1, deleted1) = flipped(p, i0, v1)
 
                   if (!flipped0 && !flipped1) {
-                    vertices = vertices.updated(i0, vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q)))
+                    vertices.update(i0, vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q)))
                     val tstart = refs.length
 
                     deletedTriangles += updateTriangles(i0, v0, deleted0)
                     deletedTriangles += updateTriangles(i0, v1, deleted1)
 
                     val tcount = refs.length - tstart
-                    vertices = vertices.updated(i0, vertices(i0).copy(tstart = tstart, tcount = tcount))
+                    vertices.update(i0, vertices(i0).copy(tstart = tstart, tcount = tcount))
                     j = 3
                   }
                 }
@@ -290,22 +228,23 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       triangles.filterInPlace(_.deleted == false)
     }
 
-    vertices = vertices.map(vertex => vertex.copy(tstart = 0, tcount = 0))
+    vertices.mapInPlace(_.copy(tstart = 0, tcount = 0))
 
-    (0 until triangles.length).foreach { i =>
+    triangles.indices.foreach { i =>
       val t = triangles(i)
       (0 until 3).foreach { j =>
         val id0 = t.v.pointIds(j).id
         val v0 = vertices(id0)
-        vertices = vertices.updated(id0, v0.copy(tcount = v0.tcount + 1))
+        vertices.update(id0, v0.copy(tcount = v0.tcount + 1))
       }
     }
     var tstart = 0;
 
-    vertices = vertices.map { v =>
+    vertices.indices.foreach { i =>
+      val v = vertices(i)
       val locTstart = tstart
       tstart += v.tcount
-      v.copy(tstart = locTstart, tcount = 0)
+      vertices(i) = v.copy(tstart = locTstart, tcount = 0)
     }
 
     refs = refs.take(triangles.length * 3)
@@ -317,7 +256,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
         val rId = v.tstart + v.tcount
         val ref = refs(rId)
         refs = refs.updated(rId, ref.copy(tid = i, tvertex = j))
-        vertices = vertices.updated(vId, v.copy(tcount = v.tcount + 1))
+        vertices.update(vId, v.copy(tcount = v.tcount + 1))
       }
     }
 
@@ -331,7 +270,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           val v = vertices(id)
           val newQ =
             v.q.add(new SymmetricMatrix(n.x, n.y, n.z, -n.dot(points(0).toVector)))
-          vertices = vertices.updated(id, v.copy(q = newQ))
+          vertices.update(id, v.copy(q = newQ))
         }
       }
       triangles.zipWithIndex.foreach { case (t, i) =>
@@ -356,17 +295,16 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
   private def compactMesh(): Unit = {
     var distance = 0
 
-    vertices = vertices.map(vertex => vertex.copy(tcount = 0))
+    vertices.mapInPlace(_.copy(tcount = 0))
 
-    (0 until triangles.length).foreach { i =>
+    triangles.indices.foreach { i =>
       val t = triangles(i)
       if (!t.deleted) {
         triangles(distance) = t
         distance += 1
         (0 until 3).foreach { j =>
           val id = t.v.pointIds(j).id;
-          val v = vertices(id)
-          vertices = vertices.updated(id, v.copy(tcount = 1))
+          vertices.update(id, vertices(id).copy(tcount = 1))
         }
       }
     }
@@ -375,8 +313,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     distance = 0
     vertices.zipWithIndex.foreach { case (v, i) =>
       if (v.tcount != 0) {
-        vertices = vertices.updated(i, vertices(i).copy(tstart = distance))
-        vertices = vertices.updated(distance, vertices(distance).copy(p = v.p))
+        vertices.update(i, vertices(i).copy(tstart = distance))
+        vertices.update(distance, vertices(distance).copy(p = v.p))
         distance += 1
       }
     }
@@ -388,7 +326,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       val newCell = TriangleCell(newIds(0), newIds(1), newIds(2))
       triangles(i) = t.copy(v = newCell)
     }
-    vertices = vertices.take(distance)
+    vertices.dropRightInPlace(vertices.length - distance)
   }
 
   def vertexError(q: SymmetricMatrix, x: Double, y: Double, z: Double): Double = {
@@ -447,7 +385,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
   }
 
   private def createSimplifiedMesh(): TriangleMesh[_3D] = {
-    val newPoints: IndexedSeq[Point[_3D]] = vertices.map(v => v.p)
+    val newPoints: IndexedSeq[Point[_3D]] = vertices.map(v => v.p).toIndexedSeq
     val newTriangles: IndexedSeq[TriangleCell] = triangles.map(t => t.v).toIndexedSeq
     val newTopology: TriangleList = TriangleList(newTriangles)
     TriangleMesh3D(points = newPoints, topology = newTopology)
