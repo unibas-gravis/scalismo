@@ -73,7 +73,7 @@ object SymmetricMatrix {
 
 case class Triangle(
   v: TriangleCell,
-  n: EuclideanVector3D,
+  n: EuclideanVector3D = EuclideanVector3D(0.0, 0.0, 0.0),
   err: ErrorEntry = ErrorEntry(),
   deleted: Boolean = false,
   dirty: Boolean = false
@@ -98,8 +98,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
   var triangles: IndexedSeq[Triangle] = mesh.triangulation.triangleIds.map(tid =>
     Triangle(
-      v = mesh.triangulation.triangle(tid),
-      n = mesh.cellNormals.onTriangle(tid)
+      v = mesh.triangulation.triangle(tid)
     )
   )
   var vertices: IndexedSeq[Vertex] = mesh.pointSet.pointIds.toIndexedSeq.map(pid =>
@@ -196,7 +195,11 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
   private def flipped(p: EuclideanVector3D, i1: Int, v0: Vertex): (Boolean, Array[Boolean]) = {
     val deleted = Array.fill(v0.tcount)(false)
-    (0 until v0.tcount).foreach { k =>
+    var returnValue = false
+    var k = 0
+    val counterMaxValue = v0.tcount
+    while (k < counterMaxValue) {
+//    (0 until v0.tcount).foreach { k =>
       val ref = refs(v0.tstart + k)
       val t = triangles(ref.tid)
 
@@ -210,19 +213,22 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           val d1 = (vertices(id1).p.-(p)).toVector.normalize
           val d2 = (vertices(id2).p.-(p)).toVector.normalize
 
-          if (Math.abs(d1.dot(d2)) > 0.9999) {
-            return (true, deleted)
-          }
-          val n = d1.crossproduct(d2).normalize
-          deleted(k) = false
-
-          if (n.dot(t.n) < 0.2) {
-            return (true, deleted)
+          if (Math.abs(d1.dot(d2)) > 0.999) {
+            returnValue = true
+            k = counterMaxValue
+          } else {
+            val n = d1.crossproduct(d2).normalize
+//            deleted(k) = false
+            if (n.dot(t.n) < 0.2) {
+              returnValue = true
+              k = counterMaxValue
+            }
           }
         }
       }
+      k += 1
     }
-    (false, deleted)
+    (returnValue, deleted)
   }
 
   private def updateTriangles(i0: Int, v: Vertex, deleted: Array[Boolean]): Int = {
@@ -249,7 +255,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
               err3
             )
           )
-          val vNew = // TODO: Needs to verified!!!
+          val vNew =
             if (r.tvertex == 0) t.v.copy(ptId1 = PointId(i0))
             else if (r.tvertex == 1) t.v.copy(ptId2 = PointId(i0))
             else if (r.tvertex == 2) t.v.copy(ptId3 = PointId(i0))
@@ -266,6 +272,18 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       }
     }
     triangleDeleted
+  }
+
+  private def calculateNormal(p: Seq[Point[_3D]]): EuclideanVector3D = {
+    (p(1) - p(0)).crossproduct(p(2) - p(0)).normalize
+  }
+
+  private def cellToPoints(cell: TriangleCell): Seq[Point[_3D]] = {
+    (0 until 3).map { j =>
+      val id = cell.pointIds(j).id
+      val v = vertices(id)
+      v.p
+    }
   }
 
   private def updateMesh(iteration: Int): Unit = {
@@ -317,18 +335,14 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     if (iteration == 0) {
       (0 until triangles.length).foreach { i =>
         val t = triangles(i)
-        val p = (0 until 3).map { j =>
-          val id = t.v.pointIds(j).id
-          val v = vertices(id)
-          v.p
-        }
-        val n = (p(1) - p(0)).crossproduct(p(2) - p(0)).normalize
+        val points = cellToPoints(t.v)
+        val n = calculateNormal(points)
         triangles = triangles.updated(i, t.copy(n = n))
         (0 until 3).foreach { j =>
           val id = t.v.pointIds(j).id
           val v = vertices(id)
           val newQ =
-            v.q.add(new SymmetricMatrix(n.x, n.y, n.z, -n.dot(p(0).toVector)))
+            v.q.add(new SymmetricMatrix(n.x, n.y, n.z, -n.dot(points(0).toVector)))
           vertices = vertices.updated(id, v.copy(q = newQ))
         }
       }
