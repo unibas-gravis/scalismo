@@ -172,14 +172,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
                     deletedTriangles += updateTriangles(i0, v1, deleted1)
 
                     val tcount = refs.length - tstart
-//                    if (tcount <= v0.tcount) {
-//                      (0 until tcount).foreach { i =>
-//                        refs = refs.updated(tstart, refs(v0.tstart).copy())
-//                      }
-//                      vertices = vertices.updated(i0, vertices(i0).copy(tcount = tcount))
-//                    } else {
                     vertices = vertices.updated(i0, vertices(i0).copy(tstart = tstart, tcount = tcount))
-//                    }
                     j = 3
                   }
                 }
@@ -294,16 +287,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
   private def updateMesh(iteration: Int): Unit = {
     if (iteration > 0) {
-      var distance = 0
-      // Probably can be updated by filtering!
-      (0 until triangles.length).foreach { i =>
-        val t = triangles(i)
-        if (!t.deleted) {
-          triangles = triangles.updated(distance, t)
-          distance += 1
-        }
-      }
-      triangles = triangles.take(distance)
+      triangles = triangles.filterNot(_.deleted)
     }
 
     vertices = vertices.map(vertex => vertex.copy(tstart = 0, tcount = 0))
@@ -326,8 +310,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
     refs = refs.take(triangles.length * 3)
 
-    (0 until triangles.length).foreach { i =>
-      val t = triangles(i)
+    triangles.zipWithIndex.foreach { case (t, i) =>
       (0 until 3).foreach { j =>
         val vId = t.v.pointIds(j).id
         val v = vertices(vId)
@@ -339,8 +322,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     }
 
     if (iteration == 0) {
-      (0 until triangles.length).foreach { i =>
-        val t = triangles(i)
+      triangles.zipWithIndex.foreach { case (t, i) =>
         val points = cellToPoints(t.v)
         val n = calculateNormal(points)
         triangles = triangles.updated(i, t.copy(n = n))
@@ -352,8 +334,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           vertices = vertices.updated(id, v.copy(q = newQ))
         }
       }
-      (0 until triangles.length).foreach { i =>
-        val t = triangles(i)
+      triangles.zipWithIndex.foreach { case (t, i) =>
         val allErrors = (0 until 3).map { j =>
           val (err, _) = calculateError(vertices(t.v.pointIds(j).id), vertices(t.v.pointIds((j + 1) % 3).id))
           err
@@ -377,9 +358,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
     vertices = vertices.map(vertex => vertex.copy(tcount = 0))
 
-    (0 until triangles.length).foreach { i =>
-//    triangles.foreach { t =>
-      val t = triangles(i)
+    triangles.foreach { t =>
       if (!t.deleted) {
         triangles = triangles.updated(distance, t)
         distance += 1
@@ -393,15 +372,14 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     triangles = triangles.take(distance)
 
     distance = 0
-    (0 until vertices.length).foreach { i =>
-      val v = vertices(i)
+    vertices.zipWithIndex.foreach { case (v, i) =>
       if (v.tcount != 0) {
         vertices = vertices.updated(i, vertices(i).copy(tstart = distance))
         vertices = vertices.updated(distance, vertices(distance).copy(p = v.p))
         distance += 1
       }
     }
-    (0 until triangles.length).foreach { i =>
+    triangles.zipWithIndex.foreach { case (t, i) =>
       val t = triangles(i)
       val newIds = (0 until 3).map { j =>
         PointId(vertices(t.v.pointIds(j).id).tstart)
@@ -409,7 +387,6 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       val newCell = TriangleCell(newIds(0), newIds(1), newIds(2))
       triangles = triangles.updated(i, t.copy(v = newCell))
     }
-
     vertices = vertices.take(distance)
   }
 
@@ -469,7 +446,6 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
   }
 
   private def createSimplifiedMesh(): TriangleMesh[_3D] = {
-    // TODO: Add vertex color information if available!
     val newPoints: IndexedSeq[Point[_3D]] = vertices.map(v => v.p)
     val newTriangles: IndexedSeq[TriangleCell] = triangles.map(t => t.v)
     val newTopology: TriangleList = TriangleList(newTriangles)
