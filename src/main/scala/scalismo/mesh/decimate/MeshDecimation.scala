@@ -34,25 +34,34 @@ case class Ref(
 class MeshDecimation(mesh: TriangleMesh[_3D]) {
   val numberOfPoints: Int = mesh.pointSet.numberOfPoints
   val numberOfTriangles: Int = mesh.triangulation.triangles.length
+
   var triangles: ArrayBuffer[Triangle] = ArrayBuffer.empty
-  mesh.triangulation.triangleIds.foreach(tid =>
-    triangles += Triangle(
-      v = mesh.triangulation.triangle(tid)
-    )
-  )
   var vertices: ArrayBuffer[Vertex] = ArrayBuffer.empty
-  mesh.pointSet.pointIds.toIndexedSeq.foreach(pid =>
-    vertices += Vertex(
-      p = mesh.pointSet.point(pid),
-      border = mesh.operations.pointIsOnBoundary(pid)
+  var refs: ArrayBuffer[Ref] = ArrayBuffer.empty
+
+  private def initializeArrayBuffers(): Unit = {
+    mesh.triangulation.triangleIds.foreach(tid =>
+      triangles += Triangle(
+        v = mesh.triangulation.triangle(tid)
+      )
     )
-  )
-  var refs: IndexedSeq[Ref] = mesh.triangulation.triangleIds.flatMap { tid =>
-    Seq(
-      mesh.triangulation.triangle(tid).ptId1,
-      mesh.triangulation.triangle(tid).ptId2,
-      mesh.triangulation.triangle(tid).ptId3
-    ).map(ptId => Ref(tid = tid.id, tvertex = ptId.id))
+
+    mesh.pointSet.pointIds.toIndexedSeq.foreach(pid =>
+      vertices += Vertex(
+        p = mesh.pointSet.point(pid),
+        border = mesh.operations.pointIsOnBoundary(pid)
+      )
+    )
+
+    mesh.triangulation.triangleIds.foreach { tid =>
+      Seq(
+        mesh.triangulation.triangle(tid).ptId1,
+        mesh.triangulation.triangle(tid).ptId2,
+        mesh.triangulation.triangle(tid).ptId3
+      ).foreach { ptId =>
+        refs += Ref(tid = tid.id, tvertex = ptId.id)
+      }
+    }
   }
 
   def simplify(targetCount: Int, aggressiveness: Double): TriangleMesh[_3D] = {
@@ -64,6 +73,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     val maxIterations = 100;
 
     val triangleCount = numberOfTriangles
+
+    initializeArrayBuffers()
 
     println(s"Target triangle count: ${targetCount}, from ${triangleCount}.")
     var iteration = 0
@@ -105,14 +116,14 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
                   val (flipped1, deleted1) = flipped(p, i0, v1)
 
                   if (!flipped0 && !flipped1) {
-                    vertices.update(i0, vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q)))
+                    vertices(i0) = vertices(i0).copy(p = p.toPoint, q = v0.q.add(v1.q))
                     val tstart = refs.length
 
                     deletedTriangles += updateTriangles(i0, v0, deleted0)
                     deletedTriangles += updateTriangles(i0, v1, deleted1)
 
                     val tcount = refs.length - tstart
-                    vertices.update(i0, vertices(i0).copy(tstart = tstart, tcount = tcount))
+                    vertices(i0) = vertices(i0).copy(tstart = tstart, tcount = tcount)
                     j = 3
                   }
                 }
@@ -127,9 +138,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       iteration += 1
     }
 
-    compactMesh()
-    println(s"Final triangles count: ${triangles.length}.")
-    createSimplifiedMesh()
+    compactMesh(vertices, triangles)
   }
 
   private def flipped(p: EuclideanVector3D, i1: Int, v0: Vertex): (Boolean, Array[Boolean]) = {
@@ -138,7 +147,6 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     var k = 0
     val counterMaxValue = v0.tcount
     while (k < counterMaxValue) {
-//    (0 until v0.tcount).foreach { k =>
       val ref = refs(v0.tstart + k)
       val t = triangles(ref.tid)
 
@@ -157,7 +165,6 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
             k = counterMaxValue
           } else {
             val n = d1.crossproduct(d2).normalize
-//            deleted(k) = false
             if (n.dot(t.n) < 0.2) {
               returnValue = true
               k = counterMaxValue
@@ -197,14 +204,13 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           val vNew =
             if (r.tvertex == 0) t.v.copy(ptId1 = PointId(i0))
             else if (r.tvertex == 1) t.v.copy(ptId2 = PointId(i0))
-            else if (r.tvertex == 2) t.v.copy(ptId3 = PointId(i0))
-            else t.v // this state should not be reachable
+            else t.v.copy(ptId3 = PointId(i0))
           triangles(r.tid) = t.copy(
             v = vNew,
             dirty = true,
             err = err
           )
-          refs = refs :+ r
+          refs += r
         }
       }
     }
@@ -235,7 +241,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       (0 until 3).foreach { j =>
         val id0 = t.v.pointIds(j).id
         val v0 = vertices(id0)
-        vertices.update(id0, v0.copy(tcount = v0.tcount + 1))
+        vertices(id0) = v0.copy(tcount = v0.tcount + 1)
       }
     }
     var tstart = 0;
@@ -247,16 +253,15 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       vertices(i) = v.copy(tstart = locTstart, tcount = 0)
     }
 
-    refs = refs.take(triangles.length * 3)
+    refs.dropRightInPlace(refs.length - triangles.length * 3)
 
     triangles.zipWithIndex.foreach { case (t, i) =>
       (0 until 3).foreach { j =>
         val vId = t.v.pointIds(j).id
         val v = vertices(vId)
         val rId = v.tstart + v.tcount
-        val ref = refs(rId)
-        refs = refs.updated(rId, ref.copy(tid = i, tvertex = j))
-        vertices.update(vId, v.copy(tcount = v.tcount + 1))
+        refs(rId) = refs(rId).copy(tid = i, tvertex = j)
+        vertices(vId) = v.copy(tcount = v.tcount + 1)
       }
     }
 
@@ -270,7 +275,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
           val v = vertices(id)
           val newQ =
             v.q.add(new SymmetricMatrix(n.x, n.y, n.z, -n.dot(points(0).toVector)))
-          vertices.update(id, v.copy(q = newQ))
+          vertices(id) = v.copy(q = newQ)
         }
       }
       triangles.zipWithIndex.foreach { case (t, i) =>
@@ -292,7 +297,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
 
   }
 
-  private def compactMesh(): Unit = {
+  private def compactMesh(vertices: ArrayBuffer[Vertex], triangles: ArrayBuffer[Triangle]): TriangleMesh[_3D] = {
     var distance = 0
 
     vertices.mapInPlace(_.copy(tcount = 0))
@@ -304,7 +309,7 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
         distance += 1
         (0 until 3).foreach { j =>
           val id = t.v.pointIds(j).id;
-          vertices.update(id, vertices(id).copy(tcount = 1))
+          vertices(id) = vertices(id).copy(tcount = 1)
         }
       }
     }
@@ -313,8 +318,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     distance = 0
     vertices.zipWithIndex.foreach { case (v, i) =>
       if (v.tcount != 0) {
-        vertices.update(i, vertices(i).copy(tstart = distance))
-        vertices.update(distance, vertices(distance).copy(p = v.p))
+        vertices(i) = vertices(i).copy(tstart = distance)
+        vertices(distance) = vertices(distance).copy(p = v.p)
         distance += 1
       }
     }
@@ -327,6 +332,11 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       triangles(i) = t.copy(v = newCell)
     }
     vertices.dropRightInPlace(vertices.length - distance)
+
+    val newPoints: IndexedSeq[Point[_3D]] = vertices.map(v => v.p).toIndexedSeq
+    val newTriangles: IndexedSeq[TriangleCell] = triangles.map(t => t.v).toIndexedSeq
+    val newTopology: TriangleList = TriangleList(newTriangles)
+    TriangleMesh3D(points = newPoints, topology = newTopology)
   }
 
   def vertexError(q: SymmetricMatrix, x: Double, y: Double, z: Double): Double = {
@@ -382,12 +392,5 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       (error, vect)
     }
     (error, p)
-  }
-
-  private def createSimplifiedMesh(): TriangleMesh[_3D] = {
-    val newPoints: IndexedSeq[Point[_3D]] = vertices.map(v => v.p).toIndexedSeq
-    val newTriangles: IndexedSeq[TriangleCell] = triangles.map(t => t.v).toIndexedSeq
-    val newTopology: TriangleList = TriangleList(newTriangles)
-    TriangleMesh3D(points = newPoints, topology = newTopology)
   }
 }
