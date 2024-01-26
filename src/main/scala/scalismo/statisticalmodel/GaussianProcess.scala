@@ -220,7 +220,6 @@ object GaussianProcess {
   )(implicit vectorizer: Vectorizer[Value]): Field[D, Value] = {
 
     val (_, _, posteriorMean) = regressionDataUnpack(gp, trainingData)
-
     Field(gp.domain, posteriorMean)
   }
 

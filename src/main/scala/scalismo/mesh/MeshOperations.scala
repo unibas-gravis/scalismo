@@ -35,7 +35,6 @@ import scalismo.mesh.boundingSpheres.{
   VolumeSpatialIndex
 }
 import scalismo.mesh.decimate.MeshDecimation
-
 import scala.collection.parallel.immutable.ParVector
 
 object MeshOperations {

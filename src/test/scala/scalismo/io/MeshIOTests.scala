@@ -47,7 +47,6 @@ class MeshIOTests extends ScalismoTestSuite {
           mesh should equal(origMesh)
         }
       }
-
       testWriteRead(".stl")
       testWriteRead(".ply")
     }

@@ -25,7 +25,6 @@ import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
 import scalismo.io.stl.STL
 import scalismo.mesh.*
 import scalismo.mesh.TriangleMesh.*
-
 import java.io.{BufferedReader, File, FileReader, IOException}
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}

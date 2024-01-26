@@ -17,7 +17,6 @@ package scalismo.io.stl
 
 import scalismo.geometry.{EuclideanVector3D, Point3D}
 import scalismo.mesh.TriangleMesh3D
-
 import java.io.{BufferedReader, File, FileReader}
 import java.nio.ByteOrder
 import scala.util.Try
