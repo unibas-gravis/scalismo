@@ -13,11 +13,11 @@ object MeshDecimation {
   val MAX_ITERATIONS = 100;
 
   private class Buffers(mesh: TriangleMesh[_3D]) {
-    val triangles = ArrayBuffer.from(
+    val triangles: ArrayBuffer[Triangle] = ArrayBuffer.from(
       mesh.triangulation.triangles.map { t => Triangle(cell = t) }
     )
 
-    val vertices = ArrayBuffer.from(
+    val vertices: ArrayBuffer[Vertex] = ArrayBuffer.from(
       mesh.pointSet.pointIds.map(pid =>
         Vertex(
           point = mesh.pointSet.point(pid),
@@ -26,7 +26,7 @@ object MeshDecimation {
       )
     )
 
-    val refs = ArrayBuffer.from(
+    val refs: ArrayBuffer[Ref] = ArrayBuffer.from(
       mesh.triangulation.triangleIds.flatMap { tid =>
         mesh.triangulation.triangle(tid).pointIds.map { ptId =>
           Ref(tid = tid.id, tvertex = ptId.id)
@@ -44,18 +44,8 @@ object MeshDecimation {
     val deleted0: Vector[Boolean] = Vector.empty[Boolean]
     val deleted1: Vector[Boolean] = Vector.empty[Boolean]
 
-    println(s"Target triangle count: ${targetCount}, from ${numberOfTriangles}.")
     var iteration = 0
-    while (iteration < MAX_ITERATIONS) {
-      println(
-        f"Iteration ${iteration} -> triangles [ deleted: ${deletedTriangles} : count: ${numberOfTriangles - deletedTriangles} | removed: ${(deletedTriangles * 100 / numberOfTriangles)}]"
-      )
-
-      if (numberOfTriangles - deletedTriangles <= targetCount) {
-        iteration =
-          MAX_ITERATIONS // REMOVE? why not return or in while condition? same condition towards the end of the loop body
-      }
-
+    while (iteration < MAX_ITERATIONS && !(numberOfTriangles - deletedTriangles <= targetCount)) {
       if (iteration % 5 == 0) {
         updateMesh(data, iteration)
       }
@@ -64,48 +54,44 @@ object MeshDecimation {
 
       data.triangles.foreach(_.dirty = false)
 
-      data.triangles.indices.foreach {
-        i => // DO NOT USE FOREACH as the triangles are updated within the loop - yes, I know, very ugly.
-          val t = data.triangles(i)
+      data.triangles.indices.foreach { i =>
+        val t = data.triangles(i)
 
-          if (isTriangleRemovable(threshold, t)) {
-            var j = 0
-            while (j < 3) {
+        if (isTriangleRemovable(threshold, t)) {
+          var j = 0
+          while (j < 3) {
 
-              if (t.err.vertexError(j) < threshold) {
-                val pid1 = t.cell.pointIds(j).id
-                val pid2 = t.cell.pointIds((j + 1) % 3).id
+            if (t.err.vertexError(j) < threshold) {
+              val pid1 = t.cell.pointIds(j).id
+              val pid2 = t.cell.pointIds((j + 1) % 3).id
 
-                val pt1 = data.vertices(pid1)
-                val pt2 = data.vertices(pid2)
+              val pt1 = data.vertices(pid1)
+              val pt2 = data.vertices(pid2)
 
-                if (pt1.border == pt2.border) {
-                  val (_, p) = calculateError(pt1, pt2)
+              if (pt1.border == pt2.border) {
+                val (_, p) = calculateError(pt1, pt2)
 
-                  val (flipped1, deleteAdjacentTriangles1) = flipped(data, p, pid2, pt1)
-                  val (flipped2, deleteAdjacentTriangles2) = flipped(data, p, pid1, pt2)
+                val (flipped1, deleteAdjacentTriangles1) = flipped(data, p, pid2, pt1)
+                val (flipped2, deleteAdjacentTriangles2) = flipped(data, p, pid1, pt2)
 
-                  if (!flipped1 && !flipped2) {
-                    data.vertices(pid1).point = p.toPoint
-                    data.vertices(pid1).q = pt1.q.add(pt2.q)
-                    val tstart = data.refs.length
+                if (!flipped1 && !flipped2) {
+                  data.vertices(pid1).point = p.toPoint
+                  data.vertices(pid1).q = pt1.q.add(pt2.q)
+                  val tstart = data.refs.length
 
-                    deletedTriangles += updateTriangles(data, pid1, pt1, deleteAdjacentTriangles1)
-                    deletedTriangles += updateTriangles(data, pid1, pt2, deleteAdjacentTriangles2)
+                  deletedTriangles += updateTriangles(data, pid1, pt1, deleteAdjacentTriangles1)
+                  deletedTriangles += updateTriangles(data, pid1, pt2, deleteAdjacentTriangles2)
 
-                    val tcount = data.refs.length - tstart
-                    data.vertices(pid1).tstart = tstart
-                    data.vertices(pid1).tcount = tcount
-                    j = 3
-                  }
+                  val tcount = data.refs.length - tstart
+                  data.vertices(pid1).tstart = tstart
+                  data.vertices(pid1).tcount = tcount
+                  j = 3
                 }
               }
-              j += 1
             }
-            if (numberOfTriangles - deletedTriangles <= targetCount) {
-              iteration = MAX_ITERATIONS
-            }
+            j += 1
           }
+        }
       }
       iteration += 1
     }
