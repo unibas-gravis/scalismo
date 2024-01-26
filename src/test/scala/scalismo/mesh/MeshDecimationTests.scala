@@ -11,16 +11,22 @@ class MeshDecimationTests extends ScalismoTestSuite {
 
     val path = getClass.getResource("/facemesh.stl").getPath
     val facemesh = MeshIO.readMesh(new File(URLDecoder.decode(path, "UTF-8"))).get
+    val pathDecimated = getClass.getResource("/facemesh_decimated.ply").getPath
+    val facemeshDecimated = MeshIO.readMesh(new File(URLDecoder.decode(pathDecimated, "UTF-8"))).get
+    val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 3)
 
     it("has a reduced number of points") {
-      val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 3)
       val reductionRatio = reducedMesh.pointSet.numberOfPoints / facemesh.pointSet.numberOfPoints.toDouble
       reductionRatio should be(0.3 +- 0.1)
     }
 
     it("has approximately preserves the surface") {
-      val reducedMesh = facemesh.operations.decimate(facemesh.pointSet.numberOfPoints / 2)
       MeshMetrics.hausdorffDistance(reducedMesh, facemesh) < 1.0
+    }
+
+    it("that is equal to another decimated mesh") {
+      reducedMesh.triangulation.triangles.toSet should equal(facemeshDecimated.triangulation.triangles.toSet)
+      reducedMesh.pointSet.numberOfPoints should equal(facemeshDecimated.pointSet.numberOfPoints)
     }
   }
 }

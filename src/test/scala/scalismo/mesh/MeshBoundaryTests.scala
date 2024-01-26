@@ -64,8 +64,10 @@ class MeshBoundaryTests extends ScalismoTestSuite {
       boundaryPointIds.length shouldBe 918
       boundaryTriangleIds.length shouldBe 782
 
-      val allBoundaryPointIds = meshNoTriangles.pointSet.pointIds.toSeq.filter(id => meshNoTriangles.operations.pointIsOnBoundary(id))
-      val allBoundaryTriangleIds = meshNoTriangles.triangulation.triangleIds.filter(id => meshNoTriangles.operations.triangleIsOnBoundary(id))
+      val allBoundaryPointIds =
+        meshNoTriangles.pointSet.pointIds.toSeq.filter(id => meshNoTriangles.operations.pointIsOnBoundary(id))
+      val allBoundaryTriangleIds =
+        meshNoTriangles.triangulation.triangleIds.filter(id => meshNoTriangles.operations.triangleIsOnBoundary(id))
       allBoundaryPointIds.length shouldBe 0
       allBoundaryTriangleIds.length shouldBe 0
     }
