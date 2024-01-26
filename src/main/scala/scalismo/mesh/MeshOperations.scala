@@ -34,6 +34,8 @@ import scalismo.mesh.boundingSpheres.{
   TriangulatedSurfaceIntersectionIndex,
   VolumeSpatialIndex
 }
+import scalismo.mesh.decimate.MeshDecimation
+
 import scala.collection.parallel.immutable.ParVector
 
 object MeshOperations {
@@ -228,21 +230,24 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
    */
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
     require(targetedNumberOfVertices > 0)
-    val fraction = 1.0 max (mesh.pointSet.numberOfPoints / targetedNumberOfVertices.toDouble)
-    decimateFaces((mesh.triangulation.triangles.length / fraction).toInt)
+    val fraction = math.min(1.0, targetedNumberOfVertices.toDouble / mesh.pointSet.numberOfPoints)
+    decimateFaces((mesh.triangulation.triangles.length * fraction).toInt)
   }
 
-  def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 7): TriangleMesh[_3D] = {
+  /**
+   * @param targetedNumberOfFaces
+   * @param aggressiveness
+   *   A value from 0 to 9, while larger values allow for larger approximation errors.
+   * @return
+   */
+  def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 2): TriangleMesh[_3D] = {
     require(targetedNumberOfFaces > 0)
-    require(aggressiveness > 4 && aggressiveness < 20)
-    val md = new MeshDecimation(mesh)
-    md.simplify(targetedNumberOfFaces, aggressiveness)
-  }
-
-  def decimateCustom(targetedNumberOfFaces: Int): TriangleMesh[_3D] = {
-
-    val md = new MeshDecimation(mesh)
-    md.simplify(targetedNumberOfFaces, 8)
+    require(aggressiveness >= 0 && aggressiveness < 10)
+    if (targetedNumberOfFaces >= mesh.triangulation.triangles.length) {
+      mesh
+    } else {
+      MeshDecimation.simplify(mesh, targetedNumberOfFaces, aggressiveness + 5)
+    }
   }
 
   /**
