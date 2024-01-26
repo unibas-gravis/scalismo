@@ -79,7 +79,7 @@ class MixtureTests extends ScalismoTestSuite {
     }
 
     describe("constructed by the implicit construction language") {
-      import MixtureProposal.implicits._
+      import MixtureProposal.implicits.*
 
       it("is a plain ProposalGenerator for plain proposals") {
         MixtureProposal(0.25 *: plainProposal + plainProposal * 0.75): ProposalGenerator[Double]

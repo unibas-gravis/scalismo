@@ -15,10 +15,7 @@
  */
 package scalismo.io
 
-import java.io.File
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
-import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.common.UnstructuredPoints.Create.{
   CreateUnstructuredPoints1D,
   CreateUnstructuredPoints2D,
@@ -30,22 +27,16 @@ import scalismo.common.UnstructuredPointsDomain.Create.{
   CreateUnstructuredPointsDomain3D
 }
 import scalismo.common.interpolation.NearestNeighborInterpolator
+import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
+import scalismo.geometry.*
 import scalismo.io.PointDistributionModelIOTest.DummySampler
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
-import scalismo.mesh.{
-  LineCell,
-  LineList,
-  LineMesh,
-  LineMesh2D,
-  TriangleCell,
-  TriangleList,
-  TriangleMesh,
-  TriangleMesh3D
-}
+import scalismo.mesh.*
 import scalismo.numerics.Sampler
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
 import scalismo.utils.Random
 
+import java.io.File
 import scala.language.higherKinds
 
 class PointDistributionModelIOTest extends ScalismoTestSuite {

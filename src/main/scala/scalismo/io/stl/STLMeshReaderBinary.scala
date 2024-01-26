@@ -21,12 +21,13 @@ import scalismo.io.stl.STL.{STL_BYTE_ORDER, STL_HEADER_LENGTH}
 import scalismo.io.stl.STLTriangle
 import scalismo.mesh.TriangleMesh3D
 
+import java.io.File
 import java.nio.ByteBuffer
 import scala.util.Try
 
 object STLMeshReaderBinary {
-  def read(file: String): Try[TriangleMesh3D] = Try {
-    val dataBuffer = FileReader.readFileToByteBuffer(file)
+  def read(file: File): Try[TriangleMesh3D] = Try {
+    val dataBuffer = FileReader.readFileToByteBuffer(file.toString)
     dataBuffer.position(STL_HEADER_LENGTH).order(STL_BYTE_ORDER)
 
     val numTriangles = readInt(dataBuffer)

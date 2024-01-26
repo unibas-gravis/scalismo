@@ -17,9 +17,9 @@
 package scalismo.common
 
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
-import scalismo.image.{DiscreteImage, DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D}
 import scalismo.common.interpolation.{LinearImageInterpolator, LinearImageInterpolator3D}
+import scalismo.geometry.*
+import scalismo.image.{DiscreteImage, DiscreteImageDomain1D, DiscreteImageDomain2D, DiscreteImageDomain3D}
 
 class LinearInterpolatorTest extends ScalismoTestSuite {
 

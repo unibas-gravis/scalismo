@@ -15,78 +15,26 @@
  */
 package scalismo.io
 
-import java.io.{BufferedReader, File, FileReader, IOException}
 import scalismo.color.{RGB, RGBA}
 import scalismo.common.DiscreteField.{ScalarMeshField, ScalarVolumeMeshField}
 import scalismo.common.{PointId, Scalar, UnstructuredPoints}
 import scalismo.geometry.*
 import scalismo.hdf5json.HDFPath
+import scalismo.io.ply.PLY
 import scalismo.io.statisticalmodel.{NDArray, StatisticalModelIOUtils}
 import scalismo.io.stl.STL
-import scalismo.mesh.TriangleMesh.*
 import scalismo.mesh.*
-import scalismo.utils.{MeshConversion, TetrahedralMeshConversion}
-import vtk.*
-import scalismo.io.ply.PLY
-
+import scalismo.mesh.TriangleMesh.*
+import java.io.{BufferedReader, File, FileReader, IOException}
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
 object MeshIO {
 
-  /**
-   * Implements methods for reading and writing D-dimensional meshes
-   *
-   * '''WARNING! WE ARE USING an LPS WORLD COORDINATE SYSTEM'''
-   *
-   * This means that when reading mesh files such as .stl or .vtk, we assume the point coordinates to lie in an LPS
-   * world and map them unchanged in our coordinate system.
-   *
-   * The same happens at writing, we directly dump our vertex coordinates into the file format(stl, or vtk) without any
-   * mirroring magic.
-   *
-   * *
-   */
-  /**
-   * Reads a ScalarMeshField from file. The indicated Scalar type S must match the data type encoded in the file
-   */
-  def readScalarMeshField[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
-    val requiredScalarType = ScalarDataType.fromType[S]
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") =>
-        readVTKPolydata(file).flatMap { pd =>
-          val spScalarType = ScalarDataType.fromVtkId(pd.GetPointData().GetScalars().GetDataType())
-          MeshConversion.vtkPolyDataToScalarMeshField(pd)
-          if (requiredScalarType != spScalarType) {
-            Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
-          } else {
-            MeshConversion.vtkPolyDataToScalarMeshField(pd)
-          }
-        }
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  /**
-   * Reads a ScalarMeshField from file while casting its data to the indicated Scalar type S if necessary
-   */
-  def readScalarMeshFieldAsType[S: Scalar: ClassTag](file: File): Try[ScalarMeshField[S]] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") =>
-        readVTKPolydata(file).flatMap(pd => MeshConversion.vtkPolyDataToScalarMeshField(pd))
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
   def readMesh(file: File): Try[TriangleMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".vtk") => readVTK(file)
-      case f if f.endsWith(".stl") => STL.read(file.toString)
+      case f if f.endsWith(".stl") => STL.read(file)
       case f if f.endsWith(".ply") => {
         PLY.read(file).map {
           case Right(vertexColor) => vertexColor.shape
@@ -112,255 +60,12 @@ object MeshIO {
     }
   }
 
-  def readAndCorrectMesh(file: File): Try[TriangleMesh[_3D]] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") => readVTK(file, correctMesh = true)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  def readLineMesh2D(file: File): Try[LineMesh[_2D]] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") => readLineMeshVTK(file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-
-  }
-
-  def readLineMesh3D(file: File): Try[LineMesh[_3D]] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") => readLineMeshVTK(file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  def writeLineMesh[D: NDSpace](polyLine: LineMesh[D], file: File): Try[Unit] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") => writeLineMeshVTK(polyLine, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  /**
-   * Reads a [[TetrahedralMesh[_3D]]] from a file with one of the extensions ".vtk", ".vtu", or ".inp". The ".vtk" and
-   * ".vtu" files are standard VTK formats while ".inp" is the AVS UCD format.
-   */
-  def readTetrahedralMesh(file: File): Try[TetrahedralMesh[_3D]] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".inp") => readFromVTKFileThenDelete(readVTKAVSucdUnstructuredGrid, file)
-      case f if f.endsWith(".vtk") => readFromVTKFileThenDelete(readVTKUnstructuredGrid, file)
-      case f if f.endsWith(".vtu") => readFromVTKFileThenDelete(readVTKXMLUnstructuredGrid, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  def readScalarVolumeMeshField[S: Scalar: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
-    val requiredScalarType = ScalarDataType.fromType[S]
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") =>
-        readVTKUnstructuredGrid(file).flatMap { ug =>
-          val spScalarType = ScalarDataType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
-          TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-          if (requiredScalarType != spScalarType) {
-            Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
-          } else {
-            TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-          }
-        }
-      case f if f.endsWith(".vtu") =>
-        readVTKXMLUnstructuredGrid(file).flatMap { ug =>
-          val spScalarType = ScalarDataType.fromVtkId(ug.GetPointData().GetScalars().GetDataType())
-          TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-          if (requiredScalarType != spScalarType) {
-            Failure(new Exception(s"Invalid scalar type (expected $requiredScalarType, found $spScalarType)"))
-          } else {
-            TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-          }
-        }
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-  def readScalarVolumeMeshFieldAsType[S: Scalar: ClassTag](file: File): Try[ScalarVolumeMeshField[S]] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") =>
-        readVTKUnstructuredGrid(file).flatMap(ug =>
-          TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-        )
-      case f if f.endsWith(".vtu") =>
-        readVTKXMLUnstructuredGrid(file).flatMap(ug =>
-          TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(ug)
-        )
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  private[io] def readFromVTKFileThenDelete(readUSFromFile: File => Try[vtkUnstructuredGrid],
-                                            file: File
-  ): Try[TetrahedralMesh[_3D]] = {
-    for {
-      vtkUg <- readUSFromFile(file)
-      tetramesh <- TetrahedralMeshConversion.vtkUnstructuredGridToTetrahedralMesh(vtkUg)
-    } yield {
-      vtkUg.Delete()
-      tetramesh
-    }
-  }
-
-  private[io] def readFromVTKFileThenDelete[S: Scalar: ClassTag](
-    readUSFromFile: File => Try[vtkUnstructuredGrid],
-    file: File
-  ): Try[ScalarVolumeMeshField[S]] = {
-    for {
-      vtkUg <- readUSFromFile(file)
-      tetrafield <- TetrahedralMeshConversion.vtkUnstructuredGridToScalarVolumeMeshField(vtkUg)
-    } yield {
-      vtkUg.Delete()
-      tetrafield
-    }
-  }
-
-  private[io] def readVTKUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
-
-    val vtkReader = new vtkUnstructuredGridReader()
-    vtkReader.SetFileName(file.getAbsolutePath)
-    vtkReader.Update()
-
-    val extract = new vtkExtractUnstructuredGrid()
-    extract.SetInputConnection(vtkReader.GetOutputPort())
-
-    val errCode = vtkReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
-    }
-    val data = vtkReader.GetOutput()
-    vtkReader.Delete()
-    Success(data)
-  }
-
-  private[io] def readVTKXMLUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
-
-    val vtkReader = new vtkXMLUnstructuredGridReader()
-    vtkReader.SetFileName(file.getAbsolutePath)
-    vtkReader.Update()
-
-    val errCode = vtkReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
-    }
-    val data = vtkReader.GetOutput()
-    vtkReader.Delete()
-    Success(data)
-  }
-
-  private[io] def readVTKAVSucdUnstructuredGrid(file: File): Try[vtkUnstructuredGrid] = {
-    val vtkavsReader = new vtkAVSucdReader()
-    vtkavsReader.SetFileName(file.getAbsolutePath)
-    vtkavsReader.Update()
-    val errCode = vtkavsReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read vtk UnstructuredGrid (received error code $errCode"))
-    }
-    val data = vtkavsReader.GetOutput()
-    vtkavsReader.Delete()
-    Success(data)
-  }
-
-  /**
-   * Writes a [[TetrahedralMesh[_3D]]] to a file in one of the two standard VTK file formats ".vtk", or ".vtu".
-   */
-  def writeTetrahedralMesh(mesh: TetrahedralMesh[_3D], file: File): Try[Unit] = {
-    val filename = file.getAbsolutePath
-    val conversionFunction = (m: TetrahedralMesh[_3D]) =>
-      TetrahedralMeshConversion.tetrahedralMeshToVTKUnstructuredGrid(m, None)
-    filename match {
-      case f if f.endsWith(".vtk") => writeToVTKFileThenDelete(mesh, writeVTKUgasVTK, conversionFunction, file)
-      case f if f.endsWith(".vtu") => writeToVTKFileThenDelete(mesh, writeVTKUgasVTU, conversionFunction, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  private[io] def writeToVTKFileThenDelete[T](volume: T,
-                                              writeToFile: (vtkUnstructuredGrid, File) => Try[Unit],
-                                              convertToVTKUG: T => vtkUnstructuredGrid,
-                                              file: File
-  ): Try[Unit] = {
-    val vtkUg = convertToVTKUG(volume)
-    for {
-      result <- writeToFile(vtkUg, file)
-    } yield {
-      vtkUg.Delete()
-      result
-    }
-  }
-
-  private[io] def writeVTKUgasVTK(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
-    val writer = new vtkUnstructuredGridWriter()
-    writer.SetFileName(file.getAbsolutePath)
-    writer.SetInputData(vtkUg)
-    writer.SetFileTypeToBinary()
-    writer.Update()
-    val succOrFailure = if (writer.GetErrorCode() != 0) {
-      Failure(
-        new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})")
-      )
-    } else {
-      Success(())
-    }
-    writer.Delete()
-    succOrFailure
-  }
-
-  private[io] def writeVTKUgasVTU(vtkUg: vtkUnstructuredGrid, file: File): Try[Unit] = {
-    val writer = new vtkXMLUnstructuredGridWriter()
-    writer.SetFileName(file.getAbsolutePath)
-    writer.SetInputData(vtkUg)
-    writer.SetDataModeToBinary()
-    writer.Update()
-    val succOrFailure = if (writer.GetErrorCode() != 0) {
-      Failure(
-        new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})")
-      )
-    } else {
-      Success(())
-    }
-    writer.Delete()
-    succOrFailure
-  }
-
-  def writeScalarVolumeMeshField[S: Scalar: ClassTag](meshData: ScalarVolumeMeshField[S], file: File): Try[Unit] = {
-    val filename = file.getAbsolutePath
-    val conversionFunction = (smf: ScalarVolumeMeshField[S]) =>
-      TetrahedralMeshConversion.scalarVolumeMeshFieldToVtkUnstructuredGrid[S](smf, None)
-    filename match {
-      case f if f.endsWith(".vtk") => writeToVTKFileThenDelete(meshData, writeVTKUgasVTK, conversionFunction, file)
-      case f if f.endsWith(".vtu") => writeToVTKFileThenDelete(meshData, writeVTKUgasVTU, conversionFunction, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
   def writeMesh(mesh: TriangleMesh[_3D], file: File): Try[Unit] = {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".h5")  => writeHDF5(mesh, file)
-      case f if f.endsWith(".vtk") => writeVTK(mesh, file)
       case f if f.endsWith(".ply") => PLY.write(mesh, file)
-      case f if f.endsWith(".stl") => STL.write(mesh, file.toString)
+      case f if f.endsWith(".stl") => STL.write(mesh, file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
@@ -376,15 +81,6 @@ object MeshIO {
     val filename = file.getAbsolutePath
     filename match {
       case f if f.endsWith(".ply") => PLY.write(mesh, file)
-      case _ =>
-        Failure(new IOException("Unknown file type received" + filename))
-    }
-  }
-
-  def writeScalarMeshField[S: Scalar: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
-    val filename = file.getAbsolutePath
-    filename match {
-      case f if f.endsWith(".vtk") => writeVTK(meshData, file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }
@@ -409,116 +105,10 @@ object MeshIO {
     maybeError
   }
 
-  def writeVTK[S: Scalar: ClassTag](meshData: ScalarMeshField[S], file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.scalarMeshFieldToVtkPolyData(meshData)
-    val err = writeVTKPdasVTK(vtkPd, file)
-    vtkPd.Delete()
-    err
-  }
-
-  def writeVTK(surface: TriangleMesh[_3D], file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.meshToVtkPolyData(surface)
-    val err = writeVTKPdasVTK(vtkPd, file)
-    vtkPd.Delete()
-    err
-  }
-
-  private def writeVTKPdasVTK(vtkPd: vtkPolyData, file: File): Try[Unit] = {
-    val writer = new vtkPolyDataWriter()
-    writer.SetFileName(file.getAbsolutePath)
-    writer.SetInputData(vtkPd)
-    writer.SetFileTypeToBinary()
-    writer.Update()
-    val succOrFailure = if (writer.GetErrorCode() != 0) {
-      Failure(
-        new IOException(s"could not write file ${file.getAbsolutePath} (received error code ${writer.GetErrorCode})")
-      )
-    } else {
-      Success(())
-    }
-    writer.Delete()
-    succOrFailure
-  }
-
-  private def readVTKPolydata(file: File): Try[vtkPolyData] = {
-
-    val vtkReader = new vtkPolyDataReader()
-    vtkReader.SetFileName(file.getAbsolutePath)
-    vtkReader.Update()
-    val errCode = vtkReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read vtk mesh (received error code $errCode"))
-    }
-    val data = vtkReader.GetOutput()
-    vtkReader.Delete()
-    Success(data)
-  }
-
-  private def readVTK(file: File, correctMesh: Boolean = false): Try[TriangleMesh[_3D]] = {
-    for {
-      vtkPd <- readVTKPolydata(file)
-      mesh <- {
-        if (correctMesh) MeshConversion.vtkPolyDataToCorrectedTriangleMesh(vtkPd)
-        else MeshConversion.vtkPolyDataToTriangleMesh(vtkPd)
-      }
-    } yield {
-      vtkPd.Delete()
-      mesh
-    }
-  }
-
-  private def getColorArray(polyData: vtkPolyData): Option[(String, vtkDataArray)] = {
-    if (polyData.GetPointData() == null || polyData.GetPointData().GetNumberOfArrays() == 0) None
-    else {
-      val pointData = polyData.GetPointData()
-      val pointDataArrays = for (i <- 0 until pointData.GetNumberOfArrays()) yield {
-        (pointData.GetArrayName(i), pointData.GetArray(i))
-      }
-      pointDataArrays.find { case (name, array) => name == "RGB" || name == "RGBA" }
-    }
-  }
-
-  private def NDArrayToPointSeq(ndarray: NDArray[Double]): IndexedSeq[Point[_3D]] = {
-    // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
-    ndarray.data.grouped(3).map(grp => Point(grp(0).toFloat, grp(1).toFloat, grp(2).toFloat)).toIndexedSeq
-  }
-
-  private def NDArrayToCellSeq(ndarray: NDArray[Int]): IndexedSeq[TriangleCell] = {
-    // take block of 3, map them to 3dPoints and convert the resulting array to an indexed seq
-    ndarray.data.grouped(3).map(grp => TriangleCell(PointId(grp(0)), PointId(grp(1)), PointId(grp(2)))).toIndexedSeq
-  }
-
   private def pointSeqToNDArray[T](points: IndexedSeq[Point[_3D]]): NDArray[Double] =
     NDArray(IndexedSeq(points.size, 3), points.flatten(pt => pt.toArray.map(_.toDouble)).toArray)
 
   private def cellSeqToNDArray[T](cells: IndexedSeq[TriangleCell]): NDArray[Int] =
     NDArray(IndexedSeq(cells.size, 3), cells.flatten(cell => cell.pointIds.map(_.id)).toArray)
-
-  private def readLineMeshVTK[D: NDSpace: LineMesh.Create: UnstructuredPoints.Create](file: File): Try[LineMesh[D]] = {
-    val vtkReader = new vtkPolyDataReader()
-    vtkReader.SetFileName(file.getAbsolutePath)
-    vtkReader.Update()
-    val errCode = vtkReader.GetErrorCode()
-    if (errCode != 0) {
-      return Failure(new IOException(s"Could not read vtk mesh (received error code $errCode"))
-    }
-
-    val vtkPd = vtkReader.GetOutput()
-    val correctedMesh = for {
-      polyline <- MeshConversion.vtkPolyDataToLineMesh[D](vtkPd)
-    } yield {
-      LineMesh.enforceConsistentCellDirections[D](polyline)
-    }
-    vtkReader.Delete()
-    vtkPd.Delete()
-    correctedMesh
-  }
-
-  private[this] def writeLineMeshVTK[D: NDSpace](mesh: LineMesh[D], file: File): Try[Unit] = {
-    val vtkPd = MeshConversion.lineMeshToVTKPolyData(mesh)
-    val err = writeVTKPdasVTK(vtkPd, file)
-    vtkPd.Delete()
-    err
-  }
 
 }

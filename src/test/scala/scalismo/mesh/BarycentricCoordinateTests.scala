@@ -5,7 +5,6 @@ import scalismo.common.PointId
 import scalismo.geometry.{_3D, Point, Point3D}
 import scalismo.mesh.boundingSpheres.BoundingSphereHelpers
 import scalismo.utils.Random
-import vtk.{vtkTetra, vtkTriangle}
 
 class BarycentricCoordinateTests extends ScalismoTestSuite {
 
@@ -36,31 +35,6 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
     TetrahedralMesh3D(points,
                       TetrahedralList(IndexedSeq(TetrahedralCell(PointId(0), PointId(1), PointId(2), PointId(3))))
     )
-  }
-
-  def getBarycentricCoordinatesFromVTK(a: Point[_3D],
-                                       b: Point[_3D],
-                                       c: Point[_3D],
-                                       point: Point[_3D]
-  ): IndexedSeq[Double] = {
-    val barycentricCoordinates = new Array[Double](3)
-    val vtkTriangle = new vtkTriangle()
-    vtkTriangle.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, barycentricCoordinates)
-    vtkTriangle.Delete()
-    barycentricCoordinates.toIndexedSeq
-  }
-
-  def getBarycentricCoordinatesFromVTK(a: Point[_3D],
-                                       b: Point[_3D],
-                                       c: Point[_3D],
-                                       d: Point[_3D],
-                                       point: Point[_3D]
-  ): IndexedSeq[Double] = {
-    val barycentricCoordinates = new Array[Double](4)
-    val vtkTetra = new vtkTetra()
-    vtkTetra.BarycentricCoords(point.toArray, a.toArray, b.toArray, c.toArray, d.toArray, barycentricCoordinates)
-    vtkTetra.Delete()
-    barycentricCoordinates.toIndexedSeq
   }
 
   describe("Barycentric coordinates for a triangle") {
@@ -96,25 +70,6 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
           bc.a should be(bcDef.a +- epsilon)
           bc.b should be(bcDef.b +- epsilon)
           bc.c should be(bcDef.c +- epsilon)
-        }
-      }
-    }
-
-    it("should return the same coordinates for a point as VTK") {
-      for (j <- 0 until 10) {
-        val a = genPoint()
-        val b = genPoint()
-        val c = genPoint()
-        for (i <- 0 until 20) {
-          val randomBC = BarycentricCoordinates.randomUniform
-          val randomPointInTriangle =
-            (a.toVector * randomBC.a + b.toVector * randomBC.b + c.toVector * randomBC.c).toPoint
-          val bc = BarycentricCoordinates.pointInTriangle3D(randomPointInTriangle, a, b, c)
-          val bcVTK = getBarycentricCoordinatesFromVTK(a, b, c, randomPointInTriangle)
-
-          bc.a should be(bcVTK(0) +- epsilon)
-          bc.b should be(bcVTK(1) +- epsilon)
-          bc.c should be(bcVTK(2) +- epsilon)
         }
       }
     }
@@ -159,55 +114,6 @@ class BarycentricCoordinateTests extends ScalismoTestSuite {
   }
 
   describe("Barycentric coordinates for a tetrahedron") {
-
-    it("should return the same coordinates for a point as VTK") {
-      for (j <- 0 until 10) {
-        val tmesh = generatePositiveOrientedSingleTetrahedronMesh()
-        val cell = tmesh.cells.head
-        val a = tmesh.pointSet.point(cell.ptId1)
-        val b = tmesh.pointSet.point(cell.ptId2)
-        val c = tmesh.pointSet.point(cell.ptId3)
-        val d = tmesh.pointSet.point(cell.ptId4)
-        for (i <- 0 until 20) {
-          val randomPoint = genPoint()
-          val bc = BarycentricCoordinates4.pointInTetrahedron(randomPoint, a, b, c, d)
-          val bcVTK = getBarycentricCoordinatesFromVTK(a, b, c, d, randomPoint)
-
-          bc.a should be(bcVTK(0) +- epsilon)
-          bc.b should be(bcVTK(1) +- epsilon)
-          bc.c should be(bcVTK(2) +- epsilon)
-          bc.d should be(bcVTK(3) +- epsilon)
-        }
-      }
-    }
-
-    it("should calculate coordinates faster than using VTK") {
-
-      val tmesh = generatePositiveOrientedSingleTetrahedronMesh()
-      val cell = tmesh.cells.head
-      val a = tmesh.pointSet.point(cell.ptId1)
-      val b = tmesh.pointSet.point(cell.ptId2)
-      val c = tmesh.pointSet.point(cell.ptId3)
-      val d = tmesh.pointSet.point(cell.ptId4)
-
-      val N = 10000
-
-      val startVTK = System.currentTimeMillis()
-      for (i <- 0 until N) {
-        val randomPoint = genPoint()
-        getBarycentricCoordinatesFromVTK(a, b, c, d, randomPoint)
-      }
-      val vtkTime = System.currentTimeMillis() - startVTK
-
-      val startScala = System.currentTimeMillis()
-      for (i <- 0 until N) {
-        val randomPoint = genPoint()
-        BarycentricCoordinates4.pointInTetrahedron(randomPoint, a, b, c, d)
-      }
-      val scalaTime = System.currentTimeMillis() - startScala
-
-      scalaTime should be < vtkTime
-    }
 
     it("should reconstruct the point from the bc coordinates") {
       val tmesh = generatePositiveOrientedSingleTetrahedronMesh()

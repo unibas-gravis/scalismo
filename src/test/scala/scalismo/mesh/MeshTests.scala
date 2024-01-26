@@ -15,17 +15,16 @@
  */
 package scalismo.mesh
 
-import java.io.File
-import java.net.URLDecoder
-
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPoints}
-import scalismo.geometry.Point.implicits._
+import scalismo.geometry.Point.implicits.*
 import scalismo.geometry.{_3D, Point, Point3D}
 import scalismo.io.MeshIO
-import scalismo.transformations.{Rotation3D, RotationSpace, RotationSpace3D, Scaling3D, ScalingSpace, ScalingSpace3D}
+import scalismo.transformations.*
 
+import java.io.File
+import java.net.URLDecoder
 import scala.language.implicitConversions
 
 class MeshTests extends ScalismoTestSuite {

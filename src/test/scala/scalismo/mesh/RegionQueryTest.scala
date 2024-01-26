@@ -15,14 +15,14 @@
  */
 
 package scalismo.mesh
-import java.io.File
-import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
 import scalismo.common.{BoxDomain, UnstructuredPoints}
-import scalismo.geometry._
+import scalismo.geometry.*
 import scalismo.image.StructuredPoints
 import scalismo.io.MeshIO
+
+import java.io.File
+import java.net.URLDecoder
 
 class RegionQueryTest extends ScalismoTestSuite {
 

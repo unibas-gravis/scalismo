@@ -15,21 +15,20 @@
  */
 package scalismo.statisticalmodel
 
-import java.io.File
-import java.net.URLDecoder
-
 import breeze.linalg.DenseVector
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
-import scalismo.geometry._
+import scalismo.geometry.*
 import scalismo.io.StatisticalModelIO
 import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.mesh.MeshMetrics
 import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.transformations.{RigidTransformation, Rotation3D, Translation3D, TranslationAfterRotation3D}
 import scalismo.statisticalmodel.dataset.DataCollection
+import scalismo.transformations.{RigidTransformation, Rotation3D, Translation3D, TranslationAfterRotation3D}
 import scalismo.utils.Random
 
+import java.io.File
+import java.net.URLDecoder
 import scala.language.implicitConversions
 class StatisticalModelTests extends ScalismoTestSuite {
 

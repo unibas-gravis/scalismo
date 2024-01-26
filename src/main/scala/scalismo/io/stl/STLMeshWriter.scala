@@ -19,12 +19,12 @@ import scalismo.geometry.EuclideanVector3D
 import scalismo.mesh.TriangleMesh3D
 import scalismo.io.stl.STL.{STL_BYTE_ORDER, STL_HEADER_LENGTH}
 
-import java.io.{BufferedOutputStream, DataOutputStream, FileOutputStream}
+import java.io.{BufferedOutputStream, DataOutputStream, File, FileOutputStream}
 import java.nio.{ByteBuffer, ByteOrder}
 import scala.util.Try
 
 object STLMeshWriter {
-  def write(mesh: TriangleMesh3D, file: String, header: String): Try[Unit] = Try {
+  def write(mesh: TriangleMesh3D, file: File, header: String): Try[Unit] = Try {
     val dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
     val headerCapped = header.take(STL_HEADER_LENGTH).padTo(STL_HEADER_LENGTH, ' ')
     writeString(dos, headerCapped)

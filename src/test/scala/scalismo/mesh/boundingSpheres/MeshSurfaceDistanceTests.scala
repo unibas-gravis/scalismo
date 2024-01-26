@@ -19,15 +19,7 @@ import breeze.linalg.{max, min}
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPoints, UnstructuredPointsDomain}
 import scalismo.geometry.{_3D, EuclideanVector, Point, Point3D}
-import scalismo.mesh.{
-  BarycentricCoordinates4,
-  TetrahedralCell,
-  TetrahedralList,
-  TetrahedralMesh3D,
-  TriangleCell,
-  TriangleList,
-  TriangleMesh3D
-}
+import scalismo.mesh.*
 import scalismo.utils.Random
 
 import scala.collection.parallel.immutable.ParVector

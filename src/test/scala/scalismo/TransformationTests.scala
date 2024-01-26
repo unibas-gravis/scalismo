@@ -15,20 +15,19 @@
  */
 package scalismo
 
-import java.io.File
-import java.net.URLDecoder
-
 import breeze.linalg.DenseVector
 import scalismo.common.interpolation.BSplineImageInterpolator3D
 import scalismo.common.{DifferentiableField, PointId}
-import scalismo.geometry.EuclideanVector.implicits._
-import scalismo.geometry.IntVector.implicits._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry._
+import scalismo.geometry.*
+import scalismo.geometry.EuclideanVector.implicits.*
+import scalismo.geometry.IntVector.implicits.*
+import scalismo.geometry.Point.implicits.*
 import scalismo.image.{StructuredPoints, StructuredPoints1D}
 import scalismo.io.{ImageIO, MeshIO}
-import scalismo.transformations._
+import scalismo.transformations.*
 
+import java.io.File
+import java.net.URLDecoder
 import scala.language.implicitConversions
 
 class TransformationTests extends ScalismoTestSuite {
@@ -138,7 +137,7 @@ class TransformationTests extends ScalismoTestSuite {
   describe("In 3D") {
 
     val path = getClass.getResource("/3dimage.nii").getPath
-    val discreteImage = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
+    val discreteImage = ImageIO.readNifti[Short](new File(URLDecoder.decode(path, "UTF-8"))).get
     val continuousImage = discreteImage.interpolate(BSplineImageInterpolator3D[Short](0))
 
     it("translation forth and back of a real dataset yields the same image") {

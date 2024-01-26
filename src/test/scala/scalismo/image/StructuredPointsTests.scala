@@ -16,17 +16,17 @@
 
 package scalismo.image
 
-import java.io.File
-import java.net.URLDecoder
-
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain
-import scalismo.geometry.IntVector.implicits._
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry.EuclideanVector.implicits._
-import scalismo.geometry._
+import scalismo.geometry.*
+import scalismo.geometry.EuclideanVector.implicits.*
+import scalismo.geometry.IntVector.implicits.*
+import scalismo.geometry.Point.implicits.*
 import scalismo.io.ImageIO
 import scalismo.utils.Random
+
+import java.io.File
+import java.net.URLDecoder
 
 class StructuredPointsTests extends ScalismoTestSuite {
 
@@ -93,7 +93,7 @@ class StructuredPointsTests extends ScalismoTestSuite {
 
     object Fixture {
       val pathH5 = getClass.getResource("/3dimage.nii").getPath
-      val img = ImageIO.read3DScalarImage[Short](new File(URLDecoder.decode(pathH5, "UTF-8"))).get
+      val img = ImageIO.readNifti[Short](new File(URLDecoder.decode(pathH5, "UTF-8"))).get
     }
     it("correctly maps a coordinate index to a linearIndex") {
       val domain = StructuredPoints[_3D]((0.0, 0.0, 0.0), (1.0, 2.0, 3.0), (42, 49, 65))

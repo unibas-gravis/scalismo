@@ -23,18 +23,21 @@ import scala.util.{Failure, Try}
 
 object PLY {
 
-  def write(mesh: TriangleMesh[_3D], filename: File): Try[Unit] = {
-    PLYMeshWriter.write(mesh, None, filename)
+  def write(mesh: TriangleMesh[_3D], file: File): Try[Unit] = {
+    PLYMeshWriter.write(mesh, None, file)
   }
 
-  def write(mesh: VertexColorMesh3D, filename: File): Try[Unit] = {
-    PLYMeshWriter.write(mesh.shape, Option(mesh.color.pointData.iterator), filename)
+  def write(mesh: VertexColorMesh3D, file: File): Try[Unit] = {
+    PLYMeshWriter.write(mesh.shape, Option(mesh.color.pointData.iterator), file)
   }
 
   def read(file: File): Try[Either[TriangleMesh[_3D], VertexColorMesh3D]] = {
     if (!file.exists()) {
-      val filename = file.getCanonicalFile
-      Failure(new IOException(s"Could not read ply file with name $filename. Reason: The file does not exist"))
+      Failure(
+        new IOException(
+          s"Could not read ply file with name ${file.getCanonicalFile}. Reason: The file does not exist"
+        )
+      )
     } else {
       PLYMeshReader.readFileAndParseHeader(file)
     }

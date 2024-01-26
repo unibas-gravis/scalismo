@@ -15,21 +15,14 @@
  */
 package scalismo.statisticalmodel
 
-import java.net.URLDecoder
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
-import scalismo.common._
+import scalismo.common.*
 import scalismo.common.interpolation.{NearestNeighborInterpolator, NearestNeighborInterpolator3D}
-import scalismo.geometry.Point.implicits._
-import scalismo.geometry._
-import scalismo.image.{
-  DiscreteImageDomain,
-  DiscreteImageDomain1D,
-  DiscreteImageDomain2D,
-  DiscreteImageDomain3D,
-  StructuredPoints
-}
+import scalismo.geometry.*
+import scalismo.geometry.Point.implicits.*
+import scalismo.image.*
 import scalismo.io.StatisticalModelIO
 import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
@@ -37,8 +30,9 @@ import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{GridSampler, UniformSampler}
 import scalismo.utils.Random
 
-import scala.language.implicitConversions
+import java.net.URLDecoder
 import scala.collection.parallel.immutable.ParVector
+import scala.language.implicitConversions
 
 class GaussianProcessTests extends ScalismoTestSuite {
 

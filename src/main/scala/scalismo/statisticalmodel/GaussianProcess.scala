@@ -117,8 +117,9 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * The posterior mean (MAP) of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
-   * regression. We assume that the trainingData is subject to isotropic Gaussian noise with variance sigma2.
+   * The posterior mean (MAP) of a gaussian process, with respect to the given trainingData. It is computed using
+   * Gaussian process regression. We assume that the trainingData is subject to isotropic Gaussian noise with variance
+   * sigma2.
    */
   def posteriorMean(trainingData: IndexedSeq[(Point[D], Value)], sigma2: Double): Field[D, Value] = {
     val cov =
@@ -138,8 +139,8 @@ class GaussianProcess[D: NDSpace, Value](val mean: Field[D, Value], val cov: Mat
   }
 
   /**
-   * The posterior mean (MAP) of a gaussian process, with respect to the given trainingData. It is computed using Gaussian process
-   * regression.
+   * The posterior mean (MAP) of a gaussian process, with respect to the given trainingData. It is computed using
+   * Gaussian process regression.
    */
   def posteriorMean(
     trainingData: IndexedSeq[(Point[D], Value, MultivariateNormalDistribution)]
@@ -219,7 +220,6 @@ object GaussianProcess {
   )(implicit vectorizer: Vectorizer[Value]): Field[D, Value] = {
 
     val (_, _, posteriorMean) = regressionDataUnpack(gp, trainingData)
-
     Field(gp.domain, posteriorMean)
   }
 
