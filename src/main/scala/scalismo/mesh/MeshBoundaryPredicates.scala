@@ -178,7 +178,7 @@ object MeshBoundaryPredicates {
     }
     val edgeOnBorderBuilder = new CSCMatrix.Builder[Boolean](nPts, nPts)
 
-    edgeOnBorderSet.foreach{case(v1, v2) =>
+    edgeOnBorderSet.foreach { case (v1, v2) =>
       edgeOnBorderBuilder.add(v1, v2, true)
       edgeOnBorderBuilder.add(v2, v1, true)
     }
