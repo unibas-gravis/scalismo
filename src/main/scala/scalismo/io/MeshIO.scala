@@ -35,7 +35,7 @@ object MeshIO {
   def readMesh(file: File): Try[TriangleMesh[_3D]] = {
     val filename = file.getAbsolutePath
     filename match {
-      case f if f.endsWith(".stl") => STL.read(file.toString)
+      case f if f.endsWith(".stl") => STL.read(file)
       case f if f.endsWith(".ply") => {
         PLY.read(file).map {
           case Right(vertexColor) => vertexColor.shape
@@ -66,7 +66,7 @@ object MeshIO {
     filename match {
       case f if f.endsWith(".h5")  => writeHDF5(mesh, file)
       case f if f.endsWith(".ply") => PLY.write(mesh, file)
-      case f if f.endsWith(".stl") => STL.write(mesh, file.toString)
+      case f if f.endsWith(".stl") => STL.write(mesh, file)
       case _ =>
         Failure(new IOException("Unknown file type received" + filename))
     }

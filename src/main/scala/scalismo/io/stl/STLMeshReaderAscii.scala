@@ -18,12 +18,12 @@ package scalismo.io.stl
 import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point3D}
 import scalismo.mesh.TriangleMesh3D
 
-import java.io.{BufferedReader, FileReader, IOException}
+import java.io.{BufferedReader, File, FileReader, IOException}
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 object STLMeshReaderAscii {
-  def read(file: String): Try[TriangleMesh3D] = Try {
+  def read(file: File): Try[TriangleMesh3D] = Try {
     val breader = new BufferedReader(new FileReader(file))
     val header = breader.readLine()
 

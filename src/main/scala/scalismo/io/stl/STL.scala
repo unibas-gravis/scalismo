@@ -18,7 +18,7 @@ package scalismo.io.stl
 import scalismo.geometry.{EuclideanVector3D, Point3D}
 import scalismo.mesh.TriangleMesh3D
 
-import java.io.{BufferedReader, FileReader}
+import java.io.{BufferedReader, File, FileReader}
 import java.nio.ByteOrder
 import scala.util.Try
 
@@ -27,17 +27,17 @@ object STL {
   private[stl] val STL_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN
   private[stl] val STL_HEADER_LENGTH = 80
 
-  def write(mesh: TriangleMesh3D, filename: String): Try[Unit] = {
-    STLMeshWriter.write(mesh, filename, "Scalismo generated STL File")
+  def write(mesh: TriangleMesh3D, file: File): Try[Unit] = {
+    STLMeshWriter.write(mesh, file, "Scalismo generated STL File")
   }
 
-  def read(filename: String): Try[TriangleMesh3D] = {
-    val breader = new BufferedReader(new FileReader(filename))
+  def read(file: File): Try[TriangleMesh3D] = {
+    val breader = new BufferedReader(new FileReader(file))
     val fileType = breader.readLine().take(5)
     if (fileType == "solid") {
-      STLMeshReaderAscii.read(filename)
+      STLMeshReaderAscii.read(file)
     } else {
-      STLMeshReaderBinary.read(filename)
+      STLMeshReaderBinary.read(file)
     }
   }
 }
