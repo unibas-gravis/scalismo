@@ -19,7 +19,7 @@ private[decimate] class SymmetricMatrix private (val m: Array[Double]) {
 }
 
 private[decimate] object SymmetricMatrix {
-    def apply(c: Double): SymmetricMatrix = new SymmetricMatrix(Array.fill(10)(c))
+  def apply(c: Double): SymmetricMatrix = new SymmetricMatrix(Array.fill(10)(c))
 
   def apply(m11: Double,
             m12: Double,
@@ -37,7 +37,16 @@ private[decimate] object SymmetricMatrix {
   def apply(a: Double, b: Double, c: Double, d: Double): SymmetricMatrix =
     new SymmetricMatrix(Array(a * a, a * b, a * c, a * d, b * b, b * c, b * d, c * c, c * d, d * d))
 
-  def det(a11: Double, a12: Double, a13: Double, a21: Double, a22: Double, a23: Double, a31: Double, a32: Double, a33: Double): Double = {
+  def det(a11: Double,
+          a12: Double,
+          a13: Double,
+          a21: Double,
+          a22: Double,
+          a23: Double,
+          a31: Double,
+          a32: Double,
+          a33: Double
+  ): Double = {
     a11 * a22 * a33 + a13 * a21 * a32 + a12 * a23 * a31 -
       a13 * a22 * a31 - a11 * a23 * a32 - a12 * a21 * a33
   }

@@ -16,9 +16,24 @@
 package scalismo.mesh
 
 import scalismo.common.{DifferentiableField, EuclideanSpace, Field, PointId, UnstructuredPoints3D}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
-import scalismo.mesh.MeshBoundaryPredicates.{TriangleSortedPointIds, fillTriangleOnBorderMap}
-import scalismo.mesh.boundingSpheres.{BoundingSphereHelpers, BoundingSpheres, ClosestPoint, ClosestPointInTriangle, ClosestPointOnLine, ClosestPointWithType, LineTetrahedralMesh3DIntersectionIndex, LineTriangleMesh3DIntersectionIndex, SurfaceSpatialIndex, TetrahedralMesh3DSpatialIndex, TetrahedralizedVolumeIntersectionIndex, TriangleMesh3DSpatialIndex, TriangulatedSurfaceIntersectionIndex, VolumeSpatialIndex}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.mesh.MeshBoundaryPredicates.{fillTriangleOnBorderMap, TriangleSortedPointIds}
+import scalismo.mesh.boundingSpheres.{
+  BoundingSphereHelpers,
+  BoundingSpheres,
+  ClosestPoint,
+  ClosestPointInTriangle,
+  ClosestPointOnLine,
+  ClosestPointWithType,
+  LineTetrahedralMesh3DIntersectionIndex,
+  LineTriangleMesh3DIntersectionIndex,
+  SurfaceSpatialIndex,
+  TetrahedralMesh3DSpatialIndex,
+  TetrahedralizedVolumeIntersectionIndex,
+  TriangleMesh3DSpatialIndex,
+  TriangulatedSurfaceIntersectionIndex,
+  VolumeSpatialIndex
+}
 import scalismo.mesh.decimate.MeshDecimation
 import scalismo.utils.MeshConversion
 
@@ -227,7 +242,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
     val decimatedRefVTK = decimate.GetOutput()
     MeshConversion.vtkPolyDataToTriangleMesh(decimatedRefVTK).get
   }
-  
+
   def decimate(targetedNumberOfVertices: Int): TriangleMesh[_3D] = {
     require(targetedNumberOfVertices > 0)
     val fraction = math.min(1.0, targetedNumberOfVertices.toDouble / mesh.pointSet.numberOfPoints)
@@ -236,7 +251,8 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
 
   /**
    * @param targetedNumberOfFaces
-   * @param aggressiveness A value from 0 to 9, while larger values allow for larger approximation errors.
+   * @param aggressiveness
+   *   A value from 0 to 9, while larger values allow for larger approximation errors.
    * @return
    */
   def decimateFaces(targetedNumberOfFaces: Int, aggressiveness: Int = 2): TriangleMesh[_3D] = {
@@ -245,7 +261,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
     if (targetedNumberOfFaces >= mesh.triangulation.triangles.length) {
       mesh
     } else {
-      MeshDecimation.simplify(mesh, targetedNumberOfFaces, aggressiveness)
+      MeshDecimation.simplify(mesh, targetedNumberOfFaces, aggressiveness + 5)
     }
   }
 

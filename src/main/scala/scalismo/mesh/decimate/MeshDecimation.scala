@@ -1,13 +1,12 @@
 package scalismo.mesh.decimate
 
 import scalismo.common.PointId
-import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, SquareMatrix, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Point, SquareMatrix}
 import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
 
 import scala.collection.mutable.ArrayBuffer
 // Based on https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification
 // and its java implementation: https://gist.github.com/jayfella/00a328b2dbdf6304078a821143b7aef7
-
 
 object MeshDecimation {
 
@@ -53,14 +52,15 @@ object MeshDecimation {
       )
 
       if (numberOfTriangles - deletedTriangles <= targetCount) {
-        iteration = MAX_ITERATIONS // REMOVE? why not return or in while condition? same condition towards the end of the loop body
+        iteration =
+          MAX_ITERATIONS // REMOVE? why not return or in while condition? same condition towards the end of the loop body
       }
 
       if (iteration % 5 == 0) {
-        updateMesh(data,iteration)
+        updateMesh(data, iteration)
       }
 
-      val threshold: Double = 1.0E-9 * Math.pow((iteration + 3).toDouble, aggressiveness)
+      val threshold: Double = 1.0e-9 * Math.pow((iteration + 3).toDouble, aggressiveness)
 
       data.triangles.foreach(_.dirty = false)
 
@@ -70,7 +70,8 @@ object MeshDecimation {
 
           if (isTriangleRemovable(threshold, t)) {
             var j = 0
-            while(j<3) {
+            while (j < 3) {
+
               if (t.err.vertexError(j) < threshold) {
                 val pid1 = t.cell.pointIds(j).id
                 val pid2 = t.cell.pointIds((j + 1) % 3).id
@@ -81,16 +82,16 @@ object MeshDecimation {
                 if (pt1.border == pt2.border) {
                   val (_, p) = calculateError(pt1, pt2)
 
-                  val (flipped0, deleted0) = flipped(data,p, pid2, pt1)
-                  val (flipped1, deleted1) = flipped(data,p, pid1, pt2)
+                  val (flipped1, deleteAdjacentTriangles1) = flipped(data, p, pid2, pt1)
+                  val (flipped2, deleteAdjacentTriangles2) = flipped(data, p, pid1, pt2)
 
-                  if (!flipped0 && !flipped1) {
+                  if (!flipped1 && !flipped2) {
                     data.vertices(pid1).point = p.toPoint
                     data.vertices(pid1).q = pt1.q.add(pt2.q)
                     val tstart = data.refs.length
 
-                    deletedTriangles += updateTriangles(data,pid1, pt1, deleted0)
-                    deletedTriangles += updateTriangles(data,pid1, pt2, deleted1)
+                    deletedTriangles += updateTriangles(data, pid1, pt1, deleteAdjacentTriangles1)
+                    deletedTriangles += updateTriangles(data, pid1, pt2, deleteAdjacentTriangles2)
 
                     val tcount = data.refs.length - tstart
                     data.vertices(pid1).tstart = tstart
@@ -152,7 +153,7 @@ object MeshDecimation {
     (returnValue, deleted)
   }
 
-  private def updateTriangles(data: Buffers, i0: Int, v: Vertex, deleted: Array[Boolean]): Int = {
+  private def updateTriangles(data: Buffers, pid: Int, v: Vertex, deleteTriangleFlag: Array[Boolean]): Int = {
     var triangleDeleted = 0
 
     (0 until v.tcount).foreach { k =>
@@ -160,7 +161,7 @@ object MeshDecimation {
       val t = data.triangles(r.tid)
 
       if (!t.deleted) {
-        if (deleted(k)) {
+        if (deleteTriangleFlag(k)) {
           data.triangles(r.tid) = t.copy(deleted = true)
           triangleDeleted += 1
         } else {
@@ -177,9 +178,9 @@ object MeshDecimation {
             )
           )
           val vNew =
-            if (r.tvertex == 0) t.cell.copy(ptId1 = PointId(i0))
-            else if (r.tvertex == 1) t.cell.copy(ptId2 = PointId(i0))
-            else t.cell.copy(ptId3 = PointId(i0))
+            if (r.tvertex == 0) t.cell.copy(ptId1 = PointId(pid))
+            else if (r.tvertex == 1) t.cell.copy(ptId2 = PointId(pid))
+            else t.cell.copy(ptId3 = PointId(pid))
           data.triangles(r.tid) = t.copy(
             cell = vNew,
             dirty = true,
@@ -197,7 +198,7 @@ object MeshDecimation {
   }
 
   private def cellToPoints(data: Buffers, cell: TriangleCell): Seq[Point[_3D]] = {
-    cell.pointIds.map{ id => data.vertices(id.id).point }
+    cell.pointIds.map { id => data.vertices(id.id).point }
   }
 
   private def updateMesh(data: Buffers, iteration: Int): Unit = {
@@ -205,7 +206,7 @@ object MeshDecimation {
       data.triangles.filterInPlace(!_.deleted)
     }
 
-    data.vertices.map{ v =>
+    data.vertices.map { v =>
       v.tcount = 0
     }
 
@@ -243,7 +244,7 @@ object MeshDecimation {
   private def onFirstIteration(data: Buffers): Unit = {
     // calculate all face normals and the q value for each vertex.
     data.triangles.foreach { t =>
-      val points = cellToPoints(data,t.cell)
+      val points = cellToPoints(data, t.cell)
       val n = calculateNormal(points)
       t.n = n
       t.cell.pointIds.foreach { id =>
@@ -257,7 +258,8 @@ object MeshDecimation {
     // calculate the error for each vertex, which uses the former q values
     data.triangles.foreach { t =>
       (0 until 3).foreach { j =>
-        val (e, _) = calculateError(data.vertices(t.cell.pointIds(j).id), data.vertices(t.cell.pointIds((j + 1) % 3).id))
+        val (e, _) =
+          calculateError(data.vertices(t.cell.pointIds(j).id), data.vertices(t.cell.pointIds((j + 1) % 3).id))
         t.err.vertexError(j) = e
       }
       t.err.minVertexError = t.err.vertexError.min
@@ -342,9 +344,11 @@ object MeshDecimation {
     val p1 = v1.point.toVector
     val p2 = v2.point.toVector
     val p3 = (p1 + p2) / 2.0
-    Seq(p1, p2, p3).map {
-      p => (vertexError(q, p.x, p.y, p.z), p)
-    }.minBy(_._1)
+    Seq(p1, p2, p3)
+      .map { p =>
+        (vertexError(q, p.x, p.y, p.z), p)
+      }
+      .minBy(_._1)
   }
 
   private def optimizePosition(q: SymmetricMatrix, det: Double) = {
