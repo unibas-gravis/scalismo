@@ -18,7 +18,11 @@ package scalismo.image
 import org.scalatest.PrivateMethodTester
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.common.interpolation.{BSplineImageInterpolator1D, BSplineImageInterpolator2D, BSplineImageInterpolator3D}
+import scalismo.common.interpolation.{
+  BSplineImageInterpolator1D,
+  BSplineImageInterpolator2D,
+  BSplineImageInterpolator3D
+}
 import scalismo.geometry.*
 import scalismo.geometry.EuclideanVector.implicits.*
 import scalismo.geometry.IntVector.implicits.*

@@ -17,7 +17,7 @@ package scalismo.mesh
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.io.MeshIO
 import scalismo.utils.Random
 

@@ -16,8 +16,16 @@
 package scalismo.io
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.UnstructuredPoints.Create.{CreateUnstructuredPoints1D, CreateUnstructuredPoints2D, CreateUnstructuredPoints3D}
-import scalismo.common.UnstructuredPointsDomain.Create.{CreateUnstructuredPointsDomain1D, CreateUnstructuredPointsDomain2D, CreateUnstructuredPointsDomain3D}
+import scalismo.common.UnstructuredPoints.Create.{
+  CreateUnstructuredPoints1D,
+  CreateUnstructuredPoints2D,
+  CreateUnstructuredPoints3D
+}
+import scalismo.common.UnstructuredPointsDomain.Create.{
+  CreateUnstructuredPointsDomain1D,
+  CreateUnstructuredPointsDomain2D,
+  CreateUnstructuredPointsDomain3D
+}
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.geometry.*

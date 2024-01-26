@@ -16,7 +16,12 @@
 package scalismo.registration
 
 import breeze.linalg.DenseVector
-import scalismo.common.interpolation.{BSplineImageInterpolator, BSplineImageInterpolator2D, BSplineImageInterpolator3D, NearestNeighborInterpolator}
+import scalismo.common.interpolation.{
+  BSplineImageInterpolator,
+  BSplineImageInterpolator2D,
+  BSplineImageInterpolator3D,
+  NearestNeighborInterpolator
+}
 import scalismo.common.{EuclideanSpace2D, Field, PointId, RealSpace}
 import scalismo.geometry.*
 import scalismo.image.{DiscreteImageDomain2D, DiscreteImageDomain3D}
@@ -26,7 +31,7 @@ import scalismo.numerics.{GridSampler, LBFGSOptimizer, UniformSampler}
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess}
 import scalismo.transformations.*
 import scalismo.utils.Random
-import scalismo.{ScalismoTestSuite, numerics}
+import scalismo.{numerics, ScalismoTestSuite}
 
 import java.io.File
 import java.net.URLDecoder

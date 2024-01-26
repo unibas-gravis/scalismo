@@ -19,7 +19,7 @@ package scalismo.numerics
 import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.BoxDomain3D
-import scalismo.geometry.{Point, _1D, _3D}
+import scalismo.geometry.{_1D, _3D, Point}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, Kernel}
 import scalismo.utils.Random
 

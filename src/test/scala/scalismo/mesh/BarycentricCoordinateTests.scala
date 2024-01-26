@@ -2,7 +2,7 @@ package scalismo.mesh
 
 import scalismo.ScalismoTestSuite
 import scalismo.common.PointId
-import scalismo.geometry.{Point, Point3D, _3D}
+import scalismo.geometry.{_3D, Point, Point3D}
 import scalismo.mesh.boundingSpheres.BoundingSphereHelpers
 import scalismo.utils.Random
 
