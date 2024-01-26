@@ -1,7 +1,7 @@
 package scalismo.mesh.decimate
 
 import scalismo.common.PointId
-import scalismo.geometry.{_3D, EuclideanVector3D, Point, SquareMatrix}
+import scalismo.geometry.{EuclideanVector, EuclideanVector3D, Point, SquareMatrix, _3D}
 import scalismo.mesh.{TriangleCell, TriangleList, TriangleMesh, TriangleMesh3D}
 
 import scala.collection.mutable.ArrayBuffer
@@ -9,120 +9,121 @@ import scala.collection.mutable.ArrayBuffer
 // and its java implementation: https://gist.github.com/jayfella/00a328b2dbdf6304078a821143b7aef7
 
 
-class MeshDecimation(mesh: TriangleMesh[_3D]) {
-  val numberOfPoints: Int = mesh.pointSet.numberOfPoints
-  val numberOfTriangles: Int = mesh.triangulation.triangles.length
+object MeshDecimation {
 
-  var triangles: ArrayBuffer[Triangle] = ArrayBuffer.empty
-  var vertices: ArrayBuffer[Vertex] = ArrayBuffer.empty
-  var refs: ArrayBuffer[Ref] = ArrayBuffer.empty
+  val MAX_ITERATIONS = 100;
 
-  private def initializeArrayBuffers(): Unit = {
-    mesh.triangulation.triangleIds.foreach(tid =>
-      triangles += Triangle(
-        cell = mesh.triangulation.triangle(tid)
+  private class Buffers(mesh: TriangleMesh[_3D]) {
+    val triangles = ArrayBuffer.from(
+      mesh.triangulation.triangles.map { t => Triangle(cell = t) }
+    )
+
+    val vertices = ArrayBuffer.from(
+      mesh.pointSet.pointIds.map(pid =>
+        Vertex(
+          point = mesh.pointSet.point(pid),
+          border = mesh.operations.pointIsOnBoundary(pid)
+        )
       )
     )
 
-    mesh.pointSet.pointIds.toIndexedSeq.foreach(pid =>
-      vertices += Vertex(
-        point = mesh.pointSet.point(pid),
-        border = mesh.operations.pointIsOnBoundary(pid)
-      )
-    )
-
-    mesh.triangulation.triangleIds.foreach { tid =>
-      mesh.triangulation.triangle(tid).pointIds.foreach { ptId =>
-        refs += Ref(tid = tid.id, tvertex = ptId.id)
+    val refs = ArrayBuffer.from(
+      mesh.triangulation.triangleIds.flatMap { tid =>
+        mesh.triangulation.triangle(tid).pointIds.map { ptId =>
+          Ref(tid = tid.id, tvertex = ptId.id)
+        }
       }
-    }
+    )
   }
 
-  def simplify(targetCount: Int, aggressiveness: Double): TriangleMesh[_3D] = {
+  def simplify(mesh: TriangleMesh[_3D], targetCount: Int, aggressiveness: Double): TriangleMesh[_3D] = {
+    val numberOfTriangles: Int = mesh.triangulation.triangles.length
+    val data = Buffers(mesh)
+
     var deletedTriangles = 0
 
     val deleted0: Vector[Boolean] = Vector.empty[Boolean]
     val deleted1: Vector[Boolean] = Vector.empty[Boolean]
 
-    val maxIterations = 100;
-
-    val triangleCount = numberOfTriangles
-
-    initializeArrayBuffers()
-
-    println(s"Target triangle count: ${targetCount}, from ${triangleCount}.")
+    println(s"Target triangle count: ${targetCount}, from ${numberOfTriangles}.")
     var iteration = 0
-    while (iteration < maxIterations) {
+    while (iteration < MAX_ITERATIONS) {
       println(
-        f"Iteration ${iteration} -> triangles [ deleted: ${deletedTriangles} : count: ${triangleCount - deletedTriangles} | removed: ${(deletedTriangles * 100 / triangleCount)}]"
+        f"Iteration ${iteration} -> triangles [ deleted: ${deletedTriangles} : count: ${numberOfTriangles - deletedTriangles} | removed: ${(deletedTriangles * 100 / numberOfTriangles)}]"
       )
 
-      if (triangleCount - deletedTriangles <= targetCount) {
-        iteration = maxIterations
+      if (numberOfTriangles - deletedTriangles <= targetCount) {
+        iteration = MAX_ITERATIONS // REMOVE? why not return or in while condition? same condition towards the end of the loop body
       }
 
       if (iteration % 5 == 0) {
-        updateMesh(iteration)
+        updateMesh(data,iteration)
       }
 
-      val threshold: Double = 0.000000001 * Math.pow((iteration + 3).toDouble, aggressiveness)
+      val threshold: Double = 1.0E-9 * Math.pow((iteration + 3).toDouble, aggressiveness)
 
-      triangles.mapInPlace(_.copy(dirty = false))
+      data.triangles.foreach(_.dirty = false)
 
-      triangles.indices.foreach {
+      data.triangles.indices.foreach {
         i => // DO NOT USE FOREACH as the triangles are updated within the loop - yes, I know, very ugly.
-          val t = triangles(i)
+          val t = data.triangles(i)
 
-          if (t.err.err(3) <= threshold && !t.deleted && !t.dirty) {
-            var j = 0;
-            while (j < 3) {
-              if (t.err.err(j) < threshold) {
-                val i0 = t.cell.pointIds(j).id
-                val i1 = t.cell.pointIds((j + 1) % 3).id
+          if (isTriangleRemovable(threshold, t)) {
+            var j = 0
+            while(j<3) {
+              if (t.err.vertexError(j) < threshold) {
+                val pid1 = t.cell.pointIds(j).id
+                val pid2 = t.cell.pointIds((j + 1) % 3).id
 
-                val v0 = vertices(i0)
-                val v1 = vertices(i1)
+                val pt1 = data.vertices(pid1)
+                val pt2 = data.vertices(pid2)
 
-                if (v0.border == v1.border) {
-                  val (_, p) = calculateError(v0, v1)
+                if (pt1.border == pt2.border) {
+                  val (_, p) = calculateError(pt1, pt2)
 
-                  val (flipped0, deleted0) = flipped(p, i1, v0)
-                  val (flipped1, deleted1) = flipped(p, i0, v1)
+                  val (flipped0, deleted0) = flipped(data,p, pid2, pt1)
+                  val (flipped1, deleted1) = flipped(data,p, pid1, pt2)
 
                   if (!flipped0 && !flipped1) {
-                    vertices(i0) = vertices(i0).copy(point = p.toPoint, q = v0.q.add(v1.q))
-                    val tstart = refs.length
+                    data.vertices(pid1).point = p.toPoint
+                    data.vertices(pid1).q = pt1.q.add(pt2.q)
+                    val tstart = data.refs.length
 
-                    deletedTriangles += updateTriangles(i0, v0, deleted0)
-                    deletedTriangles += updateTriangles(i0, v1, deleted1)
+                    deletedTriangles += updateTriangles(data,pid1, pt1, deleted0)
+                    deletedTriangles += updateTriangles(data,pid1, pt2, deleted1)
 
-                    val tcount = refs.length - tstart
-                    vertices(i0) = vertices(i0).copy(tstart = tstart, tcount = tcount)
+                    val tcount = data.refs.length - tstart
+                    data.vertices(pid1).tstart = tstart
+                    data.vertices(pid1).tcount = tcount
                     j = 3
                   }
                 }
               }
               j += 1
             }
-            if (triangleCount - deletedTriangles <= targetCount) {
-              iteration = maxIterations
+            if (numberOfTriangles - deletedTriangles <= targetCount) {
+              iteration = MAX_ITERATIONS
             }
           }
       }
       iteration += 1
     }
 
-    compactMesh(vertices, triangles)
+    compactMesh(data.vertices, data.triangles)
   }
 
-  private def flipped(p: EuclideanVector3D, i1: Int, v0: Vertex): (Boolean, Array[Boolean]) = {
+  private def isTriangleRemovable(threshold: Double, t: Triangle) = {
+    t.err.minVertexError <= threshold && !t.deleted && !t.dirty
+  }
+
+  private def flipped(data: Buffers, p: EuclideanVector3D, i1: Int, v0: Vertex): (Boolean, Array[Boolean]) = {
     val deleted = Array.fill(v0.tcount)(false)
     var returnValue = false
     var k = 0
     val counterMaxValue = v0.tcount
     while (k < counterMaxValue) {
-      val ref = refs(v0.tstart + k)
-      val t = triangles(ref.tid)
+      val ref = data.refs(v0.tstart + k)
+      val t = data.triangles(ref.tid)
 
       if (!t.deleted) {
         val s = ref.tvertex
@@ -131,8 +132,8 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
         if (id1 == i1 || id2 == i1) {
           deleted(k) = true
         } else {
-          val d1 = (vertices(id1).point.-(p)).toVector.normalize
-          val d2 = (vertices(id2).point.-(p)).toVector.normalize
+          val d1 = (data.vertices(id1).point.-(p)).toVector.normalize
+          val d2 = (data.vertices(id2).point.-(p)).toVector.normalize
 
           if (Math.abs(d1.dot(d2)) > 0.999) {
             returnValue = true
@@ -151,21 +152,21 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     (returnValue, deleted)
   }
 
-  private def updateTriangles(i0: Int, v: Vertex, deleted: Array[Boolean]): Int = {
+  private def updateTriangles(data: Buffers, i0: Int, v: Vertex, deleted: Array[Boolean]): Int = {
     var triangleDeleted = 0
 
     (0 until v.tcount).foreach { k =>
-      val r = refs(v.tstart + k)
-      val t = triangles(r.tid)
+      val r = data.refs(v.tstart + k)
+      val t = data.triangles(r.tid)
 
       if (!t.deleted) {
         if (deleted(k)) {
-          triangles(r.tid) = t.copy(deleted = true)
+          data.triangles(r.tid) = t.copy(deleted = true)
           triangleDeleted += 1
         } else {
-          val err0 = calculateError(vertices(t.cell.ptId1.id), vertices(t.cell.ptId2.id))._1
-          val err1 = calculateError(vertices(t.cell.ptId2.id), vertices(t.cell.ptId3.id))._1
-          val err2 = calculateError(vertices(t.cell.ptId3.id), vertices(t.cell.ptId1.id))._1
+          val err0 = calculateError(data.vertices(t.cell.ptId1.id), data.vertices(t.cell.ptId2.id))._1
+          val err1 = calculateError(data.vertices(t.cell.ptId2.id), data.vertices(t.cell.ptId3.id))._1
+          val err2 = calculateError(data.vertices(t.cell.ptId3.id), data.vertices(t.cell.ptId1.id))._1
           val err3 = Math.min(err0, Math.min(err1, err2))
           val err = ErrorEntry(
             Array[Double](
@@ -179,12 +180,12 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
             if (r.tvertex == 0) t.cell.copy(ptId1 = PointId(i0))
             else if (r.tvertex == 1) t.cell.copy(ptId2 = PointId(i0))
             else t.cell.copy(ptId3 = PointId(i0))
-          triangles(r.tid) = t.copy(
+          data.triangles(r.tid) = t.copy(
             cell = vNew,
             dirty = true,
             err = err
           )
-          refs += r
+          data.refs += r
         }
       }
     }
@@ -195,39 +196,39 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     (p(1) - p(0)).crossproduct(p(2) - p(0)).normalize
   }
 
-  private def cellToPoints(cell: TriangleCell): Seq[Point[_3D]] = {
-    cell.pointIds.map{ id => vertices(id.id).point }
+  private def cellToPoints(data: Buffers, cell: TriangleCell): Seq[Point[_3D]] = {
+    cell.pointIds.map{ id => data.vertices(id.id).point }
   }
 
-  private def updateMesh(iteration: Int): Unit = {
+  private def updateMesh(data: Buffers, iteration: Int): Unit = {
     if (iteration > 0) {
-      triangles.filterInPlace(!_.deleted)
+      data.triangles.filterInPlace(!_.deleted)
     }
 
-    vertices.map{ v =>
+    data.vertices.map{ v =>
       v.tcount = 0
     }
 
-    triangles.foreach { t =>
+    data.triangles.foreach { t =>
       t.cell.pointIds.foreach { pid =>
-        vertices(pid.id).tcount += 1
+        data.vertices(pid.id).tcount += 1
       }
     }
 
     var tstart = 0;
-    vertices.foreach { v =>
+    data.vertices.foreach { v =>
       v.tstart = tstart
       tstart += v.tcount
       v.tcount = 0
     }
 
-    refs.dropRightInPlace(refs.length - triangles.length * 3)
+    data.refs.dropRightInPlace(data.refs.length - data.triangles.length * 3)
 
-    triangles.zipWithIndex.foreach { case (t, i) =>
+    data.triangles.zipWithIndex.foreach { case (t, i) =>
       t.cell.pointIds.zipWithIndex.foreach { case (pid, j) =>
-        val v = vertices(pid.id)
+        val v = data.vertices(pid.id)
         val rId = v.tstart + v.tcount
-        val r = refs(rId)
+        val r = data.refs(rId)
         r.tid = i
         r.tvertex = j
         v.tcount = v.tcount + 1
@@ -235,18 +236,18 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     }
 
     if (iteration == 0) {
-      onFirstIteration()
+      onFirstIteration(data)
     }
   }
 
-  private def onFirstIteration(): Unit = {
+  private def onFirstIteration(data: Buffers): Unit = {
     // calculate all face normals and the q value for each vertex.
-    triangles.foreach { t =>
-      val points = cellToPoints(t.cell)
+    data.triangles.foreach { t =>
+      val points = cellToPoints(data,t.cell)
       val n = calculateNormal(points)
       t.n = n
       t.cell.pointIds.foreach { id =>
-        val v = vertices(id.id)
+        val v = data.vertices(id.id)
         v.q = v.q.add(
           SymmetricMatrix(n.x, n.y, n.z, -n.dot(points(0).toVector))
         )
@@ -254,12 +255,12 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
     }
 
     // calculate the error for each vertex, which uses the former q values
-    triangles.foreach { t =>
+    data.triangles.foreach { t =>
       (0 until 3).foreach { j =>
-        val (e, _) = calculateError(vertices(t.cell.pointIds(j).id), vertices(t.cell.pointIds((j + 1) % 3).id))
-        t.err.err(j) = e
+        val (e, _) = calculateError(data.vertices(t.cell.pointIds(j).id), data.vertices(t.cell.pointIds((j + 1) % 3).id))
+        t.err.vertexError(j) = e
       }
-      t.err.err(3) = Math.min(t.err.err(0), Math.min(t.err.err(1),t.err.err(2)))
+      t.err.minVertexError = t.err.vertexError.min
     }
   }
 
@@ -321,28 +322,39 @@ class MeshDecimation(mesh: TriangleMesh[_3D]) {
       + q.m(9)
   }
 
-  def calculateError(v1: Vertex, v2: Vertex): (Double, EuclideanVector3D) = {
+  def calculateError(v1: Vertex, v2: Vertex): (Double, EuclideanVector[_3D]) = {
     // compute interpolated vertex
     val q: SymmetricMatrix = v1.q.add(v2.q)
-    val border: Boolean = v1.border & v2.border
-    val det: Double = SymmetricMatrix.det(q.m(0), q.m(1), q.m(2), q.m(1), q.m(4), q.m(5), q.m(2), q.m(5), q.m(7))
-    val (error, p) = if (det != 0 && !border) {
-      val dInv = 1 / det
-      val vec = EuclideanVector3D(
-        x = (-dInv * (SymmetricMatrix.det(q.m(1), q.m(2), q.m(3), q.m(4), q.m(5), q.m(6), q.m(5), q.m(7), q.m(8)))),
-        y = (dInv * (SymmetricMatrix.det(q.m(0), q.m(2), q.m(3), q.m(1), q.m(5), q.m(6), q.m(2), q.m(7), q.m(8)))),
-        z = (-dInv * (SymmetricMatrix.det(q.m(0), q.m(1), q.m(3), q.m(1), q.m(4), q.m(6), q.m(2), q.m(5), q.m(8))))
-      )
-      val error: Double = vertexError(q, vec.x, vec.y, vec.z)
-      (error, vec)
+    val border: Boolean = v1.border && v2.border
+
+    if (!border) {
+      val det: Double = SymmetricMatrix.det(q.m(0), q.m(1), q.m(2), q.m(1), q.m(4), q.m(5), q.m(2), q.m(5), q.m(7))
+      if (det != 0) {
+        optimizePosition(q, det)
+      } else {
+        selectVertexOrMidpoint(v1, v2, q)
+      }
     } else {
-      val p1 = v1.point.toVector
-      val p2 = v2.point.toVector
-      val p3 = (p1+p2)/2.0
-      Seq(p1,p2,p3).map{
-        p => (vertexError(q,p.x,p.y,p.z),p)
-      }.minBy(_._1)
+      selectVertexOrMidpoint(v1, v2, q)
     }
-    (error, p)
+  }
+  private def selectVertexOrMidpoint(v1: Vertex, v2: Vertex, q: SymmetricMatrix) = {
+    val p1 = v1.point.toVector
+    val p2 = v2.point.toVector
+    val p3 = (p1 + p2) / 2.0
+    Seq(p1, p2, p3).map {
+      p => (vertexError(q, p.x, p.y, p.z), p)
+    }.minBy(_._1)
+  }
+
+  private def optimizePosition(q: SymmetricMatrix, det: Double) = {
+    val dInv = 1 / det
+    val vec = EuclideanVector3D(
+      x = (-dInv * (SymmetricMatrix.det(q.m(1), q.m(2), q.m(3), q.m(4), q.m(5), q.m(6), q.m(5), q.m(7), q.m(8)))),
+      y = (dInv * (SymmetricMatrix.det(q.m(0), q.m(2), q.m(3), q.m(1), q.m(5), q.m(6), q.m(2), q.m(7), q.m(8)))),
+      z = (-dInv * (SymmetricMatrix.det(q.m(0), q.m(1), q.m(3), q.m(1), q.m(4), q.m(6), q.m(2), q.m(5), q.m(8))))
+    )
+    val error: Double = vertexError(q, vec.x, vec.y, vec.z)
+    (error, vec)
   }
 }
