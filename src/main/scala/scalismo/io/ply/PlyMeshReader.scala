@@ -21,6 +21,7 @@ import scalismo.io.FileReader
 import scalismo.mesh.{SurfacePointProperty, TriangleList, TriangleMesh, TriangleMesh3D, VertexColorMesh3D}
 
 import java.io.{BufferedReader, File, RandomAccessFile}
+
 import java.nio.{ByteBuffer, ByteOrder}
 import scala.util.{Failure, Success, Try}
 
