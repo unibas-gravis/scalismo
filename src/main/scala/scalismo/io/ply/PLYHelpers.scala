@@ -110,9 +110,9 @@ object PLYHelpers {
   }
 
   def getFacePropertyIndex(items: Seq[PLYProperty]): PropertyFaceIndexes = {
-    val faceIndex: Option[Int] = VERTEX_INDEX_PROPERTY_NAMES.collectFirst { f =>
+    val faceIndex: Option[Int] = VERTEX_INDEX_PROPERTY_NAMES.flatMap { f =>
       getPropertyIndex(items, f)
-    }.flatten
+    }.headOption
     PropertyFaceIndexes(faceIndex)
   }
 
