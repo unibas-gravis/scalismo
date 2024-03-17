@@ -24,7 +24,7 @@ class StatismoIOTests extends ScalismoTestSuite {
 
   describe("the StatismoIO methods") {}
 
-  it("can write and read again a domain without cells") {
+  it("can write and read UnstructuredPointsDomain") {
 
     val upd = UnstructuredPointsDomain(
       IndexedSeq(
