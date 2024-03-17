@@ -22,39 +22,44 @@ class StatismoIOTests extends ScalismoTestSuite {
     }
   }
 
-  describe("the StatismoIO methods") {}
+  describe("the StatismoIO methods") {
 
-  it("can write and read UnstructuredPointsDomain") {
+    it("can write and read UnstructuredPointsDomain") {
+      val tmpDir = Files.createTempDirectory("test-StatismoIO")
+      tmpDir.toFile.deleteOnExit()
+      val tmpFile = new File(tmpDir.toFile, "UnstructuredPointsDomain.h5.json")
+      tmpFile.deleteOnExit()
 
-    val upd = UnstructuredPointsDomain(
-      IndexedSeq(
-        Point3D(0,1,2),
+      val dataToWrite = UnstructuredPointsDomain(
+        IndexedSeq(
+          Point3D(0, 1, 2),
+        )
       )
-    )
 
-    val tmpDir = Files.createTempDirectory("test-StatismoIO")
-    tmpDir.toFile.deleteOnExit()
-    val dummyFile = new File(tmpDir.toFile, "empty-representer.h5.json")
+      val modelPath = HDFPath("/")
+      val representerPath = HDFPath(modelPath, "representer")
 
-    val modelPath = HDFPath("/")
-    val representerPath = HDFPath(modelPath,"representer")
+      // helper to test / call private methods
+      val writerMethod = PrivateMethod[Try[Unit]](Symbol("writeRepresenterStatismov090"))
+      val readerMethod = PrivateMethod[Try[UnstructuredPointsDomain[_3D]]](Symbol("readStandardMeshRepresentation"))
+      val ndSpace = scalismo.geometry.Dim.ThreeDSpace
+      val domainIO = scalismo.io.StatismoDomainIO.domainIOUnstructuredPoints3D
+      val vectorizer = scalismo.geometry.EuclideanVector.Vector_3DVectorizer
 
-    val privateMethodWriter = PrivateMethod[Try[Unit]](Symbol("writeRepresenterStatismov090"))
-    val privateMethodReader = PrivateMethod[Try[UnstructuredPointsDomain[_3D]]](Symbol("readStandardMeshRepresentation"))
-
-    val t = for {
-      h5out <- StatisticalModelIOUtils.openFileForWriting(dummyFile)
-      t <- StatismoIO invokePrivate privateMethodWriter(h5out, representerPath, upd, modelPath, scalismo.geometry.Dim.ThreeDSpace, scalismo.io.StatismoDomainIO.domainIOUnstructuredPoints3D)
-      _ <- h5out.write()
-      _ <- Try {
-        h5out.close()
+      val t = for {
+        h5Out <- StatisticalModelIOUtils.openFileForWriting(tmpFile)
+        t <- StatismoIO invokePrivate writerMethod(h5Out, representerPath, dataToWrite, modelPath, ndSpace, domainIO)
+        _ <- h5Out.write()
+        _ <- Try {
+          h5Out.close()
+        }
+        h5In <- StatisticalModelIOUtils.openFileForReading(tmpFile)
+        loaded <- StatismoIO invokePrivate readerMethod(h5In, modelPath, ndSpace, domainIO, vectorizer)
+      } yield {
+        assertModelAlmostEqual(dataToWrite, loaded)
       }
-      h5file <- StatisticalModelIOUtils.openFileForReading(dummyFile)
-      loadedRefMesh <- StatismoIO invokePrivate privateMethodReader(h5file, modelPath, scalismo.geometry.Dim.ThreeDSpace, scalismo.io.StatismoDomainIO.domainIOUnstructuredPoints3D, scalismo.geometry.EuclideanVector.Vector_3DVectorizer)
-    } yield {
-      assertModelAlmostEqual(upd, loadedRefMesh)
-    }
-    t.get
 
+      t.get
+    }
   }
 }
