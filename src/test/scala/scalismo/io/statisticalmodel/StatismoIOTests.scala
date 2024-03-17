@@ -1,7 +1,7 @@
 package scalismo.io.statisticalmodel
 
 import org.scalatest.PrivateMethodTester.*
-import scalismo.geometry.{Point3D, _3D}
+import scalismo.geometry.{_3D, Point3D}
 import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.io.StatisticalModelIO
 import scalismo.ScalismoTestSuite
@@ -17,8 +17,8 @@ import scala.util.Try
 
 class StatismoIOTests extends ScalismoTestSuite {
   def assertModelAlmostEqual[D](m1: UnstructuredPointsDomain[D], m2: UnstructuredPointsDomain[D]): Unit = {
-    m1.pointSet.pointSequence.zip(m2.pointSet.pointSequence).foreach{ case (a,b) =>
-      assert((a-b).norm < 1e-5)
+    m1.pointSet.pointSequence.zip(m2.pointSet.pointSequence).foreach { case (a, b) =>
+      assert((a - b).norm < 1e-5)
     }
   }
 
@@ -32,7 +32,7 @@ class StatismoIOTests extends ScalismoTestSuite {
 
       val dataToWrite = UnstructuredPointsDomain(
         IndexedSeq(
-          Point3D(0, 1, 2),
+          Point3D(0, 1, 2)
         )
       )
 
