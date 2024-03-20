@@ -44,6 +44,21 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       t.get
     }
 
+    it("can convert a 2D TriangleMesh without triangles") {
+      val unstructuredPoints =
+        CreateUnstructuredPoints2D.create(IndexedSeq(Point2D(0, 0), Point2D(1, 0), Point2D(1, 1)))
+      val topology = TriangleList(IndexedSeq())
+      val input = TriangleMesh2D(unstructuredPoints, topology)
+      val t = for {
+        output <- StatismoDomainIO.domainIOTriangleMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
+                                                                                None
+        )
+      } yield {
+        assert(input == output)
+      }
+      t.get
+    }
+
     it("can convert a 3D TriangleMesh") {
       val unstructuredPoints =
         CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 1, 0)))
@@ -53,6 +68,21 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val t = for {
         output <- StatismoDomainIO.domainIOTriangleMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
                                                                                 Option(cellsAsArray)
+        )
+      } yield {
+        assert(input == output)
+      }
+      t.get
+    }
+
+    it("can convert a 3D TriangleMesh without triangles") {
+      val unstructuredPoints =
+        CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 1, 0)))
+      val topology = TriangleList(IndexedSeq())
+      val input = TriangleMesh3D(unstructuredPoints, topology)
+      val t = for {
+        output <- StatismoDomainIO.domainIOTriangleMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
+                                                                                None
         )
       } yield {
         assert(input == output)
@@ -76,6 +106,21 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       t.get
     }
 
+    it("can convert a 3D TetrahedralMesh without tetrahedrons") {
+      val unstructuredPoints = CreateUnstructuredPoints3D.create(
+        IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 1, 0), Point3D(1, 1, 1))
+      )
+      val topology = TetrahedralList(IndexedSeq())
+      val input = TetrahedralMesh3D(unstructuredPoints, topology)
+      val t = for {
+        output <- StatismoDomainIO.domainIOTetrahedralMesh3D
+          .createDomainWithCells(unstructuredPoints.points.toIndexedSeq, None)
+      } yield {
+        assert(input == output)
+      }
+      t.get
+    }
+
     it("can convert a 2D LineMesh") {
       val unstructuredPoints = CreateUnstructuredPoints2D.create(IndexedSeq(Point2D(0, 0), Point2D(1, 0)))
       val topology = LineList(IndexedSeq(LineCell(PointId(0), PointId(1))))
@@ -84,6 +129,20 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val t = for {
         output <- StatismoDomainIO.domainIOLineMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
                                                                             Option(cellsAsArray)
+        )
+      } yield {
+        assert(input == output)
+      }
+      t.get
+    }
+
+    it("can convert a 2D LineMesh without lines") {
+      val unstructuredPoints = CreateUnstructuredPoints2D.create(IndexedSeq(Point2D(0, 0), Point2D(1, 0)))
+      val topology = LineList(IndexedSeq())
+      val input = LineMesh2D(unstructuredPoints, topology)
+      val t = for {
+        output <- StatismoDomainIO.domainIOLineMesh2D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
+                                                                            None
         )
       } yield {
         assert(input == output)
@@ -100,6 +159,21 @@ class StatismoDomainIOTests extends ScalismoTestSuite {
       val t = for {
         output <- StatismoDomainIO.domainIOLineMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
                                                                             Option(cellsAsArray)
+        )
+      } yield {
+        assert(input == output)
+      }
+      t.get
+    }
+
+    it("can convert a 3D LineMesh without lines") {
+      val unstructuredPoints =
+        CreateUnstructuredPoints3D.create(IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 1, 0)))
+      val topology = LineList(IndexedSeq())
+      val input = LineMesh3D(unstructuredPoints, topology)
+      val t = for {
+        output <- StatismoDomainIO.domainIOLineMesh3D.createDomainWithCells(unstructuredPoints.points.toIndexedSeq,
+                                                                            None
         )
       } yield {
         assert(input == output)
