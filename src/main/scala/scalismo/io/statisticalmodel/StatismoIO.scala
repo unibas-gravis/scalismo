@@ -290,8 +290,8 @@ object StatismoIO {
       points <- Try(
         for (i <- 0 until pointsMatrix.cols) yield vectorizer.unvectorize(pointsMatrix(::, i).copy).toPoint
       )
-      cells <- readStandardConnectiveityRepresenterGroup(h5file, modelPath)
-      domain <- typeHelper.createDomainWithCells(points, Option(cells))
+      cells = readStandardConnectiveityRepresenterGroup(h5file, modelPath).toOption
+      domain <- typeHelper.createDomainWithCells(points, cells)
     } yield domain
   }
 
@@ -307,7 +307,7 @@ object StatismoIO {
     val cells =
       if (h5file.exists(HDFPath(modelPath, "/representer/cells")))
         h5file.readNDArrayInt(HDFPath(modelPath, "/representer/cells"))
-      else Failure(new Throwable("No cells found in representer"))
+      else Failure[NDArray[Int]](new Throwable("No cells found in representer"))
     cells
   }
 
